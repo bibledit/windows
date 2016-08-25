@@ -3,3 +3,4 @@
 *.ilk
 *Debug*
 *.db
+*.opendb
