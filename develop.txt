@@ -1,0 +1,20 @@
+Building Bibledit for Windows through Visual Studio Community 2015.
+
+
+There is a git repository on Windows 10 and there's one on on macOS. Keeping both repositories in sync ensure that the code and files on both operating systems are in sync.
+Visual Studio 2015 is used on Windows for building Bibledit for Windows.
+On macOS there's a script that refreshes the source of the Bibledit library.
+
+
+
+
+
+How to include the SQlite library.
+1. Download the native 32 or 64 bits SQLite DLL from http://sqlite.org.
+2. Extract the files sqlite3.dll and sqlite3.def and place them in the project’s source folder.
+3. Open a “Developer Command Prompt for VS2015” and navigate to this source folder.
+4. Create an import library using the following command line: LIB /DEF:sqlite3.def
+5. Add the library (that is sqlite3.lib) to the Project Properties -> Configuration Properties -> Linker -> Additional Dependencies.
+6. Download SQlite amalgamation with the same version number from http://sqlite.org.
+7. Unzip the sqlite3.h header file and place it into the source directory.
+You will need to include the sqlite3.dll in the same directory as your program, or in a System Folder.
