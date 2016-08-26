@@ -177,26 +177,131 @@
     <ClCompile Include="filter\md5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="database\config\bible.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\config\general.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\config\user.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\bibleactions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\bibles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\books.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\cache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\check.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\confirm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\etcbc4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\git.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\hebrewlexicon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\imageresources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\ipc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\jobs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\kjv.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\localization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\login.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\logs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\mail.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\maintenance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\mappings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\modifications.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\morphgnt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\navigation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\noteactions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\noteassignment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\notes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\oshb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\privileges.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\sblgnt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\sprint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\sqlite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\state.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\strong.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\styles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\userresources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\users.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\usfmresources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\versifications.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\volatile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="executable\bibledit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="access\bible.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="access\logic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="access\user.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="administration\language.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="administration\timezone.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="assets\header.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -205,165 +310,6 @@
     </ClInclude>
     <ClInclude Include="assets\view.h">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checks\versification.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checks\verses.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checks\usfm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checks\suppress.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checks\space.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checks\settingssentences.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checks\settingspatterns.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checks\settingspairs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bible\settings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checks\settings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checks\sentences.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checks\run.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checks\pairs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bible\order.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="changes\modifications.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bible\manage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="changes\manage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checks\logic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="changes\logic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checksum\logic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bible\logic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bible\abbreviations.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bible\book.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="book\books.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bootstrap\bootstrap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="changes\change.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="changes\changes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bible\chapter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="book\create.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bible\css.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bible\editing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checks\headers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bible\import.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bible\import_run.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="basic\index.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checks\index.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filter\abbreviations.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filter\archive.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filter\css.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filter\date.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filter\diff.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filter\git.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filter\md5.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filter\merge.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filter\passage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filter\roles.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filter\shell.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filter\string.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filter\string.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filter\text.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filter\url.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filter\usfm.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
