@@ -1,6 +1,8 @@
 *.exe
 *.suo
 *.ilk
-*Debug*
 *.db
 *.opendb
+*.obj
+*Debug*
+*.aps
