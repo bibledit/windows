@@ -32,12 +32,18 @@ sed -i.bak '/HAVE_LIBPROC/d' config.h
 sed -i.bak '/HAVE_EXECINFO/d' config.h
 
 
+# Disable threading in mbedTLS on Windows.
+sed -i.bak '/#define MBEDTLS_THREADING_C/d' mbedtls/config.h
+sed -i.bak '/#define MBEDTLS_THREADING_PTHREAD/d' mbedtls/config.h
+
+
 # Remove files and folders no longer needed after configure.
 find . -name ".deps" -type d -prune -exec rm -rf '{}' '+'
 rm aclocal.m4
 rm compile
 rm config.guess
 rm *.bak
+rm mbedtls/*.bak
 rm config.h.in
 rm config.log
 rm config.status
