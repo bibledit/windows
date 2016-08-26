@@ -5,5 +5,5 @@
 *.opendb
 *.obj
 *.aps
-*\Debug\*
+server/Debug*
 *.pdb
