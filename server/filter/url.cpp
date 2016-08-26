@@ -988,7 +988,7 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
   
   // Resolve the host.
   struct addrinfo hints;
-  struct addrinfo * address_results;
+  struct addrinfo * address_results = nullptr;
   bool address_info_resolved = false;
   if (!secure) {
     memset (&hints, 0, sizeof (struct addrinfo));
