@@ -4,5 +4,5 @@
 *.db
 *.opendb
 *.obj
-*Debug*
 *.aps
+*\Debug\*
