@@ -90,6 +90,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -102,9 +103,10 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,6 +124,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -138,9 +141,10 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,10 +154,129 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="access\bible.cpp" />
+    <ClCompile Include="access\logic.cpp" />
+    <ClCompile Include="access\user.cpp" />
+    <ClCompile Include="administration\language.cpp" />
+    <ClCompile Include="administration\timezone.cpp" />
+    <ClCompile Include="assets\header.cpp" />
+    <ClCompile Include="assets\page.cpp" />
+    <ClCompile Include="assets\view.cpp" />
+    <ClCompile Include="basic\index.cpp" />
+    <ClCompile Include="bible\abbreviations.cpp" />
+    <ClCompile Include="bible\book.cpp" />
+    <ClCompile Include="bible\chapter.cpp" />
+    <ClCompile Include="bible\css.cpp" />
+    <ClCompile Include="bible\editing.cpp" />
+    <ClCompile Include="bible\import.cpp" />
+    <ClCompile Include="bible\import_run.cpp" />
+    <ClCompile Include="bible\logic.cpp" />
+    <ClCompile Include="bible\manage.cpp" />
+    <ClCompile Include="bible\order.cpp" />
+    <ClCompile Include="bible\settings.cpp" />
+    <ClCompile Include="book\create.cpp" />
+    <ClCompile Include="bootstrap\bootstrap.cpp" />
+    <ClCompile Include="changes\change.cpp" />
+    <ClCompile Include="changes\changes.cpp" />
+    <ClCompile Include="changes\logic.cpp" />
+    <ClCompile Include="changes\manage.cpp" />
+    <ClCompile Include="changes\modifications.cpp" />
+    <ClCompile Include="checksum\logic.cpp" />
+    <ClCompile Include="checks\headers.cpp" />
+    <ClCompile Include="checks\index.cpp" />
+    <ClCompile Include="checks\logic.cpp" />
+    <ClCompile Include="checks\pairs.cpp" />
+    <ClCompile Include="checks\run.cpp" />
+    <ClCompile Include="checks\sentences.cpp">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="checks\settings.cpp" />
+    <ClCompile Include="checks\settingspairs.cpp" />
+    <ClCompile Include="checks\settingspatterns.cpp" />
+    <ClCompile Include="checks\settingssentences.cpp" />
+    <ClCompile Include="checks\space.cpp" />
+    <ClCompile Include="checks\suppress.cpp" />
+    <ClCompile Include="checks\usfm.cpp" />
+    <ClCompile Include="checks\verses.cpp" />
+    <ClCompile Include="checks\versification.cpp" />
     <ClCompile Include="executable\bibledit.cpp" />
+    <ClCompile Include="filter\md5.cpp" />
+    <ClCompile Include="filter\merge.cpp" />
+    <ClCompile Include="filter\passage.cpp" />
+    <ClCompile Include="filter\roles.cpp" />
+    <ClCompile Include="filter\shell.cpp" />
+    <ClCompile Include="filter\string.cpp" />
+    <ClCompile Include="filter\text.cpp" />
+    <ClCompile Include="filter\UriCodec.cpp" />
+    <ClCompile Include="filter\url.cpp" />
+    <ClCompile Include="filter\usfm.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="access\bible.h" />
+    <ClInclude Include="access\logic.h" />
+    <ClInclude Include="access\user.h" />
+    <ClInclude Include="administration\language.h" />
+    <ClInclude Include="administration\timezone.h" />
+    <ClInclude Include="assets\header.h" />
+    <ClInclude Include="assets\page.h" />
+    <ClInclude Include="assets\view.h" />
+    <ClInclude Include="basic\index.h" />
+    <ClInclude Include="bible\abbreviations.h" />
+    <ClInclude Include="bible\book.h" />
+    <ClInclude Include="bible\chapter.h" />
+    <ClInclude Include="bible\css.h" />
+    <ClInclude Include="bible\editing.h" />
+    <ClInclude Include="bible\import.h" />
+    <ClInclude Include="bible\import_run.h" />
+    <ClInclude Include="bible\logic.h" />
+    <ClInclude Include="bible\manage.h" />
+    <ClInclude Include="bible\order.h" />
+    <ClInclude Include="bible\settings.h" />
+    <ClInclude Include="book\books.h" />
+    <ClInclude Include="book\create.h" />
+    <ClInclude Include="bootstrap\bootstrap.h" />
+    <ClInclude Include="changes\change.h" />
+    <ClInclude Include="changes\changes.h" />
+    <ClInclude Include="changes\logic.h" />
+    <ClInclude Include="changes\manage.h" />
+    <ClInclude Include="changes\modifications.h" />
+    <ClInclude Include="checksum\logic.h" />
+    <ClInclude Include="checks\headers.h" />
+    <ClInclude Include="checks\index.h" />
+    <ClInclude Include="checks\logic.h" />
+    <ClInclude Include="checks\pairs.h" />
+    <ClInclude Include="checks\run.h" />
+    <ClInclude Include="checks\sentences.h" />
+    <ClInclude Include="checks\settings.h" />
+    <ClInclude Include="checks\settingspairs.h" />
+    <ClInclude Include="checks\settingspatterns.h" />
+    <ClInclude Include="checks\settingssentences.h" />
+    <ClInclude Include="checks\space.h" />
+    <ClInclude Include="checks\suppress.h" />
+    <ClInclude Include="checks\usfm.h" />
+    <ClInclude Include="checks\verses.h" />
+    <ClInclude Include="checks\versification.h" />
     <ClInclude Include="executable\bibledit.h" />
+    <ClInclude Include="filter\abbreviations.h" />
+    <ClInclude Include="filter\archive.h" />
+    <ClInclude Include="filter\css.h" />
+    <ClInclude Include="filter\date.h" />
+    <ClInclude Include="filter\diff.h" />
+    <ClInclude Include="filter\git.h" />
+    <ClInclude Include="filter\md5.h" />
+    <ClInclude Include="filter\merge.h" />
+    <ClInclude Include="filter\passage.h" />
+    <ClInclude Include="filter\roles.h" />
+    <ClInclude Include="filter\shell.h" />
+    <ClInclude Include="filter\string.h" />
+    <ClInclude Include="filter\string.hpp" />
+    <ClInclude Include="filter\text.h" />
+    <ClInclude Include="filter\url.h" />
+    <ClInclude Include="filter\usfm.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
