@@ -354,6 +354,411 @@
     <ClCompile Include="config\logic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="mbedtls\aes.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\aesni.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\arc4.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\asn1parse.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\asn1write.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\base64.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\bignum.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\blowfish.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\camellia.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ccm.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\certs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\cipher.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\cipher_wrap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ctr_drbg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\debug.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\des.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\dhm.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ecdh.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ecdsa.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ecjpake.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ecp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ecp_curves.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\entropy.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\entropy_poll.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\error.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\gcm.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\havege.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\hmac_drbg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\md.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\md_wrap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\md2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\md4.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\md5.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\memory_buffer_alloc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\net.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\oid.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\padlock.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\pem.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\pk.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\pk_wrap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\pkcs5.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\pkcs11.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\pkcs12.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\pkparse.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\pkwrite.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\platform.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ripemd160.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\rsa.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\sha1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\sha256.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\sha512.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ssl_cache.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ssl_ciphersuites.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ssl_cli.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ssl_cookie.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ssl_srv.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ssl_ticket.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ssl_tls.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\threading.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\timing.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\version.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\version_features.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\x509.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\x509_create.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\x509_crl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\x509_crt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\x509_csr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\x509write_crt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\x509write_csr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\xtea.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\index.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\logic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\organize.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="session\logic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="session\login.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="session\logout.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="session\password.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="session\signup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="session\switch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="esword\text.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="confirm\worker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="text\text.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="html\header.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="html\text.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pugixml\pugixml.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pugixml\utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="onlinebible\text.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odf\text.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="filter\archive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utf8proc\utf8proc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="library\bibledit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="library\locks.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sendreceive\bibles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sendreceive\changes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sendreceive\files.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sendreceive\index.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sendreceive\logic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sendreceive\notes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sendreceive\resources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sendreceive\sendreceive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sendreceive\settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="filter\git.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sync\bibles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sync\changes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sync\files.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sync\logic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sync\mail.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sync\notes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sync\resources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sync\settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sync\setup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sync\usfmresources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\bible2resource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\cache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\convert2bible.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\convert2resource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\download.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\external.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\get.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\imagefetch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\images.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\img.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\index.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\logic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\manage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\organize.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\print.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\select.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\sword.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\user1edit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\user1view.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\user9edit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\user9view.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assets\header.h">
