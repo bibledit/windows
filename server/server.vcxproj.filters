@@ -150,9 +150,6 @@
     <ClCompile Include="filter\usfm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="filter\UriCodec.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="filter\url.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1027,6 +1024,57 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="lexicon\logic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jsonxx\jsonxx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="json\json.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ipc\focus.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ipc\notes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="setup\index.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="setup\logic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="timer\index.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="filter\css.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="webserver\http.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="webserver\io.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="webserver\request.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="webserver\webserver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="parsewebdata\ParseMultipartFormData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="parsewebdata\ParseWebData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="versification\index.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="versification\logic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="versification\system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
