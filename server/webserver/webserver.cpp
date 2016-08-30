@@ -191,10 +191,34 @@ void http_server ()
   // Whether the plain http server redirects to secure http.
   config_globals_enforce_https_browser = config_logic_enforce_https_browser ();
   config_globals_enforce_https_client = config_logic_enforce_https_client ();
+
+#ifdef HAVE_VISUALSTUDIO
+  // On Windows, the first step is to call WSAStartup to startup the interface to WinSock.
   
+  // Desired minimum WinSock version.
+  WORD version = MAKEWORD(2, 0);
+  // Initialize the system.
+  WSADATA wsaData;
+  int error = WSAStartup (version, &wsaData);
+  // Check for error.
+  if (error != 0) {
+	  cerr << "Could not initialize Winsock" << endl;
+	  return;
+  }
+  // Check for correct version
+  if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 0) {
+	  cerr << "Incorrect WinSock version" << endl;
+	  return;
+  }
+  // WinSock has been initialized.
+#endif
+
   // Create a listening socket.
-  int listenfd = socket (AF_INET, SOCK_STREAM, 0);
-  if (listenfd < 0) cerr << "Error opening socket: It returns a descriptor of " << listenfd << endl;
+  int listenfd = socket (AF_INET, SOCK_STREAM, 111110);
+  if (listenfd < 0) {
+    cerr << "Error opening socket: It returns a descriptor of " << listenfd << endl;
+	return;
+  }
 
   // Eliminate "Address already in use" error from bind.
   int optval = 1;
@@ -267,6 +291,11 @@ void http_server ()
   
   // Close listening socket, freeing it for a possible subsequent server process.
   close (listenfd);
+
+#ifdef HAVE_VISUALSTUDIO
+  // Terminate the use of the Winsock DLL.
+  WSACleanup();
+#endif
 }
 
 
