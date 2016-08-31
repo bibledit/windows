@@ -5,5 +5,8 @@
 *.opendb
 *.obj
 *.aps
-server/Debug*
 *.pdb
+*.iobj
+*.ipdb
+server/Debug*
+server/Release*
