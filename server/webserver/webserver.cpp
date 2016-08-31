@@ -270,7 +270,10 @@ void http_server ()
     if (connfd > 0) {
 
       // Socket receive timeout, plain http. Todo CheckWindows
-#ifndef HAVE_VISUALSTUDIO
+#ifdef HAVE_VISUALSTUDIO
+      const char * tv = "600000"; // In milliseconds.
+      setsockopt (connfd, SOL_SOCKET, SO_RCVTIMEO, tv, sizeof (tv));
+#else
       struct timeval tv;
       tv.tv_sec = 60;
       tv.tv_usec = 0;
