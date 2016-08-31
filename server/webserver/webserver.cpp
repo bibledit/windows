@@ -192,38 +192,40 @@ void http_server ()
   config_globals_enforce_https_browser = config_logic_enforce_https_browser ();
   config_globals_enforce_https_client = config_logic_enforce_https_client ();
 
-#ifdef HAVE_VISUALSTUDIO
-  // On Windows, the first step is to call WSAStartup to startup the interface to WinSock.
+  bool listener_healthy = true;
   
-  // Desired minimum WinSock version.
-  WORD version = MAKEWORD(2, 0);
+  // On Windows, startup the interface to Windows Sockets.
+#ifdef HAVE_VISUALSTUDIO
+  // Desired minimum winsock version.
+  WORD version = MAKEWORD (2, 0);
   // Initialize the system.
   WSADATA wsaData;
   int error = WSAStartup (version, &wsaData);
   // Check for error.
   if (error != 0) {
-	  cerr << "Could not initialize Winsock" << endl;
-	  return;
+    cerr << "Could not initialize Windows Sockets" << endl;
+    listener_healthy = false;
   }
   // Check for correct version
   if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 0) {
-	  cerr << "Incorrect WinSock version" << endl;
-	  return;
+    cerr << "Incorrect Windows Sockets version" << endl;
+    listener_healthy = false;
   }
-  // WinSock has been initialized.
 #endif
 
   // Create a listening socket.
-  int listenfd = socket (AF_INET, SOCK_STREAM, 111110);
+  int listenfd = socket (AF_INET, SOCK_STREAM, 0);
   if (listenfd < 0) {
     cerr << "Error opening socket: It returns a descriptor of " << listenfd << endl;
-	return;
+    listener_healthy = false;
   }
 
   // Eliminate "Address already in use" error from bind.
   int optval = 1;
   int result = setsockopt (listenfd, SOL_SOCKET, SO_REUSEADDR, (const char *) &optval, sizeof (int));
-  if (result != 0) cerr << "Error setting socket options" << endl;
+  if (result != 0) {
+    cerr << "Error setting socket options" << endl;
+  }
 
   // The listening socket will be an endpoint for all requests to a port on this host.
   // When configured as a server it listens on any IP address.
@@ -241,19 +243,25 @@ void http_server ()
   serveraddr.sin_port = htons (convert_to_int (config_logic_http_network_port ()));
   result = mybind (listenfd, (SA *) &serveraddr, sizeof (serveraddr));
 #ifdef HAVE_VISUALSTUDIO
-  if (result == SOCKET_ERROR) // Todo CheckWindows
+  if (result == SOCKET_ERROR)
 #else
   if (result != 0)
 #endif
+  {
     cerr << "Error binding server to socket" << endl;
+    listener_healthy = false;
+  }
 
   // Make it a listening socket ready to accept many connection requests.
   result = listen (listenfd, 100);
-  if (result != 0) cerr << "Error listening on socket" << endl;
+  if (result != 0) {
+    listener_healthy = false;
+    cerr << "Error listening on socket" << endl;
+  }
 
   // Keep waiting for, accepting, and processing connections.
   config_globals_http_running = true;
-  while (config_globals_http_running) {
+  while (listener_healthy && config_globals_http_running) {
 
     // Socket and file descriptor for the client connection.
     struct sockaddr_in clientaddr;
@@ -292,8 +300,8 @@ void http_server ()
   // Close listening socket, freeing it for a possible subsequent server process.
   close (listenfd);
 
+  // On Windows, cleanup the used Windows Sockets.
 #ifdef HAVE_VISUALSTUDIO
-  // Terminate the use of the Winsock DLL.
   WSACleanup();
 #endif
 }
