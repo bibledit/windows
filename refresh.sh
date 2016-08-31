@@ -59,3 +59,10 @@ rm stamp-h1
 rmdir unittests
 rmdir sources
 
+
+# Back to directory where the script resides.
+cd $WINDOWSDIR
+
+
+# Clean stuff out.
+find . -name .DS_Store -delete
