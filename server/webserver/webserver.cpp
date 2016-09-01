@@ -283,7 +283,7 @@ void http_server ()
       setsockopt (connfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
 #endif
       
-      // The client's remote IPv4 address in dotted notation. Todo CheckWindows
+      // The client's remote IPv4 address in dotted notation. Todo Check on Windows.
       string clientaddress;
 #ifndef HAVE_VISUALSTUDIO
       char remote_address[256];
