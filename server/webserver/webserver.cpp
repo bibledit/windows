@@ -288,12 +288,12 @@ void http_server ()
   iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
   if (iResult != 0) {
     cerr << "Could not initialize Windows Sockets with error " << iResult << endl;
-    listener_healty = false;
+	listener_healty = false;
   }
   // Check for correct version
   if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2) {
     cerr << "Incorrect Windows Sockets version" << endl;
-    listener_healthy = false;
+	listener_healty = false;
   }
   
   
