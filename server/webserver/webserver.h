@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 void http_server ();
 void https_server ();
-void http_server_test ();
 
 
 #endif
