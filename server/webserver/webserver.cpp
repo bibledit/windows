@@ -218,11 +218,11 @@ void http_server ()
   serveraddr.sin_family = AF_INET;
   serveraddr.sin_addr.s_addr =
 #ifdef HAVE_CLIENT
-  htonl (INADDR_LOOPBACK);
+  htonl (INADDR_LOOPBACK); // Todo to Windows.
 #else
   htonl (INADDR_ANY);
 #endif
-  serveraddr.sin_port = htons (convert_to_int (config_logic_http_network_port ()));
+  serveraddr.sin_port = htons (convert_to_int (config_logic_http_network_port ())); // Todo to Windows.
   result = mybind (listenfd, (SA *) &serveraddr, sizeof (serveraddr));
   if (result != 0) {
     cerr << "Error binding server to socket" << endl;
@@ -237,8 +237,8 @@ void http_server ()
   }
 
   // Keep waiting for, accepting, and processing connections.
-  config_globals_http_running = true;
-  while (listener_healthy && config_globals_http_running) {
+  config_globals_http_running = true; // Todo to Windows.
+  while (listener_healthy && config_globals_http_running) { // Todo to Windows.
 
     // Socket and file descriptor for the client connection.
     struct sockaddr_in clientaddr;
@@ -259,9 +259,9 @@ void http_server ()
       clientaddress = remote_address;
       
       // Handle this request in a thread, enabling parallel requests.
-      thread request_thread = thread (webserver_process_request, connfd, clientaddress);
+      thread request_thread = thread (webserver_process_request, connfd, clientaddress);  // Todo to Windows.
       // Detach and delete thread object.
-      request_thread.detach ();
+      request_thread.detach ();  // Todo to Windows.
       
     } else {
       cerr << "Error accepting connection on socket" << endl;
@@ -380,7 +380,7 @@ void http_server ()
     }
     
     
-    // shutdown the connection since we're done
+    // Shutdown the connection since we're done
     iResult = shutdown(ClientSocket, SD_SEND);
     if (iResult == SOCKET_ERROR) {
       printf("shutdown failed with error: %d\n", WSAGetLastError());
