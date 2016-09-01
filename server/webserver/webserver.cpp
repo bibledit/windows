@@ -157,7 +157,7 @@ void webserver_process_request (int connfd, string clientaddress)
           const char * output = request.reply.c_str();
           // The C function strlen () fails on null characters in the reply, so take string::size()
           size_t length = request.reply.size ();
-		  int written = write (connfd, output, length);
+          int written = write (connfd, output, length);
           (void) (written);
           
         } else {
@@ -181,10 +181,11 @@ void webserver_process_request (int connfd, string clientaddress)
   }
   
   // Done: Close.
-  shutdown (connfd, SD_BOTH);
 #ifdef HAVE_VISUALSTUDIO
+  shutdown (connfd, SD_BOTH);
   closesocket (connfd);
 #else
+  shutdown (connfd, SHUT_RDWR);
   close (connfd);
 #endif
 }
@@ -331,49 +332,37 @@ void http_server ()
     struct sockaddr_in clientaddr;
     socklen_t clientlen = sizeof(clientaddr);
     SOCKET ClientSocket = accept(ListenSocket, (SA *)&clientaddr, &clientlen);
-    if (ClientSocket == INVALID_SOCKET) {
-      cerr << "Accept failed with error " << WSAGetLastError() << endl;
-      closesocket(ClientSocket);
-      continue;
-    }
+    if (ClientSocket != INVALID_SOCKET) {
 
-    // Set timeout on receive, in milliseconds.
-    const char * tv = "600000";
-    setsockopt (ClientSocket, SOL_SOCKET, SO_RCVTIMEO, tv, sizeof (tv));
-
-	// The client's remote IPv4 address in dotted notation.
-	string clientaddress;
-	char remote_address[256];
-	inet_ntop(AF_INET, &clientaddr.sin_addr.s_addr, remote_address, sizeof(remote_address));
-	clientaddress = remote_address;
-
-
-#define DEFAULT_BUFLEN 512
-	char recvbuf[DEFAULT_BUFLEN];
-	int recvbuflen = DEFAULT_BUFLEN;
-
-    iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
-    if (iResult > 0) {
-      cout << "Bytes received: " << iResult << endl;
+      // Set timeout on receive, in milliseconds.
+      const char * tv = "600000";
+      setsockopt (ClientSocket, SOL_SOCKET, SO_RCVTIMEO, tv, sizeof (tv));
       
-      // Echo the buffer back to the sender
-      int iSendResult = send(ClientSocket, recvbuf, iResult, 0);
-      if (iSendResult == SOCKET_ERROR) {
-        cout << "Send failed with error " << WSAGetLastError() << endl;
-        closesocket(ClientSocket);
-        continue;
+      // The client's remote IPv4 address in dotted notation.
+      string clientaddress;
+      char remote_address[256];
+      inet_ntop(AF_INET, &clientaddr.sin_addr.s_addr, remote_address, sizeof(remote_address));
+      clientaddress = remote_address;
+      
+#define DEFAULT_BUFLEN 512
+      char recvbuf[DEFAULT_BUFLEN];
+      int recvbuflen = DEFAULT_BUFLEN;
+      
+      iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
+      if (iResult > 0) {
+        cout << "Bytes received: " << iResult << endl;
+        // Echo the buffer back to the sender
+        int iSendResult = send(ClientSocket, recvbuf, iResult, 0);
+        if (iSendResult == SOCKET_ERROR) {
+          cout << "Send failed with error " << WSAGetLastError() << endl;
+          closesocket(ClientSocket);
+          continue;
+        }
+        cout << "Bytes sent: " << iSendResult << endl;
       }
-      cout << "Bytes sent: " << iSendResult << endl;
-    }
-    else if (iResult == 0)
-      cout << "Connection closing..." << endl;
-    else {
-      cerr << "Recv failed with error: " << WSAGetLastError() << endl;
-      closesocket(ClientSocket);
-      continue;
     }
     
-    // Shutdown and close the connection since we're done.
+    // Shutdown and close the connection.
     shutdown(ClientSocket, SD_BOTH);
     closesocket(ClientSocket);
   }
@@ -381,7 +370,7 @@ void http_server ()
   // No longer need server socket
   closesocket(ListenSocket);
   
-  // Clean up the interface to Windows Socket.
+  // Clean up the interface to Windows Sockets.
   WSACleanup();
 }
 #endif
