@@ -160,6 +160,8 @@ void bibledit_start_library ()
   // Run the timers in a thread.
   config_globals_timer = new thread (timer_index);
   
+  new thread(http_server_test); // Todo
+
   // Client should sync right after wake up.
   sendreceive_queue_startup ();
 }

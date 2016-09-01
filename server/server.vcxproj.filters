@@ -1298,5 +1298,17 @@
     <ClInclude Include="assets\view.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="webserver\http.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="webserver\io.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="webserver\request.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="webserver\webserver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

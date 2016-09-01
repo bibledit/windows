@@ -590,6 +590,10 @@
     <ClInclude Include="assets\header.h" />
     <ClInclude Include="assets\page.h" />
     <ClInclude Include="assets\view.h" />
+    <ClInclude Include="webserver\http.h" />
+    <ClInclude Include="webserver\io.h" />
+    <ClInclude Include="webserver\request.h" />
+    <ClInclude Include="webserver\webserver.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
