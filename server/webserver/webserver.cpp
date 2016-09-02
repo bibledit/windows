@@ -38,13 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #endif
 
 
-// Work around Windows quirks
-#ifdef HAVE_VISUALSTUDIO
-#define read _read
-#define write _write
-#endif
-
-
 // Gets a line from a socket.
 // The line may end with a newline, a carriage return, or a CR-LF combination.
 // It terminates the string read with a null character.
@@ -130,8 +123,9 @@ void webserver_process_request (int connfd, string clientaddress)
           bool done_reading = false;
           int total_bytes_read = 0;
           do {
-            bytes_read = read (connfd, buffer, BUFFERSIZE);
-            for (int i = 0; i < bytes_read; i++) {
+			  // Todo check bytes_read = read(connfd, buffer, BUFFERSIZE);
+			  bytes_read = recv(connfd, buffer, BUFFERSIZE, 0);
+			  for (int i = 0; i < bytes_read; i++) {
               postdata += buffer [i];
             }
             // EOF indicates reading is ready.
@@ -157,15 +151,11 @@ void webserver_process_request (int connfd, string clientaddress)
           const char * output = request.reply.c_str();
           // The C function strlen () fails on null characters in the reply, so take string::size()
           size_t length = request.reply.size ();
-          int written = write (connfd, output, length);
-          (void) (written);
+		  // Todo test int written = write(connfd, output, length);
+		  int written = send(connfd, output, length, 0);
+		  (void) (written);
           
-        } else {
-          // cerr << "Insufficient data received, closing connection" << endl;
         }
-
-      } else {
-        // cerr << "Unhealthy connection was closed" << endl;
       }
     }
   } catch (exception & e) {
@@ -261,9 +251,9 @@ void http_server ()
       clientaddress = remote_address;
       
       // Handle this request in a thread, enabling parallel requests.
-      thread request_thread = thread (webserver_process_request, connfd, clientaddress);  // Todo to Windows.
+      thread request_thread = thread (webserver_process_request, connfd, clientaddress);
       // Detach and delete thread object.
-      request_thread.detach ();  // Todo to Windows.
+      request_thread.detach ();
       
     } else {
       cerr << "Error accepting connection on socket" << endl;
@@ -280,25 +270,25 @@ void http_server ()
 // This http server uses Windows sockets.
 void http_server ()
 {
-  int iResult;
+  int result;
   bool listener_healthy = true;
   
   // Initialize the interface to Windows Sockets.
-  WSADATA wsaData;
-  iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-  if (iResult != 0) {
-    cerr << "Could not initialize Windows Sockets with error " << iResult << endl;
+  WSADATA wsa_data;
+  result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
+  if (result != 0) {
+    cerr << "Could not initialize Windows Sockets with error " << result << endl;
     listener_healthy = false;
   }
   // Check for the correct requested Windows Sockets interface version.
-  if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2) {
+  if (LOBYTE(wsa_data.wVersion) != 2 || HIBYTE(wsa_data.wVersion) != 2) {
     cerr << "Incorrect Windows Sockets version" << endl;
     listener_healthy = false;
   }
   
   // Create a socket for listening for incoming connections.
-  SOCKET ListenSocket = socket(AF_INET, SOCK_STREAM, 0);
-  if (ListenSocket == INVALID_SOCKET) {
+  SOCKET listen_socket = socket(AF_INET, SOCK_STREAM, 0);
+  if (listen_socket == INVALID_SOCKET) {
     cerr << "Socket failed with error " << WSAGetLastError() << endl;
     listener_healthy = false;
   }
@@ -311,15 +301,15 @@ void http_server ()
   serveraddr.sin_family = AF_INET;
   serveraddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   serveraddr.sin_port = htons(convert_to_int(config_logic_http_network_port()));
-  iResult = mybind(ListenSocket, (SA *)&serveraddr, sizeof(serveraddr));
-  if (iResult == SOCKET_ERROR) {
+  result = mybind(listen_socket, (SA *)&serveraddr, sizeof(serveraddr));
+  if (result == SOCKET_ERROR) {
 	  cerr << "Error binding server to socket" << endl;
 	  listener_healthy = false;
   }
 
   // Listen for multiple connections.
-  iResult = listen(ListenSocket, SOMAXCONN);
-  if (iResult == SOCKET_ERROR) {
+  result = listen(listen_socket, SOMAXCONN);
+  if (result == SOCKET_ERROR) {
     cerr << "Listen failed with error " << WSAGetLastError() << endl;
     listener_healthy = false;
   }
@@ -331,12 +321,12 @@ void http_server ()
     // Accept a client socket.
     struct sockaddr_in clientaddr;
     socklen_t clientlen = sizeof(clientaddr);
-    SOCKET ClientSocket = accept(ListenSocket, (SA *)&clientaddr, &clientlen);
-    if (ClientSocket != INVALID_SOCKET) {
+    SOCKET client_socket = accept(listen_socket, (SA *)&clientaddr, &clientlen);
+    if (client_socket != INVALID_SOCKET) {
 
       // Set timeout on receive, in milliseconds.
       const char * tv = "600000";
-      setsockopt (ClientSocket, SOL_SOCKET, SO_RCVTIMEO, tv, sizeof (tv));
+      setsockopt (client_socket, SOL_SOCKET, SO_RCVTIMEO, tv, sizeof (tv));
       
       // The client's remote IPv4 address in dotted notation.
       string clientaddress;
@@ -344,31 +334,21 @@ void http_server ()
       inet_ntop(AF_INET, &clientaddr.sin_addr.s_addr, remote_address, sizeof(remote_address));
       clientaddress = remote_address;
       
-#define DEFAULT_BUFLEN 512
-      char recvbuf[DEFAULT_BUFLEN];
-      int recvbuflen = DEFAULT_BUFLEN;
-      
-      iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
-      if (iResult > 0) {
-        cout << "Bytes received: " << iResult << endl;
-        // Echo the buffer back to the sender
-        int iSendResult = send(ClientSocket, recvbuf, iResult, 0);
-        if (iSendResult == SOCKET_ERROR) {
-          cout << "Send failed with error " << WSAGetLastError() << endl;
-          closesocket(ClientSocket);
-          continue;
-        }
-        cout << "Bytes sent: " << iSendResult << endl;
-      }
+	  // On Linux and related operating systems, 
+	  // it would handle this request in a thread, 
+	  // enabling parallel requests.
+	  // But on Windows this does not work as it is.
+	  // Thus Windows processes request in sequence.
+	  webserver_process_request(client_socket, clientaddress);
     }
     
     // Shutdown and close the connection.
-    shutdown(ClientSocket, SD_BOTH);
-    closesocket(ClientSocket);
+    shutdown(client_socket, SD_BOTH);
+    closesocket(client_socket);
   }
   
   // No longer need server socket
-  closesocket(ListenSocket);
+  closesocket(listen_socket);
   
   // Clean up the interface to Windows Sockets.
   WSACleanup();
