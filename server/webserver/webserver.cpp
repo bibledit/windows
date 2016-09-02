@@ -83,7 +83,7 @@ void webserver_process_request (int connfd, string clientaddress)
   
   // This is the plain http server.
   request.secure = false;
-
+  
   // Store remote client address in the request.
   request.remote_address = clientaddress;
   
@@ -123,9 +123,8 @@ void webserver_process_request (int connfd, string clientaddress)
           bool done_reading = false;
           int total_bytes_read = 0;
           do {
-			  // Todo check bytes_read = read(connfd, buffer, BUFFERSIZE);
-			  bytes_read = recv(connfd, buffer, BUFFERSIZE, 0);
-			  for (int i = 0; i < bytes_read; i++) {
+            bytes_read = recv(connfd, buffer, BUFFERSIZE, 0);
+            for (int i = 0; i < bytes_read; i++) {
               postdata += buffer [i];
             }
             // EOF indicates reading is ready.
@@ -140,7 +139,7 @@ void webserver_process_request (int connfd, string clientaddress)
         }
         
         if (connection_healthy) {
-
+          
           http_parse_post (postdata, &request);
           
           // Assemble response.
@@ -151,10 +150,7 @@ void webserver_process_request (int connfd, string clientaddress)
           const char * output = request.reply.c_str();
           // The C function strlen () fails on null characters in the reply, so take string::size()
           size_t length = request.reply.size ();
-		  // Todo test int written = write(connfd, output, length);
-		  int written = send(connfd, output, length, 0);
-		  (void) (written);
-          
+          send(connfd, output, length, 0);
         }
       }
     }
@@ -359,7 +355,7 @@ void http_server ()
 // Processes a single request from a web client.
 void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_context client_fd)
 {
-  // Socket receive timeout, secure https. Todo CheckWindows
+  // Socket receive timeout, secure https.
 #ifndef HAVE_VISUALSTUDIO
   struct timeval tv;
   tv.tv_sec = 60;
@@ -383,17 +379,13 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
 
     if (config_globals_https_running) {
 
-      // Get client's remote IPv4 address in dotted notation and put it in the webserver request object. Todo CheckWindows
-#ifdef HAVE_VISUALSTUDIO
-      request.remote_address = "127.0.0.1";
-#else
+      // Get client's remote IPv4 address in dotted notation and put it in the webserver request object.
       struct sockaddr_in addr;
       socklen_t addr_size = sizeof(struct sockaddr_in);
       getpeername (client_fd.fd, (struct sockaddr *)&addr, &addr_size);
       char remote_address [256];
       inet_ntop (AF_INET, &addr.sin_addr.s_addr, remote_address, sizeof (remote_address));
       request.remote_address = remote_address;
-#endif
       
       // This flag indicates a healthy connection: One that can proceed.
       bool connection_healthy = true;
@@ -559,12 +551,11 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
 
 void https_server ()
 {
+#ifndef HAVE_CLIENT
   // On clients, don't run the secure web server.
   // It is not possible to get a https certificate for https://localhost anyway.
-  // Shutting down this secure server saves value system resources on low power devices.
-#ifdef HAVE_CLIENT
-  return;
-#endif
+  // Not running this secure server saves valuable system resources on low power devices.
+
   // File descriptor for the listener.
   mbedtls_net_context listen_fd;
   mbedtls_net_init (&listen_fd);
@@ -674,6 +665,7 @@ void https_server ()
   mbedtls_ssl_cache_free (&cache);
   mbedtls_ctr_drbg_free (&ctr_drbg);
   mbedtls_entropy_free (&entropy);
+#endif
 }
 
 
