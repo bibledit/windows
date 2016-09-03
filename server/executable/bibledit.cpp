@@ -101,7 +101,7 @@ int main (int argc, char **argv)
 
 #ifdef HAVE_VISUALSTUDIO
   // Set our own invalid parameter handler for on Windows.
-  _set_invalid_parameter_handler(my_invalid_parameter_handler);
+  // Todo _set_invalid_parameter_handler(my_invalid_parameter_handler);
   // Disable the message box for assertions on Windows.
   _CrtSetReportMode(_CRT_ASSERT, 0);
 #endif
@@ -114,7 +114,7 @@ int main (int argc, char **argv)
     char *linkname = (char *) malloc (256);
     memset (linkname, 0, 256); // valgrind uninitialized value(s)
     ssize_t r = readlink ("/proc/self/exe", linkname, 256);
-    if (r) {};
+    (void) r;
     webroot = filter_url_dirname (linkname);
     free (linkname);
   }
@@ -138,7 +138,7 @@ int main (int argc, char **argv)
 	// The following gets the path to the server.exe.
     // char buf[MAX_PATH] = { 0 };
     // DWORD ret = GetModuleFileNameA(NULL, buf, MAX_PATH);
-	// But while developing, the .exe runs in folder Debug or Release, and is not correct.
+	// While developing, the .exe runs in folder Debug or Release, and not in the expected folder.
 	// Therefore it's better to take the path of the current directory.
     wchar_t buffer[MAX_PATH];
     GetCurrentDirectory(MAX_PATH, buffer);
