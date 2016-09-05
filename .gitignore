@@ -10,3 +10,14 @@
 *.ipdb
 server/Debug*
 server/Release*
+server/bibles/Bibledit*
+server/consultations/*
+cache_resource_*
+server/databases/client/*.txt
+server/databases/client/user_resource*
+server/databases/clients/admin*
+server/databases/config/bible/Bible*
+server/databases/config/general/r*
+server/databases/config/general/s*
+server/databases/config/general/c*
+server/databases/config/general/u*

@@ -21,7 +21,13 @@ del server\databases\state.sqlite
 del server\databases\styles.sqlite
 del server\databases\users.sqlite
 del server\databases\versifications.sqlite
+del /Q server\databases\localization*.sqlite
 del /Q server\databases\cache_*
 del /Q server\logbook\14*
 del /Q server\processes\14*
 del /Q server\databases\ipc\*admin*
+rmdir /S /Q "server\bibles\Bibledit Sample Bible"
+del /Q server\databases\modifications	\team\Bibledit*
+del /Q server\databases\search\Bibledit*
+del /Q server\tmp\volatile*
+del /Q server\dyncss\*.css

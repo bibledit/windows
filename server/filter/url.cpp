@@ -40,7 +40,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #ifdef HAVE_VISUALSTUDIO
 #include <direct.h>
 #include <io.h>
+#include <strsafe.h>
 #endif
+
+
+#undef UNICODE
 
 
 // SSL/TLS globals.
@@ -311,7 +315,7 @@ string filter_url_file_get_contents (string filename)
 }
 
 
-// C++ rough equivalent for PHP'sfilter_url_file_put_contents.
+// C++ rough equivalent for PHP's file_put_contents.
 void filter_url_file_put_contents (string filename, string contents)
 {
   try {
@@ -392,8 +396,38 @@ int filter_url_filesize (string filename)
 vector <string> filter_url_scandir (string folder) // Todo make it work on Visual Studio.
 {
   vector <string> files;
+
 #ifdef HAVE_VISUALSTUDIO
+
+  if (!folder.empty()) {
+	  if (folder[folder.size() - 1] == '\\') {
+		  folder = folder.substr(0, folder.size() - 1);
+	  }
+	  folder.append("\\*");
+
+	  int slength = (int)folder.length() + 1;
+	  int len = MultiByteToWideChar(CP_ACP, 0, folder.c_str(), slength, 0, 0);
+	  wchar_t* buf = new wchar_t[len];
+	  MultiByteToWideChar(CP_ACP, 0, folder.c_str(), slength, buf, len);
+	  wstring wfolder(buf);
+	  delete[] buf;
+
+	  WIN32_FIND_DATA fdata;
+	  HANDLE hFind = FindFirstFileW(wfolder.c_str(), &fdata);
+	  if (hFind != INVALID_HANDLE_VALUE) {
+		  do {
+			  wstring wfilename(fdata.cFileName);
+			  string name(wfilename.begin(), wfilename.end());
+			  if ((name.substr(0, 1) != ".") && (name != "gitflag")) {
+				  files.push_back(name);
+			  }
+		  } while (FindNextFile(hFind, &fdata) != 0);
+	  }
+	  FindClose(hFind);
+  }
+
 #else
+
   DIR * dir = opendir (folder.c_str());
   if (dir) {
     struct dirent * direntry;
@@ -406,7 +440,9 @@ vector <string> filter_url_scandir (string folder) // Todo make it work on Visua
     closedir (dir);
   }
   sort (files.begin(), files.end());
+
 #endif // !HAVE_VISUALSTUDIO
+
   return files;
 }
 
@@ -981,6 +1017,9 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
   
   // SSL/TLS configuration and context.
   // The configuration is local, because options may not be the same for every website.
+  // On Windows, threading has been disabled in the mbedTLS library.
+  // On the server, this will lead to undefined crashes which are hard to find.
+  // On a client, since the TLS context is not shared, there won't be any crashes.
   mbedtls_ssl_context ssl;
   mbedtls_ssl_config conf;
   if (secure) {
@@ -1265,7 +1304,7 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
         cur = buffer [0];
       } else {
 #ifdef HAVE_VISUALSTUDIO
-        ret = _read(sock, &cur, 1);
+        ret = recv(sock, &cur, 1, 0);
 #else
         ret = read(sock, &cur, 1);
 #endif
