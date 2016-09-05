@@ -101,7 +101,7 @@ int main (int argc, char **argv)
 
 #ifdef HAVE_VISUALSTUDIO
   // Set our own invalid parameter handler for on Windows.
-  // Todo _set_invalid_parameter_handler(my_invalid_parameter_handler);
+  _set_invalid_parameter_handler(my_invalid_parameter_handler);
   // Disable the message box for assertions on Windows.
   _CrtSetReportMode(_CRT_ASSERT, 0);
 #endif
