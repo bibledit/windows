@@ -1298,10 +1298,10 @@
     <ClInclude Include="assets\view.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="webserver\webserver.h">
+    <ClInclude Include="config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="config.h">
+    <ClInclude Include="filter\string.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
