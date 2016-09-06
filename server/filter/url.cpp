@@ -209,7 +209,7 @@ bool file_exists (string url) // Todo check on Windows.
 }
 
 
-// Wrapper for the mkdir function: make a directory. Todo CheckWindows
+// Makes a directory.
 // Creates parents where needed.
 void filter_url_mkdir (string directory)
 {
@@ -244,29 +244,31 @@ void filter_url_mkdir (string directory)
 // Removes directory recursively.
 void filter_url_rmdir (string directory) // Todo make it work on Visual Studio.
 {
-#ifndef HAVE_VISUALSTUDIO
-  DIR *dir;
-  struct dirent *entry;
-  char path[PATH_MAX];
-  dir = opendir(directory.c_str());
-  if (dir == NULL) return;
-  while ((entry = readdir (dir)) != NULL) {
-    if (strcmp (entry->d_name, ".") && strcmp (entry->d_name, "..")) {
-      snprintf (path, (size_t) PATH_MAX, "%s/%s", directory.c_str(), entry->d_name);
-      // It used to test on entry->d_type == DT_DIR but this did not work within Mingw:
-      // error: 'struct dirent' has no member named 'd_type'; did you mean 'd_name'?
-      // if (entry->d_type == DT_DIR)
-      // error: 'DT_DIR' was not declared in this scope
-      // if (entry->d_type == DT_DIR)
-      if (filter_url_is_dir (path)) {
-        filter_url_rmdir (path);
-      }
-      remove (path);
-    }
-  }
-  closedir(dir);
-  remove (directory.c_str());
-#endif // !HAVE_VISUALSTUDIO
+#ifdef HAVE_VISUALSTUDIO
+
+#else
+	DIR *dir;
+	struct dirent *entry;
+	char path[PATH_MAX];
+	dir = opendir(directory.c_str());
+	if (dir == NULL) return;
+	while ((entry = readdir(dir)) != NULL) {
+		if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, "..")) {
+			snprintf(path, (size_t)PATH_MAX, "%s/%s", directory.c_str(), entry->d_name);
+			// It used to test on entry->d_type == DT_DIR but this did not work within Mingw:
+			// error: 'struct dirent' has no member named 'd_type'; did you mean 'd_name'?
+			// if (entry->d_type == DT_DIR)
+			// error: 'DT_DIR' was not declared in this scope
+			// if (entry->d_type == DT_DIR)
+			if (filter_url_is_dir(path)) {
+				filter_url_rmdir(path);
+			}
+			remove(path);
+		}
+	}
+	closedir(dir);
+	remove(directory.c_str());
+#endif
 }
 
 
@@ -395,37 +397,30 @@ int filter_url_filesize (string filename) // Todo check wide characters.
 
 
 // A C++ near equivalent for PHP's scandir function.
-vector <string> filter_url_scandir (string folder) // Todo make it work on Visual Studio.
+vector <string> filter_url_scandir (string folder)
 {
   vector <string> files;
 
 #ifdef HAVE_VISUALSTUDIO
 
   if (!folder.empty()) {
-	  if (folder[folder.size() - 1] == '\\') {
-		  folder = folder.substr(0, folder.size() - 1);
-	  }
-	  folder.append("\\*");
-
-	  int slength = (int)folder.length() + 1;
-	  int len = MultiByteToWideChar(CP_ACP, 0, folder.c_str(), slength, 0, 0);
-	  wchar_t* buf = new wchar_t[len];
-	  MultiByteToWideChar(CP_ACP, 0, folder.c_str(), slength, buf, len);
-	  wstring wfolder(buf);
-	  delete[] buf;
-
-	  WIN32_FIND_DATA fdata;
-	  HANDLE hFind = FindFirstFileW(wfolder.c_str(), &fdata);
-	  if (hFind != INVALID_HANDLE_VALUE) {
-		  do {
-			  wstring wfilename(fdata.cFileName);
-			  string name(wfilename.begin(), wfilename.end());
-			  if ((name.substr(0, 1) != ".") && (name != "gitflag")) {
-				  files.push_back(name);
-			  }
-		  } while (FindNextFile(hFind, &fdata) != 0);
-	  }
-	  FindClose(hFind);
+    if (folder[folder.size() - 1] == '\\') {
+	  folder = folder.substr(0, folder.size() - 1);
+    }
+    folder.append("\\*");
+    wstring wfolder = string2wstring(folder);
+    WIN32_FIND_DATA fdata;
+    HANDLE hFind = FindFirstFileW(wfolder.c_str(), &fdata);
+    if (hFind != INVALID_HANDLE_VALUE) {
+      do {
+        wstring wfilename(fdata.cFileName);
+        string name = wstring2string (wfilename);
+        if ((name.substr(0, 1) != ".") && (name != "gitflag")) {
+          files.push_back(name);
+        }
+      } while (FindNextFile(hFind, &fdata) != 0);
+    }
+    FindClose(hFind);
   }
 
 #else
@@ -445,6 +440,7 @@ vector <string> filter_url_scandir (string folder) // Todo make it work on Visua
 
 #endif // !HAVE_VISUALSTUDIO
 
+  for (auto file : files) cout << file << endl; // Todo
   return files;
 }
 
