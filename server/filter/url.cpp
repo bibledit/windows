@@ -53,6 +53,55 @@ mbedtls_ctr_drbg_context filter_url_mbed_tls_ctr_drbg;
 mbedtls_x509_crt filter_url_mbed_tls_cacert;
 
 
+vector <string> filter_url_scandir_internal (string folder)
+{
+  vector <string> files;
+  
+#ifdef HAVE_VISUALSTUDIO
+  
+  if (!folder.empty()) {
+    if (folder[folder.size() - 1] == '\\') {
+      folder = folder.substr(0, folder.size() - 1);
+    }
+    folder.append("\\*");
+    wstring wfolder = string2wstring(folder);
+    WIN32_FIND_DATA fdata;
+    HANDLE hFind = FindFirstFileW(wfolder.c_str(), &fdata);
+    if (hFind != INVALID_HANDLE_VALUE) {
+      do {
+        wstring wfilename(fdata.cFileName);
+        string name = wstring2string (wfilename);
+        if (name.substr(0, 1) != ".") {
+          files.push_back(name);
+        }
+      } while (FindNextFileW(hFind, &fdata) != 0);
+    }
+    FindClose(hFind);
+  }
+  
+#else
+  
+  DIR * dir = opendir (folder.c_str());
+  if (dir) {
+    struct dirent * direntry;
+    while ((direntry = readdir (dir)) != NULL) {
+      string name = direntry->d_name;
+      if (name.substr (0, 1) == ".") continue;
+      files.push_back (name);
+    }
+    closedir (dir);
+  }
+  sort (files.begin(), files.end());
+  
+#endif
+  
+  // Remove . and ..
+  files = filter_string_array_diff (files, {".", ".."});
+  
+  return files;
+}
+
+
 // Gets the base URL of current Bibledit installation.
 string get_base_url (void * webserver_request)
 {
@@ -244,31 +293,15 @@ void filter_url_mkdir (string directory)
 // Removes directory recursively.
 void filter_url_rmdir (string directory) // Todo make it work on Visual Studio.
 {
-#ifdef HAVE_VISUALSTUDIO
-
-#else
-	DIR *dir;
-	struct dirent *entry;
-	char path[PATH_MAX];
-	dir = opendir(directory.c_str());
-	if (dir == NULL) return;
-	while ((entry = readdir(dir)) != NULL) {
-		if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, "..")) {
-			snprintf(path, (size_t)PATH_MAX, "%s/%s", directory.c_str(), entry->d_name);
-			// It used to test on entry->d_type == DT_DIR but this did not work within Mingw:
-			// error: 'struct dirent' has no member named 'd_type'; did you mean 'd_name'?
-			// if (entry->d_type == DT_DIR)
-			// error: 'DT_DIR' was not declared in this scope
-			// if (entry->d_type == DT_DIR)
-			if (filter_url_is_dir(path)) {
-				filter_url_rmdir(path);
-			}
-			remove(path);
-		}
-	}
-	closedir(dir);
+  vector <string> files = filter_url_scandir_internal (directory);
+  for (auto path : files) {
+    path = filter_url_create_path (directory, path);
+    if (filter_url_is_dir(path)) {
+      filter_url_rmdir(path);
+    }
+    remove(path.c_str ());
+  }
 	remove(directory.c_str());
-#endif
 }
 
 
@@ -396,51 +429,11 @@ int filter_url_filesize (string filename) // Todo check wide characters.
 }
 
 
-// A C++ near equivalent for PHP's scandir function.
+// Scans the directory for files it contains.
 vector <string> filter_url_scandir (string folder)
 {
-  vector <string> files;
-
-#ifdef HAVE_VISUALSTUDIO
-
-  if (!folder.empty()) {
-    if (folder[folder.size() - 1] == '\\') {
-	  folder = folder.substr(0, folder.size() - 1);
-    }
-    folder.append("\\*");
-    wstring wfolder = string2wstring(folder);
-    WIN32_FIND_DATA fdata;
-    HANDLE hFind = FindFirstFileW(wfolder.c_str(), &fdata);
-    if (hFind != INVALID_HANDLE_VALUE) {
-      do {
-        wstring wfilename(fdata.cFileName);
-        string name = wstring2string (wfilename);
-        if ((name.substr(0, 1) != ".") && (name != "gitflag")) {
-          files.push_back(name);
-        }
-      } while (FindNextFile(hFind, &fdata) != 0);
-    }
-    FindClose(hFind);
-  }
-
-#else
-
-  DIR * dir = opendir (folder.c_str());
-  if (dir) {
-    struct dirent * direntry;
-    while ((direntry = readdir (dir)) != NULL) {
-      string name = direntry->d_name;
-      if (name.substr (0, 1) == ".") continue;
-      if (name == "gitflag") continue;
-      files.push_back (name);
-    }
-    closedir (dir);
-  }
-  sort (files.begin(), files.end());
-
-#endif // !HAVE_VISUALSTUDIO
-
-  for (auto file : files) cout << file << endl; // Todo
+  vector <string> files = filter_url_scandir_internal (folder);
+  files = filter_string_array_diff (files, {"gitflag"});
   return files;
 }
 
