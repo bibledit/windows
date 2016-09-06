@@ -44,7 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #endif
 
 
-#undef UNICODE
+//#undef UNICODE
 
 
 // SSL/TLS globals.
@@ -136,7 +136,7 @@ string filter_url_basename (string url)
 }
 
 
-void filter_url_unlink (string filename)
+void filter_url_unlink (string filename) // Todo check wstring
 {
 #ifdef HAVE_VISUALSTUDIO
   _unlink(filename.c_str());
@@ -146,7 +146,7 @@ void filter_url_unlink (string filename)
 }
 
 
-void filter_url_rename (const string& oldfilename, const string& newfilename)
+void filter_url_rename (const string& oldfilename, const string& newfilename) // Todo check wstring.
 {
   rename (oldfilename.c_str(), newfilename.c_str());
 }
@@ -202,7 +202,7 @@ string filter_url_get_extension (string url)
 
 
 // Returns true if the file in "url" exists.
-bool file_exists (string url)
+bool file_exists (string url) // Todo check on Windows.
 {
   struct stat buffer;   
   return (stat (url.c_str(), &buffer) == 0);
@@ -215,7 +215,8 @@ void filter_url_mkdir (string directory)
 {
   int status;
 #ifdef HAVE_VISUALSTUDIO
-  status = _mkdir (directory.c_str());
+  wstring wdirectory = string2wstring(directory);
+  status = _wmkdir (wdirectory.c_str());
 #else
   status = mkdir (directory.c_str(), 0777);
 #endif
@@ -230,7 +231,8 @@ void filter_url_mkdir (string directory)
     reverse (paths.begin (), paths.end ());
     for (unsigned int i = 0; i < paths.size (); i++) {
 #ifdef HAVE_VISUALSTUDIO
-      _mkdir (paths[i].c_str ());
+      wstring wpathsi = string2wstring(paths[i]);
+      _wmkdir (wpathsi.c_str ());
 #else
       mkdir (paths[i].c_str (), 0777);
 #endif
@@ -269,7 +271,7 @@ void filter_url_rmdir (string directory) // Todo make it work on Visual Studio.
 
 
 // Returns true is $path points to a directory.
-bool filter_url_is_dir (string path)
+bool filter_url_is_dir (string path) // Todo check wchar?
 {
   struct stat sb;
   stat (path.c_str(), &sb);
@@ -298,7 +300,7 @@ void filter_url_set_write_permission (string path) // Todo test on Visual Studio
 
 
 // C++ rough equivalent for PHP's file_get_contents.
-string filter_url_file_get_contents (string filename)
+string filter_url_file_get_contents (string filename) // Todo check wchar?
 {
   if (!file_exists (filename)) return "";
   try {
@@ -316,7 +318,7 @@ string filter_url_file_get_contents (string filename)
 
 
 // C++ rough equivalent for PHP's file_put_contents.
-void filter_url_file_put_contents (string filename, string contents)
+void filter_url_file_put_contents (string filename, string contents) // Todo check wchar_t?
 {
   try {
     ofstream file;  
@@ -330,7 +332,7 @@ void filter_url_file_put_contents (string filename, string contents)
 
 // C++ rough equivalent for PHP'sfilter_url_file_put_contents.
 // Appends the data if the file exists.
-void filter_url_file_put_contents_append (string filename, string contents)
+void filter_url_file_put_contents_append (string filename, string contents) // Toco check wide string Windows.
 {
   try {
     ofstream file;  
@@ -344,7 +346,7 @@ void filter_url_file_put_contents_append (string filename, string contents)
 
 // Copies the contents of file named "input" to file named "output".
 // It is assumed that the folder where "output" will reside exists.
-bool filter_url_file_cp (string input, string output)
+bool filter_url_file_cp (string input, string output) // Todo check wide characters.
 {
   try {
     ifstream source (input, ios::binary);
@@ -361,7 +363,7 @@ bool filter_url_file_cp (string input, string output)
 
 // Copies the entire directory $input to a directory named $output.
 // It will recursively copy the inner directories also.
-void filter_url_dir_cp (const string & input, const string & output)
+void filter_url_dir_cp (const string & input, const string & output) // Todo check wide charas.
 {
   // Create the output directory.
   filter_url_mkdir (output);
@@ -384,7 +386,7 @@ void filter_url_dir_cp (const string & input, const string & output)
 
 
 // A C++ equivalent for PHP's filesize function.
-int filter_url_filesize (string filename)
+int filter_url_filesize (string filename) // Todo check wide characters.
 {
   struct stat stat_buf;
   int rc = stat (filename.c_str(), &stat_buf);
@@ -462,7 +464,7 @@ void filter_url_recursive_scandir (string folder, vector <string> & paths)
 
 
 // A C++ near equivalent for PHP's filemtime function.
-int filter_url_filemtime (string filename)
+int filter_url_filemtime (string filename) // Todo check wide characters.
 {
   struct stat attributes;
   stat (filename.c_str(), &attributes);
@@ -488,7 +490,7 @@ string filter_url_urlencode (string url)
 
 
 // Returns the name of a temporary file.
-string filter_url_tempfile (const char * directory)
+string filter_url_tempfile (const char * directory) // Todo check wide characters.
 {
   string filename = convert_to_string (filter_date_seconds_since_epoch ()) + convert_to_string (filter_date_numerical_microseconds ()) + convert_to_string (filter_string_rand (10000000, 99999999));
   if (directory) {
@@ -1293,7 +1295,7 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
     char prev = 0;
     char cur;
     FILE * file = NULL;
-    if (!filename.empty ()) file = fopen (filename.c_str(), "w");
+    if (!filename.empty ()) file = fopen (filename.c_str(), "w"); // Todo check wide characters in path.
     
     do {
       int ret = 0;
