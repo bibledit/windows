@@ -321,8 +321,11 @@ void filter_url_rmdir (string directory)
 
 
 // Returns true is $path points to a directory.
-bool filter_url_is_dir (string path) // Todo check wchar?
+bool filter_url_is_dir (string path)
 {
+  // The stat works on Linux, of course, and also on Windows:
+  // _stat automatically handles multibyte-character string arguments as appropriate, 
+  // recognizing multibyte-character sequences according to the multibyte code page currently in use.
   struct stat sb;
   stat (path.c_str(), &sb);
   return (sb.st_mode & S_IFMT) == S_IFDIR;
