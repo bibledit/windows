@@ -247,7 +247,7 @@ string filter_url_get_extension (string url)
 
 
 // Returns true if the file at $url exists.
-bool file_exists(string url) // Todo unit test after change.
+bool file_exists(string url)
 {
 #ifdef HAVE_VISUALSTUDIO
   // The Windows documentation says that the 'stat' function should work with wide characters.
@@ -358,7 +358,7 @@ void filter_url_set_write_permission (string path) // Todo test on Visual Studio
 
 
 // C++ rough equivalent for PHP's file_get_contents.
-string filter_url_file_get_contents(string filename) // Todo unit test after change.
+string filter_url_file_get_contents(string filename)
 {
   if (!file_exists(filename)) return "";
   try {
