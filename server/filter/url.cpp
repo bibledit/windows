@@ -291,7 +291,7 @@ void filter_url_mkdir (string directory)
 
 
 // Removes directory recursively.
-void filter_url_rmdir (string directory) // Todo make it work on Visual Studio.
+void filter_url_rmdir (string directory)
 {
   vector <string> files = filter_url_scandir_internal (directory);
   for (auto path : files) {
@@ -299,9 +299,24 @@ void filter_url_rmdir (string directory) // Todo make it work on Visual Studio.
     if (filter_url_is_dir(path)) {
       filter_url_rmdir(path);
     }
-    remove(path.c_str ());
+#ifdef HAVE_VISUALSTUDIO
+	// Remove directory.
+	wstring wpath = string2wstring(path);
+	_wrmdir(wpath.c_str());
+	// Remove file.
+	filter_url_unlink(path);
+#else
+	// On Linux remove the directory or the file.
+    remove(path.c_str());
+#endif
   }
-	remove(directory.c_str());
+#ifdef HAVE_VISUALSTUDIO
+  wstring wdirectory = string2wstring(directory);
+  _wrmdir(wdirectory.c_str());
+  filter_url_unlink(directory);
+#else
+  remove(directory.c_str());
+#endif
 }
 
 
