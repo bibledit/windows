@@ -246,11 +246,20 @@ string filter_url_get_extension (string url)
 }
 
 
-// Returns true if the file in "url" exists.
-bool file_exists (string url) // Todo check on Windows.
+// Returns true if the file at $url exists.
+bool file_exists(string url) // Todo unit test after change.
 {
-  struct stat buffer;   
-  return (stat (url.c_str(), &buffer) == 0);
+#ifdef HAVE_VISUALSTUDIO
+  // The Windows documentation says that the 'stat' function should work with wide characters.
+  // But this does not work: Another method is used on Windows. 
+  wstring wurl = string2wstring(url);
+  ifstream ff(wurl.c_str());
+  return ff.is_open();
+#else
+  // The 'stat' function works as expected on Linux.
+  struct stat buffer;
+  return (stat(url.c_str(), &buffer) == 0);
+#endif
 }
 
 
@@ -349,25 +358,31 @@ void filter_url_set_write_permission (string path) // Todo test on Visual Studio
 
 
 // C++ rough equivalent for PHP's file_get_contents.
-string filter_url_file_get_contents (string filename) // Todo check wchar?
+string filter_url_file_get_contents(string filename) // Todo unit test after change.
 {
-  if (!file_exists (filename)) return "";
+  if (!file_exists(filename)) return "";
   try {
-    ifstream ifs (filename.c_str(), ios::in | ios::binary | ios::ate);
+#ifdef HAVE_VISUALSTUDIO
+    wstring wfilename = string2wstring(filename);
+    ifstream ifs(wfilename.c_str(), ios::in | ios::binary | ios::ate);
+#else
+    ifstream ifs(filename.c_str(), ios::in | ios::binary | ios::ate);
+#endif
     streamoff filesize = ifs.tellg();
-	if (filesize == 0) return "";
-    ifs.seekg (0, ios::beg);
-    vector <char> bytes ((int)filesize);
-    ifs.read (&bytes[0], (int)filesize);
-    return string (&bytes[0], (int)filesize);
-  } catch (...) {
+    if (filesize == 0) return "";
+    ifs.seekg(0, ios::beg);
+    vector <char> bytes((int)filesize);
+    ifs.read(&bytes[0], (int)filesize);
+    return string(&bytes[0], (int)filesize);
+  }
+  catch (...) {
     return "";
   }
 }
 
 
 // C++ rough equivalent for PHP's file_put_contents.
-void filter_url_file_put_contents (string filename, string contents) // Todo check wchar_t?
+void filter_url_file_put_contents (string filename, string contents)
 {
   try {
     ofstream file;  
