@@ -47,3 +47,4 @@ users.sqlite
 versifications.sqlite
 server/dyncss/*.css
 server/logbook/1*
+server/databases/search/*_*_*
