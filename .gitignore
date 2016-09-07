@@ -25,7 +25,7 @@ server/databases/config/general/i*
 server/databases/config/general/j*
 server/databases/config/general/l*
 server/databases/config/user/admin
-server/databases/modifications/team/Bible*
+server/databases/modifications/team/*.*.*
 bibleactions.sqlite
 check.sqlite
 confirm.sqlite
