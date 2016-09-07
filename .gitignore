@@ -48,3 +48,7 @@ versifications.sqlite
 server/dyncss/*.css
 server/logbook/1*
 server/databases/search/*_*_*
+server/bibles/*/*/*/*
+server/databases/ipc/*admin*
+server/tmp/1*
+server/tmp/volatile*
