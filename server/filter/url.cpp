@@ -371,7 +371,12 @@ void filter_url_file_put_contents (string filename, string contents) // Todo che
 {
   try {
     ofstream file;  
-    file.open (filename, ios::binary | ios::trunc);
+#ifdef HAVE_VISUALSTUDIO
+	wstring wfilename = string2wstring(filename);
+	file.open(wfilename, ios::binary | ios::trunc);
+#else
+	file.open(filename, ios::binary | ios::trunc);
+#endif
     file << contents;
     file.close ();
   } catch (...) {
