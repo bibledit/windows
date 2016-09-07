@@ -26,7 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/logs.h>
 #include <utf8proc/utf8proc.h>
 #include <config/globals.h>
+#ifdef HAVE_VISUALSTUDIO
 #include <codecvt>
+#endif
 
 
 // A C++ equivalent for PHP's explode function.
