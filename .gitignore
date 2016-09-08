@@ -53,3 +53,4 @@ server/databases/ipc/*admin*
 server/tmp/1*
 server/tmp/volatile*
 server/processes/1*
+server/exports/*/web/*
