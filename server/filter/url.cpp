@@ -516,10 +516,16 @@ void filter_url_recursive_scandir (string folder, vector <string> & paths)
 
 
 // Gets the file modification time.
-int filter_url_file_modification_time (string filename) // Todo check wide characters.
+int filter_url_file_modification_time (string filename)
 {
+#ifdef HAVE_VISUALSTUDIO
+  wstring wfilename = string2wstring (filename);
+  struct _stat attributes;
+  _wstat (wfilename.c_str (), &attributes);
+#else
   struct stat attributes;
-  stat (filename.c_str(), &attributes);
+  stat (filename.c_str (), &attributes);
+#endif
   return (int) attributes.st_mtime;
 }
 
@@ -1023,8 +1029,8 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
 {
   // The "http" scheme is used to locate network resources via the HTTP protocol.
   // $url = "http(s):" "//" host [ ":" port ] [ abs_path [ "?" query ]]
-  
-  
+
+
   // Whether this is a secure http request.
   bool secure = url.find ("https:") != string::npos;
   
@@ -1105,7 +1111,7 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
       // Todo implement this for Visual Studio.
       error.append (gai_strerror (res));
 #endif // !HAVE_VISUALSTUDIO
-	  connection_healthy = false;
+      connection_healthy = false;
     } else {
       address_info_resolved = true;
     }
@@ -1147,8 +1153,11 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
     
     // Secure connect to host.
     if (connection_healthy) {
-      const char * server_port = convert_to_string (port).c_str ();
-      int ret = mbedtls_net_connect (&fd, hostname.c_str(), server_port, MBEDTLS_NET_PROTO_TCP);
+      // It used to pass the "server_port" to the connect routine:
+      // const char * server_port = convert_to_string (port).c_str ();
+      // But MSVC optimized this variable away before it could be passed to that routine.
+      // The code was updated to work around that.
+      int ret = mbedtls_net_connect (&fd, hostname.c_str(), convert_to_string (port).c_str (), MBEDTLS_NET_PROTO_TCP);
       if (ret != 0) {
         filter_url_display_mbed_tls_error (ret, &error, false);
         connection_healthy = false;
