@@ -1024,8 +1024,8 @@ string filter_url_remove_username_password (string url)
 // $error: To store any error messages.
 // $post: Value pairs for a POST request.
 // $filename: The filename to save the data to.
-// $check_certificate: Whether the check the server certificate in case of secure http.
-string filter_url_http_request_mbed (string url, string& error, const map <string, string>& post, const string& filename, bool check_certificate) // Todo CheckWindows
+// $check_certificate: Whether to check the server certificate in case of secure http.
+string filter_url_http_request_mbed (string url, string& error, const map <string, string>& post, const string& filename, bool check_certificate)
 {
   // The "http" scheme is used to locate network resources via the HTTP protocol.
   // $url = "http(s):" "//" host [ ":" port ] [ abs_path [ "?" query ]]
@@ -1107,10 +1107,12 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
     int res = getaddrinfo (hostname.c_str(), service.c_str (), &hints, &address_results);
     if (res != 0) {
       error = hostname + ": ";
-#ifndef HAVE_VISUALSTUDIO
-      // Todo implement this for Visual Studio.
+#ifdef HAVE_VISUALSTUDIO
+      wchar_t * err = gai_strerrorW (res);
+      error.append (wstring2string (err));
+#else
       error.append (gai_strerror (res));
-#endif // !HAVE_VISUALSTUDIO
+#endif
       connection_healthy = false;
     } else {
       address_info_resolved = true;
