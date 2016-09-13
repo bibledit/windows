@@ -1,12 +1,9 @@
 Building Bibledit for Windows through Visual Studio Community 2015.
 
 
-There is a git repository on Windows 10 and there's one on on macOS. Keeping both repositories in sync ensure that the code and files on both operating systems are in sync.
+There is a git repository on Windows 10 and there's one on on macOS. Keeping both repositories in sync ensures that the code and files on both operating systems are in sync.
 Visual Studio 2015 is used on Windows for building Bibledit for Windows.
 On macOS there's a script that refreshes the source of the Bibledit library.
-
-
-
 
 
 How to include the SQlite library.
@@ -18,3 +15,15 @@ How to include the SQlite library.
 6. Download SQlite amalgamation with the same version number from http://sqlite.org.
 7. Unzip the sqlite3.h header file and place it into the source directory.
 You will need to include the sqlite3.dll in the same directory as your program, or in a System Folder.
+
+
+Folder server has the Bibledit library. It produces server.exe.
+Folder gui contains the Bibledit interface. It produces bibledit.exe
+
+
+To create a package, Windows uses Inno Setup installed from isetup-5.5.5-unicode.exe.
+To have a clean package, remove the entire C:\bibledit directory, run the builder, copy bibledit.exe into C:\bibledit, and run the package.iss script.
+
+
+Free legal Windows virtual images for testing or occasional use are available from https://dev.modern.ie/tools/vms/windows/
+
