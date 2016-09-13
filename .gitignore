@@ -57,3 +57,5 @@ server/processes/1*
 server/exports/*/quickbible/*
 server/exports/*/usfm/*
 *.yet
+.DS_Store
+gui/bibledit/obj*
