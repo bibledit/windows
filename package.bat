@@ -19,7 +19,7 @@ git clone --depth 1 https://github.com/bibledit/bibledit-windows.git
 
 echo Building
 cd C:\bibledit-windows
-msbuild /property:Configuration=Debug /property:Platform=x86
+msbuild /property:Configuration=Release /property:Platform=x86
 
 
 pause
