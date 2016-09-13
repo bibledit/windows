@@ -50,7 +50,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>ja9o5cuB9PAC9lu0cls5ZBpz6ag=</dsig:DigestValue>
+        <dsig:DigestValue>CDQFxCOuAjr7owosmeMPJJXhTR4=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -63,13 +63,13 @@
       <dsig:DigestValue>V4WyfI7Afij77ZC4Fb71+C3XBqM=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Icon.ico" size="1406">
+  <file name="Icon.ico" size="1150">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>AZeOm0QBU/tMZP0PoehQ4R9up+g=</dsig:DigestValue>
+      <dsig:DigestValue>WCNep0u43d2UM550tgNXSyJMh+Y=</dsig:DigestValue>
     </hash>
   </file>
 </asmv1:assembly>
