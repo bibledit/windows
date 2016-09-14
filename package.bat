@@ -26,7 +26,7 @@ del bibledit-windows-packager\server.*
 
 echo Building
 cd C:\bibledit-windows
-rem msbuild /property:Configuration=Release /property:Platform=x86
+msbuild /property:Configuration=Release /property:Platform=x86
 
 
 pause
