@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{C414BE13-5F10-48B7-AF92-9E4E7265D720}
 AppName=Bibledit
-AppVersion=1.0.435
+AppVersion=1.0.557
 AppPublisher=Teus Benschop
 AppPublisherURL=http://bibledit.org
 AppSupportURL=http://bibledit.org

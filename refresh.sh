@@ -8,8 +8,9 @@
 
 
 # Work in the directory with Windows source, separate from Bibledit library source.
-WINDOWSDIR=`dirname $0`
+WINDOWSDIR=`dirname $0 | realpath`
 cd $WINDOWSDIR
+
 
 
 echo Pulling in the relevant Bibledit library source code.
@@ -60,9 +61,15 @@ rmdir unittests
 rmdir sources
 
 
-# Back to directory where the script resides.
-cd $WINDOWSDIR
-
-
 # Clean stuff out.
+cd $WINDOWSDIR
 find . -name .DS_Store -delete
+
+
+# Update Inno Setup script.
+cd $WINDOWSDIR
+VERSION=`sed -n -e 's/^.* PACKAGE_VERSION //p' server/config.h | tr -d '"'`
+sed -i.bak "s/AppVersion=.*/AppVersion=$VERSION/" package.iss
+rm package.iss.bak
+
+
