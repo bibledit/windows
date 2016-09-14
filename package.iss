@@ -18,7 +18,7 @@ AppUpdatesURL=http://bibledit.org
 DefaultDirName=C:\bibledit
 DisableDirPage=yes
 DefaultGroupName=Bibledit
-LicenseFile=C:\bibledit\COPYING
+LicenseFile=C:\bibledit-windows-packager\COPYING
 OutputDir=C:\bibledit
 OutputBaseFilename=bibleditsetup
 Compression=lzma
@@ -35,7 +35,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "C:\bibledit\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+Source: "C:\bibledit-windows-packager\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 
 [Dirs]
 Name: "{app}"; Permissions: everyone-full
