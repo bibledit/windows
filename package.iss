@@ -19,7 +19,7 @@ DisableDirPage=yes
 DefaultGroupName=Bibledit
 LicenseFile=COPYING
 ; OutputDir=C:\bibledit-windows-packager
-OutputBaseFilename=bibleditsetup
+OutputBaseFilename=bibledit-1.0.557
 Compression=lzma
 SolidCompression=yes
 ; Create a log file in the user's TEMP directory detailing file installation and [Run] actions taken during the installation process.

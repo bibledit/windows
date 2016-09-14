@@ -70,6 +70,7 @@ find . -name .DS_Store -delete
 cd $WINDOWSDIR
 VERSION=`sed -n -e 's/^.* PACKAGE_VERSION //p' server/config.h | tr -d '"'`
 sed -i.bak "s/AppVersion=.*/AppVersion=$VERSION/" package.iss
+sed -i.bak "s/OutputBaseFilename=.*/OutputBaseFilename=bibledit-$VERSION/" package.iss
 rm package.iss.bak
 
 
