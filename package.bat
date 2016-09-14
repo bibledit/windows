@@ -19,14 +19,20 @@ git clone --depth 1 https://github.com/bibledit/bibledit-windows.git
 
 echo Staging files for packager
 cd C:\
-mkdir bibledit-windows-packager
-xcopy bibledit-windows\server\* bibledit-windows-packager /E /I /Y
-del bibledit-windows-packager\server.*
+mkdir C:\bibledit-windows-packager
+xcopy C:\bibledit-windows\server\* C:\bibledit-windows-packager /E /I /Y
+del C:\bibledit-windows-packager\server.*
+copy /Y C:\bibledit-windows\package.iss C:\bibledit-windows-packager
 
 
 echo Building
 cd C:\bibledit-windows
 msbuild /property:Configuration=Release /property:Platform=x86
+
+
+echo Staging binaries for packager
+copy /Y C:\bibledit-windows\Release\server.exe C:\bibledit-windows-packager
+copy /Y C:\bibledit-windows\gui\bibledit\bin\Release\bibledit.exe C:\bibledit-windows-packager
 
 
 pause
