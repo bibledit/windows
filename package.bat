@@ -34,6 +34,8 @@ msbuild /property:Configuration=Release /property:Platform=x86
 echo Staging binaries for packager
 copy /Y C:\bibledit-windows\Release\server.exe C:\bibledit-windows-packager
 copy /Y C:\bibledit-windows\gui\bibledit\bin\Release\bibledit.exe C:\bibledit-windows-packager
+copy /Y C:\Windows\System32\msvcp140.dll C:\bibledit-windows-packager
+copy /Y C:\Windows\System32\vcruntime140.dll C:\bibledit-windows-packager
 
 
 echo Creating the Bibledit setup .exe
