@@ -9,6 +9,7 @@ setlocal
 SET PATH=%PATH%;C:\Program Files\Git\cmd
 SET PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC
 call vcvarsall.bat x86
+SET PATH=%PATH%;C:\Program Files (x86)\Inno Setup 5
 
 
 echo Cloning repository
@@ -33,6 +34,11 @@ msbuild /property:Configuration=Release /property:Platform=x86
 echo Staging binaries for packager
 copy /Y C:\bibledit-windows\Release\server.exe C:\bibledit-windows-packager
 copy /Y C:\bibledit-windows\gui\bibledit\bin\Release\bibledit.exe C:\bibledit-windows-packager
+
+
+echo Creating the Bibledit setup .exe
+cd C:\bibledit-windows-packager
+ISCC package.iss
 
 
 pause

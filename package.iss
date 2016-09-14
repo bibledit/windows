@@ -8,7 +8,6 @@
 AppId={{C414BE13-5F10-48B7-AF92-9E4E7265D720}
 AppName=Bibledit
 AppVersion=1.0.435
-;AppVerName=Bibledit 1.5
 AppPublisher=Teus Benschop
 AppPublisherURL=http://bibledit.org
 AppSupportURL=http://bibledit.org
@@ -19,7 +18,7 @@ DefaultDirName=C:\bibledit
 DisableDirPage=yes
 DefaultGroupName=Bibledit
 LicenseFile=C:\bibledit-windows-packager\COPYING
-OutputDir=C:\bibledit
+OutputDir=C:\bibledit-windows-packager
 OutputBaseFilename=bibleditsetup
 Compression=lzma
 SolidCompression=yes
@@ -92,10 +91,6 @@ end;
 procedure DoPostInstall();
 var
   appPath: String;
-  lighttpdConfPath: String;
-  phpIniDevelopmentPath: String;
-  phpIniProductionPath: String;
-  phpIniPath: String;
   bibleditWebSetupPath: String;
 begin
   appPath := ExpandConstant ('{app}');
