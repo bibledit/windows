@@ -46,7 +46,7 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Bibledit"; Filenam
 
 [Run]
 Filename: "{app}\bibledit.exe"; Description: "{cm:LaunchProgram,Bibledit}"; Flags: nowait postinstall skipifsilent
-Filename: "{app}\vc_redist.x86.exe /install /passive /norestart"; Check: VCRedistNeedsInstall
+Filename: "{app}\vc_redist.x86.exe /install /passive /norestart"
 
 [Code]
 
