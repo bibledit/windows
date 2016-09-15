@@ -28,5 +28,5 @@ To have a clean package, remove the entire C:\bibledit directory, run the builde
 Free legal Windows virtual images for testing or occasional use are available from https://dev.modern.ie/tools/vms/windows/
 
 
-The server.exe needs the correct Visual C++ Redistributable Package for Visual Studio 2015. The package includes, among others, msvcp140.dll and vcruntime140.dll, and installs them in C:\Windows\SysWOW64. When these DLL files are included with Bibledit, and not installed through the Package, then starting server.exe says "The application was unable to start correctly (0xc000007b)".
+The server.exe needs the correct Visual C++ Redistributable Package for Visual Studio 2015. The package includes, among others, msvcp140.dll and vcruntime140.dll, and installs them in C:\Windows\SysWOW64. When these DLL files are included with Bibledit, and not installed through the Package, then starting server.exe says "The application was unable to start correctly (0xc000007b)". It means that vc_redist.x86.exe needs to be installed.
 
