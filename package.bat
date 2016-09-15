@@ -20,6 +20,7 @@ git clone --depth 1 https://github.com/bibledit/bibledit-windows.git
 
 echo Staging files for packager
 cd C:\
+rmdir /S /Q C:\bibledit-windows-packager
 mkdir C:\bibledit-windows-packager
 xcopy C:\bibledit-windows\server\* C:\bibledit-windows-packager /E /I /Y
 del C:\bibledit-windows-packager\server.*
