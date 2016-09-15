@@ -60,3 +60,4 @@ server/exports/*/usfm/*
 *.yet
 .DS_Store
 gui/bibledit/obj*
+bibledit.vshost.exe
