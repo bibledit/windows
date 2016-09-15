@@ -1,4 +1,5 @@
-*.exe
+bibledit.exe
+server.exe
 *.suo
 *.ilk
 *.db
