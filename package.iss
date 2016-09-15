@@ -34,7 +34,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "C:\bibledit-windows-packager\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+Source: "*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 
 [Dirs]
 Name: "{app}"; Permissions: everyone-full
