@@ -46,7 +46,7 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Bibledit"; Filenam
 
 [Run]
 Filename: "{app}\bibledit.exe"; Description: "{cm:LaunchProgram,Bibledit}"; Flags: nowait postinstall skipifsilent
-Filename: "{app}\vc_redist.x86.exe /install /passive /norestart"
+Filename: "{app}\vc_redist.x86.exe"; Parameters: "/install /passive /norestart"; Description: "Install Visual C++ Redistributable 2015"; Flags: skipifsilent
 
 [Code]
 
