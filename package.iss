@@ -25,6 +25,8 @@ SolidCompression=yes
 ; Create a log file in the user's TEMP directory detailing file installation and [Run] actions taken during the installation process.
 ; To find the location: Search %temp% in the Programs and Folders.
 SetupLogging=yes
+; Requires Microsoft Vista or higher.
+MinVersion=6.0
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
