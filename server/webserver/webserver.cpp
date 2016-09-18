@@ -326,13 +326,10 @@ void http_server ()
       
       // The client's remote IPv4 address in dotted notation.
       string clientaddress;
-      /* Windows XP does not have inet_ntop, so it uses inet_ntoa instead.
+      // Windows XP does not have inet_ntop, but XP is no longer supported.
       char remote_address[256];
       inet_ntop(AF_INET, &clientaddr.sin_addr.s_addr, remote_address, sizeof(remote_address));
       clientaddress = remote_address;
-      */
-      clientaddress = inet_ntoa (clientaddr.sin_addr);
-      
       
       // On Linux and related operating systems,
       // it would handle this request in a thread,
