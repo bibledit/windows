@@ -56,17 +56,19 @@ string Paratext_Logic::searchProjectsFolder ()
     }
   }
   
+#ifdef HAVE_VISUALSTUDIO
   // Try Windows.
   homedir = "C:\\";
   vector <string> files = filter_url_scandir (homedir);
   for (auto file : files) {
     if (file.find ("Paratext") != string::npos) {
       string path = filter_url_create_path (homedir, file);
-      path = filter_string_str_replace ("\\/", "\\", path);
+      path = filter_string_str_replace ("\\\\", "\\", path);
       return path;
     }
   }
-  
+#endif
+
   // No Paratext projects folder found.
   return "";
 }
