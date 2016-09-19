@@ -61,3 +61,5 @@ server/exports/*/usfm/*
 .DS_Store
 gui/bibledit/obj*
 bibledit.vshost.exe
+server/databases/config/bible/*/paratext*
+server/paratext/ancestors/S*
