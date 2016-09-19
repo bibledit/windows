@@ -177,7 +177,7 @@ void Paratext_Logic::copyBibledit2Paratext (string bible)
     if (!paratext_book.empty ()) {
 
       string path = filter_url_create_path (projectFolder (bible), paratext_book);
-      Database_Logs::log (bookname + ": " "Storing to:" " " + path);
+      Database_Logs::log (bookname + ": " "Saving to:" " " + path);
       filter_url_file_put_contents (path, usfm);
       
       paratext_books [book].clear ();
