@@ -96,7 +96,7 @@
 #define PACKAGE_NAME "bibledit"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "bibledit 1.0.562"
+#define PACKAGE_STRING "bibledit 1.0.563"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "bibledit"
@@ -105,7 +105,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.0.562"
+#define PACKAGE_VERSION "1.0.563"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
@@ -114,7 +114,7 @@
 #define UNITTESTS "no"
 
 /* Version number of package */
-#define VERSION "1.0.562"
+#define VERSION "1.0.563"
 
 /* Define whether to compile on Windows */
 #define WIN32 1

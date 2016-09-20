@@ -252,7 +252,7 @@ void http_server ()
       request_thread.detach ();
       
     } else {
-      cerr << "Error accepting connection on socket" << endl;
+      cerr << "Error accepting connection on socket: " << strerror (errno) << endl;
     }
   }
   
