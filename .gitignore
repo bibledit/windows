@@ -63,4 +63,5 @@ gui/bibledit/obj*
 bibledit.vshost.exe
 server/databases/config/bible/*/paratext*
 server/paratext/ancestors/S*
+server/paratext/ancestors/t*
 server/paratext/ancestors/B*
