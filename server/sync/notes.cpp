@@ -22,6 +22,7 @@
 #include <filter/roles.h>
 #include <filter/string.h>
 #include <filter/merge.h>
+#include <filter/archive.h>
 #include <tasks/logic.h>
 #include <database/config/general.h>
 #include <database/config/bible.h>
@@ -80,7 +81,7 @@ string sync_notes (void * webserver_request)
 
   
   // Check on the credentials when the clients sends data to the server to be stored there.
-  if (action >= Sync_Logic::notes_put_create_initiate) {
+  if ((action >= Sync_Logic::notes_put_create_initiate) && (action != Sync_Logic::notes_get_bulk)) {
     if (!sync_logic.credentials_okay ()) return "";
   }
 
@@ -329,6 +330,18 @@ string sync_notes (void * webserver_request)
       notes_logic.erase (identifier);
       // Done.
       return "";
+    }
+    // This method of bulk download was implemented as of September 2016.
+    // After a year or so, the logic for the replaced download methods can probably be removed from the Cloud.
+    case Sync_Logic::notes_get_bulk:
+    {
+      // Get the note identifiers the client requests.
+      vector <string> notes = filter_string_explode (request->post ["b"], '\n');
+      vector <int> identifiers;
+      for (auto note : notes) identifiers.push_back (convert_to_int (note));
+      // Return the JSON that contains all the requested notes.
+      string json = database_notes.getBulk (identifiers);
+      return json;
     }
   }
   

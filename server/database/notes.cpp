@@ -31,6 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/state.h>
 #include <trash/handler.h>
 #include <webserver/request.h>
+#include <jsonxx/jsonxx.h>
+
+
+using namespace jsonxx;
 
 
 // Database resilience.
@@ -44,25 +48,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
 /*
-
- Storing notes, now being done as separate files, each file taking up a default space, 
- will become more efficien, that is, take up less space,
+ Storing notes, now being done as separate files, each file taking up a default space,
+ will become more efficient, that is, take up less space,
  when each note is stored as a separate SQLite database.
  On a Linux server, one notes takes up 32kbytes, and a lot of that space is wasted.
  If one notes was stored in one file, it would take up 4kbytes.
  That is a difference of 8 times.
  This would be a possible improvement.
-
 */
+
 
 Database_Notes::Database_Notes (void * webserver_request_in)
 {
   webserver_request = webserver_request_in;
-}
-
-
-Database_Notes::~Database_Notes ()
-{
 }
 
 
@@ -1868,3 +1866,88 @@ string Database_Notes::notesOrderByRelevanceStatement ()
   return "";
 }
 
+
+// This returns JSON that contains the notes indicated by $identifiers.
+string Database_Notes::getBulk (vector <int> identifiers)
+{
+  // JSON container for the bulk notes.
+  Array bulk;
+  // Go through all the notes.
+  for (auto identifier : identifiers) {
+    // JSON object for the note.
+    Object note;
+    // Add all the fields of the note.
+    string assigned = filter_url_file_get_contents (assignedFile (identifier));
+    note << "a" << assigned;
+    string bible = getBible (identifier);
+    note << "b" << bible;
+    string contents = getContents (identifier);
+    note << "c" << contents;
+    note << "i" << identifier;
+    int modified = getModified (identifier);
+    note << "m" << modified;
+    string passage = getRawPassage (identifier);
+    note << "p" << passage;
+    string subscriptions = filter_url_file_get_contents (subscriptionsFile (identifier));
+    note << "sb" << subscriptions;
+    string summary = getSummary (identifier);
+    note << "sm" << summary;
+    string status = getRawStatus (identifier);
+    note << "st" << status;
+    int severity = getRawSeverity (identifier);
+    note << "sv" << severity;
+    // Add the note to the bulk container.
+    bulk << note;
+  }
+  // Resulting JSON string.
+  return bulk.json ();
+}
+
+
+// This takes $json and stores all the notes it contains in the filesystem.
+vector <string> Database_Notes::setBulk (string json)
+{
+  // Container for the summaries that were stored.
+  vector <string> summaries;
+
+  // Parse the incoming JSON.
+  Array bulk;
+  bulk.parse (json);
+  
+  // Go through the notes the JSON contains.
+  for (size_t i = 0; i < bulk.size (); i++) {
+
+    // Get all the different fields for this note.
+    Object note = bulk.get<Object>(i);
+    string assigned = note.get<String> ("a");
+    string bible = note.get<String> ("b");
+    string contents = note.get<String> ("c");
+    int identifier = note.get<Number> ("i");
+    int modified = note.get<Number> ("m");
+    string passage = note.get<String> ("p");
+    string subscriptions = note.get<String> ("sb");
+    string summary = note.get<String> ("sm");
+    string status = note.get<String> ("st");
+    int severity = note.get<Number> ("sv");
+
+    // Store the note in the filesystem.
+    filter_url_mkdir (noteFolder (identifier));
+    filter_url_file_put_contents (assignedFile (identifier), assigned);
+    filter_url_file_put_contents (bibleFile (identifier), bible);
+    filter_url_file_put_contents (contentsFile (identifier), contents);
+    filter_url_file_put_contents (modifiedFile (identifier), convert_to_string (modified));
+    filter_url_file_put_contents (passageFile (identifier), passage);
+    filter_url_file_put_contents (severityFile (identifier), convert_to_string (severity));
+    filter_url_file_put_contents (statusFile (identifier), status);
+    filter_url_file_put_contents (subscriptionsFile (identifier), subscriptions);
+    filter_url_file_put_contents (summaryFile (identifier), summary);
+
+    // Update the indexes.
+    updateDatabase (identifier);
+    updateSearchFields (identifier);
+    updateChecksum (identifier);
+  }
+  
+  // Container with all the summaries of the notes that were stored.
+  return summaries;
+}

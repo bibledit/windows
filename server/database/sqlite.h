@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
 #include <config/libraries.h>
-#include <sqlite3.h>
 
 
 sqlite3 * database_sqlite_connect_file (string filename);
@@ -41,8 +40,6 @@ void database_sqlite_error (sqlite3 * database, const string & prefix, char * er
 class SqliteSQL
 {
 public:
-  SqliteSQL ();
-  ~SqliteSQL ();
   void clear ();
   void add (const char * fragment);
   void add (int value);

@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
 #include <config/libraries.h>
-#include <sqlite3.h>
 #include <filter/passage.h>
 
 
@@ -38,7 +37,6 @@ class Database_Notes
 {
 public:
   Database_Notes (void * webserver_request_in);
-  ~Database_Notes ();
   void create ();
   string database_path ();
   string checksums_database_path ();
@@ -126,6 +124,8 @@ public:
   vector <int> getNotesInRangeForBibles (int lowId, int highId, const vector <string> & bibles, bool anybible);
   void set_availability (bool available);
   bool available ();
+  string getBulk (vector <int> identifiers);
+  vector <string> setBulk (string json);
 private:
   void * webserver_request;
   sqlite3 * connect ();
