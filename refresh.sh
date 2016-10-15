@@ -21,11 +21,12 @@ cd server
 
 
 # Configure the Bibledit source.
-./configure --enable-windows --with-network-port=9876 --enable-visualstudio
+./configure --enable-windows --enable-visualstudio
 EXIT_CODE=$?
 if [ $EXIT_CODE != 0 ]; then
   exit
 fi
+echo 9876 > config/network-port
 
 
 # Remove some Linux related definitions as they don't work on Windows.
