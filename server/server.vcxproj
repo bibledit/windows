@@ -195,6 +195,7 @@
     <ClCompile Include="changes\logic.cpp" />
     <ClCompile Include="changes\manage.cpp" />
     <ClCompile Include="changes\modifications.cpp" />
+    <ClCompile Include="changes\statistics.cpp" />
     <ClCompile Include="checksum\logic.cpp" />
     <ClCompile Include="checks\headers.cpp" />
     <ClCompile Include="checks\index.cpp" />
@@ -265,6 +266,7 @@
     <ClCompile Include="database\sprint.cpp" />
     <ClCompile Include="database\sqlite.cpp" />
     <ClCompile Include="database\state.cpp" />
+    <ClCompile Include="database\statistics.cpp" />
     <ClCompile Include="database\strong.cpp" />
     <ClCompile Include="database\styles.cpp" />
     <ClCompile Include="database\userresources.cpp" />
@@ -354,6 +356,7 @@
     <ClCompile Include="journal\logic.cpp" />
     <ClCompile Include="jsonxx\jsonxx.cpp" />
     <ClCompile Include="json\json.c" />
+    <ClCompile Include="ldap\logic.cpp" />
     <ClCompile Include="lexicon\definition.cpp" />
     <ClCompile Include="lexicon\logic.cpp" />
     <ClCompile Include="library\bibledit.cpp" />
@@ -565,6 +568,8 @@
     <ClCompile Include="sync\settings.cpp" />
     <ClCompile Include="sync\setup.cpp" />
     <ClCompile Include="sync\usfmresources.cpp" />
+    <ClCompile Include="system\index.cpp" />
+    <ClCompile Include="system\timezone.cpp" />
     <ClCompile Include="tasks\logic.cpp" />
     <ClCompile Include="tasks\run.cpp" />
     <ClCompile Include="text\text.cpp" />
@@ -583,10 +588,10 @@
     <ClCompile Include="webserver\io.c" />
     <ClCompile Include="webserver\request.cpp" />
     <ClCompile Include="webserver\webserver.cpp" />
-    <ClCompile Include="workbench\index.cpp" />
-    <ClCompile Include="workbench\logic.cpp" />
-    <ClCompile Include="workbench\organize.cpp" />
-    <ClCompile Include="workbench\settings.cpp" />
+    <ClCompile Include="workspace\index.cpp" />
+    <ClCompile Include="workspace\logic.cpp" />
+    <ClCompile Include="workspace\organize.cpp" />
+    <ClCompile Include="workspace\settings.cpp" />
     <ClCompile Include="xrefs\clear.cpp" />
     <ClCompile Include="xrefs\extract.cpp" />
     <ClCompile Include="xrefs\help.cpp" />
