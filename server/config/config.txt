@@ -39,3 +39,15 @@ $ cd databases/config/general
 $ echo 1 > read-from-git
 When enabled, the mechanism is subject to race condition in rare circumstances, and will at time revert some changes made by users.
 There is no intention to fix this behaviour, because receiving changes from a git repository is going to be phased out soon.
+
+
+OpenLDAP server: See file ldap.txt for more information.
+
+
+Network port for http server: The default value is 8080. Put a different port number in file "network-port".
+
+
+Administrator details: To preset the administrator's account, put the details in the files "admin-username" and "admin-password" and "admin-email", one detail per file.
+
+
+Demo installation: If the file config/demo is present, it behaves as a demo installation.

@@ -698,51 +698,51 @@ void Database_Config_User::setContributorChangesNotificationsOnline (bool value)
 }
 
 
-string Database_Config_User::getWorkbenchURLs ()
+string Database_Config_User::getWorkspaceURLs ()
 {
   return getValue ("workbench-urls", "");
 }
-void Database_Config_User::setWorkbenchURLs (string value)
+void Database_Config_User::setWorkspaceURLs (string value)
 {
   setValue ("workbench-urls", value);
 }
 
 
-string Database_Config_User::getWorkbenchWidths ()
+string Database_Config_User::getWorkspaceWidths ()
 {
   return getValue ("workbench-widths", "");
 }
-void Database_Config_User::setWorkbenchWidths (string value)
+void Database_Config_User::setWorkspaceWidths (string value)
 {
   setValue ("workbench-widths", value);
 }
 
 
-string Database_Config_User::getWorkbenchHeights ()
+string Database_Config_User::getWorkspaceHeights ()
 {
   return getValue ("workbench-heights", "");
 }
-void Database_Config_User::setWorkbenchHeights (string value)
+void Database_Config_User::setWorkspaceHeights (string value)
 {
   setValue ("workbench-heights", value);
 }
 
 
-string Database_Config_User::getEntireWorkbenchWidths ()
+string Database_Config_User::getEntireWorkspaceWidths ()
 {
   return getValue ("entire-workbench-widths", "");
 }
-void Database_Config_User::setEntireWorkbenchWidths (string value)
+void Database_Config_User::setEntireWorkspaceWidths (string value)
 {
   setValue ("entire-workbench-widths", value);
 }
 
 
-string Database_Config_User::getActiveWorkbench ()
+string Database_Config_User::getActiveWorkspace ()
 {
   return getValue ("active-workbench", "");
 }
-void Database_Config_User::setActiveWorkbench (string value)
+void Database_Config_User::setActiveWorkspace (string value)
 {
   setValue ("active-workbench", value);
 }
@@ -1116,11 +1116,11 @@ void Database_Config_User::setDisplayBreadcrumbs (bool value)
 }
 
 
-int Database_Config_User::getDesktopMenuFadeoutDelay ()
+int Database_Config_User::getWorkspaceMenuFadeoutDelay ()
 {
   return getIValue ("desktop-menu-fadeout-delay", 4);
 }
-void Database_Config_User::setDesktopMenuFadeoutDelay (int value)
+void Database_Config_User::setWorkspaceMenuFadeoutDelay (int value)
 {
   setIValue ("desktop-menu-fadeout-delay", value);
 }
@@ -1146,19 +1146,40 @@ void Database_Config_User::setEditingAllowedDifferenceVerse (int value)
 }
 
 
-bool Database_Config_User::getFlipInterfaceMode ()
+bool Database_Config_User::getBasicInterfaceModeDefault ()
 {
-  return getBValue ("flip-interface-mode", false);
+  // Touch devices default to basic mode.
+#ifdef HAVE_ANDROID
+  return true;
+#endif
+#ifdef HAVE_IOS
+  return true;
+#endif
+#ifdef HAVE_CHROMEOS
+  return true;
+#endif
+  // The app running on a desktop or laptop have default to basic mode for a lower role.
+  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  int level = request->session_logic ()->currentLevel ();
+  if (level <= Filter_Roles::manager ()) return true;
+  // Higher role: default to advanced mode.
+  return false;
 }
-void Database_Config_User::setFlipInterfaceMode (bool value)
+bool Database_Config_User::getBasicInterfaceMode ()
 {
-  setBValue ("flip-interface-mode", value);
+  return getBValue ("basic-interface-mode", getBasicInterfaceModeDefault ());
+}
+void Database_Config_User::setBasicInterfaceMode (bool value)
+{
+  setBValue ("basic-interface-mode", value);
 }
 
 
 bool Database_Config_User::getMainMenuAlwaysVisible ()
 {
-  return getBValue ("main-menu-always-visible", false);
+  // Default visible in basic mode.
+  // Advanced mode: By default it is not visible.
+  return getBValue ("main-menu-always-visible", getBasicInterfaceModeDefault ());
 }
 void Database_Config_User::setMainMenuAlwaysVisible (bool value)
 {
@@ -1281,4 +1302,14 @@ bool Database_Config_User::getEnableStylesButtonVisualEditors ()
 void Database_Config_User::setEnableStylesButtonVisualEditors (bool value)
 {
   setBValue ("enable-styles-button-visual-editors", value);
+}
+
+
+bool Database_Config_User::getMenuChangesInBasicMode ()
+{
+  return getBValue ("menu-changes-in-basic-mode", false);
+}
+void Database_Config_User::setMenuChangesInBasicMode (bool value)
+{
+  setBValue ("menu-changes-in-basic-mode", value);
 }

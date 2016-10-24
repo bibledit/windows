@@ -27,8 +27,7 @@ string config_globals_document_root = DIRECTORY_SEPARATOR;
 bool config_globals_unit_testing = false;
 bool config_globals_open_installation = false;
 bool config_globals_client_prepared = false;
-bool config_globals_http_running = true;
-bool config_globals_https_running = true;
+bool config_globals_webserver_running = true;
 thread * config_globals_http_worker = NULL;
 thread * config_globals_https_worker = NULL;
 thread * config_globals_timer = NULL;
@@ -53,4 +52,3 @@ bool config_globals_enforce_https_browser = false;
 bool config_globals_enforce_https_client = false;
 default_random_engine config_globals_random_engine ((random_device())());
 uniform_int_distribution <int> config_globals_int_distribution (0, numeric_limits <int>::max());
-

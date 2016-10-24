@@ -55,7 +55,7 @@ string user_account (void * webserver_request)
   Assets_View view;
 
   string username = request->session_logic()->currentUser ();
-  string email = request->database_users()->getUserToEmail (username);
+  string email = request->database_users()->get_email (username);
 
   bool actions_taken = false;
   vector <string> success_messages;
@@ -81,12 +81,12 @@ string user_account (void * webserver_request)
         form_is_valid = false;
         view.set_variable ("new_password2_invalid_message", translate("Passwords do not match"));
       }
-      if (!request->database_users()->matchUsernamePassword (username, currentpassword)) {
+      if (!request->database_users()->matchUserPassword (username, currentpassword)) {
         form_is_valid = false;
         view.set_variable ("current_password_invalid_message", translate("Current password is not valid"));
       }
       if (form_is_valid) {
-        request->database_users()->updateUserPassword (username, newpassword);
+        request->database_users()->set_password (username, newpassword);
         actions_taken = true;
         success_messages.push_back (translate("The new password was saved"));
       }
@@ -97,7 +97,7 @@ string user_account (void * webserver_request)
         form_is_valid = false;
         view.set_variable ("new_email_invalid_message", translate("Email address is not valid"));
       }
-      if (!request->database_users()->matchUsernamePassword (username, currentpassword)) {
+      if (!request->database_users()->matchUserPassword (username, currentpassword)) {
         form_is_valid = false;
         view.set_variable ("current_password_invalid_message", translate("Current password is not valid"));
       }

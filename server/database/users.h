@@ -31,26 +31,30 @@ public:
   void upgrade ();
   void trim ();
   void optimize ();
-  void addNewUser (string username, string password, int level, string email);
-  void updateUserPassword (string user, string password);
-  bool matchUsernamePassword (string username, string password);
+  void add_user (string user, string password, int level, string email);
+  void set_password (string user, string password);
+  bool matchUserPassword (string user, string password);
   bool matchEmailPassword (string email, string password);
-  string addNewUserQuery (string username, string password, int level, string email);
+  string add_userQuery (string user, string password, int level, string email);
   string getEmailToUser (string email);
-  string getUserToEmail (string user);
+  string get_email (string user);
   bool usernameExists (string user);
   bool emailExists (string email);
-  int getUserLevel (string user);
-  void updateUserLevel (string user, int level);
+  int get_level (string user);
+  void set_level (string user, int level);
   void removeUser (string user);
   vector <string> getAdministrators ();
-  string updateEmailQuery (string username, string email);
+  string updateEmailQuery (string user, string email);
   void updateUserEmail (string user, string email);
   vector <string> getUsers ();
-  string getmd5 (string user);
-  void execute (const string& sql);
+  string get_md5 (string user);
+  void execute (string sqlfragment);
+  void set_ldap (string user, bool on);
+  bool get_ldap (string user);
+  void set_enabled (string user, bool on);
+  bool get_enabled (string user);
 private:
-  sqlite3 * connect ();
+  const char * filename ();
 };
 
 

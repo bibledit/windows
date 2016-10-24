@@ -1,0 +1,29 @@
+<h2>translate("System")</h2>
+
+<h3>translate("Language")</h3>
+<p>
+translate("The language for Bibledit:")
+##language##
+<a href="?language=select">[translate("change")]</a>.
+</p>
+<br>
+<p>
+translate("Your preferred language is not listed?")
+translate("Use your translation skills to assist with bringing another language to Bibledit.")
+<a href="https://translations.launchpad.net/bibledit" target="_blank">translate("Start translating right away.")</a>
+translate("It is possible to translate only the most important phrases to get your translation team going in their own language.")
+translate("Your translation will be included with the next Bibledit release.")
+</p>
+
+<!-- #BEGINZONE timezone -->
+<h3>translate("Timezone")</h3>
+<p>translate("Set the timezone for Bibledit as an offset from UTC in whole hours from -12 till +14.")</p>
+<p class="error">##error##</p>
+<p class="success">##success##</p>
+<form action="index" name="form" method="post">
+  <p>
+  <input type="text" name="timezone" maxlength="10" value="##timezone##" />
+  <input type="submit" name="savezone" value=translate("Submit") />
+  </p>
+</form>
+<!-- #ENDZONE timezone -->

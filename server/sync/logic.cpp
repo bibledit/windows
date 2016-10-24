@@ -73,9 +73,9 @@ bool Sync_Logic::credentials_okay ()
   // Check all credentials.
   bool user_ok = request->database_users ()->usernameExists (username);
   if (!user_ok) Database_Logs::log ("Non existing user: " + username, Filter_Roles::manager ());
-  bool pass_ok = (password == request->database_users ()->getmd5 (username));
+  bool pass_ok = (password == request->database_users ()->get_md5 (username));
   if (!pass_ok) Database_Logs::log ("Incorrect password: " + password, Filter_Roles::manager ());
-  bool level_ok = (level == request->database_users ()->getUserLevel (username));
+  bool level_ok = (level == request->database_users ()->get_level (username));
   if (!level_ok) Database_Logs::log ("Incorrect role: " + Filter_Roles::text (level), Filter_Roles::manager ());
   if (!user_ok || !pass_ok || !level_ok) {
     // Unauthorized.
@@ -154,9 +154,9 @@ string Sync_Logic::settings_checksum (const vector <string> & bibles)
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
   string checksum;
-  checksum.append (request->database_config_user()->getWorkbenchURLs ());
-  checksum.append (request->database_config_user()->getWorkbenchWidths ());
-  checksum.append (request->database_config_user()->getWorkbenchHeights ());
+  checksum.append (request->database_config_user()->getWorkspaceURLs ());
+  checksum.append (request->database_config_user()->getWorkspaceWidths ());
+  checksum.append (request->database_config_user()->getWorkspaceHeights ());
   vector <string> resources = request->database_config_user()->getActiveResources ();
   checksum.append (filter_string_implode (resources, "\n"));
   for (auto & bible : bibles) {

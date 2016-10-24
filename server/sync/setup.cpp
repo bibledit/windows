@@ -50,11 +50,11 @@ string sync_setup (void * webserver_request)
   string password = request->query ["pass"];
 
   if (request->database_users ()->usernameExists (username)) {
-    string md5 = request->database_users ()->getmd5 (username);
+    string md5 = request->database_users ()->get_md5 (username);
     if (password == md5) {
       // The credentials of the client have been accepted.
       // Return the level to the client.
-      return convert_to_string (request->database_users ()->getUserLevel (username));
+      return convert_to_string (request->database_users ()->get_level (username));
     }
   }
   

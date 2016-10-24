@@ -51,7 +51,7 @@ void timer_index ()
   int previous_second = -1;
   int previous_minute = -1;
   int previous_fraction = -1;
-  while (config_globals_http_running && config_globals_https_running) {
+  while (config_globals_webserver_running) {
 
     try {
 
@@ -63,8 +63,7 @@ void timer_index ()
       if (!config_globals_data_initialized) continue;
       
       // The current time, localized.
-      int seconds_since_epoch = filter_date_seconds_since_epoch ();
-      int local_seconds = filter_date_local_seconds (seconds_since_epoch);
+      int local_seconds = filter_date_local_seconds (filter_date_seconds_since_epoch ());
       int second = filter_date_numerical_second (local_seconds);
       int minute = filter_date_numerical_minute (local_seconds);
       int hour = filter_date_numerical_hour (local_seconds);

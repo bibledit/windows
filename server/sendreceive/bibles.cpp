@@ -108,7 +108,7 @@ void sendreceive_bibles ()
   }
   string user = users [0];
   request.session_logic ()->setUsername (user);
-  string password = request.database_users ()->getmd5 (user);
+  string password = request.database_users ()->get_md5 (user);
   
   
   // The basic request to be POSTed to the server.
@@ -116,7 +116,7 @@ void sendreceive_bibles ()
   map <string, string> post;
   post ["u"] = bin2hex (user);
   post ["p"] = password;
-  post ["l"] = convert_to_string (request.database_users ()->getUserLevel (user));
+  post ["l"] = convert_to_string (request.database_users ()->get_level (user));
 
   
   // Error variable.

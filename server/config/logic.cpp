@@ -41,16 +41,24 @@ const char * config_logic_version ()
 
 
 // Return the network port configured for the server.
-const char * config_logic_http_network_port ()
+string config_logic_http_network_port ()
 {
-  return NETWORK_PORT;
+  // Read the port number from file.
+  string path = filter_url_create_root_path (config_logic_config_folder (), "network-port");
+  string port = filter_url_file_get_contents (path);
+  // Remove white-space, e.g. a new line, that easily makes its way into the configuration file.
+  port = filter_string_trim (port);
+  // Default value.
+  if (port.empty ()) port = "8080";
+  // Done.
+  return port;
 }
 
 
 // Return the secure network port for the secure server.
 int config_logic_https_network_port ()
 {
-  int port = convert_to_int (NETWORK_PORT);
+  int port = convert_to_int (config_logic_http_network_port ());
   // The secure port is the plain http port plus one.
   port++;
   return port;
@@ -60,28 +68,32 @@ int config_logic_https_network_port ()
 // Returns whether demo mode is enabled during configure.
 bool config_logic_demo_enabled ()
 {
-  return (strcmp (DEMO, "yes") == 0);
+  string path = filter_url_create_root_path (config_logic_config_folder (), "demo");
+  return file_or_dir_exists (path);
 }
 
 
 // The configured admin's username.
 string config_logic_admin_username ()
 {
-  return ADMIN_USERNAME;
+  string path = filter_url_create_root_path (config_logic_config_folder (), "admin-username");
+  return filter_string_trim (filter_url_file_get_contents (path));
 }
 
 
 // The configured admin's password.
 string config_logic_admin_password ()
 {
-  return ADMIN_PASSWORD;
+  string path = filter_url_create_root_path (config_logic_config_folder (), "admin-password");
+  return filter_string_trim (filter_url_file_get_contents (path));
 }
 
 
 // The configured admin's email.
 string config_logic_admin_email ()
 {
-  return ADMIN_EMAIL;
+  string path = filter_url_create_root_path (config_logic_config_folder (), "admin-email");
+  return filter_string_trim (filter_url_file_get_contents (path));
 }
 
 
@@ -100,22 +112,10 @@ int my_stoi (const string& str, void * idx, int base)
 
 
 // Returns whether the interface is supposed to be in basic mode.
-// When the mode was flipped, this used to expire after some hours.
-// But there may be people working on a tablet,
-// who would want to permanently switch to advanced mode, without this mode to expire.
-// Therefore the mode flip switch is now permanent, till flipped again.
 bool config_logic_basic_mode (void * webserver_request)
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
-  
-  // When this is a touch-enabled device, the basic mode will be on.
-  bool basic_mode = request->session_logic ()->touchEnabled ();
-  
-  // Check whether to flip basic <> advanced mode.
-  if (request->database_config_user ()->getFlipInterfaceMode ()) {
-    basic_mode = !basic_mode;
-  }
-  
+  bool basic_mode = request->database_config_user ()->getBasicInterfaceMode ();
   return basic_mode;
 }
 

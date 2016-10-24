@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <notes/index.h>
 #include <resource/index.h>
 #include <changes/changes.h>
-#include <workbench/index.h>
+#include <workspace/index.h>
 #include <session/login.h>
 #include <bible/logic.h>
 
@@ -53,27 +53,19 @@ string index_index (void * webserver_request)
   Assets_Header header = Assets_Header ("Bibledit", webserver_request);
   
   if (config_logic_demo_enabled ()) {
-    // The demo, when there's no active menu, forwards to a the active workbench.
+    // The demo, when there's no active menu, forwards to a the active workspace.
     if (request->query.empty ()) {
-      header.refresh (5, "/" + workbench_index_url ());
+      header.refresh (5, "/" + workspace_index_url ());
     }
   }
   
-  // Mode toggle: basic <> advanced.
+  // Basic or advanced mode setting.
   string mode = request->query ["mode"];
   if (!mode.empty ()) {
-    int flip = false;
-    if (mode == "basic") {
-      if (!request->session_logic ()->touchEnabled ()) {
-        flip = true;
-      }
-    }
-    if (mode == "advanced") {
-      if (request->session_logic ()->touchEnabled ()) {
-        flip = true;
-      }
-    }
-    request->database_config_user ()->setFlipInterfaceMode (flip);
+    bool basic = false;
+    if (mode == "basic") basic = true;
+    if (mode == "advanced") basic = false;
+    request->database_config_user ()->setBasicInterfaceMode (basic);
   }
   
   // Normally a page does not show the expanded main menu.

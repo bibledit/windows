@@ -42,8 +42,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <manage/hyphenation.h>
 #include <manage/write.h>
 #include <manage/privileges.h>
-#include <administration/language.h>
-#include <administration/timezone.h>
+#include <system/timezone.h>
+#include <system/index.h>
 #include <collaboration/index.h>
 #include <collaboration/url.h>
 #include <collaboration/direction.h>
@@ -97,9 +97,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <search/strongs.h>
 #include <search/strong.h>
 #include <search/originals.h>
-#include <workbench/index.h>
-#include <workbench/organize.h>
-#include <workbench/settings.h>
+#include <workspace/index.h>
+#include <workspace/organize.h>
+#include <workspace/settings.h>
 #include <sendreceive/index.h>
 #include <client/index.h>
 #include <sync/setup.h>
@@ -156,6 +156,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <changes/changes.h>
 #include <changes/change.h>
 #include <changes/manage.h>
+#include <changes/statistics.h>
 #include <index/listing.h>
 #include <sprint/index.h>
 #include <checks/index.h>
@@ -375,13 +376,13 @@ void bootstrap_index (void * webserver_request)
     return;
   }
   
-  if ((url == workbench_index_url ()) && browser_request_security_okay (request) && workbench_index_acl (request)) {
-    request->reply = workbench_index (request);
+  if ((url == workspace_index_url ()) && browser_request_security_okay (request) && workspace_index_acl (request)) {
+    request->reply = workspace_index (request);
     return;
   }
   
-  if ((url == workbench_organize_url ()) && browser_request_security_okay (request) && workbench_organize_acl (request)) {
-    request->reply = workbench_organize (request);
+  if ((url == workspace_organize_url ()) && browser_request_security_okay (request) && workspace_organize_acl (request)) {
+    request->reply = workspace_organize (request);
     return;
   }
   
@@ -592,6 +593,11 @@ void bootstrap_index (void * webserver_request)
     request->reply = changes_manage (request);
     return;
   }
+  
+  if ((url == changes_statistics_url ()) && browser_request_security_okay (request) && changes_statistics_acl (request)) {
+    request->reply = changes_statistics (request);
+    return;
+  }
 
   // Planning menu.
   if ((url == sprint_index_url ()) && browser_request_security_okay (request) && sprint_index_acl (request)) {
@@ -641,13 +647,8 @@ void bootstrap_index (void * webserver_request)
     return;
   }
   
-  if ((url == administration_language_url ()) && browser_request_security_okay (request) && administration_language_acl (request)) {
-    request->reply = administration_language (request);
-    return;
-  }
-  
-  if ((url == administration_timezone_url ()) && browser_request_security_okay (request) && administration_timezone_acl (request)) {
-    request->reply = administration_timezone (request);
+  if ((url == system_index_url ()) && browser_request_security_okay (request) && system_index_acl (request)) {
+    request->reply = system_index (request);
     return;
   }
   
@@ -820,8 +821,8 @@ void bootstrap_index (void * webserver_request)
     return;
   }
   
-  if ((url == workbench_settings_url ()) && browser_request_security_okay (request) && workbench_settings_acl (request)) {
-    request->reply = workbench_settings (request);
+  if ((url == workspace_settings_url ()) && browser_request_security_okay (request) && workspace_settings_acl (request)) {
+    request->reply = workspace_settings (request);
     return;
   }
   
@@ -1147,8 +1148,8 @@ void bootstrap_index (void * webserver_request)
   }
 
   // Internal settings calls.
-  if ((url == administration_timeoffset_url ()) && administration_timeoffset_acl (request)) {
-    request->reply = administration_timeoffset (request);
+  if ((url == system_timeoffset_url ()) && system_timeoffset_acl (request)) {
+    request->reply = system_timeoffset (request);
     return;
   }
 

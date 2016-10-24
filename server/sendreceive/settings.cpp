@@ -113,8 +113,8 @@ void sendreceive_settings ()
   // The POST request contains the credentials.
   map <string, string> post;
   post ["u"] = bin2hex (user);
-  post ["p"] = request.database_users ()->getmd5 (user);
-  post ["l"] = convert_to_string (request.database_users ()->getUserLevel (user));
+  post ["p"] = request.database_users ()->get_md5 (user);
+  post ["l"] = convert_to_string (request.database_users ()->get_level (user));
 
   for (auto id : ids) {
 
@@ -123,14 +123,14 @@ void sendreceive_settings ()
 
     string value;
     switch (id) {
-      case Sync_Logic::settings_send_workbench_urls:
-        value = request.database_config_user()->getWorkbenchURLs ();
+      case Sync_Logic::settings_send_workspace_urls:
+        value = request.database_config_user()->getWorkspaceURLs ();
         break;
-      case Sync_Logic::settings_send_workbench_widths:
-        value = request.database_config_user()->getWorkbenchWidths ();
+      case Sync_Logic::settings_send_workspace_widths:
+        value = request.database_config_user()->getWorkspaceWidths ();
         break;
-      case Sync_Logic::settings_send_workbench_heights:
-        value = request.database_config_user()->getWorkbenchHeights ();
+      case Sync_Logic::settings_send_workspace_heights:
+        value = request.database_config_user()->getWorkspaceHeights ();
         break;
       case Sync_Logic::settings_send_resources_organization:
         vector <string> resources = request.database_config_user()->getActiveResources ();
@@ -163,7 +163,7 @@ void sendreceive_settings ()
     platform_id = PLATFORM_ANDROID;
 #endif
 #ifdef HAVE_MAC
-    platform_id = PLATFORM_MAC;
+    platform_id = PLATFORM_MACOS;
 #endif
 #ifdef HAVE_LINUX
     platform_id = PLATFORM_LINUX;
@@ -210,37 +210,37 @@ void sendreceive_settings ()
   // At this stage the total checksum of all relevant settings on the client differs from the same on the server.
   // Request all settings from the server.
 
-  post ["a"] = convert_to_string (Sync_Logic::settings_get_workbench_urls);
+  post ["a"] = convert_to_string (Sync_Logic::settings_get_workspace_urls);
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
-    Database_Logs::log ("Failure receiving workbench URLS", Filter_Roles::translator ());
+    Database_Logs::log ("Failure receiving workspace URLS", Filter_Roles::translator ());
     sendreceive_settings_done ();
     return;
   }
-  request.database_config_user()->setWorkbenchURLs (response);
+  request.database_config_user()->setWorkspaceURLs (response);
 
-  post ["a"] = convert_to_string (Sync_Logic::settings_get_workbench_widths);
+  post ["a"] = convert_to_string (Sync_Logic::settings_get_workspace_widths);
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
-    Database_Logs::log ("Failure receiving workbench widths", Filter_Roles::translator ());
+    Database_Logs::log ("Failure receiving workspace widths", Filter_Roles::translator ());
     sendreceive_settings_done ();
     return;
   }
-  request.database_config_user()->setWorkbenchWidths (response);
+  request.database_config_user()->setWorkspaceWidths (response);
 
-  post ["a"] = convert_to_string (Sync_Logic::settings_get_workbench_heights);
+  post ["a"] = convert_to_string (Sync_Logic::settings_get_workspace_heights);
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
-    Database_Logs::log ("Failure receiving workbench heights", Filter_Roles::translator ());
+    Database_Logs::log ("Failure receiving workspace heights", Filter_Roles::translator ());
     sendreceive_settings_done ();
     return;
   }
-  request.database_config_user()->setWorkbenchHeights (response);
+  request.database_config_user()->setWorkspaceHeights (response);
 
   post ["a"] = convert_to_string (Sync_Logic::settings_get_resources_organization);
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
-    Database_Logs::log ("Failure receiving workbench heights", Filter_Roles::translator ());
+    Database_Logs::log ("Failure receiving workspace heights", Filter_Roles::translator ());
     sendreceive_settings_done ();
     return;
   }

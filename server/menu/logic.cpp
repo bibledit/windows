@@ -19,8 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <menu/logic.h>
 #include <menu/index.h>
-#include <administration/language.h>
-#include <administration/timezone.h>
+#include <system/index.h>
 #include <bible/manage.h>
 #include <changes/changes.h>
 #include <changes/manage.h>
@@ -80,18 +79,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <user/account.h>
 #include <user/notifications.h>
 #include <versification/index.h>
-#include <workbench/index.h>
-#include <workbench/logic.h>
-#include <workbench/logic.h>
-#include <workbench/logic.h>
-#include <workbench/organize.h>
-#include <workbench/organize.h>
+#include <workspace/index.h>
+#include <workspace/logic.h>
+#include <workspace/logic.h>
+#include <workspace/logic.h>
+#include <workspace/organize.h>
+#include <workspace/organize.h>
 #include <xrefs/index.h>
 #include <public/index.h>
 #include <public/logic.h>
 #include <filter/url.h>
 #include <basic/index.h>
 #include <bible/logic.h>
+#include <ldap/logic.h>
 
 
 string menu_logic_href (string href)
@@ -174,11 +174,11 @@ string menu_logic_main_categories (void * webserver_request, string & tooltip)
   vector <string> html;
   vector <string> tooltipbits;
 
-  if (workbench_index_acl (webserver_request)) {
-    string label = translate ("Desktop");
+  if (workspace_index_acl (webserver_request)) {
+    string label = translate ("Workspace");
     string tooltip;
     menu_logic_desktop_category (webserver_request, &tooltip);
-    html.push_back (menu_logic_create_item (workbench_index_url (), label, true, tooltip));
+    html.push_back (menu_logic_create_item (workspace_index_url (), label, true, tooltip));
     tooltipbits.push_back (label);
   }
 
@@ -266,6 +266,12 @@ string menu_logic_basic_categories (void * webserver_request)
     html.push_back (menu_logic_create_item (editone_index_url (), translate ("Translation"), true));
   }
   
+  if (changes_changes_acl (webserver_request)) {
+    if (request->database_config_user ()->getMenuChangesInBasicMode ()) {
+      html.push_back (menu_logic_create_item (changes_changes_url (), menu_logic_changes_text (), true));
+    }
+  }
+
   if (notes_index_acl (webserver_request)) {
     html.push_back (menu_logic_create_item (notes_index_url (), translate ("Notes"), true));
   }
@@ -315,12 +321,12 @@ string menu_logic_desktop_category (void * webserver_request, string * tooltip)
 
   // Add the available configured desktops to the menu.
   // The user's role should be sufficiently high.
-  if (workbench_organize_acl (webserver_request)) {
-    vector <string> workbenches = workbench_get_names (webserver_request);
-    for (size_t i = 0; i < workbenches.size(); i++) {
-      string item = menu_logic_create_item (workbench_index_url () + "?bench=" + convert_to_string (i), workbenches[i], true);
+  if (workspace_organize_acl (webserver_request)) {
+    vector <string> workspacees = workspace_get_names (webserver_request);
+    for (size_t i = 0; i < workspacees.size(); i++) {
+      string item = menu_logic_create_item (workspace_index_url () + "?bench=" + convert_to_string (i), workspacees[i], true);
       html.push_back (item);
-      labels.push_back (workbenches [i]);
+      labels.push_back (workspacees [i]);
     }
   }
 
@@ -637,11 +643,9 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
   string checks = menu_logic_checks_settings_text ();
   string resources = menu_logic_resources_text ();
   string changes = menu_logic_changes_text ();
-  string personalize = translate ("Personalize");
+  string preferences = translate ("Preferences");
   string users = menu_logic_manage_users_text ();
   string indexes_fonts = translate ("Indexes and Fonts");
-  string language = translate ("Language");
-  string timezone = translate ("Timezone");
   string mail = translate ("Mail");
   string styles = menu_logic_styles_text ();
   string versifications = menu_logic_versification_index_text ();
@@ -653,17 +657,16 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
   string notifications = translate ("Notifications");
   string account = translate ("Account");
   string basic_mode = translate ("Basic mode");
+  string system = translate ("System");
   vector <string> labels = {
     bibles,
     desktops,
     checks,
     resources,
     changes,
-    personalize,
+    preferences,
     users,
     indexes_fonts,
-    language,
-    timezone,
     mail,
     styles,
     versifications,
@@ -674,7 +677,8 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
     logout,
     notifications,
     account,
-    basic_mode
+    basic_mode,
+    system
   };
   
   // Sort the labels in alphabetical order for the menu.
@@ -694,8 +698,8 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
     }
     
     if (label == desktops) {
-      if (workbench_organize_acl (webserver_request)) {
-        html.push_back (menu_logic_create_item (workbench_organize_url (), menu_logic_desktop_organize_text (), true));
+      if (workspace_organize_acl (webserver_request)) {
+        html.push_back (menu_logic_create_item (workspace_organize_url (), menu_logic_desktop_organize_text (), true));
         tiplabels.push_back (menu_logic_desktop_organize_text ());
       }
     }
@@ -734,7 +738,7 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
 #endif
     }
     
-    if (label == personalize) {
+    if (label == preferences) {
       if (personalize_index_acl (webserver_request)) {
         html.push_back (menu_logic_create_item (personalize_index_url (), label, true));
         tiplabels.push_back (label);
@@ -754,26 +758,6 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
       if (manage_index_acl (webserver_request)) {
         html.push_back (menu_logic_create_item (manage_index_url (), label, true));
         tiplabels.push_back (label);
-      }
-    }
-    
-    if (label == language) {
-      if (administration_language_acl (webserver_request)) {
-        html.push_back (menu_logic_create_item (administration_language_url (), label, true));
-        tiplabels.push_back (label);
-      }
-    }
-    
-    if (label == timezone) {
-      if (administration_timezone_acl (webserver_request)) {
-        // Display menu to set the site's timezone only in case the calling program has not yet set this zone in the library.
-        // So for example the app for iOS can set the timezone from the device, and in case this has been done,
-        // then the user no longer can set it through Bibledit.
-        if ((config_globals_timezone_offset_utc < MINIMUM_TIMEZONE)
-            || (config_globals_timezone_offset_utc > MAXIMUM_TIMEZONE)) {
-          html.push_back (menu_logic_create_item (administration_timezone_url (), label, true));
-          tiplabels.push_back (label);
-        }
       }
     }
     
@@ -864,9 +848,11 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
     
     if (label == account) {
       if (!(client || demo)) {
-        if (user_account_acl (webserver_request)) {
-          html.push_back (menu_logic_create_item (user_account_url (), label, true));
-          tiplabels.push_back (label);
+        if (!ldap_logic_is_on ()) {
+          if (user_account_acl (webserver_request)) {
+            html.push_back (menu_logic_create_item (user_account_url (), label, true));
+            tiplabels.push_back (label);
+          }
         }
       }
     }
@@ -877,6 +863,14 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
         tiplabels.push_back (label);
       }
     }
+    
+    if (label == system) {
+      if (system_index_acl (webserver_request)) {
+        html.push_back (menu_logic_create_item (system_index_url (), label, true));
+        tiplabels.push_back (label);
+      }
+    }
+
   }
   
   if (!html.empty ()) {
@@ -1075,7 +1069,7 @@ string menu_logic_bible_manage_text ()
 
 string menu_logic_desktop_organize_text ()
 {
-  return translate ("Desktops");
+  return translate ("Workspaces");
 }
 
 

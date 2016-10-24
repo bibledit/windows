@@ -37,6 +37,7 @@
 #include <database/login.h>
 #include <database/privileges.h>
 #include <database/git.h>
+#include <database/statistics.h>
 #include <styles/sheets.h>
 #include <filter/string.h>
 #include <filter/url.h>
@@ -230,8 +231,11 @@ void setup_initialize_data ()
   Database_Privileges::create ();
   Database_Privileges::upgrade ();
   Database_Privileges::optimize ();
-  config_globals_setup_message = "privileges";
+  config_globals_setup_message = "git";
   Database_Git::create ();
+  config_globals_setup_message = "statistics";
+  Database_Statistics::create ();
+  Database_Statistics::optimize ();
 
   // Create stylesheets.
   config_globals_setup_message = "stylesheets";
@@ -267,7 +271,7 @@ void setup_set_admin_details (string username, string password, string email)
 {
   Database_Users database_users;
   database_users.removeUser (username);
-  database_users.addNewUser (username, password, Filter_Roles::admin (), email);
+  database_users.add_user (username, password, Filter_Roles::admin (), email);
 }
 
 

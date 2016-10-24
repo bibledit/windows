@@ -20,10 +20,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <user/logic.h>
 #include <filter/string.h>
 #include <filter/url.h>
+#include <filter/md5.h>
 #include <database/users.h>
 #include <database/config/user.h>
 #include <database/logs.h>
 #include <email/send.h>
+#include <ldap/logic.h>
+#include <webserver/request.h>
 
 
 typedef struct
@@ -34,6 +37,7 @@ typedef struct
   const char * prefix;
   const char * suffix;
   bool join;
+  const char * info;
 } platform_record;
 
 
@@ -44,44 +48,51 @@ platform_record platform_table [] =
     "Windows",
     "http://bibledit.org/windows",
     "<a href=\"", "\">",
-    true
+    true,
+    "https://bibledit.org:8081/help/installwindows"
   },
   {
     PLATFORM_ANDROID,
     "Android",
     "https://play.google.com/store/apps/details?id=org.bibledit.android",
     "\"softwareVersion\">", "</div>",
-    false
+    false,
+    "https://bibledit.org:8081/help/installandroid"
   },
-  { PLATFORM_MAC,
+  { PLATFORM_MACOS,
     "Mac",
     "https://itunes.apple.com/en/app/bibledit/id996639148",
     "\"softwareVersion\">", "</span>",
-    false
+    false,
+    "https://bibledit.org:8081/help/installosx"
   },
   { PLATFORM_LINUX,
     "Linux",
     "http://bibledit.org/linux",
     "<a href=\"", "\">",
-    true
+    true,
+    "https://bibledit.org:8081/help/installlinux"
   },
   { PLATFORM_IOS,
     "iOS",
     "https://itunes.apple.com/en/app/bibledit/id967595683",
     "\"softwareVersion\">", "</span>",
-    false
+    false,
+    "https://bibledit.org:8081/help/installios"
   },
   { PLATFORM_CHROMEOS,
     "Chrome OS",
     "https://chrome.google.com/webstore/detail/bibledit/aiaanakhppdclmabkcnpmnidajanaoda",
     "\"version\" content=\"", "\"",
-    false
+    false,
+    "https://bibledit.org:8081/help/installchromeos"
   },
   { PLATFORM_CLOUD,
     "Cloud",
     "http://bibledit.org/cloud",
     "<a href=\"", "\">",
-    true
+    true,
+    "https://bibledit.org:8081/help/installcloudubuntu"
   }
 };
 
@@ -184,7 +195,9 @@ void user_logic_software_updates_notify ()
             body.push_back ("Version: " + version);
             bool join = platform_table[platform].join;
             if (join) url = filter_url_create_path (url, online_version_number);
-            body.push_back (url);
+            body.push_back ("Download: " + url);
+            string info = platform_table[platform].info;
+            body.push_back ("Info: " + info);
             email_schedule (user, "Bibledit " + name + " update", filter_string_implode (body, "<br>"));
             user_version_numbers [platform] = online_version_number;
             user_versions_updated = true;
@@ -202,6 +215,39 @@ void user_logic_software_updates_notify ()
       // The purpose of this is that if a user stops running on a certain platform,
       // the user won't keep getting update notifications for this platform.
       database_config_user.setConnectedClientsForUser (user, {});
+    }
+  }
+}
+
+
+void user_logic_optional_ldap_authentication (void * webserver_request, string user, string pass)
+{
+  if (ldap_logic_is_on ()) {
+    // Query the LDAP server and log the response.
+    bool ldap_okay;
+    string email;
+    int role;
+    ldap_logic_fetch (user, pass, ldap_okay, email, role, true);
+    if (ldap_okay) {
+      Webserver_Request * request = (Webserver_Request *) webserver_request;
+      if (request->database_users ()->usernameExists (user)) {
+        // Verify and/or update the fields for the user in the local database.
+        if (request->database_users ()->get_md5 (user) != md5 (pass)) {
+          request->database_users ()->set_password (user, pass);
+        }
+        if (request->database_users ()->get_level (user) != role) {
+          request->database_users ()->set_level (user, role);
+        }
+        if (request->database_users ()->get_email (user) != email) {
+          request->database_users ()->updateUserEmail (user, email);
+        }
+        if (!request->database_users ()->get_enabled (user)) {
+          request->database_users ()->set_enabled (user, true);
+        }
+      } else {
+        // Enter the user into the database.
+        request->database_users ()->add_user (user, pass, role, email);
+      }
     }
   }
 }

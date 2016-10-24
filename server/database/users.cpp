@@ -29,46 +29,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // This database is resilient.
 // The data is stored in a SQLite database.
 // This part is read often, and infrequently written to.
-// Due to the infrequent write operations, there is a low and acceptable change of corruption.
-
-
-sqlite3 * Database_Users::connect ()
-{
-  return database_sqlite_connect ("users");
-}
+// Due to the infrequent write operations, there is a low and acceptable chance of corruption.
 
 
 void Database_Users::create ()
 {
-  sqlite3 * db = connect ();
-  string sql;
-  
-  sql = "CREATE TABLE IF NOT EXISTS users ("
-        " username text,"
-        " password text,"
-        " level integer,"
-        " email text"
-        ");";
-  database_sqlite_exec (db, sql);
-  
-  // Drop tables that formerly were included in this database, but are now separate.
-  sql = "DROP TABLE IF EXISTS teams;";
-  database_sqlite_exec (db, sql);
-  sql = "DROP TABLE IF EXISTS logins;";
-  database_sqlite_exec (db, sql);
-  sql = "DROP TABLE IF EXISTS readonly;";
-  database_sqlite_exec (db, sql);
-  
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (filename ());
+  sql.add ("CREATE TABLE IF NOT EXISTS users (username text, password text, level integer, email text);");
+  sql.execute ();
 }
 
 
 void Database_Users::upgrade ()
 {
-  // Column 'timestamp' is available in older databases.
-  // It is not in use.
-  // It cannot be dropped easily in SQLite.
-  // Leave it for just now.
+  // Several extra columns are available in older databases.
+  // They are not in use.
+  // They cannot be dropped easily in SQLite.
+  // Leave them for just now.
+
+  // Add columns for LDAP authentication and for disabling an account,
+  // if the columns are not yet there.
+  SqliteDatabase sql (filename ());
+  sql.add ("PRAGMA table_info (users);");
+  vector <string> columns = sql.query () ["name"];
+  if (!in_array ((string)"ldap", columns)) {
+    sql.clear ();
+    sql.add ("ALTER TABLE users ADD COLUMN ldap boolean;");
+    sql.execute ();
+  }
+  if (!in_array ((string)"disabled", columns)) {
+    sql.clear ();
+    sql.add ("ALTER TABLE users ADD COLUMN disabled boolean;");
+    sql.execute ();
+  }
 }
 
 
@@ -79,47 +72,53 @@ void Database_Users::trim ()
 
 void Database_Users::optimize ()
 {
-  sqlite3 * db = connect ();
-  string sql = "VACUUM;";
-  database_sqlite_exec (db, sql);
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (filename ());
+  sql.add ("VACUUM;");
+  sql.execute ();
 }
 
 
 // Add the user details to the database.
-void Database_Users::addNewUser (string username, string password, int level, string email)
+void Database_Users::add_user (string user, string password, int level, string email)
 {
-  username = database_sqlite_no_sql_injection (username);
-  email = database_sqlite_no_sql_injection (email);
-  sqlite3 * db = connect ();
-  string sql = "INSERT INTO users (username, level, email) VALUES ('" + username + "', " + convert_to_string (level) + ", '" + email + "');";
-  database_sqlite_exec (db, sql);
-  database_sqlite_disconnect (db);
-  updateUserPassword (username, password);
+  {
+    SqliteDatabase sql (filename ());
+    sql.add ("INSERT INTO users (username, level, email) VALUES (");
+    sql.add (user);
+    sql.add (",");
+    sql.add (level);
+    sql.add (",");
+    sql.add (email);
+    sql.add (");");
+    sql.execute ();
+  }
+  set_password (user, password);
 }
 
 
 // Updates the password for user.
-void Database_Users::updateUserPassword (string user, string password)
+void Database_Users::set_password (string user, string password)
 {
-  user = database_sqlite_no_sql_injection (user);
-  password = md5 (password);
-  sqlite3 * db = connect ();
-  string sql = "UPDATE users SET password = '" + password + "' WHERE username = '" + user + "';";
-  database_sqlite_exec (db, sql);
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (filename ());
+  sql.add ("UPDATE users SET password =");
+  sql.add (md5 (password));
+  sql.add ("WHERE username =");
+  sql.add (user);
+  sql.add (";");
+  sql.execute ();
 }
 
 
-// Returns true if the username and password match.
-bool Database_Users::matchUsernamePassword (string username, string password)
+// Returns true if the user and password match.
+bool Database_Users::matchUserPassword (string user, string password)
 {
-  username = database_sqlite_no_sql_injection (username);
-  password = md5 (password);
-  sqlite3 * db = connect ();
-  string sql = "SELECT * FROM users WHERE username = '" + username + "' and password = '" + password + "';";
-  vector <string> result = database_sqlite_query (db, sql) ["username"];
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (filename ());
+  sql.add ("SELECT username FROM users WHERE username =");
+  sql.add (user);
+  sql.add ("AND password =");
+  sql.add (md5 (password));
+  sql.add ("AND (disabled IS NULL OR disabled = 0);");
+  vector <string> result = sql.query () ["username"];
   return (!result.empty());
 }
 
@@ -127,23 +126,24 @@ bool Database_Users::matchUsernamePassword (string username, string password)
 // Returns true if the email and password match.
 bool Database_Users::matchEmailPassword (string email, string password)
 {
-  email = database_sqlite_no_sql_injection (email);
-  password = md5 (password);
-  string sql = "SELECT * FROM users WHERE email = '" + email + "' and password = '" + password + "';";
-  sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql) ["username"];
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (filename ());
+  sql.add ("SELECT username FROM users WHERE email =");
+  sql.add (email);
+  sql.add ("AND password =");
+  sql.add (md5 (password));
+  sql.add ("AND (disabled IS NULL OR disabled = 0);");
+  vector <string> result = sql.query () ["username"];
   return (!result.empty());
 }
 
 
 // Returns the query to execute to add a new user.
-string Database_Users::addNewUserQuery (string username, string password, int level, string email)
+string Database_Users::add_userQuery (string user, string password, int level, string email)
 {
-  username = database_sqlite_no_sql_injection (username);
+  user = database_sqlite_no_sql_injection (user);
   password = md5 (password);
   email = database_sqlite_no_sql_injection (email);
-  string query = "INSERT INTO users (username, password, level, email) VALUES ('" + username + "', '" + password + "', " + convert_to_string (level) + ", '" + email + "');";
+  string query = "INSERT INTO users (username, password, level, email) VALUES ('" + user + "', '" + password + "', " + convert_to_string (level) + ", '" + email + "');";
   return query;
 }
 
@@ -151,24 +151,24 @@ string Database_Users::addNewUserQuery (string username, string password, int le
 // Returns the username that belongs to the email.
 string Database_Users::getEmailToUser (string email)
 {
-  email = database_sqlite_no_sql_injection (email);
-  string sql = "SELECT username FROM users WHERE email = '" + email + "';";
-  sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql) ["username"];
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (filename ());
+  sql.add ("SELECT username FROM users WHERE email =");
+  sql.add (email);
+  sql.add (";");
+  vector <string> result = sql.query () ["username"];
   if (!result.empty()) return result [0];
   return "";
 }
 
 
 // Returns the email address that belongs to user.
-string Database_Users::getUserToEmail (string user)
+string Database_Users::get_email (string user)
 {
-  user = database_sqlite_no_sql_injection (user);
-  string sql = "SELECT email FROM users WHERE username = '" + user + "';";
-  sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql) ["email"];
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (filename ());
+  sql.add ("SELECT email FROM users WHERE username = ");
+  sql.add (user);
+  sql.add (";");
+  vector <string> result = sql.query () ["email"];
   if (!result.empty()) return result [0];
   return "";
 }
@@ -177,11 +177,11 @@ string Database_Users::getUserToEmail (string user)
 // Returns true if the username exists in the database.
 bool Database_Users::usernameExists (string user)
 {
-  user = database_sqlite_no_sql_injection (user);
-  string sql = "SELECT * FROM users WHERE username = '" + user + "';";
-  sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql) ["username"];
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (filename ());
+  sql.add ("SELECT username FROM users WHERE username =");
+  sql.add (user);
+  sql.add (";");
+  vector <string> result = sql.query () ["username"];
   return !result.empty ();
 }
 
@@ -189,107 +189,170 @@ bool Database_Users::usernameExists (string user)
 // Returns true if the email address exists in the database.
 bool Database_Users::emailExists (string email)
 {
-  email  = database_sqlite_no_sql_injection (email);
-  string sql  = "SELECT * FROM users WHERE email = '" + email + "';";
-  sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql) ["username"];
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (filename ());
+  sql.add ("SELECT username FROM users WHERE email = ");
+  sql.add (email);
+  sql.add (";");
+  vector <string> result = sql.query () ["username"];
   return !result.empty ();
 }
 
 
 // Returns the level that belongs to the user.
-int Database_Users::getUserLevel (string user)
+int Database_Users::get_level (string user)
 {
-  user = database_sqlite_no_sql_injection (user);
-  string sql = "SELECT level FROM users WHERE username = '" + user + "';";
-  sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql) ["level"];
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (filename ());
+  sql.add ("SELECT level FROM users WHERE username = ");
+  sql.add (user);
+  sql.add (";");
+  vector <string> result = sql.query () ["level"];
   if (!result.empty()) return convert_to_int (result [0]);
   return Filter_Roles::guest ();
 }
 
 
 // Updates the level of a given user.
-void Database_Users::updateUserLevel (string user, int level)
+void Database_Users::set_level (string user, int level)
 {
-  user = database_sqlite_no_sql_injection (user);
-  string sql = "UPDATE users SET level = " + convert_to_string (level) + " WHERE username = '" + user + "';";
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql);
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (filename ());
+  sql.add ("UPDATE users SET level =");
+  sql.add (level);
+  sql.add ("WHERE username =");
+  sql.add (user);
+  sql.add (";");
+  sql.execute ();
 }
 
 
 // Remove a user from the database.
 void Database_Users::removeUser (string user)
 {
-  user = database_sqlite_no_sql_injection (user);
-  sqlite3 * db = connect ();
-  string sql = "DELETE FROM users WHERE username = '" + user + "'";
-  database_sqlite_exec (db, sql);
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (filename ());
+  sql.add ("DELETE FROM users WHERE username =");
+  sql.add (user);
+  sql.add (";");
+  sql.execute ();
 }
 
 
 // Returns an array with the usernames of the site administrators.
 vector <string> Database_Users::getAdministrators ()
 {
-  string sql = "SELECT username FROM users WHERE level = " + convert_to_string (Filter_Roles::admin ()) + ";";
-  sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql) ["username"];
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (filename ());
+  sql.add ("SELECT username FROM users WHERE level =");
+  sql.add (Filter_Roles::admin ());
+  sql.add ("AND (disabled IS NULL OR disabled = 0);");
+  vector <string> result = sql.query () ["username"];
   return result;
 }
 
 
 // Returns the query to update a user's email address.
-string Database_Users::updateEmailQuery (string username, string email)
+string Database_Users::updateEmailQuery (string user, string email)
 {
-  return "UPDATE users SET email = '" + email + "' WHERE username = '" + username + "';";
+  SqliteDatabase sql (filename ());
+  sql.add ("UPDATE users SET email =");
+  sql.add (email);
+  sql.add ("WHERE username =");
+  sql.add (user);
+  sql.add (";");
+  return sql.sql;
 }
 
 
 // Updates the "email" for "user".
 void Database_Users::updateUserEmail (string user, string email)
 {
-  user = database_sqlite_no_sql_injection (user);
-  email = database_sqlite_no_sql_injection (email);
-  string sql = updateEmailQuery (user, email);
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql);
-  database_sqlite_disconnect (db);
+  execute (updateEmailQuery (user, email));
 }
 
 
 // Return an array with the available users.
 vector <string> Database_Users::getUsers ()
 {
-  string sql = "SELECT username FROM users;";
-  sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql) ["username"];
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (filename ());
+  sql.add ("SELECT username FROM users;");
+  vector <string> result = sql.query () ["username"];
   return result;
 }
 
 
 // Returns the md5 hash for the $user's password.
-string Database_Users::getmd5 (string user)
+string Database_Users::get_md5 (string user)
 {
-  user = database_sqlite_no_sql_injection (user);
-  string sql = "SELECT password FROM users WHERE username = '" + user + "';";
-  sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql) ["password"];
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (filename ());
+  sql.add ("SELECT password FROM users WHERE username =");
+  sql.add (user);
+  sql.add (";");
+  vector <string> result = sql.query () ["password"];
   if (!result.empty()) return result [0];
   return "";
 }
 
 
-void Database_Users::execute (const string& sql)
+// Executes the SQL fragment.
+void Database_Users::execute (string sqlfragment)
 {
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql);
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (filename ());
+  sql.sql = sqlfragment;
+  sql.execute ();
+}
+
+
+// Set the LDAP state for the $user account $on or off.
+void Database_Users::set_ldap (string user, bool on)
+{
+  SqliteDatabase sql (filename ());
+  sql.add ("UPDATE users SET ldap =");
+  sql.add (convert_to_int (on));
+  sql.add ("WHERE username =");
+  sql.add (user);
+  sql.add (";");
+  sql.execute ();
+}
+
+
+// Get whether the $user account comes from a LDAP server.
+bool Database_Users::get_ldap (string user)
+{
+  SqliteDatabase sql (filename ());
+  sql.add ("SELECT ldap FROM users WHERE username =");
+  sql.add (user);
+  sql.add (";");
+  vector <string> result = sql.query () ["ldap"];
+  if (!result.empty()) return convert_to_bool (result [0]);
+  return false;
+}
+
+
+// Enable the $user account.
+void Database_Users::set_enabled (string user, bool on)
+{
+  SqliteDatabase sql (filename ());
+  sql.add ("UPDATE users SET disabled =");
+  sql.add (convert_to_int (!on));
+  sql.add ("WHERE username =");
+  sql.add (user);
+  sql.add (";");
+  sql.execute ();
+}
+
+
+// Disable the $user account.
+bool Database_Users::get_enabled (string user)
+{
+  SqliteDatabase sql (filename ());
+  sql.add ("SELECT disabled FROM users WHERE username =");
+  sql.add (user);
+  sql.add (";");
+  vector <string> result = sql.query () ["disabled"];
+  if (!result.empty()) return !convert_to_bool (result [0]);
+  return false;
+}
+
+
+// The filename of the database.
+const char * Database_Users::filename ()
+{
+  return "users";
 }

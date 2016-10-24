@@ -69,12 +69,12 @@ Session_Logic::Session_Logic (void * webserver_request_in)
 {
   webserver_request = webserver_request_in;
   touch_enabled = false;
-  Open ();
+  open ();
 }
 
 
 // Call this when logging in.
-void Session_Logic::Open ()
+void Session_Logic::open ()
 {
   if (openAccess ()) return;
   if (clientAccess ()) return;
@@ -149,7 +149,7 @@ bool Session_Logic::attemptLogin (string user_or_email, string password, bool to
   Database_Users database = Database_Users ();
   bool login_okay = false;
   // Match username and email.
-  if (database.matchUsernamePassword (user_or_email, password)) {
+  if (database.matchUserPassword (user_or_email, password)) {
     login_okay = true;
   }
   // Match password and email.
@@ -159,7 +159,7 @@ bool Session_Logic::attemptLogin (string user_or_email, string password, bool to
     user_or_email = database.getEmailToUser (user_or_email);
   }
   if (login_okay) {
-    Open ();
+    open ();
     setUsername (user_or_email);
     logged_in = true;
     string cookie = ((Webserver_Request *) webserver_request)->session_identifier;
@@ -213,7 +213,7 @@ int Session_Logic::currentLevel (bool force)
   if ((level == 0) || force) {
     if (loggedIn()) {
       Database_Users database = Database_Users();
-      level = database.getUserLevel (currentUser());
+      level = database.get_level (currentUser());
     } else {
       level = Filter_Roles::guest ();
     }
@@ -246,7 +246,7 @@ bool Session_Logic::clientAccess ()
       level = Filter_Roles::admin ();
     } else {
       user = users [0];
-      level = database_users.getUserLevel (user);
+      level = database_users.get_level (user);
     }
     setUsername (user);
     logged_in = true;

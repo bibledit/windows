@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <notes/logic.h>
 #include <menu/logic.h>
 #include <session/switch.h>
+#include <ldap/logic.h>
 
 
 string manage_users_url ()
@@ -85,7 +86,7 @@ string manage_users (void * webserver_request)
     if (request->database_users ()->usernameExists (user)) {
       page += Assets_Page::error (translate("User already exists"));
     } else {
-      request->database_users ()->addNewUser(user, user, Filter_Roles::member (), "");
+      request->database_users ()->add_user(user, user, Filter_Roles::member (), "");
       user_updated = true;
       page += Assets_Page::success (translate("User created"));
     }
@@ -94,13 +95,13 @@ string manage_users (void * webserver_request)
   
   // The user to act on.
   string objectUsername = request->query["user"];
-  int objectUserLevel = request->database_users ()->getUserLevel (objectUsername);
+  int objectUserLevel = request->database_users ()->get_level (objectUsername);
   
   
   // Delete a user.
   if (request->query.count ("delete")) {
     string role = Filter_Roles::text (objectUserLevel);
-    string email = request->database_users ()->getUserToEmail (objectUsername);
+    string email = request->database_users ()->get_email (objectUsername);
     vector <string> users = request->database_users ()->getUsers ();
     vector <string> administrators = request->database_users ()->getAdministrators ();
     if (users.size () == 1) {
@@ -148,7 +149,7 @@ string manage_users (void * webserver_request)
       page += dialog_list.run ();
       return page;
     } else {
-      request->database_users ()->updateUserLevel (objectUsername, convert_to_int (level));
+      request->database_users ()->set_level (objectUsername, convert_to_int (level));
       user_updated = true;
     }
   }
@@ -159,7 +160,7 @@ string manage_users (void * webserver_request)
     string email = request->query ["email"];
     if (email == "") {
       string question = translate("Please enter an email address for") + " " + objectUsername;
-      string value = request->database_users ()->getUserToEmail (objectUsername);
+      string value = request->database_users ()->get_email (objectUsername);
       Dialog_Entry dialog_entry = Dialog_Entry ("users", question, value, "email", "");
       dialog_entry.add_query ("user", objectUsername);
       page += dialog_entry.run ();
@@ -214,6 +215,21 @@ string manage_users (void * webserver_request)
   }
   
   
+  // Enable or disable a user account.
+  if (request->query.count ("enable")) {
+    request->database_users ()->set_enabled (objectUsername, true);
+    Assets_Page::success (translate("The user account was enabled"));
+  }
+  if (request->query.count ("disable")) {
+    // Disable the user in the database.
+    request->database_users ()->set_enabled (objectUsername, false);
+    // Remove all login tokens (cookies) for this user, so the user no longer is logged in.
+    Database_Login::removeTokens (objectUsername);
+    // Feedback.
+    Assets_Page::success (translate("The user account was disabled"));
+  }
+  
+  
   // Login on behalf of another user.
   if (request->query.count ("login")) {
     request->session_logic ()->switchUser (objectUsername);
@@ -224,77 +240,140 @@ string manage_users (void * webserver_request)
   
   // User accounts to display.
   vector <string> tbody;
+  bool ldap_on = ldap_logic_is_on ();
   // Retrieve assigned users.
   vector <string> users = access_user_assignees (webserver_request);
   for (auto & username : users) {
+    
     // Gather details for this user account.
-    objectUserLevel = request->database_users ()->getUserLevel (username);
+    objectUserLevel = request->database_users ()->get_level (username);
     string namedrole = Filter_Roles::text (objectUserLevel);
-    string email = request->database_users ()->getUserToEmail (username);
+    string email = request->database_users ()->get_email (username);
     if (email == "") email = "--";
+    bool enabled = request->database_users ()->get_enabled (username);
+    
+    // New row in table.
     tbody.push_back ("<tr>");
-    tbody.push_back ("<td><a href=\"?user=" + username + "&delete\">" + emoji_wastebasket () + "</a> " + username + "</td>");
-    tbody.push_back ("<td>│</td>");
-    tbody.push_back ("<td><a href=\"?user=" + username + "&level\">" + namedrole + "</a></td>");
-    tbody.push_back ("<td>│</td>");
-    tbody.push_back ("<td><a href=\"?user=" + username + "&email\">" + email + "</a></td>");
-    tbody.push_back ("<td>│</td>");
+    
+    // Display emoji to delete this account.
     tbody.push_back ("<td>");
+    tbody.push_back ("<a href=\"?user=" + username + "&delete\">" + emoji_wastebasket () + "</a> " + username);
+    tbody.push_back ("</td>");
 
-    if (objectUserLevel < Filter_Roles::manager ()) {
-      for (auto & bible : allbibles) {
-        bool exists = Database_Privileges::getBibleBookExists (username, bible, 0);
-        if (exists) {
-          bool read, write;
-          Database_Privileges::getBible (username, bible, read, write);
-          if  (objectUserLevel >= Filter_Roles::translator ()) write = true;
-          tbody.push_back ("<a href=\"?user=" + username + "&removebible=" + bible + "\">" + emoji_wastebasket () + "</a>");
-          tbody.push_back ("<a href=\"/bible/settings?bible=" + bible + "\">" + bible + "</a>");
-          tbody.push_back ("<a href=\"write?user=" + username + "&bible=" + bible + "\">");
-          int readwritebooks = 0;
-          vector <int> books = request->database_bibles ()->getBooks (bible);
-          for (auto book : books) {
-            Database_Privileges::getBibleBook (username, bible, book, read, write);
-            if (write) readwritebooks++;
+    // Divider.
+    tbody.push_back ("<td>│</td>");
+    
+    // The user's role is displayed when the account is enabled.
+    // Normally the role can be changed, but when an LDAP server is enabled, it cannot be changed here.
+    tbody.push_back ("<td>");
+    if (enabled) {
+      if (!ldap_on) tbody.push_back ("<a href=\"?user=" + username + "&level\">");
+      tbody.push_back (namedrole + "</a>");
+      if (!ldap_on) tbody.push_back ("</a>");
+    }
+    tbody.push_back ("</td>");
+    
+    // Divider.
+    tbody.push_back ("<td>│</td>");
+    
+    // The user's email address will be displayed when the account is enabled.
+    // Normally the email address can be changed here,
+    // but in case of authentication via an LDAP server, it cannot be changed here.
+    tbody.push_back ("<td>");
+    if (enabled) {
+      if (!ldap_on) tbody.push_back ("<a href=\"?user=" + username + "&email\">");
+      tbody.push_back (email);
+      if (!ldap_on) tbody.push_back ("</a>");
+    }
+    tbody.push_back ("</td>");
+    
+    // Divider.
+    tbody.push_back ("<td>│</td>");
+    
+    // Assigned Bibles.
+    tbody.push_back ("<td>");
+    if (enabled) {
+      if (objectUserLevel < Filter_Roles::manager ()) {
+        for (auto & bible : allbibles) {
+          bool exists = Database_Privileges::getBibleBookExists (username, bible, 0);
+          if (exists) {
+            bool read, write;
+            Database_Privileges::getBible (username, bible, read, write);
+            if  (objectUserLevel >= Filter_Roles::translator ()) write = true;
+            tbody.push_back ("<a href=\"?user=" + username + "&removebible=" + bible + "\">" + emoji_wastebasket () + "</a>");
+            tbody.push_back ("<a href=\"/bible/settings?bible=" + bible + "\">" + bible + "</a>");
+            tbody.push_back ("<a href=\"write?user=" + username + "&bible=" + bible + "\">");
+            int readwritebooks = 0;
+            vector <int> books = request->database_bibles ()->getBooks (bible);
+            for (auto book : books) {
+              Database_Privileges::getBibleBook (username, bible, book, read, write);
+              if (write) readwritebooks++;
+            }
+            tbody.push_back ("(" + convert_to_string (readwritebooks) + "/" + convert_to_string (books.size ()) + ")");
+            tbody.push_back ("</a>");
+            tbody.push_back ("|");
           }
-          tbody.push_back ("(" + convert_to_string (readwritebooks) + "/" + convert_to_string (books.size ()) + ")");
-          tbody.push_back ("</a>");
-          tbody.push_back ("|");
         }
       }
-    }
-    if (objectUserLevel >= Filter_Roles::manager ()) {
-      // Managers and higher roles have access to all Bibles.
-      tbody.push_back ("(" + translate ("all") + ")");
-    } else {
-      tbody.push_back ("<a href=\"?user=" + username + "&addbible=\">" + emoji_heavy_plus_sign () + "</a>");
+      if (objectUserLevel >= Filter_Roles::manager ()) {
+        // Managers and higher roles have access to all Bibles.
+        tbody.push_back ("(" + translate ("all") + ")");
+      } else {
+        tbody.push_back ("<a href=\"?user=" + username + "&addbible=\">" + emoji_heavy_plus_sign () + "</a>");
+      }
     }
     tbody.push_back ("</td>");
 
+    // Divider.
     tbody.push_back ("<td>│</td>");
 
+    // Assigned privileges to the user.
     tbody.push_back ("<td>");
-    if (objectUserLevel >= Filter_Roles::manager ()) {
-      // Managers and higher roles have all privileges.
-      tbody.push_back ("(" + translate ("all") + ")");
-    } else {
-      tbody.push_back ("<a href=\"privileges?user=" + username + "\">" + translate ("edit") + "</a>");
+    if (enabled) {
+      if (objectUserLevel >= Filter_Roles::manager ()) {
+        // Managers and higher roles have all privileges.
+        tbody.push_back ("(" + translate ("all") + ")");
+      } else {
+        tbody.push_back ("<a href=\"privileges?user=" + username + "\">" + translate ("edit") + "</a>");
+      }
     }
     tbody.push_back ("</td>");
     
-    // Logging for another user.
-    if (myLevel > objectUserLevel) {
-      tbody.push_back ("<td>│</td>");
-      tbody.push_back ("<td>");
-      tbody.push_back ("<a href=\"?user=" + username + "&login\">" + translate ("Login") + "</a>");
-      tbody.push_back ("</td>");
+    // Disable or enable the account.
+    if (myLevel >= Filter_Roles::manager ()) {
+      if (myLevel > objectUserLevel) {
+        tbody.push_back ("<td>│</td>");
+        tbody.push_back ("<td>");
+        bool enabled = request->database_users ()->get_enabled (username);
+        if (enabled) {
+          tbody.push_back ("<a href=\"?user=" + username + "&disable\">" + translate ("Disable") + "</a>");
+        } else {
+          tbody.push_back ("<a href=\"?user=" + username + "&enable\">" + translate ("Enable") + "</a>");
+        }
+        tbody.push_back ("</td>");
+      }
+    }
+
+    // Login on behalf of another user.
+    if (enabled) {
+      if (myLevel > objectUserLevel) {
+        tbody.push_back ("<td>│</td>");
+        tbody.push_back ("<td>");
+        tbody.push_back ("<a href=\"?user=" + username + "&login\">" + translate ("Login") + "</a>");
+        tbody.push_back ("</td>");
+      }
     }
     
+    // Done with the row.
     tbody.push_back ("</tr>");
   }
 
   view.set_variable ("tbody", filter_string_implode (tbody, "\n"));
 
+  if (!ldap_on) {
+    view.enable_zone ("local");
+  }
+  
   page += view.render ("manage", "users");
 
   page += Assets_Page::footer ();

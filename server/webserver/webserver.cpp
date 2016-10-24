@@ -77,7 +77,7 @@ int get_line (int sock, char *buf, int size)
 void webserver_process_request (int connfd, string clientaddress)
 {
   // The environment for this request.
-  // It gets passed around from function to function during the entire request.
+  // A pointer to it gets passed around from function to function during the entire request.
   // This provides thread-safety to the request.
   Webserver_Request request;
   
@@ -88,7 +88,7 @@ void webserver_process_request (int connfd, string clientaddress)
   request.remote_address = clientaddress;
   
   try {
-    if (config_globals_http_running) {
+    if (config_globals_webserver_running) {
       
       // Connection health flag.
       bool connection_healthy = true;
@@ -182,56 +182,73 @@ void webserver_process_request (int connfd, string clientaddress)
 void http_server ()
 {
   bool listener_healthy = true;
-  
+
   // Create a listening socket.
-  int listenfd = socket (AF_INET, SOCK_STREAM, 0);
+  // This represents an endpoint.
+  // Listen on address family AF_INET6 for both IPv4 and IPv6.
+  // This prepares to accept incoming connections on.
+  int listenfd = socket (AF_INET6, SOCK_STREAM, 0);
   if (listenfd < 0) {
-    cerr << "Error opening socket: It returns a descriptor of " << listenfd << endl;
+    string error = "Error opening socket: ";
+    error.append (strerror (errno));
+    cerr << error << endl;
+    Database_Logs::log (error);
     listener_healthy = false;
   }
 
   // Eliminate "Address already in use" error from bind.
+  // The function is used to allow the local address to  be reused
+  // when the server is restarted before the required wait time expires.
   int optval = 1;
   int result = setsockopt (listenfd, SOL_SOCKET, SO_REUSEADDR, (const char *) &optval, sizeof (int));
   if (result != 0) {
-    cerr << "Error setting socket options" << endl;
+    string error = "Error setting socket option: ";
+    error.append (strerror (errno));
+    cerr << error << endl;
+    Database_Logs::log (error);
   }
 
   // The listening socket will be an endpoint for all requests to a port on this host.
   // When configured as a server it listens on any IP address.
   // When configured as a client, it listens on the loopback device.
-  typedef struct sockaddr SA;
-  struct sockaddr_in serveraddr;
+  struct sockaddr_in6 serveraddr;
   memset (&serveraddr, 0, sizeof (serveraddr));
-  serveraddr.sin_family = AF_INET;
-  serveraddr.sin_addr.s_addr =
+  serveraddr.sin6_flowinfo = 0;
+  serveraddr.sin6_family = AF_INET6;
+  serveraddr.sin6_addr =
 #ifdef HAVE_CLIENT
-  htonl (INADDR_LOOPBACK);
+  in6addr_loopback;
 #else
-  htonl (INADDR_ANY);
+  in6addr_any;
 #endif
-  serveraddr.sin_port = htons (convert_to_int (config_logic_http_network_port ()));
-  result = mybind (listenfd, (SA *) &serveraddr, sizeof (serveraddr));
+  serveraddr.sin6_port = htons (convert_to_int (config_logic_http_network_port ()));
+  result = mybind (listenfd, (struct sockaddr *) &serveraddr, sizeof (serveraddr));
   if (result != 0) {
-    cerr << "Error binding server to socket" << endl;
+    string error = "Error binding server to socket: ";
+    error.append (strerror (errno));
+    cerr << error << endl;
+    Database_Logs::log (error);
     listener_healthy = false;
   }
 
-  // Make it a listening socket ready to accept many connection requests.
+  // Make it a listening socket ready to queue and accept many connection requests
+  // before the system starts rejecting the incoming requests.
   result = listen (listenfd, 100);
   if (result != 0) {
+    string error = "Error listening on socket: ";
+    error.append (strerror (errno));
+    cerr << error << endl;
+    Database_Logs::log (error);
     listener_healthy = false;
-    cerr << "Error listening on socket" << endl;
   }
 
   // Keep waiting for, accepting, and processing connections.
-  config_globals_http_running = true;
-  while (listener_healthy && config_globals_http_running) {
+  while (listener_healthy && config_globals_webserver_running) {
 
     // Socket and file descriptor for the client connection.
-    struct sockaddr_in clientaddr;
-    socklen_t clientlen = sizeof(clientaddr);
-    int connfd = accept (listenfd, (SA *)&clientaddr, &clientlen);
+    struct sockaddr_in6 clientaddr6;
+    socklen_t clientlen = sizeof (clientaddr6);
+    int connfd = accept (listenfd, (struct sockaddr *)&clientaddr6, &clientlen);
     if (connfd > 0) {
 
       // Socket receive timeout, plain http.
@@ -240,10 +257,11 @@ void http_server ()
       tv.tv_usec = 0;
       setsockopt (connfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
       
-      // The client's remote IPv4 address in dotted notation.
+      // The client's remote IPv6 address in hexadecimal digits separated by colons.
+      // IPv4 addresses are mapped to IPv6 addresses.
       string clientaddress;
       char remote_address[256];
-      inet_ntop (AF_INET, &clientaddr.sin_addr.s_addr, remote_address, sizeof (remote_address));
+      inet_ntop (AF_INET6, &clientaddr6.sin6_addr, remote_address, sizeof (remote_address));
       clientaddress = remote_address;
       
       // Handle this request in a thread, enabling parallel requests.
@@ -252,11 +270,14 @@ void http_server ()
       request_thread.detach ();
       
     } else {
-      cerr << "Error accepting connection on socket: " << strerror (errno) << endl;
+      string error = "Error accepting connection on socket: ";
+      error.append (strerror (errno));
+      cerr << error << endl;
+      Database_Logs::log (error);
     }
   }
   
-  // Close listening socket, freeing it for a possible subsequent server process.
+  // Close listening socket, freeing it for any next server process.
   close (listenfd);
 }
 #endif
@@ -377,7 +398,7 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
   
   try {
 
-    if (config_globals_https_running) {
+    if (config_globals_webserver_running) {
 
       // Get client's remote IPv4 address in dotted notation and put it in the webserver request object.
       struct sockaddr_in addr;
@@ -407,7 +428,7 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
       // SSL / TLS handshake.
       while (connection_healthy && (ret = mbedtls_ssl_handshake (&ssl)) != 0) {
         if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE) {
-          if (config_globals_https_running) {
+          if (config_globals_webserver_running) {
             // In case the secure server runs, display the error.
             // And in case the server is interrupted by e.g. Ctrl-C, don't display this error.
             filter_url_display_mbed_tls_error (ret, NULL, true);
@@ -630,8 +651,7 @@ void https_server ()
   }
   
   // Keep preparing for, accepting, and processing client connections.
-  config_globals_https_running = true;
-  while (config_globals_https_running) {
+  while (config_globals_webserver_running) {
     
     // Client connection file descriptor.
     mbedtls_net_context client_fd;

@@ -26,9 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <filter/roles.h>
 #include <filter/string.h>
+#include <filter/md5.h>
 #include <database/logs.h>
 #include <database/config/general.h>
 #include <index/index.h>
+#include <ldap/logic.h>
+#include <user/logic.h>
 
 
 const char * session_login_url ()
@@ -78,13 +81,16 @@ string session_login (void * webserver_request)
     bool touch_enabled = convert_to_bool (request->post["touch"]);
     if (user.length () < 2) {
       form_is_valid = false;
-      view.set_variable ("username_email_invalid", translate ("Username should be at least two characters long"));
+      view.set_variable ("username_invalid", translate ("Username should be at least two characters long"));
     }
     if (pass.length() < 4) {
       form_is_valid = false;
       view.set_variable ("password_invalid", translate ("Password should be at least four characters long"));
     }
     if (form_is_valid) {
+      // Optionally query the LDAP server and log the response.
+      user_logic_optional_ldap_authentication (webserver_request, user, pass);
+      // Authenticate against local database.
       if (request->session_logic()->attemptLogin (user, pass, touch_enabled)) {
         // Log the login.
         Database_Logs::log (request->session_logic()->currentUser () + " logged in");
@@ -103,6 +109,12 @@ string session_login (void * webserver_request)
   }
   
   view.set_variable ("VERSION", config_logic_version ());
+  
+  if (ldap_logic_is_on ()) {
+    view.enable_zone ("ldap");
+  } else {
+    view.enable_zone ("local");
+  }
 
   string page;
 

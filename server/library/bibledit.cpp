@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <curl/curl.h>
 #endif
 #include <sendreceive/logic.h>
+#include <ldap/logic.h>
 
 
 bool bibledit_started = false;
@@ -47,11 +48,12 @@ const char * bibledit_get_version_number ()
 }
 
 
-
 // Get the port number that Bibledit's web server listens on.
+string library_bibledit_network_port;
 const char * bibledit_get_network_port ()
 {
-  return config_logic_http_network_port ();
+  library_bibledit_network_port = config_logic_http_network_port ();
+  return library_bibledit_network_port.c_str ();
 }
 
 
@@ -87,6 +89,11 @@ void bibledit_initialize_library (const char * package, const char * webroot)
   
   // Initialize SSL/TLS (after webroot has been set).
   filter_url_ssl_tls_initialize ();
+  
+#ifndef HAVE_CLIENT
+  // Cloud initializes OpenLDAP server access settings (after webroot has been set).
+  ldap_logic_initialize ();
+#endif
   
   // Initialize data in a thread.
   thread setup_thread = thread (setup_conditionally, package);
@@ -156,8 +163,7 @@ void bibledit_start_library ()
 #endif
   
   // Set running flag.
-  config_globals_http_running = true;
-  config_globals_https_running = true;
+  config_globals_webserver_running = true;
   
   // Whether the plain http server redirects to secure http.
   config_globals_enforce_https_browser = config_logic_enforce_https_browser ();
@@ -165,7 +171,7 @@ void bibledit_start_library ()
   
   // Run the plain web server in a thread.
   config_globals_http_worker = new thread (http_server);
-  
+
   // Run the secure web server in a thread.
   config_globals_https_worker = new thread (https_server);
   
@@ -189,8 +195,7 @@ const char * bibledit_get_last_page ()
 bool bibledit_is_running ()
 {
   this_thread::sleep_for (chrono::milliseconds (10));
-  if (config_globals_http_running) return true;
-  if (config_globals_https_running) return true;
+  if (config_globals_webserver_running) return true;
   return false;
 }
 
@@ -217,8 +222,21 @@ const char * bibledit_is_synchronizing ()
 }
 
 
+// The normal shutdown procedure works by connecting to the internal webservers,
+// and these connections in turn help with shutting down the listening internal webservers.
+// In case all the internal webservers no longer are able to accept connections,
+// the normal shutdown fails to work.
+// This last-ditch function waits a few seconds, and if the app is still running then,
+// it exits the app, regardless of the state of the internal webservers.
+void bibledit_last_ditch_forced_exit ()
+{
+  this_thread::sleep_for (chrono::seconds (2));
+  exit (0);
+}
+
+
 // Stop the library.
-// Can be called multiple times during the lifetime of the app
+// Can be called multiple times during the lifetime of the app.
 void bibledit_stop_library ()
 {
   // Repeating stop guard.
@@ -226,15 +244,15 @@ void bibledit_stop_library ()
   bibledit_started = false;
 
   // Clear running flag.
-  config_globals_http_running = false;
-  config_globals_https_running = false;
+  config_globals_webserver_running = false;
   
-  // Connect to localhost to initiate the shutdown mechanism in the running server.
-  string url = "http://localhost:";
+  string url, error;
+  
+  // Connect to the plain webserver to initiate its shutdown mechanism.
+  url = "http://localhost:";
   url.append (config_logic_http_network_port ());
-  string error;
   filter_url_http_get (url, error, false);
-  
+
   // Connect to the secure server to initiate its shutdown mechanism.
 #ifndef HAVE_CLIENT
   url = "https://localhost:";
@@ -242,9 +260,18 @@ void bibledit_stop_library ()
   filter_url_http_get (url, error, false);
   // Let the connection start, then close it.
   // The server will then abort the TLS handshake, and shut down.
-  this_thread::sleep_for (chrono::milliseconds (1));
 #endif
-  
+
+#ifndef HAVE_ANDROID
+#ifndef HAVE_IOS
+  // Schedule a timer to exit(0) the program in case the network stack fails to exit the servers.
+  // This should not be done on devices like Android and iOS
+  // because then the app would quit when the user moves the app to the background,
+  // whereas the user expects the app to stay alive in the background.
+  new thread (bibledit_last_ditch_forced_exit);
+#endif
+#endif
+
   // Wait till the servers and the timers shut down.
   config_globals_http_worker->join ();
   config_globals_https_worker->join ();

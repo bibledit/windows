@@ -44,6 +44,7 @@
 mutex sword_logic_installer_mutex;
 bool sword_logic_installing_module = false;
 mutex sword_logic_library_access_mutex;
+mutex sword_logic_diatheke_run_mutex;
 
 
 string sword_logic_get_path ()
@@ -306,7 +307,7 @@ void sword_logic_install_module (string source_name, string module_name)
 //#endif
 
   // After the installation is complete, cache some data.
-  // This cached data indicates the last access-time for this SWORD module.
+  // This cached data indicates the last access time for this SWORD module.
   string url = sword_logic_virtual_url (module_name, 0, 0, 0);
   database_filebased_cache_put (url, "SWORD");
 }
@@ -389,9 +390,11 @@ string sword_logic_get_text (string source, string module, int book, int chapter
   if (!error.empty ()) return error;
 
   // Client caches this info for later.
-  // Except when the Cloud is now installing the SWORD module.
+  // Except in case of predefined responses from the Cloud.
   if (html != sword_logic_installing_module_text ()) {
-    Database_Cache::cache (module, book, chapter, verse, html);
+    if (html != sword_logic_fetch_failure_text ()) {
+      Database_Cache::cache (module, book, chapter, verse, html);
+    }
   }
   
   return html;
@@ -402,15 +405,22 @@ string sword_logic_get_text (string source, string module, int book, int chapter
   bool module_available = false;
 
   string osis = Database_Books::getOsisFromId (book);
-#ifdef HAVE_SWORD
-  module_text = sword_logic_diatheke (module, osis, chapter, verse, module_available);
-#else
+  string chapter_verse = convert_to_string (chapter) + ":" + convert_to_string (verse);
+
+  // See notes on function sword_logic_diatheke
+  // for why it is not currently fetching content via a SWORD library call.
+  // module_text = sword_logic_diatheke (module, osis, chapter, verse, module_available);
+  
+  // Running diatheke only works when it runs in the SWORD installation directory.
+  string sword_path = sword_logic_get_path ();
+  // Running several instances of diatheke simultaneously fails.
+  sword_logic_diatheke_run_mutex.lock ();
   // The server fetches the module text as follows:
   // diatheke -b KJV -k Jn 3:16
-  string sword_path = sword_logic_get_path ();
-  string command = "cd " + sword_path + "; diatheke -b " + module + " -k " + osis + " " + convert_to_string (chapter) + ":" + convert_to_string (verse);
-  filter_shell_run (command, module_text);
-
+  int result = filter_shell_vfork (module_text, sword_path, "diatheke", "-b", module.c_str(), "-k", osis.c_str(), chapter_verse.c_str());
+  sword_logic_diatheke_run_mutex.unlock ();
+  if (result != 0) return sword_logic_fetch_failure_text ();
+  
   // Touch the cache so the server knows that the module has been accessed just now.
   string url = sword_logic_virtual_url (module, 0, 0, 0);
   database_filebased_cache_get (url);
@@ -419,7 +429,6 @@ string sword_logic_get_text (string source, string module, int book, int chapter
   // If the module was installed, but the requested passage is out of range,
   // the output of "diatheke" contains the module name, so it won't be empty.
   module_available = !module_text.empty ();
-#endif
   
   if (!module_available) {
     
@@ -444,6 +453,13 @@ string sword_logic_get_text (string source, string module, int book, int chapter
   
   // Remove any OSIS elements.
   filter_string_replace_between (module_text, "<", ">", "");
+  
+  // Remove the passage name that diatheke adds.
+  string passage = Database_Books::getEnglishFromId (book) + " " + chapter_verse + ":";
+  module_text = filter_string_str_replace (passage, "", module_text);
+  
+  // Remove the module name that diatheke adds.
+  module_text = filter_string_str_replace ("(" + module + ")", "", module_text);
   
   // Clean whitespace away.
   module_text = filter_string_trim (module_text);
@@ -517,9 +533,18 @@ void sword_logic_trim_modules ()
 
 
 // Text saying that the Cloud will install the requested SWORD module.
+// Client knows not to cache this.
 string sword_logic_installing_module_text ()
 {
   return "The requested SWORD module is not yet installed. Bibledit Cloud will install it shortly. Please check back after a few minutes.";
+}
+
+
+// Text stating fetch failure.
+// Client knows not to cache this.
+string sword_logic_fetch_failure_text ()
+{
+  return "Failure to fetch SWORD content.";
 }
 
 
@@ -553,8 +578,17 @@ void sword_logic_run_scheduled_module_install (string source, string module)
   sword_logic_installing_module = true;
   sword_logic_installer_mutex.unlock ();
 
-  // Run the installer.
-  sword_logic_install_module (source, module);
+  // Run the installer if the module is not yet installed.
+  vector <string> modules = sword_logic_get_installed ();
+  bool already_installed = false;
+  for (auto & installed_module : modules) {
+    if (installed_module.find ("[" + module + "]") != string::npos) {
+      already_installed = true;
+    }
+  }
+  if (!already_installed) {
+    sword_logic_install_module (source, module);
+  }
   
   // Clear flag as current module installation is ready.
   sword_logic_installer_mutex.lock ();
@@ -728,7 +762,19 @@ void sword_logic_installmgr_list_remote_modules (string source_name, vector <str
 #endif
 }
 
+/*
+ This function works, but there are cases where it crashes as follows:
+ 
+ libsword.so.11v5(_ZN5sword7FileMgr7sysOpenEPNS_8FileDescE+0x39)
+ libsword.so.11v5(_ZN5sword8FileDesc5getFdEv+0x20)
+ libsword.so.11v5(_ZN5sword8SWConfig4LoadEv+0x16c)
+ libsword.so.11v5(_ZN5sword8SWConfigC2EPKc+0xcb)
+ libsword.so.11v5(_ZN5sword5SWMgr13loadConfigDirEPKc+0x1af)
+ libsword.so.11v5(_ZN5sword5SWMgr4LoadEv+0x201)
+ libsword.so.11v5(_ZN5sword5SWMgrC1EPKcbPNS_11SWFilterMgrEbb+0x325)
 
+ And this crash takes down the whole Bibledit Cloud instance.
+ */
 string sword_logic_diatheke (const string & module_name, const string& osis, int chapter, int verse, bool & available)
 {
   (void) module_name;

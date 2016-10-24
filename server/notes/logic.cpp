@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <client/logic.h>
 #include <sync/logic.h>
 #include <notes/note.h>
-#include <workbench/index.h>
+#include <workspace/index.h>
 #include <access/bible.h>
 #include <email/send.h>
 
@@ -485,7 +485,7 @@ void Notes_Logic::emailUsers (int identifier, const string& label, const vector 
   contents.append (" " + translate ("or") + " ");
 
   contents.append ("<a href=\"");
-  string desktoplink = config_logic_site_url (webserver_request) + workbench_index_url () + "?note=" + convert_to_string (identifier);
+  string desktoplink = config_logic_site_url (webserver_request) + workspace_index_url () + "?note=" + convert_to_string (identifier);
   contents.append (desktoplink);
   contents.append ("\">");
   contents.append (translate ("open the desktop online"));

@@ -16,57 +16,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "Set the language for Bibledit"
-msgstr ""
-
-msgid "Language"
-msgstr ""
-
-msgid "The language for Bibledit:"
-msgstr ""
-
-msgid "change"
-msgstr ""
-
-msgid "Your preferred language is not listed?"
-msgstr ""
-
-msgid ""
-"Use your translation skills to assist with bringing another language to "
-"Bibledit."
-msgstr ""
-
-msgid "Start translating right away."
-msgstr ""
-
-msgid ""
-"It is possible to translate only the most important phrases to get your "
-"translation team going in their own language."
-msgstr ""
-
-msgid "Your translation will be included with the next Bibledit release."
-msgstr ""
-
-msgid "Timezone"
-msgstr ""
-
-msgid "The timezone was clipped"
-msgstr ""
-
-msgid "The timezone was saved"
-msgstr ""
-
-msgid "Site timezone"
-msgstr ""
-
-msgid ""
-"Set the timezone for Bibledit as an offset from UTC in whole hours from -12 "
-"till +14."
-msgstr ""
-
-msgid "Submit"
-msgstr ""
-
 msgid "Menu"
 msgstr ""
 
@@ -98,6 +47,12 @@ msgstr ""
 
 msgid ""
 "Once in advanced mode, return to basic mode via menu Settings / Basic mode."
+msgstr ""
+
+msgid "Show the changes"
+msgstr ""
+
+msgid "Whether to have a menu entry to go to the changes."
 msgstr ""
 
 msgid "Logout."
@@ -254,6 +209,9 @@ msgid "Import Bible text."
 msgstr ""
 
 msgid "Paste the text into the box below and submit it."
+msgstr ""
+
+msgid "Submit"
 msgstr ""
 
 msgid "You can also upload a file with the text."
@@ -831,6 +789,18 @@ msgstr ""
 msgid "(all of them)"
 msgstr ""
 
+msgid "View"
+msgstr ""
+
+msgid "Statistics"
+msgstr ""
+
+msgid "Download"
+msgstr ""
+
+msgid "Manage"
+msgstr ""
+
 msgid "Will generate lists of changes"
 msgstr ""
 
@@ -902,6 +872,18 @@ msgstr ""
 msgid "Recent changes:"
 msgstr ""
 
+msgid "Change statistics"
+msgstr ""
+
+msgid "Everyone"
+msgstr ""
+
+msgid "User"
+msgstr ""
+
+msgid "Number of changes"
+msgstr ""
+
 msgid "Checks"
 msgstr ""
 
@@ -940,7 +922,7 @@ msgstr ""
 msgid "Suppressed entries"
 msgstr ""
 
-msgid "The checking results are also available online."
+msgid "The checking results are also available online, plus checking settings."
 msgstr ""
 
 msgid "Bible Checks"
@@ -2867,19 +2849,6 @@ msgstr ""
 msgid "Upgrading from Bibledit-Web to Bibledit Cloud works differently."
 msgstr ""
 
-msgid "Securing"
-msgstr ""
-
-msgid ""
-"It is possible to secure traffic between a user's browser and Bibledit "
-"Cloud, and between Bibledit clients and Bibledit Cloud."
-msgstr ""
-
-msgid ""
-"The following file in the Bibledit installation provides all information "
-"needed:"
-msgstr ""
-
 msgid "Clients"
 msgstr ""
 
@@ -3022,6 +2991,23 @@ msgid "You may also run your Bibledit Cloud instance from bibledit.org."
 msgstr ""
 
 msgid "Use the contact form to explain why you need a Bibledit Cloud instance."
+msgstr ""
+
+msgid "Administrator info"
+msgstr ""
+
+msgid ""
+"It is possible to secure traffic between a user's browser and Bibledit "
+"Cloud, and between Bibledit clients and Bibledit Cloud."
+msgstr ""
+
+msgid ""
+"It is possible to enable an external OpenLDAP server for user authentication."
+msgstr ""
+
+msgid ""
+"The following file in the Bibledit installation provides all information "
+"needed:"
 msgstr ""
 
 msgid "Install Bibledit on Chrome OS"
@@ -3184,9 +3170,6 @@ msgid "Apply all updates through Windows Update."
 msgstr ""
 
 msgid "This is because Bibledit uses recent Windows technology."
-msgstr ""
-
-msgid "Download"
 msgstr ""
 
 msgid "Start it through the menu."
@@ -4106,13 +4089,13 @@ msgstr ""
 msgid "Disabling an extension in Chrome resolved it."
 msgstr ""
 
-msgid "Enable consultants to view the Bible in a workbench"
+msgid "Enable consultants to view the Bible in a workspace"
 msgstr ""
 
 msgid "Just add the desired Bible to the Resources through the link organizer."
 msgstr ""
 
-msgid "Then add the Resources to the workbench through URL resource/index."
+msgid "Then add the Resources to the workspace through URL resource/index."
 msgstr ""
 
 msgid "Backup"
@@ -5888,9 +5871,6 @@ msgstr ""
 msgid "Insert the soft hyphens according to the settings."
 msgstr ""
 
-msgid "Manage"
-msgstr ""
-
 msgid "The font could not be deleted because it is in use"
 msgstr ""
 
@@ -5995,7 +5975,19 @@ msgstr ""
 msgid "The user no longer has access to this Bible"
 msgstr ""
 
+msgid "The user account was enabled"
+msgstr ""
+
+msgid "The user account was disabled"
+msgstr ""
+
 msgid "edit"
+msgstr ""
+
+msgid "Disable"
+msgstr ""
+
+msgid "Enable"
 msgstr ""
 
 msgid "Login"
@@ -6009,21 +6001,6 @@ msgid ""
 msgstr ""
 
 msgid "Click 🗑 before a username to delete the account."
-msgstr ""
-
-msgid "Click a user's role to change it."
-msgstr ""
-
-msgid "Click a user's email address to change it."
-msgstr ""
-
-msgid "You can create a new user."
-msgstr ""
-
-msgid "The password will be the same as the username."
-msgstr ""
-
-msgid "Normally users register their own account."
 msgstr ""
 
 msgid "Click ➕ to give a user access to a Bible."
@@ -6044,6 +6021,15 @@ msgstr ""
 msgid ""
 "If no user has been granted access to any Bible, then all users have write "
 "access to all Bibles."
+msgstr ""
+
+msgid "You can create a new user."
+msgstr ""
+
+msgid "The password will be the same as the username."
+msgstr ""
+
+msgid "Normally users register their own account."
 msgstr ""
 
 msgid ""
@@ -6121,7 +6107,7 @@ msgstr ""
 msgid "Delete this mapping"
 msgstr ""
 
-msgid "Desktop"
+msgid "Workspace"
 msgstr ""
 
 msgid "Translation"
@@ -6181,7 +6167,7 @@ msgstr ""
 msgid "Develop"
 msgstr ""
 
-msgid "Personalize"
+msgid "Preferences"
 msgstr ""
 
 msgid "Indexes and Fonts"
@@ -6200,6 +6186,9 @@ msgid "Account"
 msgstr ""
 
 msgid "Basic mode"
+msgstr ""
+
+msgid "System"
 msgstr ""
 
 msgid "USFM resources"
@@ -6229,7 +6218,7 @@ msgstr ""
 msgid "Logout"
 msgstr ""
 
-msgid "Desktops"
+msgid "Workspaces"
 msgstr ""
 
 msgid "Image resources"
@@ -6347,6 +6336,9 @@ msgid "Severity"
 msgstr ""
 
 msgid "This is a general note, it does not apply to any specific Bible"
+msgstr ""
+
+msgid "change"
 msgstr ""
 
 msgid "Edit contents"
@@ -6895,7 +6887,7 @@ msgstr ""
 msgid "Show breadcrumbs"
 msgstr ""
 
-msgid "Desktop menu fade out delay"
+msgid "Workspace menu fade out delay"
 msgstr ""
 
 msgid "How long it takes for the desktop menu to start fading out."
@@ -7230,6 +7222,9 @@ msgid "Delete this image."
 msgstr ""
 
 msgid "organize"
+msgstr ""
+
+msgid "freeze position"
 msgstr ""
 
 msgid "USFM Resources"
@@ -7750,6 +7745,9 @@ msgid "Username or email address or password are not correct"
 msgstr ""
 
 msgid "Username or email address:"
+msgstr ""
+
+msgid "Username:"
 msgstr ""
 
 msgid "Password:"
@@ -8536,6 +8534,48 @@ msgstr ""
 msgid "Received from client"
 msgstr ""
 
+msgid "Set the language for Bibledit"
+msgstr ""
+
+msgid "The timezone was clipped"
+msgstr ""
+
+msgid "The timezone was saved"
+msgstr ""
+
+msgid "Language"
+msgstr ""
+
+msgid "The language for Bibledit:"
+msgstr ""
+
+msgid "Your preferred language is not listed?"
+msgstr ""
+
+msgid ""
+"Use your translation skills to assist with bringing another language to "
+"Bibledit."
+msgstr ""
+
+msgid "Start translating right away."
+msgstr ""
+
+msgid ""
+"It is possible to translate only the most important phrases to get your "
+"translation team going in their own language."
+msgstr ""
+
+msgid "Your translation will be included with the next Bibledit release."
+msgstr ""
+
+msgid "Timezone"
+msgstr ""
+
+msgid ""
+"Set the timezone for Bibledit as an offset from UTC in whole hours from -12 "
+"till +14."
+msgstr ""
+
 msgid "ABC"
 msgstr ""
 
@@ -8799,28 +8839,31 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
-msgid "Drag the list of desktops into the desired order."
+msgid "Drag the list of workspaces into the desired order."
 msgstr ""
 
-msgid "Click 🗑 to remove the desktop."
+msgid "Click 🗑 to remove the workspace."
 msgstr ""
 
-msgid "Click ✎ to edit the desktop."
+msgid "Click ✎ to edit the workspace."
 msgstr ""
 
-msgid "Click ⎘ to copy the desktop to a new one."
+msgid "Click ⎘ to copy the workspace to a new one."
 msgstr ""
 
-msgid "Click ✉ to send the desktop to all users."
+msgid "Click ✉ to send the workspace to all users."
 msgstr ""
 
-msgid "Create a new desktop."
+msgid "Create a new workspace."
 msgstr ""
 
-msgid "Reset all default desktops."
+msgid "Reset all default workspaces."
 msgstr ""
 
 msgid "See the help below for information about what to enter"
+msgstr ""
+
+msgid "Edit workspace"
 msgstr ""
 
 msgid "Top row"
@@ -8847,14 +8890,15 @@ msgstr ""
 msgid "Samples"
 msgstr ""
 
-msgid "Samples to load in the current desktop:"
+msgid "Samples to load in the current workspace:"
 msgstr ""
 
-msgid "This page is for configuring the layout of a desktop."
+msgid "This page is for configuring the layout of a workspace."
 msgstr ""
 
 msgid ""
-"A desktop enables you to display parts of Bibledit or websites side-by-side."
+"A workspace enables you to display parts of Bibledit or websites side-by-"
+"side."
 msgstr ""
 
 msgid "There are three rows:"
@@ -8913,7 +8957,7 @@ msgstr ""
 msgid "There are many more of them."
 msgstr ""
 
-msgid "To edit two Bibles side-by side, add two editors to the desktop."
+msgid "To edit two Bibles side-by side, add two editors to the workspace."
 msgstr ""
 
 msgid "Add the following to each of them:"
@@ -8930,7 +8974,7 @@ msgid ""
 msgstr ""
 
 msgid ""
-"When this desktop will be opened, it will display all the notes that refer "
+"When this workspace will be opened, it will display all the notes that refer "
 "to the focused passage."
 msgstr ""
 
@@ -8949,23 +8993,23 @@ msgstr ""
 msgid "Display subscribed notes that have been idle for a week."
 msgstr ""
 
-msgid "The desktop configurations will work as expected on most devices."
+msgid "The workspace configurations will work as expected on most devices."
 msgstr ""
 
-msgid "But on iOS the pages within the desktop do not scroll."
+msgid "But on iOS the pages within the workspace do not scroll."
 msgstr ""
 
 msgid "Instead the pages take the full height."
 msgstr ""
 
-msgid "It may be needed to create desktops specifically for iOS."
+msgid "It may be needed to create workspaces specifically for iOS."
 msgstr ""
 
-msgid "You can set the width of the entire desktop."
+msgid "You can set the width of the entire workspace."
 msgstr ""
 
 msgid ""
-"By setting the width wider than the screen, the desktop can be scrolled "
+"By setting the width wider than the screen, the workspace can be scrolled "
 "horizontally."
 msgstr ""
 

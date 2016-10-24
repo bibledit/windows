@@ -38,7 +38,7 @@
 #include <resource/index.h>
 #include <resource/external.h>
 #include <resource/logic.h>
-#include <workbench/logic.h>
+#include <workspace/logic.h>
 #include <ipc/focus.h>
 #include <lexicon/logic.h>
 #include <search/logic.h>
@@ -70,7 +70,7 @@
 // Else returns false.
 bool demo_acl (string user, string pass)
 {
-  if (strcmp (DEMO, "yes") == 0) {
+  if (config_logic_demo_enabled ()) {
     if (user == session_admin_credentials ()) {
       if ((pass == session_admin_credentials ()) || (pass == md5 (session_admin_credentials ()))) {
         return true;
@@ -169,9 +169,9 @@ void demo_clean_data ()
   };
   for (auto & element : users) {
     if (!request.database_users ()->usernameExists (element.first)) {
-      request.database_users ()->addNewUser(element.first, element.first, element.second, "");
+      request.database_users ()->add_user(element.first, element.first, element.second, "");
     }
-    request.database_users ()->updateUserLevel (element.first, element.second);
+    request.database_users ()->set_level (element.first, element.second);
   }
 
   
@@ -183,8 +183,8 @@ void demo_clean_data ()
   demo_create_sample_notes (&request);
   
   
-  // Create samples for the workbenches.
-  demo_create_sample_workbenches (&request);
+  // Create samples for the workspacees.
+  demo_create_sample_workspacees (&request);
   
   
   // Set navigator to John 3:16.
@@ -207,7 +207,7 @@ void demo_clean_data ()
   
   
   // No flipped basic <> advanded mode.
-  request.database_config_user ()->setFlipInterfaceMode (false);
+  request.database_config_user ()->setBasicInterfaceMode (false);
 }
 
 
@@ -313,13 +313,13 @@ void demo_create_sample_notes (void * webserver_request)
 }
 
 
-string demo_workbench ()
+string demo_workspace ()
 {
   return "Translation";
 }
 
 
-void demo_create_sample_workbenches (void * webserver_request)
+void demo_create_sample_workspacees (void * webserver_request)
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
   
@@ -345,18 +345,18 @@ void demo_create_sample_workbenches (void * webserver_request)
     make_pair (2, "")
   };
 
-  request->database_config_user()->setActiveWorkbench ("USFM");
-  workbench_set_urls (request, urls);
-  workbench_set_widths (request, widths);
-  workbench_set_heights (request, row_heights);
+  request->database_config_user()->setActiveWorkspace ("USFM");
+  workspace_set_urls (request, urls);
+  workspace_set_widths (request, widths);
+  workspace_set_heights (request, row_heights);
 
   urls[0] = editone_index_url ();
   urls[1] = resource_index_url ();
 
-  request->database_config_user()->setActiveWorkbench (demo_workbench ());
-  workbench_set_urls (request, urls);
-  workbench_set_widths (request, widths);
-  workbench_set_heights (request, row_heights);
+  request->database_config_user()->setActiveWorkspace (demo_workspace ());
+  workspace_set_urls (request, urls);
+  workspace_set_widths (request, widths);
+  workspace_set_heights (request, row_heights);
 }
 
 
