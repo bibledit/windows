@@ -30,9 +30,6 @@
     <ClCompile Include="administration\language.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="administration\timezone.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="assets\header.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

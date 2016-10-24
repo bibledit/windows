@@ -172,7 +172,6 @@
     <ClCompile Include="access\logic.cpp" />
     <ClCompile Include="access\user.cpp" />
     <ClCompile Include="administration\language.cpp" />
-    <ClCompile Include="administration\timezone.cpp" />
     <ClCompile Include="assets\header.cpp" />
     <ClCompile Include="assets\page.cpp" />
     <ClCompile Include="assets\view.cpp" />
