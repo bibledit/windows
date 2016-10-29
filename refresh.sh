@@ -21,7 +21,7 @@ cd server
 
 
 # Configure the Bibledit source.
-./configure --enable-windows --enable-visualstudio
+./configure --enable-windows
 EXIT_CODE=$?
 if [ $EXIT_CODE != 0 ]; then
   exit
