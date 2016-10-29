@@ -32,6 +32,7 @@ string sword_logic_get_remote_module (string line);
 string sword_logic_get_installed_module (string line);
 string sword_logic_get_version (string line);
 string sword_logic_get_name (string line);
+void sword_logic_install_module_schedule (string source, string module);
 void sword_logic_install_module (string source, string module);
 void sword_logic_uninstall_module (string module);
 vector <string> sword_logic_get_available ();
@@ -49,6 +50,7 @@ void sword_logic_installmgr_list_remote_sources (vector <string> & sources);
 bool sword_logic_installmgr_refresh_remote_source (string name);
 void sword_logic_installmgr_list_remote_modules (string source_name, vector <string> & modules);
 string sword_logic_diatheke (const string & module_name, const string& osis, int chapter, int verse, bool & available);
+void sword_logic_log (string message);
 
 
 #endif

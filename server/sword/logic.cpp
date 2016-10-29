@@ -43,7 +43,9 @@
 
 mutex sword_logic_installer_mutex;
 bool sword_logic_installing_module = false;
+#ifdef HAVE_SWORD
 mutex sword_logic_library_access_mutex;
+#endif
 mutex sword_logic_diatheke_run_mutex;
 
 
@@ -59,10 +61,9 @@ string sword_logic_get_path ()
 
 void sword_logic_refresh_module_list ()
 {
-  Database_Logs::log ("Refreshing SWORD module list");
+  Database_Logs::log ("Refreshing list of SWORD modules");
   
   string out_err;
-  vector <string> lines;
   
   // Initialize SWORD directory structure and configuration.
   string sword_path = sword_logic_get_path ();
@@ -72,19 +73,16 @@ void sword_logic_refresh_module_list ()
   filter_url_file_put_contents (filter_url_create_path (sword_path, "sword.conf"), swordconf);
   string config_files_path = filter_url_create_root_path ("sword");
   filter_shell_run ("cp -r " + config_files_path + "/locales.d " + sword_path, out_err);
-  lines = filter_string_explode (out_err, '\n');
-  for (auto line : lines) Database_Logs::log (line);
+  sword_logic_log (out_err);
   filter_shell_run ("cp -r " + config_files_path + "/mods.d " + sword_path, out_err);
-  lines = filter_string_explode (out_err, '\n');
-  for (auto line : lines) Database_Logs::log (line);
+  sword_logic_log (out_err);
   
   // Initialize basic user configuration.
 #ifdef HAVE_SWORD
   sword_logic_installmgr_initialize ();
 #else
   filter_shell_run ("echo yes | installmgr -init", out_err);
-  lines = filter_string_explode (out_err, '\n');
-  for (auto line : lines) Database_Logs::log (line);
+  sword_logic_log (out_err);
 #endif
   
   // Sync the configuration with the online known remote repository list.
@@ -99,8 +97,7 @@ void sword_logic_refresh_module_list ()
 #else
   filter_shell_run ("echo yes | installmgr -sc", out_err);
   filter_string_replace_between (out_err, "WARNING", "enable? [no]", "");
-  lines = filter_string_explode (out_err, '\n');
-  for (auto line : lines) Database_Logs::log (line);
+  sword_logic_log (out_err);
 #endif
   
   // List the remote sources.
@@ -109,15 +106,16 @@ void sword_logic_refresh_module_list ()
   sword_logic_installmgr_list_remote_sources (remote_sources);
 #else
   filter_shell_run ("installmgr -s", out_err);
-  lines = filter_string_explode (out_err, '\n');
+  sword_logic_log (out_err);
+  vector <string> lines = filter_string_explode (out_err, '\n');
   for (auto line : lines) {
-    Database_Logs::log (line);
     line = filter_string_trim (line);
     if (line.find ("[") != string::npos) {
       line.erase (0, 1);
       if (line.find ("]") != string::npos) {
         line.erase (line.length () - 1, 1);
         remote_sources.push_back (line);
+        Database_Logs::log (line);
       }
     }
   }
@@ -134,7 +132,7 @@ void sword_logic_refresh_module_list ()
 #else
     filter_shell_run ("echo yes | installmgr -r \"" + remote_source + "\"", out_err);
     filter_string_replace_between (out_err, "WARNING", "type yes at the prompt", "");
-    Database_Logs::log (out_err);
+    sword_logic_log (out_err);
 #endif
 
     vector <string> modules;
@@ -252,12 +250,32 @@ string sword_logic_get_name (string line)
 }
 
 
+// Schedule SWORD module installation.
+void sword_logic_install_module_schedule (string source, string module)
+{
+  // No source: Done.
+  if (source.empty ()) return;
+  
+  // No module: Done.
+  // There have been cases with more than 6000 scheduled SWORD module installation tasks,
+  // all trying to install an empty $module.
+  // So it's important to check on that.
+  if (module.empty ()) return;
+  
+  // Check whether the module installation has been scheduled already.
+  if (tasks_logic_queued (INSTALLSWORDMODULE, {source, module})) return;
+  
+  // Schedule it.
+  tasks_logic_queue (INSTALLSWORDMODULE, {source, module});
+}
+
+
 void sword_logic_install_module (string source_name, string module_name)
 {
   Database_Logs::log ("Install SWORD module " + module_name + " from source " + source_name);
   string sword_path = sword_logic_get_path ();
 
-  /* Installation through SWORD InstallMgr does not yet work.
+  // Installation through SWORD InstallMgr does not yet work.
   // When running it from the ~/.sword/InstallMgr directory, it works.
 #ifdef HAVE_SWORD
   
@@ -293,18 +311,12 @@ void sword_logic_install_module (string source_name, string module_name)
   delete mgr;
   
 #else
-   */
   
   string out_err;
   filter_shell_run ("cd " + sword_path + "; echo yes | installmgr -ri \"" + source_name + "\" \"" + module_name + "\"", out_err);
-  vector <string> lines = filter_string_explode (out_err, '\n');
-  for (auto line : lines) {
-    line = filter_string_trim (line);
-    if (line.empty ()) continue;
-    Database_Logs::log (line);
-  }
+  sword_logic_log (out_err);
   
-//#endif
+#endif
 
   // After the installation is complete, cache some data.
   // This cached data indicates the last access time for this SWORD module.
@@ -319,12 +331,7 @@ void sword_logic_uninstall_module (string module)
   string out_err;
   string sword_path = sword_logic_get_path ();
   filter_shell_run ("cd " + sword_path + "; installmgr -u \"" + module + "\"", out_err);
-  vector <string> lines = filter_string_explode (out_err, '\n');
-  for (auto line : lines) {
-    line = filter_string_trim (line);
-    if (line.empty ()) continue;
-    Database_Logs::log (line);
-  }
+  sword_logic_log (out_err);
 }
 
 
@@ -443,7 +450,7 @@ string sword_logic_get_text (string source, string module, int book, int chapter
       // But due to long waiting on Bibledit demo, while it would install multiple modules,
       // the Bibledit demo would become unresponsive.
       // So, it's better to return immediately with an informative text.)
-      tasks_logic_queue (INSTALLSWORDMODULE, {source, module});
+      sword_logic_install_module_schedule (source, module);
       // Return standard 'installing' information. Client knows not to cache this.
       return sword_logic_installing_module_text ();
     } else {
@@ -508,7 +515,7 @@ void sword_logic_update_installed_modules ()
             }
           }
           // Schedule module installation.
-          tasks_logic_queue (INSTALLSWORDMODULE, {source, module});
+          sword_logic_install_module_schedule (source, module);
         }
         continue;
       }
@@ -574,7 +581,7 @@ void sword_logic_run_scheduled_module_install (string source, string module)
   bool installing = sword_logic_installing_module;
   sword_logic_installer_mutex.unlock ();
   if (installing) {
-    tasks_logic_queue (INSTALLSWORDMODULE, {source, module});
+    sword_logic_install_module_schedule (source, module);
     return;
   }
 
@@ -736,26 +743,14 @@ void sword_logic_installmgr_list_remote_modules (string source_name, vector <str
       if (it->second & sword::InstallMgr::MODSTAT_UPDATED) status = "+";
       string module_name (status);
       module_name.append ("[");
-#ifdef HAVE_SWORD16
-      module_name.append (module->Name());
-#else
       module_name.append (module->getName());
-#endif
       module_name.append ("]  \t(");
       module_name.append (version);
       module_name.append (")  \t- ");
-#ifdef HAVE_SWORD16
-      module_name.append (module->Description());
-#else
       module_name.append (module->getDescription());
-#endif
       // Check if the module is a verse-based Bible or commentary.
       bool verse_based = false;
-#ifdef HAVE_SWORD16
-      string module_type = module->Type ();
-#else
       string module_type = module->getType ();
-#endif
       if (module_type == "Biblical Texts") verse_based = true;
       if (module_type == "Commentaries") verse_based = true;
       if (verse_based) modules.push_back (module_name);
@@ -820,14 +815,25 @@ string sword_logic_diatheke (const string & module_name, const string& osis, int
   if (module) {
     string key = osis + " " + convert_to_string (chapter) + ":" + convert_to_string (verse);
     module->setKey (key.c_str ());
-#ifdef HAVE_SWORD16
-    rendering = module->RenderText();
-#else
     rendering = module->renderText();
-#endif
   }
   sword_logic_library_access_mutex.unlock ();
 #endif
   
   return rendering;
+}
+
+
+void sword_logic_log (string message)
+{
+  // Remove less comely stuff, warnings, confusing information.
+  message = filter_string_str_replace ("-=+*", "", message);
+  message = filter_string_str_replace ("WARNING", "", message);
+  message = filter_string_str_replace ("*+=-", "", message);
+  message = filter_string_str_replace ("enable?", "", message);
+  message = filter_string_str_replace ("[no]", "", message);
+  // Clean message up.
+  message = filter_string_trim (message);
+  // Record in the journal.
+  Database_Logs::log (message);
 }

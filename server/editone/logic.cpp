@@ -58,6 +58,7 @@ void editone_logic_editable_html (string prefix_last_p_style, string usfm, strin
   if (!html.empty ()) {
     if (!prefix_last_p_style.empty ()) {
       xml_document document;
+      html = html2xml (html);
       document.load_string (html.c_str(), parse_ws_pcdata_single);
       xml_node p_node = document.first_child ();
       string p_style = p_node.attribute ("class").value ();
@@ -96,6 +97,7 @@ void editone_logic_suffix_html (string editable_last_p_style, string usfm, strin
   if (!html.empty ()) {
     if (!editable_last_p_style.empty ()) {
       xml_document document;
+      html = html2xml (html);
       document.load_string (html.c_str(), parse_ws_pcdata_single);
       xml_node p_node = document.first_child ();
       string p_style = p_node.attribute ("class").value ();

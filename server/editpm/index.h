@@ -17,14 +17,16 @@
  */
 
 
-#ifndef INCLUDED_DEBUG_LOGIC_H
-#define INCLUDED_DEBUG_LOGIC_H
+#ifndef INCLUDED_EDITPM_INDEX_H
+#define INCLUDED_EDITPM_INDEX_H
 
 
 #include <config/libraries.h>
 
 
-void developer_logic_timing (int order, bool initialize = false);
+string editpm_index_url ();
+bool editpm_index_acl (void * webserver_request);
+string editpm_index (void * webserver_request);
 
 
 #endif

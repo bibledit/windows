@@ -16,15 +16,23 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
-#ifndef INCLUDED_DEBUG_LOGIC_H
-#define INCLUDED_DEBUG_LOGIC_H
-
-
-#include <config/libraries.h>
+$(window).on ('load', function () {
+  sendreceive_index ();
+});
 
 
-void developer_logic_timing (int order, bool initialize = false);
-
-
-#endif
+function sendreceive_index () {
+  $.ajax ({
+    url: "index",
+    type: "GET",
+    data: { status: "" },
+    cache: false,
+    success: function (response) {
+      console.log (response);
+      $ ("#status").text (response);
+    },
+    complete: function (xhr, status) {
+      setTimeout (sendreceive_index, 1000);
+    },
+  });
+}
