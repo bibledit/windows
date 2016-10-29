@@ -292,6 +292,7 @@
     <ClCompile Include="editor\select.cpp" />
     <ClCompile Include="editor\styles.cpp" />
     <ClCompile Include="editor\usfm2html.cpp" />
+    <ClCompile Include="editpm\index.cpp" />
     <ClCompile Include="editusfm\focus.cpp" />
     <ClCompile Include="editusfm\index.cpp" />
     <ClCompile Include="editusfm\load.cpp" />
