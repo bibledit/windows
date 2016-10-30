@@ -79,4 +79,7 @@ exit /b %errorlevel%
 )
 
 
+IF "%1" != "" (
 pause
+) 
+
