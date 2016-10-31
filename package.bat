@@ -79,7 +79,7 @@ exit /b %errorlevel%
 )
 
 
-IF "%1" != "" (
+IF "%1" == "" (
 pause
 ) 
 
