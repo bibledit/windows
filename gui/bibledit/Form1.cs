@@ -63,8 +63,6 @@ namespace Bibledit
       {
         feedback(exception.Message);
       }
-      // Set the timezone with a delay, so it waits till the server is up and running.
-      timer = new System.Threading.Timer(obj => { setTimezone(); }, null, 1000, System.Threading.Timeout.Infinite);
     }
 
 
@@ -98,25 +96,6 @@ namespace Bibledit
     private void feedback(String message)
     {
       label.Text = message;
-    }
-
-
-    private void setTimezone()
-    {
-      try
-      {
-        // Set the timezone in the Bibledit library.
-        TimeZoneInfo localZone = TimeZoneInfo.Local;
-        int utcOffsetHours = TimeZoneInfo.Local.BaseUtcOffset.Hours;
-        String uri = "http://localhost:9876/administration/timeoffset?offset=" + utcOffsetHours.ToString();
-        WebRequest request = WebRequest.Create(uri);
-        WebResponse response = request.GetResponse();
-        response.Close();
-      }
-      catch (Exception exception)
-      {
-        if (exception.Message.Length == 0) { };
-      }
     }
 
 
