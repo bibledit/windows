@@ -93,7 +93,7 @@ string render_journal_entry (string filename, int userlevel)
   time_t seconds = convert_to_int (filename.substr (0, 10));
   // Localize the seconds.
   seconds = filter_date_local_seconds (seconds);
-  // Convert the seconds into a human readable date and time.
+  // Convert the seconds into a human readable date and time. Todo move this to some locale logic, and test it. Re-use it.
   string timestamp;
   timestamp.append (locale_logic_date (seconds));
   timestamp.append (" ");
