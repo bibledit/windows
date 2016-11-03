@@ -592,7 +592,7 @@ string resource_logic_default_user_url ()
 
 
 // This creates a resource database cache and runs in the Cloud.
-void resource_logic_create_cache ()
+void resource_logic_create_cache () // Todo
 {
   // If there's nothing to cache, bail out.
   vector <string> signatures = Database_Config_General::getResourcesToCache ();
