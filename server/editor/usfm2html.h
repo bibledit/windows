@@ -34,11 +34,13 @@ class Editor_Usfm2Html
 public:
   void load (string usfm);
   void stylesheet (string stylesheet);
+  void quill ();
   void run ();
   string get ();
   size_t textLength;
   map <int, int> verseStartOffsets;
   string currentParagraphStyle;
+  string currentParagraphContent;
 private:
   vector <string> markersAndText; // Strings alternating between USFM and text.
   unsigned int markersAndTextPointer = 0;
@@ -56,7 +58,6 @@ private:
   
   xml_node currentPnode; // The current p node.
   bool current_p_open = false;
-  string currentParagraphContent;
   vector <string> currentTextStyles;
   
   int noteCount = 0;
@@ -68,7 +69,8 @@ private:
   bool noteOpened = false;
   
   // Lengths and offsets.
-  int paragraphCount = 0;
+  bool quill_enabled = false;
+  bool first_line_done = false;
   
   void preprocess ();
   void process ();
@@ -81,7 +83,8 @@ private:
   void addNote (string citation, string style, bool endnote = false);
   void addNoteText (string text);
   void closeCurrentNote ();
-  void addLink (xml_node domNode, string reference, string identifier, string style, string text);
+  void addNoteDomLink (xml_node domNode, string reference, string identifier, string style, string text);
+  void addNoteQuillLink (xml_node domNode, int identifier, string style, string text);
   
   bool roadIsClear ();
 };

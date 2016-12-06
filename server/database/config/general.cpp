@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <filter/string.h>
 #include <config/globals.h>
-#include <system/timezone.h>
+#include <system/index.h>
 
 
 // Functions for getting and setting values or lists of values.
@@ -430,4 +430,14 @@ int Database_Config_General::getUnreceivedBibleDataTime ()
 void Database_Config_General::setUnreceivedBibleDataTime (int value)
 {
   setIValue ("unreceived-bible-data-time", value);
+}
+
+
+int Database_Config_General::getMaxRssFeedItems ()
+{
+  return getIValue ("max-rss-feed-items", 0);
+}
+void Database_Config_General::setMaxRssFeedItems (int value)
+{
+  setIValue ("max-rss-feed-items", value);
 }

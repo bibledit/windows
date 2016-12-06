@@ -24,6 +24,7 @@
 #include <locale/translate.h>
 #include <styles/logic.h>
 #include <database/logs.h>
+#include <quill/logic.h>
 
 
 void Editor_Usfm2Html::load (string usfm)
@@ -61,6 +62,13 @@ void Editor_Usfm2Html::stylesheet (string stylesheet)
 }
 
 
+// Enable styles suitable for Quill-based editor.
+void Editor_Usfm2Html::quill ()
+{
+  quill_enabled = true;
+}
+
+
 void Editor_Usfm2Html::run ()
 {
   preprocess ();
@@ -71,11 +79,19 @@ void Editor_Usfm2Html::run ()
 
 string Editor_Usfm2Html::get ()
 {
-  // If there are notes, move the notes <div> after everything else.
-  // (It has the <hr> as a child).
+  // If there are notes, move the notes <div> or <p> after everything else.
+  // (It has the <hr> or <br> as a child).
   size_t count = distance (notes_node.begin (), notes_node.end ());
   if (count > 1) {
     body_node.append_move (notes_node);
+  }
+
+  // A Quill-based editor does not work with embedded <p> elements.
+  // Move the notes out of their parent and append them to the end main body.
+  if (quill_enabled) {
+    while (xml_node note = notes_node.first_child ().next_sibling ()) {
+      body_node.append_move (note);
+    }
   }
   
   // Get the html code, including body, without head.
@@ -100,7 +116,9 @@ string Editor_Usfm2Html::get ()
   // Therefore convert it to the following:
   // <p class="b"><br></p>
   // This is how the webkit browser naturally represents a new empty line.
-  html = filter_string_str_replace ("<p class=\"b\" />", "<p class=\"b\"><br></p>", html);
+  string clas = "b";
+  if (quill_enabled) clas.insert (0, quill_logic_class_prefix_block ());
+  html = filter_string_str_replace ("<p class=\"" + clas + "\" />", "<p class=\"" + clas + "\"><br></p>", html);
   
   // Currently libxml2 produces hexadecimal character entities.
   // This is unwanted behaviour: Convert them to normal characters.
@@ -118,43 +136,14 @@ void Editor_Usfm2Html::preprocess ()
   currentTextStyles.clear();
   noteCount = 0;
   currentNoteTextStyles.clear();
-  paragraphCount = 0;
   textLength = 0;
   verseStartOffsets = { make_pair (0, 0) };
   current_p_open = false;
   note_p_open = false;
 
   /*
-  // Load and parse the template.
-  htmlParserCtxtPtr context = htmlNewParserCtxt();
-  
-  string html_template =
-  "<!DOCTYPE html>\n"
-  "<html>\n"
-  "<head>\n"
-  "<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n"
-  "</head>\n"
-  "<body>\n"
-  "</body>\n"
-  "</html>\n";
-  htmlDom = htmlCtxtReadMemory (context, html_template.c_str(), html_template.length(), "", "UTF-8", HTML_PARSE_RECOVER);
-  
-  // Get the "body" node through XPath.
-  xmlXPathContextPtr xpathCtx = xmlXPathNewContext (htmlDom);
-  xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression (BAD_CAST "//body", xpathCtx);
-  xmlNodeSetPtr nodes = xpathObj->nodesetval;
-  bodyDomNode = nodes->nodeTab [0];
-  xmlXPathFreeObject(xpathObj);
-  xmlXPathFreeContext(xpathCtx);
-  
-  // Done parsing.
-  htmlFreeParserCtxt (context);
-
   XPath crashes on Android with libxml2 2.9.2 compiled through the Android NDK.
-  It crashes here: bodyDomNode = nodes->nodeTab [0];
-  Therefore use another method: Build the document from scratch.
-  After the move to pugixml, the above no longer applies.
-  Even so, the document is built from scratch.
+  After the move to pugixml, this no longer applies.
   */
 
   body_node = document.append_child ("body");
@@ -162,9 +151,17 @@ void Editor_Usfm2Html::preprocess ()
   // Create notes xml node.
   // It comes at the start of the document.
   // (Later, it will either be deleted, or moved to the end).
-  notes_node = document.append_child ("div");
-  notes_node.append_attribute ("id") = "notes";
-  notes_node.append_child ("hr");
+  string notes_value = "notes";
+  if (quill_enabled) {
+    notes_node = document.append_child ("p");
+    notes_value.insert (0, quill_logic_class_prefix_block ());
+    notes_node.append_attribute ("class") = notes_value.c_str ();
+    notes_node.append_child ("br");
+  } else {
+    notes_node = document.append_child ("div");
+    notes_node.append_attribute ("id") = notes_value.c_str ();
+    notes_node.append_child ("hr");
+  }
 }
 
  
@@ -419,11 +416,18 @@ void Editor_Usfm2Html::newParagraph (string style)
   currentPnode = body_node.append_child ("p");
   current_p_open = true;
   if (!style.empty()) {
-    currentPnode.append_attribute ("class") = style.c_str();
+    string style2 (style);
+    if (quill_enabled) style2.insert (0, quill_logic_class_prefix_block ());
+    currentPnode.append_attribute ("class") = style2.c_str();
   }
   currentParagraphStyle = style;
   currentParagraphContent.clear();
-  paragraphCount++;
+  // A Quill-based editor assigns a length of one to a new line.
+  if (quill_enabled) {
+    // Skip the first line.
+    if (first_line_done) textLength++;
+  }
+  first_line_done = true;
 }
 
 
@@ -469,7 +473,13 @@ void Editor_Usfm2Html::addText (string text)
     spanDomElement.text ().set (text.c_str());
     if (!currentTextStyles.empty ()) {
       // Take character style(s) as specified in this object.
-      spanDomElement.append_attribute ("class") = filter_string_implode (currentTextStyles, " ").c_str();
+      string textstyle;
+      for (auto & style : currentTextStyles) {
+        if (!textstyle.empty ()) textstyle.append (" ");
+        if (quill_enabled) textstyle.append (quill_logic_class_prefix_inline ());
+        textstyle.append (style);
+      }
+      spanDomElement.append_attribute ("class") = textstyle.c_str();
     }
     currentParagraphContent.append (text);
   }
@@ -489,34 +499,43 @@ void Editor_Usfm2Html::addNote (string citation, string style, bool endnote)
     return;
   }
   
-  
   // Ensure that a paragraph is open, so that the note can be added to it.
   if (!current_p_open) {
     newParagraph ();
   }
   
   // Not used:
-  if (endnote) {};
+  (void) endnote;
   
   noteCount++;
   noteOpened = true;
   
   // Add the link with all relevant data for the note citation.
-  string reference = "#note" + convert_to_string (noteCount);
-  string identifier = "citation" + convert_to_string (noteCount);
-  addLink (currentPnode, reference, identifier, "superscript", citation);
+  if (quill_enabled) {
+    addNoteQuillLink (currentPnode, noteCount, "call", citation);
+  } else {
+    string reference = "#note" + convert_to_string (noteCount);
+    string identifier = "citation" + convert_to_string (noteCount);
+    addNoteDomLink (currentPnode, reference, identifier, "superscript", citation);
+  }
   
   // Open a paragraph element for the note body.
   notePnode = notes_node.append_child ("p");
   note_p_open = true;
-  notePnode.append_attribute ("class") = style.c_str();
+  string cls (style);
+  if (quill_enabled) cls.insert (0, quill_logic_class_prefix_block ());
+  notePnode.append_attribute ("class") = cls.c_str();
   
   closeTextStyle (false);
   
   // Add the link with all relevant data for the note body.
-  reference = "#citation" + convert_to_string (noteCount);
-  identifier = "note" + convert_to_string (noteCount);
-  addLink (notePnode, reference, identifier, "", citation);
+  if (quill_enabled) {
+    addNoteQuillLink (notePnode, noteCount, "body", citation);
+  } else {
+    string reference = "#citation" + convert_to_string (noteCount);
+    string identifier = "note" + convert_to_string (noteCount);
+    addNoteDomLink (notePnode, reference, identifier, "", citation);
+  }
   
   // Add a space.
   addNoteText (" ");
@@ -537,8 +556,14 @@ void Editor_Usfm2Html::addNoteText (string text)
   xml_node spanDomElement = notePnode.append_child ("span");
   spanDomElement.text ().set (text.c_str());
   if (!currentNoteTextStyles.empty()) {
-    // Take character style as specified in this object.
-    spanDomElement.append_attribute ("class") = filter_string_implode (currentNoteTextStyles, " ").c_str();
+    // Take character style(s) as specified in this object.
+    vector <string> currentNoteTextStyles2 (currentNoteTextStyles);
+    if (quill_enabled) {
+      for (auto & style : currentNoteTextStyles2) {
+        style.insert (0, quill_logic_class_prefix_inline ());
+      }
+    }
+    spanDomElement.append_attribute ("class") = filter_string_implode (currentNoteTextStyles2, " ").c_str();
   }
 }
 
@@ -553,13 +578,14 @@ void Editor_Usfm2Html::closeCurrentNote ()
 }
 
 
-// This adds a link.
+// This adds a link as a mechanism to connect body text with a note body.
 // $domNode: The DOM node where to add the link to.
 // $reference: The link's href, e.g. where it links to.
 // $identifier: The link's identifier. Others can link to it.
 // $style: The link text's style.
 // $text: The link's text.
-void Editor_Usfm2Html::addLink (xml_node domNode, string reference, string identifier, string style, string text)
+// It also deals with a Quill-based editor, in a slightly different way.
+void Editor_Usfm2Html::addNoteDomLink (xml_node domNode, string reference, string identifier, string style, string text)
 {
   xml_node aDomElement = domNode.append_child ("a");
   aDomElement.append_attribute ("href") = reference.c_str();
@@ -573,6 +599,21 @@ void Editor_Usfm2Html::addLink (xml_node domNode, string reference, string ident
   aDomElement.append_attribute ("style") = "text-decoration:none; color: inherit;";
   // Style = class.
   if (style != "") aDomElement.append_attribute ("class") = style.c_str();
+  aDomElement.text ().set (text.c_str());
+}
+
+
+// This adds a link as a mechanism to connect body text with a note body.
+// $domNode: The DOM node where to add the link to.
+// $identifier: The link's identifier.
+// $style: A style for the note citation, and one for the note body.
+// $text: The link's text.
+// It also deals with a Quill-based editor, in a slightly different way.
+void Editor_Usfm2Html::addNoteQuillLink (xml_node domNode, int identifier, string style, string text)
+{
+  xml_node aDomElement = domNode.append_child ("span");
+  string cls = "i-note" + style + convert_to_string (identifier);
+  aDomElement.append_attribute ("class") = cls.c_str();
   aDomElement.text ().set (text.c_str());
 }
 

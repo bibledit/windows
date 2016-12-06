@@ -53,5 +53,10 @@ string resource_logic_default_user_url ();
 
 void resource_logic_create_cache ();
 
+string resource_logic_bible_gateway_module_list_path ();
+string resource_logic_bible_gateway_module_list_refresh ();
+vector <string> resource_logic_bible_gateway_module_list_get ();
+string resource_logic_bible_gateway_get (string resource, int book, int chapter, int verse);
+
 
 #endif

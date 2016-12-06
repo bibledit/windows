@@ -42,7 +42,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <manage/hyphenation.h>
 #include <manage/write.h>
 #include <manage/privileges.h>
-#include <system/timezone.h>
 #include <system/index.h>
 #include <collaboration/index.h>
 #include <collaboration/url.h>
@@ -83,6 +82,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <edit/save.h>
 #include <edit/styles.h>
 #include <editpm/index.h>
+#include <editpm/load.h>
+#include <editql/index.h>
+#include <editql/load.h>
+#include <editql/position.h>
+#include <editql/navigate.h>
+#include <editql/save.h>
 #include <search/all.h>
 #include <search/index.h>
 #include <search/replace.h>
@@ -130,6 +135,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <resource/user1edit.h>
 #include <resource/user9view.h>
 #include <resource/user1view.h>
+#include <resource/biblegateway.h>
 #include <mapping/index.h>
 #include <mapping/map.h>
 #include <notes/index.h>
@@ -185,7 +191,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <editone/load.h>
 #include <editone/save.h>
 #include <editone/verse.h>
-#include <editone/preview.h>
+#include <edit/preview.h>
 #include <developer/index.h>
 #include <paratext/index.h>
 #include <personalize/index.h>
@@ -203,6 +209,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <public/comment.h>
 #include <basic/index.h>
 #include <editor/select.h>
+#include <rss/feed.h>
 
 
 // Internal function to check whether a request coming from the browser is considered secure enough.
@@ -241,6 +248,7 @@ void bootstrap_index (void * webserver_request)
       || (Fonts_Logic::isFont (extension))
       || (extension == "sh")
       || (extension == "svg")
+      || (extension == "map")
       ) {
     http_serve_cache_file (request);
     return;
@@ -376,7 +384,37 @@ void bootstrap_index (void * webserver_request)
     request->reply = editpm_index (request);
     return;
   }
+  
+  if ((url == editpm_load_url ()) && browser_request_security_okay (request) && editpm_load_acl (request)) {
+    request->reply = editpm_load (request);
+    return;
+  }
+  
+  if ((url == editql_index_url ()) && browser_request_security_okay (request) && editql_index_acl (request)) {
+    request->reply = editql_index (request);
+    return;
+  }
+  
+  if ((url == editql_load_url ()) && browser_request_security_okay (request) && editql_load_acl (request)) {
+    request->reply = editql_load (request);
+    return;
+  }
 
+  if ((url == editql_position_url ()) && browser_request_security_okay (request) && editql_position_acl (request)) {
+    request->reply = editql_position (request);
+    return;
+  }
+
+  if ((url == editql_navigate_url ()) && browser_request_security_okay (request) && editql_navigate_acl (request)) {
+    request->reply = editql_navigate (request);
+    return;
+  }
+  
+  if ((url == editql_save_url ()) && browser_request_security_okay (request) && editql_save_acl (request)) {
+    request->reply = editql_save (request);
+    return;
+  }
+  
   if ((url == search_index_url ()) && browser_request_security_okay (request) && search_index_acl (request)) {
     request->reply = search_index (request);
     return;
@@ -578,7 +616,12 @@ void bootstrap_index (void * webserver_request)
     request->reply = resource_user1view (request);
     return;
   }
-  
+
+  if ((url == resource_biblegateway_url ()) && browser_request_security_okay (request) && resource_biblegateway_acl (request)) {
+    request->reply = resource_biblegateway (request);
+    return;
+  }
+
   // Changes menu.
   if ((url == journal_index_url ()) && browser_request_security_okay (request) && journal_index_acl (request)) {
     request->reply = journal_index (request);
@@ -1008,8 +1051,8 @@ void bootstrap_index (void * webserver_request)
     return;
   }
   
-  if ((url == editone_preview_url ()) && browser_request_security_okay (request) && editone_preview_acl (request)) {
-    request->reply = editone_preview (request);
+  if ((url == edit_preview_url ()) && browser_request_security_okay (request) && edit_preview_acl (request)) {
+    request->reply = edit_preview (request);
     return;
   }
   
@@ -1153,12 +1196,12 @@ void bootstrap_index (void * webserver_request)
     return;
   }
 
-  // Internal settings calls.
-  if ((url == system_timeoffset_url ()) && system_timeoffset_acl (request)) {
-    request->reply = system_timeoffset (request);
+  // RSS feed.
+  if ((url == rss_feed_url ()) && browser_request_security_okay (request) && rss_feed_acl (request)) {
+    request->reply = rss_feed (request);
     return;
   }
-
+  
   // Forward the browser to the default home page.
   redirect_browser (request, index_index_url ());
 }

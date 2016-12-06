@@ -17,16 +17,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-$ (document).ready (function () 
+var editorPmView;
+var schema;
+
+
+$ (document).ready (function ()
 {
   // Make the editor's menu to never scroll out of view.
   var bar = $ ("#editorheader").remove ();
   $ ("#workspacemenu").append (bar);
-  
-  /*
-  rangy.init ();
 
   navigationNewPassage ();
+  
+  /*
 
   $ ("#editor").on ("paste cut keydown", editorContentChanged);
   $ (window).on ("unload", editorUnload);
@@ -46,10 +49,6 @@ $ (document).ready (function ()
   $ ("#stylebutton").on ("click", editorStylesButtonHandler);
   $ (window).on ("keydown", editorWindowKeyHandler);
 
-  $ (window).scroll (function () {
-    editorToolbarScrollingTimerStart ();
-  });
-  
   positionCaretViaAjax ();
   
   if (swipe_operations) {
@@ -696,7 +695,7 @@ function dynamicClickHandlers ()
   elements.on ("click", function (event) {
     event.preventDefault();
     editorClearStyles ();
-    $ ("#editor").focus ();
+    //$ ("#editor").focus ();
     var href = event.currentTarget.href;
     href = href.substring (href.lastIndexOf ('/') + 1);
     if (href == "cancel") return;
@@ -712,7 +711,7 @@ function dynamicClickHandlers ()
     var style = selection.substring (0, selection.indexOf (" "));
     event.preventDefault();
     editorClearStyles ();
-    $ ("#editor").focus ();
+    //$ ("#editor").focus ();
     requestStyle (style);
   });
 }
@@ -766,7 +765,7 @@ function displayAllStyles ()
 function applyParagraphStyle (style)
 {
   if (!editorWriteAccess) return;
-  $ ("#editor").focus ();
+  //$ ("#editor").focus ();
   var parent = rangy.getSelection().anchorNode.parentElement;
   parent = $ (parent);
   var paragraph = parent.closest ("p");
@@ -778,7 +777,7 @@ function applyParagraphStyle (style)
 function applyCharacterStyle (style)
 {
   if (!editorWriteAccess) return;
-  $ ("#editor").focus ();
+  //$ ("#editor").focus ();
   var classApplier = rangy.createClassApplier (style);
   classApplier.toggleSelection ();
 }
@@ -788,7 +787,7 @@ function applyMonoStyle (style)
 {
   if (!editorWriteAccess) return;
 
-  $ ("#editor").focus ();
+  //$ ("#editor").focus ();
 
   var parent = rangy.getSelection().anchorNode.parentElement;
   parent = $ (parent);
@@ -824,7 +823,7 @@ function applyNotesStyle (style)
 {
   if (!editorWriteAccess) return;
 
-  $ ("#editor").focus ();
+  //$ ("#editor").focus ();
 
   // Check for / append notes section.
   var notes = $ ("#notes");
@@ -954,28 +953,6 @@ function editorPositioningRun ()
     editorPendingWindowScrolling = false;
     editorScrollVerseIntoView ();
   }
-}
-
-
-
-// Keeping the editor toolbar in view.
-
-
-
-var editorToolbarScrollingTimerId;
-
-
-function editorToolbarScrollingTimerStart ()
-{
-  if (editorToolbarScrollingTimerId) clearTimeout (editorToolbarScrollingTimerId);
-  editorToolbarScrollingTimerId = setTimeout (editorToolbarScrollingRun, 200);
-}
-
-
-// The reason for scrolling the editor toolbar via a timer is to reduce the number of calls.
-function editorToolbarScrollingRun ()
-{
-  $ ('#editorinnerheader').toggleClass('editorheaderscroll', $ (window).scrollTop () > $ ('#editorheader').offset ().top);
 }
 
 

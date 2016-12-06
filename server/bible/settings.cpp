@@ -93,7 +93,7 @@ string bible_settings (void * webserver_request)
       for (auto & versification_name : versification_names) {
         dialog_list.add_row (versification_name, "versification", versification_name);
       }
-      page += dialog_list.run();
+      page += dialog_list.run ();
       return page;
     } else {
       if (write_access) Database_Config_Bible::setVersificationSystem (bible, versification);
@@ -170,7 +170,7 @@ string bible_settings (void * webserver_request)
     for (auto & resource : resources) {
       string source = sword_logic_get_source (resource);
       string module = sword_logic_get_remote_module (resource);
-      string name = "[" + source + "][" + module + "]";
+      string name = sword_logic_get_resource_name (source, module);
       dialog_list.add_row (resource, "resource", name);
     }
     page += dialog_list.run ();

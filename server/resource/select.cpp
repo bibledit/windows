@@ -78,7 +78,7 @@ string resource_select (void * webserver_request)
     for (auto bible : bibles) {
       dialog_list.add_row (bible, "add", bible);
     }
-    page += dialog_list.run();
+    page += dialog_list.run ();
     return page;
   }
   
@@ -98,7 +98,7 @@ string resource_select (void * webserver_request)
     for (auto resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
-    page += dialog_list.run();
+    page += dialog_list.run ();
     return page;
   }
   
@@ -110,7 +110,7 @@ string resource_select (void * webserver_request)
     for (auto resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
-    page += dialog_list.run();
+    page += dialog_list.run ();
     return page;
   }
   
@@ -122,7 +122,7 @@ string resource_select (void * webserver_request)
     for (auto resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
-    page += dialog_list.run();
+    page += dialog_list.run ();
     return page;
   }
   
@@ -134,7 +134,7 @@ string resource_select (void * webserver_request)
     for (auto resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
-    page += dialog_list.run();
+    page += dialog_list.run ();
     return page;
   }
   
@@ -146,7 +146,7 @@ string resource_select (void * webserver_request)
     for (auto resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
-    page += dialog_list.run();
+    page += dialog_list.run ();
     return page;
   }
   
@@ -159,7 +159,7 @@ string resource_select (void * webserver_request)
     for (auto resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
-    page += dialog_list.run();
+    page += dialog_list.run ();
     return page;
   }
   
@@ -171,7 +171,7 @@ string resource_select (void * webserver_request)
     for (auto resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
-    page += dialog_list.run();
+    page += dialog_list.run ();
     return page;
   }
   
@@ -183,7 +183,7 @@ string resource_select (void * webserver_request)
     for (auto resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
-    page += dialog_list.run();
+    page += dialog_list.run ();
     return page;
   }
   
@@ -202,9 +202,22 @@ string resource_select (void * webserver_request)
     for (auto resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
-    page += dialog_list.run();
+    page += dialog_list.run ();
     return page;
   }
+
+  
+  if (request->query.count ("biblegateway")) {
+    Dialog_List dialog_list = Dialog_List (caller, translate("Select a BibleGateway resource"), "", "", true);
+    dialog_list.add_query ("page", request->query["page"]);
+    vector <string> resources = resource_logic_bible_gateway_module_list_get ();
+    for (auto resource : resources) {
+      dialog_list.add_row (resource, "add", resource);
+    }
+    page += dialog_list.run ();
+    return page;
+  }
+
   
   page += view.render ("resource", "select");
   page += Assets_Page::footer ();

@@ -16,10 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-window.stopThatSync = false;
-
 $(document).ready (function () {
-  if (window.stopThatSync) return;
   navigationNewPassage ();
   if (swipe_operations) {
     $ ("body").swipe ( {
@@ -41,19 +38,9 @@ var resourceAjaxRequest;
 var resourceDoing;
 var resourceAborting = false;
 
-function toggleSync(element) {
-  if (window.stopThatSync === false) {
-    window.stopThatSync = true;
-    element.innerHTML = "unfreeze position";
-  } else {
-    window.stopThatSync = false;
-    element.innerHTML = "freeze position";
-  }
-}
 
 function navigationNewPassage ()
 {
-  if (window.stopThatSync) return;
   if (typeof navigationBook != 'undefined') {
     resourceBook = navigationBook;
     resourceChapter = navigationChapter;
@@ -71,12 +58,6 @@ function navigationNewPassage ()
     resourceAjaxRequest.abort ();
   } catch (err) {
   }
-  for (i = 1; i <= resourceCount; i++) {
-    $ ("#line" + i).show ();
-    $ ("#name" + i).show ();
-    $ ("#loading" + i).show ();
-    $ ("#content" + i).empty ();
-  }
   resourceAborting = false;
   resourceDoing = 0;
   resourceGetOne ();
@@ -85,7 +66,6 @@ function navigationNewPassage ()
 
 function resourceGetOne ()
 {
-  if (window.stopThatSync) return;
   if (resourceAborting) return;
   resourceDoing++;
   if (resourceDoing > resourceCount) {
@@ -100,13 +80,18 @@ function resourceGetOne ()
         $ ("#line" + resourceDoing).hide ();
         $ ("#name" + resourceDoing).hide ();
       } else {
+        $ ("#line" + resourceDoing).show ();
+        $ ("#name" + resourceDoing).show ();
         if (response.charAt (0) == "$") {
           $ ("#name" + resourceDoing).hide ();
           response = response.substring (1);
         }
-        $ ("#content" + resourceDoing).append (response);
+        var current_content = String ($ ("#content" + resourceDoing).html ());
+        $ ("#reload").html (response);
+        if (current_content != String ($ ("#reload").html ())) {
+          $ ("#content" + resourceDoing).html (response);
+        }
       }
-      $ ("#loading" + resourceDoing).hide ();
       navigationSetup ();
     },
     error: function (jqXHR, textStatus, errorThrown) {

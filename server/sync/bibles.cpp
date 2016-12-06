@@ -38,6 +38,7 @@
 #include <checksum/logic.h>
 #include <access/bible.h>
 #include <bible/logic.h>
+#include <rss/logic.h>
 
 
 string sync_bibles_url ()
@@ -120,6 +121,9 @@ string sync_bibles_receive_chapter (Webserver_Request * request, string & bible,
     Database_Modifications database_modifications;
     database_modifications.recordUserSave (username, bible, book, chapter, old_id, old_text, new_id, new_text);
     Database_Git::store_chapter (username, bible, book, chapter, old_text, new_text);
+#ifdef HAVE_CLOUD
+    rss_logic_schedule_update (username, bible, book, chapter, old_text, new_text);
+#endif
   }
 
 

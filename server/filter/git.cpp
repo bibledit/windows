@@ -29,6 +29,7 @@
 #include <database/config/general.h>
 #include <bible/logic.h>
 #include <locale/translate.h>
+#include <rss/logic.h>
 
 
 // This function returns the directory of the git repository belonging to $object.
@@ -281,6 +282,9 @@ void filter_git_sync_git_to_bible (void * webserver_request, string repository, 
           if (contents != usfm) {
             bible_logic_store_chapter (bible, book, chapter, contents);
             Database_Logs::log (translate("A translator updated chapter") + " " + bible + " " + bookname + " " + convert_to_string (chapter));
+#ifdef HAVE_CLOUD
+            rss_logic_schedule_update ("collaborator", bible, book, chapter, usfm, contents);
+#endif
           }
         } else {
           bible_logic_delete_chapter (bible, book, chapter);
@@ -313,9 +317,16 @@ void filter_git_sync_git_chapter_to_bible (string repository, string bible, int 
   if (file_or_dir_exists (filename)) {
     
     // Store chapter in database and log it.
+#ifdef HAVE_CLOUD
+    Database_Bibles database_bibles;
+    string existing_usfm = database_bibles.getChapter (bible, book, chapter);
+#endif
     string usfm = filter_url_file_get_contents (filename);
     bible_logic_log_change (bible, book, chapter, usfm, "collaborator", "Chapter updated from git repository", false);
     bible_logic_store_chapter (bible, book, chapter, usfm);
+#ifdef HAVE_CLOUD
+    rss_logic_schedule_update ("collaborator", bible, book, chapter, existing_usfm, usfm);
+#endif
     
   } else {
     

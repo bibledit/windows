@@ -26,6 +26,7 @@
 #include <styles/logic.h>
 #include <database/config/bible.h>
 #include <fonts/logic.h>
+#include <quill/logic.h>
 
 
 Styles_Css::Styles_Css (void * webserver_request_in, string stylesheet_in)
@@ -52,7 +53,7 @@ void Styles_Css::exports ()
 // Generates the CSS.
 void Styles_Css::generate ()
 {
-  code.push_back (".superscript { font-size: x-small; vertical-align: super; }");
+  code.push_back (".superscript, [class^='i-note'] { font-size: x-small; vertical-align: super; }");
   if (exports_enabled) {
     add_exports_styles ();
   }
@@ -164,9 +165,19 @@ void Styles_Css::add (void * database_styles_item, bool paragraph, bool keepwith
 {
   Database_Styles_Item * style = (Database_Styles_Item *) database_styles_item;
 
-  // Start with the class. Notice the dot.
   string class_ = style->marker;
-  code.push_back ("." + class_ + " {");
+
+  // The name of the class as used in a Quill-based editor.
+  string quill_class = ", .";
+  if (paragraph) {
+    quill_class.append (quill_logic_class_prefix_block ());
+  } else {
+    quill_class.append (quill_logic_class_prefix_inline ());
+  }
+  quill_class.append (class_);
+  
+  // Start with the class. Notice the dot.
+  code.push_back ("." + class_ + quill_class + " {");
   
   // Font size.
   // Since it is html and not pdf for paper, a font size of 12pt is considered to be equal to 100%.

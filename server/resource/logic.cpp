@@ -45,6 +45,7 @@
 #include <sync/resources.h>
 #include <tasks/logic.h>
 #include <related/logic.h>
+#include <developer/logic.h>
 
 
 /*
@@ -151,6 +152,7 @@ string resource_logic_get_html (void * webserver_request,
   vector <string> externals = resource_external_names ();
   vector <string> images = database_imageresources.names ();
   vector <string> lexicons = lexicon_logic_resource_names ();
+  vector <string> biblegateways = resource_logic_bible_gateway_module_list_get ();
 
   // Possible SWORD details.
   string sword_module = sword_logic_get_remote_module (resource);
@@ -163,6 +165,7 @@ string resource_logic_get_html (void * webserver_request,
   bool isImage = in_array (resource, images);
   bool isLexicon = in_array (resource, lexicons);
   bool isSword = (!sword_source.empty () && !sword_module.empty ());
+  bool isBibleGateway = in_array (resource, biblegateways);
 
   // Retrieve versification system of the active Bible.
   string bible = request->database_config_user ()->getBible ();
@@ -179,6 +182,8 @@ string resource_logic_get_html (void * webserver_request,
     resource_versification = database_mappings.original ();
     if (resource == KJV_LEXICON_NAME) resource_versification = english ();
   } else if (isSword) {
+    resource_versification = english ();
+  } else if (isBibleGateway) {
     resource_versification = english ();
   } else {
   }
@@ -266,6 +271,7 @@ string resource_logic_get_verse (void * webserver_request, string resource, int 
   vector <string> externals = resource_external_names ();
   vector <string> images = database_imageresources.names ();
   vector <string> lexicons = lexicon_logic_resource_names ();
+  vector <string> biblegateways = resource_logic_bible_gateway_module_list_get ();
   
   // Possible SWORD details.
   string sword_module = sword_logic_get_remote_module (resource);
@@ -279,6 +285,7 @@ string resource_logic_get_verse (void * webserver_request, string resource, int 
   bool isImage = in_array (resource, images);
   bool isLexicon = in_array (resource, lexicons);
   bool isSword = (!sword_source.empty () && !sword_module.empty ());
+  bool isBibleGateway = in_array (resource, biblegateways);
   
   if (isBible || isLocalUsfm) {
     string chapter_usfm;
@@ -301,7 +308,6 @@ string resource_logic_get_verse (void * webserver_request, string resource, int 
     // The server fetches it from the web, via the http cache.
     data.append (resource_external_cloud_fetch_cache_extract (resource, book, chapter, verse));
 #endif
-    
   } else if (isImage) {
     vector <string> images = database_imageresources.get (resource, book, chapter, verse);
     for (auto & image : images) {
@@ -311,6 +317,8 @@ string resource_logic_get_verse (void * webserver_request, string resource, int 
     data = lexicon_logic_get_html (request, resource, book, chapter, verse);
   } else if (isSword) {
     data = sword_logic_get_text (sword_source, sword_module, book, chapter, verse);
+  } else if (isBibleGateway) {
+    data = resource_logic_bible_gateway_get (resource, book, chapter, verse);
   } else {
     // Nothing found.
   }
@@ -343,6 +351,7 @@ string resource_logic_get_contents_for_client (string resource, int book, int ch
   Database_UsfmResources database_usfmresources;
   vector <string> externals = resource_external_names ();
   vector <string> usfms = database_usfmresources.getResources ();
+  vector <string> biblegateways = resource_logic_bible_gateway_module_list_get ();
   
   // Possible SWORD details in case the client requests a SWORD resource.
   string sword_module = sword_logic_get_remote_module (resource);
@@ -352,6 +361,7 @@ string resource_logic_get_contents_for_client (string resource, int book, int ch
   bool isExternal = in_array (resource, externals);
   bool isUsfm = in_array (resource, usfms);
   bool isSword = (!sword_source.empty () && !sword_module.empty ());
+  bool isBibleGateway = in_array (resource, biblegateways);
   
   if (isExternal) {
     // The server fetches it from the web.
@@ -375,6 +385,11 @@ string resource_logic_get_contents_for_client (string resource, int book, int ch
     return sword_logic_get_text (sword_source, sword_module, book, chapter, verse);
   }
 
+  if (isBibleGateway) {
+    // The server fetches it from the web.
+    return resource_logic_bible_gateway_get (resource, book, chapter, verse);
+  }
+  
   // Nothing found.
   return "Bibledit Cloud could not localize this resource";
 }
@@ -592,8 +607,15 @@ string resource_logic_default_user_url ()
 
 
 // This creates a resource database cache and runs in the Cloud.
-void resource_logic_create_cache () // Todo
+void resource_logic_create_cache ()
 {
+  // Because clients usually request caches in a quick sequence,
+  // the Cloud starts to cache several books in parallel.
+  // Here's some logic to ensure there's only one book at a time being cached.
+  static bool resource_logic_create_cache_running = false;
+  if (resource_logic_create_cache_running) return;
+  resource_logic_create_cache_running = true;
+  
   // If there's nothing to cache, bail out.
   vector <string> signatures = Database_Config_General::getResourcesToCache ();
   if (signatures.empty ()) return;
@@ -607,6 +629,25 @@ void resource_logic_create_cache () // Todo
   int book = convert_to_int (signature.substr (pos++));
   string bookname = Database_Books::getEnglishFromId (book);
   
+  // Whether it's a SWORD module.
+  string sword_module = sword_logic_get_remote_module (resource);
+  string sword_source = sword_logic_get_source (resource);
+  bool is_sword_module = (!sword_source.empty () && !sword_module.empty ());
+
+  // In case of a  SWORD module, ensure it has been installed.
+  if (is_sword_module) {
+    vector <string> modules = sword_logic_get_installed ();
+    bool already_installed = false;
+    for (auto & installed_module : modules) {
+      if (installed_module.find ("[" + sword_module + "]") != string::npos) {
+        already_installed = true;
+      }
+    }
+    if (!already_installed) {
+      sword_logic_install_module (sword_source, sword_module);
+    }
+  }
+  
   // Database layout is per book: Create a database for this book.
   Database_Cache::remove (resource, book);
   Database_Cache::create (resource, book);
@@ -617,7 +658,18 @@ void resource_logic_create_cache () // Todo
 
     Database_Logs::log ("Caching " + resource + " " + bookname + " " + convert_to_string (chapter), Filter_Roles::consultant ());
 
+    // The verse numbers in the chapter.
     vector <int> verses = database_versifications.getMaximumVerses (book, chapter);
+    
+    // In case of a SWORD module, fetch the texts of all verses in bulk.
+    // This is because calling vfork once per verse to run diatheke stops working in the Cloud after some time.
+    // Forking once per chapter is much better, also for the performance.
+    map <int, string> sword_texts;
+    if (is_sword_module) {
+      sword_texts = sword_logic_get_bulk_text (sword_module, book, chapter, verses);
+    }
+    
+    // Iterate over the verses.
     for (auto & verse : verses) {
 
       // Fetch the text for the passage.
@@ -626,7 +678,9 @@ void resource_logic_create_cache () // Todo
       string html, error;
       do {
         // Fetch the resource data.
-        html = resource_logic_get_contents_for_client (resource, book, chapter, verse);
+        if (is_sword_module) html = sword_texts [verse];
+        else html = resource_logic_get_contents_for_client (resource, book, chapter, verse);
+        // Check on errors.
         server_is_installing_module = (html == sword_logic_installing_module_text ());
         if (server_is_installing_module) {
           Database_Logs::log ("Waiting while installing SWORD module: " + resource);
@@ -635,7 +689,11 @@ void resource_logic_create_cache () // Todo
         }
       } while (server_is_installing_module && (wait_iterations < 5));
 
-      // Cache the verse data.
+      // Cache the verse data, even if there's an error.
+      // If it were not cached at, say, Leviticus, then the caching mechanism,
+      // after restart, would always continue from that same book, from Leviticus,
+      // and never finish. Therefore something should be cached, even if it's an empty string.
+      if (server_is_installing_module) html.clear ();
       Database_Cache::cache (resource, book, chapter, verse, html);
     }
   }
@@ -643,7 +701,241 @@ void resource_logic_create_cache () // Todo
   // Done.
   Database_Cache::ready (resource, book, true);
   Database_Logs::log ("Completed caching " + resource + " " + bookname, Filter_Roles::consultant ());
+  resource_logic_create_cache_running = false;
   
   // If there's another resource database waiting to be cached, schedule it for caching.
   if (!signatures.empty ()) tasks_logic_queue (CACHERESOURCES);
+}
+
+
+// The path to the list of BibleGateway resources.
+// It is stored in the client files area.
+// Clients will download it from there.
+string resource_logic_bible_gateway_module_list_path ()
+{
+  return filter_url_create_root_path ("databases", "client", "bible_gateway_modules.txt");
+}
+
+
+// Refreshes the list of resources available from BibleGateway.
+string resource_logic_bible_gateway_module_list_refresh ()
+{
+  Database_Logs::log ("Refresh BibleGateway resources");
+  string path = resource_logic_bible_gateway_module_list_path ();
+  string error;
+  string html = filter_url_http_get ("https://www.biblegateway.com/versions/", error, false);
+  if (error.empty ()) {
+    vector <string> resources;
+    html = filter_text_html_get_element (html, "select");
+    xml_document document;
+    document.load_string (html.c_str());
+    xml_node select_node = document.first_child ();
+    for (xml_node option_node : select_node.children()) {
+      string cls = option_node.attribute ("class").value ();
+      if (cls == "lang") continue;
+      if (cls == "spacer") continue;
+      string name = option_node.text ().get ();
+      resources.push_back (name);
+    }
+    filter_url_file_put_contents (path, filter_string_implode (resources, "\n"));
+    Database_Logs::log ("Modules: " + convert_to_string (resources.size ()));
+  } else {
+    Database_Logs::log (error);
+  }
+  return error;
+}
+
+
+// Get the list of BibleGateway resources.
+vector <string> resource_logic_bible_gateway_module_list_get ()
+{
+  string path = resource_logic_bible_gateway_module_list_path ();
+  string contents = filter_url_file_get_contents (path);
+  return filter_string_explode (contents, '\n');
+}
+
+
+string resource_logic_bible_gateway_book (int book)
+{
+  // Map Bibledit books to biblegateway.com books as used at the web service.
+  map <int, string> mapping = {
+    make_pair (1, "Genesis"),
+    make_pair (2, "Exodus"),
+    make_pair (3, "Leviticus"),
+    make_pair (4, "Numbers"),
+    make_pair (5, "Deuteronomy"),
+    make_pair (6, "Joshua"),
+    make_pair (7, "Judges"),
+    make_pair (8, "Ruth"),
+    make_pair (9, "1 Samuel"),
+    make_pair (10, "2 Samuel"),
+    make_pair (11, "1 Kings"),
+    make_pair (12, "2 Kings"),
+    make_pair (13, "1 Chronicles"),
+    make_pair (14, "2 Chronicles"),
+    make_pair (15, "Ezra"),
+    make_pair (16, "Nehemiah"),
+    make_pair (17, "Esther"),
+    make_pair (18, "Job"),
+    make_pair (19, "Psalms"),
+    make_pair (20, "Proverbs"),
+    make_pair (21, "Ecclesiastes"),
+    make_pair (22, "Song of Solomon"),
+    make_pair (23, "Isaiah"),
+    make_pair (24, "Jeremiah"),
+    make_pair (25, "Lamentations"),
+    make_pair (26, "Ezekiel"),
+    make_pair (27, "Daniel"),
+    make_pair (28, "Hosea"),
+    make_pair (29, "Joel"),
+    make_pair (30, "Amos"),
+    make_pair (31, "Obadiah"),
+    make_pair (32, "Jonah"),
+    make_pair (33, "Micah"),
+    make_pair (34, "Nahum"),
+    make_pair (35, "Habakkuk"),
+    make_pair (36, "Zephaniah"),
+    make_pair (37, "Haggai"),
+    make_pair (38, "Zechariah"),
+    make_pair (39, "Malachi"),
+    make_pair (40, "Matthew"),
+    make_pair (41, "Mark"),
+    make_pair (42, "Luke"),
+    make_pair (43, "John"),
+    make_pair (44, "Acts"),
+    make_pair (45, "Romans"),
+    make_pair (46, "1 Corinthians"),
+    make_pair (47, "2 Corinthians"),
+    make_pair (48, "Galatians"),
+    make_pair (49, "Ephesians"),
+    make_pair (50, "Philippians"),
+    make_pair (51, "Colossians"),
+    make_pair (52, "1 Thessalonians"),
+    make_pair (53, "2 Thessalonians"),
+    make_pair (54, "1 Timothy"),
+    make_pair (55, "2 Timothy"),
+    make_pair (56, "Titus"),
+    make_pair (57, "Philemon"),
+    make_pair (58, "Hebrews"),
+    make_pair (59, "James"),
+    make_pair (60, "1 Peter"),
+    make_pair (61, "2 Peter"),
+    make_pair (62, "1 John"),
+    make_pair (63, "2 John"),
+    make_pair (64, "3 John"),
+    make_pair (65, "Jude"),
+    make_pair (66, "Revelation")
+  };
+  return filter_url_urlencode (mapping [book]);
+}
+
+
+
+struct bible_gateway_walker: xml_tree_walker
+{
+  string verse;
+  bool skip_next_text = false;
+  bool within_verse = false;
+  string text;
+
+  virtual bool for_each (xml_node& node)
+  {
+    // Details of the current node.
+    string clas = node.attribute ("class").value ();
+    string name = node.name ();
+
+    // Don't include this node's text content.
+    if (skip_next_text) {
+      skip_next_text = false;
+      return true;
+    }
+    
+    // The chapter number signals verse 1.
+    if (clas == "chapternum") {
+      skip_next_text = true;
+      if (verse == "1") within_verse = true;
+      return true;
+    }
+
+    // The verse number to know where the parser is.
+    if (clas == "versenum") {
+      skip_next_text = true;
+      string versenum = filter_string_trim (filter_string_desanitize_html (node.text ().get ()));
+      within_verse = (versenum == verse);
+      return true;
+    }
+    
+    // This really signals the parser is at the end of the chapter.
+    if (name == "div") {
+      within_verse = false;
+      return true;
+    }
+    
+    if (name == "br") {
+      if (within_verse) {
+        text.append (" ");
+      }
+    }
+
+    // Include node's text content.
+    if (within_verse) {
+      text.append (node.value ());
+    }
+    
+    // Continue parsing.
+    return true;
+  }
+};
+
+
+// Get the clean text of a passage of a BibleGateway resource.
+string resource_logic_bible_gateway_get (string resource, int book, int chapter, int verse)
+{
+  string result;
+#ifdef HAVE_CLOUD
+  // Convert the resource name to a resource abbreviation for biblegateway.com.
+  size_t pos = resource.find_last_of ("(");
+  if (pos != string::npos) {
+    pos++;
+    resource.erase (0, pos);
+    pos = resource.find_last_of (")");
+    if (pos != string::npos) {
+      resource.erase (pos);
+      // Assemble the URL to fetch the chapter.
+      string bookname = resource_logic_bible_gateway_book (book);
+      string url = "https://www.biblegateway.com/passage/?search=" + bookname + "+" + convert_to_string (chapter) + "&version=" + resource;
+      // Fetch the html.
+      string error;
+      string html = resource_logic_web_cache_get (url, error);
+      // Extract the html that contains the verses content.
+      pos = html.find ("<div class=\"passage-text\">");
+      if (pos != string::npos) {
+        html.erase (0, pos);
+        pos = html.find (".passage-text");
+        if (pos != string::npos) {
+          html.erase (pos);
+          // Parse the html fragment into a DOM.
+          string verse_s = convert_to_string (verse);
+          xml_document document;
+          document.load_string (html.c_str());
+          xml_node passage_text_node = document.first_child ();
+          xml_node passage_wrap_node = passage_text_node.first_child ();
+          xml_node passage_content_node = passage_wrap_node.first_child ();
+          bible_gateway_walker walker;
+          walker.verse = convert_to_string (verse);
+          passage_content_node.traverse (walker);
+          result.append (walker.text);
+        }
+      }
+    }
+  }
+  result = filter_string_str_replace (unicode_non_breaking_space_entity (), " ", result);
+  result = filter_string_str_replace (" ", " ", result); // Make special space visible.
+  while (result.find ("  ") != string::npos) result = filter_string_str_replace ("  ", " ", result);
+  result = filter_string_trim (result);
+#endif
+#ifdef HAVE_CLIENT
+  result = resource_logic_client_fetch_cache_from_cloud (resource, book, chapter, verse);
+#endif
+  return result;
 }

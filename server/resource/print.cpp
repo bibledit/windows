@@ -213,6 +213,7 @@ string resource_print (void * webserver_request)
         dialog_list.add_row (bookname, "tobook", convert_to_string (book));
       }
       page += dialog_list.run ();
+      return page;
     } else {
       // Set ending passage.
       Passage topassage = request->database_config_user()->getPrintPassageTo ();

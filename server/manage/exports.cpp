@@ -69,7 +69,7 @@ string manage_exports (void * webserver_request)
       for (auto bible : bibles) {
         dialog_list.add_row (bible, "bible", bible);
       }
-      page += dialog_list.run();
+      page += dialog_list.run ();
       return page;
     } else {
       request->database_config_user()->setBible (bible);
@@ -374,7 +374,7 @@ string manage_exports (void * webserver_request)
   
 #ifdef HAVE_CLIENT
   view.enable_zone ("client");
-  view.set_variable ("cloudlink", client_logic_link_to_cloud (manage_exports_url (), translate ("Go to Bibledit Cloud to submit the Bible there")));
+  view.set_variable ("cloudlink", client_logic_link_to_cloud (manage_exports_url (), translate ("Go to Bibledit Cloud to submit the Bible there.")));
 #else
   view.enable_zone ("cloud");
 #endif

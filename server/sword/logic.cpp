@@ -39,6 +39,7 @@
 #include <filemgr.h>
 #include <swmodule.h>
 #endif
+#include <developer/logic.h>
 
 
 mutex sword_logic_installer_mutex;
@@ -365,14 +366,17 @@ string sword_logic_get_text (string source, string module, int book, int chapter
 {
 #ifdef HAVE_CLIENT
 
-  // Client checks for and optionally creates the cache for this SWORD module.
-  if (!Database_Cache::exists (module, book)) {
-    Database_Cache::create (module, book);
+  // The resource name consists of source and module, e.g. [CrossWire][NET].
+  string resource = sword_logic_get_resource_name (source, module);
+
+  // Client checks for and optionally creates the cache for this SWORD source/module.
+  if (!Database_Cache::exists (resource, book)) {
+    Database_Cache::create (resource, book);
   }
 
   // If this module/passage exists in the cache, return it (it updates the access days in the cache).
-  if (Database_Cache::exists (module, book, chapter, verse)) {
-    return Database_Cache::retrieve (module, book, chapter, verse);
+  if (Database_Cache::exists (resource, book, chapter, verse)) {
+    return Database_Cache::retrieve (resource, book, chapter, verse);
   }
 
   // Fetch this SWORD resource from the server.
@@ -385,7 +389,6 @@ string sword_logic_get_text (string source, string module, int book, int chapter
     port = demo_port ();
   }
   string url = client_logic_url (address, port, sync_resources_url ());
-  string resource = "[" + source + "][" + module + "]";
   url = filter_url_build_http_query (url, "r", resource);
   url = filter_url_build_http_query (url, "b", convert_to_string (book));
   url = filter_url_build_http_query (url, "c", convert_to_string (chapter));
@@ -400,7 +403,7 @@ string sword_logic_get_text (string source, string module, int book, int chapter
   // Except in case of predefined responses from the Cloud.
   if (html != sword_logic_installing_module_text ()) {
     if (html != sword_logic_fetch_failure_text ()) {
-      Database_Cache::cache (module, book, chapter, verse, html);
+      Database_Cache::cache (resource, book, chapter, verse, html);
     }
   }
   
@@ -424,11 +427,13 @@ string sword_logic_get_text (string source, string module, int book, int chapter
   sword_logic_diatheke_run_mutex.lock ();
   // The server fetches the module text as follows:
   // diatheke -b KJV -k Jn 3:16
-  int result = filter_shell_vfork (module_text, sword_path, "diatheke", "-b", module.c_str(), "-k", osis.c_str(), chapter_verse.c_str());
+  string error;
+  int result = filter_shell_run (sword_path, "diatheke", { "-b", module, "-k", osis, chapter_verse }, &module_text, &error);
+  module_text.append (error);
   sword_logic_diatheke_run_mutex.unlock ();
   if (result != 0) return sword_logic_fetch_failure_text ();
   
-  // Touch the cache so the server knows that the module has been accessed just now.
+  // Touch the cache so the server knows that the module has been accessed just now and won't uninstall it too soon.
   string url = sword_logic_virtual_url (module, 0, 0, 0);
   database_filebased_cache_get (url);
 
@@ -458,29 +463,74 @@ string sword_logic_get_text (string source, string module, int book, int chapter
     }
   }
   
-  // Remove any OSIS elements.
-  filter_string_replace_between (module_text, "<", ">", "");
-  
-  // Remove the passage name that diatheke adds.
-  // A reliable signature for this is the chapter and verse plus subsequent colon.
-  size_t pos = module_text.find (" " + chapter_verse + ":");
-  if (pos != string::npos) {
-    pos += 2;
-    pos += chapter_verse.size ();
-    module_text.erase (0, pos);
-  }
-  
-  // Remove the module name that diatheke adds.
-  module_text = filter_string_str_replace ("(" + module + ")", "", module_text);
-  
-  // Clean whitespace away.
-  module_text = filter_string_trim (module_text);
+  // Clean it up.
+  module_text = sword_logic_clean_verse (module, chapter, verse, module_text);
   
   return module_text;
 
 #endif
+}
 
-  return "";
+
+map <int, string> sword_logic_get_bulk_text (const string & module, int book, int chapter, vector <int> verses)
+{
+  // Touch the cache so the server knows that the module has been accessed and won't uninstall it too soon.
+  string url = sword_logic_virtual_url (module, 0, 0, 0);
+  database_filebased_cache_get (url);
+
+  // The name of the book to pass to diatheke.
+  string osis = Database_Books::getOsisFromId (book);
+  
+  // Signatures that will indicate start and end of verse text.
+  map <int, string> starters, finishers;
+  
+  // The script to run.
+  // It will fetch verse text for all verses in a chapter.
+  // Fetching verse text in bulk reduces the number of fork () calls.
+  vector <string> script;
+  script.push_back ("#!/bin/bash");
+  script.push_back ("cd '" + sword_logic_get_path () + "'");
+  for (auto verse : verses) {
+    string starter = "starter" + convert_to_string (verse) + "starter";
+    script.push_back ("echo " + starter);
+    starters [verse] = starter;
+    string chapter_verse = convert_to_string (chapter) + ":" + convert_to_string (verse);
+    script.push_back ("diatheke -b " + module + " -k " + osis + " " + chapter_verse);
+    string finisher = "finisher" + convert_to_string (verse) + "finisher";
+    script.push_back ("echo " + finisher);
+    finishers [verse] = finisher;
+  }
+
+  // Store the script and make it executable.
+  string script_path = filter_url_create_path (sword_logic_get_path (), "script.sh");
+  filter_url_file_put_contents (script_path, filter_string_implode (script, "\n"));
+  string chmod = "chmod +x " + script_path;
+  int result = system (chmod.c_str ());
+  (void) result;
+
+  // Run the script.
+  string out_err;
+  result = filter_shell_run (script_path, out_err);
+  (void) result;
+
+  // Resulting verse text.
+  map <int, string> output;
+  
+  for (auto & verse : verses) {
+    string starter = starters [verse];
+    size_t pos1 = out_err.find (starter);
+    string finisher = finishers [verse];
+    size_t pos2 = out_err.find (finisher);
+    if ((pos1 != string::npos) && (pos2 != string::npos)) {
+      pos1 += starter.length ();
+      string text = out_err.substr (pos1, pos2 - pos1);
+      text = sword_logic_clean_verse (module, chapter, verse, text);
+      output [verse] = text;
+    }
+  }
+  
+  // Done.
+  return output;
 }
 
 
@@ -836,4 +886,37 @@ void sword_logic_log (string message)
   message = filter_string_trim (message);
   // Record in the journal.
   Database_Logs::log (message);
+}
+
+
+string sword_logic_clean_verse (const string & module, int chapter, int verse, string text)
+{
+  // Remove any OSIS elements.
+  filter_string_replace_between (text, "<", ">", "");
+  
+  // Remove the passage name that diatheke adds.
+  // A reliable signature for this is the chapter and verse plus subsequent colon.
+  string chapter_verse = convert_to_string (chapter) + ":" + convert_to_string (verse);
+  size_t pos = text.find (" " + chapter_verse + ":");
+  if (pos != string::npos) {
+    pos += 2;
+    pos += chapter_verse.size ();
+    text.erase (0, pos);
+  }
+  
+  // Remove the module name that diatheke adds.
+  text = filter_string_str_replace ("(" + module + ")", "", text);
+  
+  // Clean whitespace away.
+  text = filter_string_trim (text);
+
+  // Done.
+  return text;
+}
+
+
+// Take the SWORD $source and SWORD $module and form it into a canonical resource name.
+string sword_logic_get_resource_name (const string & source, const string & module)
+{
+  return "[" + source + "][" + module + "]";
 }

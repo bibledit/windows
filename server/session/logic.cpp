@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/string.h>
 #include <filter/roles.h>
 #include <config/globals.h>
+#include <user/logic.h>
 
 
 // The username and password for a demo installation, and for a disconnected client installation
@@ -80,12 +81,22 @@ void Session_Logic::open ()
   if (clientAccess ()) return;
 
   Webserver_Request * request = (Webserver_Request *) webserver_request;
+
   // Work around a weird bug where the user_agent's size is 140735294083184 leading to a crash.
   if (request->user_agent.size () > 10000) return;
+
+  // Discard empty cookies right-away.
+  // Don't regard this as something that triggers the brute force attach mitigation mechanism.
   string cookie = request->session_identifier;
+  if (cookie.empty ()) {
+    setUsername ("");
+    logged_in = false;
+    return;
+  }
+  
   bool daily;
   string username = Database_Login::getUsername (cookie, daily);
-  if (!username.empty () && !cookie.empty ()) {
+  if (!username.empty ()) {
     setUsername (username);
     logged_in = true;
     if (daily) request->resend_cookie = true;
@@ -146,18 +157,26 @@ string Session_Logic::fingerprint ()
 // Returns boolean success.
 bool Session_Logic::attemptLogin (string user_or_email, string password, bool touch_enabled)
 {
+  // Brute force attack mitigation.
+  if (!user_logic_login_failure_check_okay ()) {
+    return false;
+  }
+
   Database_Users database = Database_Users ();
   bool login_okay = false;
+
   // Match username and email.
   if (database.matchUserPassword (user_or_email, password)) {
     login_okay = true;
   }
+
   // Match password and email.
   if (database.matchEmailPassword (user_or_email, password)) {
     login_okay = true;
     // Fetch username that belongs to the email address that was used to login.
     user_or_email = database.getEmailToUser (user_or_email);
   }
+  
   if (login_okay) {
     open ();
     setUsername (user_or_email);
@@ -166,7 +185,10 @@ bool Session_Logic::attemptLogin (string user_or_email, string password, bool to
     Database_Login::setTokens (user_or_email, "", "", "", cookie, touch_enabled);
     currentLevel (true);
     return true;
+  } else {
+    user_logic_login_failure_register ();
   }
+  
   return false;
 }
 

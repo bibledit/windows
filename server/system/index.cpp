@@ -18,7 +18,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
 #include <system/index.h>
-#include <system/timezone.h>
 #include <assets/view.h>
 #include <assets/page.h>
 #include <filter/roles.h>
@@ -28,10 +27,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <locale/translate.h>
 #include <locale/logic.h>
 #include <dialog/list.h>
+#include <dialog/entry.h>
 #include <database/config/general.h>
 #include <assets/header.h>
 #include <menu/logic.h>
 #include <config/globals.h>
+#include <rss/feed.h>
+#include <rss/logic.h>
 
 
 string system_index_url ()
@@ -101,8 +103,13 @@ string system_index (void * webserver_request)
 
   
   // Entry of time zone offset in hours.
-  if (request->post.count ("savezone")) {
-    string input = request->post ["timezone"];
+  if (request->query.count ("timezone")) {
+    Dialog_Entry dialog_entry = Dialog_Entry ("index", translate ("Please enter a timezone between -12 and +14"), convert_to_string (Database_Config_General::getTimezone ()), "timezone", "");
+    page += dialog_entry.run ();
+    return page;
+  }
+  if (request->post.count ("timezone")) {
+    string input = request->post ["entry"];
     input = filter_string_str_replace ("UTC", "", input);
     int timezone = convert_to_int (input);
     bool clipped = false;
@@ -129,6 +136,40 @@ string system_index (void * webserver_request)
       || (config_globals_timezone_offset_utc > MAXIMUM_TIMEZONE)) {
     view.enable_zone ("timezone");
   }
+
+  
+#ifdef HAVE_CLOUD
+  // The maximum number of items in the RSS feed.
+  if (request->query.count ("rsscount")) {
+    Dialog_Entry dialog_entry = Dialog_Entry ("index", translate ("Please enter the maximum number of items in the RSS feed"), convert_to_string (Database_Config_General::getMaxRssFeedItems ()), "rsscount", "");
+    page += dialog_entry.run ();
+    return page;
+  }
+  if (request->post.count ("rsscount")) {
+    string input = request->post ["entry"];
+    int count = convert_to_int (input);
+    bool clipped = false;
+    if (count < 0) {
+      count = 0;
+      clipped = true;
+    }
+    if (count > 2000) {
+      count = 2000;
+      clipped = true;
+    }
+    if (clipped) error = translate ("The number was clipped");
+    Database_Config_General::setMaxRssFeedItems (count);
+    success = translate ("The number was saved");
+    rss_logic_update_xml ({}, {});
+  }
+  view.set_variable ("rsscount", convert_to_string (Database_Config_General::getMaxRssFeedItems ()));
+  view.set_variable ("rssfeed", "/" + rss_feed_url ());
+#endif
+
+  
+#ifdef HAVE_CLOUD
+  view.enable_zone ("cloud");
+#endif
 
 
   // Set some feedback, if any.

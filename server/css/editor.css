@@ -1,4 +1,4 @@
-.mono {
+.mono, .ql-align-mono {
   font-family: monospace, Courier, "Courier New", "Lucida Console", Monaco;
 }
 #focus {
@@ -17,4 +17,23 @@
   top: 0;
   padding-right: 5px;
   padding-bottom: 5px;
+}
+.nomargins {
+  margin-top: 0mm !important;
+  margin-bottom: 0mm !important;
+  margin-left: 0mm !important;
+  margin-right: 0mm !important;
+}
+.versebeam {
+  transition: box-shadow 1s ease-in-out;
+  box-shadow: 0px 0px 15px red;
+}
+.b-notes {
+  height: 1px;
+  width: 50%;
+  margin: 0.5em;
+  background: black;
+}
+[class^='i-note'] {
+  cursor: pointer;
 }
