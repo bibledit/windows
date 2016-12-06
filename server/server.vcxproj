@@ -293,6 +293,12 @@
     <ClCompile Include="editor\styles.cpp" />
     <ClCompile Include="editor\usfm2html.cpp" />
     <ClCompile Include="editpm\index.cpp" />
+    <ClCompile Include="editpm\load.cpp" />
+    <ClCompile Include="editql\index.cpp" />
+    <ClCompile Include="editql\load.cpp" />
+    <ClCompile Include="editql\navigate.cpp" />
+    <ClCompile Include="editql\position.cpp" />
+    <ClCompile Include="editql\save.cpp" />
     <ClCompile Include="editusfm\focus.cpp" />
     <ClCompile Include="editusfm\index.cpp" />
     <ClCompile Include="editusfm\load.cpp" />
@@ -308,6 +314,7 @@
     <ClCompile Include="edit\load.cpp" />
     <ClCompile Include="edit\logic.cpp" />
     <ClCompile Include="edit\offset.cpp" />
+    <ClCompile Include="edit\preview.cpp" />
     <ClCompile Include="edit\save.cpp" />
     <ClCompile Include="edit\styles.cpp" />
     <ClCompile Include="email\index.cpp" />
@@ -488,8 +495,10 @@
     <ClCompile Include="public\notes.cpp" />
     <ClCompile Include="pugixml\pugixml.cpp" />
     <ClCompile Include="pugixml\utils.cpp" />
+    <ClCompile Include="quill\logic.cpp" />
     <ClCompile Include="related\logic.cpp" />
     <ClCompile Include="resource\bible2resource.cpp" />
+    <ClCompile Include="resource\biblegateway.cpp" />
     <ClCompile Include="resource\cache.cpp" />
     <ClCompile Include="resource\convert2bible.cpp" />
     <ClCompile Include="resource\convert2resource.cpp" />
@@ -511,6 +520,8 @@
     <ClCompile Include="resource\user1view.cpp" />
     <ClCompile Include="resource\user9edit.cpp" />
     <ClCompile Include="resource\user9view.cpp" />
+    <ClCompile Include="rss\feed.cpp" />
+    <ClCompile Include="rss\logic.cpp" />
     <ClCompile Include="search\all.cpp" />
     <ClCompile Include="search\getids.cpp" />
     <ClCompile Include="search\getids2.cpp" />
