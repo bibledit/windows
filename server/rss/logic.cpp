@@ -23,11 +23,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/usfm.h>
 #include <filter/text.h>
 #include <filter/diff.h>
+#include <filter/date.h>
 #include <database/config/general.h>
 #include <database/config/bible.h>
 #include <pugixml/pugixml.hpp>
 #include <locale/translate.h>
 #include <tasks/logic.h>
+#include <rss/feed.h>
 
 
 using namespace pugi;
@@ -76,7 +78,7 @@ void rss_logic_execute_update (string user, string bible, int book, int chapter,
   newusfm = filter_string_str_replace (rss_logic_new_line (), "\n", newusfm);
   
   // Storage for the feed update.
-  vector <string> titles, descriptions;
+  vector <string> titles, authors, descriptions;
   
   string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
 
@@ -104,14 +106,15 @@ void rss_logic_execute_update (string user, string bible, int book, int chapter,
       string new_text = filter_text_new.text_text->get ();
       if (old_text != new_text) {
         string modification = filter_diff_diff (old_text, new_text);
-        titles.push_back (filter_passage_display (book, chapter, convert_to_string (verse)) + " " + user);
+        titles.push_back (filter_passage_display (book, chapter, convert_to_string (verse)));
+        authors.push_back (user);
         descriptions.push_back ("<div>" + modification + "</div>");
       }
     }
   }
   
   // Update the feed.
-  rss_logic_update_xml (titles, descriptions);
+  rss_logic_update_xml (titles, authors, descriptions);
 }
 
 
@@ -121,7 +124,7 @@ string rss_logic_xml_path ()
 }
 
 
-void rss_logic_update_xml (vector <string> titles, vector <string> descriptions)
+void rss_logic_update_xml (vector <string> titles, vector <string> authors, vector <string> descriptions)
 {
   string path = rss_logic_xml_path ();
   int size = Database_Config_General::getMaxRssFeedItems ();
@@ -129,27 +132,45 @@ void rss_logic_update_xml (vector <string> titles, vector <string> descriptions)
     if (file_or_dir_exists (path)) filter_url_unlink (path);
     return;
   }
+  string guid = convert_to_string (filter_date_seconds_since_epoch ());
   bool document_updated = false;
   xml_document document;
   document.load_file (path.c_str());
   xml_node rss_node = document.first_child ();
   if (strcmp (rss_node.name (), "rss") != 0) {
+    // RSS node.
     rss_node = document.append_child ("rss");
     rss_node.append_attribute ("version") = "2.0";
+    rss_node.append_attribute ("xmlns:atom") = "http://www.w3.org/2005/Atom";
     xml_node channel = rss_node.append_child ("channel");
+    // Title.
     xml_node node = channel.append_child ("title");
     node.text () = "Bibledit";
+    // Link to website.
     node = channel.append_child ("link");
     node.text () = Database_Config_General::getSiteURL().c_str();
+    // Description.
     node = channel.append_child ("description");
     node.text () = translate ("Recent changes in the Bible text").c_str ();
+    // Feed's URL.
+    node = channel.append_child ("atom:link");
+    string link = Database_Config_General::getSiteURL() + rss_feed_url ();
+    node.append_attribute ("href") = link.c_str();
+    node.append_attribute ("rel") = "self";
+    node.append_attribute ("type") = "application/rss+xml";
+    // Updated.
     document_updated = true;
   }
   xml_node channel = rss_node.child ("channel");
   for (size_t i = 0; i < titles.size(); i++) {
     xml_node item = channel.append_child ("item");
+    string guid2 = guid + convert_to_string (i);
+    xml_node guid_node = item.append_child ("guid");
+    guid_node.append_attribute ("isPermaLink") = "false";
+    guid_node.text () = guid2.c_str();
     item.append_child ("title").text () = titles [i].c_str();
-    item.append_child ("link");
+    string author = authors[i] + "@site.org (" + authors[i] + ")";
+    item.append_child ("author").text () = author.c_str();
     item.append_child ("description").text () = descriptions [i].c_str();
     document_updated = true;
   }

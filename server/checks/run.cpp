@@ -72,8 +72,10 @@ void checks_run (string bible)
   checks_sentences.enterEndMarks (end_marks);
   string center_marks = Database_Config_Bible::getSentenceStructureMiddlePunctuation (bible);
   checks_sentences.enterCenterMarks (center_marks);
-  checks_sentences.enterDisregards (Database_Config_Bible::getSentenceStructureDisregards (bible));
+  string disregards = Database_Config_Bible::getSentenceStructureDisregards (bible);
+  checks_sentences.enterDisregards (disregards);
   checks_sentences.enterNames (Database_Config_Bible::getSentenceStructureNames (bible));
+  vector <string> within_sentence_paragraph_markers = filter_string_explode (Database_Config_Bible::getSentenceStructureWithinSentenceMarkers (bible), ' ');
   bool check_books_versification = Database_Config_Bible::getCheckBooksVersification (bible);
   bool check_chapters_verses_versification = Database_Config_Bible::getCheckChaptesVersesVersification (bible);
   bool check_well_formed_usfm = Database_Config_Bible::getCheckWellFormedUsfm (bible);
@@ -143,7 +145,15 @@ void checks_run (string bible)
       if (check_sentence_structure || check_paragraph_structure) {
         checks_sentences.initialize ();
         if (check_sentence_structure) checks_sentences.check (verses_text);
-        if (check_paragraph_structure) checks_sentences.paragraphs (verses_text, filter_text.paragraph_start_positions);
+        if (check_paragraph_structure) {
+          checks_sentences.paragraphs (verses_text,
+                                       filter_text.paragraph_start_positions,
+                                       filter_text.paragraph_start_position_markers,
+                                       within_sentence_paragraph_markers);
+        }
+          
+          
+          
         vector <pair<int, string>> results = checks_sentences.getResults ();
         for (auto result : results) {
           int verse = result.first;
@@ -167,7 +177,7 @@ void checks_run (string bible)
 
 
       if (check_missing_punctuation_end_verse) {
-        Checks_Verses::missingPunctuationAtEnd (bible, book, chapter, verses_text, center_marks, end_marks);
+        Checks_Verses::missingPunctuationAtEnd (bible, book, chapter, verses_text, center_marks, end_marks, disregards);
       }
       
       

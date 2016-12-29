@@ -528,6 +528,8 @@ void Filter_Text::processUsfm ()
                     string contents;
                     for (auto & element : verses_text) contents.append (element.second);
                     paragraph_start_positions.push_back (unicode_string_length (contents));
+                    // Record the style that started this new paragraph.
+                    paragraph_start_position_markers.push_back (style.marker);
                   }
                   break;
                 }
@@ -1035,7 +1037,7 @@ void Filter_Text::processNote ()
                     }
                   }
                   // Add the note citation. And a no-break space after it.
-                  if (odf_text_notes) odf_text_notes->addText (citation + non_breaking_space_utf8_a0());
+                  if (odf_text_notes) odf_text_notes->addText (citation + non_breaking_space_utf8_00a0());
                   // Open note in the web pages.
                   if (html_text_standard) html_text_standard->addNote (citation, standardContentMarkerFootEndNote);
                   if (html_text_linked) html_text_linked->addNote (citation, standardContentMarkerFootEndNote);
@@ -1140,7 +1142,7 @@ void Filter_Text::processNote ()
                     }
                   }
                   // Add the note citation. And a no-break space (NBSP) after it.
-                  if (odf_text_notes) odf_text_notes->addText (citation + non_breaking_space_utf8_a0());
+                  if (odf_text_notes) odf_text_notes->addText (citation + non_breaking_space_utf8_00a0());
                   // Open note in the web page.
                   ensureNoteParagraphStyle (standardContentMarkerCrossReference, styles[standardContentMarkerCrossReference]);
                   if (html_text_standard) html_text_standard->addNote (citation, standardContentMarkerCrossReference);

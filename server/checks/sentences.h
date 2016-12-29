@@ -36,7 +36,10 @@ public:
   void initialize ();
   vector <pair<int, string>> getResults ();
   void check (map <int, string> texts);
-  void paragraphs (map <int, string> texts, vector <int> paragraphs);
+  void paragraphs (map <int, string> texts,
+                   vector <int> paragraph_start_positions,
+                   vector <string> paragraph_start_markers,
+                   vector <string> within_sentence_paragraph_markers);
 
 private:
   // Sentence structure parameters.
@@ -52,7 +55,7 @@ private:
   int currentPosition;
   
   // Grapheme analysis.
-  string grapheme;
+  string character;
   bool isSpace;
   int spacePosition;
   bool isCapital;
@@ -71,14 +74,14 @@ private:
   
   // Results of the checks.
   vector <pair<int, string>> checkingResults;
-  const int displayGraphemeOnly = 1;
+  const int displayCharacterOnly = 1;
   const int displayContext = 2;
   const int skipNames = 3;
   
   void addResult (string text, int modifier);
   void checkUnknownCharacter ();
-  void analyzeGrapheme ();
-  void checkGrapheme ();
+  void analyzeCharacters ();
+  void checkCharacter ();
 };
 
 

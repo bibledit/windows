@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <filter/usfm.h>
 #include <filter/string.h>
+#include <filter/url.h>
 #include <filter/diff.h>
 #include <database/books.h>
 #include <database/styles.h>
@@ -362,6 +363,65 @@ string usfm_get_verse_text (string usfm, int verse_number)
 }
 
 
+// Gets the USFM for the $verse number for a Quill-based verse editor.
+// This means that preceding empty paragraphs will be included also.
+// And that empty paragraphs at the end will be omitted.
+string usfm_get_verse_text_quill (string usfm, int verse)
+{
+  // Get the raw USFM for the verse, that is, the bit between the \v... markers.
+  string raw_verse_usfm = usfm_get_verse_text (usfm, verse);
+  
+  // Bail out if empty.
+  if (raw_verse_usfm.empty ()) {
+    return raw_verse_usfm;
+  }
+
+  // Omit new paragraphs at the end.
+  // In this context that is taken as opening USFM markers without content.
+  string verse_usfm (raw_verse_usfm);
+  vector <string> markers_and_text = usfm_get_markers_and_text (verse_usfm);
+  while (true) {
+    if (markers_and_text.empty ()) break;
+    string code = markers_and_text.back ();
+    markers_and_text.pop_back ();
+    if (!usfm_is_usfm_marker (code)) break;
+    if (!usfm_is_opening_marker (code)) break;
+    verse_usfm.erase (verse_usfm.size () - code.size ());
+    verse_usfm = filter_string_trim (verse_usfm);
+    if (verse_usfm.empty ()) break;
+  }
+
+  // Bail out if empty USFM for the verse.
+  if (verse_usfm.empty ()) {
+    return verse_usfm;
+  }
+  
+  // Get the raw USFM for the previous verse for verses greater than 0, in the same way.
+  // Any empty paragraphs at the end of the previous verse USFM,
+  // add them to the current verse's USFM.
+  if (verse) {
+    string previous_verse_usfm = usfm_get_verse_text (usfm, verse - 1);
+    // For combined verses: The raw USFM fragments should differ to make sense.
+    if (previous_verse_usfm != raw_verse_usfm) {
+      if (!previous_verse_usfm.empty ()) {
+        markers_and_text = usfm_get_markers_and_text (previous_verse_usfm);
+        while (true) {
+          if (markers_and_text.empty ()) break;
+          string code = markers_and_text.back ();
+          markers_and_text.pop_back ();
+          if (!usfm_is_usfm_marker (code)) break;
+          if (!usfm_is_opening_marker (code)) break;
+          verse_usfm.insert (0, code + "\n");
+        }
+      }
+    }
+  }
+
+  // Done.
+  return verse_usfm;
+}
+
+
 // Gets the chapter text given a book of $usfm code, and the $chapter_number.
 string usfm_get_chapter_text (string usfm, int chapter_number)
 {
@@ -406,12 +466,16 @@ string usfm_get_chapter_text (string usfm, int chapter_number)
 // Returns the USFM text for a range of verses for the input $usfm code.
 // It handles combined verses.
 // It ensures that the $exclude_usfm does not make it to the output of the function.
-string usfm_get_verse_range_text (string usfm, int verse_from, int verse_to, const string& exclude_usfm)
+// In case of $quill, it uses an routine optimized for a Quill-based editor.
+// This means that empty paragraphs at the end of the extracted USFM fragment are not included.
+string usfm_get_verse_range_text (string usfm, int verse_from, int verse_to, const string& exclude_usfm, bool quill)
 {
   vector <string> bits;
   string previous_usfm;
   for (int vs = verse_from; vs <= verse_to; vs++) {
-    string verse_usfm = usfm_get_verse_text (usfm, vs);
+    string verse_usfm;
+    if (quill) verse_usfm = usfm_get_verse_text_quill (usfm, vs);
+    else verse_usfm = usfm_get_verse_text (usfm, vs);
     // Do not include repeating USFM in the case of combined verse numbers in the input USFM code.
     if (verse_usfm == previous_usfm) continue;
     previous_usfm = verse_usfm;
@@ -870,7 +934,8 @@ string usfm_safely_store_chapter (void * webserver_request,
 // It also is useful in view of an unstable connection between browser and server, to prevent data corruption.
 // It handles combined verses.
 string usfm_safely_store_verse (void * webserver_request,
-                                string bible, int book, int chapter, int verse, string usfm, string & explanation)
+                                string bible, int book, int chapter, int verse, string usfm,
+                                string & explanation, bool quill)
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
   
@@ -898,7 +963,9 @@ string usfm_safely_store_verse (void * webserver_request,
   string chapter_usfm = request->database_bibles()->getChapter (bible, book, chapter);
   
   // Get the existing USFM fragment for the verse to save.
-  string existing_verse_usfm = usfm_get_verse_text (chapter_usfm, verse);
+  string existing_verse_usfm;
+  if (quill) existing_verse_usfm = usfm_get_verse_text_quill (chapter_usfm, verse);
+  else existing_verse_usfm = usfm_get_verse_text (chapter_usfm, verse);
   existing_verse_usfm = filter_string_trim (existing_verse_usfm);
   
   // Check that there is a match between the existing verse numbers and the verse numbers to save.
@@ -933,6 +1000,11 @@ string usfm_safely_store_verse (void * webserver_request,
   // Store the new verse USFM in the existing chapter USFM.
   size_t pos = chapter_usfm.find (existing_verse_usfm);
   size_t length = existing_verse_usfm.length ();
+  if (pos == string::npos) {
+    explanation = "Cannot find the exact location in the chapter where to save this USFM fragment";
+    Database_Logs::log (explanation + ": " + usfm);
+    return translate ("Doesn't know where to save");
+  }
   chapter_usfm.erase (pos, length);
   chapter_usfm.insert (pos, usfm);
   

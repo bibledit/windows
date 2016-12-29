@@ -85,7 +85,7 @@ void Checks_Sentences::initialize ()
 void Checks_Sentences::check (map <int, string> texts)
 {
   vector <int> verse_numbers;
-  vector <string> graphemes;
+  vector <string> characters;
   int iterations = 0;
   for (auto element : texts) {
     int verse = element.first;
@@ -94,41 +94,41 @@ void Checks_Sentences::check (map <int, string> texts)
     // because this is what is supposed to happen in USFM.
     if (iterations > 0) {
       verse_numbers.push_back (verse);
-      graphemes.push_back (" ");
+      characters.push_back (" ");
       fullText += " ";
     }
-    // Split the UTF-8 text into graphemes and add them to the arrays of verse_numbers/graphemes.
+    // Split the UTF-8 text into characters and add them to the arrays of verse_numbers / characters.
     int count = unicode_string_length (text);
     for (int i = 0; i < count; i++) {
-      grapheme = unicode_string_substr (text, i, 1);
-      // Skip graphemes to be disregarded.
-      if (find (disregards.begin(), disregards.end (), grapheme) != disregards.end()) continue;
-      // Store verse numbers and graphemes.
+      character = unicode_string_substr (text, i, 1);
+      // Skip characters to be disregarded.
+      if (in_array (character, disregards)) continue;
+      // Store verse numbers and characters.
       verse_numbers.push_back (verse);
-      graphemes.push_back (grapheme);
-      fullText += grapheme;
+      characters.push_back (character);
+      fullText += character;
     }
     // Next iteration.
     iterations++;
   }
   
-  // Go through the graphemes.
-  int graphemeCount = graphemes.size ();
-  for (int i = 0; i < graphemeCount; i++) {
+  // Go through the characters.
+  int characterCount = characters.size ();
+  for (int i = 0; i < characterCount; i++) {
     // Store current verse number in the object.
     verseNumber = verse_numbers [i];
-    // Get the current grapheme.
-    grapheme = graphemes [i];
-    // Analyze the grapheme.
-    analyzeGrapheme ();
+    // Get the current character.
+    character = characters [i];
+    // Analyze the character.
+    analyzeCharacters ();
     // Run the checks.
     checkUnknownCharacter ();
-    checkGrapheme ();
+    checkCharacter ();
   }
 }
 
 
-void Checks_Sentences::checkGrapheme ()
+void Checks_Sentences::checkCharacter ()
 {
   // Handle a capital after a comma: ... He said, Go ...
   if (this->isCapital)
@@ -174,70 +174,93 @@ void Checks_Sentences::checkGrapheme ()
 }
 
 
-void Checks_Sentences::paragraphs (map <int, string> texts, vector <int> paragraphs)
+// Checks paragraphs of text whether they are start and end with correct capitalization and punctuation.
+// $texts: fragments of texts per verse number.
+// $paragraph_start_positions: The character positions where new paragraphs start.
+// $paragraph_start_markers: The USFM markers that started the new paragraphs in $paragraph_start_positions.
+// $within_sentence_paragraph_markers: The USFM markers that start paragraphs that do not need to start with the correct capitalization. Usually such markers are poetic markers like \q1 and so on.
+void Checks_Sentences::paragraphs (map <int, string> texts,
+                                   vector <int> paragraph_start_positions,
+                                   vector <string> paragraph_start_markers,
+                                   vector <string> within_sentence_paragraph_markers)
 {
   vector <int> verses;
-  vector <string> graphemes;
+  vector <string> characters;
   
-  // Put the UTF-8 text into the arrays of verses and graphemes.
+  // Put the UTF-8 text into the arrays of verses and characters.
   for (auto element : texts) {
     int verse = element.first;
     string text = element.second;
     int count = unicode_string_length (text);
     for (int i = 0; i < count; i++) {
-      string grapheme = unicode_string_substr (text, i, 1);
+      string character = unicode_string_substr (text, i, 1);
       verses.push_back (verse);
-      graphemes.push_back (grapheme);
+      characters.push_back (character);
     }
   }
   
   // Correct the positions where the paragraphs start.
-  for (unsigned int i = 1; i < paragraphs.size(); i++) {
-    unsigned int offset = paragraphs [i];
+  for (unsigned int i = 1; i < paragraph_start_positions.size(); i++) {
+    unsigned int offset = paragraph_start_positions [i];
     int paragraphVerse = 0;
     if (offset < verses.size()) paragraphVerse = verses [offset];
     int twoVersesBack = 0;
     if ((offset - 2) < verses.size ()) twoVersesBack = verses [offset - 2];
     if (paragraphVerse != twoVersesBack) {
-      for (unsigned int i2 = i; i2 < paragraphs.size(); i2++) {
-        paragraphs [i2] = paragraphs [i2] - 1;
+      for (unsigned int i2 = i; i2 < paragraph_start_positions.size(); i2++) {
+        paragraph_start_positions [i2] = paragraph_start_positions [i2] - 1;
       }
     }
   }
   
-  int paragraphCount = paragraphs.size();
+  int paragraphCount = paragraph_start_positions.size();
   
   // Go through the paragraphs to see whether they start with capitals.
   for (int i = 0; i < paragraphCount; i++) {
-    unsigned int offset = paragraphs [i];
+    unsigned int offset = paragraph_start_positions [i];
     int verse = 0;
     if (offset < verses.size()) verse = verses [offset];
-    string grapheme;
-    if (offset < graphemes.size ()) grapheme = graphemes [offset];
-    isCapital = find (capitals.begin(), capitals.end(), grapheme) != capitals.end ();
+    string character;
+    if (offset < characters.size ()) character = characters [offset];
+    isCapital = in_array (character, capitals);
     if (!isCapital) {
-      checkingResults.push_back (make_pair (verse, "Paragraph does not start with a capital: " + grapheme));
+      string paragraph_marker = paragraph_start_markers [i];
+      if (!in_array (paragraph_marker, within_sentence_paragraph_markers)) {
+        string context;
+        for (unsigned int i2 = offset; i2 < offset + 10; i2++) {
+          if (i2 < characters.size ()) context.append (characters[i2]);
+        }
+        checkingResults.push_back (make_pair (verse, "Paragraph does not start with a capital: " + context));
+      }
     }
   }
   
   // Go through the paragraphs to see whether they end with proper punctuation.
   for (int i = 0; i < paragraphCount; i++) {
     unsigned int offset = 0;
+    string next_paragraph_marker;
     if (i < (paragraphCount - 1)) {
-      offset = paragraphs [i + 1];
+      offset = paragraph_start_positions [i + 1];
+      next_paragraph_marker = paragraph_start_markers [i + 1];
     } else {
-      offset = graphemes.size();
+      offset = characters.size();
     }
     offset--;
     int verse = 0;
     if (offset < verses.size()) verse = verses [offset];
-    string grapheme;
-    if (offset < graphemes.size ()) grapheme = graphemes [offset];
-    string previousGrapheme;
-    if (offset) if (offset < graphemes.size ()) previousGrapheme = graphemes [offset - 1];
-    isEndMark = in_array (grapheme, this->end_marks) || in_array (previousGrapheme, this->end_marks);
+    string character;
+    if (offset < characters.size ()) character = characters [offset];
+    string previous_character;
+    if (offset) if (offset < characters.size ()) previous_character = characters [offset - 1];
+    isEndMark = in_array (character, this->end_marks) || in_array (previous_character, this->end_marks);
     if (!isEndMark) {
-      checkingResults.push_back (make_pair (verse, "Paragraph does not end with an end marker: " + grapheme));
+      if (next_paragraph_marker.empty () || (!in_array (next_paragraph_marker, within_sentence_paragraph_markers))) {
+        string context;
+        for (int i2 = offset - 10; i2 <= (int)offset; i2++) {
+          if (i2 >= 0) context.append (characters[i2]);
+        }
+        checkingResults.push_back (make_pair (verse, "Paragraph does not end with an end marker: " + context));
+      }
     }
   }
   
@@ -274,17 +297,17 @@ void Checks_Sentences::addResult (string text, int modifier)
   }
   // Check whether the result can be skipped due to a name being involved.
   if (modifier == skipNames) {
-    string haystack = grapheme + nextFragment;
+    string haystack = character + nextFragment;
     for (auto name : names) {
       if (haystack.find (name) == 0) return;
     }
   }
   // Assemble text for checking result.
-  if (modifier == displayGraphemeOnly) {
-    text += ": " + grapheme;
+  if (modifier == displayCharacterOnly) {
+    text += ": " + character;
   }
   if ((modifier == displayContext) || (modifier == skipNames)) {
-    text += ": " + previousFragment + grapheme + nextFragment;
+    text += ": " + previousFragment + character + nextFragment;
   }
   // Store checking result.
   checkingResults.push_back (make_pair (verseNumber, text));
@@ -298,37 +321,37 @@ void Checks_Sentences::checkUnknownCharacter ()
   if (isSmallLetter) return;
   if (isEndMark) return;
   if (isCenterMark) return;
-  addResult ("Unknown character", Checks_Sentences::displayGraphemeOnly);
+  addResult ("Unknown character", Checks_Sentences::displayCharacterOnly);
 }
 
 
-void Checks_Sentences::analyzeGrapheme ()
+void Checks_Sentences::analyzeCharacters ()
 {
   currentPosition++;
   
-  isSpace = (grapheme == " ");
+  isSpace = (character == " ");
   if (isSpace) {
     spacePosition = currentPosition;
   }
   
-  isCapital = find (capitals.begin (), capitals.end (), grapheme) != capitals.end ();
+  isCapital = in_array (character, capitals);
   if (isCapital) {
     capitalPosition = currentPosition;
   }
   
-  isSmallLetter = find (small_letters.begin(), small_letters.end(), grapheme) != small_letters.end ();
+  isSmallLetter = in_array (character, small_letters);
   if (isSmallLetter) {
     smallLetterPosition = currentPosition;
   }
   
-  isEndMark = find (end_marks.begin (), end_marks.end (), grapheme) != end_marks.end ();
+  isEndMark = in_array (character, end_marks);
   if (isEndMark) {
     endMarkPosition = currentPosition;
     previousMarkPosition = punctuationMarkPosition;
     punctuationMarkPosition = currentPosition;
   }
   
-  isCenterMark = find (center_marks.begin (), center_marks.end (), grapheme) != center_marks.end();
+  isCenterMark = in_array (character, center_marks);
   if (isCenterMark) {
     centerMarkPosition = currentPosition;
     previousMarkPosition = punctuationMarkPosition;

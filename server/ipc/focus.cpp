@@ -18,26 +18,18 @@
 
 
 #include <ipc/focus.h>
-#include <filter/string.h>
-#include <filter/usfm.h>
-#include <database/versifications.h>
-#include <database/navigation.h>
 #include <webserver/request.h>
 
 
 // Sets the focus.
 void Ipc_Focus::set (void * webserver_request, int book, int chapter, int verse)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
   bool set = false;
-  if (book != getBook (request)) set = true;
-  if (chapter != getChapter (request)) set = true;
-  if (verse != getVerse (request)) set = true;
-  
+  if (book != getBook (webserver_request)) set = true;
+  if (chapter != getChapter (webserver_request)) set = true;
+  if (verse != getVerse (webserver_request)) set = true;
   if (set) {
-    string user = request->session_logic()->currentUser ();
-    Database_Ipc database_ipc = Database_Ipc (request);
-    database_ipc.storeMessage (user, "", "focus", convert_to_string (book) + "." + convert_to_string (chapter) + "." + convert_to_string (verse));
+    Webserver_Request * request = (Webserver_Request *) webserver_request;
     request->database_config_user()->setFocusedBook (book);
     request->database_config_user()->setFocusedChapter (chapter);
     request->database_config_user()->setFocusedVerse (verse);
