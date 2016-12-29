@@ -282,6 +282,10 @@
     <ClCompile Include="dialog\list.cpp" />
     <ClCompile Include="dialog\upload.cpp" />
     <ClCompile Include="dialog\yes.cpp" />
+    <ClCompile Include="editoneql\index.cpp" />
+    <ClCompile Include="editoneql\load.cpp" />
+    <ClCompile Include="editoneql\logic.cpp" />
+    <ClCompile Include="editoneql\save.cpp" />
     <ClCompile Include="editone\index.cpp" />
     <ClCompile Include="editone\load.cpp" />
     <ClCompile Include="editone\logic.cpp" />
