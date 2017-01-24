@@ -70,7 +70,7 @@ exit /b %errorlevel%
 )
 
 
-echo Creating the Bibledit setup .exe
+echo Creating the Bibledit setup.exe
 cd C:\bibledit-windows-packager
 ISCC package.iss
 if %errorlevel% neq 0 (
