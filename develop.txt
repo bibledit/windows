@@ -1,4 +1,4 @@
-﻿Building Bibledit for Windows through Visual Studio Community 2015.
+Building Bibledit for Windows through Visual Studio Community 2015.
 
 
 There is a git repository on Windows 10 and there's one on on macOS. Keeping both repositories in sync ensures that the code and files on both operating systems are in sync.
@@ -30,3 +30,10 @@ Free legal Windows virtual images for testing or occasional use are available fr
 
 The server.exe needs the Visual C++ Redistributable Package for Visual Studio 2015. Inno Setup installs it.
 
+
+A code signing certificate was purchased from https://www.startssl.com. 
+The certificate is valid from 2017-01-21 till 2020-04-21. 
+Two certificates were downloaded from StartSSL: Intermediate.crt and CommonName.crt.
+The signtool.exe needs a certificate.pfx format:
+$ openssl pkcs12 -export -out CommonName.pfx -inkey codesign.key -in CommonName.crt -password pass:""
+Copy the .pfx file to the Windows developer machine.
