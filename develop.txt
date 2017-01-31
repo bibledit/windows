@@ -1,7 +1,9 @@
 Building Bibledit for Windows through Visual Studio Community 2015.
 
 
-There is a git repository on Windows 10 and there's one on on macOS. Keeping both repositories in sync ensures that the code and files on both operating systems are in sync.
+There is a git repository on Windows 10 and there's one on on macOS. 
+Keep both repositories in sync. 
+This ensures that the data on both operating systems are in sync.
 Visual Studio 2015 is used on Windows for building Bibledit for Windows.
 On macOS there's a script that refreshes the source of the Bibledit library.
 
@@ -21,19 +23,29 @@ Folder "server" contains the Bibledit library. It produces server.exe.
 Folder "gui" contains the Bibledit interface. It produces bibledit.exe
 
 
-To create a package, Windows uses Inno Setup installed from innosetup-5.5.9-unicode.exe.
-To have a clean package, remove the entire C:\bibledit directory, run the builder, copy bibledit.exe into C:\bibledit, and run the package.iss script.
+To create a package, use Inno Setup.
+It was installed from innosetup-5.5.9-unicode.exe.
+To have a clean package, do this:
+* Remove the entire C:\bibledit directory.
+* Run the builder.
+* Copy bibledit.exe into C:\bibledit.
+* Run the package.iss script.
 
 
-Free legal Windows virtual images for testing or occasional use are available from https://dev.modern.ie/tools/vms/windows/
+Free legal Windows virtual images for testing are available from https://dev.modern.ie/tools/vms/windows/
 
 
-The server.exe needs the Visual C++ Redistributable Package for Visual Studio 2015. Inno Setup installs it.
+The server.exe needs the Visual C++ Redistributable Package for Visual Studio 2015. 
+Inno Setup installs it.
 
 
 A code signing certificate was purchased from https://www.startssl.com. 
 The certificate is valid from 2017-01-21 till 2020-04-21. 
-Two certificates were downloaded from StartSSL: Intermediate.crt and CommonName.crt.
+Two certificates were downloaded from StartSSL: 
+- Intermediate.crt
+- CommonName.crt
 The signtool.exe needs a certificate.pfx format:
 $ openssl pkcs12 -export -out CommonName.pfx -inkey codesign.key -in CommonName.crt -password pass:""
 Copy the .pfx file to the Windows developer machine.
+
+
