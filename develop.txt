@@ -49,3 +49,32 @@ $ openssl pkcs12 -export -out CommonName.pfx -inkey codesign.key -in CommonName.
 Copy the .pfx file to the Windows developer machine.
 
 
+Embedded WebKit library.
+Building from source:
+* https://webkit.org/webkit-on-windows/
+* https://webkit.org/building-webkit-on-windows/
+Webkit for C# ready binaries:
+* http://cefsharp.github.io/
+* https://www.teamdev.com/dotnetbrowser
+Steps to embed it:
+* Start with a Windows Application in Visual Studio in C#.
+* Download the binary "CefSharp51_x32.zip" and unpack all files into folder "CefSharp_x32".
+* Add references to the project to the following files: 
+  CefSharp.dll
+  CefSharp.Core.dll
+  CefSharp.WinForms.dll
+* Copy all files also to the project's Debug (or Release) folder.
+* Add this into the import section:
+  using CefSharp;
+  using CefSharp.WinForms;     
+* Add this to the code section:
+  public ChromiumWebBrowser browser;
+  public void InitBrowser(){
+    Cef.Initialize(new CefSettings());
+    browser = new ChromiumWebBrowser ("www.google.com");
+    this.Controls.Add(browser);
+    browser.Dock = DockStyle.Fill;
+  }
+* Call InitBrowser() just after the call to InitializeComponent():
+  InitBrowser();
+
