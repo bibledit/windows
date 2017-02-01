@@ -95,7 +95,7 @@ namespace Bibledit
 
     private void feedback(String message)
     {
-      label.Text = message;
+      // Todo label.Text = message;
     }
 
 
