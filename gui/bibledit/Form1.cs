@@ -9,6 +9,8 @@ using System.Text;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Net;
+using CefSharp;
+using CefSharp.WinForms;
 
 
 namespace Bibledit
@@ -20,12 +22,24 @@ namespace Bibledit
     //[DllImport("bibleditlibrarywrapper.dll")]
     //public static extern string bibledit_wrapper_get_version_number();
     Process LibBibledit;
-    System.Threading.Timer timer;
-    
+
+
+    public ChromiumWebBrowser browser;
+
+
+    public void InitBrowser()
+    {
+      Cef.Initialize(new CefSettings());
+      browser = new ChromiumWebBrowser("http://localhost:9876");
+      this.Controls.Add(browser);
+      browser.Dock = DockStyle.Fill;
+    }
+
 
     public Form1()
     {
       InitializeComponent();
+      InitBrowser();
     }
 
 
@@ -66,16 +80,6 @@ namespace Bibledit
     }
 
 
-    private void linkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-    {
-      // This starts the default external web browser.
-      // It would have given a better interface to have an embedded browser for Bibledit.
-      // But since Microsoft's standard embedded browser component does not well adhere to standard, 
-      // sit is better to keep using an external browser.
-      Process.Start("http://localhost:9876");
-    }
-
-
     private void Form1_FormClosing(object sender, FormClosingEventArgs e)
     {
       try
@@ -95,7 +99,7 @@ namespace Bibledit
 
     private void feedback(String message)
     {
-      // Todo label.Text = message;
+      Console.WriteLine (message);
     }
 
 
@@ -105,9 +109,5 @@ namespace Bibledit
       LibBibledit.Start();
     }
 
-    private void label_Click(object sender, EventArgs e)
-    {
-
-    }
   }
 }
