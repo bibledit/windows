@@ -48,6 +48,26 @@ exit /b %errorlevel%
 )
 
 
+echo Building the core library component
+cd C:\bibledit-windows
+msbuild server.sln /property:Configuration=Release /property:Platform=x86
+if %errorlevel% neq 0 (
+pause
+exit /b %errorlevel%
+)
+
+
+echo Staging core library for packager
+copy /Y C:\bibledit-windows\Release\server.exe C:\bibledit-windows-packager
+if %errorlevel% neq 0 (
+pause
+exit /b %errorlevel%
+)
+
+
+pause
+exit
+
 echo Building
 cd C:\bibledit-windows
 msbuild /property:Configuration=Release /property:Platform=x86
