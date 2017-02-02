@@ -19,7 +19,7 @@ pause
 exit /b %errorlevel%
 )
 cd C:\
-git clone --depth 1 https://github.com/bibledit/bibledit-windows.git
+git clone --depth 1 https://github.com/bibledit/windows.git bibledit-windows
 if %errorlevel% neq 0 (
 pause
 exit /b %errorlevel%
@@ -37,6 +37,11 @@ exit /b %errorlevel%
 )
 del C:\bibledit-windows-packager\server.*
 copy /Y C:\bibledit-windows\package.iss C:\bibledit-windows-packager
+if %errorlevel% neq 0 (
+pause
+exit /b %errorlevel%
+)
+xcopy C:\bibledit-windows\CefSharp_x32\* C:\bibledit-windows-packager /E /I /Y
 if %errorlevel% neq 0 (
 pause
 exit /b %errorlevel%
