@@ -24,6 +24,7 @@ if %errorlevel% neq 0 (
 pause
 exit /b %errorlevel%
 )
+rmdir /S /Q C:\bibledit-windows\.git
 
 
 echo Staging files for packager
@@ -65,27 +66,20 @@ exit /b %errorlevel%
 )
 
 
-pause
-exit
-
 echo Building
 cd C:\bibledit-windows
-msbuild /property:Configuration=Release /property:Platform=x86
-# msbuild /property:Configuration=Debug /property:Platform=x86
-# msbuild /property:Configuration=Debug /property:Platform="Any CPU"
+# For some reason the bibledit.exe built in Release mode does not start with the WebKit library.
+# msbuild gui.sln /property:Configuration=Release /property:Platform=x86
+# The bibledit.exe built in Debug mode works with the WebKit library.
+msbuild gui.sln /property:Configuration=Debug /property:Platform=x86
 if %errorlevel% neq 0 (
 pause
 exit /b %errorlevel%
 )
 
 
-echo Staging binaries for packager
-copy /Y C:\bibledit-windows\Release\server.exe C:\bibledit-windows-packager
-if %errorlevel% neq 0 (
-pause
-exit /b %errorlevel%
-)
-copy /Y C:\bibledit-windows\gui\bibledit\bin\Release\bibledit.exe C:\bibledit-windows-packager
+echo Staging Windows executables for packager
+copy /Y C:\bibledit-windows\gui\bibledit.exe C:\bibledit-windows-packager
 if %errorlevel% neq 0 (
 pause
 exit /b %errorlevel%
