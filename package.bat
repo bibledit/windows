@@ -51,6 +51,8 @@ exit /b %errorlevel%
 echo Building
 cd C:\bibledit-windows
 msbuild /property:Configuration=Release /property:Platform=x86
+# msbuild /property:Configuration=Debug /property:Platform=x86
+# msbuild /property:Configuration=Debug /property:Platform="Any CPU"
 if %errorlevel% neq 0 (
 pause
 exit /b %errorlevel%
