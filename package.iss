@@ -48,7 +48,9 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Bibledit"; Filenam
 
 [Run]
 Filename: "{app}\bibledit.exe"; Description: "{cm:LaunchProgram,Bibledit}"; Flags: nowait postinstall skipifsilent
+; CefSharp, the WebKit component, needs C++ 2013.
 Filename: "{app}\vcredist_x86.exe"; Parameters: "/install /passive /norestart"; Description: "Install Visual C++ Redistributable 2013"; Flags: runhidden skipifsilent
+; The server.exe needs C++ 2015.
 Filename: "{app}\vc_redist.x86.exe"; Parameters: "/install /passive /norestart"; Description: "Install Visual C++ Redistributable 2015"; Flags: runhidden skipifsilent
 
 [Code]
