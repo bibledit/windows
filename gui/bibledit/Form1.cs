@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using CefSharp;
 using CefSharp.WinForms;
+using System.IO;
+using System.IO.IsolatedStorage;
 
 
 namespace Bibledit
@@ -11,6 +13,7 @@ namespace Bibledit
   public partial class Form1 : Form
   {
 
+    string windowstate = "windowstate.txt";
     Process LibBibledit;
     public ChromiumWebBrowser browser;
 
@@ -33,6 +36,42 @@ namespace Bibledit
 
     private void Form1_Load(object sender, EventArgs e)
     {
+      // Set screen size and state as was saved by the previous session.
+      IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForAssembly();
+      try
+      {
+        using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(this.windowstate, FileMode.Open, storage))
+        using (StreamReader reader = new StreamReader(stream))
+        {
+
+          // Read restore bounds value from file
+          string value;
+          value = reader.ReadLine();
+          if (value == "Maximized")
+          {
+            this.WindowState = FormWindowState.Maximized;
+          }
+          else
+          {
+            value = reader.ReadLine();
+            if (value != "") this.Left = Int32.Parse(value);
+            value = reader.ReadLine();
+            if (value != "") this.Top = Int32.Parse(value);
+            value = reader.ReadLine();
+            if (value != "") this.Width = Int32.Parse(value);
+            value = reader.ReadLine();
+            if (value != "") this.Height = Int32.Parse(value);
+          }
+        }
+      }
+      catch (FileNotFoundException)
+      {
+        // Handle when file is not found in isolated storage, which is when:
+        // * This is the first application session.
+        // * The file has been deleted.
+      }
+
+
       // Kill any previous servers. This frees the port to connect to.
       foreach (var process in Process.GetProcessesByName("server"))
       {
@@ -61,6 +100,20 @@ namespace Bibledit
 
     private void Form1_FormClosing(object sender, FormClosingEventArgs e)
     {
+      // Save window state for the next time this window is opened.
+      IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForAssembly();
+      using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(this.windowstate, FileMode.Create, storage))
+      using (StreamWriter writer = new StreamWriter(stream))
+      {
+        // Write window state to file.
+        writer.WriteLine(this.WindowState.ToString());
+        writer.WriteLine(this.Location.X.ToString());
+        writer.WriteLine(this.Location.Y.ToString());
+        writer.WriteLine(this.Size.Width.ToString());
+        writer.WriteLine(this.Size.Height.ToString());
+      }
+
+
       LibBibledit.EnableRaisingEvents = false;
       LibBibledit.CloseMainWindow();
       LibBibledit.Kill();
