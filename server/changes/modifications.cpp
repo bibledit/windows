@@ -338,7 +338,7 @@ void changes_modifications ()
             if (old_text != new_text) {
               email_changes.push_back (passage  + modification);
             } else {
-              email_changes.push_back (translate ("The following passage has no change in the text.") + " " + translate ("The change is in the formatting only.") + " " + translate ("The USFM code is given for reference."));
+              email_changes.push_back (translate ("The following passage has no change in the text.") + " " + translate ("Only the formatting was changed.") + " " + translate ("The USFM code is given for reference."));
               email_changes.push_back (passage);
               email_changes.push_back (translate ("Old code:") + " " + old_verse_usfm);
               email_changes.push_back (translate ("New code:") + " " + new_verse_usfm);
@@ -424,6 +424,7 @@ void changes_modifications ()
   config_globals_change_notifications_available = true;
 
   
+#ifdef HAVE_CLOUD
   // Store the statistics in the database.
   if (modification_time_count) {
     // Take average timestamp of all timestamps.
@@ -435,6 +436,7 @@ void changes_modifications ()
       Database_Statistics::store_changes (timestamp, user, count);
     }
   }
+#endif
   
 
   Database_Logs::log ("Change notifications: Ready", Filter_Roles::translator ());

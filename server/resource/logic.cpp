@@ -153,6 +153,7 @@ string resource_logic_get_html (void * webserver_request,
   vector <string> images = database_imageresources.names ();
   vector <string> lexicons = lexicon_logic_resource_names ();
   vector <string> biblegateways = resource_logic_bible_gateway_module_list_get ();
+  vector <string> studylights = resource_logic_study_light_module_list_get ();
 
   // Possible SWORD details.
   string sword_module = sword_logic_get_remote_module (resource);
@@ -166,6 +167,7 @@ string resource_logic_get_html (void * webserver_request,
   bool isLexicon = in_array (resource, lexicons);
   bool isSword = (!sword_source.empty () && !sword_module.empty ());
   bool isBibleGateway = in_array (resource, biblegateways);
+  bool isStudyLight = in_array (resource, studylights);
 
   // Retrieve versification system of the active Bible.
   string bible = request->database_config_user ()->getBible ();
@@ -184,6 +186,8 @@ string resource_logic_get_html (void * webserver_request,
   } else if (isSword) {
     resource_versification = english ();
   } else if (isBibleGateway) {
+    resource_versification = english ();
+  } else if (isStudyLight) {
     resource_versification = english ();
   } else {
   }
@@ -272,6 +276,7 @@ string resource_logic_get_verse (void * webserver_request, string resource, int 
   vector <string> images = database_imageresources.names ();
   vector <string> lexicons = lexicon_logic_resource_names ();
   vector <string> biblegateways = resource_logic_bible_gateway_module_list_get ();
+  vector <string> studylights = resource_logic_study_light_module_list_get ();
   
   // Possible SWORD details.
   string sword_module = sword_logic_get_remote_module (resource);
@@ -286,6 +291,7 @@ string resource_logic_get_verse (void * webserver_request, string resource, int 
   bool isLexicon = in_array (resource, lexicons);
   bool isSword = (!sword_source.empty () && !sword_module.empty ());
   bool isBibleGateway = in_array (resource, biblegateways);
+  bool isStudyLight = in_array (resource, studylights);
   
   if (isBible || isLocalUsfm) {
     string chapter_usfm;
@@ -319,6 +325,8 @@ string resource_logic_get_verse (void * webserver_request, string resource, int 
     data = sword_logic_get_text (sword_source, sword_module, book, chapter, verse);
   } else if (isBibleGateway) {
     data = resource_logic_bible_gateway_get (resource, book, chapter, verse);
+  } else if (isStudyLight) {
+    data = resource_logic_study_light_get (resource, book, chapter, verse);
   } else {
     // Nothing found.
   }
@@ -352,6 +360,7 @@ string resource_logic_get_contents_for_client (string resource, int book, int ch
   vector <string> externals = resource_external_names ();
   vector <string> usfms = database_usfmresources.getResources ();
   vector <string> biblegateways = resource_logic_bible_gateway_module_list_get ();
+  vector <string> studylights = resource_logic_study_light_module_list_get ();
   
   // Possible SWORD details in case the client requests a SWORD resource.
   string sword_module = sword_logic_get_remote_module (resource);
@@ -362,6 +371,7 @@ string resource_logic_get_contents_for_client (string resource, int book, int ch
   bool isUsfm = in_array (resource, usfms);
   bool isSword = (!sword_source.empty () && !sword_module.empty ());
   bool isBibleGateway = in_array (resource, biblegateways);
+  bool isStudyLight = in_array (resource, studylights);
   
   if (isExternal) {
     // The server fetches it from the web.
@@ -389,7 +399,12 @@ string resource_logic_get_contents_for_client (string resource, int book, int ch
     // The server fetches it from the web.
     return resource_logic_bible_gateway_get (resource, book, chapter, verse);
   }
-  
+
+  if (isStudyLight) {
+    // The server fetches it from the web.
+    return resource_logic_study_light_get (resource, book, chapter, verse);
+  }
+
   // Nothing found.
   return "Bibledit Cloud could not localize this resource";
 }
@@ -830,7 +845,6 @@ string resource_logic_bible_gateway_book (int book)
 }
 
 
-
 struct bible_gateway_walker: xml_tree_walker
 {
   string verse;
@@ -937,5 +951,119 @@ string resource_logic_bible_gateway_get (string resource, int book, int chapter,
 #ifdef HAVE_CLIENT
   result = resource_logic_client_fetch_cache_from_cloud (resource, book, chapter, verse);
 #endif
+  return result;
+}
+
+
+// The path to the list of StudyLight resources.
+// It is stored in the client files area.
+// Clients will download it from there.
+string resource_logic_study_light_module_list_path ()
+{
+  return filter_url_create_root_path ("databases", "client", "study_light_modules.txt");
+}
+
+
+// Refreshes the list of resources available from StudyLight.
+string resource_logic_study_light_module_list_refresh ()
+{
+  Database_Logs::log ("Refresh StudyLight resources");
+  string path = resource_logic_study_light_module_list_path ();
+  string error;
+  string html = filter_url_http_get ("http://www.studylight.org/commentaries", error, false);
+  if (error.empty ()) {
+    vector <string> resources;
+    // Example commentary fragment:
+    // <h3><a class="emphasis" href="//www.studylight.org/commentaries/gsb.html">Geneva Study Bible</a></h3>
+    do {
+      string fragment = "<a class=\"emphasis\"";
+      size_t pos = html.find (fragment);
+      if (pos == string::npos) break;
+      html.erase (0, pos + fragment.size ());
+      fragment = "commentaries";
+      pos = html.find (fragment);
+      if (pos == string::npos) break;
+      html.erase (0, pos + fragment.size () + 1);
+      fragment = ".html";
+      pos = html.find (fragment);
+      if (pos == string::npos) break;
+      string abbreviation = html.substr (0, pos);
+      html.erase (0, pos + fragment.size () + 2);
+      pos = html.find ("</a>");
+      if (pos == string::npos) break;
+      string name = html.substr (0, pos);
+      resources.push_back (name + " (" + abbreviation + ")");
+    } while (true);
+    // Store the resources in a file.
+    filter_url_file_put_contents (path, filter_string_implode (resources, "\n"));
+    // Done.
+    Database_Logs::log ("Modules: " + convert_to_string (resources.size ()));
+  } else {
+    Database_Logs::log (error);
+  }
+  return error;
+}
+
+
+// Get the list of StudyLight resources.
+vector <string> resource_logic_study_light_module_list_get ()
+{
+  string path = resource_logic_study_light_module_list_path ();
+  string contents = filter_url_file_get_contents (path);
+  return filter_string_explode (contents, '\n');
+}
+
+
+// Get the clean text of a passage of a StudyLight resource.
+string resource_logic_study_light_get (string resource, int book, int chapter, int verse)
+{
+  string result;
+
+#ifdef HAVE_CLOUD
+  // Transform the full name to the abbreviation for the website, e.g.:
+  // "Adam Clarke Commentary (acc)" becomes "acc".
+  size_t pos = resource.find_last_of ("(");
+  if (pos != string::npos) {
+    resource.erase (0, pos + 1);
+    pos = resource.find (")");
+    if (pos != string::npos) {
+      resource.erase (pos);
+
+      // On StudyLight.org, Genesis equals book 0, Exodus book 1, and so on.
+      book--;
+      
+      string url = "http://www.studylight.org/com/" + resource + "/view.cgi?bk=" + convert_to_string (book) + "&ch=" + convert_to_string (chapter);
+
+      // Get the html from the server, and tidy it up.
+      string error;
+      string html = resource_logic_web_cache_get (url, error);
+      string tidy = html_tidy (html);
+      vector <string> tidied = filter_string_explode (tidy, '\n');
+      
+      vector <string> relevant_lines;
+      bool relevant_flag = false;
+      
+      for (auto & line : tidied) {
+        
+        if (relevant_flag) relevant_lines.push_back (line);
+        
+        size_t pos = line.find ("</div>");
+        if (pos != string::npos) relevant_flag = false;
+        
+        pos = line.find ("name=\"" + convert_to_string (verse) + "\"");
+        if (pos != string::npos) relevant_flag = true;
+      }
+      
+      result = filter_string_implode (relevant_lines, "\n");
+      html.append ("<p><a href=\"" + url + "\">" + url + "</a></p>\n");
+    
+    }
+  }
+#endif
+
+#ifdef HAVE_CLIENT
+  result = resource_logic_client_fetch_cache_from_cloud (resource, book, chapter, verse);
+#endif
+
   return result;
 }

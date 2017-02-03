@@ -1,9 +1,7 @@
 #!/bin/bash
 
-
-pushd `dirname $0` > /dev/null
-SCRIPTPATH=`pwd`
-popd > /dev/null
+SCRIPTPATH=`readlink -f "$0"`
+echo Running script $SCRIPTPATH
 
 
 # Some distro's cannot run $ su.
@@ -11,21 +9,10 @@ UNAME=`uname -a`
 echo -n "Installing Bibledit on "
 echo $UNAME
 RUNSU=1;
-if [ "$UNAME"="*Ubuntu*" ]; then
-  RUNSU=0;
-fi
-
-
-# Deal with command line arguments.
-DRYECHO=""
-if [ $# -ne 0 ]; then
-  if [ "$1" = "-dry" ]; then
-    DRYECHO="echo"
-  else
-    echo Pass no arguments to install Bibledit.
-    echo Pass argument -dry to do a dry run.
-    exit 0
-  fi
+echo "$UNAME" | grep -q Ubuntu
+EXIT_CODE=$?
+if [ $EXIT_CODE -eq 0 ]; then
+RUNSU=0;
 fi
 
 
@@ -34,13 +21,11 @@ cat > install2.sh <<'scriptblock'
 
 #!/bin/bash
 
-DRYECHO=$1
-
 clear
 echo Updating the software sources...
 which apt-get > /dev/null
 if [ $? -eq 0 ]; then
-$DRYECHO apt-get update
+apt-get update
 fi
 
 echo Installing the software Bibledit relies on...
@@ -48,54 +33,68 @@ echo Installing the software Bibledit relies on...
 which apt-get > /dev/null
 if [ $? -eq 0 ]
 then
-$DRYECHO apt-get --yes install build-essential
-$DRYECHO apt-get --yes install git
-$DRYECHO apt-get --yes install zip
-$DRYECHO apt-get --yes install pkgconf
-$DRYECHO apt-get --yes install libcurl4-openssl-dev
-$DRYECHO apt-get --yes install libssl-dev
-$DRYECHO apt-get --yes install libatspi2.0-dev
-$DRYECHO apt-get --yes install libgtk-3-dev
+echo Installing dependencies through apt-get...
+# On Debian and derivates it is sufficient to use the --yes switch only.
+# The package manager apt-get is also found on openSUSE, and there is also needs --assume-yes. 
+apt-get --yes --assume-yes install build-essential
+apt-get --yes --assume-yes install git
+apt-get --yes --assume-yes install zip
+apt-get --yes --assume-yes install pkgconf
+apt-get --yes --assume-yes install libcurl4-openssl-dev
+apt-get --yes --assume-yes install libssl-dev
+apt-get --yes --assume-yes install libatspi2.0-dev
+apt-get --yes --assume-yes install libgtk-3-dev
+apt-get --yes --assume-yes install libwebkit2gtk-4.0-dev
 fi
 
+# Fedora.
 which dnf > /dev/null
 if [ $? -eq 0 ]
 then
-$DRYECHO dnf --assumeyes install gcc-c++
-$DRYECHO dnf --assumeyes install git
-$DRYECHO dnf --assumeyes install zip
-$DRYECHO dnf --assumeyes install pkgconfig
-$DRYECHO dnf --assumeyes install libcurl-devel
-$DRYECHO dnf --assumeyes install openssl-devel
-$DRYECHO dnf --assumeyes install gtk3-devel
+echo Installing dependencies through dnf...
+dnf --assumeyes install gcc-c++
+dnf --assumeyes install git
+dnf --assumeyes install zip
+dnf --assumeyes install pkgconfig
+dnf --assumeyes install libcurl-devel
+dnf --assumeyes install openssl-devel
+dnf --assumeyes install gtk3-devel
+dnf --assumeyes install webkitgtk4-devel
 fi
 
+# CentOS
 which yum > /dev/null
 if [ $? -eq 0 ]
 then
-$DRYECHO yum --assumeyes install gcc-c++
-$DRYECHO yum --assumeyes install git
-$DRYECHO yum --assumeyes install zip
-$DRYECHO yum --assumeyes install pkgconfig
-$DRYECHO yum --assumeyes install libcurl-devel
-$DRYECHO yum --assumeyes install openssl-devel
-$DRYECHO yum --assumeyes install gtk3-devel
+echo Installing dependencies through yum...
+yum --assumeyes install gcc-c++
+yum --assumeyes install git
+yum --assumeyes install zip
+yum --assumeyes install pkgconfig
+yum --assumeyes install libcurl-devel
+yum --assumeyes install openssl-devel
+yum --assumeyes install gtk3-devel
+yum --assumeyes install webkitgtk3-devel
+yum --assumeyes install libwebkit2gtk-devel
 fi
 
+# openSUSE
 which zypper > /dev/null
 if [ $? -eq 0 ]
 then
-$DRYECHO zypper --non-interactive install gcc-c++
-$DRYECHO zypper --non-interactive install git
-$DRYECHO zypper --non-interactive install zip
-$DRYECHO zypper --non-interactive install pkg-config
-$DRYECHO zypper --non-interactive install libcurl-devel
-$DRYECHO zypper --non-interactive install libopenssl-devel
-$DRYECHO zypper --non-interactive install cairo-devel
-$DRYECHO zypper --non-interactive install gtk3-devel
+echo Installing dependencies through zypper...
+zypper -n --non-interactive --no-gpg-checks install gcc-c++
+zypper -n --non-interactive --no-gpg-checks install git
+zypper -n --non-interactive --no-gpg-checks install zip
+zypper -n --non-interactive --no-gpg-checks install pkg-config
+zypper -n --non-interactive --no-gpg-checks install libcurl-devel
+zypper -n --non-interactive --no-gpg-checks install libopenssl-devel
+zypper -n --non-interactive --no-gpg-checks install cairo-devel
+zypper -n --non-interactive --no-gpg-checks install gtk3-devel
+zypper -n --non-interactive --no-gpg-checks install webkit2gtk3-devel
 fi
 
-# Create the script to start bibledit.
+echo Creating the script to start bibledit.
 rm -f /usr/bin/bibledit
 echo #!/bin/bash >> /usr/bin/bibledit
 echo cd  >> /usr/bin/bibledit
@@ -115,24 +114,24 @@ chmod +x install2.sh
 
 # Conditionally run $ su.
 if [ $RUNSU -ne 0 ]; then
-  echo Please provide the password for the root user and press Enter
-  su -c ./install2.sh $DRYECHO
+echo Please provide the password for the root user and press Enter
+su -c ./install2.sh
 fi
 
 EXIT_CODE=$?
 # If $ su did not run, run $ sudo.
 if [ $RUNSU -eq 0 ]; then
-  EXIT_CODE=1
+EXIT_CODE=1
 fi
 # If $ su ran, but failed, run $ sudo.
 if [ $EXIT_CODE != 0 ]; then
 
-  echo Please provide the password for the administrative user and press Enter:
-  sudo ./install2.sh $DRYECHO
-  EXIT_CODE=$?
-  if [ $EXIT_CODE != 0 ]; then
-    exit
-  fi
+echo Please provide the password for the administrative user and press Enter:
+sudo ./install2.sh
+EXIT_CODE=$?
+if [ $EXIT_CODE != 0 ]; then
+exit
+fi
 
 fi
 
@@ -146,55 +145,52 @@ rm -f index.html
 wget http://bibledit.org/linux -q -O index.html
 if [ $? -ne 0 ]
 then
-  echo Failed to list tarballs
-  exit
+echo Failed to list tarballs
+exit
 fi
 cat index.html | grep "bibledit-" | grep -o '<a href=['"'"'"][^"'"'"']*['"'"'"]' | sed -e 's/^<a href=["'"'"']//' -e 's/["'"'"']$//' | tail -n 1 > tarball.txt
 rm index.html
 TARBALL=`cat tarball.txt`
 rm tarball.txt
-rm $TARBALL.*
-$DRYECHO wget --continue --tries=100 http://bibledit.org/linux/$TARBALL
+rm -f $TARBALL.*
+wget --continue --tries=100 http://bibledit.org/linux/$TARBALL
 if [ $? -ne 0 ]
 then
-  echo Failed to download Bibledit
-  exit
+echo Failed to download Bibledit
+exit
 fi
 
-$DRYECHO mkdir -p bibledit
-$DRYECHO tar xf $TARBALL -C bibledit --strip-components=1
+mkdir -p bibledit
+tar xf $TARBALL -C bibledit --strip-components=1
 if [ $? -ne 0 ]
 then
-  echo Failed to unpack Bibledit
-  rm $TARBALL
-  exit
+echo Failed to unpack Bibledit
+rm $TARBALL
+exit
 fi
 
-$DRYECHO cd bibledit
+cd bibledit
 # Remove bits from any older build that might cause crashes in the new build.
 find . -name "*.o" -delete
-$DRYECHO ./configure
+./configure
 if [ $? -ne 0 ]
 then
-  echo Failed to configure Bibledit
-  exit
+echo Failed to configure Bibledit
+exit
 fi
-$DRYECHO make clean
-$DRYECHO make --jobs=4
+make clean
+make --jobs=4
 if [ $? -ne 0 ]
 then
-  echo Failed to build Bibledit
-  exit
+echo Failed to build Bibledit
+exit
 fi
 
 # Remove the script, so people cannot reuse it.
 # Reusing scripts have given problems in the past as newer scripts were different.
-rm $SCRIPTPATH/install.sh
+rm $SCRIPTPATH
 
 echo If there were no errors, Bibledit should be working now.
-echo Bibledit works best with the Google Chrome browser.
-echo Install the browser.
-echo To automatically open Bibledit in Chrome, set Chrome as the default browser.
 echo --
 echo To start Bibledit, open a terminal, and type:
 echo bibledit

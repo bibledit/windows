@@ -36,11 +36,6 @@ Database_Config_User::Database_Config_User (void * webserver_request_in)
 }
 
 
-Database_Config_User::~Database_Config_User ()
-{
-}
-
-
 // Functions for getting and setting values or lists of values.
 
 
@@ -199,6 +194,8 @@ void Database_Config_User::trim ()
     string filename = file (users[i], keySprintMonth ());
     if (file_or_dir_exists (filename)) {
       if (filter_url_file_modification_time (filename) < time) {
+        filter_url_unlink (filename);
+        filename = file (users[i], keySprintYear ());
         filter_url_unlink (filename);
       }
     }
@@ -1033,66 +1030,6 @@ int Database_Config_User::getGreekFontSize ()
 void Database_Config_User::setGreekFontSize (int size)
 {
   setIValue ("greek-font-size", size);
-}
-
-
-void Database_Config_User::setRequestedEtcbc4Definition (string value)
-{
-  setValue ("requested-etcbc4-def", value);
-}
-string Database_Config_User::getRequestedEtcbc4Definition ()
-{
-  return getValue ("requested-etcbc4-def", "");
-}
-
-
-void Database_Config_User::setRequestedKjvDefinition (string value)
-{
-  setValue ("requested-kjv-def", value);
-}
-string Database_Config_User::getRequestedKjvDefinition ()
-{
-  return getValue ("requested-kjv-def", "");
-}
-
-
-void Database_Config_User::setRequestedOsHbDefinition (string value)
-{
-  setValue ("requested-oshb-def", value);
-}
-string Database_Config_User::getRequestedOsHbDefinition ()
-{
-  return getValue ("requested-oshb-def", "");
-}
-
-
-void Database_Config_User::setRequestedSblGntDefinition (string value)
-{
-  setValue ("requested-sblgnt-def", value);
-}
-string Database_Config_User::getRequestedSblGntDefinition ()
-{
-  return getValue ("requested-sblgnt-def", "");
-}
-
-
-void Database_Config_User::setRequestedHDefinition (string value)
-{
-  setValue ("requested-h-def", value);
-}
-string Database_Config_User::getRequestedHDefinition ()
-{
-  return getValue ("requested-h-def", "");
-}
-
-
-void Database_Config_User::setRequestedGDefinition (string value)
-{
-  setValue ("requested-g-def", value);
-}
-string Database_Config_User::getRequestedGDefinition ()
-{
-  return getValue ("requested-g-def", "");
 }
 
 

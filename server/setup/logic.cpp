@@ -224,15 +224,19 @@ void setup_initialize_data ()
   config_globals_setup_message = "checks";
   request.database_check ()->create ();
   setup_generate_locale_databases (false);
+#ifdef HAVE_CLOUD
   config_globals_setup_message = "confirmations";
   Database_Confirm database_confirm = Database_Confirm ();
   database_confirm.create ();
+#endif
   config_globals_setup_message = "jobs";
   Database_Jobs database_jobs = Database_Jobs ();
   database_jobs.create ();
+#ifdef HAVE_CLOUD
   config_globals_setup_message = "sprint";
   Database_Sprint database_sprint = Database_Sprint ();
   database_sprint.create ();
+#endif
   config_globals_setup_message = "mail";
   Database_Mail database_mail = Database_Mail (&request);
   database_mail.create ();
@@ -261,11 +265,13 @@ void setup_initialize_data ()
   Database_Privileges::create ();
   Database_Privileges::upgrade ();
   Database_Privileges::optimize ();
+#ifdef HAVE_CLOUD
   config_globals_setup_message = "git";
   Database_Git::create ();
   config_globals_setup_message = "statistics";
   Database_Statistics::create ();
   Database_Statistics::optimize ();
+#endif
 
   // Create stylesheets.
   config_globals_setup_message = "stylesheets";

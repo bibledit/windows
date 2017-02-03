@@ -74,9 +74,11 @@ void database_maintenance ()
   database_mail.optimize ();
   
   
+#ifdef HAVE_CLOUD
   Database_Confirm database_confirm = Database_Confirm ();
   database_confirm.trim ();
   database_confirm.optimize ();
+#endif
   
   
   // No need to optimize the following because it is hardly ever written to.
@@ -109,8 +111,10 @@ void database_maintenance ()
   database_check.optimize ();
   
   
+#ifdef HAVE_CLOUD
   Database_Sprint database_sprint = Database_Sprint ();
   database_sprint.optimize ();
+#endif
   
   
   filter_url_unlink (filter_url_create_root_path ("databases", "navigation.sqlite"));
@@ -134,10 +138,14 @@ void database_maintenance ()
   Database_Privileges::optimize ();
   
   
+#ifdef HAVE_CLOUD
   Database_Git::optimize ();
+#endif
 
   
+#ifdef HAVE_CLOUD
   Database_Statistics::optimize ();
+#endif
 
   
   // Only maintain it when it does not yet exist, to avoid unnecessary downloads by the clients.

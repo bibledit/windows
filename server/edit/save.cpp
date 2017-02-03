@@ -36,7 +36,9 @@
 #include <edit/logic.h>
 #include <access/bible.h>
 #include <bible/logic.h>
+#include <quill/logic.h>
 #include <rss/logic.h>
+#include <sendreceive/logic.h>
 
 
 string edit_save_url ()
@@ -90,16 +92,17 @@ string edit_save (void * webserver_request)
   if (!access_bible_book_write (request, "", bible, book)) {
     return translate("No write access");
   }
-  
+
   string stylesheet = request->database_config_user()->getStylesheet();
   
   Editor_Html2Usfm editor_export;
+  editor_export.quill ();
   editor_export.load (html);
   editor_export.stylesheet (stylesheet);
   editor_export.run ();
   string user_usfm = editor_export.get ();
   
-  string ancestor_usfm = getLoadedUsfm (webserver_request, bible, book, chapter, "edit");
+  string ancestor_usfm = getLoadedUsfm (webserver_request, bible, book, chapter, "editql");
   
   vector <BookChapterData> book_chapter_text = usfm_import (user_usfm, stylesheet);
   if (book_chapter_text.size () != 1) {
@@ -151,14 +154,16 @@ string edit_save (void * webserver_request)
   int newID = request->database_bibles()->getChapterId (bible, book, chapter);
   Database_Modifications database_modifications;
   database_modifications.recordUserSave (username, bible, book, chapter, oldID, oldText, newID, newText);
-  Database_Git::store_chapter (username, bible, book, chapter, oldText, newText);
+  if (sendreceive_git_repository_linked (bible)) {
+    Database_Git::store_chapter (username, bible, book, chapter, oldText, newText);
+  }
   rss_logic_schedule_update (username, bible, book, chapter, oldText, newText);
 #else
   (void) oldID;
 #endif
   
   // Store a copy of the USFM loaded in the editor for later reference.
-  storeLoadedUsfm (webserver_request, bible, book, chapter, "edit");
+  storeLoadedUsfm (webserver_request, bible, book, chapter, "editql");
   
   // Convert the stored USFM to html.
   // This converted html should be the same as the saved html.

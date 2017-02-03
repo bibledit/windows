@@ -1,37 +1,58 @@
 #!/bin/bash
 
 
-echo Setting working directory.
 cd "$(dirname "$0")"
+cd "$(dirname "$PWD")"
+SRC=$PWD
+echo "Source directory " $SRC
+TMP=/tmp/bibledit-i18n
+echo Working directory $TMP
+
+
+echo Synchronizing source files to working directory.
+mkdir -p $TMP
+rsync -a --delete $SRC/ $TMP/
+cd $TMP
+
+
+echo Removing files not to be processed.
+rm -rf unittest*
+rm -rf utf8*
+rm -rf mbedtls
 
 
 echo Gathering all the html files for internationalization.
-find .. -iname "*.html" > i18n.html
+find . -iname "*.html" > i18n.html
 if [ $? -ne 0 ]
 then
 echo Cannot find source files
 fi
 
 
-g++ -std=c++11 i18n.cpp -o i18n
-./i18n
-rm i18n
+echo Transfer translatable strings from the html files to a C++ file.
+g++ -std=c++11 i18n/i18n.cpp
+./a.out
+rm a.out
+
+
+echo Cleaning up raw string literals.
+# Removing C++11 raw string literals
+# because xgettext would complain about unterminated string literals in, e.g.:
+# string script = R"(
+# <div id="defid" style="clear:both"></div>
+# )";
+sed -i.bak '/= R"(/,/)";/d' lexicon/logic.cpp
 
 
 echo Create a temporal file containing all the files for internationalization.
-find ~/dev/bibledit/lib -iname "*.cpp" -o -iname "books.h" > gettextfiles.txt
+find . -iname "*.cpp" -o -iname "books.h" > gettextfiles.txt
 if [ $? -ne 0 ]
 then
 echo Cannot find source files
 fi
 
 
-echo Remove files not to be processed.
-sed -i.bak '/utf8/d' gettextfiles.txt
-sed -i.bak '/unittests/d' gettextfiles.txt
-
-
-echo Remove bibledit.pot in case there are some strings in it which are no longer in use.
+# Remove any previous bibledit.pot because it could have strings no longer in use.
 rm -f /tmp/bibledit.pot
 
 
@@ -43,20 +64,18 @@ echo Failure running xgettext
 fi
 
 
-echo Copying bibledit.pot into place
-cp /tmp/bibledit.pot ../locale
+echo Copying bibledit.pot into place.
+cp /tmp/bibledit.pot $SRC/locale
 
 
-echo Clean temporal files.
-rm gettextfiles*
-rm /tmp/bibledit.pot
-rm translatables.cpp
-rm i18n.html
+# Fix bzr: warning: unsupported locale setting on macOS.
+export LC_ALL=C
 
 
-echo Pull translations from launchpad.net
+echo Pull translations from launchpad.net.
 cd
-cd dev/bibledit.pot
+cd dev/launchpad/po
+rm -f .DS_Store
 bzr pull lp:~teusbenschop/bibledit/translations
 if [ $? -ne 0 ]
 then
@@ -64,27 +83,29 @@ echo Could not pull translations from launchpad.net
 fi
 
 
-echo Push new translatable messages to Launchpad.
+echo Synchronize translations to Bibledit.
 cd
-cd dev/bibledit.pot
-cp ../bibledit/lib/locale/bibledit.pot gtk/po/
-bzr add gtk/po/bibledit.pot
-bzr commit --message "updated bibledit.pot"
-
-
-echo Synchronize translations to Bibledit
-cd
-cd dev/bibledit.pot/gtk/po
-rsync -av . ~/dev/bibledit/lib/locale
+cd dev/launchpad/po
+cp *.po ~/dev/bibledit/lib/locale
 if [ $? -ne 0 ]
 then
 echo Could not synchronize translations to Bibledit
 fi
 
 
-echo Clean dates out.
+echo Push new translatable messages to Launchpad.
+cd
+cd dev/launchpad/pot
+cp /tmp/bibledit.pot .
+bzr add bibledit.pot
+bzr commit --message "updated bibledit.pot"
+bzr push
+
+
+echo Clean up.
+# Remove dates so they don't appear as daily changes.
 sed -i.bak '/POT-Creation-Date/d' ~/dev/bibledit/lib/locale/*.po ~/dev/bibledit/lib/locale/bibledit.pot
 sed -i.bak '/X-Launchpad-Export-Date/d' ~/dev/bibledit/lib/locale/*.po ~/dev/bibledit/lib/locale/bibledit.pot
 rm ~/dev/bibledit/lib/locale/*.bak
-
-
+# Remove temporal .pot.
+rm /tmp/bibledit.pot

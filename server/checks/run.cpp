@@ -39,6 +39,7 @@
 #include <checks/verses.h>
 #include <checks/pairs.h>
 #include <checks/index.h>
+#include <checks/settings.h>
 #include <email/send.h>
 
 
@@ -99,6 +100,7 @@ void checks_run (string bible)
       }
     }
   }
+  bool check_space_end_verse = Database_Config_Bible::getCheckSpaceEndVerse (bible);
 
   
   vector <int> books = request.database_bibles()->getBooks (bible);
@@ -134,6 +136,7 @@ void checks_run (string bible)
       filter_text.run (stylesheet);
       map <int, string>  verses_headings = filter_text.verses_headings;
       map <int, string> verses_text = filter_text.getVersesText ();
+      vector <map <int, string>> verses_paragraphs = filter_text.verses_paragraphs;
       if (check_full_stop_in_headings) {
         Checks_Headers::noPunctuationAtEnd (bible, book, chapter, verses_headings, center_marks, end_marks);
       }
@@ -146,10 +149,9 @@ void checks_run (string bible)
         checks_sentences.initialize ();
         if (check_sentence_structure) checks_sentences.check (verses_text);
         if (check_paragraph_structure) {
-          checks_sentences.paragraphs (verses_text,
-                                       filter_text.paragraph_start_positions,
-                                       filter_text.paragraph_start_position_markers,
-                                       within_sentence_paragraph_markers);
+          checks_sentences.paragraphs (filter_text.paragraph_starting_markers,
+                                       within_sentence_paragraph_markers,
+                                       verses_paragraphs);
         }
           
           
@@ -189,6 +191,11 @@ void checks_run (string bible)
       if (check_matching_pairs) {
         Checks_Pairs::run (bible, book, chapter, verses_text, matching_pairs);
       }
+      
+      
+      if (check_space_end_verse) {
+        Checks_Space::spaceEndVerse (bible, book, chapter, chapterUsfm);
+      }
     }
   }
   
@@ -209,7 +216,8 @@ void checks_run (string bible)
   // Add a link to the online checking results.
   if (!emailBody.empty ()) {
     string siteUrl = config_logic_site_url (NULL);
-    emailBody.push_back ("<p><a href=\"" + siteUrl + checks_index_url () + "\">" + translate("The checking results are also available online, plus checking settings.") + "</a></p>");
+    emailBody.push_back ("<p><a href=\"" + siteUrl + checks_index_url () + "\">" + translate("Checking results online") + "</a></p>");
+    emailBody.push_back ("<p><a href=\"" + siteUrl + checks_settings_url () + "\">" + translate ("Settings") + "</a></p>");
   }
   
   

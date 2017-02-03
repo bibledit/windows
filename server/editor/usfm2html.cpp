@@ -120,7 +120,7 @@ string Editor_Usfm2Html::get ()
   if (quill_enabled) clas.insert (0, quill_logic_class_prefix_block ());
   html = filter_string_str_replace ("<p class=\"" + clas + "\" />", "<p class=\"" + clas + "\"><br></p>", html);
   
-  // Currently libxml2 produces hexadecimal character entities.
+  // Currently the XML library produces hexadecimal character entities.
   // This is unwanted behaviour: Convert them to normal characters.
   html = convert_xml_character_entities_to_characters (html);
   
@@ -141,10 +141,8 @@ void Editor_Usfm2Html::preprocess ()
   current_p_open = false;
   note_p_open = false;
 
-  /*
-  XPath crashes on Android with libxml2 2.9.2 compiled through the Android NDK.
-  After the move to pugixml, this no longer applies.
-  */
+  // XPath crashes on Android with libxml2 2.9.2 compiled through the Android NDK.
+  // After the move to pugixml, this no longer applies.
 
   body_node = document.append_child ("body");
   
@@ -475,10 +473,19 @@ void Editor_Usfm2Html::addText (string text)
       // Take character style(s) as specified in this object.
       string textstyle;
       for (auto & style : currentTextStyles) {
-        if (!textstyle.empty ()) textstyle.append (" ");
-        if (quill_enabled) textstyle.append (quill_logic_class_prefix_inline ());
+        if (!textstyle.empty ()) {
+          // The Quill library is fussy about class names.
+          // It accepts class="i-add" but not class="i-add-nd". It fails on that second hyphen.
+          // It also does not accept an underscore as part of the class name.
+          // That causes the whole class to be removed.
+          // Right now the way to deal with a class with two styles is like this "i-add0nd".
+          // It has one hyphen. And a "0" to separate the two styles.
+          if (quill_enabled) textstyle.append ("0");
+          else textstyle.append (" ");
+        }
         textstyle.append (style);
       }
+      if (quill_enabled) textstyle.insert (0, quill_logic_class_prefix_inline ());
       spanDomElement.append_attribute ("class") = textstyle.c_str();
     }
     currentParagraphContent.append (text);
@@ -557,13 +564,16 @@ void Editor_Usfm2Html::addNoteText (string text)
   spanDomElement.text ().set (text.c_str());
   if (!currentNoteTextStyles.empty()) {
     // Take character style(s) as specified in this object.
-    vector <string> currentNoteTextStyles2 (currentNoteTextStyles);
+    string classs;
     if (quill_enabled) {
-      for (auto & style : currentNoteTextStyles2) {
-        style.insert (0, quill_logic_class_prefix_inline ());
-      }
+      classs = filter_string_implode (currentNoteTextStyles, "0");
+    } else {
+      classs = filter_string_implode (currentNoteTextStyles, " ");
     }
-    spanDomElement.append_attribute ("class") = filter_string_implode (currentNoteTextStyles2, " ").c_str();
+    if (quill_enabled) {
+      classs.insert (0, quill_logic_class_prefix_inline ());
+    }
+    spanDomElement.append_attribute ("class") = classs.c_str();
   }
 }
 
