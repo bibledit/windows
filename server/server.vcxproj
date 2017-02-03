@@ -282,6 +282,15 @@
     <ClCompile Include="dialog\list.cpp" />
     <ClCompile Include="dialog\upload.cpp" />
     <ClCompile Include="dialog\yes.cpp" />
+    <ClCompile Include="editold\focus.cpp" />
+    <ClCompile Include="editold\index.cpp" />
+    <ClCompile Include="editold\load.cpp" />
+    <ClCompile Include="editold\offset.cpp" />
+    <ClCompile Include="editold\save.cpp" />
+    <ClCompile Include="editoneold\index.cpp" />
+    <ClCompile Include="editoneold\load.cpp" />
+    <ClCompile Include="editoneold\save.cpp" />
+    <ClCompile Include="editoneold\verse.cpp" />
     <ClCompile Include="editoneql\index.cpp" />
     <ClCompile Include="editoneql\load.cpp" />
     <ClCompile Include="editoneql\logic.cpp" />
@@ -317,7 +326,9 @@
     <ClCompile Include="edit\index.cpp" />
     <ClCompile Include="edit\load.cpp" />
     <ClCompile Include="edit\logic.cpp" />
+    <ClCompile Include="edit\navigate.cpp" />
     <ClCompile Include="edit\offset.cpp" />
+    <ClCompile Include="edit\position.cpp" />
     <ClCompile Include="edit\preview.cpp" />
     <ClCompile Include="edit\save.cpp" />
     <ClCompile Include="edit\styles.cpp" />
@@ -519,6 +530,7 @@
     <ClCompile Include="resource\organize.cpp" />
     <ClCompile Include="resource\print.cpp" />
     <ClCompile Include="resource\select.cpp" />
+    <ClCompile Include="resource\studylight.cpp" />
     <ClCompile Include="resource\sword.cpp" />
     <ClCompile Include="resource\user1edit.cpp" />
     <ClCompile Include="resource\user1view.cpp" />
