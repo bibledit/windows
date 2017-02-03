@@ -77,4 +77,6 @@ Steps to embed it:
   }
 * Call InitBrowser() just after the call to InitializeComponent():
   InitBrowser();
+* Windows needs the Visual C++ Redistributable Packages for Visual Studio 2013 for x86.
+
 
