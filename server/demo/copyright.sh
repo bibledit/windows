@@ -16,16 +16,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
-# Path to phantomjs
-PHANTOMJS=~/scr/phantomjs-2.0.0-macosx/bin/phantomjs
-
-
-# Directory of the source code.
-SOURCEDIR=`pwd`
-
-
-# Directory of initialized server instance.
-SERVERDIR=/tmp/bibledit-server
-
-
+for usfm in *.usfm; do
+echo $usfm
+cat COPYING > tmp
+cat $usfm >> tmp
+mv tmp $usfm
+done

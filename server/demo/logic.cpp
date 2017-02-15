@@ -183,7 +183,7 @@ void demo_clean_data ()
   demo_create_sample_notes (&request);
   
   
-  // Create samples for the workspacees.
+  // Create samples for the workspaces.
   demo_create_sample_workspacees (&request);
   
   
@@ -221,7 +221,7 @@ string demo_sample_bible_name ()
 // Creates a sample Bible.
 // Creating a Sample Bible used to take a relatively long time, in particular on low power devices.
 // The new and current method does a simple copy operation and that is fast.
-void demo_create_sample_bible ()
+void demo_create_sample_bible () // Todo
 {
   Database_Logs::log ("Creating sample Bible");
   
@@ -248,23 +248,29 @@ void demo_create_sample_bible ()
 
 
 // Prepares a sample Bible.
-// The output of this is supposed to be manually put into the source tree, folder "samples".
-// This will be used to quickly create a sample Bible, that is fast, even on mobile devices.
-void demo_prepare_sample_bible ()
+// It is not supposed to be run in the source tree, but in a separate copy of it.
+// This is because it produces unwanted data.
+// The output will be in folder "samples".
+// Copy it to the same folder in the source tree.
+// This data is for quickly creating a sample Bible.
+// This way it is fast even on low power devices.
+// At a later stage the function started to be called in a different way.
+void demo_prepare_sample_bible (string * progress) // Todo
 {
   Database_Bibles database_bibles;
-  // Remove the Bible to remove all stuff that might have been in it.
+  // Remove the sample Bible plus all related data.
   database_bibles.deleteBible (demo_sample_bible_name ());
   search_logic_delete_bible (demo_sample_bible_name ());
   // Create a new one.
   database_bibles.createBible (demo_sample_bible_name ());
-  // Location of the USFM files for the sample Bible.
+  // Location of the source USFM files for the sample Bible.
   string directory = filter_url_create_root_path ("demo");
   vector <string> files = filter_url_scandir (directory);
   for (auto file : files) {
     // Only process the USFM files.
     if (filter_url_get_extension (file) == "usfm") {
-      cout << file << endl;
+      if (progress) * progress = file;
+      else cout << file << endl;
       // Read the USFM.
       file = filter_url_create_path (directory, file);
       string usfm = filter_url_file_get_contents (file);
@@ -272,7 +278,12 @@ void demo_prepare_sample_bible ()
       // Import the USFM into the Bible.
       vector <BookChapterData> book_chapter_data = usfm_import (usfm, styles_logic_standard_sheet ());
       for (auto data : book_chapter_data) {
-        bible_logic_store_chapter (demo_sample_bible_name (), data.book, data.chapter, data.data);
+        if (data.book) {
+          // There is license information at the top of each USFM file.
+          // This results in a book with number 0.
+          // This book gets skipped here, so the license information is skipped as well.
+          bible_logic_store_chapter (demo_sample_bible_name (), data.book, data.chapter, data.data);
+        }
       }
     }
   }

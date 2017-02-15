@@ -1,5 +1,22 @@
 #!/bin/bash
 
+# Copyright (©) 2003-2016 Teus Benschop.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
 SCRIPTPATH=`readlink -f "$0"`
 echo Running script $SCRIPTPATH
 
@@ -44,6 +61,7 @@ apt-get --yes --assume-yes install libcurl4-openssl-dev
 apt-get --yes --assume-yes install libssl-dev
 apt-get --yes --assume-yes install libatspi2.0-dev
 apt-get --yes --assume-yes install libgtk-3-dev
+apt-get --yes --assume-yes install libwebkit2gtk-3.0-dev
 apt-get --yes --assume-yes install libwebkit2gtk-4.0-dev
 fi
 
@@ -102,6 +120,12 @@ echo cd bibledit >> /usr/bin/bibledit
 echo './bibledit 2>&1 | grep -v WARNING | tr -d 012' >> /usr/bin/bibledit
 chmod +x /usr/bin/bibledit
 
+echo Install launcher to start bibledit.
+# It does that here at this stage in the script, because here it has root privileges.
+wget https://raw.githubusercontent.com/bibledit/linux/master/bibledit.desktop -O /usr/share/applications/bibledit.desktop
+desktop-file-install /usr/share/applications/bibledit.desktop
+wget https://raw.githubusercontent.com/bibledit/linux/master/bibledit.png -O /usr/share/icons/bibledit.png
+
 # Act as if the script ran successfully, no matter whether it really did.
 exit 0
 
@@ -109,7 +133,7 @@ scriptblock
 # This is the end of the script to run with root privileges.
 
 
-# Run the script with root privileges.
+# Make the script executable to be ran with root privileges.
 chmod +x install2.sh
 
 # Conditionally run $ su.
@@ -138,6 +162,12 @@ fi
 
 # Remove the script with commands to run with root privileges.
 rm install2.sh
+
+
+# Remove any possible local launcher.
+# The reason is that a local launcher takes precendence over a system-wide one.
+cd
+rm -f .local/share/applications/bibledit.desktop
 
 
 cd
