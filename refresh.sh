@@ -12,20 +12,37 @@ WINDOWSDIR=`dirname $0 | realpath`
 cd $WINDOWSDIR
 
 
-
 echo Pulling in the relevant Bibledit library source code.
-rsync --archive --exclude '.deps' --exclude '*.o' --exclude '*.a' --exclude '.dirstamp' --exclude 'server' --exclude 'unittest' --exclude '.DS_Store' --exclude 'autom4te.cache' --exclude 'bibledit' --exclude '*~' --exclude 'dev' --exclude 'generate' --exclude 'valgrind' --exclude 'AUTHORS' --exclude 'NEWS' --exclude 'README' --exclude 'ChangeLog' --exclude 'reconfigure' --exclude 'unittests' --exclude 'xcode' --exclude 'sources' --exclude 'DEVELOP' ../bibledit/lib/* server
+rsync --archive --exclude '.deps' --exclude '*.o' --exclude '*.a' --exclude '.dirstamp' --exclude 'server' --exclude 'unittest' --exclude '.DS_Store' --exclude 'autom4te.cache' --exclude 'bibledit' --exclude '*~' --exclude 'dev' --exclude 'generate' --exclude 'valgrind' --exclude 'AUTHORS' --exclude 'NEWS' --exclude 'README' --exclude 'ChangeLog' --exclude 'reconfigure' --exclude 'xcode' --exclude 'DEVELOP' ../bibledit/lib/* server
 
 
+echo Change directory to the core library.
 cd server
+
+
+echo Prepare the sample Bible.
+./configure
+if [ $? != 0 ]; then exit; fi
+make --jobs=24
+if [ $? != 0 ]; then exit; fi
+./generate . samplebible
+if [ $? != 0 ]; then exit; fi
+rm logbook/1*
+make distclean
+if [ $? != 0 ]; then exit; fi
+
+
+echo Remove code that is no longer needed.
+rm -rf unittests
+rm -rf sources
 
 
 # Configure the Bibledit source.
 ./configure --enable-windows
-EXIT_CODE=$?
-if [ $EXIT_CODE != 0 ]; then
-  exit
-fi
+if [ $? != 0 ]; then exit; fi
+
+
+echo Set the network port it listens on.
 echo 9876 > config/network-port
 
 
