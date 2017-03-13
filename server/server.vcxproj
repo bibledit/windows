@@ -261,6 +261,7 @@
     <ClCompile Include="database\notes.cpp" />
     <ClCompile Include="database\oshb.cpp" />
     <ClCompile Include="database\privileges.cpp" />
+    <ClCompile Include="database\sample.cpp" />
     <ClCompile Include="database\sblgnt.cpp" />
     <ClCompile Include="database\sprint.cpp" />
     <ClCompile Include="database\sqlite.cpp" />
@@ -364,6 +365,7 @@
     <ClCompile Include="filter\text.cpp" />
     <ClCompile Include="filter\url.cpp" />
     <ClCompile Include="filter\usfm.cpp" />
+    <ClCompile Include="filter\webview.cpp" />
     <ClCompile Include="flate\flate.cpp" />
     <ClCompile Include="fonts\logic.cpp" />
     <ClCompile Include="help\index.cpp" />
