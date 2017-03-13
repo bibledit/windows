@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2016 Teus Benschop.
+Copyright (©) 2003-2017 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -61,14 +61,14 @@ $ (document).ready (function ()
 
 function visualVerseEditorInitializeOnce ()
 {
-  let Parchment = Quill.import ('parchment');
+  var Parchment = Quill.import ('parchment');
   
   // Register block formatting class.
-  let ParagraphClass = new Parchment.Attributor.Class ('paragraph', 'b', { scope: Parchment.Scope.BLOCK });
+  var ParagraphClass = new Parchment.Attributor.Class ('paragraph', 'b', { scope: Parchment.Scope.BLOCK });
   Quill.register (ParagraphClass, true);
   
   // Register inline formatting class.
-  let CharacterClass = new Parchment.Attributor.Class ('character', 'i', { scope: Parchment.Scope.INLINE });
+  var CharacterClass = new Parchment.Attributor.Class ('character', 'i', { scope: Parchment.Scope.INLINE });
   Quill.register (CharacterClass, true);
 }
 

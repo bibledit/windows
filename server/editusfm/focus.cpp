@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2016 Teus Benschop.
+ Copyright (©) 2003-2017 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -41,6 +41,9 @@ bool editusfm_focus_acl (void * webserver_request)
 }
 
 
+// Returns two numerical positions: A starting one, and an ending one.
+// These two are for positioning the caret in the editor.
+// The caret should be at or be moved to a position between these two.
 string editusfm_focus (void * webserver_request)
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;

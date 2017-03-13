@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2016 Teus Benschop.
+Copyright (©) 2003-2017 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -266,7 +266,11 @@ function usfmHandleKeyDown (event)
 
 function usfmHandleCaret ()
 {
-  if (usfmEditorTextChanged) {
+  // While the text has changed or is being saved,
+  // do not run an operation to set the focused verse,
+  // because the focused verse would be inaccurate due to the non-saved text.
+  // This solved an inaccurate focused verse resulting from typing quickly at the end of the verse.
+  if (usfmEditorTextChanged || usfmSaving) {
     usfmCaretChanged ();
     return;
   }

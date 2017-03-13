@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2016 Teus Benschop.
+Copyright (©) 2003-2017 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ int main (int argc, char **argv)
   } else if (command == sample_bible_command) {
 
     cout << "Generating the sample Bible" << endl;
-    demo_prepare_sample_bible (nullptr);
+    demo_prepare_sample_bible ();
 
   } else if (command == mappings_command) {
 

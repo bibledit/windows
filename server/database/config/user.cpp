@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2016 Teus Benschop.
+Copyright (©) 2003-2017 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,7 +36,13 @@ Database_Config_User::Database_Config_User (void * webserver_request_in)
 }
 
 
-// Functions for getting and setting values or lists of values.
+// Cache values in memory for better speed.
+// The speed improvement comes from reading a value from disk only once,
+// and after that to read the value straight from the memory cache.
+map <string, string> database_config_user_cache;
+
+
+// Functions for getting and setting values or lists of values follow here:
 
 
 string Database_Config_User::file (string user)
@@ -48,6 +54,13 @@ string Database_Config_User::file (string user)
 string Database_Config_User::file (string user, const char * key)
 {
   return filter_url_create_path (file (user), key);
+}
+
+
+// The key in the cache for this setting.
+string Database_Config_User::mapkey (string user, const char * key)
+{
+  return user + key;
 }
 
 
@@ -75,10 +88,19 @@ int Database_Config_User::getIValue (const char * key, int default_value)
 
 string Database_Config_User::getValueForUser (string user, const char * key, const char * default_value)
 {
+  // Check the memory cache.
+  string cachekey = mapkey (user, key);
+  if (database_config_user_cache.count (cachekey)) {
+    return database_config_user_cache [cachekey];
+  }
+  // Read from file.
   string value;
   string filename = file (user, key);
   if (file_or_dir_exists (filename)) value = filter_url_file_get_contents (filename);
   else value = default_value;
+  // Cache it.
+  database_config_user_cache [cachekey] = value;
+  // Done.
   return value;
 }
 
@@ -118,10 +140,19 @@ void Database_Config_User::setIValue (const char * key, int value)
 
 void Database_Config_User::setValueForUser (string user, const char * key, string value)
 {
+  // Store in memory cache.
+  database_config_user_cache [mapkey (user, key)] = value;
+  // Store on disk.
   string filename = file (user, key);
   string directory = filter_url_dirname (filename);
   if (!file_or_dir_exists (directory)) filter_url_mkdir (directory);
   filter_url_file_put_contents (filename, value);
+}
+
+
+void Database_Config_User::setBValueForUser (string user, const char * key, bool value)
+{
+  setValueForUser (user, key, convert_to_string (value));
 }
 
 
@@ -134,13 +165,23 @@ vector <string> Database_Config_User::getList (const char * key)
 
 vector <string> Database_Config_User::getListForUser (string user, const char * key)
 {
+  // Check whether value is in cache.
+  string cachekey = mapkey (user, key);
+  if (database_config_user_cache.count (cachekey)) {
+    string value = database_config_user_cache [cachekey];
+    return filter_string_explode (value, '\n');
+  }
+  // Read setting from disk.
   string filename = file (user, key);
-  vector <string> list;
   if (file_or_dir_exists (filename)) {
     string value = filter_url_file_get_contents (filename);
-    list = filter_string_explode (value, '\n');
+    // Cache it in memory.
+    database_config_user_cache [cachekey] = value;
+    // Done.
+    return filter_string_explode (value, '\n');
   }
-  return list;
+  // Empty value.
+  return {};
 }
 
 
@@ -153,11 +194,15 @@ void Database_Config_User::setList (const char * key, vector <string> values)
 
 void Database_Config_User::setListForUser (string user, const char * key, vector <string> values)
 {
+  // Store it on disk.
   string filename = file (user, key);
   string directory = filter_url_dirname (filename);
   if (!file_or_dir_exists (directory)) filter_url_mkdir (directory);
   string value = filter_string_implode (values, "\n");
   filter_url_file_put_contents (filename, value);
+  // Put it in the memory cache.
+  string cachekey = mapkey (user, key);
+  database_config_user_cache [cachekey] = value;
 }
 
 
@@ -194,9 +239,12 @@ void Database_Config_User::trim ()
     string filename = file (users[i], keySprintMonth ());
     if (file_or_dir_exists (filename)) {
       if (filter_url_file_modification_time (filename) < time) {
+        // Remove from disk.
         filter_url_unlink (filename);
         filename = file (users[i], keySprintYear ());
         filter_url_unlink (filename);
+        // Clear cache.
+        database_config_user_cache.clear ();
       }
     }
   }
@@ -206,8 +254,18 @@ void Database_Config_User::trim ()
 // Remove any configuration setting of $username.
 void Database_Config_User::remove (string username)
 {
+  // Remove from disk.
   string folder = file (username);
   filter_url_rmdir (folder);
+  // Clear cache.
+  database_config_user_cache.clear ();
+}
+
+
+// Clear the settings cache.
+void Database_Config_User::clear_cache ()
+{
+  database_config_user_cache.clear ();
 }
 
 
@@ -1147,6 +1205,16 @@ void Database_Config_User::setFastEditorSwitchingAvailable (bool value)
 }
 
 
+bool Database_Config_User::getDowngradeVisualEditors ()
+{
+  return getBValue ("downgrade-visual-editors", false);
+}
+void Database_Config_User::setDowngradeVisualEditors (bool value)
+{
+  setBValue ("downgrade-visual-editors", value);
+}
+
+
 bool Database_Config_User::getAllSoftwareUpdatesNotification ()
 {
   return getBValue ("all-software-updates-notification", false);
@@ -1213,23 +1281,23 @@ void Database_Config_User::setIncludeRelatedPassages (bool value)
 }
 
 
-int Database_Config_User::getEnabledVisualEditors ()
+int Database_Config_User::getFastSwitchVisualEditors ()
 {
   // Initially only the visual verse editor is enabled.
   return getIValue ("enabled-visual-editors", 2);
 }
-void Database_Config_User::setEnabledVisualEditors (int value)
+void Database_Config_User::setFastSwitchVisualEditors (int value)
 {
   setIValue ("enabled-visual-editors", value);
 }
 
 
-int Database_Config_User::getEnabledUsfmEditors ()
+int Database_Config_User::getFastSwitchUsfmEditors ()
 {
   // Initially only the USFM chapter editor is enabled.
   return getIValue ("enabled-usfm-editors", 1);
 }
-void Database_Config_User::setEnabledUsfmEditors (int value)
+void Database_Config_User::setFastSwitchUsfmEditors (int value)
 {
   setIValue ("enabled-usfm-editors", value);
 }
@@ -1252,4 +1320,22 @@ bool Database_Config_User::getMenuChangesInBasicMode ()
 void Database_Config_User::setMenuChangesInBasicMode (bool value)
 {
   setBValue ("menu-changes-in-basic-mode", value);
+}
+
+
+const char * privilege_use_advanced_mode_key ()
+{
+  return "privilege-use-advanced-mode";
+}
+bool Database_Config_User::getPrivilegeUseAdvancedMode ()
+{
+  return getBValue (privilege_use_advanced_mode_key (), true);
+}
+bool Database_Config_User::getPrivilegeUseAdvancedModeForUser (string username)
+{
+  return getBValueForUser (username, privilege_use_advanced_mode_key (), true);
+}
+void Database_Config_User::setPrivilegeUseAdvancedModeForUser (string username, bool value)
+{
+  setBValueForUser (username, privilege_use_advanced_mode_key (), value);
 }

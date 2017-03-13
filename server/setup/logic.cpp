@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2016 Teus Benschop.
+ Copyright (©) 2003-2017 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -226,7 +226,7 @@ void setup_initialize_data ()
   setup_generate_locale_databases (false);
 #ifdef HAVE_CLOUD
   config_globals_setup_message = "confirmations";
-  Database_Confirm database_confirm = Database_Confirm ();
+  Database_Confirm database_confirm;
   database_confirm.create ();
 #endif
   config_globals_setup_message = "jobs";
@@ -277,11 +277,6 @@ void setup_initialize_data ()
   config_globals_setup_message = "stylesheets";
   styles_sheets_create_all ();
   
-  // Preparation of data for the sample Bible.
-  config_globals_setup_message = "samples";
-#ifdef SETUP_PREPARE_SAMPLE_BIBLE
-  demo_prepare_sample_bible (&config_globals_setup_message); // Todo test it.
-#endif
   // Schedule creation of sample Bible if there's no Bible yet.
   // In former versions of Bibledit, creation of the sample Bible was not scheduled,
   // but executed right away.
@@ -291,7 +286,7 @@ void setup_initialize_data ()
   // To make installation fast, the creation of the sample Bible is now done in the background.
   vector <string> bibles = request.database_bibles()->getBibles ();
   if (bibles.empty ()) {
-    tasks_logic_queue (CREATESAMPLEBIBLE); // Todo is this still needed?
+    tasks_logic_queue (CREATESAMPLEBIBLE);
   }
   
   // Schedule reindexing Bible search data.

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2016 Teus Benschop.
+Copyright (©) 2003-2017 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -149,6 +149,7 @@ public:
 private:
   static string file (string bible);
   static string file (string bible, const char * key);
+  static string mapkey (string bible, const char * key);
   static string getValue (string bible, const char * key, const char * default_value);
   static void setValue (string bible, const char * key, string value);
   static bool getBValue (string bible, const char * key, bool default_value);

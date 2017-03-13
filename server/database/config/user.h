@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2016 Teus Benschop.
+Copyright (©) 2003-2017 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ public:
   Database_Config_User (void * webserver_request_in);
   void trim ();
   void remove (string username);
+  void clear_cache ();
   string getStylesheet ();
   void setStylesheet (string sheet);
   string getBible ();
@@ -203,6 +204,8 @@ public:
   void setSwipeActionsAvailable (bool value);
   bool getFastEditorSwitchingAvailable ();
   void setFastEditorSwitchingAvailable (bool value);
+  bool getDowngradeVisualEditors ();
+  void setDowngradeVisualEditors (bool value);
   bool getAllSoftwareUpdatesNotification ();
   bool getAllSoftwareUpdatesNotificationForUser (string username);
   void setAllSoftwareUpdatesNotification (bool value);
@@ -217,18 +220,22 @@ public:
   void setConnectedClientsForUser (string username, vector <string> values);
   bool getIncludeRelatedPassages ();
   void setIncludeRelatedPassages (bool value);
-  int getEnabledVisualEditors ();
-  void setEnabledVisualEditors (int value);
-  int getEnabledUsfmEditors ();
-  void setEnabledUsfmEditors (int value);
+  int getFastSwitchVisualEditors ();
+  void setFastSwitchVisualEditors (int value);
+  int getFastSwitchUsfmEditors ();
+  void setFastSwitchUsfmEditors (int value);
   bool getEnableStylesButtonVisualEditors ();
   void setEnableStylesButtonVisualEditors (bool value);
   bool getMenuChangesInBasicMode ();
   void setMenuChangesInBasicMode (bool value);
+  bool getPrivilegeUseAdvancedMode ();
+  bool getPrivilegeUseAdvancedModeForUser (string username);
+  void setPrivilegeUseAdvancedModeForUser (string username, bool value);
 private:
   void * webserver_request;
   string file (string user);
   string file (string user, const char * key);
+  string mapkey (string user, const char * key);
   string getValue (const char * key, const char * default_value);
   bool getBValue (const char * key, bool default_value);
   int getIValue (const char * key, int default_value);
@@ -239,6 +246,7 @@ private:
   void setBValue (const char * key, bool value);
   void setIValue (const char * key, int value);
   void setValueForUser (string user, const char * key, string value);
+  void setBValueForUser (string user, const char * key, bool value);
   vector <string> getList (const char * key);
   vector <string> getListForUser (string user, const char * key);
   void setList (const char * key, vector <string> values);

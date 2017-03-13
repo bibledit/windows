@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2016 Teus Benschop.
+ Copyright (©) 2003-2017 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -484,6 +484,11 @@ textarea {
 }
 .iframewrapper iframe + iframe {
   border-left: 2px inset;
+}
+# The following is to cause the iframes to fill all available space in Edge.
+iframe {
+  width: 100%;
+  height: 100%;
 }
 .drag {
   cursor: move;

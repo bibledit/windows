@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2016 Teus Benschop.
+ Copyright (©) 2003-2017 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include <filter/roles.h>
 #include <filter/string.h>
 #include <filter/css.h>
+#include <filter/url.h>
 #include <webserver/request.h>
 #include <locale/translate.h>
 #include <locale/logic.h>
@@ -35,6 +36,8 @@
 #include <ipc/focus.h>
 #include <menu/logic.h>
 #include <bible/logic.h>
+#include <config/globals.h>
+#include <editoneold/index.h>
 
 
 string editone_index_url ()
@@ -56,6 +59,12 @@ string editone_index (void * webserver_request)
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
   
+  if (request->database_config_user ()->getDowngradeVisualEditors ()) {
+    // Redirect to deprecated editor.
+    redirect_browser (webserver_request, editoneold_index_url ());
+    return "";
+  }
+
   bool touch = request->session_logic ()->touchEnabled ();
   
   if (request->query.count ("switchbook") && request->query.count ("switchchapter")) {

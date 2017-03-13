@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2016 Teus Benschop.
+Copyright (©) 2003-2017 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -91,7 +91,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <public/index.h>
 #include <public/logic.h>
 #include <filter/url.h>
-#include <basic/index.h>
 #include <bible/logic.h>
 #include <ldap/logic.h>
 
@@ -282,8 +281,8 @@ string menu_logic_basic_categories (void * webserver_request)
     html.push_back (menu_logic_create_item (resource_index_url (), translate ("Resources"), true));
   }
 
-  if (basic_index_acl (webserver_request)) {
-    html.push_back (menu_logic_create_item (basic_index_url (), "⋮", true));
+  if (personalize_index_acl (webserver_request)) {
+    html.push_back (menu_logic_create_item (personalize_index_url (), "⋮", true));
   }
 
   // When a user is not logged in, or a guest,
@@ -345,35 +344,35 @@ string menu_logic_translate_category (void * webserver_request, string * tooltip
   vector <string> labels;
   
   if (edit_index_acl (webserver_request)) {
-    if (menu_logic_editor_enabled (webserver_request, true, true)) {
+    //if (menu_logic_editor_enabled (webserver_request, true, true)) {
       string label = menu_logic_editor_menu_text (webserver_request, true, true);
       html.push_back (menu_logic_create_item (edit_index_url (), label, true));
       labels.push_back (label);
-    }
+    //}
   }
   
   if (editone_index_acl (webserver_request)) {
-    if (menu_logic_editor_enabled (webserver_request, true, false)) {
+    //if (menu_logic_editor_enabled (webserver_request, true, false)) {
       string label = menu_logic_editor_menu_text (webserver_request, true, false);
       html.push_back (menu_logic_create_item (editone_index_url (), label, true));
       labels.push_back (label);
-    }
+    //}
   }
 
   if (editusfm_index_acl (webserver_request)) {
-    if (menu_logic_editor_enabled (webserver_request, false, true)) {
+    //if (menu_logic_editor_enabled (webserver_request, false, true)) {
       string label = menu_logic_editor_menu_text (webserver_request, false, true);
       html.push_back (menu_logic_create_item (editusfm_index_url (), label, true));
       labels.push_back (label);
-    }
+    //}
   }
     
   if (editverse_index_acl (webserver_request)) {
-    if (menu_logic_editor_enabled (webserver_request, false, false)) {
+    //if (menu_logic_editor_enabled (webserver_request, false, false)) {
       string label = menu_logic_editor_menu_text (webserver_request, false, false);
       html.push_back (menu_logic_create_item (editverse_index_url (), label, true));
       labels.push_back (label);
-    }
+    //}
   }
   
   if (notes_index_acl (webserver_request)) {
@@ -655,7 +654,6 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
   string repository = translate ("Repository");
   string cloud = translate ("Cloud");
   string paratext = translate ("Paratext");
-  string logout = menu_logic_logout_text ();
   string notifications = translate ("Notifications");
   string account = translate ("Account");
   string basic_mode = translate ("Basic mode");
@@ -676,7 +674,7 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
     repository,
     cloud,
     paratext,
-    logout,
+    menu_logic_logout_text (),
     notifications,
     account,
     basic_mode,
@@ -827,8 +825,11 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
     }
 #endif
     
-    if (label == logout) {
-      if (!(client || demo)) {
+#ifdef HAVE_CLOUD
+    // Logout menu entry only in the Cloud, never on the client.
+    if (label == menu_logic_logout_text ()) {
+      // Cannot logout in the demo.
+      if (!demo) {
         // If logged in, but not as guest, put the Logout menu here.
         if (request->session_logic ()->loggedIn ()) {
           if (request->session_logic ()->currentLevel () != Filter_Roles::guest ()) {
@@ -840,6 +841,7 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
         }
       }
     }
+#endif
     
     if (label == notifications) {
       if (user_notifications_acl (webserver_request)) {
@@ -1168,8 +1170,8 @@ bool menu_logic_editor_enabled (void * webserver_request, bool visual, bool chap
   
   // Get the user's preference for the visual or USFM editors.
   int selection = 0;
-  if (visual) selection = request->database_config_user ()->getEnabledVisualEditors ();
-  else selection = request->database_config_user ()->getEnabledUsfmEditors ();
+  if (visual) selection = request->database_config_user ()->getFastSwitchVisualEditors ();
+  else selection = request->database_config_user ()->getFastSwitchUsfmEditors ();
   
   // Check whether the visual or USFM chapter/verse editor is active.
   if (selection == 0) return true;
@@ -1183,12 +1185,15 @@ bool menu_logic_editor_enabled (void * webserver_request, bool visual, bool chap
 
 string menu_logic_editor_menu_text (void * webserver_request, bool visual, bool chapter)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  //Webserver_Request * request = (Webserver_Request *) webserver_request;
+  (void) webserver_request;
   
   // Get the user's preference for the visual or USFM editors.
   int selection = 0;
-  if (visual) selection = request->database_config_user ()->getEnabledVisualEditors ();
-  else selection = request->database_config_user ()->getEnabledUsfmEditors ();
+  /*
+  if (visual) selection = request->database_config_user ()->getFastSwitchVisualEditors ();
+  else selection = request->database_config_user ()->getFastSwitchUsfmEditors ();
+   */
   
   // Get the correct menu text.
   bool both = (selection == 0);

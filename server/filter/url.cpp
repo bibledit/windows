@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2016 Teus Benschop.
+Copyright (©) 2003-2017 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -81,7 +81,8 @@ vector <string> filter_url_scandir_internal (string folder)
     struct dirent * direntry;
     while ((direntry = readdir (dir)) != NULL) {
       string name = direntry->d_name;
-      if (name.substr (0, 1) == ".") continue;
+      if (name == ".") continue;
+      if (name == "..") continue;
       files.push_back (name);
     }
     closedir (dir);

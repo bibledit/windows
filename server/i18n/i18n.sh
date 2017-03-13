@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (©) 2003-2016 Teus Benschop.
+# Copyright (©) 2003-2017 Teus Benschop.
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -102,7 +102,7 @@ fi
 echo Synchronize translations to Bibledit.
 cd
 cd dev/launchpad/po
-cp *.po ~/dev/bibledit/lib/locale
+cp *.po ~/dev/cloud/locale
 if [ $? -ne 0 ]
 then
 echo Could not synchronize translations to Bibledit
@@ -120,8 +120,8 @@ bzr push
 
 echo Clean up.
 # Remove dates so they don't appear as daily changes.
-sed -i.bak '/POT-Creation-Date/d' ~/dev/bibledit/lib/locale/*.po ~/dev/bibledit/lib/locale/bibledit.pot
-sed -i.bak '/X-Launchpad-Export-Date/d' ~/dev/bibledit/lib/locale/*.po ~/dev/bibledit/lib/locale/bibledit.pot
-rm ~/dev/bibledit/lib/locale/*.bak
+sed -i.bak '/POT-Creation-Date/d' ~/dev/cloud/locale/*.po ~/dev/cloud/locale/bibledit.pot
+sed -i.bak '/X-Launchpad-Export-Date/d' ~/dev/cloud/locale/*.po ~/dev/cloud/locale/bibledit.pot
+rm ~/dev/cloud/locale/*.bak
 # Remove temporal .pot.
 rm /tmp/bibledit.pot

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2016 Teus Benschop.
+Copyright (©) 2003-2017 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -66,6 +66,22 @@ bool access_logic_privilege_create_comment_notes (void * webserver_request, stri
   access_logic_user_level (webserver_request, user, level);
   if (level >= access_logic_create_comment_notes_role ()) return true;
   return Database_Privileges::getFeature (user, PRIVILEGE_CREATE_COMMENT_NOTES);
+}
+
+
+int access_logic_use_advanced_mode_role ()
+{
+  return Filter_Roles::manager ();
+}
+
+
+bool access_logic_privilege_use_advanced_mode (void * webserver_request, string user)
+{
+  int level = 0;
+  access_logic_user_level (webserver_request, user, level);
+  if (level >= access_logic_use_advanced_mode_role ()) return true;
+  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  return request->database_config_user ()->getPrivilegeUseAdvancedModeForUser (user);
 }
 
 

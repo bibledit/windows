@@ -21,6 +21,9 @@
 /* Define whether to compile for iOS */
 /* #undef HAVE_IOS */
 
+/* Define to 1 if you have the `mbedtls' library (-lmbedtls). */
+/* #undef HAVE_LIBMBEDTLS */
+
 /* Define whether libproc.h is present */
 
 /* Define whether to compile for Linux */
@@ -78,7 +81,7 @@
 #define PACKAGE_NAME "bibledit"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "bibledit 1.0.709"
+#define PACKAGE_STRING "bibledit 5.0.122"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "bibledit"
@@ -87,13 +90,13 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.0.709"
+#define PACKAGE_VERSION "5.0.122"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "1.0.709"
+#define VERSION "5.0.122"
 
 /* Define whether to compile on Windows */
 #define WIN32 1

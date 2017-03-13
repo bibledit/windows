@@ -16,9 +16,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "Select which Bible to make the active one for editing"
-msgstr ""
-
 msgid "Abbreviations"
 msgstr ""
 
@@ -1706,6 +1703,9 @@ msgstr ""
 msgid "Which visual Bible editors to enable?"
 msgstr ""
 
+msgid "Select which Bible to make the active one for editing"
+msgstr ""
+
 msgid "Select which Bible to display"
 msgstr ""
 
@@ -2270,9 +2270,6 @@ msgstr ""
 msgid "Crossreferences"
 msgstr ""
 
-msgid "Extended study notes"
-msgstr ""
-
 msgid "Special text"
 msgstr ""
 
@@ -2683,42 +2680,6 @@ msgid "The number was saved"
 msgstr ""
 
 msgid "Go back"
-msgstr ""
-
-msgid "Select the Bible for editing:"
-msgstr ""
-
-msgid "Send and receive."
-msgstr ""
-
-msgid ""
-"This is for sending your changes to Bibledit Cloud, and receiving changes "
-"made by others."
-msgstr ""
-
-msgid "Connection to Bibledit Cloud."
-msgstr ""
-
-msgid "This is for collaboration with fellow translators and for backup."
-msgstr ""
-
-msgid "Switch to advanced mode."
-msgstr ""
-
-msgid "Advanced mode offers more options than basic mode."
-msgstr ""
-
-msgid ""
-"Once in advanced mode, return to basic mode via menu Settings / Basic mode."
-msgstr ""
-
-msgid "Show the changes"
-msgstr ""
-
-msgid "Whether to have a menu entry to go to the changes."
-msgstr ""
-
-msgid "Logout."
 msgstr ""
 
 msgid "Update the abbreviations."
@@ -4809,10 +4770,16 @@ msgstr ""
 msgid "Install Bibledit on Linux"
 msgstr ""
 
-msgid "Follow the steps below to install Bibledit"
+msgid "Supported Linux distributions:"
 msgstr ""
 
-msgid "Supported Linux distros:"
+msgid "Install Bibledit on Ubuntu and derivatives."
+msgstr ""
+
+msgid "Other Linux distributions:"
+msgstr ""
+
+msgid "Follow the steps below to install Bibledit"
 msgstr ""
 
 msgid "Download the Bibledit Linux installer"
@@ -4824,18 +4791,7 @@ msgstr ""
 msgid "Run the installer:"
 msgstr ""
 
-msgid "Bibledit works best with the Google Chrome browser."
-msgstr ""
-
-msgid "Install the browser."
-msgstr ""
-
-msgid ""
-"To have Bibledit automatically open in Chrome, set Chrome as the default "
-"browser."
-msgstr ""
-
-msgid "Follow the steps below to start Bibledit."
+msgid "Bibledit can be started from the menu."
 msgstr ""
 
 msgid "Install Bibledit on macOS"
@@ -4860,6 +4816,18 @@ msgid "Give it enough time to download all the data from Bibledit Cloud."
 msgstr ""
 
 msgid "Bibledit is ready for online and offline use."
+msgstr ""
+
+msgid "Install Bibledit on Ubuntu"
+msgstr ""
+
+msgid "Add the Bibledit repository:"
+msgstr ""
+
+msgid "Read the repository:"
+msgstr ""
+
+msgid "Install Bibledit:"
 msgstr ""
 
 msgid "Install Bibledit on Windows"
@@ -5037,75 +5005,6 @@ msgid "Developing capable people who can develop the desired conditions."
 msgstr ""
 
 msgid "External reference"
-msgstr ""
-
-msgid "Build libgit2 for Bibledit"
-msgstr ""
-
-msgid "Bibledit uses libgit2 for interaction with git repositories."
-msgstr ""
-
-msgid "This is optional."
-msgstr ""
-
-msgid ""
-"It is recommended that Bibledit configured as a server uses git repositories "
-"for improved Bible data safety."
-msgstr ""
-
-msgid "The interface of libgit2 is not yet stable."
-msgstr ""
-
-msgid ""
-"Bibledit has been tested to work well with one particular version of libgit2:"
-msgstr ""
-
-msgid "Version 0.21.5."
-msgstr ""
-
-msgid ""
-"The steps below provide information about how to build libgit2 and where to "
-"place the library so that Bibledit can find it."
-msgstr ""
-
-msgid "Download libgit2 from the website."
-msgstr ""
-
-msgid "It is available from the Download link."
-msgstr ""
-
-msgid "Bibledit needs version 0.21.5 exactly."
-msgstr ""
-
-msgid "Store the downloaded libgit2 file "
-msgstr ""
-
-msgid "Run the following commands from a Terminal:"
-msgstr ""
-
-msgid "The above should work without errors."
-msgstr ""
-
-msgid "If program "
-msgstr ""
-
-msgid "If the compiler or linker are missing, install them first."
-msgstr ""
-
-msgid "If other dependencies are missing, install them first."
-msgstr ""
-
-msgid "It will have produced a library file "
-msgstr ""
-
-msgid ""
-"Move this library file to the root directory of the bibledit source code."
-msgstr ""
-
-msgid "Bibledit will search for it there during its configure stage."
-msgstr ""
-
-msgid "If Bibledit finds "
 msgstr ""
 
 msgid "Scrum-based translation process."
@@ -5729,6 +5628,9 @@ msgid "Navigate to the previous verse."
 msgstr ""
 
 msgid "Open the styles from the Bible editor."
+msgstr ""
+
+msgid "Search for words."
 msgstr ""
 
 msgid ""
@@ -7413,6 +7315,9 @@ msgstr ""
 msgid "Can create and comment on consultation notes."
 msgstr ""
 
+msgid "Can use advanced mode in Cloud."
+msgstr ""
+
 msgid "Go back."
 msgstr ""
 
@@ -7947,7 +7852,7 @@ msgstr ""
 msgid "Enable fast Bible editor switching"
 msgstr ""
 
-msgid "Active Bible editors:"
+msgid "Available Bible editors in fast Bible editor switcher:"
 msgstr ""
 
 msgid "Visual editors:"
@@ -7956,7 +7861,51 @@ msgstr ""
 msgid "USFM editors:"
 msgstr ""
 
+msgid "Downgrade the visual Bible editors:"
+msgstr ""
+
+msgid ""
+"Downgrade them on older computing devices if they do not run the current "
+"visual Bible editors."
+msgstr ""
+
 msgid "Enable the Styles button in the visual Bible editors"
+msgstr ""
+
+msgid "Select the Bible for editing:"
+msgstr ""
+
+msgid "Send and receive."
+msgstr ""
+
+msgid ""
+"This is for sending your changes to Bibledit Cloud, and receiving changes "
+"made by others."
+msgstr ""
+
+msgid "Connection to Bibledit Cloud."
+msgstr ""
+
+msgid "This is for collaboration with fellow translators and for backup."
+msgstr ""
+
+msgid "Switch to advanced mode."
+msgstr ""
+
+msgid "Advanced mode offers more options than basic mode."
+msgstr ""
+
+msgid ""
+"Once in advanced mode, return to basic mode via menu Settings / Basic mode."
+msgstr ""
+
+msgid "Show the changes"
+msgstr ""
+
+msgid "Whether to have a menu entry to go to the changes."
+msgstr ""
+
+msgid "Logout."
 msgstr ""
 
 msgid "Back to chapter"
@@ -8677,6 +8626,9 @@ msgid "Maximum number of changes it feeds:"
 msgstr ""
 
 msgid "To switch the feed off, set the number of changes to zero."
+msgstr ""
+
+msgid "Include the author in the RSS feed."
 msgstr ""
 
 msgid ""

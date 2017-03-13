@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2016 Teus Benschop.
+ Copyright (©) 2003-2017 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -108,6 +108,17 @@ string manage_privileges (void * webserver_request)
   }
   state = access_logic_privilege_create_comment_notes (webserver_request, user);
   view.set_variable ("createcommentnoteschecked", get_checkbox_status (state));
+
+  
+  // Privilege to use advanced mode.
+  if (checkbox == "useadvancedmode") {
+    request->database_config_user ()->setPrivilegeUseAdvancedModeForUser (user, checked);
+  }
+  if (level >= access_logic_use_advanced_mode_role ()) {
+    view.set_variable ("useadvancedmodedisabled", get_disabled (true));
+  }
+  state = access_logic_privilege_use_advanced_mode (webserver_request, user);
+  view.set_variable ("useadvancedmodechecked", get_checkbox_status (state));
 
   
   if (privileges_updated) database_privileges_client_create (user, true);

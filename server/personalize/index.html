@@ -1,7 +1,9 @@
 <p class="success">##success##</p>
 <p class="error">##error##</p>
 
+<!-- #BEGINZONE advancedmode -->
 <h3>translate("Preferences")</h3>
+<!-- #ENDZONE advancedmode -->
 
 <p>
 translate("General font size for the interface"):
@@ -16,18 +18,18 @@ translate("Relative font size for the menu"):
 translate("The size of the font for the menu, relative to the general font size.")
 </p>
 
-<!-- #BEGINZONE bibles -->
+<!-- #BEGINZONE advancedmode -->
 
+<!-- #BEGINZONE bibles -->
 <br>
 <p>
 translate("Relative font size for the Bible editors"):
 <a href="?fontsizeeditors=">##fontsizeeditors##%</a>.
 translate("The size of the font for the Bible editors, relative to the general font size.")
 </p>
-
 <!-- #ENDZONE bibles -->
-<!-- #BEGINZONE resources -->
 
+<!-- #BEGINZONE resources -->
 <br>
 <p>
 translate("Relative font size for the resources"):
@@ -48,16 +50,14 @@ translate("Relative font size for Greek resources"):
 <a href="?fontsizegreek=">##fontsizegreek##%</a>.
 translate("The size of Greek text within resources, relative to the resources font size.")
 </p>
-
 <!-- #ENDZONE resources -->
-<!-- #BEGINZONE bibles -->
 
+<!-- #BEGINZONE bibles -->
 <br>
 <p>
 translate("Vertical position of the caret in the Bible editors"):
 <a href="?caretposition=">##caretposition##%</a>.
 </p>
-
 <!-- #ENDZONE bibles -->
 
 <br>
@@ -74,7 +74,6 @@ translate("How long it takes for the desktop menu to start fading out.")
 </p>
 
 <!-- #BEGINZONE bibles -->
-
 <br>
 <p>
 translate("While editing the Bible text and saving it, Bibledit looks at how much the text of the chapter or verse to be saved differs from the existing chapter or verse text.")
@@ -99,7 +98,6 @@ translate("The permitted difference can be set below as a percentage.")
   </tr>
   <!-- #ENDZONE verseeditors -->
 </table>
-
 <!-- #ENDZONE bibles -->
 
 <br>
@@ -109,10 +107,8 @@ translate("Keep main menu always visible"):
 </p>
 
 <!-- #BEGINZONE touch -->
-
 <br>
 <p>translate("Enable swipe navigation actions"): <a href="?swipeactions=">##swipeactions##</a>.</p>
-
 <!-- #ENDZONE touch -->
 
 <br>
@@ -122,14 +118,75 @@ translate("Enable fast Bible editor switching"):
 </p>
 
 <br>
-<p>translate("Active Bible editors:")</p>
-<p>translate("Visual editors:") <a href="?activevisualeditors=">##activevisualeditors##</a>.</p>
-<p>translate("USFM editors:") <a href="?activeusfmeditors=">##activeusfmeditors##</a>.</p>
+<p>
+translate("Available Bible editors in fast Bible editor switcher:")
+[<a href="../editor/select">...</a>]
+</p>
+<p>translate("Visual editors:") <a href="?fastswitchvisualeditors=">##fastswitchvisualeditors##</a>.</p>
+<p>translate("USFM editors:") <a href="?fastswitchusfmeditors=">##fastswitchusfmeditors##</a>.</p>
+
+<br>
+<p>
+translate("Downgrade the visual Bible editors:")
+<a href="?editordowngrade=">##editordowngrade##</a>.
+translate("Downgrade them on older computing devices if they do not run the current visual Bible editors.")
+</p>
 
 <br>
 <p>
 translate("Enable the Styles button in the visual Bible editors"):
 <a href="?enablestylesbutton=">##enablestylesbutton##</a>.
 </p>
+
+<!-- #ENDZONE advancedmode -->
+
+<!-- #BEGINZONE basicmode -->
+
+<br>
+<p>
+translate ("Select the Bible for editing:")
+<a id="bibleselect" href="?changebible=">##bible##</a>.
+</p>
+
+<!-- #BEGINZONE client_connected -->
+<br>
+<p>
+<a href="/sendreceive/index">translate ("Send and receive.")</a>
+translate ("This is for sending your changes to Bibledit Cloud, and receiving changes made by others.")
+</p>
+<!-- #ENDZONE client_connected -->
+
+<!-- #BEGINZONE client_mode -->
+<br>
+<p>
+<a href="/client/index">translate ("Connection to Bibledit Cloud.")</a>
+translate ("This is for collaboration with fellow translators and for backup.")
+</p>
+<!-- #ENDZONE client_mode -->
+
+<!-- #BEGINZONE can_use_advanced_mode -->
+<br>
+<p>
+<a href="/index/index?mode=advanced">translate ("Switch to advanced mode.")</a>
+translate ("Advanced mode offers more options than basic mode.")
+translate ("Once in advanced mode, return to basic mode via menu Settings / Basic mode.")
+</p>
+<!-- #ENDZONE can_use_advanced_mode -->
+
+<br>
+<p>
+translate ("Show the changes"):
+<a href="?showchanges">##showchanges##</a>.
+translate ("Whether to have a menu entry to go to the changes.")
+</p>
+
+<!-- #BEGINZONE cloud_mode -->
+<br>
+<p>
+<a href="/session/logout">translate ("Logout.")</a>
+</p>
+<!-- #ENDZONE cloud_mode -->
+
+<!-- #ENDZONE basicmode -->
 
 <script type="text/javascript" src="index.js?##VERSION##"></script>

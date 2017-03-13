@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2016 Teus Benschop.
+Copyright (©) 2003-2017 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -125,6 +125,10 @@ public:
 
   static int getMaxRssFeedItems ();
   static void setMaxRssFeedItems (int value);
+  
+  static bool getAuthorInRssFeed ();
+  static void setAuthorInRssFeed (bool value);
+
 private:
   static string file (const char * key);
   static string getValue (const char * key, const char * default_value);

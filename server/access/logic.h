@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2016 Teus Benschop.
+Copyright (©) 2003-2017 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -35,6 +35,9 @@ bool access_logic_privilege_view_notes (void * webserver_request, string user = 
 #define PRIVILEGE_CREATE_COMMENT_NOTES 3
 int access_logic_create_comment_notes_role ();
 bool access_logic_privilege_create_comment_notes (void * webserver_request, string user = "");
+
+int access_logic_use_advanced_mode_role ();
+bool access_logic_privilege_use_advanced_mode (void * webserver_request, string user = "");
 
 void access_logic_user_level (void * webserver_request, string & user, int & level);
 void access_logic_create_client_files ();

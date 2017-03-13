@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2016 Teus Benschop.
+Copyright (©) 2003-2017 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,6 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <access/bible.h>
 #include <dialog/list.h>
 #include <bible/logic.h>
+#include <ipc/focus.h>
+#include <client/logic.h>
 
 
 string personalize_index_url ()
@@ -103,14 +105,21 @@ string personalize_index (void * webserver_request)
     bool state = request->database_config_user ()->getEnableStylesButtonVisualEditors ();
     request->database_config_user ()->setEnableStylesButtonVisualEditors (!state);
   }
+
   
+  // Visual Bible editor downgrading.
+  if (request->query.count ("editordowngrade")) {
+    bool state = request->database_config_user ()->getDowngradeVisualEditors ();
+    request->database_config_user ()->setDowngradeVisualEditors (!state);
+  }
+
   
   string page;
   string success;
   string error;
 
 
-  // Store new fon sizes before displaying the header,
+  // Store new font sizes before displaying the header,
   // so that the page displays the new font sizes immediately.
   if (request->post.count ("fontsizegeneral")) {
     int value = convert_to_int (request->post["entry"]);
@@ -284,43 +293,43 @@ string personalize_index (void * webserver_request)
   view.set_variable ("fasteditorswitch", on_off);
 
   
-  // Active visual editors.
+  // Visual editors in the fast Bible editor switcher.
   string editors;
-  const char * activevisualeditors = "activevisualeditors";
-  if (request->query.count (activevisualeditors)) {
-    editors = request->query[activevisualeditors];
+  const char * fastswitchvisualeditors = "fastswitchvisualeditors";
+  if (request->query.count (fastswitchvisualeditors)) {
+    editors = request->query[fastswitchvisualeditors];
     if (editors.empty ()) {
       Dialog_List dialog_list = Dialog_List ("index", translate("Which visual Bible editors to enable?"), "", "");
       for (int i = 0; i < 3; i++) {
-        dialog_list.add_row (menu_logic_editor_settings_text (true, i), activevisualeditors, convert_to_string (i));
+        dialog_list.add_row (menu_logic_editor_settings_text (true, i), fastswitchvisualeditors, convert_to_string (i));
       }
       page += dialog_list.run ();
       return page;
     } else {
-      request->database_config_user ()->setEnabledVisualEditors (convert_to_int (editors));
+      request->database_config_user ()->setFastSwitchVisualEditors (convert_to_int (editors));
     }
   }
-  editors = menu_logic_editor_settings_text (true, request->database_config_user ()->getEnabledVisualEditors ());
-  view.set_variable (activevisualeditors, editors);
+  editors = menu_logic_editor_settings_text (true, request->database_config_user ()->getFastSwitchVisualEditors ());
+  view.set_variable (fastswitchvisualeditors, editors);
 
   
-  // Active USFM editors.
-  const char * activeusfmeditors = "activeusfmeditors";
-  if (request->query.count (activeusfmeditors)) {
-    editors = request->query[activeusfmeditors];
+  // USFM editors fast Bible editor switcher.
+  const char * fastswitchusfmeditors = "fastswitchusfmeditors";
+  if (request->query.count (fastswitchusfmeditors)) {
+    editors = request->query[fastswitchusfmeditors];
     if (editors.empty ()) {
       Dialog_List dialog_list = Dialog_List ("index", translate("Which visual Bible editors to enable?"), "", "");
       for (int i = 0; i < 3; i++) {
-        dialog_list.add_row (menu_logic_editor_settings_text (false, i), activeusfmeditors, convert_to_string (i));
+        dialog_list.add_row (menu_logic_editor_settings_text (false, i), fastswitchusfmeditors, convert_to_string (i));
       }
       page += dialog_list.run ();
       return page;
     } else {
-      request->database_config_user ()->setEnabledUsfmEditors (convert_to_int (editors));
+      request->database_config_user ()->setFastSwitchUsfmEditors (convert_to_int (editors));
     }
   }
-  editors = menu_logic_editor_settings_text (false, request->database_config_user ()->getEnabledUsfmEditors ());
-  view.set_variable (activeusfmeditors, editors);
+  editors = menu_logic_editor_settings_text (false, request->database_config_user ()->getFastSwitchUsfmEditors ());
+  view.set_variable (fastswitchusfmeditors, editors);
 
   
   // The names of the two, three, or four Bible editors.
@@ -344,12 +353,53 @@ string personalize_index (void * webserver_request)
   view.set_variable ("chaptereditors", chapter_editors);
   if (!verse_editors.empty ()) view.enable_zone ("verseeditors");
   view.set_variable ("verseeditors", verse_editors);
+
   
+  // Whether to downgrade the visual Bible editors.
+  on_off = styles_logic_off_on_inherit_toggle_text (request->database_config_user ()->getDowngradeVisualEditors ());
+  view.set_variable ("editordowngrade", on_off);
+
   
   // Whether to enable editing styles in the visual editors.
   on_off = styles_logic_off_on_inherit_toggle_text (request->database_config_user ()->getEnableStylesButtonVisualEditors ());
   view.set_variable ("enablestylesbutton", on_off);
   
+
+  // Change the active Bible.
+  if (request->query.count ("changebible")) {
+    string changebible = request->query ["changebible"];
+    if (changebible == "") {
+      Dialog_List dialog_list = Dialog_List ("index", translate("Select which Bible to make the active one for editing"), "", "");
+      vector <string> bibles = access_bible_bibles (request);
+      for (auto & bible : bibles) {
+        dialog_list.add_row (bible, "changebible", bible);
+      }
+      page += dialog_list.run ();
+      return page;
+    } else {
+      request->database_config_user()->setBible (changebible);
+      // Going to another Bible, ensure that the focused book exists there.
+      int book = Ipc_Focus::getBook (request);
+      vector <int> books = request->database_bibles()->getBooks (changebible);
+      if (find (books.begin(), books.end(), book) == books.end()) {
+        if (!books.empty ()) book = books [0];
+        else book = 0;
+        Ipc_Focus::set (request, book, 1, 1);
+      }
+    }
+  }
+  string bible = access_bible_clamp (request, request->database_config_user()->getBible ());
+  view.set_variable ("bible", bible);
+
+  
+  // Whether to have a menu entry for the Changes in basic mode.
+  if (request->query.count ("showchanges")) {
+    bool state = request->database_config_user ()->getMenuChangesInBasicMode ();
+    request->database_config_user ()->setMenuChangesInBasicMode (!state);
+  }
+  on_off = styles_logic_off_on_inherit_toggle_text (request->database_config_user ()->getMenuChangesInBasicMode ());
+  view.set_variable ("showchanges", on_off);
+
   
   // Enable the sections with settings relevant to the user and device.
   bool resources = access_logic_privilege_view_resources (webserver_request);
@@ -364,6 +414,28 @@ string personalize_index (void * webserver_request)
   }
   
 
+  // Enable the sections for either basic or advanced mode.
+  if (request->database_config_user ()->getBasicInterfaceMode ()) {
+    view.enable_zone ("basicmode");
+    if (request->database_config_user ()->getPrivilegeUseAdvancedMode ()) {
+      view.enable_zone ("can_use_advanced_mode");
+    }
+  } else {
+    view.enable_zone ("advancedmode");
+  }
+  
+  
+#ifdef HAVE_CLIENT
+  view.enable_zone ("client_mode");
+  if (client_logic_client_enabled ()) {
+    view.enable_zone ("client_connected");
+  }
+#endif
+#ifdef HAVE_CLOUD
+  view.enable_zone ("cloud_mode");
+#endif
+
+  
   view.set_variable ("success", success);
   view.set_variable ("error", error);
   page += view.render ("personalize", "index");

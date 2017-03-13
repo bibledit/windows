@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2016 Teus Benschop.
+Copyright (©) 2003-2017 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ void database_maintenance ()
   
   
 #ifdef HAVE_CLOUD
-  Database_Confirm database_confirm = Database_Confirm ();
+  Database_Confirm database_confirm;
   database_confirm.trim ();
   database_confirm.optimize ();
 #endif

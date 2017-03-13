@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2016 Teus Benschop.
+ Copyright (©) 2003-2017 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -138,7 +138,6 @@ string styles_view (void * webserver_request)
       dialog_list.add_row (styles_logic_category_text ("te"),  "category", "te");
       dialog_list.add_row (styles_logic_category_text ("f"),   "category", "f");
       dialog_list.add_row (styles_logic_category_text ("x"),   "category", "x");
-      dialog_list.add_row (styles_logic_category_text ("xsn"), "category", "xsn");
       dialog_list.add_row (styles_logic_category_text ("st"),  "category", "st");
       dialog_list.add_row (styles_logic_category_text ("cs"),  "category", "cs");
       dialog_list.add_row (styles_logic_category_text ("sb"),  "category", "sb");
@@ -208,7 +207,7 @@ string styles_view (void * webserver_request)
   if (subtype_text.length () > 2) view.enable_zone ("subtype_text");
   
   
-  // The fontsize. Todo
+  // The fontsize.
   if (styles_logic_fontsize_is_relevant (type, subtype)) view.enable_zone ("fontsize_relevant");
   float fontsize = marker_data.fontsize;
   if (request->query.count ("fontsize")) {

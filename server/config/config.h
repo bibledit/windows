@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2016 Teus Benschop.
+ Copyright (©) 2003-2017 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -36,13 +36,6 @@
 #define HAVE_CLOUD 1
 
 
-// Normally it prepares the Sample Bible during the setup phase.
-// On low-power devices that would take too much time.
-// On Windows it takes a huge lot of time.
-// For such cases, the porting script runs the preparation phase.
-#define SETUP_PREPARE_SAMPLE_BIBLE 1
-
-
 #ifdef HAVE_WINDOWS
 #undef HAVE_CLOUD
 #define HAVE_CLIENT 1
@@ -52,7 +45,6 @@
 #define HAVE_URLSETTINGS 1
 #undef DIRECTORY_SEPARATOR
 #define DIRECTORY_SEPARATOR "\\"
-#undef SETUP_PREPARE_SAMPLE_BIBLE
 #endif
 
 
@@ -63,7 +55,6 @@
 #define MAX_PARALLEL_TASKS 3
 #define HAVE_BARE_BROWSER 1
 #define HAVE_TINY_JOURNAL 1
-#undef SETUP_PREPARE_SAMPLE_BIBLE
 #endif
 
 
@@ -88,7 +79,6 @@
 #define MAX_PARALLEL_TASKS 3
 #define HAVE_BARE_BROWSER 1
 #define HAVE_TINY_JOURNAL 1
-#undef SETUP_PREPARE_SAMPLE_BIBLE
 #endif
 
 
