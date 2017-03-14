@@ -37,11 +37,13 @@
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(784, 561);
       this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+      this.KeyPreview = true;
       this.MinimumSize = new System.Drawing.Size(800, 600);
       this.Name = "Form1";
       this.Text = "Bibledit";
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
       this.Load += new System.EventHandler(this.Form1_Load);
+      this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Form1_KeyPress);
       this.ResumeLayout(false);
 
         }

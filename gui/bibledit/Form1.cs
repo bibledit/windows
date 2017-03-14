@@ -14,7 +14,7 @@ namespace Bibledit
   {
 
     string windowstate = "windowstate.txt";
-    Process LibBibledit;
+    Process BibleditCore;
     public ChromiumWebBrowser browser;
 
 
@@ -66,26 +66,26 @@ namespace Bibledit
       }
       catch (FileNotFoundException)
       {
-        // Handle when file is not found in isolated storage, which is when:
-        // * This is the first application session.
-        // * The file has been deleted.
+        // Handle case when file is not found in isolated storage.
+        // This happens on starting the app for the first time.
+        // Or when the file is no longer available.
       }
 
-
+      
       // Kill any previous servers. This frees the port to connect to.
       foreach (var process in Process.GetProcessesByName("server"))
       {
         process.Kill();
       }
-      LibBibledit = new Process();
-      LibBibledit.StartInfo.WorkingDirectory = System.IO.Path.Combine(Application.StartupPath);
-      LibBibledit.StartInfo.FileName = "server.exe";
-      LibBibledit.StartInfo.Arguments = "";
-      LibBibledit.StartInfo.CreateNoWindow = true;
-      LibBibledit.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-      LibBibledit.EnableRaisingEvents = true;
-      LibBibledit.Exited += new EventHandler(ProcessExited);
-      LibBibledit.Start();
+      BibleditCore = new Process();
+      BibleditCore.StartInfo.WorkingDirectory = System.IO.Path.Combine(Application.StartupPath);
+      BibleditCore.StartInfo.FileName = "server.exe";
+      BibleditCore.StartInfo.Arguments = "";
+      BibleditCore.StartInfo.CreateNoWindow = true;
+      BibleditCore.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+      BibleditCore.EnableRaisingEvents = true;
+      BibleditCore.Exited += new EventHandler(ProcessExited);
+      BibleditCore.Start();
       // Set the server to run on one processor only. 
       // That gives a huge boost to the speed of the Cygwin library.
       // The difference in speed is clear: It runs times faster.
@@ -94,7 +94,7 @@ namespace Bibledit
       // http://stackoverflow.com/questions/2510593/how-can-i-set-processor-affinity-in-net
       // What works well too: PsExec.exe -a 1 server.exe
       // After the C++ code was compiled through Visual Studio, the processor limit is no longer relevant.
-      // LibBibledit.ProcessorAffinity = (IntPtr)1;
+      // BibleditCore.ProcessorAffinity = (IntPtr)1;
     }
 
 
@@ -114,19 +114,23 @@ namespace Bibledit
       }
 
 
-      LibBibledit.EnableRaisingEvents = false;
-      LibBibledit.CloseMainWindow();
-      LibBibledit.Kill();
-      LibBibledit.WaitForExit();
-      LibBibledit.Close();
+      BibleditCore.EnableRaisingEvents = false;
+      BibleditCore.CloseMainWindow();
+      BibleditCore.Kill();
+      BibleditCore.WaitForExit();
+      BibleditCore.Close();
     }
 
 
     private void ProcessExited(object sender, System.EventArgs e)
     {
-      // When the Bibledit library exits or crashea, restart it straightaway.
-      LibBibledit.Start();
+      // When the Bibledit server process exits or crashes, restart it straightaway.
+      BibleditCore.Start();
     }
 
+    private void Form1_KeyPress(object sender, KeyPressEventArgs e)
+    {
+      Console.WriteLine("Key pressed");
+    }
   }
 }
