@@ -43,7 +43,6 @@
       this.Text = "Bibledit";
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
       this.Load += new System.EventHandler(this.Form1_Load);
-      this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Form1_KeyPress);
       this.ResumeLayout(false);
 
         }

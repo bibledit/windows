@@ -128,9 +128,5 @@ namespace Bibledit
       BibleditCore.Start();
     }
 
-    private void Form1_KeyPress(object sender, KeyPressEventArgs e)
-    {
-      Console.WriteLine("Key pressed");
-    }
   }
 }
