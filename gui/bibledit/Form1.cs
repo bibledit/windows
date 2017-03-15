@@ -5,6 +5,7 @@ using CefSharp;
 using CefSharp.WinForms;
 using System.IO;
 using System.IO.IsolatedStorage;
+using System.Runtime.InteropServices;
 
 
 namespace Bibledit
@@ -13,16 +14,80 @@ namespace Bibledit
   public partial class Form1 : Form
   {
 
+    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+
+    private static IntPtr MyHookID = IntPtr.Zero;
+    private const int WH_KEYBOARD_LL = 13;
+    private const int WM_KEYDOWN = 0x0100;
+    private const int WM_KEYUP = 0x0101;
+    private static LowLevelKeyboardProc MyKeyboardProcessor = HookCallback;
+    private static Boolean HasFocus = false;
+    private static Boolean ControlPressed = false;
+    private static Boolean SearchDialogOpen = false;
+    
+
     string windowstate = "windowstate.txt";
     Process BibleditCore;
     public ChromiumWebBrowser browser;
+
+
+    private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+
+    private static IntPtr SetHook(LowLevelKeyboardProc proc)
+    {
+      using (Process curProcess = Process.GetCurrentProcess())
+      using (ProcessModule curModule = curProcess.MainModule)
+      {
+        return SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
+      }
+    }
+
+
+    private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+    {
+      if (HasFocus)
+      {
+        if (nCode >= 0)
+        {
+          int vkCode = Marshal.ReadInt32(lParam);
+          Keys keys = (Keys)vkCode;
+          String key = keys.ToString();
+          if (wParam == (IntPtr)WM_KEYDOWN)
+          {
+            if (key.Contains("Control")) ControlPressed = true;
+          }
+          if (wParam == (IntPtr)WM_KEYUP)
+          {
+            if (key.Contains("Control")) ControlPressed = false;
+          }
+          if (ControlPressed && key.Equals("F") && (wParam == (IntPtr)WM_KEYDOWN))
+          {
+            SearchWebkit();
+          }
+        }
+      }
+      return CallNextHookEx(MyHookID, nCode, wParam, lParam);
+    }
 
 
     public void InitBrowser()
     {
       Cef.Initialize(new CefSettings());
       browser = new ChromiumWebBrowser("http://localhost:9876");
-      this.Controls.Add(browser);
+      Controls.Add(browser);
       browser.Dock = DockStyle.Fill;
     }
 
@@ -31,6 +96,13 @@ namespace Bibledit
     {
       InitializeComponent();
       InitBrowser();
+      MyHookID = SetHook(MyKeyboardProcessor);
+    }
+
+
+    ~Form1()
+    {
+      UnhookWindowsHookEx(MyHookID);
     }
 
 
@@ -40,7 +112,7 @@ namespace Bibledit
       IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForAssembly();
       try
       {
-        using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(this.windowstate, FileMode.Open, storage))
+        using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(windowstate, FileMode.Open, storage))
         using (StreamReader reader = new StreamReader(stream))
         {
 
@@ -49,18 +121,18 @@ namespace Bibledit
           value = reader.ReadLine();
           if (value == "Maximized")
           {
-            this.WindowState = FormWindowState.Maximized;
+            WindowState = FormWindowState.Maximized;
           }
           else
           {
             value = reader.ReadLine();
-            if (value != "") this.Left = Int32.Parse(value);
+            if (value != "") Left = Int32.Parse(value);
             value = reader.ReadLine();
-            if (value != "") this.Top = Int32.Parse(value);
+            if (value != "") Top = Int32.Parse(value);
             value = reader.ReadLine();
-            if (value != "") this.Width = Int32.Parse(value);
+            if (value != "") Width = Int32.Parse(value);
             value = reader.ReadLine();
-            if (value != "") this.Height = Int32.Parse(value);
+            if (value != "") Height = Int32.Parse(value);
           }
         }
       }
@@ -102,15 +174,15 @@ namespace Bibledit
     {
       // Save window state for the next time this window is opened.
       IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForAssembly();
-      using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(this.windowstate, FileMode.Create, storage))
+      using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(windowstate, FileMode.Create, storage))
       using (StreamWriter writer = new StreamWriter(stream))
       {
         // Write window state to file.
-        writer.WriteLine(this.WindowState.ToString());
-        writer.WriteLine(this.Location.X.ToString());
-        writer.WriteLine(this.Location.Y.ToString());
-        writer.WriteLine(this.Size.Width.ToString());
-        writer.WriteLine(this.Size.Height.ToString());
+        writer.WriteLine(WindowState.ToString());
+        writer.WriteLine(Location.X.ToString());
+        writer.WriteLine(Location.Y.ToString());
+        writer.WriteLine(Size.Width.ToString());
+        writer.WriteLine(Size.Height.ToString());
       }
 
 
@@ -126,6 +198,65 @@ namespace Bibledit
     {
       // When the Bibledit server process exits or crashes, restart it straightaway.
       BibleditCore.Start();
+    }
+
+
+    private void Form1_Activated(object sender, EventArgs e)
+    {
+      HasFocus = true;
+    }
+
+
+    private void Form1_Deactivate(object sender, EventArgs e)
+    {
+      HasFocus = false;
+    }
+
+
+    private static void SearchWebkit ()
+    {
+      if (SearchDialogOpen) return;
+      SearchDialogOpen = true;
+
+      System.Drawing.Size size = new System.Drawing.Size(200, 70);
+      Form inputBox = new Form();
+
+      inputBox.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+      inputBox.ClientSize = size;
+      inputBox.Text = "Search";
+
+      System.Windows.Forms.TextBox textBox = new TextBox();
+      textBox.Size = new System.Drawing.Size(size.Width - 10, 23);
+      textBox.Location = new System.Drawing.Point(5, 5);
+      //textBox.Text = "search for, guys!";
+      inputBox.Controls.Add(textBox);
+
+      Button okButton = new Button();
+      okButton.DialogResult = System.Windows.Forms.DialogResult.OK;
+      okButton.Size = new System.Drawing.Size(75, 23);
+      okButton.Text = "&OK";
+      okButton.Location = new System.Drawing.Point(size.Width - 80 - 80, 39);
+      inputBox.Controls.Add(okButton);
+
+      Button cancelButton = new Button();
+      cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+      cancelButton.Size = new System.Drawing.Size(75, 23);
+      cancelButton.Text = "&Cancel";
+      cancelButton.Location = new System.Drawing.Point(size.Width - 80, 39);
+      inputBox.Controls.Add(cancelButton);
+
+      inputBox.FormBorderStyle = FormBorderStyle.FixedDialog;
+      inputBox.MinimizeBox = false;
+      inputBox.MaximizeBox = false;
+
+      inputBox.AcceptButton = okButton;
+      inputBox.CancelButton = cancelButton;
+
+      inputBox.StartPosition = FormStartPosition.CenterParent;
+      DialogResult result = inputBox.ShowDialog();
+      Console.WriteLine(textBox.Text);
+
+      SearchDialogOpen = false;
     }
 
   }
