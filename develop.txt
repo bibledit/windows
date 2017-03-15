@@ -80,3 +80,5 @@ Steps to embed it:
 * Windows needs the Visual C++ Redistributable Packages for Visual Studio 2013 for x86.
 
 
+CefSharp eats all key press events. Handling keyboard events works through a global keyboard hook in Windows.
+
