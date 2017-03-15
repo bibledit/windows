@@ -40,7 +40,7 @@ namespace Bibledit
 
     string windowstate = "windowstate.txt";
     Process BibleditCore;
-    public ChromiumWebBrowser browser;
+    public static ChromiumWebBrowser browser;
 
 
     private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
@@ -228,7 +228,6 @@ namespace Bibledit
       System.Windows.Forms.TextBox textBox = new TextBox();
       textBox.Size = new System.Drawing.Size(size.Width - 10, 23);
       textBox.Location = new System.Drawing.Point(5, 5);
-      //textBox.Text = "search for, guys!";
       inputBox.Controls.Add(textBox);
 
       Button okButton = new Button();
@@ -254,7 +253,14 @@ namespace Bibledit
 
       inputBox.StartPosition = FormStartPosition.CenterParent;
       DialogResult result = inputBox.ShowDialog();
-      Console.WriteLine(textBox.Text);
+      if (result == System.Windows.Forms.DialogResult.OK)
+      {
+        String search = textBox.Text;
+        // If the users enters an empty string, any markup is supposed to be removed from the webview.
+        // This is done by searching for something that is not likely to be found.
+        if (search.Equals("")) search = "b.i.b.l.e.d.i.t";
+        WebBrowserExtensions.Find(browser, 1, textBox.Text, true, false, false);
+      }
 
       SearchDialogOpen = false;
     }
