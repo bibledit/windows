@@ -255,11 +255,11 @@ namespace Bibledit
       DialogResult result = inputBox.ShowDialog();
       if (result == System.Windows.Forms.DialogResult.OK)
       {
-        String search = textBox.Text;
+        string search = textBox.Text;
         // If the users enters an empty string, any markup is supposed to be removed from the webview.
         // This is done by searching for something that is not likely to be found.
-        if (search.Equals("")) search = "b.i.b.l.e.d.i.t";
-        WebBrowserExtensions.Find(browser, 1, textBox.Text, true, false, false);
+        if (search.Length == 0) search = "b.i.b.l.e.d.i.t";
+        WebBrowserExtensions.Find(browser, 1, search, true, false, false);
       }
 
       SearchDialogOpen = false;
