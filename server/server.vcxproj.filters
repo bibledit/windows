@@ -1233,9 +1233,6 @@
     <ClCompile Include="edit\offset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="edit\save.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="edit\styles.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1249,9 +1246,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="editusfm\offset.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editusfm\save.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="editverse\index.cpp">
@@ -1320,34 +1314,7 @@
     <ClCompile Include="resource\biblegateway.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="editql\index.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editql\load.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editql\navigate.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editql\position.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editql\save.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="editpm\load.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editoneql\index.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editoneql\load.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editoneql\logic.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editoneql\save.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="resource\studylight.cpp">
@@ -1363,12 +1330,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="editold\offset.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editold\save.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editoneold\index.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="editoneold\load.cpp">
@@ -1390,6 +1351,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="database\sample.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="editoneold\index.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="editold\save.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="edit\save.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="editusfm\save.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
