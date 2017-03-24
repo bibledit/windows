@@ -38,6 +38,9 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
 
+/* Define whether mimetic/mimetic.h is present */
+#define HAVE_MIMETIC 1
+
 /* Define whether pthread.h is present */
 #define HAVE_PTHREAD 1
 
@@ -81,7 +84,7 @@
 #define PACKAGE_NAME "bibledit"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "bibledit 5.0.122"
+#define PACKAGE_STRING "bibledit 5.0.133"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "bibledit"
@@ -90,13 +93,13 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "5.0.122"
+#define PACKAGE_VERSION "5.0.133"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "5.0.122"
+#define VERSION "5.0.133"
 
 /* Define whether to compile on Windows */
 #define WIN32 1

@@ -24,78 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #endif
 #include <database/config/general.h>
 #include <filter/string.h>
+#include <filter/mail.h>
 #include <config/globals.h>
 #include <confirm/worker.h>
 #include <notes/logic.h>
 #include <filter/url.h>
-
-
-// Dissects a raw email.
-void email_dissect (string & body, string & from, string & subject)
-{
-  // Remove \r, remaining with \n only.
-  body = filter_string_str_replace ("\r", "", body);
-
-  vector <string> lines = filter_string_explode (body, '\n');
-  
-  // Extraction of the plain text from the email.
-  // It works like this:
-  // 1. Look for a line that contains: Content-Type: text/plain.
-  // 2. Next look for an empty line.
-  // 3. Now the relevant content starts.
-  // The relevant content runs till the line that starts with "--" or to the end of the mail body.
-  int plaintext_trigger = 0;
-  body.clear ();
-  
-  for (auto & line : lines) {
-    // Find the email address of the sender from a line like this:
-    // From: "Name of Sender" <aanbieding@e-mail.marktplaats.nl>
-    if (from.empty()) {
-      if (line.find ("From: ") != string::npos) {
-        from = filter_string_extract_email (line);
-      }
-    }
-    // Find the subject from a line like this:
-    // Subject: This is is a message to Bibledit.
-    if (subject.empty()) {
-      if (line.find ("Subject: ") != string::npos) {
-        subject = line.substr (9);
-        subject = filter_string_trim (subject);
-      }
-    }
-    // Find the relevant text: The contents within the text/plain portion of the email body.
-    if (plaintext_trigger == 2) {
-      if (line.substr (0, 2) == "--") {
-        plaintext_trigger++;
-      }
-    }
-    if (plaintext_trigger == 2) {
-      // If the line starts with ">", it indicates quoted text: Skip it.
-      if (!line.empty ()) if (line.substr (0, 1) == ">") continue;
-      // Handle the "=" at the end of a line so it properly connects to the previous line.
-      if (line.empty ()) {
-        body.append ("\n");
-      } else {
-        if (line.back () == '=') {
-          line.pop_back ();
-        } else {
-          body.append ("\n");
-        }
-      }
-      body.append (line);
-    }
-    if (plaintext_trigger == 0) {
-      if ((line.find ("Content-Type:") != string::npos) && (line.find ("text/plain") != string::npos)) {
-        plaintext_trigger++;
-      }
-    }
-    if (plaintext_trigger == 1) {
-      if (filter_string_trim (line).empty()) {
-        plaintext_trigger++;
-      }
-    }
-  }
-}
 
 
 void email_receive ()
@@ -121,13 +54,14 @@ void email_receive ()
     Notes_Logic notes_logic = Notes_Logic (&request);
     
     error.clear ();
-    string body = email_receive_message (error);
+    string message = email_receive_message (error);
     if (error.empty ()) {
   
       // Extract "from" and subject, and clean body.
       string from;
       string subject;
-      email_dissect (body, from, subject);
+      string body;
+      filter_mail_dissect (message, from, subject, body);
   
       Database_Logs::log ("Processing email from " + from + " with subject " + subject);
 
@@ -198,7 +132,9 @@ int email_receive_count (string& error, bool verbose)
   error = "Not implemented with embedded http library";
   if (verbose) {}
   return 0;
-#else
+#endif
+
+#ifdef HAVE_CLOUD
   CURL *curl;
   CURLcode res = CURLE_OK;
 
@@ -256,7 +192,9 @@ string email_receive_message (string& error)
 #ifdef HAVE_CLIENT
   error = "Not implemented with embedded http library";
   return "";
-#else
+#endif
+  
+#ifdef HAVE_CLOUD
   CURL *curl;
   CURLcode res = CURLE_OK;
 
