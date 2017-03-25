@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using CefSharp;
 using CefSharp.WinForms;
+using CefSharp.Example;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Runtime.InteropServices;
@@ -87,6 +88,7 @@ namespace Bibledit
     {
       Cef.Initialize(new CefSettings());
       browser = new ChromiumWebBrowser("http://localhost:9876");
+      browser.DownloadHandler = new DownloadHandler();
       Controls.Add(browser);
       browser.Dock = DockStyle.Fill;
     }
