@@ -7,6 +7,8 @@ using CefSharp.Example;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Runtime.InteropServices;
+using System.Timers;
+using System.Net.Sockets;
 
 
 namespace Bibledit
@@ -45,6 +47,9 @@ namespace Bibledit
 
 
     private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+
+    private System.Timers.Timer aTimer;
 
 
     private static IntPtr SetHook(LowLevelKeyboardProc proc)
@@ -99,12 +104,21 @@ namespace Bibledit
       InitializeComponent();
       InitBrowser();
       MyHookID = SetHook(MyKeyboardProcessor);
+
+      // Create a timer with a one-second interval.
+      aTimer = new System.Timers.Timer(1000);
+      // Hook up the Elapsed event for the timer. 
+      aTimer.Elapsed += OnTimedEvent;
+      aTimer.AutoReset = false;
+      aTimer.Start();
     }
 
 
     ~Form1()
     {
       UnhookWindowsHookEx(MyHookID);
+      aTimer.Stop();
+      aTimer.Dispose();
     }
 
 
@@ -266,6 +280,47 @@ namespace Bibledit
 
       SearchDialogOpen = false;
     }
+
+
+    private void OnTimedEvent(Object source, ElapsedEventArgs e)
+    {
+      try
+      {
+        // Connect to the local Bibledit client server.
+        TcpClient socket = new TcpClient();
+        socket.Connect("localhost", 9876);
+        // Fetch the link that indicates to open an external website.
+        NetworkStream ns = socket.GetStream();
+        StreamWriter sw = new StreamWriter(ns);
+        sw.WriteLine("GET /assets/external HTTP/1.1");
+        sw.WriteLine("");
+        sw.Flush();
+        // Read the response from the local Bibledit client server.
+        String response;
+        StreamReader sr = new StreamReader(ns);
+        do
+        {
+          response = sr.ReadLine();
+          // Check for a URL to open.
+          if ((response != null) && (response.Length > 4) && (response.Substring(0, 4) == "http"))
+          {
+            // Open the URL in default web browser.
+            System.Diagnostics.Process.Start(response);
+          }
+        }
+        while (response != null);
+        // Close connection.
+        socket.Close();
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex.Message);
+      }
+      // Restart the timeout.
+      aTimer.Stop();
+      aTimer.Start();
+    }
+
 
   }
 }
