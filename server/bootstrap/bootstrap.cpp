@@ -212,6 +212,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <public/comment.h>
 #include <editor/select.h>
 #include <rss/feed.h>
+#include <assets/external.h>
 
 
 // Internal function to check whether a request coming from the browser is considered secure enough.
@@ -1213,6 +1214,14 @@ void bootstrap_index (void * webserver_request)
     return;
   }
 
+#ifdef HAVE_CLIENT
+  // For security reasons, this is only available in a client configuration.
+  if (url == assets_external_url ()) {
+    request->reply = assets_external (request);
+    return;
+  }
+#endif
+  
   // RSS feed.
   if ((url == rss_feed_url ()) && browser_request_security_okay (request) && rss_feed_acl (request)) {
     request->reply = rss_feed (request);

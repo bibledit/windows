@@ -17,24 +17,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef INCLUDED_ASSETS_EXTERNAL_H
+#define INCLUDED_ASSETS_EXTERNAL_H
 
-  const char * bibledit_get_version_number ();
-  const char * bibledit_get_network_port ();
-  void bibledit_initialize_library (const char * package, const char * webroot);
-  void bibledit_set_touch_enabled (bool enabled);
-  void bibledit_set_quit_at_midnight ();
-  void bibledit_start_library ();
-  const char * bibledit_get_last_page ();
-  bool bibledit_is_running ();
-  const char * bibledit_is_synchronizing ();
-  const char * bibledit_get_external_url ();
-  void bibledit_stop_library ();
-  void bibledit_shutdown_library ();
-  void bibledit_log (const char * message);
 
-#ifdef __cplusplus
-}
+#include <config/libraries.h>
+
+
+string assets_external_url ();
+string assets_external (void * webserver_request);
+
+string assets_external_logic_link_addon ();
+
+
 #endif

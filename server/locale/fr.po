@@ -13,7 +13,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Launchpad (build 18334)\n"
+"X-Generator: Launchpad (build 18335)\n"
 
 msgid "Abbreviations"
 msgstr "Abbréviations"
@@ -5449,10 +5449,6 @@ msgstr "Installer Bibledit sur Chrome OS"
 msgid "Install Bibledit from the Google Chrome Web Store."
 msgstr "Installez Bibledit depuis le Google Chrome Web Store."
 
-msgid "For easier operation, open the Chrome browser and open this URL:"
-msgstr ""
-"Pour faciliter l'opération, ouvrez le navigateur Chrome à cette adresse :"
-
 msgid "Install Bibledit Cloud on Ubuntu"
 msgstr "Installer Bibledit Cloud sur Ubuntu"
 
@@ -5514,9 +5510,8 @@ msgstr "Installer Bibledit pour iOS"
 msgid "Install Bibledit via the App Store."
 msgstr "Installez Bibledit via l'App Store."
 
-msgid "This works on an iPad (or an iPhone) running iOS 8 or higher."
+msgid "This works on an iPad or an iPhone running iOS 8 or higher."
 msgstr ""
-"Cela fonctionne sur un iPad (ou un iPhone) exécutant iOS 8 ou supérieur."
 
 msgid "Hint."
 msgstr "Conseil :"
