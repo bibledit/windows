@@ -41,10 +41,9 @@ string resource_logic_blue_divider ();
 string resource_logic_violet_divider ();
 string resource_logic_red_divider ();
 string resource_logic_orange_divider ();
-bool resource_logic_is_divider (string resource);
 string resource_logic_get_divider (string resource);
 
-string resource_logic_web_cache_get (string url, string & error);
+string resource_logic_web_or_cache_get (string url, string & error);
 
 string resource_logic_selector_page (void * webserver_request);
 string resource_logic_selector_caller (void * webserver_request);
@@ -52,17 +51,27 @@ string resource_logic_selector_caller (void * webserver_request);
 string resource_logic_default_user_url ();
 
 void resource_logic_create_cache ();
+bool resource_logic_can_cache (string resource);
 
 string resource_logic_bible_gateway_module_list_path ();
 string resource_logic_bible_gateway_module_list_refresh ();
 vector <string> resource_logic_bible_gateway_module_list_get ();
 string resource_logic_bible_gateway_get (string resource, int book, int chapter, int verse);
 
-
 string resource_logic_study_light_module_list_path ();
 string resource_logic_study_light_module_list_refresh ();
 vector <string> resource_logic_study_light_module_list_get ();
 string resource_logic_study_light_get (string resource, int book, int chapter, int verse);
+
+bool resource_logic_is_bible (string resource);
+bool resource_logic_is_usfm (string resource);
+bool resource_logic_is_external (string resource);
+bool resource_logic_is_image (string resource);
+bool resource_logic_is_lexicon (string resource);
+bool resource_logic_is_sword (string resource);
+bool resource_logic_is_divider (string resource);
+bool resource_logic_is_biblegateway (string resource);
+bool resource_logic_is_studylight (string resource);
 
 
 #endif

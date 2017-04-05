@@ -245,9 +245,10 @@ vector <int> usfm_get_verse_numbers (string usfm)
       else verse_numbers.push_back (convert_to_int (verse));
       extract_verse = false;
     }
-    if (marker_or_text.substr (0, 2) == "\\v") {
-      extract_verse = true;
-    }
+    if (marker_or_text.substr (0, 2) == usfm_marker_v ()) extract_verse = true;
+    string va_or_vp = marker_or_text.substr (0, 3);
+    if (va_or_vp == usfm_marker_va ()) extract_verse = false;
+    if (va_or_vp == usfm_marker_vp ()) extract_verse = false;
   }
   return verse_numbers;
 }
@@ -1042,7 +1043,7 @@ bool usfm_contains_empty_verses (string usfm)
   if (pos != string::npos) return true;
   pos = usfm.find ("\\v \\v");
   if (pos != string::npos) return true;
-  pos = usfm.find_last_of ("\\v");
+  pos = usfm.find_last_of (usfm_marker_v ());
   if (pos == usfm.length () - 1) return true;
   return false;
 }
@@ -1101,4 +1102,22 @@ bool usfm_handle_verse_sequence (string verse, vector <int> & verses)
     return true;
   }
   return false;
+}
+
+
+const char * usfm_marker_v ()
+{
+  return "\\v";
+}
+
+
+const char * usfm_marker_va ()
+{
+  return "\\va";
+}
+
+
+const char * usfm_marker_vp ()
+{
+  return "\\vp";
 }

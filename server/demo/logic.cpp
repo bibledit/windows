@@ -241,10 +241,6 @@ void demo_create_sample_bible ()
     Database_Sample::get (rowid, file, data);
     // Remove the "./" from the start.
     file.erase (0, 2);
-#ifdef HAVE_WINDOWS
-    file = filter_string_str_replace ("/", "\\", file);
-#endif
-    cout << file << endl; // Todo
     file = filter_url_create_root_path (file);
     string path = filter_url_dirname (file);
     if (!file_or_dir_exists (path)) filter_url_mkdir (path);
