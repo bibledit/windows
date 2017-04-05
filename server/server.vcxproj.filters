@@ -1296,9 +1296,6 @@
     <ClCompile Include="system\index.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="editpm\index.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="quill\logic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1312,9 +1309,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="resource\biblegateway.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editpm\load.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="resource\studylight.cpp">
