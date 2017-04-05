@@ -52,6 +52,9 @@ namespace Bibledit
     private System.Timers.Timer aTimer;
 
 
+    private static Boolean PrintDialogOpen = false;
+
+
     private static IntPtr SetHook(LowLevelKeyboardProc proc)
     {
       using (Process curProcess = Process.GetCurrentProcess())
@@ -82,6 +85,10 @@ namespace Bibledit
           if (ControlPressed && key.Equals("F") && (wParam == (IntPtr)WM_KEYDOWN))
           {
             SearchWebkit();
+          }
+          if (ControlPressed && key.Equals("P") && (wParam == (IntPtr)WM_KEYDOWN))
+          {
+            PrintWebkit();
           }
         }
       }
@@ -319,6 +326,15 @@ namespace Bibledit
       // Restart the timeout.
       aTimer.Stop();
       aTimer.Start();
+    }
+
+
+    private static void PrintWebkit()
+    {
+      if (PrintDialogOpen) return;
+      PrintDialogOpen = true;
+      browser.Print();
+      PrintDialogOpen = false;
     }
 
 
