@@ -69,15 +69,14 @@ msgstr ""
 msgid "Please do a Send/receive action to receive them from the Cloud."
 msgstr ""
 
-msgid "Please do a Send/receive to the Cloud"
-msgstr ""
-
 msgid ""
 "There are pending changes in the Bible text that have not yet been sent to "
 "the Cloud for some time."
 msgstr ""
 
-msgid "Please do a Send/receive action to send them to the Cloud."
+msgid ""
+"Changes will continue to be saved, but it is recommended to do a Send/"
+"receive action as soon as you can."
 msgstr ""
 
 msgid "Bibles"
@@ -1194,6 +1193,9 @@ msgid "Journal"
 msgstr ""
 
 msgid "Has been sending and receiving during the past hour"
+msgstr ""
+
+msgid "See the Journal for progress."
 msgstr ""
 
 msgid "January"
@@ -2805,6 +2807,48 @@ msgid "The number was trimmed"
 msgstr ""
 
 msgid "The number was saved"
+msgstr ""
+
+msgid "Import has started."
+msgstr ""
+
+msgid "Nothing was imported"
+msgstr ""
+
+msgid "Import a file with local Bibles"
+msgstr ""
+
+msgid "Generating a file with the Bibles."
+msgstr ""
+
+msgid "In progress..."
+msgstr ""
+
+msgid "The file with Bibles is ready."
+msgstr ""
+
+msgid "Get it."
+msgstr ""
+
+msgid "The file can be imported in another Bibledit client."
+msgstr ""
+
+msgid "This will create the same Bibles in that other client."
+msgstr ""
+
+msgid "It failed to create the file with Bibles."
+msgstr ""
+
+msgid "Generating a file with the resources."
+msgstr ""
+
+msgid "The file with the installed resources is ready."
+msgstr ""
+
+msgid "This will create the same resources in that other client."
+msgstr ""
+
+msgid "It failed to create the file with resources."
 msgstr ""
 
 msgid "Go back"
@@ -5753,6 +5797,9 @@ msgid "Open the styles from the Bible editor."
 msgstr ""
 
 msgid "Search for words."
+msgstr ""
+
+msgid "Print."
 msgstr ""
 
 msgid ""
@@ -8757,6 +8804,43 @@ msgid "To switch the feed off, set the number of changes to zero."
 msgstr ""
 
 msgid "Include the author in the RSS feed."
+msgstr ""
+
+msgid "Transfer resources and Bibles"
+msgstr ""
+
+msgid ""
+"This helps with transferring resources and Bibles from one Bibledit client "
+"to another one."
+msgstr ""
+
+msgid ""
+"This helps translators with slow Internet connections to quickly setup new "
+"Bibledit clients."
+msgstr ""
+
+msgid "You can produce a file with all relevant data."
+msgstr ""
+
+msgid "Get that file."
+msgstr ""
+
+msgid "Copy it to the new Bibledit client."
+msgstr ""
+
+msgid "Import it there."
+msgstr ""
+
+msgid "Get the local Bibles."
+msgstr ""
+
+msgid "Import local Bibles."
+msgstr ""
+
+msgid "Get the installed Resources."
+msgstr ""
+
+msgid "Import installed Resources."
 msgstr ""
 
 msgid ""

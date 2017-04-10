@@ -28,13 +28,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <locale/logic.h>
 #include <dialog/list.h>
 #include <dialog/entry.h>
+#include <dialog/upload.h>
 #include <database/config/general.h>
+#include <database/jobs.h>
 #include <assets/header.h>
 #include <menu/logic.h>
 #include <config/globals.h>
 #include <rss/feed.h>
 #include <rss/logic.h>
 #include <assets/external.h>
+#include <jobs/index.h>
+#include <tasks/logic.h>
+#include <journal/logic.h>
 
 
 string system_index_url ()
@@ -47,7 +52,7 @@ bool system_index_acl (void * webserver_request)
 {
 #ifdef HAVE_CLIENT
   (void) webserver_request;
-  // Client: Anyone has make system settings, basically.
+  // Client: Anyone can make system settings.
   return true;
 #else
   // Cloud: Manager can make system settings.
@@ -186,8 +191,76 @@ string system_index (void * webserver_request)
 #endif
 
   
+#ifdef HAVE_CLIENT
+  bool producebibles = request->query.count ("producebibles");
+  bool produceresources = request->query.count ("produceresources");
+  if (producebibles || produceresources) {
+    Database_Jobs database_jobs;
+    int jobId = database_jobs.getNewId ();
+    database_jobs.setLevel (jobId, Filter_Roles::member ());
+    string task;
+    if (producebibles) task = PRODUCEBIBLESTRANSFERFILE;
+    if (produceresources) task = PRODUCERESOURCESTRANSFERFILE;
+    tasks_logic_queue (task, { convert_to_string (jobId) });
+    redirect_browser (request, jobs_index_url () + "?id=" + convert_to_string (jobId));
+    return "";
+  }
+#endif
+
+  
+#ifdef HAVE_CLIENT
+  string importbibles = "importbibles";
+  if (request->query.count (importbibles)) {
+    if (request->post.count ("upload")) {
+      string datafile = filter_url_tempfile () + request->post ["filename"];
+      string data = request->post ["data"];
+      if (!data.empty ()) {
+        filter_url_file_put_contents (datafile, data);
+        success = translate("Import has started.");
+        view.set_variable ("journal", journal_logic_see_journal_for_progress ());
+        tasks_logic_queue (IMPORTBIBLESTRANSFERFILE, { datafile });
+      } else {
+        error = translate ("Nothing was imported");
+      }
+    } else {
+      Dialog_Upload dialog = Dialog_Upload ("index", translate("Import a file with local Bibles"));
+      dialog.add_upload_query (importbibles, "");
+      page.append (dialog.run ());
+      return page;
+    }
+  }
+#endif
+
+  
+#ifdef HAVE_CLIENT
+  string importresources = "importresources";
+  if (request->query.count (importresources)) {
+    if (request->post.count ("upload")) {
+      string datafile = filter_url_tempfile () + request->post ["filename"];
+      string data = request->post ["data"];
+      if (!data.empty ()) {
+        filter_url_file_put_contents (datafile, data);
+        success = translate("Import has started.");
+        view.set_variable ("journal", journal_logic_see_journal_for_progress ());
+        tasks_logic_queue (IMPORTRESOURCESTRANSFERFILE, { datafile });
+      } else {
+        error = translate ("Nothing was imported");
+      }
+    } else {
+      Dialog_Upload dialog = Dialog_Upload ("index", translate("Import a file with local Resources"));
+      dialog.add_upload_query (importresources, "");
+      page.append (dialog.run ());
+      return page;
+    }
+  }
+#endif
+
+  
 #ifdef HAVE_CLOUD
   view.enable_zone ("cloud");
+#endif
+#ifdef HAVE_CLIENT
+  view.enable_zone ("client");
 #endif
   
   

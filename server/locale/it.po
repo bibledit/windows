@@ -13,7 +13,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Launchpad (build 18335)\n"
+"X-Generator: Launchpad (build 18343)\n"
 
 msgid "Abbreviations"
 msgstr ""
@@ -68,15 +68,14 @@ msgstr ""
 msgid "Please do a Send/receive action to receive them from the Cloud."
 msgstr ""
 
-msgid "Please do a Send/receive to the Cloud"
-msgstr ""
-
 msgid ""
 "There are pending changes in the Bible text that have not yet been sent to "
 "the Cloud for some time."
 msgstr ""
 
-msgid "Please do a Send/receive action to send them to the Cloud."
+msgid ""
+"Changes will continue to be saved, but it is recommended to do a "
+"Send/receive action as soon as you can."
 msgstr ""
 
 msgid "Bibles"
@@ -662,7 +661,7 @@ msgstr ""
 msgid "Space at the end of the verse"
 msgstr ""
 
-msgid "Suppressed check results"
+msgid "Suppressed checking results"
 msgstr ""
 
 msgid "The check result is no longer suppressed."
@@ -2809,6 +2808,30 @@ msgstr ""
 msgid "The number was saved"
 msgstr ""
 
+msgid "Generating file with resources for download."
+msgstr ""
+
+msgid "In progress..."
+msgstr ""
+
+msgid "The file with the installed resources is ready."
+msgstr ""
+
+msgid "Download it."
+msgstr ""
+
+msgid "It failed to create the file with resources."
+msgstr ""
+
+msgid "Generating file with Bibles for download."
+msgstr ""
+
+msgid "The file with Bibles is ready for download."
+msgstr ""
+
+msgid "It failed to create the file with Bibles."
+msgstr ""
+
 msgid "Go back"
 msgstr ""
 
@@ -3220,10 +3243,10 @@ msgstr ""
 msgid "The Manager can enable or disable checks."
 msgstr ""
 
-msgid "Enable or disable checks."
+msgid "Manage the checks."
 msgstr ""
 
-msgid "Suppressed entries"
+msgid "Suppressed checking results."
 msgstr ""
 
 msgid "It will be checked every night."
@@ -3741,9 +3764,6 @@ msgid "Act on the results of the checks."
 msgstr ""
 
 msgid "Receive the results by email."
-msgstr ""
-
-msgid "Manage the checks."
 msgstr ""
 
 msgid "Notes."
@@ -5768,6 +5788,9 @@ msgid "Open the styles from the Bible editor."
 msgstr ""
 
 msgid "Search for words."
+msgstr ""
+
+msgid "Print."
 msgstr ""
 
 msgid ""
@@ -8189,6 +8212,12 @@ msgstr ""
 msgid "Clear the installed resource to do a clean installation."
 msgstr ""
 
+msgid "This resource comes with Bibledit."
+msgstr ""
+
+msgid "It is already installed locally."
+msgstr ""
+
 msgid "Image resource"
 msgstr ""
 
@@ -8778,6 +8807,34 @@ msgid "To switch the feed off, set the number of changes to zero."
 msgstr ""
 
 msgid "Include the author in the RSS feed."
+msgstr ""
+
+msgid "Transfer resources and Bibles"
+msgstr ""
+
+msgid ""
+"This helps with transferring resources and Bibles from one Bibledit client "
+"to another one."
+msgstr ""
+
+msgid ""
+"This helps translators with slow Internet connections to quickly setup new "
+"Bibledit clients."
+msgstr ""
+
+msgid "You can produce a file with all relevant data."
+msgstr ""
+
+msgid "Download that file."
+msgstr ""
+
+msgid "Upload that file to the new Bibledit client."
+msgstr ""
+
+msgid "Get the installed Resources."
+msgstr ""
+
+msgid "Get the local Bibles."
 msgstr ""
 
 msgid ""

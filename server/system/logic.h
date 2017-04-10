@@ -17,25 +17,19 @@
  */
 
 
-#ifndef INCLUDED_DIALOG_UPLOAD_H
-#define INCLUDED_DIALOG_UPLOAD_H
+#ifndef INCLUDED_SYSTEM_LOGIC_H
+#define INCLUDED_SYSTEM_LOGIC_H
 
 
 #include <config/libraries.h>
 
 
-class Dialog_Upload
-{
-public:
-  Dialog_Upload (string url, string question);
-  ~Dialog_Upload ();
-  void add_upload_query (string parameter, string value);
-  string run ();
-private:
-  void * assets_view = NULL;
-  string base_url;
-  map <string, string> upload_query;
-};
+string system_logic_bibles_file_name ();
+void system_logic_produce_bibles_file (int jobid);
+void system_logic_import_bibles_file (string tarball);
+string system_logic_resources_file_name ();
+void system_logic_produce_resources_file (int jobid);
+void system_logic_import_resources_file (string tarball);
 
 
 #endif

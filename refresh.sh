@@ -35,6 +35,7 @@ if [ $? != 0 ]; then exit; fi
 echo Remove code that is no longer needed.
 rm -rf unittests
 rm -rf sources
+rm -rf cloud.xcodeproj
 
 
 # Configure the Bibledit source.

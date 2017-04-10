@@ -144,6 +144,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <resource/user1view.h>
 #include <resource/biblegateway.h>
 #include <resource/studylight.h>
+#include <resource/unload.h>
 #include <mapping/index.h>
 #include <mapping/map.h>
 #include <notes/index.h>
@@ -213,6 +214,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <editor/select.h>
 #include <rss/feed.h>
 #include <assets/external.h>
+#include <system/logic.h>
 
 
 // Internal function to check whether a request coming from the browser is considered secure enough.
@@ -253,7 +255,7 @@ void bootstrap_index (void * webserver_request)
       || (extension == "svg")
       || (extension == "map")
       ) {
-    http_serve_cache_file (request);
+    http_serve_file (request, true, false);
     return;
   }
 
@@ -264,7 +266,7 @@ void bootstrap_index (void * webserver_request)
 
   // Serve resource downloads.
   if ((extension == "sqlite") && (request->get.find (Database_Cache::fragment ()) != string::npos)) {
-    http_serve_cache_file (request);
+    http_serve_file (request, false, false);
     return;
   }
   
@@ -959,6 +961,13 @@ void bootstrap_index (void * webserver_request)
     return;
   }
   
+#ifdef HAVE_CLIENT
+  if ((url == system_logic_resources_file_name ()) | (url == system_logic_bibles_file_name ())) {
+    http_serve_file (request, false, false);
+    return;
+  }
+#endif
+  
   // Client calls.
   if (url == sync_setup_url ()) {
     request->reply = sync_setup (request);
@@ -978,7 +987,7 @@ void bootstrap_index (void * webserver_request)
   }
   if (extension == "sqlite") {
     if (filter_url_dirname (url) == filter_url_temp_dir ()) {
-      http_serve_cache_file (request);
+      http_serve_file (request, false, true);
       return;
     }
   }
@@ -1163,7 +1172,12 @@ void bootstrap_index (void * webserver_request)
     request->reply = resource_get (request);
     return;
   }
-  
+
+  if ((url == resource_unload_url ()) && browser_request_security_okay (request) && resource_unload_acl (request)) {
+    request->reply = resource_unload (request);
+    return;
+  }
+
   if ((url == notes_poll_url ()) && browser_request_security_okay (request) && notes_poll_acl (request)) {
     request->reply = notes_poll (request);
     return;

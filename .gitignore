@@ -66,6 +66,3 @@ server/paratext/ancestors/S*
 server/paratext/ancestors/t*
 server/paratext/ancestors/B*
 server/databases/statistics.sqlite
-*.xcuserstate
-
-*.xcuserstate

@@ -17,25 +17,16 @@
  */
 
 
-#ifndef INCLUDED_DIALOG_UPLOAD_H
-#define INCLUDED_DIALOG_UPLOAD_H
+#ifndef INCLUDED_RESOURCE_UNLOAD_H
+#define INCLUDED_RESOURCE_UNLOAD_H
 
 
 #include <config/libraries.h>
 
 
-class Dialog_Upload
-{
-public:
-  Dialog_Upload (string url, string question);
-  ~Dialog_Upload ();
-  void add_upload_query (string parameter, string value);
-  string run ();
-private:
-  void * assets_view = NULL;
-  string base_url;
-  map <string, string> upload_query;
-};
+string resource_unload_url ();
+bool resource_unload_acl (void * webserver_request);
+string resource_unload (void * webserver_request);
 
 
 #endif
