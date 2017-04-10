@@ -458,6 +458,7 @@
     <ClCompile Include="mbedtls\xtea.c" />
     <ClCompile Include="menu\index.cpp" />
     <ClCompile Include="menu\logic.cpp" />
+    <ClCompile Include="microtar\microtar.c" />
     <ClCompile Include="navigation\passage.cpp" />
     <ClCompile Include="navigation\poll.cpp" />
     <ClCompile Include="navigation\update.cpp" />
@@ -524,6 +525,7 @@
     <ClCompile Include="resource\select.cpp" />
     <ClCompile Include="resource\studylight.cpp" />
     <ClCompile Include="resource\sword.cpp" />
+    <ClCompile Include="resource\unload.cpp" />
     <ClCompile Include="resource\user1edit.cpp" />
     <ClCompile Include="resource\user1view.cpp" />
     <ClCompile Include="resource\user9edit.cpp" />
@@ -588,6 +590,7 @@
     <ClCompile Include="sync\setup.cpp" />
     <ClCompile Include="sync\usfmresources.cpp" />
     <ClCompile Include="system\index.cpp" />
+    <ClCompile Include="system\logic.cpp" />
     <ClCompile Include="system\timezone.cpp" />
     <ClCompile Include="tasks\logic.cpp" />
     <ClCompile Include="tasks\run.cpp" />

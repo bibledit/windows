@@ -1362,6 +1362,15 @@
     <ClCompile Include="assets\external.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="system\logic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="microtar\microtar.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\unload.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assets\header.h">
