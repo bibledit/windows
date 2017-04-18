@@ -9,9 +9,20 @@
 
 # Work in the directory with Windows source, separate from Bibledit library source.
 WINDOWSDIR=`dirname $0 | realpath`
+
+
+echo Remove existing code.
+# The point of doing this is to remove code
+# still in the Windows port
+# but no longer in the core library.
 cd $WINDOWSDIR
+cd server
+find . -name "*.h" -delete
+find . -name "*.c" -delete
+find . -name "*.cpp" -delete
 
 
+cd $WINDOWSDIR
 echo Pulling in the relevant Bibledit library source code.
 rsync --archive --exclude '.deps' --exclude '*.o' --exclude '*.a' --exclude '.dirstamp' --exclude 'server' --exclude 'unittest' --exclude '.DS_Store' --exclude 'autom4te.cache' --exclude 'bibledit' --exclude '*~' --exclude 'dev' --exclude 'generate' --exclude 'valgrind' --exclude 'AUTHORS' --exclude 'NEWS' --exclude 'README' --exclude 'ChangeLog' --exclude 'reconfigure' --exclude 'xcode' --exclude 'DEVELOP' ../cloud/* server
 
