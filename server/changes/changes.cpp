@@ -160,7 +160,7 @@ string changes_changes (void * webserver_request)
   
   // Read the identifiers.
   // Limit the number of results to keep the page reasonably fast even if there are many notifications.
-  vector <int> personal_ids = database_modifications.getNotificationPersonalIdentifiers (username, changes_personal_category (), true);
+  vector <int> personal_ids = database_modifications.getNotificationTeamIdentifiers (username, changes_personal_category (), true);
   vector <int> bible_ids = database_modifications.getNotificationTeamIdentifiers (username, changes_bible_category (), true);
   vector <int> ids = database_modifications.getNotificationIdentifiers (username, true);
 
@@ -191,8 +191,15 @@ string changes_changes (void * webserver_request)
 
   
   // Enable links to dismiss categories of notifications depending on whether there's anything to dismiss.
-  if (!personal_ids.empty ()) view.enable_zone ("personal");
-  if (!bible_ids.empty ()) view.enable_zone ("bible");
+  // And give details about the number of changes.
+  if (!personal_ids.empty ()) {
+    view.enable_zone ("personal");
+    view.set_variable ("personalcount", convert_to_string (personal_ids.size ()));
+  }
+  if (!bible_ids.empty ()) {
+    view.enable_zone ("bible");
+    view.set_variable ("teamcount", convert_to_string (bible_ids.size ()));
+  }
   
   
   // Add links to clear the notifications from the individual contributors.
@@ -238,6 +245,15 @@ string changes_changes (void * webserver_request)
 
   
   view.set_variable ("interlinks", changes_interlinks (webserver_request, changes_changes_url ()));
+  
+  
+  // Whether to put the controls for dismissing changes at the bottom of the page,
+  // as the default location, or whether to put them at the top of the page.
+  if (request->database_config_user ()->getDismissChangesAtTop ()) {
+    view.enable_zone ("controlsattop");
+  } else {
+    view.enable_zone ("controlsatbottom");
+  }
   
   
   page += view.render ("changes", "changes");

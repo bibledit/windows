@@ -264,7 +264,16 @@ void sendreceive_settings ()
     }
     Database_Config_Bible::setTextFont (bible, response);
   }
-  
+
+  post ["a"] = convert_to_string (Sync_Logic::settings_get_privilege_delete_consultation_notes);
+  response = sync_logic.post (post, url, error);
+  if (!error.empty ()) {
+    Database_Logs::log ("Failure receiving privilege delete consultation notes", Filter_Roles::translator ());
+    sendreceive_settings_done ();
+    return;
+  }
+  request.database_config_user()->setPrivilegeDeleteConsultationNotes (convert_to_bool (response));
+
   // Done.
   Database_Logs::log ("Settings: Updated", Filter_Roles::translator ());
   sendreceive_settings_done ();

@@ -111,7 +111,8 @@ var oneverseEditorChangedTimeout;
 var oneverseLoadedText;
 var oneverseIdChapter = 0;
 var oneverseIdTimeout;
-var oneverseReload = false;
+var oneverseReloadFlag = false;
+var oneverseReloadPosition = undefined;
 var oneverseEditorTextChanged = false;
 var oneverseSaveAsync;
 var oneverseLoadAjaxRequest;
@@ -119,11 +120,11 @@ var oneverseSaving = false;
 var oneverseEditorWriteAccess = true;
 
 
-/*
- 
-Section for the new Passage event from the Navigator.
- 
-*/
+//
+//
+// Section for the new Passage event from the Navigator.
+//
+//
 
 
 function navigationNewPassage ()
@@ -140,27 +141,32 @@ function navigationNewPassage ()
     return;
   }
   oneverseEditorSaveVerse ();
-  oneverseReload = false;
+  oneverseReloadFlag = false;
   oneverseEditorLoadVerse ();
 }
 
 
-/*
- 
-Section for editor load and save.
- 
-*/
+//
+//
+// Section for editor load and save.
+//
+//
 
 
 function oneverseEditorLoadVerse ()
 {
-  if ((oneverseNavigationBook != oneverseBook) || (oneverseNavigationChapter != oneverseChapter) || (oneverseNavigationVerse != oneverseVerse) || oneverseReload) {
+  if ((oneverseNavigationBook != oneverseBook) || (oneverseNavigationChapter != oneverseChapter) || (oneverseNavigationVerse != oneverseVerse) || oneverseReloadFlag) {
     oneverseBible = navigationBible;
     oneverseBook = oneverseNavigationBook;
     oneverseChapter = oneverseNavigationChapter;
     oneverseVerse = oneverseNavigationVerse;
     oneverseVerseLoading = oneverseNavigationVerse;
     oneverseIdChapter = 0;
+    if (oneverseReloadFlag) {
+      oneverseReloadPosition = oneverseCaretPosition ();
+    } else {
+      oneverseReloadPosition = undefined;
+    }
     if (oneverseLoadAjaxRequest && oneverseLoadAjaxRequest.readystate != 4) {
       oneverseLoadAjaxRequest.abort();
     }
@@ -198,7 +204,7 @@ function oneverseEditorLoadVerse ()
           quill.enable (oneverseEditorWriteAccess);
           // The browser may reformat the loaded html, so take the possible reformatted data for reference.
           oneverseLoadedText = $ (".ql-editor").html ();
-          oneverseReload = false;
+          oneverseReloadFlag = false;
           oneverseCaretMovedTimeoutStart ();
           // Create CSS for embedded styles.
           css4embeddedstyles ();
@@ -215,7 +221,7 @@ function oneverseEditorLoadVerse ()
         }
         if (response === false) {
           // Checksum or other error: Reload.
-          oneverseReload = true;
+          oneverseReloadFlag = true;
           oneverseEditorLoadVerse ();
         }
       },
@@ -273,11 +279,11 @@ function oneverseEditorSaveVerse (sync)
 }
 
 
-/*
- 
-Portion dealing with triggers for editor's content change.
- 
-*/
+//
+//
+// Portion dealing with triggers for editor's content change.
+//
+//
 
 
 var visualVerseEditorBlockingChange = false;
@@ -306,11 +312,11 @@ function oneverseEditorChanged ()
 }
 
 
-/*
- 
-Section for user interface updates and feedback.
- 
-*/
+//
+//
+// Section for user interface updates and feedback.
+//
+//
 
 
 function oneverseEditorStatus (text)
@@ -345,11 +351,11 @@ function oneverseEditorSelectiveNotification (message)
 }
 
 
-/*
- 
-Section for polling the server for updates on the loaded chapter.
- 
-*/
+//
+//
+// Section for polling the server for updates on the loaded chapter.
+//
+//
 
 
 function oneverseIdPoller ()
@@ -372,7 +378,7 @@ function oneverseEditorPollId ()
       if (!oneverseSaving) {
         if (oneverseIdChapter != 0) {
           if (response != oneverseIdChapter) {
-            oneverseReload = true;
+            oneverseReloadFlag = true;
             oneverseEditorLoadVerse ();
             oneverseIdChapter = 0;
           }
@@ -387,11 +393,20 @@ function oneverseEditorPollId ()
 }
 
 
-/*
- 
-Section for getting and setting the caret position.
+//
+//
+// Section for getting and setting the caret position.
+//
+//
 
-*/
+
+function oneverseCaretPosition ()
+{
+  var position = undefined;
+  var range = quill.getSelection();
+  if (range) position = range.index;
+  return position;
+}
 
 
 function oneversePositionCaret ()
@@ -402,16 +417,22 @@ function oneversePositionCaret ()
 
 function oneversePositionCaretTimeout ()
 {
-  var position = 1 + oneverseVerse.length;
+  var position;
+  if (oneverseReloadPosition != undefined) {
+    position = oneverseReloadPosition;
+    oneverseReloadPosition = undefined;
+  } else {
+    position = 1 + oneverseVerse.length;
+  }
   quill.setSelection (position, 0, "silent");
 }
 
 
-/*
-
-Section for scrolling the editable portion into the center.
-
-*/
+//
+//
+// Section for scrolling the editable portion into the center.
+//
+//
 
 
 function oneverseScrollVerseIntoView ()
@@ -429,11 +450,11 @@ function oneverseScrollVerseIntoView ()
 }
 
 
-/*
-
-Section for the styles handling.
-
-*/
+//
+//
+// Section for the styles handling.
+//
+//
 
 
 function oneverseStylesButtonHandler ()
@@ -625,11 +646,11 @@ function oneverseApplyMonoStyle (style)
 }
 
 
-/*
- 
-Section with window events and their basic handlers.
- 
-*/
+//
+//
+// Section with window events and their basic handlers.
+//
+//
 
 
 function oneverseWindowKeyHandler (event)
@@ -647,11 +668,11 @@ function oneverseWindowKeyHandler (event)
 }
 
 
-/*
- 
-Section responding to a moved caret.
- 
-*/
+//
+//
+// Section responding to a moved caret.
+//
+//
 
 
 // Responds to a changed selection or caret.
@@ -680,11 +701,11 @@ function oneverseCaretMovedTimeoutStart ()
 }
 
 
-/*
- 
-Section for the notes.
- 
-*/
+//
+//
+// Section for the notes.
+//
+//
 
 
 var oneverseInsertedNotesCount = 0;
@@ -763,11 +784,11 @@ function oneEditorNoteCitationClicked (event)
 }
 
 
-/*
- 
-Section for navigating to another passage.
- 
-*/
+//
+//
+// Section for navigating to another passage.
+//
+//
 
 
 function oneVerseHtmlClicked (event)
@@ -813,11 +834,11 @@ function oneVerseHtmlClicked (event)
 }
 
 
-/*
- 
-Section for swipe navigation.
- 
-*/
+//
+//
+// Section for swipe navigation.
+//
+//
 
 
 function oneverseSwipeLeft (event)

@@ -1339,3 +1339,35 @@ void Database_Config_User::setPrivilegeUseAdvancedModeForUser (string username, 
 {
   setBValueForUser (username, privilege_use_advanced_mode_key (), value);
 }
+
+
+const char * privilege_delete_consultation_notes_key ()
+{
+  return "privilege-delete-consultation-notes";
+}
+bool Database_Config_User::getPrivilegeDeleteConsultationNotes ()
+{
+  return getBValue (privilege_delete_consultation_notes_key (), false);
+}
+void Database_Config_User::setPrivilegeDeleteConsultationNotes (bool value)
+{
+  setBValue (privilege_delete_consultation_notes_key (), value);
+}
+bool Database_Config_User::getPrivilegeDeleteConsultationNotesForUser (string username)
+{
+  return getBValueForUser (username, privilege_delete_consultation_notes_key (), false);
+}
+void Database_Config_User::setPrivilegeDeleteConsultationNotesForUser (string username, bool value)
+{
+  setBValueForUser (username, privilege_delete_consultation_notes_key (), value);
+}
+
+
+bool Database_Config_User::getDismissChangesAtTop ()
+{
+  return getBValue ("dismiss-changes-at-top", false);
+}
+void Database_Config_User::setDismissChangesAtTop (bool value)
+{
+  setBValue ("dismiss-changes-at-top", value);
+}

@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/shell.h>
 #include <database/logs.h>
 #include <microtar/microtar.h>
+#include <miniz/miniz.h>
 
 
 // Work around old Microsoft macro definitions.
@@ -29,16 +30,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #undef min
 
 
-// Whether the operating system can zip data.
-bool filter_archive_can_zip ()
+// Compresses a file identified by $filename into zip format.
+// Returns the path to the zipfile it created.
+string filter_archive_zip_file (string filename)
 {
-  return filter_shell_is_present ("zip");
+#ifdef HAVE_CLOUD
+  return filter_archive_zip_file_shell_internal (filename);
+#endif
+#ifdef HAVE_CLIENT
+  return filter_archive_zip_file_miniz_internal (filename);
+#endif
 }
 
 
 // Compresses a file identified by $filename into zip format.
 // Returns the path to the zipfile it created.
-string filter_archive_zip_file (string filename)
+string filter_archive_zip_file_shell_internal (string filename)
 {
   if (!file_or_dir_exists (filename)) return "";
   string zippedfile = filter_url_tempfile () + ".zip";
@@ -46,7 +53,9 @@ string filter_archive_zip_file (string filename)
   string dirname = filter_url_escape_shell_argument (filter_url_dirname (filename));
   string basename = filter_url_escape_shell_argument (filter_url_basename (filename));
   string command = "cd " + dirname + " && zip " + zippedfile + " " + basename + " > " + logfile + " 2>&1";
-  int return_var = system (command.c_str());
+  int return_var;
+  // Run the command.
+  return_var = system (command.c_str());
   if (return_var != 0) {
     filter_url_unlink (zippedfile);
     zippedfile.clear();
@@ -55,18 +64,50 @@ string filter_archive_zip_file (string filename)
   }
   return zippedfile;
 }
- 
+
+
+// Compresses a file identified by $filename into zip format.
+// Returns the path to the zipfile it created.
+string filter_archive_zip_file_miniz_internal (string filename)
+{
+  if (!file_or_dir_exists (filename)) return "";
+  string zippedfile = filter_url_tempfile () + ".zip";
+  string basename = filter_url_basename (filename);
+  string contents = filter_url_file_get_contents (filename);
+  mz_bool status = mz_zip_add_mem_to_archive_file_in_place (zippedfile.c_str(), basename.c_str(), contents.c_str(), contents.size(), "", 0, MZ_DEFAULT_LEVEL);
+  if (!status) {
+    Database_Logs::log ("mz_zip_add_mem_to_archive_file_in_place failed for " + filename);
+    return "";
+  }
+  return zippedfile;
+}
+
 
 // Compresses a $folder into zip format.
 // Returns the path to the compressed archive it created.
 string filter_archive_zip_folder (string folder)
+{
+#ifdef HAVE_CLOUD
+  return filter_archive_zip_folder_shell_internal (folder);
+#endif
+#ifdef HAVE_CLIENT
+  return filter_archive_zip_folder_miniz_internal (folder);
+#endif
+}
+
+
+// Compresses a $folder into zip format.
+// Returns the path to the compressed archive it created.
+string filter_archive_zip_folder_shell_internal (string folder)
 {
   if (!file_or_dir_exists (folder)) return "";
   string zippedfile = filter_url_tempfile () + ".zip";
   string logfile = filter_url_tempfile () + ".log";
   folder = filter_url_escape_shell_argument (folder);
   string command = "cd " + folder + " && zip -r " + zippedfile + " * > " + logfile + " 2>&1";
-  int return_var = system (command.c_str());
+  int return_var;
+  // Run the command.
+  return_var = system (command.c_str());
   if (return_var != 0) {
     filter_url_unlink (zippedfile);
     zippedfile.clear();
@@ -77,10 +118,31 @@ string filter_archive_zip_folder (string folder)
 }
 
 
-// Whether the operating system can unzip data.
-bool filter_archive_can_unzip ()
+// Compresses a $folder into zip format.
+// Returns the path to the compressed archive it created.
+string filter_archive_zip_folder_miniz_internal (string folder)
 {
-  return filter_shell_is_present ("unzip");
+  if (!file_or_dir_exists (folder)) return "";
+  string zippedfile = filter_url_tempfile () + ".zip";
+  vector <string> paths;
+  filter_url_recursive_scandir (folder, paths);
+  for (auto path : paths) {
+    bool is_dir = filter_url_is_dir (path);
+    string file = path.substr (folder.size () + 1);
+    mz_bool status;
+    if (is_dir) {
+      file.append ("/");
+      status = mz_zip_add_mem_to_archive_file_in_place(zippedfile.c_str(), file.c_str(), NULL, 0, "", 0, MZ_DEFAULT_LEVEL);
+    } else {
+      string contents = filter_url_file_get_contents (path);
+      status = mz_zip_add_mem_to_archive_file_in_place (zippedfile.c_str(), file.c_str(), contents.c_str(), contents.size(), "", 0, MZ_DEFAULT_LEVEL);
+    }
+    if (!status) {
+      Database_Logs::log ("mz_zip_add_mem_to_archive_file_in_place failed for " + path);
+      return "";
+    }
+  }
+  return zippedfile;
 }
 
 
@@ -88,13 +150,33 @@ bool filter_archive_can_unzip ()
 // Returns the path to the folder it created.
 string filter_archive_unzip (string file)
 {
+#ifdef HAVE_CLOUD
+  return filter_archive_unzip_shell_internal (file);
+#endif
+#ifdef HAVE_CLIENT
+  return filter_archive_unzip_miniz_internal (file);
+#endif
+}
+
+
+// Uncompresses a zip archive identified by $file.
+// Returns the path to the folder it created.
+string filter_archive_unzip_shell_internal (string file)
+{
   string folder = filter_url_tempfile ();
   filter_url_mkdir (folder);
   folder.append (DIRECTORY_SEPARATOR);
   string logfile = filter_url_tempfile () + ".log";
   file = filter_url_escape_shell_argument (file);
   string command = "unzip -o -d " + folder + " " + file + " > " + logfile + " 2>&1";
-  int return_var = system (command.c_str());
+  int return_var;
+#ifdef HAVE_IOS
+  // Crashes on iOS.
+  return_var = 1;
+#else
+  // Run the command.
+  return_var = system (command.c_str());
+#endif
   if (return_var != 0) {
     filter_url_rmdir (folder);
     folder.clear();
@@ -110,6 +192,60 @@ string filter_archive_unzip (string file)
 }
 
 
+// Uncompresses the $zipfile.
+// Returns the path to the folder it created.
+string filter_archive_unzip_miniz_internal (string zipfile)
+{
+  // Directory where to unzip the archive.
+  string folder = filter_url_tempfile ();
+  filter_url_mkdir (folder);
+  
+  // Open the zip archive.
+  mz_bool status;
+  mz_zip_archive zip_archive;
+  memset (&zip_archive, 0, sizeof (zip_archive));
+  status = mz_zip_reader_init_file(&zip_archive, zipfile.c_str(), 0);
+  if (!status) {
+    Database_Logs::log ("mz_zip_reader_init_file failed for " + zipfile);
+    return "";
+  }
+
+  // Iterate over the files in the archive.
+  int filecount = mz_zip_reader_get_num_files (&zip_archive);
+  for (int i = 0; i < filecount; i++) {
+    // Get information about this file.
+    mz_zip_archive_file_stat file_stat;
+    status = mz_zip_reader_file_stat (&zip_archive, i, &file_stat);
+    if (!status) {
+      Database_Logs::log ("mz_zip_reader_file_stat failed for " + zipfile);
+      mz_zip_reader_end (&zip_archive);
+      return "";
+    }
+  
+    string filename = filter_url_create_path (folder, file_stat.m_filename);
+    if (mz_zip_reader_is_file_a_directory (&zip_archive, i)) {
+      // Create this directory.
+      filter_url_mkdir (filename);
+    } else {
+      // Extract this file.
+      status = mz_zip_reader_extract_to_file (&zip_archive, i, filename.c_str(), 0);
+      if (!status) {
+        Database_Logs::log ("mz_zip_reader_extract_to_file " + zipfile);
+        mz_zip_reader_end (&zip_archive);
+        return "";
+      }
+    }
+
+  }
+
+  // Close the archive, freeing any resources it was using.
+  mz_zip_reader_end (&zip_archive);
+  
+  // The folder where the files were unpacked.
+  return folder;
+}
+
+
 // Compresses a file identified by $filename into gzipped tar format.
 // Returns the path to the compressed archive it created.
 string filter_archive_tar_gzip_file (string filename)
@@ -119,7 +255,14 @@ string filter_archive_tar_gzip_file (string filename)
   string basename = filter_url_escape_shell_argument (filter_url_basename (filename));
   string logfile = filter_url_tempfile () + ".log";
   string command = "cd " + dirname + " && tar -czf " + tarball + " " + basename + " > " + logfile + " 2>&1";
-  int return_var = system (command.c_str());
+  int return_var;
+#ifdef HAVE_IOS
+  // Crashes on iOS.
+  return_var = 1;
+#else
+  // Run the command.
+  return_var = system (command.c_str());
+#endif
   if (return_var != 0) {
     filter_url_unlink (tarball);
     tarball.clear();
@@ -138,7 +281,14 @@ string filter_archive_tar_gzip_folder (string folder)
   folder = filter_url_escape_shell_argument (folder);
   string logfile = filter_url_tempfile () + ".log";
   string command = "cd " + folder + " && tar -czf " + tarball + " . > " + logfile + " 2>&1";
-  int return_var = system (command.c_str());
+  int return_var;
+#ifdef HAVE_IOS
+  // Crashes on iOS.
+  return_var = 1;
+#else
+  // Run the command.
+  return_var = system (command.c_str());
+#endif
   if (return_var != 0) {
     filter_url_unlink (tarball);
     tarball.clear();
@@ -159,7 +309,14 @@ string filter_archive_untar_gzip (string file)
   folder.append (DIRECTORY_SEPARATOR);
   string logfile = filter_url_tempfile () + ".log";
   string command = "cd " + folder + " && tar zxf " + file + " > " + logfile + " 2>&1";
-  int return_var = system (command.c_str());
+  int return_var;
+#ifdef HAVE_IOS
+  // Crashes on iOS.
+  return_var = 1;
+#else
+  // Run the command.
+  return_var = system (command.c_str());
+#endif
   if (return_var != 0) {
     filter_url_rmdir (folder);
     folder.clear();
@@ -185,7 +342,7 @@ string filter_archive_uncompress (string file)
 }
 
 
-// Returns 0 is not an archive that Bibledit supports.
+// Returns 0 if it is not an archive that Bibledit supports.
 // Else returns 1, 2, 3... depending on the type of archive.
 int filter_archive_is_archive (string file)
 {

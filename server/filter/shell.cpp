@@ -95,6 +95,7 @@ int filter_shell_run (string command, const char * parameter, string & output)
   Database_Logs::log ("Did not run on client: " + command);
   (void) parameter;
   (void) output;
+  return 0;
 #else
   // File descriptor for file to write child's stdout to.
   string path = filter_url_tempfile () + ".txt";
@@ -145,6 +146,10 @@ int filter_shell_run (string command, string & out_err)
 // Returns true if $program is present on the system.
 bool filter_shell_is_present (string program)
 {
+  // This crashes on iOS, so skip it.
+#ifdef HAVE_IOS
+  return false;
+#endif
   string command = "which " + program + " > /dev/null 2>&1";
   int exitcode = system (command.c_str ());
   return (exitcode == 0);
