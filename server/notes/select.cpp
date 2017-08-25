@@ -159,7 +159,7 @@ string notes_select (void * webserver_request)
   
   string status_selector = request->database_config_user()->getConsultationNotesStatusSelector();
   if (status_selector.empty ()) view.set_variable ("anystatus", active_class);
-  vector <Database_Notes_Text> possible_statuses = database_notes.getPossibleStatuses ();
+  vector <Database_Notes_Text> possible_statuses = database_notes.get_possible_statuses_v12 ();
   string statusblock;
   for (Database_Notes_Text possible_status : possible_statuses) {
     statusblock.append (" | ");
@@ -181,7 +181,7 @@ string notes_select (void * webserver_request)
   vector <string> bibles = access_bible_bibles (webserver_request);
   // The administrator can select from all Bibles in the notes, even Bibles that do not exist.
   if (request->session_logic ()->currentLevel () == Filter_Roles::admin ()) {
-    vector <string> notesbibles = database_notes.getAllBibles ();
+    vector <string> notesbibles = database_notes.get_all_bibles_v12 ();
     bibles.insert (bibles.end (), notesbibles.begin (), notesbibles.end ());
     bibles = array_unique (bibles);
   }
@@ -197,7 +197,7 @@ string notes_select (void * webserver_request)
   string assignment_selector = request->database_config_user()->getConsultationNotesAssignmentSelector();
   if (assignment_selector.empty ()) view.set_variable ("anyassignee", active_class);
   string assigneeblock;
-  vector <string> assignees = database_notes.getAllAssignees (bibles);
+  vector <string> assignees = database_notes.get_all_assignees_v12 (bibles);
   for (auto assignee : assignees) {
     assigneeblock.append (" | ");
     assigneeblock.append ("<a ");
@@ -220,7 +220,7 @@ string notes_select (void * webserver_request)
   int severity_selector = request->database_config_user()->getConsultationNotesSeveritySelector ();
   if (severity_selector < 0) view.set_variable ("anyseverity", active_class);
   string severityblock;
-  vector <Database_Notes_Text> severities = database_notes.getPossibleSeverities();
+  vector <Database_Notes_Text> severities = database_notes.get_possible_severities_v12();
   for (int i = 0; i < (int)severities.size (); i++) {
     severityblock.append (" | ");
     severityblock.append ("<a ");
@@ -252,7 +252,7 @@ string notes_select (void * webserver_request)
   int book = Ipc_Focus::getBook (webserver_request);
   int chapter = Ipc_Focus::getChapter (webserver_request);
   int verse = Ipc_Focus::getVerse (webserver_request);
-  vector <int> identifiers = database_notes.selectNotes (bibles,
+  vector <int> identifiers = database_notes.select_notes_v12 (bibles,
                                                          book,
                                                          chapter,
                                                          verse,

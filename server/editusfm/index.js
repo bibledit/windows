@@ -26,7 +26,7 @@ $(document).ready (function () {
   rangy.init ();
   navigationNewPassage ();
   $ ("#usfmeditor").on ("paste cut keydown", usfmEditorChanged);
-  $ (window).on ("unload", usfmEditorUnload ());
+  $ (window).on ("unload", usfmEditorUnload);
   $ ("#usfmeditor").on ("paste", function (e) {
     var data = e.originalEvent.clipboardData.getData ('Text');
     e.preventDefault();
@@ -185,6 +185,7 @@ function usfmEditorSaveChapter (sync)
 function usfmEditorChanged (event)
 {
   if (editKeysIgnoreForContentChange (event)) return;
+  usfmEditorStatus (usfmEditorWillSave);
   usfmEditorTextChanged = true;
   if (usfmEditorChangedTimeout) {
     clearTimeout (usfmEditorChangedTimeout);
@@ -205,6 +206,7 @@ function usfmEditorStatus (text)
 function usfmEditorSelectiveNotification (message)
 {
   if (message == usfmEditorChapterLoaded) return;
+  if (message == usfmEditorWillSave) return;
   if (message == usfmEditorChapterSaving) return;
   if (message == usfmEditorChapterSaved) return;
   notifyItError (message);

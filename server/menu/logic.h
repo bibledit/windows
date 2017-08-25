@@ -39,7 +39,7 @@ string menu_logic_settings_styles_menu ();
 string menu_logic_main_categories (void * webserver_request, string & tooltip);
 string menu_logic_basic_categories (void * webserver_request);
 
-string menu_logic_desktop_category (void * webserver_request, string * tooltip = NULL);
+string menu_logic_workspace_category (void * webserver_request, string * tooltip = NULL);
 string menu_logic_translate_category (void * webserver_request, string * tooltip = NULL);
 string menu_logic_search_category (void * webserver_request, string * tooltip = NULL);
 string menu_logic_tools_category (void * webserver_request, string * tooltip = NULL);
@@ -62,7 +62,7 @@ string menu_logic_public_feedback_text ();
 string menu_logic_logout_text ();
 string menu_logic_consultation_notes_text ();
 string menu_logic_bible_manage_text ();
-string menu_logic_desktop_organize_text ();
+string menu_logic_workspace_organize_text ();
 string menu_logic_checks_settings_text ();
 string menu_logic_resources_text ();
 string menu_logic_resource_images_text ();
@@ -73,10 +73,14 @@ string menu_logic_styles_indext_text ();
 string menu_logic_styles_indexm_text ();
 string menu_logic_changes_text ();
 string menu_logic_styles_text ();
+string menu_logic_menu_text ();
 
 string menu_logic_editor_settings_text (bool visual, int selection);
 bool menu_logic_editor_enabled (void * webserver_request, bool visual, bool chapter);
-string menu_logic_editor_menu_text (void * webserver_request, bool visual, bool chapter);
+string menu_logic_editor_menu_text (bool visual, bool chapter);
+
+bool menu_logic_can_do_tabbed_mode ();
+void menu_logic_tabbed_mode_save_json (void * webserver_request);
 
 
 #endif

@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <menu/logic.h>
 #include <index/index.h>
 #include <webserver/request.h>
+#include <database/config/general.h>
 
 
 Assets_Header::Assets_Header (string title, void * webserver_request_in)
@@ -191,6 +192,9 @@ string Assets_Header::run ()
     // The start button to be displayed only when there's no menu.
     bool start_button = true;
     
+    // Whether tabbed mode is on.
+    bool tabbed_mode_on = menu_logic_can_do_tabbed_mode () && Database_Config_General::getMenuInTabbedViewOn ();
+    
     string menublock;
     string item = request->query ["item"];
     bool main_menu_always_on = false;
@@ -199,7 +203,10 @@ string Assets_Header::run ()
         main_menu_always_on = true;
     if ((item == "main") || main_menu_always_on) {
       if (basic_mode) {
-        menublock = menu_logic_basic_categories (webserver_request);
+        // Basic mode gives basic menu, but nothing in tabbed mode.
+        if (!tabbed_mode_on) {
+          menublock = menu_logic_basic_categories (webserver_request);
+        }
       } else {
         string devnull;
         menublock = menu_logic_main_categories (webserver_request, devnull);
@@ -221,6 +228,10 @@ string Assets_Header::run ()
       menublock = menu_logic_help_category (webserver_request);
     }
     view->set_variable ("mainmenu", menublock);
+
+    // Not to display the "start button" in tabbed mode.
+    // That would take up screen space unnecessarily.
+    if (tabbed_mode_on) start_button = false;
 
     if (start_button) {
       view->enable_zone ("start_button");

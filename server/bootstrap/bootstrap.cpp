@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-
+   
 
 #include <bootstrap/bootstrap.h>
 #include <webserver/request.h>
@@ -44,8 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <manage/privileges.h>
 #include <system/index.h>
 #include <collaboration/index.h>
-#include <collaboration/url.h>
-#include <collaboration/direction.h>
+#include <collaboration/settings.h>
 #include <styles/indext.h>
 #include <styles/indexm.h>
 #include <styles/sheetm.h>
@@ -64,8 +63,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <compare/index.h>
 #include <jobs/index.h>
 #include <editverse/index.h>
-#include <editverse/load.h>
-#include <editverse/save.h>
 #include <navigation/update.h>
 #include <navigation/poll.h>
 #include <editusfm/index.h>
@@ -865,13 +862,8 @@ void bootstrap_index (void * webserver_request)
     return;
   }
   
-  if ((url == collaboration_url_url ()) && browser_request_security_okay (request) && collaboration_url_acl (request)) {
-    request->reply = collaboration_url (request);
-    return;
-  }
-  
-  if ((url == collaboration_direction_url ()) && browser_request_security_okay (request) && collaboration_direction_acl (request)) {
-    request->reply = collaboration_direction (request);
+  if ((url == collaboration_settings_url ()) && browser_request_security_okay (request) && collaboration_settings_acl (request)) {
+    request->reply = collaboration_settings (request);
     return;
   }
   
@@ -962,7 +954,7 @@ void bootstrap_index (void * webserver_request)
   }
   
 #ifdef HAVE_CLIENT
-  if ((url == system_logic_resources_file_name ()) | (url == system_logic_bibles_file_name ())) {
+  if (extension == "tar") {
     http_serve_file (request, false, false);
     return;
   }
@@ -1020,16 +1012,6 @@ void bootstrap_index (void * webserver_request)
   
   if ((url == navigation_poll_url ()) && browser_request_security_okay (request) && navigation_poll_acl (request)) {
     request->reply = navigation_poll (request);
-    return;
-  }
-  
-  if ((url == editverse_load_url ()) && browser_request_security_okay (request) && editverse_load_acl (request)) {
-    request->reply = editverse_load (request);
-    return;
-  }
-  
-  if ((url == editverse_save_url ()) && browser_request_security_okay (request) && editverse_save_acl (request)) {
-    request->reply = editverse_save (request);
     return;
   }
   

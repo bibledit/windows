@@ -150,10 +150,10 @@ void workspace_create_defaults (void * webserver_request)
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
 
-  // Save current active desktop.
-  string desktop = request->database_config_user()->getActiveWorkspace ();
+  // Save current active workspace.
+  string workspace = request->database_config_user()->getActiveWorkspace ();
 
-  // Create or update the default desktops.
+  // Create or update the default workspaces.
   vector <string> names = workspace_get_default_names ();
   for (unsigned int i = 0; i < names.size (); i++) {
     request->database_config_user()->setActiveWorkspace (names [i]);
@@ -163,8 +163,8 @@ void workspace_create_defaults (void * webserver_request)
     workspace_set_heights (request, workspace_get_default_heights (bench));
   }
 
-  // Restore current active desktop.
-  request->database_config_user()->setActiveWorkspace (desktop);
+  // Restore current active workspace.
+  request->database_config_user()->setActiveWorkspace (workspace);
 }
 
 
@@ -241,11 +241,11 @@ void workspace_set_values (void * webserver_request, int selector, const map <in
 
 void workspace_set_urls (void * webserver_request, const map <int, string> & values)
 {
-  // Get current order of the workspacees.
+  // Get current order of the workspaces.
   vector <string> order = workspace_get_names (webserver_request);
-  // Update the values: This reorders the workspacees.
+  // Update the values: This reorders the workspaces.
   workspace_set_values (webserver_request, URLS, values);
-  // Put the workspacees in the original order.
+  // Put the workspaces in the original order.
   workspace_reorder (webserver_request, order);
 }
 
@@ -362,24 +362,27 @@ string workspace_get_entire_width (void * webserver_request)
 }
 
 
-// Returns the names of the available workspacees.
-vector <string> workspace_get_names (void * webserver_request)
+// Returns the names of the available workspaces.
+// If $add_default, if there's no workspaces, it adds a default one.
+vector <string> workspace_get_names (void * webserver_request, bool add_default)
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
-  vector <string> workspacees;
-  // The names and the order of the workspacees is taken from the URLs.
+  vector <string> workspaces;
+  // The names and the order of the workspaces is taken from the URLs.
   string rawvalue = request->database_config_user()->getWorkspaceURLs ();
   vector <string> lines = filter_string_explode (rawvalue, '\n');
   for (auto & line : lines) {
     vector <string> bits = filter_string_explode (line, '_');
     if (bits.size() == 3) {
-      if (find (workspacees.begin(), workspacees.end(), bits[0]) == workspacees.end()) {
-        workspacees.push_back (bits[0]);
+      if (find (workspaces.begin(), workspaces.end(), bits[0]) == workspaces.end()) {
+        workspaces.push_back (bits[0]);
       }
     }
   }
-  if (workspacees.empty ()) workspacees.push_back (workspace_get_active_name (request));
-  return workspacees;
+  if (workspaces.empty () && add_default) {
+    workspaces.push_back (workspace_get_active_name (request));
+  }
+  return workspaces;
 }
 
 
@@ -425,22 +428,22 @@ void workspace_delete (void * webserver_request, string workspace)
 }
 
 
-// This orders the workspacees.
-// It takes the order as in array $workspacees.
-void workspace_reorder (void * webserver_request, const vector <string> & workspacees)
+// This orders the workspaces.
+// It takes the order as in array $workspaces.
+void workspace_reorder (void * webserver_request, const vector <string> & workspaces)
 {
-  // The order of the workspacees is taken from the URLs.
+  // The order of the workspaces is taken from the URLs.
   // Widths and heights are not considered for the order.
   
   Webserver_Request * request = (Webserver_Request *) webserver_request;
 
-  // Retrieve the old order of the workspacees, plus their details.
+  // Retrieve the old order of the workspaces, plus their details.
   string rawvalue = request->database_config_user()->getWorkspaceURLs ();
   vector <string> oldlines = filter_string_explode (rawvalue, '\n');
   
   // Create vector with the sorted workspace definitions.
   vector <string> newlines;
-  for (auto & workspace : workspacees) {
+  for (auto & workspace : workspaces) {
     for (auto & line : oldlines) {
       if (line.find (workspace + "_") == 0) {
         newlines.push_back (line);
@@ -465,15 +468,15 @@ void workspace_reorder (void * webserver_request, const vector <string> & worksp
 }
 
 
-// Copy desktop $source to $destination
+// Copy workspace $source to $destination
 void workspace_copy (void * webserver_request, string source, string destination)
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
 
-  // Save current active desktop.
-  string active_desktop = request->database_config_user()->getActiveWorkspace ();
+  // Save current active workspace.
+  string active_workspace = request->database_config_user()->getActiveWorkspace ();
   
-  // Copy source desktop to destination.
+  // Copy source workspace to destination.
   request->database_config_user()->setActiveWorkspace (source);
   map <int, string> urls = workspace_get_urls (webserver_request, false);
   map <int, string> widths = workspace_get_widths (webserver_request);
@@ -485,8 +488,8 @@ void workspace_copy (void * webserver_request, string source, string destination
   workspace_set_heights (webserver_request, heights);
   workspace_set_entire_width (webserver_request, entire_width);
   
-  // Restore current active desktop.
-  request->database_config_user()->setActiveWorkspace (active_desktop);
+  // Restore current active workspace.
+  request->database_config_user()->setActiveWorkspace (active_workspace);
 }
 
 
@@ -517,38 +520,38 @@ string workspace_get_default_name ()
 }
 
 
-// Send the named $desktop to a $user name.
-void workspace_send (void * webserver_request, string desktop, string user)
+// Send the named $workspace to a $user name.
+void workspace_send (void * webserver_request, string workspace, string user)
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
 
-  // Save current active desktop.
-  string active_desktop = request->database_config_user()->getActiveWorkspace ();
+  // Save current active workspace.
+  string active_workspace = request->database_config_user()->getActiveWorkspace ();
   
-  // Retrieve settings for the $desktop of the current user.
-  request->database_config_user()->setActiveWorkspace (desktop);
+  // Retrieve settings for the $workspace of the current user.
+  request->database_config_user()->setActiveWorkspace (workspace);
   map <int, string> urls = workspace_get_urls (webserver_request, false);
   map <int, string> widths = workspace_get_widths (webserver_request);
   map <int, string> heights = workspace_get_heights (webserver_request);
   string entire_width = workspace_get_entire_width (webserver_request);
   
-  // Restore current active desktop.
-  request->database_config_user()->setActiveWorkspace (active_desktop);
+  // Restore current active workspace.
+  request->database_config_user()->setActiveWorkspace (active_workspace);
 
   // New webserver request object for the destination user.
   Webserver_Request destination_request;
   destination_request.session_logic ()->setUsername (user);
   
-  // Save desktop for destination user.
-  active_desktop = destination_request.database_config_user()->getActiveWorkspace ();
-  destination_request.database_config_user()->setActiveWorkspace (desktop);
+  // Save workspace for destination user.
+  active_workspace = destination_request.database_config_user()->getActiveWorkspace ();
+  destination_request.database_config_user()->setActiveWorkspace (workspace);
   
-  // Copy source desktop to destination.
+  // Copy source workspace to destination.
   workspace_set_urls (&destination_request, urls);
   workspace_set_widths (&destination_request, widths);
   workspace_set_heights (&destination_request, heights);
   workspace_set_entire_width (&destination_request, entire_width);
 
-  // Restore desktop for the destination user.
-  request->database_config_user()->setActiveWorkspace (active_desktop);
+  // Restore workspace for the destination user.
+  request->database_config_user()->setActiveWorkspace (active_workspace);
 }

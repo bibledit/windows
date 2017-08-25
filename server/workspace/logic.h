@@ -41,13 +41,13 @@ map <int, string> workspace_get_urls (void * webserver_request, bool use);
 map <int, string> workspace_get_widths (void * webserver_request);
 map <int, string> workspace_get_heights (void * webserver_request);
 string workspace_get_entire_width (void * webserver_request);
-vector <string> workspace_get_names (void * webserver_request);
+vector <string> workspace_get_names (void * webserver_request, bool add_default = true);
 void workspace_delete (void * webserver_request, string workspace);
-void workspace_reorder (void * webserver_request, const vector <string> & workspacees);
+void workspace_reorder (void * webserver_request, const vector <string> & workspaces);
 void workspace_copy (void * webserver_request, string source, string destination);
 void workspace_cache_for_cloud (void * webserver_request, bool urls, bool widths, bool heights);
 string workspace_get_default_name ();
-void workspace_send (void * webserver_request, string desktop, string user);
+void workspace_send (void * webserver_request, string workspace, string user);
 
 
 #endif

@@ -17,16 +17,19 @@
  */
 
 
-#ifndef INCLUDED_EDITVERSE_LOAD_H
-#define INCLUDED_EDITVERSE_LOAD_H
+#ifndef INCLUDED_CHECK_FRENCH_H
+#define INCLUDED_CHECK_FRENCH_H
 
 
 #include <config/libraries.h>
 
 
-string editverse_load_url ();
-bool editverse_load_acl (void * webserver_request);
-string editverse_load (void * webserver_request);
+class Checks_French
+{
+public:
+  static void spaceBeforeAfterPunctuation (string bible, int book, int chapter, map <int, string> texts);
+private:
+};
 
 
 #endif

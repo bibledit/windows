@@ -75,7 +75,7 @@ string notes_note (void * webserver_request)
   
   
   // When a note is opened, then the passage navigator should go to the passage that belongs to that note.
-  vector <Passage> passages = database_notes.getPassages (id);
+  vector <Passage> passages = database_notes.get_passages_v12 (id);
   if (!passages.empty ()) {
     int desired_book = passages[0].book;
     int desired_chapter = passages[0].chapter;
@@ -94,7 +94,7 @@ string notes_note (void * webserver_request)
   view.set_variable ("id", convert_to_string (id));
   
 
-  string summary = database_notes.getSummary (id);
+  string summary = database_notes.get_summary_v12 (id);
   view.set_variable ("summary", summary);
 
 
@@ -103,9 +103,14 @@ string notes_note (void * webserver_request)
   }
   
   
-  string content = database_notes.getContents (id);
+  string content = database_notes.get_contents_v12 (id);
   view.set_variable ("content", content);
 
+  
+  if (request->database_config_user ()->getQuickNoteEditLink ()) {
+    view.enable_zone ("editcontent");
+  }
+    
   
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ())) {
     view.enable_zone ("consultant");

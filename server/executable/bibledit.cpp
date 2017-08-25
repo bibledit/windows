@@ -94,15 +94,18 @@ int main (int argc, char **argv)
 {
   (void) argc;
   (void) argv;
+
   
   // Ctrl-C initiates a clean shutdown sequence, so there's no memory leak.
   signal (SIGINT, sigint_handler);
+
   
 #ifdef HAVE_EXECINFO
   // Handler for logging segmentation fault.
   signal (SIGSEGV, sigsegv_handler);
 #endif
 
+  
 #ifdef HAVE_WINDOWS
   // Set our own invalid parameter handler for on Windows.
   _set_invalid_parameter_handler(my_invalid_parameter_handler);
@@ -110,7 +113,8 @@ int main (int argc, char **argv)
   _CrtSetReportMode(_CRT_ASSERT, 0);
 #endif
 
-  // Get the executable path and base the document root on it.
+  
+  // Get the executable path and derive the document root from it.
   string webroot;
 #ifndef HAVE_WINDOWS
   {
@@ -152,18 +156,51 @@ int main (int argc, char **argv)
     webroot = chars;
   }
 #endif
-  bibledit_initialize_library (webroot.c_str(), webroot.c_str());
+#ifdef HAVE_CLOUD
+  // The following is for the Cloud configuration only:
+  {
+    // Get home folder and working directory.
+    string homefolder;
+    const char * homeptr = getenv ("HOME");
+    if (homeptr) homefolder = homeptr;
+    string workingdirectory;
+    char cwd [MAXPATHLEN];
+    if (getcwd(cwd, sizeof(cwd)) != NULL) workingdirectory = cwd;
+    // If the web root folder, derived from the binary, is the same as the current directory,
+    // it means that the binary is started from a Cloud installation in user space.
+    // The web root folder is okay as it is.
+    if (webroot != workingdirectory) {
+      // If the web root is the home folder, it should be updated,
+      // because it is undesirable to have all the data in the home folder.
+      // If the web root is the package prefix, it should be updated,
+      // because it now runs the binary installed in /usr/bin.
+      if ((webroot == homefolder) || (webroot.find (PACKAGE_PREFIX_DIR) == 0)) {
+        // Update web root to ~/bibledit or ~/bibledit-cloud.
+        webroot = filter_url_create_path (homefolder, filter_url_basename (PACKAGE_DATA_DIR));
+      }
+    }
+  }
+#endif
+  // The $make install will copy the data files to /usr/share/bibledit.
+  // That is the package data directory.
+  // Bibledit will copy this to the webroot upon first run for a certain version number.
+  // If this directory is empty, it won't copy anything.
+  // That would be okay if it runs in a user folder like ~/bibledit or similar.
+  // Read the package directory from config.h.
+  bibledit_initialize_library (PACKAGE_DATA_DIR, webroot.c_str());
+
   
   // Start the Bibledit library.
   bibledit_start_library ();
   bibledit_log ("The server started");
   cout << "Listening on http://localhost:" << config_logic_http_network_port ();
-#ifndef HAVE_CLIENT
+#ifdef HAVE_CLOUD
   cout << " and https://localhost:" << config_logic_https_network_port ();
 #endif
   cout << endl;
   cout << "Press Ctrl-C to quit" << endl;
 
+  
   // Log possible backtrace from a previous crash.
   string backtrace = filter_url_file_get_contents (backtrace_path ());
   filter_url_unlink (backtrace_path ());
@@ -175,18 +212,15 @@ int main (int argc, char **argv)
     }
   }
 
-#ifndef HAVE_WINDOWS
-  // Bibledit Cloud should restart itself at midnight.
-  // This is to be sure that any memory leaks don't accumulate too much
-  // in case Bibledit Cloud would run for months and years.
-  // The Windows port uses this ./server also, but should not quit at midnight.
-  bibledit_set_quit_at_midnight ();
-#endif
-
+  
   // Keep running till Bibledit stops or gets interrupted.
   while (bibledit_is_running ()) { }
 
+  
+  // Shut the library down.
   bibledit_shutdown_library ();
 
+  
+  // Done.
   return EXIT_SUCCESS;
 }

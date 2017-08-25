@@ -146,16 +146,8 @@ void bibledit_set_touch_enabled (bool enabled)
 }
 
 
-// Sets a global flag, so the library will quit at midnight.
-void bibledit_set_quit_at_midnight ()
-{
-  Database_Config_General::setJustStarted (true);
-  config_globals_quit_at_midnight = true;
-}
-
-
 // Start library.
-// Can be called multiple times during the lifetime of the app
+// Can be called multiple times during the lifetime of the app.
 void bibledit_start_library ()
 {
   // Repeating start guard.
@@ -171,6 +163,13 @@ void bibledit_start_library ()
   if (config_logic_demo_enabled ()) {
     config_globals_open_installation = true;
   }
+
+  
+#ifdef HAVE_CLOUD
+  // Indicate that the Cloud has started just now.
+  Database_Config_General::setJustStarted (true);
+#endif
+
   
   // Ignore SIGPIPE signal on Linux: When the browser cancels the request, it won't kill Bibledit.
   // On Windows, this is not needed.
@@ -187,7 +186,7 @@ void bibledit_start_library ()
   
   // Run the plain web server in a thread.
   config_globals_http_worker = new thread (http_server);
-
+  
   // Run the secure web server in a thread.
   config_globals_https_worker = new thread (https_server);
   
@@ -254,6 +253,14 @@ const char * bibledit_get_external_url ()
   if (!config_globals_external_url.empty ()) counter++;
   // Return the URL.
   return config_globals_external_url.c_str ();
+}
+
+
+// Returns the pages the calling app should open.
+const char * bibledit_get_pages_to_open ()
+{
+  config_globals_pages_to_open = Database_Config_General::getMenuInTabbedViewJSON ();
+  return config_globals_pages_to_open.c_str ();
 }
 
 

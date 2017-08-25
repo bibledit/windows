@@ -114,6 +114,24 @@ string personalize_index (void * webserver_request)
   }
 
   
+  // Whether to have a menu entry for the Changes in basic mode.
+  if (request->query.count ("showchanges")) {
+    bool state = request->database_config_user ()->getMenuChangesInBasicMode ();
+    state = !state;
+    request->database_config_user ()->setMenuChangesInBasicMode (state);
+    menu_logic_tabbed_mode_save_json (webserver_request);
+  }
+
+  
+  // Setting for whether to show the main menu in tabbed view in basic mode on phones and tablets.
+  if (request->query.count ("mainmenutabs")) {
+    bool state = Database_Config_General::getMenuInTabbedViewOn ();
+    state = !state;
+    Database_Config_General::setMenuInTabbedViewOn (state);
+    menu_logic_tabbed_mode_save_json (webserver_request);
+  }
+
+  
   string page;
   string success;
   string error;
@@ -257,12 +275,12 @@ string personalize_index (void * webserver_request)
 
   
   // Workspace menu fade-out delay.
-  if (request->query.count ("desktopfadeoutdelay")) {
-    Dialog_Entry dialog_entry = Dialog_Entry ("index", translate("Please enter a value between 1 and 100 seconds, or 0 to disable"), convert_to_string (request->database_config_user ()->getWorkspaceMenuFadeoutDelay ()), "desktopfadeoutdelay", "");
+  if (request->query.count ("workspacefadeoutdelay")) {
+    Dialog_Entry dialog_entry = Dialog_Entry ("index", translate("Please enter a value between 1 and 100 seconds, or 0 to disable"), convert_to_string (request->database_config_user ()->getWorkspaceMenuFadeoutDelay ()), "workspacefadeoutdelay", "");
     page += dialog_entry.run ();
     return page;
   }
-  if (request->post.count ("desktopfadeoutdelay")) {
+  if (request->post.count ("workspacefadeoutdelay")) {
     int value = convert_to_int (request->post["entry"]);
     if ((value >= 0) && (value <= 100)) {
       request->database_config_user ()->setWorkspaceMenuFadeoutDelay (value);
@@ -270,7 +288,7 @@ string personalize_index (void * webserver_request)
       error = translate ("Incorrect fade-out delay in seconds");
     }
   }
-  view.set_variable ("desktopfadeoutdelay", convert_to_string (request->database_config_user ()->getWorkspaceMenuFadeoutDelay ()));
+  view.set_variable ("workspacefadeoutdelay", convert_to_string (request->database_config_user ()->getWorkspaceMenuFadeoutDelay ()));
 
   
   // Permissable relative changes in the two to four Bible editors.
@@ -318,8 +336,8 @@ string personalize_index (void * webserver_request)
   if (request->query.count (fastswitchusfmeditors)) {
     editors = request->query[fastswitchusfmeditors];
     if (editors.empty ()) {
-      Dialog_List dialog_list = Dialog_List ("index", translate("Which visual Bible editors to enable?"), "", "");
-      for (int i = 0; i < 3; i++) {
+      Dialog_List dialog_list = Dialog_List ("index", translate("Enable the USFM Bible editor?"), "", "");
+      for (int i = 0; i < 2; i++) {
         dialog_list.add_row (menu_logic_editor_settings_text (false, i), fastswitchusfmeditors, convert_to_string (i));
       }
       page += dialog_list.run ();
@@ -330,29 +348,6 @@ string personalize_index (void * webserver_request)
   }
   editors = menu_logic_editor_settings_text (false, request->database_config_user ()->getFastSwitchUsfmEditors ());
   view.set_variable (fastswitchusfmeditors, editors);
-
-  
-  // The names of the two, three, or four Bible editors.
-  // The location of this code is important that it is after the editors have been enabled or disabled.
-  string chapter_editors, verse_editors;
-  for (int i = 0; i < 4; i++) {
-    bool visual = (i % 2);
-    bool chapter = (i <2);
-    if (menu_logic_editor_enabled (webserver_request, visual, chapter)) {
-      string label = menu_logic_editor_menu_text (webserver_request, visual, chapter);
-      if (chapter) {
-        if (!chapter_editors.empty ()) chapter_editors.append (", ");
-        chapter_editors.append (label);
-      } else {
-        if (!verse_editors.empty ()) verse_editors.append (", ");
-        verse_editors.append (label);
-      }
-    }
-  }
-  if (!chapter_editors.empty ()) view.enable_zone ("chaptereditors");
-  view.set_variable ("chaptereditors", chapter_editors);
-  if (!verse_editors.empty ()) view.enable_zone ("verseeditors");
-  view.set_variable ("verseeditors", verse_editors);
 
   
   // Whether to downgrade the visual Bible editors.
@@ -393,10 +388,6 @@ string personalize_index (void * webserver_request)
 
   
   // Whether to have a menu entry for the Changes in basic mode.
-  if (request->query.count ("showchanges")) {
-    bool state = request->database_config_user ()->getMenuChangesInBasicMode ();
-    request->database_config_user ()->setMenuChangesInBasicMode (!state);
-  }
   on_off = styles_logic_off_on_inherit_toggle_text (request->database_config_user ()->getMenuChangesInBasicMode ());
   view.set_variable ("showchanges", on_off);
 
@@ -409,6 +400,23 @@ string personalize_index (void * webserver_request)
   on_off = styles_logic_off_on_inherit_toggle_text (request->database_config_user ()->getDismissChangesAtTop ());
   view.set_variable ("dismisschangesattop", on_off);
   
+  
+  // Setting for whether to show the main menu in tabbed view in basic mode on phones and tablets.
+  if (menu_logic_can_do_tabbed_mode ()) {
+    view.enable_zone ("tabs_possible");
+    on_off = styles_logic_off_on_inherit_toggle_text (Database_Config_General::getMenuInTabbedViewOn ());
+    view.set_variable ("mainmenutabs", on_off);
+  }
+
+  
+  // Whether to enable a quick link to edit the content of a consultation note.
+  if (request->query.count ("quickeditnotecontents")) {
+    bool state = request->database_config_user ()->getQuickNoteEditLink ();
+    request->database_config_user ()->setQuickNoteEditLink (!state);
+  }
+  on_off = styles_logic_off_on_inherit_toggle_text (request->database_config_user ()->getQuickNoteEditLink ());
+  view.set_variable ("quickeditnotecontents", on_off);
+
   
   // Enable the sections with settings relevant to the user and device.
   bool resources = access_logic_privilege_view_resources (webserver_request);

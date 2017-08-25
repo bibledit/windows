@@ -115,8 +115,6 @@ public:
   static bool getIndexBibles ();
   static void setIndexBibles (bool value);
   
-  static bool getReadFromGit ();
-  
   static int getUnsentBibleDataTime ();
   static void setUnsentBibleDataTime (int value);
 
@@ -131,6 +129,11 @@ public:
 
   static bool getJustConnectedToCloud ();
   static void setJustConnectedToCloud (bool value);
+  
+  static bool getMenuInTabbedViewOn ();
+  static void setMenuInTabbedViewOn (bool value);
+  static string getMenuInTabbedViewJSON ();
+  static void setMenuInTabbedViewJSON (string value);
   
 private:
   static string file (const char * key);

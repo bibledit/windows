@@ -114,24 +114,24 @@ string notes_actions (void * webserver_request)
   
   
   if (request->query.count ("publicnote")) {
-    bool state = database_notes.getPublic (id);
-    database_notes.setPublic (id, !state);
+    bool state = database_notes.get_public_v12 (id);
+    database_notes.set_public_v12 (id, !state);
   }
 
   
   view.set_variable ("id", convert_to_string (id));
   
                       
-  string summary = database_notes.getSummary (id);
+  string summary = database_notes.get_summary_v12 (id);
   view.set_variable ("summary", summary);
                                           
                                           
-  bool subscribed = database_notes.isSubscribed (id, user);
+  bool subscribed = database_notes.is_subscribed_v12 (id, user);
   if (subscribed) view.enable_zone ("subscribed");
   else view.enable_zone ("subscribe");
   
 
-  vector <string> assignees = database_notes.getAssignees (id);
+  vector <string> assignees = database_notes.get_assignees_v12 (id);
   string assigneeblock;
   for (auto & assignee : assignees) {
     assigneeblock.append (assignee);
@@ -144,25 +144,25 @@ string notes_actions (void * webserver_request)
   if (level >= Filter_Roles::manager ()) view.enable_zone ("assign");
 
   
-  bool assigned = database_notes.isAssigned (id, user);
+  bool assigned = database_notes.is_assigned_v12 (id, user);
   if (assigned) view.enable_zone ("assigned");
   
   
-  string status = database_notes.getStatus (id);
+  string status = database_notes.get_status_v12 (id);
   view.set_variable ("status", status);
   if (Filter_Roles::translator ()) view.enable_zone ("editstatus");
   else view.enable_zone ("viewstatus");
 
   
-  string verses = filter_passage_display_inline (database_notes.getPassages (id));
+  string verses = filter_passage_display_inline (database_notes.get_passages_v12 (id));
   view.set_variable ("verses", verses);
                                           
                                           
-  string severity = database_notes.getSeverity (id);
+  string severity = database_notes.get_severity_v12 (id);
   view.set_variable ("severity",  severity);
 
   
-  string bible = database_notes.getBible (id);
+  string bible = database_notes.get_bible_v12 (id);
   view.set_variable ("bible", bible);
   if (bible.empty ()) view.enable_zone ("nobible");
 
@@ -171,14 +171,14 @@ string notes_actions (void * webserver_request)
   
 
   if (access_logic_privilege_delete_consultation_notes (webserver_request)) view.enable_zone ("deletenote");
-  bool marked = database_notes.isMarkedForDeletion (id);
+  bool marked = database_notes.is_marked_for_deletion_v12 (id);
   if (marked) view.enable_zone ("marked");
   else view.enable_zone ("mark");
   
   
 #ifndef HAVE_CLIENT
   view.enable_zone ("cloud");
-  string on_off = styles_logic_off_on_inherit_toggle_text (database_notes.getPublic (id));
+  string on_off = styles_logic_off_on_inherit_toggle_text (database_notes.get_public_v12 (id));
   view.set_variable ("publicnote", on_off);
 #endif
   // Roles of translator or higher can edit the public visibility of a note.

@@ -111,7 +111,7 @@ string notes_bulk (void * webserver_request)
   // This is done to remember them as long as this page is active.
   // Thus erroneous bulk operations on notes can be rectified somewhat easier.
   if (!subscribe && !unsubscribe && !assign && !unassign && !status && !severity && !bible && !erase) {
-    vector <int> identifiers = database_notes.selectNotes (bibles,
+    vector <int> identifiers = database_notes.select_notes_v12 (bibles,
                                               book,
                                               chapter,
                                               verse,
@@ -171,7 +171,7 @@ string notes_bulk (void * webserver_request)
     vector <string> assignees = database_noteassignment.assignees (user);
     if (in_array (assign, assignees)) {
       for (auto identifier : identifiers) {
-        if (!database_notes.isAssigned (identifier, assign)) {
+        if (!database_notes.is_assigned_v12 (identifier, assign)) {
           notes_logic.assignUser (identifier, assign);
         }
       }
@@ -184,7 +184,7 @@ string notes_bulk (void * webserver_request)
   if (unassign) {
     string unassign = request->query["unassign"];
     for (auto identifier : identifiers) {
-      if (database_notes.isAssigned (identifier, unassign)) {
+      if (database_notes.is_assigned_v12 (identifier, unassign)) {
         notes_logic.unassignUser (identifier, unassign);
       }
     }
@@ -196,7 +196,7 @@ string notes_bulk (void * webserver_request)
   if (status) {
     string status = request->query["status"];
     for (auto identifier : identifiers) {
-      if (database_notes.getRawStatus (identifier) != status) {
+      if (database_notes.get_raw_status_v12 (identifier) != status) {
         notes_logic.setStatus (identifier, status);
       }
     }
@@ -208,7 +208,7 @@ string notes_bulk (void * webserver_request)
   if (severity) {
     int severity = convert_to_int (request->query["severity"]);
     for (auto identifier : identifiers) {
-      if (database_notes.getRawSeverity (identifier) != severity) {
+      if (database_notes.get_raw_severity_v12 (identifier) != severity) {
         notes_logic.setRawSeverity (identifier, severity);
       }
     }
@@ -221,7 +221,7 @@ string notes_bulk (void * webserver_request)
     string bible = request->query["bible"];
     if (bible == notes_logic.generalBibleName ()) bible = "";
     for (auto identifier : identifiers) {
-      if (database_notes.getBible (identifier) != bible) {
+      if (database_notes.get_bible_v12 (identifier) != bible) {
         notes_logic.setBible (identifier, bible);
       }
     }

@@ -34,12 +34,14 @@
 
 // This function runs the sprint burndown history logger for $bible.
 // If no $bible is passed, it will do all Bibles.
-// If $mail is true, it will mail the burndown chart to the subscribed users.
-// If $mail is false, it decides on its own whether to mail the chart to the users.
-void sprint_burndown (string bible, bool email)
+// It may be passed a manual year and manual month.
+// In those cases it will mail the burndown chart to the subscribed users.
+// Else it decides on its own whether to mail the chart to the users.
+void sprint_burndown (string bible, int manualyear, int manualmonth)
 {
   (void) bible;
-  (void) email;
+  (void) manualyear;
+  (void) manualmonth;
 #ifdef HAVE_CLOUD
   int localseconds = filter_date_local_seconds (filter_date_seconds_since_epoch ());
   int year = filter_date_numerical_year (localseconds);
@@ -49,6 +51,9 @@ void sprint_burndown (string bible, bool email)
   int hour = filter_date_numerical_hour (localseconds);
   bool sprintstart = false;
   bool sprintfinish = false;
+  bool email = false;
+  
+  if (manualyear) email = true;
 
   // Every Friday at 2 PM (14:00h) it sends email about the sprint progress.
   if ((weekday == 5) && (hour == 14)) email = true;
@@ -86,6 +91,14 @@ void sprint_burndown (string bible, bool email)
   year = filter_date_numerical_year (localseconds);
   month = filter_date_numerical_month (localseconds);
   monthday = filter_date_numerical_month_day (localseconds); // 1 to 31.
+  
+  
+  // It sending the planning manually, update the date.
+  if (manualyear) {
+    year = manualyear;
+    month = manualmonth;
+    monthday = 0;
+  }
   
   
   vector <string> bibles = {bible};
@@ -133,7 +146,9 @@ void sprint_burndown (string bible, bool email)
             
             vector <string> body;
             
-            body.push_back ("<h3>" + translate("Sprint Planning and Team's Progress") + " | " + bible + "</h3>");
+            body.push_back ("<h4>" + bible + "</h4>");
+            body.push_back ("<h4>" + locale_logic_month (month) + "</h4>");
+            body.push_back ("<h4>" + translate("Sprint Planning and Team's Progress") + "</h4>");
             body.push_back ("<table>");
             vector <int> tasks = database_sprint.getTasks (bible, year, month);
             for (auto id : tasks) {
@@ -149,7 +164,7 @@ void sprint_burndown (string bible, bool email)
             }
             body.push_back ("</table>");
             
-            body.push_back ("<h3>" + translate("Sprint Burndown Chart - Remaining Tasks") + "</h3>");
+            body.push_back ("<h4>" + translate("Sprint Burndown Chart - Remaining Tasks") + "</h4>");
             string burndownchart = sprint_create_burndown_chart (bible, year, month);
             body.push_back ("<p>" + burndownchart + "</p>");
             

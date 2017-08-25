@@ -106,7 +106,7 @@ string Sync_Logic::checksum (const vector <int> & identifiers)
   Database_Notes database_notes (webserver_request);
   vector <string> checksums;
   for (const auto & identifier : identifiers) {
-    checksums.push_back (database_notes.getChecksum (identifier));
+    checksums.push_back (database_notes.get_checksum_v12 (identifier));
   }
   string checksum = filter_string_implode (checksums, "");
   checksum = md5 (checksum);
@@ -236,7 +236,7 @@ string Sync_Logic::usfm_resource_chapter_checksum (const string& name, int book,
 string Sync_Logic::changes_checksum (const string & username)
 {
   Database_Modifications database_modifications;
-  vector <int> ids = database_modifications.getNotificationIdentifiers (username, false);
+  vector <int> ids = database_modifications.getNotificationIdentifiers (username);
   string checksum;
   for (auto & id : ids) {
     checksum.append (convert_to_string (id));

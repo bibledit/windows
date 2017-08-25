@@ -110,16 +110,13 @@ string editone_index (void * webserver_request)
   // Store the active Bible in the page's javascript.
   view.set_variable ("navigationCode", Navigation_Passage::code (bible));
   
-  string chapterLoaded = locale_logic_text_loaded ();
-  string chapterSaving = locale_logic_text_saving ();
-  string chapterSaved = locale_logic_text_saved ();
-  string chapterRetrying = locale_logic_text_retrying ();
   int verticalCaretPosition = request->database_config_user ()->getVerticalCaretPosition ();
   string script =
-  "var oneverseEditorVerseLoaded = '" + chapterLoaded + "';\n"
-  "var oneverseEditorVerseSaving = '" + chapterSaving + "';\n"
-  "var oneverseEditorVerseSaved = '" + chapterSaved + "';\n"
-  "var oneverseEditorVerseRetrying = '" + chapterRetrying + "';\n"
+  "var oneverseEditorVerseLoaded = '" + locale_logic_text_loaded () + "';\n"
+  "var oneverseEditorWillSave = '" + locale_logic_text_will_save () + "';\n"
+  "var oneverseEditorVerseSaving = '" + locale_logic_text_saving () + "';\n"
+  "var oneverseEditorVerseSaved = '" + locale_logic_text_saved () + "';\n"
+  "var oneverseEditorVerseRetrying = '" + locale_logic_text_retrying () + "';\n"
   "var verticalCaretPosition = " + convert_to_string (verticalCaretPosition) + ";\n";
   config_logic_swipe_enabled (webserver_request, script);
   view.set_variable ("script", script);

@@ -1113,11 +1113,11 @@ void Database_Config_User::setDisplayBreadcrumbs (bool value)
 
 int Database_Config_User::getWorkspaceMenuFadeoutDelay ()
 {
-  return getIValue ("desktop-menu-fadeout-delay", 4);
+  return getIValue ("workspace-menu-fadeout-delay", 4);
 }
 void Database_Config_User::setWorkspaceMenuFadeoutDelay (int value)
 {
-  setIValue ("desktop-menu-fadeout-delay", value);
+  setIValue ("workspace-menu-fadeout-delay", value);
 }
 
 
@@ -1156,7 +1156,7 @@ bool Database_Config_User::getBasicInterfaceModeDefault ()
 #ifdef HAVE_CHROMEAPP
   return true;
 #endif
-  // The app running on a desktop or laptop have default to basic mode for a lower role.
+  // The app running on a workspace or laptop have default to basic mode for a lower role.
   Webserver_Request * request = (Webserver_Request *) webserver_request;
   int level = request->session_logic ()->currentLevel ();
   if (level <= Filter_Roles::manager ()) return true;
@@ -1370,4 +1370,18 @@ bool Database_Config_User::getDismissChangesAtTop ()
 void Database_Config_User::setDismissChangesAtTop (bool value)
 {
   setBValue ("dismiss-changes-at-top", value);
+}
+
+
+const char * quick_note_edit_link_key ()
+{
+  return "quick-note-edit-link";
+}
+bool Database_Config_User::getQuickNoteEditLink ()
+{
+  return getBValue (quick_note_edit_link_key (), false);
+}
+void Database_Config_User::setQuickNoteEditLink (bool value)
+{
+  setBValue (quick_note_edit_link_key (), value);
 }

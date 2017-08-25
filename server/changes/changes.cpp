@@ -55,20 +55,26 @@ string changes_changes (void * webserver_request)
   Webserver_Request * request = (Webserver_Request *) webserver_request;
   Database_Modifications database_modifications;
   
-
-  bool touch = request->session_logic ()->touchEnabled ();
   
-  
-  string page;
-  Assets_Header header = Assets_Header (translate("Changes"), request);
-  header.setStylesheet ();
-  header.addBreadCrumb (menu_logic_translate_menu (), menu_logic_translate_text ());
-  if (touch) header.jQueryTouchOn ();
-  page += header.run ();
-  Assets_View view;
-  
-  
-  string username = request->session_logic()->currentUser ();
+  // Handle AJAX call to load the summary of a change notification.
+  if (request->query.count ("load")) {
+    int identifier = convert_to_int (request->query["load"]);
+    string block;
+    Passage passage = database_modifications.getNotificationPassage (identifier);
+    string link = filter_passage_link_for_opening_editor_at (passage.book, passage.chapter, passage.verse);
+    string category = database_modifications.getNotificationCategory (identifier);
+    if (category == changes_personal_category ()) category = emoji_smiling_face_with_smiling_eyes ();
+    if (category == changes_bible_category ()) category = emoji_open_book ();
+    string modification = database_modifications.getNotificationModification (identifier);
+    block.append ("<div id=\"entry" + convert_to_string (identifier) + "\">\n");
+    block.append ("<a href=\"expand\">" + emoji_file_folder () + "</a>\n");
+    block.append ("<a href=\"remove\">" + emoji_wastebasket () + "</a>\n");
+    block.append (link + "\n");
+    block.append (category + "\n");
+    block.append (modification + "\n");
+    block.append ("</div>\n");
+    return block;
+  }
   
   
   // Handle AJAX call to remove a change notification.
@@ -100,6 +106,20 @@ string changes_changes (void * webserver_request)
   }
   
   
+  
+  string username = request->session_logic()->currentUser ();
+  bool touch = request->session_logic ()->touchEnabled ();
+  
+  
+  string page;
+  Assets_Header header = Assets_Header (translate("Changes"), request);
+  header.setStylesheet ();
+  header.addBreadCrumb (menu_logic_translate_menu (), menu_logic_translate_text ());
+  if (touch) header.jQueryTouchOn ();
+  page += header.run ();
+  Assets_View view;
+  
+  
   // Remove a user's personal changes notifications and their matching change notifications in the Bible.
   string matching = request->query ["matching"];
   if (!matching.empty ()) {
@@ -117,7 +137,7 @@ string changes_changes (void * webserver_request)
   
   // Remove all the personal change notifications.
   if (request->query.count ("personal")) {
-    vector <int> ids = database_modifications.getNotificationTeamIdentifiers (username, changes_personal_category (), true);
+    vector <int> ids = database_modifications.getNotificationTeamIdentifiers (username, changes_personal_category ());
     for (auto id : ids) {
       trash_change_notification (request, id);
       database_modifications.deleteNotification (id);
@@ -131,7 +151,7 @@ string changes_changes (void * webserver_request)
   
   // Remove all the Bible change notifications.
   if (request->query.count ("bible")) {
-    vector <int> ids = database_modifications.getNotificationTeamIdentifiers (username, changes_bible_category (), true);
+    vector <int> ids = database_modifications.getNotificationTeamIdentifiers (username, changes_bible_category ());
     for (auto id : ids) {
       trash_change_notification (request, id);
       database_modifications.deleteNotification (id);
@@ -146,7 +166,7 @@ string changes_changes (void * webserver_request)
   // Remove all the change notifications made by a certain user.
   if (request->query.count ("dismiss")) {
     string user = request->query ["dismiss"];
-    vector <int> ids = database_modifications.getNotificationTeamIdentifiers (username, user, true);
+    vector <int> ids = database_modifications.getNotificationTeamIdentifiers (username, user);
     for (auto id : ids) {
       trash_change_notification (request, id);
       database_modifications.deleteNotification (id);
@@ -160,28 +180,16 @@ string changes_changes (void * webserver_request)
   
   // Read the identifiers.
   // Limit the number of results to keep the page reasonably fast even if there are many notifications.
-  vector <int> personal_ids = database_modifications.getNotificationTeamIdentifiers (username, changes_personal_category (), true);
-  vector <int> bible_ids = database_modifications.getNotificationTeamIdentifiers (username, changes_bible_category (), true);
-  vector <int> ids = database_modifications.getNotificationIdentifiers (username, true);
-
-  
-  string textblock;
+  vector <int> personal_ids = database_modifications.getNotificationTeamIdentifiers (username, changes_personal_category ());
+  vector <int> bible_ids = database_modifications.getNotificationTeamIdentifiers (username, changes_bible_category ());
+  vector <int> ids = database_modifications.getNotificationIdentifiers (username);
+  // Send the identifiers to the browser for download there.
+  string pendingidentifiers;
   for (auto id : ids) {
-    Passage passage = database_modifications.getNotificationPassage (id);
-    string link = filter_passage_link_for_opening_editor_at (passage.book, passage.chapter, passage.verse);
-    string category = database_modifications.getNotificationCategory (id);
-    if (category == changes_personal_category ()) category = emoji_smiling_face_with_smiling_eyes ();
-    if (category == changes_bible_category ()) category = emoji_open_book ();
-    string modification = database_modifications.getNotificationModification (id);
-    textblock.append ("<div id=\"entry" + convert_to_string (id) + "\">\n");
-    textblock.append ("<a href=\"expand\" id=\"expand" + convert_to_string (id) + "\">" + emoji_file_folder () + "</a>\n");
-    textblock.append ("<a href=\"remove\" id=\"remove" + convert_to_string (id) + "\">" + emoji_wastebasket () + "</a>\n");
-    textblock.append (link + "\n");
-    textblock.append (category + "\n");
-    textblock.append (modification + "\n");
-    textblock.append ("</div>\n");
+    if (!pendingidentifiers.empty ()) pendingidentifiers.append (" ");
+    pendingidentifiers.append (convert_to_string (id));
   }
-  view.set_variable ("textblock", textblock);
+  view.set_variable ("pendingidentifiers", pendingidentifiers);
   
   
   string loading = "\"" + translate("Loading ...") + "\"";
@@ -209,7 +217,7 @@ string changes_changes (void * webserver_request)
     if (category == changes_personal_category ()) continue;
     if (category == changes_bible_category ()) continue;
     string user = category;
-    vector <int> ids = database_modifications.getNotificationTeamIdentifiers (username, user, true);
+    vector <int> ids = database_modifications.getNotificationTeamIdentifiers (username, user);
     if (!ids.empty ()) {
       dismissblock.append ("<p>* <a href=\"?dismiss=");
       dismissblock.append (user);
@@ -229,7 +237,7 @@ string changes_changes (void * webserver_request)
   for (auto & category : categories) {
     if (category == changes_bible_category ()) continue;
     string user = category;
-    vector <int> personal_ids = database_modifications.getNotificationTeamIdentifiers (username, user, true);
+    vector <int> personal_ids = database_modifications.getNotificationTeamIdentifiers (username, user);
     string icon = category;
     if (category == changes_personal_category ()) icon = emoji_smiling_face_with_smiling_eyes ();
     if (!personal_ids.empty () && !bible_ids.empty ()) {
@@ -247,12 +255,15 @@ string changes_changes (void * webserver_request)
   view.set_variable ("interlinks", changes_interlinks (webserver_request, changes_changes_url ()));
   
   
-  // Whether to put the controls for dismissing changes at the bottom of the page,
-  // as the default location, or whether to put them at the top of the page.
-  if (request->database_config_user ()->getDismissChangesAtTop ()) {
-    view.enable_zone ("controlsattop");
-  } else {
-    view.enable_zone ("controlsatbottom");
+  // Whether to show the controls for dismissing the changes.
+  if (!ids.empty ()) {
+    // Whether to put those controls at the bottom of the page, as the default location,
+    // or whether to put them at the top of the page.
+    if (request->database_config_user ()->getDismissChangesAtTop ()) {
+      view.enable_zone ("controlsattop");
+    } else {
+      view.enable_zone ("controlsatbottom");
+    }
   }
   
   

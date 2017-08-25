@@ -93,6 +93,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <bible/logic.h>
 #include <ldap/logic.h>
+#include <jsonxx/jsonxx.h>
 
 
 string menu_logic_href (string href)
@@ -178,7 +179,7 @@ string menu_logic_main_categories (void * webserver_request, string & tooltip)
   if (workspace_index_acl (webserver_request)) {
     string label = translate ("Workspace");
     string tooltip;
-    menu_logic_desktop_category (webserver_request, &tooltip);
+    menu_logic_workspace_category (webserver_request, &tooltip);
     html.push_back (menu_logic_create_item (workspace_index_url (), label, true, tooltip));
     tooltipbits.push_back (label);
   }
@@ -274,11 +275,11 @@ string menu_logic_basic_categories (void * webserver_request)
   }
 
   if (notes_index_acl (webserver_request)) {
-    html.push_back (menu_logic_create_item (notes_index_url (), translate ("Notes"), true));
+    html.push_back (menu_logic_create_item (notes_index_url (), menu_logic_consultation_notes_text (), true));
   }
   
   if (resource_index_acl (webserver_request)) {
-    html.push_back (menu_logic_create_item (resource_index_url (), translate ("Resources"), true));
+    html.push_back (menu_logic_create_item (resource_index_url (), menu_logic_resources_text (), true));
   }
 
   if (personalize_index_acl (webserver_request)) {
@@ -315,19 +316,19 @@ string menu_logic_basic_categories (void * webserver_request)
 }
 
 
-string menu_logic_desktop_category (void * webserver_request, string * tooltip)
+string menu_logic_workspace_category (void * webserver_request, string * tooltip)
 {
   vector <string> html;
   vector <string> labels;
 
-  // Add the available configured desktops to the menu.
+  // Add the available configured workspaces to the menu.
   // The user's role should be sufficiently high.
   if (workspace_organize_acl (webserver_request)) {
-    vector <string> workspacees = workspace_get_names (webserver_request);
-    for (size_t i = 0; i < workspacees.size(); i++) {
-      string item = menu_logic_create_item (workspace_index_url () + "?bench=" + convert_to_string (i), workspacees[i], true);
+    vector <string> workspaces = workspace_get_names (webserver_request);
+    for (size_t i = 0; i < workspaces.size(); i++) {
+      string item = menu_logic_create_item (workspace_index_url () + "?bench=" + convert_to_string (i), workspaces[i], true);
       html.push_back (item);
-      labels.push_back (workspacees [i]);
+      labels.push_back (workspaces [i]);
     }
   }
 
@@ -343,45 +344,34 @@ string menu_logic_translate_category (void * webserver_request, string * tooltip
   vector <string> html;
   vector <string> labels;
   
+  // Visual chapter editor.
   if (edit_index_acl (webserver_request)) {
-    //if (menu_logic_editor_enabled (webserver_request, true, true)) {
-      string label = menu_logic_editor_menu_text (webserver_request, true, true);
-      html.push_back (menu_logic_create_item (edit_index_url (), label, true));
-      labels.push_back (label);
-    //}
-  }
-  
-  if (editone_index_acl (webserver_request)) {
-    //if (menu_logic_editor_enabled (webserver_request, true, false)) {
-      string label = menu_logic_editor_menu_text (webserver_request, true, false);
-      html.push_back (menu_logic_create_item (editone_index_url (), label, true));
-      labels.push_back (label);
-    //}
+    string label = menu_logic_editor_menu_text (true, true);
+    html.push_back (menu_logic_create_item (edit_index_url (), label, true));
+    labels.push_back (label);
   }
 
+  // Visual verse editor.
+  if (editone_index_acl (webserver_request)) {
+    string label = menu_logic_editor_menu_text (true, false);
+    html.push_back (menu_logic_create_item (editone_index_url (), label, true));
+    labels.push_back (label);
+  }
+
+  // USFM (chapter) editor.
   if (editusfm_index_acl (webserver_request)) {
-    //if (menu_logic_editor_enabled (webserver_request, false, true)) {
-      string label = menu_logic_editor_menu_text (webserver_request, false, true);
-      html.push_back (menu_logic_create_item (editusfm_index_url (), label, true));
-      labels.push_back (label);
-    //}
+    string label = menu_logic_editor_menu_text (false, true);
+    html.push_back (menu_logic_create_item (editusfm_index_url (), label, true));
+    labels.push_back (label);
   }
     
-  if (editverse_index_acl (webserver_request)) {
-    //if (menu_logic_editor_enabled (webserver_request, false, false)) {
-      string label = menu_logic_editor_menu_text (webserver_request, false, false);
-      html.push_back (menu_logic_create_item (editverse_index_url (), label, true));
-      labels.push_back (label);
-    //}
-  }
-  
   if (notes_index_acl (webserver_request)) {
     html.push_back (menu_logic_create_item (notes_index_url (), menu_logic_consultation_notes_text (), true));
     labels.push_back (menu_logic_consultation_notes_text ());
   }
 
   if (resource_index_acl (webserver_request)) {
-    string label = translate ("Resources");
+    string label = menu_logic_resources_text ();
     html.push_back (menu_logic_create_item (resource_index_url (), label, true));
     labels.push_back (label);
   }
@@ -635,12 +625,11 @@ string menu_logic_tools_category (void * webserver_request, string * tooltip)
 string menu_logic_settings_category (void * webserver_request, string * tooltip)
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
-  bool client = client_logic_client_enabled ();
-  bool demo = config_logic_demo_enabled ();
+  bool  demo = config_logic_demo_enabled ();
 
   // The labels that may end up in the menu.
   string bibles = menu_logic_bible_manage_text ();
-  string desktops = menu_logic_desktop_organize_text ();
+  string workspaces = menu_logic_workspace_organize_text ();
   string checks = menu_logic_checks_settings_text ();
   string resources = menu_logic_resources_text ();
   string changes = menu_logic_changes_text ();
@@ -660,7 +649,7 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
   string system = translate ("System");
   vector <string> labels = {
     bibles,
-    desktops,
+    workspaces,
     checks,
     resources,
     changes,
@@ -697,10 +686,10 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
       }
     }
     
-    if (label == desktops) {
+    if (label == workspaces) {
       if (workspace_organize_acl (webserver_request)) {
-        html.push_back (menu_logic_create_item (workspace_organize_url (), menu_logic_desktop_organize_text (), true));
-        tiplabels.push_back (menu_logic_desktop_organize_text ());
+        html.push_back (menu_logic_create_item (workspace_organize_url (), menu_logic_workspace_organize_text (), true));
+        tiplabels.push_back (menu_logic_workspace_organize_text ());
       }
     }
     
@@ -850,8 +839,9 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
       }
     }
     
+#ifdef HAVE_CLOUD
     if (label == account) {
-      if (!(client || demo)) {
+      if (!demo) {
         if (!ldap_logic_is_on ()) {
           if (user_account_acl (webserver_request)) {
             html.push_back (menu_logic_create_item (user_account_url (), label, true));
@@ -860,6 +850,7 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
         }
       }
     }
+#endif
     
     if (label == basic_mode) {
       if (request->session_logic ()->currentLevel () > Filter_Roles::guest ()) {
@@ -1004,7 +995,7 @@ string menu_logic_menu_text (string menu_item)
   if (menu_item == menu_logic_settings_menu ()) {
     return menu_logic_settings_text ();
   }
-  return translate ("Menu");
+  return menu_logic_menu_text ();
 }
 
 
@@ -1083,7 +1074,7 @@ string menu_logic_bible_manage_text ()
 }
 
 
-string menu_logic_desktop_organize_text ()
+string menu_logic_workspace_organize_text ()
 {
   return translate ("Workspaces");
 }
@@ -1149,6 +1140,13 @@ string menu_logic_styles_text ()
 }
 
 
+string menu_logic_menu_text ()
+{
+  return translate ("Menu");
+  
+}
+
+
 string menu_logic_editor_settings_text (bool visual, int selection)
 {
   if (visual) {
@@ -1156,9 +1154,8 @@ string menu_logic_editor_settings_text (bool visual, int selection)
     if (selection == 1) return translate ("Only the visual chapter editor");
     if (selection == 2) return translate ("Only the visual verse editor");
   } else {
-    if (selection == 0) return translate ("Both the USFM chapter and USFM verse editors");
-    if (selection == 1) return translate ("Only the USFM chapter editor");
-    if (selection == 2) return translate ("Only the USFM verse editor");
+    if (selection <= 0) return translate ("Hide");
+    if (selection >= 1) return translate ("Show");
   }
   return "";
 }
@@ -1173,37 +1170,92 @@ bool menu_logic_editor_enabled (void * webserver_request, bool visual, bool chap
   if (visual) selection = request->database_config_user ()->getFastSwitchVisualEditors ();
   else selection = request->database_config_user ()->getFastSwitchUsfmEditors ();
   
-  // Check whether the visual or USFM chapter/verse editor is active.
-  if (selection == 0) return true;
-  if ((selection == 1) && chapter) return true;
-  if ((selection == 2) && !chapter) return true;
-  
+  if (visual) {
+    // Check whether the visual chapter or verse editor is active.
+    if (selection == 0) return true;
+    if ((selection == 1) && chapter) return true;
+    if ((selection == 2) && !chapter) return true;
+  } else {
+    // Check whether the USFM chapter editor is active.
+    if (selection >= 1) return true;
+  }
+
   // The requested editor is inactive.
   return false;
 }
 
 
-string menu_logic_editor_menu_text (void * webserver_request, bool visual, bool chapter)
+string menu_logic_editor_menu_text (bool visual, bool chapter)
 {
-  //Webserver_Request * request = (Webserver_Request *) webserver_request;
-  (void) webserver_request;
-  
-  // Get the user's preference for the visual or USFM editors.
-  int selection = 0;
-  /*
-  if (visual) selection = request->database_config_user ()->getFastSwitchVisualEditors ();
-  else selection = request->database_config_user ()->getFastSwitchUsfmEditors ();
-   */
-  
   // Get the correct menu text.
-  bool both = (selection == 0);
-  if (visual && chapter && both) return translate ("Visual chapter editor");
-  if (visual && !chapter && both) return translate ("Visual verse editor");
-  if (visual && !both) return translate ("Text");
-  
-  if (!visual && chapter && both) return translate ("USFM chapter editor");
-  if (!visual && !chapter && both) return translate ("USFM verse editor");
-  if (!visual && !both) return translate ("USFM");
-  
+  if (visual && chapter) return translate ("Chapter editor");
+  if (visual && !chapter) return translate ("Verse editor");
+  if (!visual) return translate ("USFM editor");
+  // Fallback.
   return translate ("Bible");
+}
+
+
+// Whether the device can do tabbed mode.
+bool menu_logic_can_do_tabbed_mode ()
+{
+#ifdef HAVE_ANDROID
+  return true;
+#endif
+#ifdef HAVE_IOS
+  return true;
+#endif
+  return false;
+}
+
+
+// For internal repatitive use.
+jsonxx::Object menu_logic_tabbed_mode_add_tab (string url, string label)
+{
+  jsonxx::Object object;
+  object << "url" << url;
+  object << "label" << label;
+  return object;
+}
+
+
+// This looks at the settings, and then generates JSON, and stores that in the general configuration.
+void menu_logic_tabbed_mode_save_json (void * webserver_request)
+{
+  string json;
+
+  // Whether the device can do tabbed mode.
+  if (menu_logic_can_do_tabbed_mode ()) {
+    
+    // If the setting is on, generate the JSON.
+    bool generate_json = Database_Config_General::getMenuInTabbedViewOn ();
+    
+    // Tabbed view not possible in advanced mode.
+    Webserver_Request * request = (Webserver_Request *) webserver_request;
+    if (!request->database_config_user ()->getBasicInterfaceMode ()) {
+      generate_json = false;
+    }
+    
+    if (generate_json) {
+      // Storage for the tabbed view.
+      jsonxx::Array json_array;
+      // Adding tabs in the order an average translator uses them most of the time:
+      // Add the Bible editor tab.
+      json_array << menu_logic_tabbed_mode_add_tab (editone_index_url (), menu_logic_translate_text ());
+      // Add the resources tab.
+      json_array << menu_logic_tabbed_mode_add_tab (resource_index_url (), menu_logic_resources_text ());
+      // Add the consultation notes tab.
+      json_array << menu_logic_tabbed_mode_add_tab (notes_index_url (), menu_logic_consultation_notes_text ());
+      // Add the change notifications, if enabled.
+      if (request->database_config_user ()->getMenuChangesInBasicMode ()) {
+        json_array << menu_logic_tabbed_mode_add_tab (changes_changes_url (), menu_logic_changes_text ());
+      }
+      // Add the preferences tab.
+      json_array << menu_logic_tabbed_mode_add_tab (personalize_index_url (), menu_logic_settings_text ());
+      // JSON representation of the URLs.
+      json = json_array.json ();
+    }
+  }
+
+  Database_Config_General::setMenuInTabbedViewJSON (json);
 }

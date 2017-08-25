@@ -424,12 +424,6 @@ void Database_Config_General::setIndexBibles (bool value)
 }
 
 
-bool Database_Config_General::getReadFromGit ()
-{
-  return getBValue ("read-from-git", false);
-}
-
-
 int Database_Config_General::getUnsentBibleDataTime ()
 {
   return getIValue ("unsent-bible-data-time", 0);
@@ -477,4 +471,32 @@ bool Database_Config_General::getJustConnectedToCloud ()
 void Database_Config_General::setJustConnectedToCloud (bool value)
 {
   setBValue ("just-connected-to-cloud", value);
+}
+
+
+const char * menu_in_tabbed_view_on_key ()
+{
+  return "menu-in-tabbed-view-on";
+}
+bool Database_Config_General::getMenuInTabbedViewOn ()
+{
+  return getBValue (menu_in_tabbed_view_on_key (), true);
+}
+void Database_Config_General::setMenuInTabbedViewOn (bool value)
+{
+  setBValue (menu_in_tabbed_view_on_key (), value);
+}
+
+
+const char * menu_in_tabbed_view_json_key ()
+{
+  return "menu-in-tabbed-view-json";
+}
+string Database_Config_General::getMenuInTabbedViewJSON ()
+{
+  return getValue (menu_in_tabbed_view_json_key (), "");
+}
+void Database_Config_General::setMenuInTabbedViewJSON (string value)
+{
+  setValue (menu_in_tabbed_view_json_key (), value);
 }

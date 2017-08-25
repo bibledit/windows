@@ -193,13 +193,15 @@ string system_index (void * webserver_request)
   
 #ifdef HAVE_CLIENT
   bool producebibles = request->query.count ("producebibles");
+  bool producenotes = request->query.count ("producenotes");
   bool produceresources = request->query.count ("produceresources");
-  if (producebibles || produceresources) {
+  if (producebibles || producenotes || produceresources) {
     Database_Jobs database_jobs;
     int jobId = database_jobs.getNewId ();
     database_jobs.setLevel (jobId, Filter_Roles::member ());
     string task;
     if (producebibles) task = PRODUCEBIBLESTRANSFERFILE;
+    if (producenotes) task = PRODUCERENOTESTRANSFERFILE;
     if (produceresources) task = PRODUCERESOURCESTRANSFERFILE;
     tasks_logic_queue (task, { convert_to_string (jobId) });
     redirect_browser (request, jobs_index_url () + "?id=" + convert_to_string (jobId));
@@ -231,6 +233,30 @@ string system_index (void * webserver_request)
   }
 #endif
 
+  
+#ifdef HAVE_CLIENT
+  string importnotes = "importnotes";
+  if (request->query.count (importnotes)) {
+    if (request->post.count ("upload")) {
+      string datafile = filter_url_tempfile () + request->post ["filename"];
+      string data = request->post ["data"];
+      if (!data.empty ()) {
+        filter_url_file_put_contents (datafile, data);
+        success = translate("Import has started.");
+        view.set_variable ("journal", journal_logic_see_journal_for_progress ());
+        tasks_logic_queue (IMPORTNOTESTRANSFERFILE, { datafile });
+      } else {
+        error = translate ("Nothing was imported");
+      }
+    } else {
+      Dialog_Upload dialog = Dialog_Upload ("index", translate("Import a file with local Consultation Notes"));
+      dialog.add_upload_query (importnotes, "");
+      page.append (dialog.run ());
+      return page;
+    }
+  }
+#endif
+  
   
 #ifdef HAVE_CLIENT
   string importresources = "importresources";

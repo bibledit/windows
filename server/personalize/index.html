@@ -69,8 +69,8 @@ translate("Show breadcrumbs"):
 <br>
 <p>
 translate("Workspace menu fade-out delay"):
-<a href="?desktopfadeoutdelay=">##desktopfadeoutdelay## seconds</a>.
-translate("How long it takes for the desktop menu to start fading out.")
+<a href="?workspacefadeoutdelay=">##workspacefadeoutdelay## seconds</a>.
+translate("How long it takes for the workspace menu to start fading out.")
 </p>
 
 <!-- #BEGINZONE bibles -->
@@ -83,20 +83,16 @@ translate("The permitted difference can be set below as a percentage.")
 </p>
 <p>translate("Maximum difference for:")</p>
 <table>
-  <!-- #BEGINZONE chaptereditors -->
   <tr>
-    <td><label for="chapterpercentage">##chaptereditors##:</label></td>
+    <td><label for="chapterpercentage">translate("Chapter editors:")</label></td>
     <td><input type="range" name="chapterpercentage" id="chapterpercentage" value="##chapterpercentage##" min="10" max="100"></td>
     <td><label id="chapterpercentageval" for="chapterpercentage">##chapterpercentage##</label>%</td>
   </tr>
-  <!-- #ENDZONE chaptereditors -->
-  <!-- #BEGINZONE verseeditors -->
   <tr>
-    <td><label for="versepercentage">##verseeditors##:</label></td>
+    <td><label for="versepercentage">translate("Verse editor:")</label></td>
     <td><input type="range" name="versepercentage" id="versepercentage" value="##versepercentage##" min="10" max="100"></td>
     <td><label id="versepercentageval" for="versepercentage">##versepercentage##</label>%</td>
   </tr>
-  <!-- #ENDZONE verseeditors -->
 </table>
 <!-- #ENDZONE bibles -->
 
@@ -104,6 +100,7 @@ translate("The permitted difference can be set below as a percentage.")
 <p>
 translate("Keep main menu always visible"):
 <a href="?menuvisible=">##menuvisible##</a>.
+translate("This works in both basic and advanced mode.")
 </p>
 
 <!-- #BEGINZONE touch -->
@@ -113,17 +110,17 @@ translate("Keep main menu always visible"):
 
 <br>
 <p>
-translate("Enable fast Bible editor switching"):
+translate("Show a link in the Bible editor to select another Bible editor"):
 <a href="?fasteditorswitch=">##fasteditorswitch##</a>.
 </p>
 
 <br>
 <p>
-translate("Available Bible editors in fast Bible editor switcher:")
+translate("Available Bible editors in the Bible editor selector:")
 [<a href="../editor/select">...</a>]
 </p>
-<p>translate("Visual editors:") <a href="?fastswitchvisualeditors=">##fastswitchvisualeditors##</a>.</p>
-<p>translate("USFM editors:") <a href="?fastswitchusfmeditors=">##fastswitchusfmeditors##</a>.</p>
+<p>translate("Text editors:") <a href="?fastswitchvisualeditors=">##fastswitchvisualeditors##</a>.</p>
+<p>translate("USFM editor:") <a href="?fastswitchusfmeditors=">##fastswitchusfmeditors##</a>.</p>
 
 <br>
 <p>
@@ -189,6 +186,7 @@ translate ("Whether to have a menu entry to go to the changes.")
 
 <!-- #ENDZONE basicmode -->
 
+<!-- #BEGINZONE advancedmode -->
 <br>
 <p>
 translate ("Controls for dismissing change notifications at the top"):
@@ -196,5 +194,26 @@ translate ("Controls for dismissing change notifications at the top"):
 translate ("This applies to the page with the change notifications.")
 translate ("Normally the controls are at the bottom of the page.")
 </p>
+<!-- #ENDZONE advancedmode -->
+
+<!-- #BEGINZONE basicmode -->
+<!-- #BEGINZONE tabs_possible -->
+<br>
+<p>
+translate("Display main menu in tabbed view"):
+<a href="?mainmenutabs=">##mainmenutabs##</a>.
+</p>
+<!-- #ENDZONE tabs_possible -->
+<!-- #ENDZONE basicmode -->
+
+<!-- #BEGINZONE advancedmode -->
+<br>
+<p>
+translate ("Quickly edit consultation note contents"):
+<a href="?quickeditnotecontents">##quickeditnotecontents##</a>.
+translate ("This adds a control for editing the note contents right below the note contents.")
+translate ("This is an extra control in addition to the normal one.")
+</p>
+<!-- #ENDZONE advancedmode -->
 
 <script type="text/javascript" src="index.js?##VERSION##"></script>

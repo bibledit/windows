@@ -113,7 +113,7 @@ string changes_change (void * webserver_request)
   
   
   // Get notes for the passage.
-  vector <int> notes = database_notes.selectNotes (bibles, // Bibles.
+  vector <int> notes = database_notes.select_notes_v12 (bibles, // Bibles.
                                                    passage.book, passage.chapter, convert_to_int (passage.verse),
                                                    0,  // Passage selector.
                                                    0,  // Edit selector.
@@ -130,7 +130,7 @@ string changes_change (void * webserver_request)
   // Remove the ones marked for deletion.
   vector <int> notes2;
   for (auto note : notes) {
-    if (!database_notes.isMarkedForDeletion (note)) {
+    if (!database_notes.is_marked_for_deletion_v12 (note)) {
       notes2.push_back (note);
     }
   }
@@ -139,7 +139,7 @@ string changes_change (void * webserver_request)
   // Sort them, most recent notes first.
   vector <int> timestamps;
   for (auto note : notes) {
-    int timestap = database_notes.getModified (note);
+    int timestap = database_notes.get_modified_v12 (note);
     timestamps.push_back (timestap);
   }
   quick_sort (timestamps, notes, 0, notes.size ());
@@ -155,10 +155,10 @@ string changes_change (void * webserver_request)
   // Details for the notes.
   string notesblock;
   for (auto & note : notes) {
-    string summary = database_notes.getSummary (note);
+    string summary = database_notes.get_summary_v12 (note);
     summary = filter_string_sanitize_html (summary);
-    bool subscription = database_notes.isSubscribed (note, username);
-    bool assignment = database_notes.isAssigned (note, username);
+    bool subscription = database_notes.is_subscribed_v12 (note, username);
+    bool assignment = database_notes.is_assigned_v12 (note, username);
     notesblock.append ("<tr>\n");
     notesblock.append ("<td>\n");
     if (live_notes_editor) {
@@ -169,17 +169,17 @@ string changes_change (void * webserver_request)
     notesblock.append ("</td>\n");
     notesblock.append ("<td>");
     if (subscription) {
-      notesblock.append ("<a href=\"unsubscribe\" id=\"unsubscribe" + convert_to_string (note) + "\">[" + translate("unsubscribe") + "]</a>");
+      notesblock.append ("<a href=\"unsubscribe" + convert_to_string (note) + "\">[" + translate("unsubscribe") + "]</a>");
     }
     notesblock.append ("</td>\n");
     notesblock.append ("<td>");
     if (assignment) {
-      notesblock.append ("<a href=\"unassign\" id=\"unassign" + convert_to_string (note) + "\">[" + translate("I have done my part on it") + "]</a>");
+      notesblock.append ("<a href=\"unassign" + convert_to_string (note) + "\">[" + translate("I have done my part on it") + "]</a>");
     }
     notesblock.append ("</td>\n");
     notesblock.append ("<td>");
     if (level >= Filter_Roles::manager ()) {
-      notesblock.append ("<a href=\"delete\" id=\"delete" + convert_to_string (note) + "\">[" + translate("mark for deletion") + "]</a>");
+      notesblock.append ("<a href=\"delete" + convert_to_string (note) + "\">[" + translate("mark for deletion") + "]</a>");
     }
     notesblock.append ("</td>\n");
     notesblock.append ("</tr>\n");

@@ -298,6 +298,7 @@ function editorContentChanged ()
 {
   if (!editorWriteAccess) return;
   editorTextChanged = true;
+  editorStatus (editorWillSave);
   editorContentChangedTimeoutStart ();
 }
 
@@ -523,6 +524,7 @@ function editorActiveStylesFeedback ()
 function editorSelectiveNotification (message)
 {
   if (message == editorChapterLoaded) return;
+  if (message == editorWillSave) return;
   if (message == editorChapterSaving) return;
   if (message == editorChapterSaved) return;
   if (message == editorChapterReformat) return;

@@ -40,10 +40,10 @@ void trash_change_notification (void * webserver_request, int id)
 void trash_consultation_note (void * webserver_request, int id)
 {
   Database_Notes database_notes (webserver_request);
-  vector <Passage> passages = database_notes.getPassages (id);
+  vector <Passage> passages = database_notes.get_passages_v12 (id);
   string passageText = filter_passage_display_inline (passages);
-  string summary = database_notes.getSummary (id);
-  string contents = database_notes.getContents (id);
+  string summary = database_notes.get_summary_v12 (id);
+  string contents = database_notes.get_contents_v12 (id);
   contents = filter_string_html2text (contents);
   Webserver_Request * request = (Webserver_Request *) webserver_request;
   string username = request->session_logic()->currentUser ();

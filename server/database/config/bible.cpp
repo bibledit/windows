@@ -354,6 +354,16 @@ void Database_Config_Bible::setCheckSpaceEndVerse (string bible, bool value)
 }
 
 
+bool Database_Config_Bible::getCheckFrenchPunctuation (string bible)
+{
+  return getBValue (bible, "check-french-punctuation", false);
+}
+void Database_Config_Bible::setCheckFrenchPunctuation (string bible, bool value)
+{
+  setBValue (bible, "check-french-punctuation", value);
+}
+
+
 string Database_Config_Bible::getSprintTaskCompletionCategories (string bible)
 {
   return getValue (bible, "sprint-task-completion-categories", "Translate\nCheck\nHebrew/Greek\nDiscussions");
@@ -721,4 +731,14 @@ bool Database_Config_Bible::getPublicFeedbackEnabled (string bible)
 void Database_Config_Bible::setPublicFeedbackEnabled (string bible, bool value)
 {
   setBValue (bible, "public-feedback-enabled", value);
+}
+
+
+bool Database_Config_Bible::getReadFromGit (string bible)
+{
+  return getBValue (bible, "read-from-git", false);
+}
+void Database_Config_Bible::setReadFromGit (string bible, bool value)
+{
+  setBValue (bible, "read-from-git", value);
 }

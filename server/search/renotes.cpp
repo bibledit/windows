@@ -54,7 +54,7 @@ void search_reindex_notes ()
 
 
   // Set a flag indicating that the notes databases are not available to clients and other parties.
-  database_notes.set_availability (false);
+  database_notes.set_availability_v12 (false);
   
   
   // Delay shortly to give existing processes a change to complete.
@@ -63,11 +63,11 @@ void search_reindex_notes ()
 
 
   // Check on health of the databases, and optionally recreate them.
-  bool recreate = database_notes.checkup ();
+  bool recreate = database_notes.checkup_v12 ();
   if (recreate) {
     Database_Logs::log ("The Consultation Notes main index was damaged and is being recreated", Filter_Roles::manager ());
   }
-  recreate = database_notes.checkup_checksums ();
+  recreate = database_notes.checkup_checksums_v12 ();
   if (recreate) {
     Database_Logs::log ("The Consultation Notes checksums database was damaged and is being recreated", Filter_Roles::manager ());
   }
@@ -79,11 +79,11 @@ void search_reindex_notes ()
   // Then the notes index would not match the notes data.
   // Syncing ensures the index matches the notes data in the filesystem.
   Database_Logs::log ("Updating Consultation Notes databases", Filter_Roles::manager ());
-  database_notes.sync ();
+  database_notes.sync_v12 ();
   
   
   // Set the availability flag so that clients and other parties access the notes databases again.
-  database_notes.set_availability (true);
+  database_notes.set_availability_v12 (true);
   
   
   Database_Logs::log ("Updating Consultation Notes databases ready", Filter_Roles::manager ());

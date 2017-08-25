@@ -36,6 +36,7 @@
 #include <checks/logic.h>
 #include <assets/header.h>
 #include <menu/logic.h>
+#include <journal/logic.h>
 
 
 string checks_settings_url ()
@@ -86,7 +87,8 @@ string checks_settings (void * webserver_request)
   
   if (request->query.count ("run")) {
     checks_logic_start (bible);
-    view.set_variable ("success", translate("Will run the checks. See the Journal for progress."));
+    view.set_variable ("success", translate("Will run the checks."));
+    view.set_variable ("journal", journal_logic_see_journal_for_progress ());
   }
   
   
@@ -164,6 +166,12 @@ string checks_settings (void * webserver_request)
     Database_Config_Bible::setCheckSpaceEndVerse (bible, checked);
   }
   view.set_variable ("spaceendverse", get_checkbox_status (Database_Config_Bible::getCheckSpaceEndVerse (bible)));
+
+  
+  if (checkbox == "frenchpunctuation") {
+    Database_Config_Bible::setCheckFrenchPunctuation (bible, checked);
+  }
+  view.set_variable ("frenchpunctuation", get_checkbox_status (Database_Config_Bible::getCheckFrenchPunctuation (bible)));
 
   
   view.set_variable ("bible", bible);

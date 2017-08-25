@@ -200,7 +200,7 @@ void tasks_run_one (string filename)
     changes_modifications ();
   }
   else if (command == SPRINTBURNDOWN) {
-    sprint_burndown ("", false);
+    sprint_burndown ("", 0, 0);
   }
   else if (command == CHECKBIBLE) {
     checks_run (parameter1);
@@ -289,6 +289,12 @@ void tasks_run_one (string filename)
   }
   else if (command == IMPORTBIBLESTRANSFERFILE) {
     system_logic_import_bibles_file (parameter1);
+  }
+  else if (command == PRODUCERENOTESTRANSFERFILE) {
+    system_logic_produce_notes_file (convert_to_int (parameter1));
+  }
+  else if (command == IMPORTNOTESTRANSFERFILE) {
+    system_logic_import_notes_file (parameter1);
   }
   else if (command == PRODUCERESOURCESTRANSFERFILE) {
     system_logic_produce_resources_file (convert_to_int (parameter1));

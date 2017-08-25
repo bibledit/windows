@@ -72,6 +72,8 @@ public:
   static void setMatchingPairs (string bible, string value);
   static bool getCheckSpaceEndVerse (string bible);
   static void setCheckSpaceEndVerse (string bible, bool value);
+  static bool getCheckFrenchPunctuation (string bible);
+  static void setCheckFrenchPunctuation (string bible, bool value);
   static string getSprintTaskCompletionCategories (string bible);
   static void setSprintTaskCompletionCategories (string bible, string value);
   static int getRepeatSendReceive (string bible);
@@ -146,6 +148,8 @@ public:
   static void setLetterSpacing (string bible, int value);
   static bool getPublicFeedbackEnabled (string bible);
   static void setPublicFeedbackEnabled (string bible, bool value);
+  static bool getReadFromGit (string bible);
+  static void setReadFromGit (string bible, bool value);
 private:
   static string file (string bible);
   static string file (string bible, const char * key);
