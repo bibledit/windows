@@ -171,12 +171,10 @@
     <ClCompile Include="access\bible.cpp" />
     <ClCompile Include="access\logic.cpp" />
     <ClCompile Include="access\user.cpp" />
-    <ClCompile Include="administration\language.cpp" />
     <ClCompile Include="assets\external.cpp" />
     <ClCompile Include="assets\header.cpp" />
     <ClCompile Include="assets\page.cpp" />
     <ClCompile Include="assets\view.cpp" />
-    <ClCompile Include="basic\index.cpp" />
     <ClCompile Include="bible\abbreviations.cpp" />
     <ClCompile Include="bible\book.cpp" />
     <ClCompile Include="bible\chapter.cpp" />
@@ -197,6 +195,7 @@
     <ClCompile Include="changes\modifications.cpp" />
     <ClCompile Include="changes\statistics.cpp" />
     <ClCompile Include="checksum\logic.cpp" />
+    <ClCompile Include="checks\french.cpp" />
     <ClCompile Include="checks\headers.cpp" />
     <ClCompile Include="checks\index.cpp" />
     <ClCompile Include="checks\logic.cpp" />
@@ -219,10 +218,9 @@
     <ClCompile Include="checks\versification.cpp" />
     <ClCompile Include="client\index.cpp" />
     <ClCompile Include="client\logic.cpp" />
-    <ClCompile Include="collaboration\direction.cpp" />
     <ClCompile Include="collaboration\index.cpp" />
     <ClCompile Include="collaboration\link.cpp" />
-    <ClCompile Include="collaboration\url.cpp" />
+    <ClCompile Include="collaboration\settings.cpp" />
     <ClCompile Include="compare\compare.cpp" />
     <ClCompile Include="compare\index.cpp" />
     <ClCompile Include="config\globals.cpp" />
@@ -296,7 +294,6 @@
     <ClCompile Include="editone\index.cpp" />
     <ClCompile Include="editone\load.cpp" />
     <ClCompile Include="editone\logic.cpp" />
-    <ClCompile Include="editone\preview.cpp" />
     <ClCompile Include="editone\save.cpp" />
     <ClCompile Include="editone\verse.cpp" />
     <ClCompile Include="editor\html2usfm.cpp" />
@@ -309,16 +306,12 @@
     <ClCompile Include="editusfm\offset.cpp" />
     <ClCompile Include="editusfm\save.cpp" />
     <ClCompile Include="editverse\index.cpp" />
-    <ClCompile Include="editverse\load.cpp" />
-    <ClCompile Include="editverse\save.cpp" />
     <ClCompile Include="edit\edit.cpp" />
-    <ClCompile Include="edit\focus.cpp" />
     <ClCompile Include="edit\id.cpp" />
     <ClCompile Include="edit\index.cpp" />
     <ClCompile Include="edit\load.cpp" />
     <ClCompile Include="edit\logic.cpp" />
     <ClCompile Include="edit\navigate.cpp" />
-    <ClCompile Include="edit\offset.cpp" />
     <ClCompile Include="edit\position.cpp" />
     <ClCompile Include="edit\preview.cpp" />
     <ClCompile Include="edit\save.cpp" />
@@ -369,7 +362,6 @@
     <ClCompile Include="journal\index.cpp" />
     <ClCompile Include="journal\logic.cpp" />
     <ClCompile Include="jsonxx\jsonxx.cpp" />
-    <ClCompile Include="json\json.c" />
     <ClCompile Include="ldap\logic.cpp" />
     <ClCompile Include="lexicon\definition.cpp" />
     <ClCompile Include="lexicon\logic.cpp" />
@@ -592,7 +584,6 @@
     <ClCompile Include="sync\usfmresources.cpp" />
     <ClCompile Include="system\index.cpp" />
     <ClCompile Include="system\logic.cpp" />
-    <ClCompile Include="system\timezone.cpp" />
     <ClCompile Include="tasks\logic.cpp" />
     <ClCompile Include="tasks\run.cpp" />
     <ClCompile Include="text\text.cpp" />
@@ -633,6 +624,9 @@
     <ClInclude Include="assets\view.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="filter\string.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="administration\language.html" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

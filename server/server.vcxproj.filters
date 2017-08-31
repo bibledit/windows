@@ -27,9 +27,6 @@
     <ClCompile Include="access\user.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="administration\language.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="assets\header.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -103,9 +100,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="checks\index.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="basic\index.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="bible\import_run.cpp">
@@ -909,16 +903,10 @@
     <ClCompile Include="demo\logic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="collaboration\direction.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="collaboration\index.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="collaboration\link.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="collaboration\url.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tmp\tmp.cpp">
@@ -1012,9 +1000,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="jsonxx\jsonxx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="json\json.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ipc\focus.cpp">
@@ -1140,9 +1125,6 @@
     <ClCompile Include="editone\logic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="editone\preview.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="editone\save.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1215,9 +1197,6 @@
     <ClCompile Include="edit\edit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="edit\focus.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="edit\id.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1228,9 +1207,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="edit\logic.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="edit\offset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="edit\styles.cpp">
@@ -1249,12 +1225,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="editverse\index.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editverse\load.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editverse\save.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="jobs\index.cpp">
@@ -1288,9 +1258,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="changes\statistics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="system\timezone.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="system\index.cpp">
@@ -1374,6 +1341,12 @@
     <ClCompile Include="miniz\miniz.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="collaboration\settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="checks\french.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assets\header.h">
@@ -1391,5 +1364,10 @@
     <ClInclude Include="filter\string.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="administration\language.html">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
