@@ -144,10 +144,6 @@ public:
   Passage getPrintPassageTo ();
   Passage getPrintPassageToForUser (string user);
   void setPrintPassageTo (Passage value);
-  string getSourceXrefBible ();
-  void setSourceXrefBible (string bible);
-  string getTargetXrefBible ();
-  void setTargetXrefBible (string bible);
   int getFocusedBook ();
   void setFocusedBook (int book);
   int getFocusedChapter ();
@@ -204,8 +200,6 @@ public:
   void setSwipeActionsAvailable (bool value);
   bool getFastEditorSwitchingAvailable ();
   void setFastEditorSwitchingAvailable (bool value);
-  bool getDowngradeVisualEditors ();
-  void setDowngradeVisualEditors (bool value);
   bool getAllSoftwareUpdatesNotification ();
   bool getAllSoftwareUpdatesNotificationForUser (string username);
   void setAllSoftwareUpdatesNotification (bool value);

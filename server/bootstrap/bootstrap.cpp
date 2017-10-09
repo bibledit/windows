@@ -56,7 +56,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <bible/book.h>
 #include <bible/chapter.h>
 #include <bible/import.h>
-#include <bible/abbreviations.h>
 #include <bible/order.h>
 #include <bible/css.h>
 #include <bible/editing.h>
@@ -83,15 +82,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <editone/load.h>
 #include <editone/save.h>
 #include <editone/verse.h>
-#include <editold/index.h>
-#include <editold/load.h>
-#include <editold/save.h>
-#include <editold/offset.h>
-#include <editold/focus.h>
-#include <editoneold/index.h>
-#include <editoneold/load.h>
-#include <editoneold/save.h>
-#include <editoneold/verse.h>
 #include <search/all.h>
 #include <search/index.h>
 #include <search/replace.h>
@@ -181,17 +171,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <checks/suppress.h>
 #include <consistency/poll.h>
 #include <consistency/input.h>
-#include <xrefs/index.h>
-#include <xrefs/source.h>
-#include <xrefs/target.h>
-#include <xrefs/help.h>
-#include <xrefs/extract.h>
-#include <xrefs/interpret.h>
-#include <xrefs/translate.h>
-#include <xrefs/clear.h>
-#include <xrefs/insert.h>
-#include <xrefs/move.h>
-#include <xrefs/next.h>
 #include <webbible/search.h>
 #include <developer/index.h>
 #include <paratext/index.h>
@@ -240,7 +219,7 @@ void bootstrap_index (void * webserver_request)
   string extension = filter_url_get_extension (request->get);
   string url = request->get.substr (1);
   
-  // Serve graphics, stylesheets, JavaScript, fonts.
+  // Serve graphics, stylesheets, JavaScript, fonts, with direct streaming for low memory usage.
   if (   (extension == "ico")
       || (extension == "png")
       || (extension == "gif")
@@ -252,7 +231,7 @@ void bootstrap_index (void * webserver_request)
       || (extension == "svg")
       || (extension == "map")
       ) {
-    http_serve_file (request, true, false);
+    http_s_stream_file (request, true);
     return;
   }
 
@@ -263,7 +242,7 @@ void bootstrap_index (void * webserver_request)
 
   // Serve resource downloads.
   if ((extension == "sqlite") && (request->get.find (Database_Cache::fragment ()) != string::npos)) {
-    http_serve_file (request, false, false);
+    http_s_stream_file (request, false);
     return;
   }
   
@@ -347,11 +326,6 @@ void bootstrap_index (void * webserver_request)
     return;
   }
   
-  if ((url == bible_abbreviations_url ()) && browser_request_security_okay (request) && bible_abbreviations_acl (request)) {
-    request->reply = bible_abbreviations (request);
-    return;
-  }
-  
   if ((url == bible_order_url ()) && browser_request_security_okay (request) && bible_order_acl (request)) {
     request->reply = bible_order (request);
     return;
@@ -389,16 +363,6 @@ void bootstrap_index (void * webserver_request)
 
   if ((url == edit_navigate_url ()) && browser_request_security_okay (request) && edit_navigate_acl (request)) {
     request->reply = edit_navigate (request);
-    return;
-  }
-  
-  if ((url == editold_index_url ()) && browser_request_security_okay (request) && editold_index_acl (request)) {
-    request->reply = editold_index (request);
-    return;
-  }
-  
-  if ((url == editoneold_index_url ()) && browser_request_security_okay (request) && editoneold_index_acl (request)) {
-    request->reply = editoneold_index (request);
     return;
   }
   
@@ -662,11 +626,6 @@ void bootstrap_index (void * webserver_request)
     return;
   }
   
-  if ((url == xrefs_index_url ()) && browser_request_security_okay (request) && xrefs_index_acl (request)) {
-    request->reply = xrefs_index (request);
-    return;
-  }
-  
   if ((url == developer_index_url ()) && browser_request_security_okay (request) && developer_index_acl (request)) {
     request->reply = developer_index (request);
     return;
@@ -887,36 +846,6 @@ void bootstrap_index (void * webserver_request)
     return;
   }
   
-  if ((url == xrefs_help_url ()) && browser_request_security_okay (request) && xrefs_help_acl (request)) {
-    request->reply = xrefs_help (request);
-    return;
-  }
-  
-  if ((url == xrefs_extract_url ()) && browser_request_security_okay (request) && xrefs_extract_acl (request)) {
-    request->reply = xrefs_extract (request);
-    return;
-  }
-  
-  if ((url == xrefs_interpret_url ()) && browser_request_security_okay (request) && xrefs_interpret_acl (request)) {
-    request->reply = xrefs_interpret (request);
-    return;
-  }
-  
-  if ((url == xrefs_translate_url ()) && browser_request_security_okay (request) && xrefs_translate_acl (request)) {
-    request->reply = xrefs_translate (request);
-    return;
-  }
-  
-  if ((url == xrefs_clear_url ()) && browser_request_security_okay (request) && xrefs_clear_acl (request)) {
-    request->reply = xrefs_clear (request);
-    return;
-  }
-  
-  if ((url == xrefs_insert_url ()) && browser_request_security_okay (request) && xrefs_insert_acl (request)) {
-    request->reply = xrefs_insert (request);
-    return;
-  }
-  
   if ((url == webbible_search_url ()) && browser_request_security_okay (request) && webbible_search_acl (request)) {
     request->reply = webbible_search (request);
     return;
@@ -955,7 +884,7 @@ void bootstrap_index (void * webserver_request)
   
 #ifdef HAVE_CLIENT
   if (extension == "tar") {
-    http_serve_file (request, false, false);
+    http_s_stream_file (request, false);
     return;
   }
 #endif
@@ -979,7 +908,7 @@ void bootstrap_index (void * webserver_request)
   }
   if (extension == "sqlite") {
     if (filter_url_dirname (url) == filter_url_temp_dir ()) {
-      http_serve_file (request, false, true);
+      http_s_stream_file (request, false); // Todo test it, and check whether it deletes the .sqlite file.
       return;
     }
   }
@@ -1030,23 +959,8 @@ void bootstrap_index (void * webserver_request)
     return;
   }
   
-  if ((url == editoneold_load_url ()) && browser_request_security_okay (request) && editoneold_load_acl (request)) {
-    request->reply = editoneold_load (request);
-    return;
-  }
-  
-  if ((url == editoneold_save_url ()) && browser_request_security_okay (request) && editoneold_save_acl (request)) {
-    request->reply = editoneold_save (request);
-    return;
-  }
-  
   if ((url == editone_verse_url ()) && browser_request_security_okay (request) && editone_verse_acl (request)) {
     request->reply = editone_verse (request);
-    return;
-  }
-
-  if ((url == editoneold_verse_url ()) && browser_request_security_okay (request) && editoneold_verse_acl (request)) {
-    request->reply = editoneold_verse (request);
     return;
   }
 
@@ -1100,26 +1014,6 @@ void bootstrap_index (void * webserver_request)
     return;
   }
   
-  if ((url == editold_load_url ()) && browser_request_security_okay (request) && editold_load_acl (request)) {
-    request->reply = editold_load (request);
-    return;
-  }
-  
-  if ((url == editold_save_url ()) && browser_request_security_okay (request) && editold_save_acl (request)) {
-    request->reply = editold_save (request);
-    return;
-  }
-  
-  if ((url == editold_offset_url ()) && browser_request_security_okay (request) && editold_offset_acl (request)) {
-    request->reply = editold_offset (request);
-    return;
-  }
-
-  if ((url == editold_focus_url ()) && browser_request_security_okay (request) && editold_focus_acl (request)) {
-    request->reply = editold_focus (request);
-    return;
-  }
-
   if ((url == search_getids_url ()) && browser_request_security_okay (request) && search_getids_acl (request)) {
     request->reply = search_getids (request);
     return;
@@ -1182,26 +1076,6 @@ void bootstrap_index (void * webserver_request)
   
   if ((url == consistency_input_url ()) && browser_request_security_okay (request) && consistency_input_acl (request)) {
     request->reply = consistency_input (request);
-    return;
-  }
-  
-  if ((url == xrefs_source_url ()) && browser_request_security_okay (request) && xrefs_source_acl (request)) {
-    request->reply = xrefs_source (request);
-    return;
-  }
-  
-  if ((url == xrefs_target_url ()) && browser_request_security_okay (request) && xrefs_target_acl (request)) {
-    request->reply = xrefs_target (request);
-    return;
-  }
-  
-  if ((url == xrefs_move_url ()) && browser_request_security_okay (request) && xrefs_move_acl (request)) {
-    request->reply = xrefs_move (request);
-    return;
-  }
-  
-  if ((url == xrefs_next_url ()) && browser_request_security_okay (request) && xrefs_next_acl (request)) {
-    request->reply = xrefs_next (request);
     return;
   }
   

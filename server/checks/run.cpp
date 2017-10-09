@@ -168,7 +168,7 @@ void checks_run (string bible)
 
 
       if (check_well_formed_usfm) {
-        checks_usfm.initialize ();
+        checks_usfm.initialize (book, chapter);
         checks_usfm.check (chapterUsfm);
         checks_usfm.finalize ();
         vector <pair<int, string>>  results = checks_usfm.getResults ();

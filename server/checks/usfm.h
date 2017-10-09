@@ -28,7 +28,7 @@ class Checks_Usfm
 {
 public:
   Checks_Usfm (string bible);
-  void initialize ();
+  void initialize (int book, int chapter);
   void finalize ();
   void check (string usfm);
   vector <pair<int, string>> getResults ();
@@ -37,6 +37,8 @@ private:
   vector <string> usfmMarkersAndText;
   unsigned int usfmMarkersAndTextPointer;
   string usfmItem;
+  int bookNumber;
+  int chapterNumber;
   int verseNumber;
   
   // Results of the checks.
@@ -53,6 +55,12 @@ private:
   vector <string> markersRequiringEndmarkers;
   vector <string> openMatchingMarkers;
   
+  // Table of contents markers and flags.
+  string longToc1Marker;
+  string shortToc2Marker;
+  string abbrevToc3Marker;
+
+  // Methods.
   void malformedVerseNumber ();
   void newLineInUsfm (string usfm);
   void markerInStylesheet ();
@@ -60,6 +68,7 @@ private:
   void forwardSlash (string usfm);
   void widowBackSlash ();
   void matchingEndmarker ();
+  void toc (string usfm);
   void addResult (string text, int modifier);
 };
 

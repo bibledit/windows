@@ -876,26 +876,6 @@ void Database_Config_User::setPrintPassageTo (Passage value)
 }
 
 
-string Database_Config_User::getSourceXrefBible ()
-{
-  return getValue ("source-xref-bible", "");
-}
-void Database_Config_User::setSourceXrefBible (string bible)
-{
-  setValue ("source-xref-bible", bible);
-}
-
-
-string Database_Config_User::getTargetXrefBible ()
-{
-  return getValue ("target-xref-bible", "");
-}
-void Database_Config_User::setTargetXrefBible (string bible)
-{
-  setValue ("target-xref-bible", bible);
-}
-
-
 int Database_Config_User::getFocusedBook ()
 {
   return getIValue ("focused-book", 1);
@@ -1202,16 +1182,6 @@ bool Database_Config_User::getFastEditorSwitchingAvailable ()
 void Database_Config_User::setFastEditorSwitchingAvailable (bool value)
 {
   setBValue ("fast-editor-switching-available", value);
-}
-
-
-bool Database_Config_User::getDowngradeVisualEditors ()
-{
-  return getBValue ("downgrade-visual-editors", false);
-}
-void Database_Config_User::setDowngradeVisualEditors (bool value)
-{
-  setBValue ("downgrade-visual-editors", value);
 }
 
 

@@ -13,19 +13,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Launchpad (build 18446)\n"
-
-msgid "Abbreviations"
-msgstr "Abbréviations"
-
-msgid "The abbreviations were saved."
-msgstr "Les abréviations ont été sauvées."
-
-msgid "Please supply valid Unicode UTF-8 text."
-msgstr "Veuillez fournir un texte unicode UTF-8 valide."
-
-msgid "Nothing was saved."
-msgstr "Rien n'a été sauvé."
+"X-Generator: Launchpad (build 18474)\n"
 
 msgid "Book"
 msgstr "Livre"
@@ -53,6 +41,9 @@ msgstr "Importer"
 
 msgid "Import has started."
 msgstr "L’importation a débuté."
+
+msgid "Please supply valid Unicode UTF-8 text."
+msgstr "Veuillez fournir un texte unicode UTF-8 valide."
 
 msgid "Nothing was imported."
 msgstr "Rien n'a été importé."
@@ -757,6 +748,15 @@ msgstr "balise d'ouverture répétitive"
 
 msgid "Closing marker does not match opening marker"
 msgstr "La balise de clôture ne correspond pas à celle d'ouverture"
+
+msgid "The book lacks the marker for the verbose book name:"
+msgstr ""
+
+msgid "The book lacks the marker for the short book name:"
+msgstr ""
+
+msgid "The following marker belongs in chapter 0:"
+msgstr ""
 
 msgid "No punctuation at end of verse:"
 msgstr "Pas de ponctuation à la fin du verset :"
@@ -2351,6 +2351,9 @@ msgstr "Erreur sur la somme de contrôle"
 msgid "There was no text."
 msgstr "Il n'y avait pas de texte."
 
+msgid "Nothing was saved."
+msgstr "Rien n'a été sauvé."
+
 msgid "The original text of the chapter was reloaded."
 msgstr "Le texte original du chapitre a été rechargé."
 
@@ -2907,9 +2910,6 @@ msgstr "Envoyer/recevoir"
 msgid "Hyphenate"
 msgstr "Césurer"
 
-msgid "Transfer cross-references"
-msgstr "Transférer les références croisées"
-
 msgid "Develop"
 msgstr "Developpement"
 
@@ -3453,8 +3453,8 @@ msgstr "Veuillez donner un nom pour la ressource définie par l'utilisateur"
 msgid "The user-defined resource was created"
 msgstr "La ressource définie par l'utilisateur a été créée"
 
-msgid "Recent changes in the Bible text"
-msgstr "La ressource définie par l'utilisateur a été créée"
+msgid "Recent changes in the Bible texts"
+msgstr ""
 
 msgid ""
 "This text could not be automatically replaced. Click the passage to do it "
@@ -4278,14 +4278,8 @@ msgstr "Le fuseau horaire a été interrompu"
 msgid "The timezone was saved"
 msgstr "Le fuseau horaire a été enregistré"
 
-msgid "Please enter the maximum number of items in the RSS feed"
-msgstr "Veuillez entrer le nombre maximum d'éléments dans le flux RSS"
-
-msgid "The number was trimmed"
+msgid "none"
 msgstr ""
-
-msgid "The number was saved"
-msgstr "Le nombre a été enregistré"
 
 msgid "Nothing was imported"
 msgstr "Rien n'a été importé"
@@ -4373,27 +4367,6 @@ msgstr ""
 msgid "Go back"
 msgstr "Précédent"
 
-msgid "Update the abbreviations."
-msgstr "Mise à jour des abréviations."
-
-msgid "One line per book."
-msgstr "Une ligne par livre."
-
-msgid "Book lines may repeat with different abbreviations for the same book."
-msgstr ""
-"Les lignes de livre peuvent se répéter avec des abréviations différentes "
-"pour le même livre."
-
-msgid "Save"
-msgstr "Enregistrer"
-
-msgid ""
-"Book abbreviations are used while copying cross references from a source "
-"Bible to a target Bible."
-msgstr ""
-"Les abréviations de livre sont utilisées tout en copiant des références "
-"croisées d'une Bible source à une Bible cible."
-
 msgid "Chapters:"
 msgstr "Chapitres :"
 
@@ -4468,6 +4441,9 @@ msgstr "Hauteur de ligne"
 
 msgid "Letter spacing"
 msgstr "Espacement des lettres"
+
+msgid "Save"
+msgstr "Enregistrer"
 
 msgid ""
 "After saving, the settings will be applied to the editable sample text below."
@@ -4615,6 +4591,9 @@ msgstr "Comparer avec…"
 
 msgid "The public can give feedback"
 msgstr "Le public peut faire des commentaires"
+
+msgid "Send the changes to the RSS feed"
+msgstr ""
 
 msgid "Import text from a resource"
 msgstr "Importer du texte depuis une ressource"
@@ -6908,6 +6887,9 @@ msgstr ""
 
 msgid "Install Bibledit Cloud on Ubuntu"
 msgstr "Installer Bibledit Cloud sur Ubuntu"
+
+msgid "Install required software:"
+msgstr ""
 
 msgid "Add the Bibledit repository:"
 msgstr "Ajoutez le dépôt Bibledit :"
@@ -10856,16 +10838,6 @@ msgstr "Éditeur de texte :"
 msgid "USFM editor:"
 msgstr "Éditeur USFM :"
 
-msgid "Downgrade the visual Bible editors:"
-msgstr "Réduire les éditeurs visuels de la Bible :"
-
-msgid ""
-"Downgrade them on older computing devices if they do not run the current "
-"visual Bible editors."
-msgstr ""
-"Les réduire sur les anciens appareils informatiques s'ils ne fonctionnent "
-"pas avec les éditeurs visuels actuels de la Bible."
-
 msgid "Enable the Styles button in the visual Bible editors"
 msgstr "Activer le bouton Styles dans l'éditeur d'aperçu de Bible"
 
@@ -11742,15 +11714,11 @@ msgstr "Flux RSS"
 msgid "RSS feed for the recent changes in the text of the Bible."
 msgstr "Flux RSS pour les changements récents dans le texte de la Bible."
 
-msgid "Maximum number of changes it feeds:"
-msgstr "Nombre maximal de modifications apportées :"
-
-msgid "To switch the feed off, set the number of changes to zero."
-msgstr ""
-"Pour désactiver les contributions, réglez le nombre de modifications à zéro."
-
 msgid "Include the author in the RSS feed."
 msgstr "Intègrer l'auteur dans le flux RSS."
+
+msgid "The changes in the following Bibles will be visible in the RSS feed:"
+msgstr ""
 
 msgid "Transfer resources and Bibles"
 msgstr "Transférer des ressources et des Bibles"
@@ -12216,187 +12184,6 @@ msgstr ""
 "Cela peut être utile sur les appareils avec des écrans plus petits, tels que "
 "les téléphones."
 
-msgid "This chapter of the target Bible contains cross references"
-msgstr "Ce chapitre de la Bible cible contient des références croisées"
-
-msgid "A cross reference is malformed."
-msgstr "Une référence croisée est mal formée."
-
-msgid "The opening tag does not match the closing tag."
-msgstr "La balise d'ouverture ne correspond pas à celle de fermeture."
-
-msgid "Please fix it first."
-msgstr "Veuillez le corriger d'abord."
-
-msgid "Overwrite the existing cross references."
-msgstr "Écraser les références croisées existantes."
-
-msgid ""
-"This chapter of the source Bible does not contain any cross references that "
-"could be extracted."
-msgstr ""
-"Ce chapitre de la Bible source ne contient pas de références croisées qui "
-"pourraient être extraites."
-
-msgid "okay"
-msgstr "OK"
-
-msgid "Transfer cross references"
-msgstr "Transferer des références croisées"
-
-msgid ""
-"The tool to transfer cross references enables you to easily and quickly "
-"enter cross references in a Bible."
-msgstr ""
-"L'outil de transfert des références croisées vous permet d'entrer facilement "
-"et rapidement des références croisées dans une Bible."
-
-msgid "The tool has two main functions:"
-msgstr "L'outil a deux fonctions principales :"
-
-msgid ""
-"Read the cross references from a source Bible, and transfer them to a target "
-"Bible."
-msgstr ""
-"Lisez les références croisées d'une Bible source et transférez-les dans une "
-"Bible cible."
-
-msgid ""
-"Move cross references in the target Bible to their proper locations within a "
-"verse."
-msgstr ""
-"Déplacer les références croisées dans la Bible cible vers leurs emplacements "
-"appropriés dans un verset."
-
-msgid "Transferring cross references"
-msgstr "Transfert des références croisées"
-
-msgid "Click the link to transfer the cross references."
-msgstr "Cliquez sur le lien pour transférer les références croisées."
-
-msgid ""
-"Bibledit reads the cross references from the entire focused chapter of the "
-"source Bible."
-msgstr ""
-"Bibledit lit les références croisées de tout le chapitre focalisé de la "
-"Bible source."
-
-msgid "It interprets the book abbreviations."
-msgstr "Il interprète les abréviations du livre."
-
-msgid ""
-"It then translates those abbreviations to the abbreviations as used in the "
-"target Bible."
-msgstr ""
-"Il traduit ensuite ces abréviations aux abréviations utilisées dans la Bible "
-"cible."
-
-msgid ""
-"It then enters the cross references in the entire focused chapter of the "
-"target Bible."
-msgstr ""
-"Il entre ensuite dans les références croisées dans le chapitre entier ciblé "
-"de la Bible cible."
-
-msgid "Moving cross references"
-msgstr "Déplacement de références croisées"
-
-msgid "The page displays one verse a time."
-msgstr "La page affiche un verset à la fois."
-
-msgid ""
-"Select the verses one by one, and move the cross references into place."
-msgstr ""
-"Sélectionnez les versets un par un, et déplacer les références croisées en "
-"place."
-
-msgid "Everything can be done through the arrow keys on the keyboard."
-msgstr "Tout peut être fait à l'aide des touches fléchées du clavier."
-
-msgid "Left arrow: Move the selected cross reference one word back."
-msgstr "Flèche gauche : Déplace la référence croisée sélectionnée d'un mot."
-
-msgid "Right arrow: Move the selected cross reference one word forward."
-msgstr ""
-"Flèche droite : Déplace la référence croisée sélectionnée d'un mot vers "
-"l'avant."
-
-msgid "Up arrow: Select the previous cross reference."
-msgstr "Flèche vers le haut : Sélectionnez la référence croisée précédente."
-
-msgid "Down arrow: Select the next cross reference."
-msgstr "Flèche vers le bas : sélectionnez la prochaine référence croisée."
-
-msgid "Alt-Up arrow: Go to the next verse."
-msgstr "Alt-Flèche haut : Allez au verset suivant."
-
-msgid "Alt-Down arrow: Go to the previous verse."
-msgstr "Alt-Flèche bas : Allez au verset précédent."
-
-msgid "Cross references"
-msgstr "Références"
-
-msgid "source Bible:"
-msgstr "Bible source :"
-
-msgid "Select source Bible"
-msgstr "Sélectionner une Bible source"
-
-msgid "Copy cross references from source to target for the entire chapter"
-msgstr ""
-"Copier les références croisées de la source vers la cible pour tout le "
-"chapitre"
-
-msgid "transfer cross references entire chapter"
-msgstr "transfert des références croisées de tout le chapitre"
-
-msgid "target Bible:"
-msgstr "Bible cible :"
-
-msgid "Select target Bible"
-msgstr "Sélectionnner une Bible cible"
-
-msgid "Go to the next chapter without cross references"
-msgstr "Passez au chapitre suivant sans les références croisées"
-
-msgid "next chapter without cross references"
-msgstr "transfert des références croisées du chapitre entier"
-
-msgid "The cross references were inserted into the target Bible."
-msgstr "chapitre suivant sans références croisées"
-
-msgid ""
-"The abbreviation below needs clarification as to which Bible book it refers "
-"to."
-msgstr "Les références croisées ont été insérées dans la Bible cible."
-
-msgid "Optionally update the abbreviation:"
-msgstr "Vous pouvez également mettre à jour l'abréviation :"
-
-msgid "Select the Bible book it represents:"
-msgstr "Sélectionnez le livre biblique qu'il représente :"
-
-msgid "Save it:"
-msgstr "Sauvegarder :"
-
-msgid "Remaining abbreviations to clarify:"
-msgstr "Abréviations restantes pour clarifier :"
-
-msgid ""
-"The Bible book below needs a matching abbreviation for the target Bible."
-msgstr ""
-"Le livre de la Biblique ci-dessous a besoin d'une abréviation correspondant "
-"à la Bible cible."
-
-msgid "Book name:"
-msgstr "Nom du livre :"
-
-msgid "Enter the abbreviation:"
-msgstr "Entrez l'abbréviation :"
-
-msgid "Remaining book names without an abbreviation:"
-msgstr "Nom de livre restant sans abréviation :"
-
 msgid "Passwords do not match"
 msgstr "Les mots de passe ne correspondent pas"
 
@@ -12498,13 +12285,3 @@ msgstr ""
 msgid "See the help below for information about what to enter"
 msgstr ""
 "Voir l'aide ci-dessous pour des informations sur ce qu'il faut entrer"
-
-msgid ""
-"Select which Bible to use as the source where to read the cross references "
-"from"
-msgstr ""
-"Sélectionnez la Bible à utiliser comme source où lire les références "
-"croisées de"
-
-msgid "Select which Bible to insert the cross references into"
-msgstr "Sélectionnez la Bible dans laquelle insérer les références croisées"
