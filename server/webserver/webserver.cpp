@@ -174,7 +174,7 @@ void webserver_process_request (int connfd, string clientaddress)
             do {
               bytecount = read (filefd, buffer, 1024);
               if (bytecount > 0) {
-                int sendbytes = send (connfd, buffer, bytecount, 0);
+                int sendbytes = send (connfd, (const char *)buffer, bytecount, 0);
                 (void) sendbytes;
               }
             }
