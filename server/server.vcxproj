@@ -175,7 +175,6 @@
     <ClCompile Include="assets\header.cpp" />
     <ClCompile Include="assets\page.cpp" />
     <ClCompile Include="assets\view.cpp" />
-    <ClCompile Include="bible\abbreviations.cpp" />
     <ClCompile Include="bible\book.cpp" />
     <ClCompile Include="bible\chapter.cpp" />
     <ClCompile Include="bible\css.cpp" />
@@ -282,15 +281,6 @@
     <ClCompile Include="dialog\list.cpp" />
     <ClCompile Include="dialog\upload.cpp" />
     <ClCompile Include="dialog\yes.cpp" />
-    <ClCompile Include="editold\focus.cpp" />
-    <ClCompile Include="editold\index.cpp" />
-    <ClCompile Include="editold\load.cpp" />
-    <ClCompile Include="editold\offset.cpp" />
-    <ClCompile Include="editold\save.cpp" />
-    <ClCompile Include="editoneold\index.cpp" />
-    <ClCompile Include="editoneold\load.cpp" />
-    <ClCompile Include="editoneold\save.cpp" />
-    <ClCompile Include="editoneold\verse.cpp" />
     <ClCompile Include="editone\index.cpp" />
     <ClCompile Include="editone\load.cpp" />
     <ClCompile Include="editone\logic.cpp" />
@@ -333,7 +323,6 @@
     <ClCompile Include="export\textusfm.cpp" />
     <ClCompile Include="export\usfm.cpp" />
     <ClCompile Include="export\web.cpp" />
-    <ClCompile Include="filter\abbreviations.cpp" />
     <ClCompile Include="filter\archive.cpp" />
     <ClCompile Include="filter\css.cpp" />
     <ClCompile Include="filter\date.cpp" />
@@ -609,7 +598,6 @@
     <ClCompile Include="xrefs\clear.cpp" />
     <ClCompile Include="xrefs\extract.cpp" />
     <ClCompile Include="xrefs\help.cpp" />
-    <ClCompile Include="xrefs\index.cpp" />
     <ClCompile Include="xrefs\insert.cpp" />
     <ClCompile Include="xrefs\interpret.cpp" />
     <ClCompile Include="xrefs\move.cpp" />

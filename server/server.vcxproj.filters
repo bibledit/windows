@@ -135,9 +135,6 @@
     <ClCompile Include="bible\book.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="bible\abbreviations.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="filter\usfm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1143,9 +1140,6 @@
     <ClCompile Include="xrefs\help.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="xrefs\index.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="xrefs\insert.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1165,9 +1159,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="xrefs\translate.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="filter\abbreviations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="consistency\index.cpp">
@@ -1281,27 +1272,6 @@
     <ClCompile Include="resource\studylight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="editold\focus.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editold\index.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editold\load.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editold\offset.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editoneold\load.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editoneold\save.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editoneold\verse.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="edit\position.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1312,12 +1282,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="database\sample.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editoneold\index.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="editold\save.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="edit\save.cpp">
