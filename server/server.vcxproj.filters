@@ -1131,36 +1131,6 @@
     <ClCompile Include="webbible\search.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="xrefs\clear.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="xrefs\extract.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="xrefs\help.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="xrefs\insert.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="xrefs\interpret.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="xrefs\move.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="xrefs\next.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="xrefs\source.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="xrefs\target.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="xrefs\translate.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="consistency\index.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

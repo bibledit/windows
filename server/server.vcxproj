@@ -595,16 +595,6 @@
     <ClCompile Include="workspace\logic.cpp" />
     <ClCompile Include="workspace\organize.cpp" />
     <ClCompile Include="workspace\settings.cpp" />
-    <ClCompile Include="xrefs\clear.cpp" />
-    <ClCompile Include="xrefs\extract.cpp" />
-    <ClCompile Include="xrefs\help.cpp" />
-    <ClCompile Include="xrefs\insert.cpp" />
-    <ClCompile Include="xrefs\interpret.cpp" />
-    <ClCompile Include="xrefs\move.cpp" />
-    <ClCompile Include="xrefs\next.cpp" />
-    <ClCompile Include="xrefs\source.cpp" />
-    <ClCompile Include="xrefs\target.cpp" />
-    <ClCompile Include="xrefs\translate.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assets\header.h" />
