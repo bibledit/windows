@@ -240,9 +240,7 @@ void demo_create_sample_bible ()
     string file, data;
     Database_Sample::get (rowid, file, data);
     // Remove the "./" from the start.
-    Database_Logs::log ("sample bible file 1 " + file); // Todo
     file.erase (0, 2);
-    Database_Logs::log ("sample bible file 2 " + file); // Todo
 #ifdef HAVE_WINDOWS
     // Since the filename contains the foward slash for on Linux,
     // and since Windows needs the backslash as directory separator,
@@ -250,9 +248,7 @@ void demo_create_sample_bible ()
     file = filter_string_str_replace ("/", DIRECTORY_SEPARATOR, file);
 #endif
     file = filter_url_create_root_path (file);
-    Database_Logs::log ("sample bible file 3 " + file); // Todo
     string path = filter_url_dirname (file);
-    Database_Logs::log ("sample bible path 4 " + path); // Todo
     if (!file_or_dir_exists (path)) filter_url_mkdir (path);
     filter_url_file_put_contents (file, data);
   }
