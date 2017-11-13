@@ -50,6 +50,7 @@ string filter_archive_zip_file_shell_internal (string filename)
 {
   if (!file_or_dir_exists (filename)) return "";
   string zippedfile = filter_url_tempfile () + ".zip";
+#ifdef HAVE_CLOUD
   string logfile = filter_url_tempfile () + ".log";
   string dirname = filter_url_escape_shell_argument (filter_url_dirname (filename));
   string basename = filter_url_escape_shell_argument (filter_url_basename (filename));
@@ -63,6 +64,7 @@ string filter_archive_zip_file_shell_internal (string filename)
     string errors = filter_url_file_get_contents (logfile);
     Database_Logs::log (errors);
   }
+#endif
   return zippedfile;
 }
 
@@ -103,6 +105,7 @@ string filter_archive_zip_folder_shell_internal (string folder)
 {
   if (!file_or_dir_exists (folder)) return "";
   string zippedfile = filter_url_tempfile () + ".zip";
+#ifdef HAVE_CLOUD
   string logfile = filter_url_tempfile () + ".log";
   folder = filter_url_escape_shell_argument (folder);
   string command = "cd " + folder + " && zip -r " + zippedfile + " * > " + logfile + " 2>&1";
@@ -115,6 +118,7 @@ string filter_archive_zip_folder_shell_internal (string folder)
     string errors = filter_url_file_get_contents (logfile);
     Database_Logs::log (errors);
   }
+#endif
   return zippedfile;
 }
 
@@ -165,6 +169,7 @@ string filter_archive_unzip (string file)
 string filter_archive_unzip_shell_internal (string file)
 {
   string folder = filter_url_tempfile ();
+#ifdef HAVE_CLOUD
   filter_url_mkdir (folder);
   folder.append (DIRECTORY_SEPARATOR);
   string logfile = filter_url_tempfile () + ".log";
@@ -189,6 +194,7 @@ string filter_archive_unzip_shell_internal (string file)
     int result = system (command.c_str ());
     (void) result;
   }
+#endif
   return folder;
 }
 

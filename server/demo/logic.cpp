@@ -240,9 +240,13 @@ void demo_create_sample_bible ()
     string file, data;
     Database_Sample::get (rowid, file, data);
     // Remove the "./" from the start.
+    Database_Logs::log ("sample bible file 1 " + file); // Todo
     file.erase (0, 2);
+    Database_Logs::log ("sample bible file 2 " + file); // Todo
     file = filter_url_create_root_path (file);
+    Database_Logs::log ("sample bible file 3 " + file); // Todo
     string path = filter_url_dirname (file);
+    Database_Logs::log ("sample bible path 4 " + path); // Todo
     if (!file_or_dir_exists (path)) filter_url_mkdir (path);
     filter_url_file_put_contents (file, data);
   }
@@ -315,9 +319,11 @@ void demo_prepare_sample_bible ()
   // Same for the search index.
   search_logic_delete_bible (demo_sample_bible_name ());
   // Clean up the remaining artifacts that were created along the way.
-  system ("find . -path '*logbook/14*' -delete");
+#ifdef HAVE_CLOUD
+  system ("find . -path '*logbook/15*' -delete");
   system ("find . -name state.sqlite -delete");
   system ("find . -name 'Bibledit Sample Bible.*' -delete");
+#endif
 }
 
 
