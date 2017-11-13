@@ -243,6 +243,12 @@ void demo_create_sample_bible ()
     Database_Logs::log ("sample bible file 1 " + file); // Todo
     file.erase (0, 2);
     Database_Logs::log ("sample bible file 2 " + file); // Todo
+#ifdef HAVE_WINDOWS
+    // Since the filename contains the foward slash for on Linux,
+    // and since Windows needs the backslash as directory separator,
+    // replace these on Windows.
+    file = filter_string_str_replace ("/", DIRECTORY_SEPARATOR, file);
+#endif
     file = filter_url_create_root_path (file);
     Database_Logs::log ("sample bible file 3 " + file); // Todo
     string path = filter_url_dirname (file);
