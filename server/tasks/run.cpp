@@ -70,18 +70,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <rss/logic.h>
 #include <system/logic.h>
 #include <notes/logic.h>
+#include <changes/logic.h>
 
 
-mutex mutex_tasks; 
-int running_tasks = 0;
+atomic <int> running_tasks (0);
 
 
 void tasks_run_one (string filename)
 {
   // Increase running tasks count.
-  mutex_tasks.lock ();
   running_tasks++;
-  mutex_tasks.unlock ();
 
   // Read the task from disk and erase the file.
   string path = filter_url_create_path (tasks_logic_folder (), filename);
@@ -272,9 +270,6 @@ void tasks_run_one (string filename)
   else if (command == CACHERESOURCES) {
     resource_logic_create_cache ();
   }
-  else if (command == NOTIFYSOFTWAREUPDATES) {
-    user_logic_software_updates_notify ();
-  }
   else if (command == REFRESHWEBRESOURCES) {
     resource_logic_bible_gateway_module_list_refresh ();
     resource_logic_study_light_module_list_refresh ();
@@ -307,14 +302,15 @@ void tasks_run_one (string filename)
   else if (command == CONVERTCONSULTATIONNOTES) {
     notes_logic_gradual_upgrader ();
   }
+  else if (command == DELETECHANGES) {
+    changes_clear_notifications_user (parameter1, parameter2);
+  }
   else {
     Database_Logs::log ("Unknown task: " + command);
   }
 
   // Decrease running tasks count.
-  mutex_tasks.lock ();
   running_tasks--;
-  mutex_tasks.unlock ();
 }
 
 
@@ -335,9 +331,7 @@ void tasks_run_check ()
 int tasks_run_active_count ()
 {
   int taskscount = 0;
-  mutex_tasks.lock ();
   taskscount = running_tasks;
-  mutex_tasks.unlock ();
   return taskscount;
 }
 

@@ -327,43 +327,50 @@ string filter_string_desanitize_html (string html)
   html = filter_string_str_replace ("&lt;", "<", html);
   html = filter_string_str_replace ("&gt;", ">", html);
   html = filter_string_str_replace (unicode_non_breaking_space_entity (), " ", html);
-  html = filter_string_str_replace (non_breaking_space_utf8_c2a0 (), " ", html);
-  html = filter_string_str_replace (no_break_space_utf8_00a0 (), " ", html);
+  html = filter_string_str_replace (non_breaking_space_u00A0 (), " ", html);
   return html;
 }
 
 
-// Returns a soft hyphen.
-string soft_hyphen ()
-{
-  // The "­" below is not an empty string, but the soft hyphen U+00AD.
-  return "­";
-}
-
-
 // Returns a no-break space (NBSP) (x00A0).
-string no_break_space_utf8_00a0 ()
+string non_breaking_space_u00A0 ()
 {
-  unsigned char c[2] = { 0x00, 0xa0 };
-  return string (c, c + sizeof c / sizeof c[0]);
+  // Use C-style code.
+  return "\u00A0";
 }
 
 
-// Returns a no-break space (NBSP) (xC2A0).
-string non_breaking_space_utf8_c2a0 ()
+// Returns a soft hyphen.
+string soft_hyphen_u00AD ()
 {
-  unsigned char c[2] = { 0xc2, 0xa0 };
-  return string (c, c + sizeof c / sizeof c[0]);
+  // Soft hyphen U+00AD.
+  return "\u00AD";
 }
 
 
 // Returns an "en space", this is a nut, half an em space.
-string en_space ()
+string en_space_u2002 ()
 {
-  // The space below is U+2002.
-  return " ";
+  // U+2002.
+  return "\u2002";
 }
 
+
+// A "figure space".
+// A space to use in numbers.
+// It has the same width as the digits.
+// It does not break, it keeps the numbers together.
+string figure_space_u2007 ()
+{
+  return "\u2007";
+}
+
+
+// Returns a "narrow no-break space (x202F)
+string narrow_non_breaking_space_u202F ()
+{
+  return "\u202F";
+}
 
 // Returns the length of string s in unicode points, not in bytes.
 size_t unicode_string_length (string s)

@@ -73,7 +73,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #define LISTUSFMRESOURCES "listusfmresources"
 #define CREATESAMPLEBIBLE "createsamplebible"
 #define CACHERESOURCES "cacheresources"
-#define NOTIFYSOFTWAREUPDATES "notifysoftwareupdates"
 #define REFRESHWEBRESOURCES "refreshwebresources"
 #define RSSFEEDUPDATECHAPTER "rssfeedupdatechapter"
 #define PRODUCEBIBLESTRANSFERFILE "producebiblestransferfile"
@@ -83,6 +82,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #define PRODUCERESOURCESTRANSFERFILE "produceresourcestransferfile"
 #define IMPORTRESOURCESTRANSFERFILE "importresourcestransferfile"
 #define CONVERTCONSULTATIONNOTES "convertconsultationnotes"
+#define DELETECHANGES "deletechanges"
 
 
 string tasks_logic_folder ();

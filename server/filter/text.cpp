@@ -73,6 +73,7 @@ Filter_Text::Filter_Text (string bible_in)
   esword_text = NULL;
   text_text = NULL;
   headings_text_per_verse_active = false;
+  space_type_after_verse = Database_Config_Bible::getOdtSpaceAfterVerse (bible);
 }
 
 
@@ -243,7 +244,7 @@ void Filter_Text::preprocessingStage ()
                   {
                     // Get book number.
                     string s = usfm_get_book_identifier (chapterUsfmMarkersAndText, chapterUsfmMarkersAndTextPointer);
-                    s = filter_string_str_replace (soft_hyphen (), "", s); // Remove possible soft hyphen.
+                    s = filter_string_str_replace (soft_hyphen_u00AD (), "", s); // Remove possible soft hyphen.
                     currentBookIdentifier = Database_Books::getIdFromUsfm (s);
                     // Reset chapter and verse numbers.
                     currentChapterNumber = 0;
@@ -278,8 +279,12 @@ void Filter_Text::preprocessingStage ()
                   }
                   case IdentifierSubtypeChapterLabel:
                   {
+                    // Store the chapter label for this book and chapter.
                     string chapterLabel = usfm_get_text_following_marker (chapterUsfmMarkersAndText, chapterUsfmMarkersAndTextPointer);
                     chapterLabels.push_back (Filter_Text_Passage_Marker_Value (currentBookIdentifier, currentChapterNumber, currentVerseNumber, marker, chapterLabel));
+                    // If a chapter label is in the book, there's no drop caps output of the chapter number.
+                    book_has_chapter_label [currentBookIdentifier] = true;
+                    // Done.
                     break;
                   }
                   case IdentifierSubtypePublishedChapterMarker:
@@ -393,7 +398,7 @@ void Filter_Text::processUsfm ()
                 {
                   // Get book number.
                   string s = usfm_get_book_identifier (chapterUsfmMarkersAndText, chapterUsfmMarkersAndTextPointer);
-                  s = filter_string_str_replace (soft_hyphen (), "", s); // Remove possible soft hyphen.
+                  s = filter_string_str_replace (soft_hyphen_u00AD (), "", s); // Remove possible soft hyphen.
                   currentBookIdentifier = Database_Books::getIdFromUsfm (s);
                   // Reset chapter and verse numbers.
                   currentChapterNumber = 0;
@@ -618,7 +623,10 @@ void Filter_Text::processUsfm ()
               }
               // The chapter number is only output when there is more than one chapter in a book.
               if (numberOfChaptersPerBook [currentBookIdentifier] > 1) {
-                if (style.userbool1) {
+                // Putting the chapter number at the first verse is determined by the style of the \c marker.
+                // But if a chapter label (\cl) is found in the current book, that disables the above.
+                bool cl_found = book_has_chapter_label[currentBookIdentifier];
+                if (style.userbool1 && !cl_found) {
                   // Output the chapter number at the first verse, not here.
                   // Store it for later processing.
                   outputChapterTextAtFirstVerse = number;
@@ -803,13 +811,14 @@ void Filter_Text::processUsfm ()
                   textFollowingMarker = textFollowingMarker.substr (pos + number.length ());
                 }
                 // If a chapter number was put, remove any whitespace from the start of the following text.
-                // Remove whitespace from the start of the following text, and replace it with the en-space.
-                // This en-space is a fixed-width space.
-                // This type of space makes the layout of the text following the verse number look tidier.
+                // Remove whitespace from the start of the following text,
+                // and replace it with the type of space that the user has set.
+                // This could be a fixed-width space, or a non-breaking space, or a combination of the two.
+                // These types of spaces make the layout of the text following the verse number look tidier.
                 // But if a chapter number was put, than do not put any space at the start of the following verse.
                 textFollowingMarker = filter_string_ltrim (textFollowingMarker);
                 if (outputChapterTextAtFirstVerse.empty()) {
-                  textFollowingMarker = en_space () + textFollowingMarker;
+                  textFollowingMarker = space_type_after_verse + textFollowingMarker;
                 }
                 chapterUsfmMarkersAndText [chapterUsfmMarkersAndTextPointer] = textFollowingMarker;
                 chapterUsfmMarkersAndTextPointer--;
@@ -990,8 +999,9 @@ void Filter_Text::processUsfm ()
             verses_text [iverse].append (currentItem);
             actual_verses_paragraph [iverse].append (currentItem);
           } else {
-            // The verse text straight after the \v starts with an enSpace. Remove it.
-            string item = filter_string_str_replace (en_space (), " ", currentItem);
+            // The verse text straight after the \v starts with certain space type.
+            // Replace it with a normal space.
+            string item = filter_string_str_replace (space_type_after_verse, " ", currentItem);
             verses_text [iverse] = filter_string_ltrim (item);
             actual_verses_paragraph [iverse] = filter_string_ltrim (item);
           }
@@ -1054,7 +1064,7 @@ void Filter_Text::processNote ()
                     }
                   }
                   // Add the note citation. And a no-break space after it.
-                  if (odf_text_notes) odf_text_notes->addText (citation + no_break_space_utf8_00a0());
+                  if (odf_text_notes) odf_text_notes->addText (citation + non_breaking_space_u00A0());
                   // Open note in the web pages.
                   if (html_text_standard) html_text_standard->addNote (citation, standardContentMarkerFootEndNote);
                   if (html_text_linked) html_text_linked->addNote (citation, standardContentMarkerFootEndNote);
@@ -1159,7 +1169,7 @@ void Filter_Text::processNote ()
                     }
                   }
                   // Add the note citation. And a no-break space (NBSP) after it.
-                  if (odf_text_notes) odf_text_notes->addText (citation + no_break_space_utf8_00a0());
+                  if (odf_text_notes) odf_text_notes->addText (citation + non_breaking_space_u00A0());
                   // Open note in the web page.
                   ensureNoteParagraphStyle (standardContentMarkerCrossReference, styles[standardContentMarkerCrossReference]);
                   if (html_text_standard) html_text_standard->addNote (citation, standardContentMarkerCrossReference);

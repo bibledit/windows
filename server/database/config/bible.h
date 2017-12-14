@@ -74,6 +74,8 @@ public:
   static void setCheckSpaceEndVerse (string bible, bool value);
   static bool getCheckFrenchPunctuation (string bible);
   static void setCheckFrenchPunctuation (string bible, bool value);
+  static bool getCheckFrenchCitationStyle (string bible);
+  static void setCheckFrenchCitationStyle (string bible, bool value);
   static string getSprintTaskCompletionCategories (string bible);
   static void setSprintTaskCompletionCategories (string bible, string value);
   static int getRepeatSendReceive (string bible);
@@ -150,6 +152,8 @@ public:
   static void setReadFromGit (string bible, bool value);
   static bool getSendChangesToRSS (string bible);
   static void setSendChangesToRSS (string bible, bool value);
+  static string getOdtSpaceAfterVerse (string bible);
+  static void setOdtSpaceAfterVerse (string bible, string value);
 private:
   static string file (string bible);
   static string file (string bible, const char * key);

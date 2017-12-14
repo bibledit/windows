@@ -686,15 +686,19 @@ void Database_Modifications::indexTrimAllNotifications ()
 }
 
 
-vector <int> Database_Modifications::getNotificationIdentifiers (const string& username)
+vector <int> Database_Modifications::getNotificationIdentifiers (string username, string bible)
 {
   vector <int> ids;
 
   SqliteSQL sql = SqliteSQL ();
-  sql.add ("SELECT identifier FROM notifications");
+  sql.add ("SELECT identifier FROM notifications WHERE 1");
   if (username != "") {
-    sql.add ("WHERE username =");
+    sql.add ("AND username =");
     sql.add (username);
+  }
+  if (bible != "") {
+    sql.add ("AND bible =");
+    sql.add (bible);
   }
   // Sort on reference, so that related change notifications are near each other.
   sql.add ("ORDER BY book ASC, chapter ASC, verse ASC, identifier ASC;");
@@ -710,70 +714,8 @@ vector <int> Database_Modifications::getNotificationIdentifiers (const string& u
 }
 
 
-// This gets the identifiers of the personal changes.
-// For easier comparison, it also gets the identifiers of the changes
-// in the verses that have changes entered by anyone.
-vector <int> Database_Modifications::getNotificationPersonalIdentifiers (const string& username, const string& category)
-{
-  sqlite3 * db = connect ();
-
-  // Get all personal changes.
-  vector <int> personalIDs;
-  SqliteSQL sql = SqliteSQL ();
-  sql.add ("SELECT identifier FROM notifications WHERE username =");
-  sql.add (username);
-  sql.add ("AND category =");
-  sql.add (category);
-  sql.add ("ORDER BY book ASC, chapter ASC, verse ASC, identifier ASC;");
-
-  vector <string> sidentifiers = database_sqlite_query (db, sql.sql) ["identifier"];
-  for (auto & identifier : sidentifiers) {
-    personalIDs.push_back (convert_to_int (identifier));
-  }
-
-  vector <int> allIDs;
-
-  // Go through each of the personal changes.
-  for (int & personalID : personalIDs) {
-    // Add the personal change to the results.
-    allIDs.push_back (personalID);
-    // Get the Bible and passage for this change.
-    string bible = getNotificationBible (personalID);
-    Passage passage = getNotificationPassage (personalID);
-    int book = passage.book;
-    int chapter = passage.chapter;
-    int verse = convert_to_int (passage.verse);
-    // Look for team's change for this Bible and passage.
-    SqliteSQL sql = SqliteSQL ();
-    sql.add ("SELECT identifier FROM notifications WHERE username =");
-    sql.add (username);
-    sql.add ("AND bible =");
-    sql.add (bible);
-    sql.add ("AND book =");
-    sql.add (book);
-    sql.add ("AND chapter =");
-    sql.add (chapter);
-    sql.add ("AND verse =");
-    sql.add (verse);
-    sql.add ("ORDER BY identifier ASC;");
-    vector <string> sidentifiers = database_sqlite_query (db, sql.sql) ["identifier"];
-    for (auto & identifier : sidentifiers) {
-      int id = convert_to_int (identifier);
-      // Add the identifier if it's not yet in.
-      if (find (allIDs.begin(), allIDs.end(), id) == allIDs.end()) {
-        allIDs.push_back (id);
-      }
-    }
-  }
-  
-  database_sqlite_disconnect (db);
-
-  return allIDs;
-}
-
-
 // This gets the identifiers of the team's changes.
-vector <int> Database_Modifications::getNotificationTeamIdentifiers (const string& username, const string& category)
+vector <int> Database_Modifications::getNotificationTeamIdentifiers (const string& username, const string& category, string bible)
 {
   vector <int> ids;
   SqliteSQL sql = SqliteSQL ();
@@ -781,6 +723,10 @@ vector <int> Database_Modifications::getNotificationTeamIdentifiers (const strin
   sql.add (username);
   sql.add ("AND category =");
   sql.add (category);
+  if (bible != "") {
+    sql.add ("AND bible =");
+    sql.add (bible);
+  }
   sql.add ("ORDER BY book ASC, chapter ASC, verse ASC, identifier ASC;");
   sqlite3 * db = connect ();
   vector <string> sidentifiers = database_sqlite_query (db, sql.sql) ["identifier"];
@@ -789,6 +735,25 @@ vector <int> Database_Modifications::getNotificationTeamIdentifiers (const strin
     ids.push_back (convert_to_int (sid));
   }
   return ids;
+}
+
+
+// This gets the distinct Bibles in the user's notifications.
+vector <string> Database_Modifications::getNotificationDistinctBibles (string username) 
+{
+  SqliteSQL sql = SqliteSQL ();
+  sql.add ("SELECT DISTINCT bible FROM notifications WHERE 1");
+  if (username != "") {
+    sql.add ("AND username =");
+    sql.add (username);
+  }
+  sql.add (";");
+  
+  sqlite3 * db = connect ();
+  vector <string> bibles = database_sqlite_query (db, sql.sql) ["bible"];
+  database_sqlite_disconnect (db);
+  
+  return bibles;
 }
 
 
@@ -920,23 +885,32 @@ string Database_Modifications::getNotificationNewText (int id)
 }
 
 
-void Database_Modifications::clearNotificationsUser (const string& username)
+// Clears change notifications for $username.
+// It does not clear all of the change notifications in all cases.
+// It clears a limited number of them.
+// It returns how many change notifications it cleared.
+int Database_Modifications::clearNotificationsUser (const string& username)
 {
+  int cleared_counter = 0;
   vector <int> identifiers = getNotificationIdentifiers (username);
   sqlite3 * db = connect ();
-  // Transaction speeds up the operation.
+  // A transaction speeds up the operation.
   database_sqlite_exec (db, "BEGIN;");
   for (auto& identifier : identifiers) {
+    if (cleared_counter >= 100) continue;
     deleteNotification (identifier, db);
+    cleared_counter++;
   }
   database_sqlite_exec (db, "COMMIT;");
   database_sqlite_disconnect (db);
+  // How many change notifications it cleared.
+  return cleared_counter;
 }
 
 
 // This function deletes personal changes and their matching change notifications.
 // It returns the deleted identifiers.
-vector <int> Database_Modifications::clearNotificationMatches (const string& username, const string& personal, const string& team)
+vector <int> Database_Modifications::clearNotificationMatches (string username, string personal, string team, string bible)
 {
   sqlite3 * db = connect ();
   
@@ -946,6 +920,10 @@ vector <int> Database_Modifications::clearNotificationMatches (const string& use
   sql.add (username);
   sql.add ("AND category =");
   sql.add (personal);
+  if (!bible.empty ()) {
+    sql.add ("AND bible =");
+    sql.add (bible);
+  }
   sql.add (";");
 
   vector <int> personals;

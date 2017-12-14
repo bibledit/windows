@@ -13,7 +13,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Launchpad (build 18505)\n"
+"X-Generator: Launchpad (build 18511)\n"
 
 msgid "Has been sending and receiving during the past hour"
 msgstr ""
@@ -1544,6 +1544,9 @@ msgid ""
 "cross reference target references."
 msgstr ""
 
+msgid "displaying no more of these"
+msgstr ""
+
 msgid "No Bible given"
 msgstr ""
 
@@ -1883,6 +1886,24 @@ msgstr ""
 msgid "You do not have enough privileges to modify this book."
 msgstr ""
 
+msgid "space"
+msgstr ""
+
+msgid "non-breaking space"
+msgstr ""
+
+msgid "en space"
+msgstr ""
+
+msgid "figure space"
+msgstr ""
+
+msgid "narrow non-breaking space"
+msgstr ""
+
+msgid "unknown"
+msgstr ""
+
 msgid "This book is absent from the Bible"
 msgstr ""
 
@@ -2062,6 +2083,12 @@ msgstr ""
 msgid "Should be preceded by a no-break space in French"
 msgstr ""
 
+msgid ""
+"The previous paragraph contains a citation not closed with a » therefore the "
+"current paragraph is expected to start with a « to continue that citation in "
+"French"
+msgstr ""
+
 msgid "Patterns"
 msgstr ""
 
@@ -2102,6 +2129,9 @@ msgid "The entry was deleted for just now."
 msgstr ""
 
 msgid "Loading ..."
+msgstr ""
+
+msgid "All Bibles"
 msgstr ""
 
 msgid "all of them"
@@ -2146,10 +2176,22 @@ msgstr ""
 msgid "Manage"
 msgstr ""
 
+msgid "Start clearing change notifications"
+msgstr ""
+
+msgid "Total:"
+msgstr ""
+
+msgid "Ready clearing change notifications"
+msgstr ""
+
 msgid "Change statistics"
 msgstr ""
 
 msgid "Everyone"
+msgstr ""
+
+msgid "Clearing change notifications."
 msgstr ""
 
 msgid "Will generate lists of changes"
@@ -3716,7 +3758,13 @@ msgstr ""
 msgid "Line height"
 msgstr ""
 
+msgid "percent"
+msgstr ""
+
 msgid "Letter spacing"
+msgstr ""
+
+msgid "pixels"
 msgstr ""
 
 msgid "Save"
@@ -4202,6 +4250,10 @@ msgstr ""
 msgid "This is an extra control in addition to the normal one."
 msgstr ""
 
+msgid ""
+"The list of consultation notes shows the name of the Bible the note refers to"
+msgstr ""
+
 msgid "Send / Receive"
 msgstr ""
 
@@ -4411,6 +4463,9 @@ msgid "space at the end of a verse"
 msgstr ""
 
 msgid "no-break space at French punctuation"
+msgstr ""
+
+msgid "multiple « in French citation style"
 msgstr ""
 
 msgid "Settings for the sentence structure"
@@ -4996,17 +5051,6 @@ msgstr ""
 msgid ""
 "Receive weekly mail about the team's progress during the course of the "
 "sprint."
-msgstr ""
-
-msgid "Software updates"
-msgstr ""
-
-msgid ""
-"Receive mail when updated software is available for the platform your client "
-"runs on."
-msgstr ""
-
-msgid "Receive mail when updated software is available for any platform."
 msgstr ""
 
 msgid ""
@@ -5887,6 +5931,9 @@ msgstr ""
 msgid "Display the current date in the running headers."
 msgstr ""
 
+msgid "The type of space to insert after a verse number"
+msgstr ""
+
 msgid "Info document"
 msgstr ""
 
@@ -6432,6 +6479,15 @@ msgid ""
 "account and tell the number of messages in the Inbox."
 msgstr ""
 
+msgid "POP3 Host"
+msgstr ""
+
+msgid "Protocol"
+msgstr ""
+
+msgid "Port"
+msgstr ""
+
 msgid "Sending mail"
 msgstr ""
 
@@ -6449,6 +6505,9 @@ msgstr ""
 msgid ""
 "When you submit new values, Bibledit will attempt to send an email to the "
 "email address of Bibledit."
+msgstr ""
+
+msgid "SMTP Host"
 msgstr ""
 
 msgid "Select editor"
@@ -7377,6 +7436,52 @@ msgstr ""
 msgid "External reference"
 msgstr ""
 
+msgid "Bibledit software"
+msgstr ""
+
+msgid "Copyright (©) 2003-2017 Teus Benschop."
+msgstr ""
+
+msgid ""
+"This program is free software: you can redistribute it and/or modify it "
+"under the terms of the GNU General Public License as published by the Free "
+"Software Foundation, either version 3 of the License, or (at your option) "
+"any later version."
+msgstr ""
+
+msgid ""
+"This program is distributed in the hope that it will be useful, but without "
+"any warranty; without even the implied warranty of merchantability or "
+"fitness for a particular purpose. See the GNU General Public License for "
+"more details."
+msgstr ""
+
+msgid ""
+"You should have received a copy of the GNU General Public License along with "
+"this program. See also"
+msgstr ""
+
+msgid "ETCBC4 Hebrew text database"
+msgstr ""
+
+msgid "Bibledit obtained the data from"
+msgstr ""
+
+msgid "SHEBANQ, a search engine for the Hebrew Bible"
+msgstr ""
+
+msgid "Creative Commons Attribution-NonCommercial 4.0 International License"
+msgstr ""
+
+msgid "You may not use the data for commercial applications without consent."
+msgstr ""
+
+msgid "Other code and data"
+msgstr ""
+
+msgid "See the source code repository"
+msgstr ""
+
 msgid "Install Bibledit on Windows"
 msgstr ""
 
@@ -7621,6 +7726,9 @@ msgid ""
 msgstr ""
 
 msgid "The Ubuntu packages support Ubuntu 15.05 and higher."
+msgstr ""
+
+msgid "Bibledit Cloud can also be installed from source."
 msgstr ""
 
 msgid ""
@@ -9664,13 +9772,6 @@ msgid ""
 msgstr ""
 
 msgid "Good providers are:"
-msgstr ""
-
-msgid "You may also run your Bibledit Cloud instance from bibledit.org."
-msgstr ""
-
-msgid ""
-"Use the contact form to explain why you need a Bibledit Cloud instance."
 msgstr ""
 
 msgid "OpenLDAP"

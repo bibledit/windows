@@ -1185,62 +1185,6 @@ void Database_Config_User::setFastEditorSwitchingAvailable (bool value)
 }
 
 
-bool Database_Config_User::getAllSoftwareUpdatesNotification ()
-{
-  return getBValue ("all-software-updates-notification", false);
-}
-bool Database_Config_User::getAllSoftwareUpdatesNotificationForUser (string username)
-{
-  return getBValueForUser (username, "all-software-updates-notification", false);
-}
-void Database_Config_User::setAllSoftwareUpdatesNotification (bool value)
-{
-  setBValue ("all-software-updates-notification", value);
-}
-
-
-bool Database_Config_User::getYourSoftwareUpdatesNotification ()
-{
-  return getBValue ("your-software-updates-notification", false);
-}
-bool Database_Config_User::getYourSoftwareUpdatesNotificationForUser (string username)
-{
-  return getBValueForUser (username, "your-software-updates-notification", false);
-}
-void Database_Config_User::setYourSoftwareUpdatesNotification (bool value)
-{
-  setBValue ("your-software-updates-notification", value);
-}
-
-
-vector <string> Database_Config_User::getLastMailedSoftwareVersionForUser (string username)
-{
-  return getListForUser (username, "last-mailed-software-version");
-}
-void Database_Config_User::setLastMailedSoftwareVersionForUser (string username, vector <string> values)
-{
-  setListForUser (username, "last-mailed-software-version", values);
-}
-
-
-vector <string> Database_Config_User::getConnectedClientsForUser (string username)
-{
-  return getListForUser (username, "connected-clients");
-}
-vector <string> Database_Config_User::getConnectedClients ()
-{
-  return getList ("connected-clients");
-}
-void Database_Config_User::setConnectedClients (vector <string> values)
-{
-  setList ("connected-clients", values);
-}
-void Database_Config_User::setConnectedClientsForUser (string username, vector <string> values)
-{
-  setListForUser (username, "connected-clients", values);
-}
-
-
 bool Database_Config_User::getIncludeRelatedPassages ()
 {
   return getBValue ("include-related-passages", false);
@@ -1354,4 +1298,18 @@ bool Database_Config_User::getQuickNoteEditLink ()
 void Database_Config_User::setQuickNoteEditLink (bool value)
 {
   setBValue (quick_note_edit_link_key (), value);
+}
+
+
+const char * show_bible_in_notes_list_key ()
+{
+  return "show-bible-in-notes-list";
+}
+bool Database_Config_User::getShowBibleInNotesList ()
+{
+  return getBValue (show_bible_in_notes_list_key (), false);
+}
+void Database_Config_User::setShowBibleInNotesList (bool value)
+{
+  setBValue (show_bible_in_notes_list_key (), value);
 }

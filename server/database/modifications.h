@@ -72,9 +72,9 @@ public:
   int getNextAvailableNotificationIdentifier ();
   void recordNotification (const vector <string> & users, const string& category, const string& bible, int book, int chapter, int verse, const string& oldtext, const string& modification, const string& newtext);
   void indexTrimAllNotifications ();
-  vector <int> getNotificationIdentifiers (const string& username = "");
-  vector <int> getNotificationPersonalIdentifiers (const string& username, const string& category);
-  vector <int> getNotificationTeamIdentifiers (const string& username, const string& category);
+  vector <int> getNotificationIdentifiers (string username = "", string bible = "");
+  vector <int> getNotificationTeamIdentifiers (const string& username, const string& category, string bible = "");
+  vector <string> getNotificationDistinctBibles (string username = "");
   void deleteNotification (int identifier, sqlite3 * db = NULL);
   int getNotificationTimeStamp (int id);
   string getNotificationCategory (int id);
@@ -83,8 +83,8 @@ public:
   string getNotificationOldText (int id);
   string getNotificationModification (int id);
   string getNotificationNewText (int id);
-  void clearNotificationsUser (const string& username);
-  vector <int> clearNotificationMatches (const string& username, const string& personal, const string& team);
+  int clearNotificationsUser (const string& username);
+  vector <int> clearNotificationMatches (string username, string personal, string team, string bible = "");
   void storeClientNotification (int id, string username, string category, string bible, int book, int chapter, int verse, string oldtext, string modification, string newtext);
   void notificationUpdateTime (int identifier, int timestamp);
   vector <string> getCategories ();
