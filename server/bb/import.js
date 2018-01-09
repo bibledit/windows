@@ -17,16 +17,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#ifndef INCLUDED_STYLES_INDEXT_H
-#define INCLUDED_STYLES_INDEXT_H
-
-
-#include <config/libraries.h>
-
-
-string styles_indext_url ();
-bool styles_indext_acl (void * webserver_request);
-string styles_indext (void * webserver_request);
-
-
-#endif
+$(document).ready (function () {
+  $( "#form" ).submit (function (event) {
+    var text = $("#data").val();
+    text = filter_url_plus_to_tag (text);
+    $("#data").val (text);
+  });
+});

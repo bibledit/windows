@@ -40,7 +40,11 @@
 using namespace std;
 
 
-string file_get_contents(string filename)
+#include "../database/stylesdata.h"
+#include "../database/booksdata.h"
+
+
+string file_get_contents (string filename)
 {
   ifstream ifs(filename.c_str(), ios::in | ios::binary | ios::ate);
   streamoff filesize = ifs.tellg();
@@ -153,6 +157,28 @@ int main ()
     }
   }
 
+  // Go over all USFM styles to internationalize them.
+  unsigned int styles_data_count = sizeof (styles_table) / sizeof (*styles_table);
+  for (unsigned int i = 0; i < styles_data_count; i++) {
+    string english = styles_table[i].name;
+    english.insert (0, "translate(\"");
+    english.append ("\")");
+    translatables.push_back (english);
+    english = styles_table[i].info;
+    english.insert (0, "translate(\"");
+    english.append ("\")");
+    translatables.push_back (english);
+  }
+
+  // Go over all Bible books to internationalize them.
+  unsigned int books_data_count = sizeof (books_table) / sizeof (*books_table);
+  for (unsigned int i = 0; i < books_data_count; i++) {
+    string english = books_table[i].english;
+    english.insert (0, "translate(\"");
+    english.append ("\")");
+    translatables.push_back (english);
+  }
+  
   // Store translatable strings.
   contents = implode (translatables, "\n");
   file_put_contents ("translatables.cpp", contents);

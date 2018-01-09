@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bibledit\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"PO-Revision-Date: 2017-12-10 14:03+0000\n"
+"PO-Revision-Date: 2018-01-07 14:16+0000\n"
 "Last-Translator: L'Africain <Unknown>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Launchpad (build 18511)\n"
+"X-Generator: Launchpad (build 18521)\n"
 
 msgid "Has been sending and receiving during the past hour"
 msgstr "A fait l'envoi et la réception au cours de la dernière heure"
@@ -61,161 +61,6 @@ msgstr "Inactif depuis un jour"
 msgid "Inactive for a week"
 msgstr "Inactif depuis une semaine"
 
-msgid "Font and text direction"
-msgstr "Orientation des polices et du texte"
-
-msgid ""
-"It has been some time ago that changes in the Bible text were received from "
-"the Cloud."
-msgstr ""
-"Il y a déjà quelque temps que les changements dans le texte biblique ont été "
-"récupérés du Nuage."
-
-msgid "Please do a Send/receive action to receive them from the Cloud."
-msgstr ""
-"Veuillez effectuer une action Envoyer/recevoir pour les recevoir à partir du "
-"Nuage."
-
-msgid ""
-"There are pending changes in the Bible text that have not yet been sent to "
-"the Cloud for some time."
-msgstr ""
-"Il y a des changements dans le texte de la Bible qui n'ont pas été envoyés "
-"sur le nuage depuis un certain temps."
-
-msgid ""
-"Changes will continue to be saved, but it is recommended to do a "
-"Send/receive action as soon as you can."
-msgstr ""
-"Les modifications seront encore sauvegardées, mais il est recommandé "
-"d'exécuter l'action Envoyer/recevoir aussi rapidement que possible."
-
-msgid "The Cloud already had some changes in this chapter."
-msgstr "Le nuage a déjà quelques modifications dans ce chapitre."
-
-msgid "You sent some changes for this chapter too."
-msgstr "Vous avez aussi envoyé quelques modifications pour ce chapitre."
-
-msgid "The Cloud merged the two."
-msgstr "Le nuage a fusionné les deux."
-
-msgid "Most likely this is okay."
-msgstr "Très probablement, cela est OK."
-
-msgid "You may want to check the result of the merge, whether it is correct."
-msgstr ""
-"Vous pouvez vérifier le résultat de la fusion, qu'elle soit correcte."
-
-msgid "Bibles"
-msgstr "Bibles"
-
-msgid "Please enter a name for the new empty Bible"
-msgstr "Veuillez entrer un nom pour la nouvelle Bible"
-
-msgid "This Bible already exists"
-msgstr "Cette Bible existe déjà"
-
-msgid "The Bible was created"
-msgstr "La Bible a été créée."
-
-msgid "Please enter a name for where to copy the Bible to"
-msgstr "Veuillez entrer un nom pour l'endroit où copier la Bible"
-
-msgid "Cannot copy the Bible because the destination Bible already exists."
-msgstr ""
-"Impossible de copier la Bible parce que la Bible de destintion existe déjà."
-
-msgid "The Bible was copied."
-msgstr "La Bible a été copiée."
-
-msgid "Would you like to delete this Bible?"
-msgstr "Souhaitez-vous supprimer cette Bible ?"
-
-msgid "Chapter"
-msgstr "Chapitre"
-
-msgid "Book"
-msgstr "Livre"
-
-msgid "Would you like to delete this chapter?"
-msgstr "Souhaitez-vous supprimer ce chapitre ?"
-
-msgid "Please enter the number for the new chapter"
-msgstr "Veuillez entrer le numéro du nouveau chapitre"
-
-msgid "This chapter already exists"
-msgstr "Ce chapitre existe déjà"
-
-msgid "Editing settings"
-msgstr "Édition des paramètres"
-
-msgid "Order"
-msgstr "Ordre"
-
-msgid "Bible"
-msgstr "Bible"
-
-msgid "Would you like to change the versification system?"
-msgstr "Voulez-vous modifier le système de versification ?"
-
-msgid ""
-"A versification system determines how many chapters are in each book, and "
-"how many verses are in each chapter. Please make your choice below."
-msgstr ""
-"Un système de versification détermine le nombre de chapitres dans chaque "
-"livre, et le nombre de versets dans chaque chapitre. Veuillez faire votre "
-"choix ci-dessous."
-
-msgid "Would you like to change the verse mapping?"
-msgstr "Voulez-vous changer l'organisation des versets ?"
-
-msgid ""
-"A verse mapping can be used to match verses for parallel Bible display. "
-"Please make your choice below."
-msgstr ""
-"L'organisation des versets peut être employée pour faire concorder des "
-"versets pour l'affichage de parallèles bibliques. Veuillez faire votre choix "
-"ci-dessous."
-
-msgid "Create book"
-msgstr "Créer un livre"
-
-msgid "Would you like to delete this book?"
-msgstr "Souhaitez-vous supprimer ce livre ?"
-
-msgid "Select a resource to import into the Bible"
-msgstr "Sélectionnez une ressource à importer dans la Bible"
-
-msgid "The resource will be imported."
-msgstr "La ressource va être importée."
-
-msgid "It will overwrite the content of the Bible."
-msgstr "Cela va écraser le contenu de la Bible."
-
-msgid "The resource will be imported into the Bible."
-msgstr "La ressource va être importée dans la Bible."
-
-msgid "The journal shows the progress."
-msgstr "Le journal montre la progression."
-
-msgid "More operations in the Cloud"
-msgstr "Plus d'opération sur le nuage"
-
-msgid "Import"
-msgstr "Importer"
-
-msgid "Import has started."
-msgstr "L’importation a débuté."
-
-msgid "Please supply valid Unicode UTF-8 text."
-msgstr "Veuillez fournir un texte unicode UTF-8 valide."
-
-msgid "Nothing was imported."
-msgstr "Rien n'a été importé."
-
-msgid "Nothing was uploaded"
-msgstr "Rien n'a été téléversé"
-
 msgid "Verse mappings"
 msgstr "Mappages de versets"
 
@@ -236,6 +81,9 @@ msgstr "Voulez-vous supprimer ce mappage de versets ?"
 
 msgid "The verse mapping was deleted"
 msgstr "Le mappage de verset a été supprimé"
+
+msgid "Unknown"
+msgstr "Inconnu"
 
 msgid "New"
 msgstr "Nouveau"
@@ -276,1436 +124,8 @@ msgstr "Nom"
 msgid "Information"
 msgstr "Information"
 
-msgid "Translator’s addition"
-msgstr "Addition du traducteur"
-
-msgid ""
-"A translator’s explanation - words added by the translator for clarity – "
-"text which is not literally a part of the original language, but which was "
-"supplied to make the meaning of the original clear."
-msgstr ""
-"Une explication du traducteur – un mot ajouté par le traducteur pour la "
-"clarté – texte qui ne fait pas littéralement partie de la langue originale, "
-"mais qui y est intégré pour donner le sens du texte original."
-
-msgid "Combined add and pn style"
-msgstr "Combinaison du style add et pn"
-
-msgid ""
-"Support for overlapping pn ...pn* and add ...add* occurrences. Deprecated."
-msgstr ""
-"Prend en charge le chevauchement des occurrences pn ...pn* et add ... add*. "
-"Obsolète."
-
-msgid "Blank line"
-msgstr "Ligne vide"
-
-msgid ""
-"May be used to explicitly indicate additional white space between "
-"paragraphs. Poetry text stanza break."
-msgstr ""
-"Peut être utilisé pour indiquer explicitement un espace blanc supplémentaire "
-"entre les paragraphes. Saut de texte de strophe  de poésie."
-
-msgid "Bold text"
-msgstr "Texte en gras"
-
-msgid "Bold-italic text"
-msgstr "Texte en gras et en italique"
-
-msgid "A character style, use bold + italic text"
-msgstr "Style de caractère en gras et en italique"
-
-msgid "Quoted book title"
-msgstr "Titre de livre en italique"
-
-msgid "For the quoted name of a book"
-msgstr "Pour les noms de livre en italique"
-
-msgid "Chapter number"
-msgstr "Numéro de chapitre"
-
-msgid "Alternate chapter number"
-msgstr "Numéro de chapitre alternatif"
-
-msgid ""
-"Second or alternate chapter number. For coding dual versification. Useful "
-"for places where different traditions of chapter breaks need to be supported "
-"in the same translation. Bibledit does nothing with this marker yet."
-msgstr ""
-"Second ou autre numéro de chapitre. Pour baliser la double versification. "
-"Utile pour les endroits où différentes traditions de chapitrage doivent être "
-"supportées dans la même traduction. Bibledit ne fait rien avec cette balise "
-"pour le moment."
-
-msgid "Category tag"
-msgstr "Catégorie des étiquettes"
-
-msgid "Extended note or sidebar category tag."
-msgstr "Note étendue ou balise de catégorie d'encadré."
-
-msgid "Chapter description"
-msgstr "Description de chapitre"
-
-msgid "Chapter label"
-msgstr "Étiquette de chapitre"
-
-msgid ""
-"Chapter label used for translations that add a word such as 'Chapter' before "
-"chapter numbers, e.g. Psalms."
-msgstr ""
-"Étiquette de chapitre, utilisé pour les traductions qui ajoutent un mot "
-"comme « Chapitre » avant le numéro de chapitre, par exemple les Psaumes."
-
-msgid "Closure of an epistle"
-msgstr "Fermeture d'une épître"
-
-msgid "Published chapter character"
-msgstr "Caractère de chapitre pour la publication"
-
-msgid ""
-"Published chapter number. This is a chapter marking that would be used in "
-"the published text."
-msgstr ""
-"Caractère de chapitre pour la publication. Correspond à une balise de "
-"chapitre alternative, qui peut être utilisée pour l'édition du texte."
-
-msgid "Descriptive title or Hebrew subtitle"
-msgstr "Titre descriptif ou sous-titre hébreu"
-
-msgid "A Hebrew text heading, to provide description, e.g. Psalms"
-msgstr "Entêtes de texte hébreux donnant une description, ex. Psaumes"
-
-msgid "Deuterocanonical"
-msgstr "Deutéro-canonique"
-
-msgid ""
-"Deuterocanonical / LXX additions or insertions in the Protocanonical text"
-msgstr ""
-"Deutérocanonique / additions ou insertions de la LXX dans le texte "
-"protocanonique"
-
-msgid "Extended footnote"
-msgstr "Note de bas de page étendue"
-
-msgid "Extended footnote element."
-msgstr "Élément de note de bas de page étendue"
-
-msgid "Emphasized text"
-msgstr "Texte avec emphase"
-
-msgid "A character style, use emphasized text style."
-msgstr "Style de caractère, utilise le style de texte avec emphase."
-
-msgid "Sidebar start"
-msgstr "Début de l'encadré"
-
-msgid "Beginning or opening of the sidebar content section"
-msgstr "Début ou ouverture de la section de contenu de l'encadré"
-
-msgid "Sidebar end"
-msgstr "Fin de l'encadré"
-
-msgid "End or closing of the sidebar content section"
-msgstr "Fin ou fermeture de la section de contenu de l'encadré"
-
-msgid "Extended cross reference"
-msgstr "Référence croisée étendue"
-
-msgid "Extended cross reference element."
-msgstr "Élément de référence croisée étendue."
-
-msgid "Footnote"
-msgstr "Note de bas de page"
-
-msgid "A footnote text item."
-msgstr "Un élément de texte de note de bas de page."
-
-msgid "Footnote Deuterocanonical content"
-msgstr "Note de pied avec contenu deutérocanonique"
-
-msgid ""
-"Text between these markers is material to be included only in published "
-"editions that contain the Deuterocanonical books. Deprecated."
-msgstr ""
-"Le texte entre ces balises est du contenu à inclure uniquement dans les "
-"éditions publiées qui contiennent les livres deutérocanoniques. Obsolète."
-
-msgid "Endnote"
-msgstr "Note de fin"
-
-msgid "An endnote text item."
-msgstr "Un élément de texte de note de bas de fin."
-
-msgid "Figure / illustration / map"
-msgstr "Image / illustration / carte"
-
-msgid "Illustration [columns to span, height, filename, caption text]"
-msgstr ""
-"Illustration [colonnes à étendre, hauteur, nom de fichier, texte de légende]"
-
-msgid "Footnote keyword"
-msgstr "Mot clé en note"
-
-msgid ""
-"The specific keyword or term from the text for which the footnote is being "
-"provided."
-msgstr ""
-"Le mot clé ou le terme spécifique du texte pour lequel la note de bas de "
-"page est fournie."
-
-msgid "Footnote label text"
-msgstr "Texte étiqueté de note de bas de page"
-
-msgid ""
-"Can be used for marking or “labeling” a word or words which are used "
-"consistently across certain types of translation notes, such as the words "
-"'Or' in an alternative translation note, 'Others', 'Heb.', 'LXX' etc."
-msgstr ""
-"Peut être utiliser pour marquer ou « étiqueter » un mot ou des mots qui sont "
-"utilisés de manière cohérente pour certains types de notes de traduction, "
-"tels que les mots « Ou » dans une autre note de traduction, « Autres », "
-"« Heb. », « LXX », etc."
-
-msgid "Footnote reference mark"
-msgstr "Balise de référence dans une note de bas de page"
-
-msgid "An additional footnote marker location for a previous footnote."
-msgstr ""
-"Un emplacement de balise de note de bas de page supplémentaire pour une note "
-"de bas de page précédente."
-
-msgid "Footnote additional paragraph"
-msgstr "Paragraphe additionnel dans une note"
-
-msgid ""
-"Use this marker to if you need to indicate the start of a new paragraph "
-"within a footnote."
-msgstr ""
-"Utilisez cette balise si vous devez indiquer le début d'un nouveau "
-"paragraphe dans une note de bas de page."
-
-msgid "Footnote translation quotation"
-msgstr "Traduction en italique dans note de bas de page"
-
-msgid ""
-"A quotation from the current scripture text translation for which the note "
-"is being provided."
-msgstr ""
-"Une citation de la traduction actuelle du texte de l'Écriture  pour laquelle "
-"la note est fournie."
-
-msgid "Footnote alternate translation"
-msgstr "Traduction alternative dans note de bas de page"
-
-msgid ""
-"Used to distinguish between a quotation of the current scripture text "
-"translation, and an alternate translation."
-msgstr ""
-"Utilisé pour faire la distinction entre une citation de la traduction du "
-"texte des Écritures actuelle et une autre traduction."
-
-msgid "Footnote origin reference"
-msgstr "Référence d'origine de la note de bas de page"
-
-msgid "This is the chapter and verse or verses that note refers to."
-msgstr ""
-"Contient le chapitre et le verset ou les versets à laquelle la note fait "
-"référence."
-
-msgid "Footnote text"
-msgstr "text de note de bas de page"
-
-msgid "The essential or explanatory text of the footnote."
-msgstr "Texte essentiel ou explicatif de la note de bas de page."
-
-msgid "Footnote verse number"
-msgstr "Numéro de verset de la note"
-
-msgid "A verse number within the footnote text."
-msgstr "Un numéro de verset dans le texte de la note de bas de page."
-
-msgid "Running header"
-msgstr "Titre courant"
-
-msgid "Running header text for a book"
-msgstr "Texte du titre courant pour un livre"
-
-msgid "Deprecated running header"
-msgstr "Titre courant obsolète"
-
-msgid "Deprecated running header text"
-msgstr "Texte de titre courant obsolète"
-
-msgid "Deprecated left running header"
-msgstr "Texte de titre courant gauche obsolète"
-
-msgid "Deprecated running header text, left side of page"
-msgstr "Texte de titre courant obsolète, page de gauche"
-
-msgid "Deprecated right running header"
-msgstr "Texte de titre courant droit obsolète"
-
-msgid "Deprecated running header text, right side of page"
-msgstr "Texte de titre courant obsolète, page de droite"
-
-msgid "Introduction blank line"
-msgstr "Ligne vide dans l'introduction"
-
-msgid ""
-"May be used to explicitly indicate additional white space between paragraphs."
-msgstr ""
-"Peut être utilisé pour indiquer explicitement une espace blanche "
-"supplémentaire entre les paragraphes."
-
-msgid "Identification"
-msgstr "Identification"
-
-msgid ""
-"File identification information [name of file, book name, language, last "
-"edited, date etc.]"
-msgstr ""
-"Informations d'identification du fichier [nom du fichier, nom du livre, "
-"langue, dernière édition, date, etc.]"
-
-msgid "Encoding"
-msgstr "Encodage"
-
-msgid ""
-"File encoding information. Bibledit disregards this marker, as all text in "
-"Bibledit is in UTF-8 encoding."
-msgstr ""
-"Informations sur l'encodage de fichiers. Bibledit ignore cette balise, car "
-"tout le texte dans Bibledit est encodé en UTF-8."
-
-msgid "Introduction end"
-msgstr "Fin d'intreoduction"
-
-msgid ""
-"Optionally included to explicitly indicate the end of the introduction "
-"material"
-msgstr ""
-"Optionnellement inclus pour indiquer explicitement la fin du matériel "
-"d'introduction"
-
-msgid "Explanatory or bridge text"
-msgstr "Texte explicatif ou ponctuel"
-
-msgid ""
-"Introduction explanatory or bridge text, e.g. explanation of missing book in "
-"Short Old Testament)"
-msgstr ""
-
-msgid "Introduction list item"
-msgstr "Élément d'introduction de liste"
-
-msgid "A list entry, level 1, if single level"
-msgstr "Une rubrique de liste, niveau 1, si un niveau unique"
-
-msgid "Introduction list item level 1"
-msgstr "Introduction de liste élément de niveau 1"
-
-msgid "A list entry, level 1, if multiple levels"
-msgstr "Une rubrique de liste, niveau 1,  si de multiples niveaux"
-
-msgid "Introduction list item level 2"
-msgstr "Élément d'introduction de liste de niveau 2"
-
-msgid "A list entry, level 2"
-msgstr "Rubrique de liste, niveau 2"
-
-msgid "Introduction flush left paragraph"
-msgstr "Paragraphe d'introduction aligné à gauche"
-
-msgid ""
-"Introduction prose paragraph, with no first line indent. May occur after "
-"poetry)."
-msgstr ""
-"Paragraphe d'introduction en prose, sans retrait de première ligne. Peut "
-"survenir après de la poésie)."
-
-msgid "Indented introduction flush left paragraph"
-msgstr "Paragraphe d'introduction aligné à gauche avec retrait"
-
-msgid ""
-"Introduction prose paragraph text, indented, with no first line indent"
-msgstr ""
-"Texte d'introduction de paragraphe en prose, avec retrait et sans  retrait "
-"de première ligne"
-
-msgid "Introduction flush left quote from text paragraph"
-msgstr "Texte de paragraphe d'introduction aligné à gauche  en italique"
-
-msgid ""
-"Introduction prose paragraph, quote from the body text, with no first line "
-"indent"
-msgstr ""
-"Paragraphe d'introduction en prose, italique du corps du texte, sans retrait "
-"de première ligne."
-
-msgid "Introduction major title level 1"
-msgstr "Titre principale d'introduction niveau 1"
-
-msgid "Introduction major title, level 1, if single level"
-msgstr "Titre principale d'introduction, niveau 1, si un seul niveau"
-
-msgid "Introduction major title, level 1, if multiple levels"
-msgstr "Titre principale d'introduction, niveau 1, si un plusieurs niveaux"
-
-msgid "Introduction major title level 2"
-msgstr "Titre principale d'introduction niveau 2"
-
-msgid "Introduction major title, level 2"
-msgstr "Titre principale d'introduction, niveau 2"
-
-msgid "Introduction major title level 3"
-msgstr "Titre principale d'introduction niveau 3"
-
-msgid "Introduction major title, level 3"
-msgstr "Titre principale d'introduction, niveau 3"
-
-msgid "Introduction major title level 4"
-msgstr "Titre principale d'introduction niveau 4"
-
-msgid "Introduction major title, level 4."
-msgstr "Titre principale d'introduction, niveau 4"
-
-msgid "Introduction major title ending"
-msgstr "Fin de titre principale d'introduction"
-
-msgid "Used to mark a major title indicating the end of the introduction"
-msgstr ""
-"Utilisé pour marquer un titre majeur indiquant la fin de l'introduction"
-
-msgid "Introduction major title ending level 1"
-msgstr "Titre principal d'introduction de niveau 1 fermant"
-
-msgid "Introduction major title ending level 2"
-msgstr "Titre principal d'introduction de niveau 2 fermant"
-
-msgid "Introduction outline entry"
-msgstr "Entrée d'esquisse d'introduction"
-
-msgid "Introduction outline text, level 1, if single level"
-msgstr "Texte d'esquisse d'introduction, niveau 1, si un niveau"
-
-msgid "Introduction outline entry Level 1"
-msgstr "Entrée d'esquisse d'introduction de niveau 1"
-
-msgid "Introduction outline text, level 1, if multiple levels"
-msgstr "Texte d'esquisse d'introduction, niveau 1, si plusieurs niveaux"
-
-msgid "Introduction outline entry Level 2"
-msgstr "Entrée d'esquisse d'introduction niveau 2"
-
-msgid "Introduction outline text, level 2"
-msgstr "Texte d'esquisse d'introduction, niveau 2"
-
-msgid "Introduction outline entry level 3"
-msgstr "Entrée d'esquisse d'introduction niveau 3"
-
-msgid "Introduction outline text, level 3"
-msgstr "Introduction texte de plan, niveau  3"
-
-msgid "Introduction outline entry level 4"
-msgstr "Entrée d'esquisse d'introduction niveau 3"
-
-msgid "Introduction outline text, level 4"
-msgstr "Introduction texte de plan, niveau  4"
-
-msgid "Introduction outline reference range"
-msgstr "Plage de référence d'esquisse d'introduction"
-
-msgid ""
-"Introduction references range for outline entry; for marking references "
-"separately"
-msgstr ""
-"Entrée de plage de références d'esquisse d'introduction ; pour marquer les "
-"références séparément"
-
-msgid "Introduction outline title"
-msgstr "Introduction titre de plan"
-
-msgid "Introduction paragraph"
-msgstr "Paragraphe d'introduction"
-
-msgid "Introduction prose paragraph"
-msgstr "Paragraphe d'introduction en prose"
-
-msgid "Indented introduction paragraph"
-msgstr "Paragraphe d'introduction en retrait"
-
-msgid "Introduction prose paragraph, with first line indent"
-msgstr "Paragraphe d'introduction en prose avec la première ligne en retrait"
-
-msgid "Introduction quote from text paragraph"
-msgstr "Paragraphe de texte d'introduction en italique"
-
-msgid "Introduction prose paragraph, quote from the body text"
-msgstr "Paragraphe d'introduction en prose, italique dans le corps de texte."
-
-msgid "Introduction right-aligned paragraph"
-msgstr "Paragraphe d'introduction aligné à droite"
-
-msgid "Introduction prose paragraph, right aligned"
-msgstr "Texte d'introduction en prose, aligné à droite"
-
-msgid "Introduction poetic line"
-msgstr "Ligne d'introduction poétique"
-
-msgid "Introduction poetry text, level 1, if single level"
-msgstr "Texte d'introduction poétique, niveau 1, si un seul niveau"
-
-msgid "Introduction poetic line Level 1"
-msgstr "Ligne d'introduction poétique niveau 1"
-
-msgid "Introduction poetry text, level 1, if multiple levels"
-msgstr "Texte d'introduction poétique, niveau 1, si plusieurs niveaux"
-
-msgid "Introduction poetic line level 2"
-msgstr "Texte d'introduction poétique niveau 2"
-
-msgid "Introduction poetry text, level 2"
-msgstr "Texte d'introduction poétique, niveau 2"
-
-msgid "Introduction poetic line level 3"
-msgstr "Ligne d'introduction poétique niveau 3"
-
-msgid "Introduction poetry text, level 3"
-msgstr "Texte d'introduction poétique niveau 3"
-
-msgid "Introduction quoted text"
-msgstr "Introduction texte de citation"
-
-msgid ""
-"Scripture quotations, or other quoted text, appearing in the introduction"
-msgstr ""
-"Citations de l'Écriture, ou autre texte cité, apparaissant dans "
-"l'introduction"
-
-msgid "Introduction section heading level 1"
-msgstr "En-tête de section d'introduction niveau  1"
-
-msgid "Introduction section heading, level 1, if single level"
-msgstr "En-tête de section d'introduction, niveau  1, si un seul niveau"
-
-msgid "Introduction section heading, level 1, if multiple levels"
-msgstr ""
-"En-tête de section d'introduction, niveau  1, si un plusieurs niveaux"
-
-msgid "Introduction section heading level 2"
-msgstr "En-tête de section d'introduction niveau  2"
-
-msgid "Introduction section heading, level 2"
-msgstr "En-tête de section d'introduction, niveau  2"
-
-msgid "Italic text"
-msgstr "Italique"
-
-msgid "A character style, use italic text"
-msgstr "Style de caractère en italique"
-
-msgid "Link text"
-msgstr "Texte de lien"
-
-msgid ""
-"Optionally used for associating linking attributes to a span of text when no "
-"other character level markup is applied to the same span."
-msgstr ""
-"Facultativement utilisé pour associer des attributs de liaison à une plage "
-"de texte lorsqu'aucun autre balisage de niveau de caractère n'est appliqué à "
-"la même plage."
-
-msgid "Keyword"
-msgstr "Mot-clé"
-
-msgid "Keyword / keyterm"
-msgstr "Mot-clé/terme-clé"
-
-msgid "List footer"
-msgstr "Sommaire de liste"
-
-msgid ""
-"Some lists include an introductory and concluding remark. They are an "
-"integral part of the list content, but are not list items. A list does not "
-"require either or both of these elements."
-msgstr ""
-"Certaines listes comprennent une remarque d'introduction et de conclusion. "
-"Ils font partie intégrante du contenu de la liste, mais ne sont pas des "
-"éléments de liste. Une liste ne nécessite ni l'un ni l'autre de ces éléments."
-
-msgid "List header"
-msgstr "Titre de liste"
-
-msgid "List entry"
-msgstr "Rubrique de liste"
-
-msgid "List entry level 1"
-msgstr "Rubrique de liste niveau 1"
-
-msgid "List entry level 2"
-msgstr "Entrée de liste niveau 2Rubrique"
-
-msgid "List entry level 3"
-msgstr "Rubrique de liste niveau 3"
-
-msgid "A list entry, level 3"
-msgstr "Une rubrique de liste, niveau 3"
-
-msgid "List entry level 4"
-msgstr "Rubrique de liste niveau 4"
-
-msgid "A list entry, level 4"
-msgstr "Une rubrique de liste, niveau 4"
-
-msgid "List entry 'key' content"
-msgstr "Rubrique de liste de contenu 'clé'"
-
-msgid "The 'key' content will be followed by 'value' content"
-msgstr "Le contenu 'clé' sera suivi du contenu 'valeur'"
-
-msgid "Embedded list entry"
-msgstr "Rubrique de liste incorporée"
-
-msgid ""
-"An out-dented paragraph meant to highlight the items of an embedded list"
-msgstr ""
-"Un paragraphe avec une indentation négative destiné à mettre en évidence les "
-"éléments d'une liste incorporée"
-
-msgid "Embedded list entry level 1"
-msgstr "Rubrique de liste incorporée niveau 1"
-
-msgid ""
-"An out-dented paragraph meant to highlight the items of an embedded list, "
-"level 1"
-msgstr ""
-"Un paragraphe avec une indentation négative destiné à mettre en évidence les "
-"éléments d'une liste incorporée, niveau 1"
-
-msgid "Embedded list entry level 2"
-msgstr "Rubrique de liste incorporée niveau 2"
-
-msgid ""
-"An out-dented paragraph meant to highlight the items of an embedded list, "
-"level 2"
-msgstr ""
-"Un paragraphe avec une indentation négative destiné à mettre en évidence les "
-"éléments d'une liste incorporée, niveau 2"
-
-msgid "Liturgical note"
-msgstr "Note liturgique"
-
-msgid ""
-"A guide which tells the reader or worshipper that he should recite a prayer "
-"or recitation etc."
-msgstr ""
-"Un guide qui indique au lecteur ou au priant qu'il devrait réciter une "
-"prière ou une récitation, etc."
-
-msgid "List entry total"
-msgstr "Total des rubriques de liste"
-
-msgid ""
-"Use in accounting lists for denoting the total component of the text within "
-"a list item"
-msgstr ""
-
-msgid "List entry 'value' content"
-msgstr "Contenu de la 'valeur' de la rubrique de liste"
-
-msgid "The 'value' content follows the 'key' content"
-msgstr "Le contenu 'valeur' suit le contenu 'clé'"
-
-msgid "List entry 'value' content level 1"
-msgstr "Contenu de la 'valeur' de la rubrique de liste niveau 1"
-
-msgid "The 'value' content follows the 'key' content, level 1"
-msgstr "Le contenu 'valeur' suit le contenu 'clé', niveau 1"
-
-msgid "Continuation paragraph"
-msgstr ""
-
-msgid "Paragraph text, with no first line indent"
-msgstr "Texte de paragraphe, sans retrait de première ligne"
-
-msgid "Indented flush left paragraph"
-msgstr "Paragraphe avec retrait aligné à gauche"
-
-msgid ""
-"Paragraph text, indented, with no first line indent, often used for "
-"discourse."
-msgstr ""
-"Texte de paragraphe, en retrait, sans retrait de première ligne, souvent "
-"utilisé pour le discours."
-
-msgid "Major section reference range"
-msgstr "Plage de références de section majeur"
-
-msgid "The text reference range listed under a major section heading"
-msgstr ""
-"La plage de référence du texte répertoriée sous un titre de section majeur"
-
-msgid "Major section heading"
-msgstr "Titre de section majeure"
-
-msgid "A major section division heading, level 1, if single level"
-msgstr "Un titre de section majeure, niveau 1, si un seul niveau"
-
-msgid "Major section heading level 1"
-msgstr "Un titre de section majeure niveau 1"
-
-msgid "A major section division heading, level 1, if multiple levels"
-msgstr "Un titre de section majeure, niveau 1, si un plusieurs niveaux"
-
-msgid "Major section heading level 2"
-msgstr "Un titre de section majeure niveau 2"
-
-msgid "A major section division heading, level 2"
-msgstr "Un titre de section majeure, niveau 2"
-
-msgid "Major title"
-msgstr "Titre principal"
-
-msgid "The main title of the book, if single level"
-msgstr "Le titre principal du livre, si un seul niveau"
-
-msgid "Major title level 1"
-msgstr "Titre principal niveau 1"
-
-msgid "The main title of the book, if multiple levels"
-msgstr "Le titre principal du livre, si un plusieurs niveaux"
-
-msgid "Major title level 2"
-msgstr "Titre principal niveau 2"
-
-msgid ""
-"A secondary title with less important information than the main title."
-msgstr ""
-"Un titre secondaire avec des informations moins importantes que le titre "
-"principal."
-
-msgid "Major title level 3"
-msgstr "Titre principal niveau 3"
-
-msgid "A secondary title, less important than the main title."
-msgstr "Un titre secondaire, moins important que le titre principal."
-
-msgid "Major title level 4"
-msgstr "Titre principal niveau 4"
-
-msgid "A small secondary title sometimes occurring within parentheses."
-msgstr "Un petit titre secondaire apparaissant parfois entre parenthèses."
-
-msgid "Major title at ending"
-msgstr "Titre principal à la fin"
-
-msgid ""
-"The main title of the book repeated at the end of the book, if single level."
-msgstr ""
-"Le titre principal du livre répété à la fin du livre, si un seul niveau."
-
-msgid "Major title at ending level 1"
-msgstr "Titre principal à la fin niveau 1"
-
-msgid ""
-"The main title of the book repeated at the end of the book, if multiple "
-"levels"
-msgstr ""
-"Le titre principal du livre répété à la fin du livre, si plusieurs niveaux"
-
-msgid "Major title at ending level 2"
-msgstr "Titre principal à la fin niveau 2"
-
-msgid "A secondary title occurring before or after the ending main title."
-msgstr ""
-"Un titre secondaire arrivant avant ou après le titre principal final."
-
-msgid "No break with previous paragraph"
-msgstr "Pas de saut avec le paragraphe précédent"
-
-msgid ""
-"Paragraph text, with no break from previous paragraph text, at chapter "
-"boundary."
-msgstr ""
-"Texte du paragraphe, sans rupture avec le texte du paragraphe précédent, à "
-"la limite du chapitre."
-
-msgid "Name of God"
-msgstr "Nom divin"
-
-msgid "For name of God"
-msgstr "Pour le nom divin"
-
-msgid "Subject index entry"
-msgstr "Entrée d'index de thèmes"
-
-msgid ""
-"Surround a word or words with this markup to indicate that it appears or "
-"should appear in the subject index."
-msgstr ""
-"Entourez un mot ou des mots avec ce balisage pour indiquer qu'il apparaît ou "
-"devrait apparaître dans l'index de thèmes."
-
-msgid "Normal text"
-msgstr "Texte standard"
-
-msgid ""
-"May be used when a larger paragraph element is set in an alternate font "
-"style, e.g. italic, and a selected section of text should be displayed in "
-"normal text."
-msgstr ""
-"Peut être utilisé lorsqu'un élément de paragraphe plus grand est défini dans "
-"un autre style de police, par ex. italique et qu'une section de texte "
-"sélectionnée doit être affichée en texte normal."
-
-msgid "Ordinal number ending"
-msgstr "Fin d'adjectif numéral ordinal"
-
-msgid ""
-"For the text portion of an ordinal number, like '1st' is 1\\ord st\\ord*"
-msgstr ""
-"Pour la partie texte d'un adjectif numéral ordinal, comme '1er' est 1 \\ord "
-"er\\ ord*"
-
-msgid "Normal paragraph"
-msgstr "Paragraphe standard"
-
-msgid "Paragraph text, with first line indent"
-msgstr "Texte de paragraphe avec un retrait de la première ligne"
-
-msgid "Page break"
-msgstr "Saut de page"
-
-msgid ""
-"Page break used for new reader portions and children's bibles where content "
-"is controlled by the page."
-msgstr ""
-
-msgid "Centered paragraph"
-msgstr "Paragraphe centré"
-
-msgid "Paragraph text, centered, for inscription."
-msgstr "Texte de paragraphe centré, pour une inscription."
-
-msgid "Indented paragraph"
-msgstr "Paragraphe en retrait"
-
-msgid ""
-"Paragraph text, level 1 indent, if single level, with first line indent; "
-"often used for discourse."
-msgstr ""
-"Texte de paragraphe niveau 1 avec retrait, si un seul niveau, avec "
-"indentation de première ligne ; souvent utilisé pour le discours."
-
-msgid "Indented paragraph level 1"
-msgstr "Paragraphe en retrait niveau 1"
-
-msgid ""
-"Paragraph text, level 1 indent, if multiple levels, with first line indent; "
-"often used for discourse."
-msgstr ""
-"Texte de paragraphe niveau 1 avec retrait, si un plusieurs niveaux, avec "
-"indentation de première ligne ; souvent utilisé pour le discours."
-
-msgid "Indented paragraph level 2"
-msgstr "Paragraphe en retrait niveau 2"
-
-msgid ""
-"Paragraph text, level 2 indent, with first line indent; often used for "
-"discourse."
-msgstr ""
-"Texte de paragraphe niveau 2 avec retrait, avec indentation de première "
-"ligne ; souvent utilisé pour le discours."
-
-msgid "Indented paragraph level 3"
-msgstr "Paragraphe en retrait niveau 3"
-
-msgid ""
-"Paragraph text, level 3 indent, with first line indent; often used for "
-"discourse."
-msgstr ""
-"Texte de paragraphe niveau 3 avec retrait, avec indentation de première "
-"ligne ; souvent utilisé pour le discours."
-
-msgid "Embedded text paragraph"
-msgstr "Texte de paragraphe incorporé"
-
-msgid "Embedded text paragraph."
-msgstr "Texte de paragraphe incorporé."
-
-msgid "Embedded text closing"
-msgstr "Texte de paragraphe incorporé fermant"
-
-msgid "Embedded text closing."
-msgstr "Texte de paragraphe incorporé fermant."
-
-msgid "Embedded text opening"
-msgstr "Texte de paragraphe incorporé ouvrant"
-
-msgid "Embedded text opening."
-msgstr "Texte de paragraphe incorporé ouvrant."
-
-msgid "Embedded text refrain"
-msgstr "Texte de refrain incorporé"
-
-msgid "Embedded text refrain, e.g. Then all the people shall say, Amen!"
-msgstr ""
-"Texte de refrain incorporé, par ex. Alors tout le peuple pourra dire, Amen !"
-
-msgid "Proper name"
-msgstr "Nom propre"
-
-msgid "For a proper name."
-msgstr "Pour un nom propre."
-
-msgid "Geographic proper name"
-msgstr "Nom propre géographique"
-
-msgid "For a geographic proper name."
-msgstr "Pour un nom propre géographique."
-
-msgid "Paragraph opening an epistle"
-msgstr "Paragraphe ouvrant une épître."
-
-msgid "Paragraph opening an epistle or letter, without first line indent."
-msgstr ""
-"Paragraphe ouvrant une épître ou une lettre, sans retrait à la première "
-"ligne."
-
-msgid "Pronunciation annotation"
-msgstr "Annotation de prononciation"
-
-msgid "For indicating pronunciation in CJK texts. Deprecated."
-msgstr "Pour indiquer la prononciation dans les textes CJK. Obsolète."
-
-msgid "Poetic line"
-msgstr "Ligne de poésie"
-
-msgid "Poetry text, level 1 indent, if single level."
-msgstr "Texte de poésie niveau 1 avec retrait, si un seul niveau."
-
-msgid "Poetic line level 1"
-msgstr "Ligne de poésie niveau 1"
-
-msgid "Poetry text, level 1 indent, if multiple levels."
-msgstr "Texte de poésie niveau 1 avec retrait, si plusieurs niveaux."
-
-msgid "Poetic line level 2"
-msgstr "Ligne de poésie niveau 2"
-
-msgid "Poetry text, level 2 indent."
-msgstr "Texte de poésie niveau 2 avec retrait."
-
-msgid "Poetic line level 3"
-msgstr "Ligne de poésie niveau 2"
-
-msgid "Poetry text, level 3 indent."
-msgstr "Texte de poésie niveau 3 avec retrait."
-
-msgid "Acrostic heading"
-msgstr "Titre acrostiche"
-
-msgid "Poetry text, acrostic marker or heading."
-msgstr "Texte de poésie, balise d'acrostiche ou titre."
-
-msgid "Acrostic letter"
-msgstr "Lettre acrostiche"
-
-msgid ""
-"Poetry text, acrostic markup of the first character of a line of acrostic "
-"poetry."
-msgstr ""
-"Texte de poésie, balisage acrostiche du premier caractère d'une ligne de "
-"poésie acrostiche."
-
-msgid "Centered poetic line"
-msgstr "Ligne de poésie centrée"
-
-msgid "Poetry text, centered."
-msgstr "Texte de poésie centré."
-
-msgid "Hebrew note"
-msgstr "Note en hébreux"
-
-msgid ""
-"A Hebrew musical performance comment similar in content to many of the "
-"Hebrew Psalm titles, but placed at the end of the poetic section."
-msgstr ""
-
-msgid "Embedded text poetic line"
-msgstr "Ligne de texte de poésie incorporée"
-
-msgid "Poetry text, embedded, level 1 indent, if single level."
-msgstr ""
-"Texte de poésie, incorporée, niveau 1 avec retrait, si un seul niveau."
-
-msgid "Embedded text poetic line level 1"
-msgstr "Ligne de texte de poésie incorporée niveau 1"
-
-msgid "Poetry text, embedded, level 1 indent, if multiple levels."
-msgstr ""
-"Texte de poésie, incorporée, niveau 1 avec retrait, si un plusieurs niveaux."
-
-msgid "Embedded text poetic line level 2"
-msgstr "Ligne de texte de poésie incorporée niveau 2"
-
-msgid "Poetry text, embedded, level 2 indent."
-msgstr "Texte de poésie, incorporée, niveau 2 avec retrait."
-
-msgid "Embedded text poetic line level 3"
-msgstr "Ligne de texte de poésie incorporée niveau 3"
-
-msgid "Poetry text, embedded, level 3 indent."
-msgstr "Texte de poésie, incorporée, niveau 3 avec retrait."
-
-msgid "Right-aligned poetic line"
-msgstr "Ligne de poésie aligné à droite"
-
-msgid "Commonly used for a poetic refrain."
-msgstr "Habituellement utilisé pour un refrain en poésie."
-
-msgid "Selah"
-msgstr "Pause"
-
-msgid "Poetry text, Selah."
-msgstr "Texte de poésie, Pause."
-
-msgid "Quoted text"
-msgstr "Texte en italique"
-
-msgid "Old Testament quotations in the New Testament, or other quotations."
-msgstr ""
-"Citations de l'Ancien Testament dans le Nouveau, ou autres citations."
-
-msgid "Parallel passage references"
-msgstr "Références de passage parallèles"
-
-msgid "Parallel references."
-msgstr "Références parallèles"
-
-msgid "Annotated base text"
-msgstr "Texte de base annoté"
-
-msgid "Used to mark the base text being annotated with ruby characters."
-msgstr ""
-"Utilisé pour baliser le texte de base annoté avec des caractères ruby."
-
-msgid "Remark"
-msgstr "Remarque"
-
-msgid "Comments and remarks."
-msgstr "Commentaires et remarques."
-
-msgid "Inline quotation references"
-msgstr "Références en italique dans texte"
-
-msgid ""
-"A cross-reference indicating the source text for the preceding quotation."
-msgstr ""
-"Une référence croisée indiquant le texte source de la citation précédente."
-
-msgid "Ruby annotation text"
-msgstr "Texte d'annotation ruby"
-
-msgid ""
-"In the case where the annotation text is associated with only a single "
-"preceding ideogram, only the 'rt ...rt*' marker is required. The base text "
-"markup 'rb ...rb*' is optional in these cases."
-msgstr ""
-"Dans le cas où le texte d'annotation n'est associé qu'à un seul idéogramme "
-"précédent, seul la balise 'rt ...rt*' est requis. Le balisage de base 'rb "
-"...rb*' est facultatif dans ces cas."
-
-msgid "Section heading"
-msgstr "Titre de section"
-
-msgid "A section heading, level 1, if single level."
-msgstr "Titre de section niveau 1, si un seul niveau."
-
-msgid "Section heading level 1"
-msgstr "Titre de section niveau 1"
-
-msgid "A section heading, level 1, if multiple levels."
-msgstr "Titre de section niveau 1, si plusieurs niveaux."
-
-msgid "Section heading Level 2"
-msgstr "Titre de section niveau 2"
-
-msgid "A section heading, level 2."
-msgstr "Titre de section, niveau 2."
-
-msgid "Section heading level 3"
-msgstr "Titre de section niveau 3"
-
-msgid "A section heading, level 3."
-msgstr "Titre de section, niveau 3."
-
-msgid "Section heading level 4"
-msgstr "Titre de section niveau 4"
-
-msgid "A section heading, level 4."
-msgstr "Titre de section, niveau 4."
-
-msgid "Small-cap text"
-msgstr "Texte en petite majuscule"
-
-msgid "A character style, for small capitalization text."
-msgstr "Un style de caractère, pour le texte en petite majuscule."
-
-msgid "Semantic division"
-msgstr "Division sémantique"
-
-msgid ""
-"Vertical space used to divide the text into sections, in a manner similar to "
-"the structure added through the use of a sequence of heading texts."
-msgstr ""
-"Espace verticale utilisée pour diviser le texte en sections, d'une manière "
-"similaire à la structure ajoutée par l'utilisation d'une séquence de textes "
-"de titres."
-
-msgid "Semantic division level 1"
-msgstr "Division sémantique niveau 1"
-
-msgid "Semantic division level 2"
-msgstr "Division sémantique niveau 2"
-
-msgid "Semantic division level 3"
-msgstr "Division sémantique niveau 3"
-
-msgid "Semantic division level 4"
-msgstr "Division sémantique niveau 4"
-
-msgid "Signature of the author"
-msgstr "Signature de l'auteur"
-
-msgid "Signature of the author of a letter or epistle."
-msgstr "Signature de l'auteur d'une lettre ou d'une épître."
-
-msgid "Secondary language or text source"
-msgstr "Langue secondaire ou texte source"
-
-msgid ""
-"Passage of text based on a secondary language or alternate text source."
-msgstr ""
-"Passage d'un texte basé sur une langue secondaire ou un texte source "
-"alternatif."
-
-msgid "Speaker"
-msgstr "Orateur"
-
-msgid "A heading to identify the speaker."
-msgstr "Un titre pour identifier l'orateur."
-
-msgid "Section reference range"
-msgstr "Plage de références de section"
-
-msgid "The text reference range listed under a section heading."
-msgstr "Plage de texte de références listée sous un titre de section."
-
-msgid "Status"
-msgstr "Statut"
-
-msgid "Project text status tracking."
-msgstr "Suivi du statut du texte du projet."
-
-msgid "Table column 1 cell"
-msgstr "Cellule de tableau colonne 1"
-
-msgid "A table cell item, column 1."
-msgstr "Un élément de cellule de tableau, colonne 1."
-
-msgid "Table column 2 cell"
-msgstr "Cellule de tableau colonne 2"
-
-msgid "A table cell item, column 2."
-msgstr "Un élément de cellule de tableau, colonne 2."
-
-msgid "Table column 3 cell"
-msgstr "Cellule de tableau colonne 3"
-
-msgid "A table cell item, column 3."
-msgstr "Un élément de cellule de tableau, colonne 3."
-
-msgid "Table column 4 cell"
-msgstr "Cellule de tableau colonne 4"
-
-msgid "A table cell item, column 4."
-msgstr "Un élément de cellule de tableau, colonne 4."
-
-msgid "Right aligned table cell column 1"
-msgstr "Cellule de tableau aligné à droite colonne 1"
-
-msgid "A table cell item, column 1, right aligned."
-msgstr "Un élément de cellule de tableau, colonne 1, aligné à droite."
-
-msgid "Right aligned table cell column 2"
-msgstr "Cellule de tableau aligné à droite colonne 2"
-
-msgid "A table cell item, column 2, right aligned."
-msgstr "Un élément de cellule de tableau, colonne 2, aligné à droite."
-
-msgid "Right aligned table cell column 3"
-msgstr "Cellule de tableau aligné à droite colonne 3"
-
-msgid "A table cell item, column 3, right aligned."
-msgstr "Un élément de cellule de tableau, colonne 2, aligné à droite."
-
-msgid "Right aligned table cell column 4"
-msgstr "Cellule de tableau aligné à droite colonne 4"
-
-msgid "A table cell item, column 4, right aligned."
-msgstr "Un élément de cellule de tableau, colonne 4, aligné à droite."
-
-msgid "Table column 1 heading"
-msgstr "Titre de tableau colonne 1"
-
-msgid "A table heading, column 1."
-msgstr "Un titre de tableau, colonne 1."
-
-msgid "Table column 2 heading"
-msgstr "Titre de tableau colonne 2"
-
-msgid "A table heading, column 2."
-msgstr "Un titre de tableau, colonne 2."
-
-msgid "Table column 3 heading"
-msgstr "Titre de tableau colonne 3"
-
-msgid "A table heading, column 3."
-msgstr "Un titre de tableau, colonne 3."
-
-msgid "Table column 4 heading"
-msgstr "Titre de tableau colonne 4"
-
-msgid "A table heading, column 4."
-msgstr "Un titre de tableau, colonne 4."
-
-msgid "Right aligned table column 1 heading"
-msgstr "Titre de tableau colonne 1 aligné à droite"
-
-msgid "A table heading, column 1, right aligned."
-msgstr "Un titre de tableau colonne 1, aligné à droite."
-
-msgid "Right aligned table column 2 heading"
-msgstr "Titre de tableau colonne 2 aligné à droite"
-
-msgid "A table heading, column 2, right aligned."
-msgstr "Titre de tableau colonne 2, aligné à droite."
-
-msgid "Right aligned table 3 column heading"
-msgstr "Titre de tableau colonne 3 aligné à droite"
-
-msgid "A table heading, column 3, right aligned."
-msgstr "Titre de tableau colonne 3, aligné à droite."
-
-msgid "Right aligned table column 4 heading"
-msgstr "Titre de tableau colonne 4 aligné à droite"
-
-msgid "A table heading, column 4, right aligned."
-msgstr "Titre de tableau colonne 4, aligné à droite."
-
-msgid "Transliterated word"
-msgstr "Mot translittéré"
-
-msgid "Transliterated or foreign words."
-msgstr "Mots translittérés ou étrangers."
-
-msgid "Table of contents"
-msgstr "Table des matières"
-
-msgid "Front matter table of contents."
-msgstr "Table des matières dans l'avant-propos ."
-
-msgid "Long table of contents text"
-msgstr "Texte de table des matières longue"
-
-msgid "Long table of contents text."
-msgstr "Texte de table des matières longue."
-
-msgid "Short table of contents text"
-msgstr "Texte de table des matières courte"
-
-msgid "Short table of contents text."
-msgstr "Texte de table des matières courte."
-
-msgid "Book abbreviation"
-msgstr "Abréviation de livre"
-
-msgid "Book abbreviation. Not yet supported in Bibledit."
-msgstr "Abréviation de livre. Pas encore pris en charge par Bibledit."
-
-msgid "Table row start"
-msgstr "Début de la rangée du tableau"
-
-msgid "A new table row."
-msgstr "Une nouvelle rangée de tableau."
-
-msgid "Verse number"
-msgstr "Numéro de verset"
-
-msgid "A verse number."
-msgstr "Un numéro de verset."
-
-msgid "Alternate verse number"
-msgstr "Numéro de verset alternatif"
-
-msgid ""
-"Second or alternate verse number. For coding dual numeration in Psalms."
-msgstr ""
-"Numéro de verset alternatif ou secondaire. Pour encoder la double "
-"numérotation dans les Psaumes."
-
-msgid "Publishing alternate verse"
-msgstr "Verset alternatif pour l'édition"
-
-msgid ""
-"Published verse marker. This is a verse marking that would be used in the "
-"published text."
-msgstr ""
-"Balise de verset pour l'édition. C'est une balise de verset qui peut être "
-"utilisée dans l'édition du texte."
-
-msgid "Wordlist entry"
-msgstr "Entrée de liste de mots"
-
-msgid ""
-"Surround words with this markup to indicate that it appears or should appear "
-"in the word list."
-msgstr ""
-"Entourer les mots avec ce balisage permet d'indiquer qu'il apparaît ou "
-"devrait apparaître dans la liste de mots."
-
-msgid "Aramaic word list entry"
-msgstr "Entrée de liste de mots araméens"
-
-msgid ""
-"Surround words with this markup to indicate that it appears or should appear "
-"in the Aramaic word list."
-msgstr ""
-"Entourez les mots avec ce balisage pour indiquer qu'il apparaît ou devrait "
-"apparaître dans la liste de mots araméen."
-
-msgid "Greek word list entry"
-msgstr "Entrée de liste de mots grecs"
-
-msgid "A Greek word list text item."
-msgstr "Élément de liste de mots grecs."
-
-msgid "Hebrew word list entry"
-msgstr "Entrée de liste de mots hébreux"
-
-msgid "A Hebrew word list text item."
-msgstr "Élément de liste de mots hébreux."
-
-msgid "Words of Jesus"
-msgstr "Le mot de Jésus"
-
-msgid "For marking the words of Jesus."
-msgstr "Pour baliser le mot de Jésus."
-
-msgid "Cross reference"
-msgstr "Références croisées"
-
-msgid "A list of cross references."
-msgstr "Une liste de références croisées."
-
-msgid "Cross reference deuterocanonical"
-msgstr "Références croisées deutérocanoniques."
-
-msgid ""
-"References or other text between these markers is material to be included "
-"only in published editions that contain the Deuterocanonical books. "
-"Deprecated."
-msgstr ""
-"Les références ou autres textes entre ces balises sont des éléments à "
-"inclure uniquement dans les éditions publiées contenant les livres "
-"deutérocanoniques. Obsolète."
-
-msgid "Cross reference keyword"
-msgstr "Mot-clé de référence croisée"
-
-msgid ""
-"A keyword from the scripture translation text which the target references "
-"also refer to."
-msgstr ""
-"Un mot-clé du texte de la traduction de l'Écriture auquel les références de "
-"la cible se réfèrent également."
-
-msgid "Cross reference New Testament"
-msgstr "Références croisées du Nouveau Testament"
-
-msgid ""
-"References or other text between these markers is material to be included "
-"only in published editions that contain the New Testament books."
-msgstr ""
-"Les références ou autres textes entre ces balises sont des éléments à "
-"inclure uniquement dans les éditions publiées qui contiennent les livres du "
-"Nouveau Testament."
-
-msgid "Cross reference origin reference"
-msgstr "Référence d'origine de la référence croisée"
-
-msgid ""
-"This is the chapter and verse or verses that target references are being "
-"provided for."
-msgstr ""
-"C'est le chapitre et le verset ou les versets auxquels les références cibles "
-"sont fournies."
-
-msgid "Published cross reference origin text"
-msgstr "Texte de la référence croisée d'origine publié"
-
-msgid ""
-"In some texts, the content intended to be published in the position of the "
-"cross reference origin text 'xo' does not follow the typical chapter-"
-"separator-verse pattern. An origin reference following this pattern is "
-"required for validation of the cross reference location. 'xop' ...'xop*' can "
-"be used in order to supply the content intended for publishing, similar to "
-"the use of 'cp' and 'vp ...vp*'."
-msgstr ""
-"Dans certains textes, le contenu destiné à être publié à la position du "
-"texte d'origine de référence croisée 'xo' ne suit pas le modèle typique de "
-"chapitre-séparateur-verset. Une référence d'origine suivant ce modèle est "
-"requise pour la validation de l'emplacement de référence croisée. 'xop' ... "
-"'xop*' peut être utilisé pour fournir le contenu destiné à la publication, "
-"similaire à l'utilisation de 'cp' et 'vp ... vp*'."
-
-msgid "Cross reference Old Testament"
-msgstr "Références croisées de l'Ancien Testament"
-
-msgid ""
-"References or other text between these markers is material to be included "
-"only in published editions that contain the Old Testament books."
-msgstr ""
-"Les références ou autres textes entre ces balises sont des éléments à "
-"inclure uniquement dans les éditions publiées qui contiennent les livres de "
-"l'Ancien Testament."
-
-msgid "Cross reference quotation"
-msgstr "Référence croisée italique"
-
-msgid "A cross reference quotation from the scripture text."
-msgstr "Une citation de référence croisée du texte de l'Écriture."
-
-msgid "Cross reference target references"
-msgstr "Référence croisée des références cibles"
-
-msgid "The cross reference target references."
-msgstr "La référence croisée des références cibles"
-
-msgid "Target references added text"
-msgstr "Référence cible texte ajouté"
-
-msgid ""
-"Used for marking text which should be ignored when identifying or linking to "
-"cross reference target references."
-msgstr ""
-"Utilisé pour baliser le texte qui doit être ignoré lors de l'identification "
-"ou de la liaison à des références cibles de références croisées."
-
 msgid "displaying no more of these"
-msgstr ""
+msgstr "ne pas en montrer plus"
 
 msgid "No Bible given"
 msgstr "Pas de Bible renseignée"
@@ -1724,6 +144,9 @@ msgstr "Échec de l'accès en lecture."
 
 msgid "Cloning"
 msgstr "Clonage"
+
+msgid "Copy repository to Bibledit"
+msgstr "Copier le dépôt dans Bibledit"
 
 msgid "Configuring"
 msgstr "En cours de configuration"
@@ -1900,8 +323,17 @@ msgstr "Aucun utilisateur local trouvé"
 msgid "Sending note to server"
 msgstr "Envoi de la note au serveur"
 
+msgid "Bibles"
+msgstr "Bibles"
+
 msgid "Sending to server"
 msgstr "Envoi vers le serveur"
+
+msgid "Failure sending chapter"
+msgstr "Échec de l'envoi du chapitre"
+
+msgid "Bibledit Cloud says:"
+msgstr "Bibledit Cloud dit :"
 
 msgid "Failure getting total checksum"
 msgstr "Échec de l'obtention de la somme de contrôle"
@@ -1961,6 +393,15 @@ msgstr ""
 
 msgid "Merging changes on server and client"
 msgstr "Fusion des modifications du serveur et du client"
+
+msgid "Changes made in Bibledit"
+msgstr "Modifications réalisées dans Bibledit"
+
+msgid "Bibledit will resolve the conflicts"
+msgstr "Bibledit résoudra les conflits"
+
+msgid "Bibledit resolved the conflicts"
+msgstr "Bibledit a résolu les conflits"
 
 msgid "Settings"
 msgstr "Paramètres"
@@ -2072,6 +513,160 @@ msgstr "espace fine insécable (U+202F)"
 
 msgid "unknown"
 msgstr "inconnu"
+
+msgid "Font and text direction"
+msgstr "Orientation des polices et du texte"
+
+msgid "Waiting while Bibledit Cloud installs the requested SWORD module"
+msgstr ""
+"Veuillez patienter pendant que Bibledit Cloud installe les modules SWORD "
+"requis"
+
+msgid ""
+"It has been some time ago that changes in the Bible text were received from "
+"the Cloud."
+msgstr ""
+"Il y a déjà quelque temps que les changements dans le texte biblique ont été "
+"récupérés du Nuage."
+
+msgid "Please do a Send/receive action to receive them from the Cloud."
+msgstr ""
+"Veuillez effectuer une action Envoyer/recevoir pour les recevoir à partir du "
+"Nuage."
+
+msgid ""
+"There are pending changes in the Bible text that have not yet been sent to "
+"the Cloud for some time."
+msgstr ""
+"Il y a des changements dans le texte de la Bible qui n'ont pas été envoyés "
+"sur le nuage depuis un certain temps."
+
+msgid ""
+"Changes will continue to be saved, but it is recommended to do a "
+"Send/receive action as soon as you can."
+msgstr ""
+"Les modifications seront encore sauvegardées, mais il est recommandé "
+"d'exécuter l'action Envoyer/recevoir aussi rapidement que possible."
+
+msgid "The Cloud already had some changes in this chapter."
+msgstr "Le nuage a déjà quelques modifications dans ce chapitre."
+
+msgid "You sent some changes for this chapter too."
+msgstr "Vous avez aussi envoyé quelques modifications pour ce chapitre."
+
+msgid "The Cloud merged the two."
+msgstr "Le nuage a fusionné les deux."
+
+msgid "Most likely this is okay."
+msgstr "Très probablement, cela est OK."
+
+msgid "You may want to check the result of the merge, whether it is correct."
+msgstr ""
+"Vous pouvez vérifier le résultat de la fusion, qu'elle soit correcte."
+
+msgid "Please enter a name for the new empty Bible"
+msgstr "Veuillez entrer un nom pour la nouvelle Bible"
+
+msgid "This Bible already exists"
+msgstr "Cette Bible existe déjà"
+
+msgid "The Bible was created"
+msgstr "La Bible a été créée."
+
+msgid "Please enter a name for where to copy the Bible to"
+msgstr "Veuillez entrer un nom pour l'endroit où copier la Bible"
+
+msgid "Cannot copy the Bible because the destination Bible already exists."
+msgstr ""
+"Impossible de copier la Bible parce que la Bible de destintion existe déjà."
+
+msgid "The Bible was copied."
+msgstr "La Bible a été copiée."
+
+msgid "Would you like to delete this Bible?"
+msgstr "Souhaitez-vous supprimer cette Bible ?"
+
+msgid "Chapter"
+msgstr "Chapitre"
+
+msgid "Book"
+msgstr "Livre"
+
+msgid "Would you like to delete this chapter?"
+msgstr "Souhaitez-vous supprimer ce chapitre ?"
+
+msgid "Please enter the number for the new chapter"
+msgstr "Veuillez entrer le numéro du nouveau chapitre"
+
+msgid "This chapter already exists"
+msgstr "Ce chapitre existe déjà"
+
+msgid "Order"
+msgstr "Ordre"
+
+msgid "Bible"
+msgstr "Bible"
+
+msgid "Would you like to change the versification system?"
+msgstr "Voulez-vous modifier le système de versification ?"
+
+msgid ""
+"A versification system determines how many chapters are in each book, and "
+"how many verses are in each chapter. Please make your choice below."
+msgstr ""
+"Un système de versification détermine le nombre de chapitres dans chaque "
+"livre, et le nombre de versets dans chaque chapitre. Veuillez faire votre "
+"choix ci-dessous."
+
+msgid "Would you like to change the verse mapping?"
+msgstr "Voulez-vous changer l'organisation des versets ?"
+
+msgid ""
+"A verse mapping can be used to match verses for parallel Bible display. "
+"Please make your choice below."
+msgstr ""
+"L'organisation des versets peut être employée pour faire concorder des "
+"versets pour l'affichage de parallèles bibliques. Veuillez faire votre choix "
+"ci-dessous."
+
+msgid "Create book"
+msgstr "Créer un livre"
+
+msgid "Would you like to delete this book?"
+msgstr "Souhaitez-vous supprimer ce livre ?"
+
+msgid "Select a resource to import into the Bible"
+msgstr "Sélectionnez une ressource à importer dans la Bible"
+
+msgid "The resource will be imported."
+msgstr "La ressource va être importée."
+
+msgid "It will overwrite the content of the Bible."
+msgstr "Cela va écraser le contenu de la Bible."
+
+msgid "The resource will be imported into the Bible."
+msgstr "La ressource va être importée dans la Bible."
+
+msgid "The journal shows the progress."
+msgstr "Le journal montre la progression."
+
+msgid "More operations in the Cloud"
+msgstr "Plus d'opération sur le nuage"
+
+msgid "Import"
+msgstr "Importer"
+
+msgid "Import has started."
+msgstr "L’importation a débuté."
+
+msgid "Please supply valid Unicode UTF-8 text."
+msgstr "Veuillez fournir un texte unicode UTF-8 valide."
+
+msgid "Nothing was imported."
+msgstr "Rien n'a été importé."
+
+msgid "Nothing was uploaded"
+msgstr "Rien n'a été téléversé"
 
 msgid "This book is absent from the Bible"
 msgstr "Ce livre est absent de la Bible"
@@ -2318,7 +913,7 @@ msgid "Loading ..."
 msgstr "Chargement..."
 
 msgid "All Bibles"
-msgstr ""
+msgstr "Toutes les Bibles"
 
 msgid "all of them"
 msgstr "Tous"
@@ -2464,6 +1059,9 @@ msgstr ""
 msgid "Workspace"
 msgstr "Espace de travail"
 
+msgid "Bibledit"
+msgstr "Bibledit"
+
 msgid "Recent changes in the Bible texts"
 msgstr "Modifications récentes dans le texte biblique"
 
@@ -2499,6 +1097,24 @@ msgstr "Aller au verset suivant"
 
 msgid "cancel"
 msgstr "annuler"
+
+msgid "Copying Bible from Bibledit to a Paratext project."
+msgstr "Copie de la Bible depuis Bibledit vers un projet Paratext."
+
+msgid "Bibledit Bible:"
+msgstr "Bible de Bibledit :"
+
+msgid "Paratext project:"
+msgstr "Projet Paratext :"
+
+msgid "Copying Paratext project to a Bible in Bibledit."
+msgstr "Copie d'un projet Paratext vers une Bible dans Bibledit."
+
+msgid "Copy Bibledit to Paratext"
+msgstr "Copier Bibledit vers Paratext"
+
+msgid "Copy Paratext to Bibledit"
+msgstr "Copier Paratext vers Bibledit"
 
 msgid "Paratext: Send/receive"
 msgstr "Paratext : Envoyer/recevoir"
@@ -2625,6 +1241,18 @@ msgid ""
 msgstr ""
 "Ce texte n'a pas pu être remplacé automatiquement. Cliquez sur le passage "
 "pour le faire manuellement."
+
+msgid "Still indexing Bibles"
+msgstr "Encore en train d'indexer des Bible :"
+
+msgid "Indexing Bible:"
+msgstr "Indexation de la Bible en cours :"
+
+msgid "Checking"
+msgstr "Vérification en cours"
+
+msgid "Ready"
+msgstr "Prêt"
 
 msgid "Here are the various options:"
 msgstr "Voici les différentes options :"
@@ -3489,7 +2117,7 @@ msgid "Hyphenate"
 msgstr "Césurer"
 
 msgid "Develop"
-msgstr "Developpement"
+msgstr "Développement"
 
 msgid "Export"
 msgstr "Exporter"
@@ -3587,306 +2215,6 @@ msgstr "Aucun chapitre n'a été créé"
 msgid "The following chapters have been created:"
 msgstr "Le chapitre suivant a été créé :"
 
-msgid "Front Matter"
-msgstr "Introduction principale"
-
-msgid "Genesis"
-msgstr "Genèse"
-
-msgid "Exodus"
-msgstr "Exode"
-
-msgid "Leviticus"
-msgstr "Lévitique"
-
-msgid "Numbers"
-msgstr "Nombres"
-
-msgid "Deuteronomy"
-msgstr "Deutéronome"
-
-msgid "Joshua"
-msgstr "Josué"
-
-msgid "Judges"
-msgstr "Juges"
-
-msgid "Ruth"
-msgstr "Ruth"
-
-msgid "1 Samuel"
-msgstr "1 Samuel"
-
-msgid "2 Samuel"
-msgstr "2 Samuel"
-
-msgid "1 Kings"
-msgstr "1 Rois"
-
-msgid "2 Kings"
-msgstr "2 Rois"
-
-msgid "1 Chronicles"
-msgstr "1 Chroniques"
-
-msgid "2 Chronicles"
-msgstr "2 Chroniques"
-
-msgid "Ezra"
-msgstr "Esdras"
-
-msgid "Nehemiah"
-msgstr "Néhémie"
-
-msgid "Esther"
-msgstr "Esther"
-
-msgid "Job"
-msgstr "Job"
-
-msgid "Psalms"
-msgstr "Psaumes"
-
-msgid "Proverbs"
-msgstr "Proverbes"
-
-msgid "Ecclesiastes"
-msgstr "Ecclésiaste"
-
-msgid "Song of Solomon"
-msgstr "Cantique des cantiques"
-
-msgid "Isaiah"
-msgstr "Esaïe"
-
-msgid "Jeremiah"
-msgstr "Jérémie"
-
-msgid "Lamentations"
-msgstr "Lamentations"
-
-msgid "Ezekiel"
-msgstr "Ezéchiel"
-
-msgid "Daniel"
-msgstr "Daniel"
-
-msgid "Hosea"
-msgstr "Osée"
-
-msgid "Joel"
-msgstr "Joël"
-
-msgid "Amos"
-msgstr "Amos"
-
-msgid "Obadiah"
-msgstr "Abdias"
-
-msgid "Jonah"
-msgstr "Jonas"
-
-msgid "Micah"
-msgstr "Michée"
-
-msgid "Nahum"
-msgstr "Nahum"
-
-msgid "Habakkuk"
-msgstr "Habaquq"
-
-msgid "Zephaniah"
-msgstr "Sophonie"
-
-msgid "Haggai"
-msgstr "Aggée"
-
-msgid "Zechariah"
-msgstr "Zacharie"
-
-msgid "Malachi"
-msgstr "Malachie"
-
-msgid "Matthew"
-msgstr "Matthieu"
-
-msgid "Mark"
-msgstr "Marc"
-
-msgid "Luke"
-msgstr "Luc"
-
-msgid "John"
-msgstr "Jean"
-
-msgid "Acts"
-msgstr "Actes"
-
-msgid "Romans"
-msgstr "Romains"
-
-msgid "1 Corinthians"
-msgstr "1 Corinthiens"
-
-msgid "2 Corinthians"
-msgstr "2 Corinthiens"
-
-msgid "Galatians"
-msgstr "Galates"
-
-msgid "Ephesians"
-msgstr "Ephésiens"
-
-msgid "Philippians"
-msgstr "Philippiens"
-
-msgid "Colossians"
-msgstr "Colossiens"
-
-msgid "1 Thessalonians"
-msgstr "1 Thessaloniciens"
-
-msgid "2 Thessalonians"
-msgstr "2 Thessaloniciens"
-
-msgid "1 Timothy"
-msgstr "1 Timothée"
-
-msgid "2 Timothy"
-msgstr "2 Timothée"
-
-msgid "Titus"
-msgstr "Tite"
-
-msgid "Philemon"
-msgstr "Philémon"
-
-msgid "Hebrews"
-msgstr "Hébreux"
-
-msgid "James"
-msgstr "Jacques"
-
-msgid "1 Peter"
-msgstr "1 Pierre"
-
-msgid "2 Peter"
-msgstr "2 Pierre"
-
-msgid "1 John"
-msgstr "1 Jean"
-
-msgid "2 John"
-msgstr "2 Jean"
-
-msgid "3 John"
-msgstr "3 Jean"
-
-msgid "Jude"
-msgstr "Jude"
-
-msgid "Revelation"
-msgstr "Apocalypse"
-
-msgid "Back Matter"
-msgstr "Conclusion"
-
-msgid "Other Material"
-msgstr "Autre contenu"
-
-msgid "Tobit"
-msgstr "Tobie"
-
-msgid "Judith"
-msgstr "Judith"
-
-msgid "Esther (Greek)"
-msgstr "Esther (Grec)"
-
-msgid "Wisdom of Solomon"
-msgstr "Sagesse de Salomon"
-
-msgid "Sirach"
-msgstr "Siracide"
-
-msgid "Baruch"
-msgstr "Baruch"
-
-msgid "Letter of Jeremiah"
-msgstr "Lettre de Jérémie"
-
-msgid "Song of the Three Children"
-msgstr "Cantique des trois enfants"
-
-msgid "Susanna"
-msgstr "Suzanne"
-
-msgid "Bel and the Dragon"
-msgstr "Bel et le dragon"
-
-msgid "1 Maccabees"
-msgstr "1 Maccabées"
-
-msgid "2 Maccabees"
-msgstr "1 Maccabées"
-
-msgid "1 Esdras"
-msgstr "1 Esdras"
-
-msgid "Prayer of Manasses"
-msgstr "Prière de Manassé"
-
-msgid "Psalm 151"
-msgstr "Psaume 151"
-
-msgid "3 Maccabees"
-msgstr "3 Maccabées"
-
-msgid "2 Esdras"
-msgstr "2 Esdras"
-
-msgid "4 Maccabees"
-msgstr "4 Maccabées"
-
-msgid "Daniel (Greek)"
-msgstr "Daniel (grec)"
-
-msgid "Introductions"
-msgstr "Introductions"
-
-msgid "Concordance"
-msgstr "Concordance"
-
-msgid "Glossary"
-msgstr "Glossaire"
-
-msgid "Topical Index"
-msgstr "Index de lieu"
-
-msgid "Names Index"
-msgstr "Index de noms"
-
-msgid "Extra A"
-msgstr "Supplément A"
-
-msgid "Extra B"
-msgstr "Supplément B"
-
-msgid "Extra C"
-msgstr "Supplément C"
-
-msgid "Extra D"
-msgstr "Supplément D"
-
-msgid "Extra E"
-msgstr "Supplément E"
-
-msgid "Extra F"
-msgstr "Supplément F"
-
-msgid "Extra G"
-msgstr "Supplément G"
-
 msgid "Comparing Bibles"
 msgstr "Comparaison de Bibles"
 
@@ -3923,242 +2251,8 @@ msgstr "Comparer"
 msgid "Clear the entire journal"
 msgstr "Effacer tout le journal"
 
-msgid "Book order"
-msgstr "Ordre des livres"
-
-msgid ""
-"Click to move books to another location to update the order of the books in "
-"this Bible."
-msgstr ""
-"Cliquez pour déplacer des livres vers un autre emplacement pour mettre à "
-"jour l'ordre des livres dans cette Bible."
-
-msgid "Reset order."
-msgstr "Réinitialiser l'ordre."
-
-msgid "Font and text settings"
-msgstr "Paramètres de police et de texte"
-
-msgid "Make settings for font and text for the Bible editors."
-msgstr ""
-"Effectuez les réglages de la police et du texte pour les éditeurs de la "
-"Bible."
-
-msgid "Font"
-msgstr "Police de caractère"
-
-msgid "Enter the name of a locally available font."
-msgstr "Entrez le nom d'une police locale disponible."
-
-msgid "Example:"
-msgstr "Exemple :"
-
-msgid "Upload a font file."
-msgstr "Téléverser un fichier de police."
-
-msgid "Then enter its name."
-msgstr "Alors entrez son nom."
-
-msgid "Enter the name of a font available on the Internet."
-msgstr "Entrez le nom d'une police disponible sur interne."
-
-msgid "If the font is empty, it takes the font entered in Bibledit Cloud."
-msgstr ""
-"Si la police est vide, elle prend la police saisie dans Bibledit Cloud."
-
-msgid "Direction"
-msgstr "Orientation"
-
-msgid "Unspecified"
-msgstr "Non spécifiée"
-
-msgid "Left-to-right"
-msgstr "De gauche à droite"
-
-msgid "Right-to-left"
-msgstr "De droite à gauche"
-
-msgid "Writing mode"
-msgstr "Orientation de l'écriture"
-
-msgid "Top to bottom and left to right"
-msgstr "De haut en bas et de gauche à droite"
-
-msgid "Top to bottom and right to left"
-msgstr "De haut en bas et de droite à gauche"
-
-msgid "Bottom to top and left to right"
-msgstr "De bas en haut et de gauche à droite"
-
-msgid "Bottom to top and right to left"
-msgstr "De bas en haut et de droite à gauche"
-
-msgid "Line height"
-msgstr "Hauteur de ligne"
-
-msgid "percent"
-msgstr "pourcents"
-
-msgid "Letter spacing"
-msgstr "Espacement des lettres"
-
-msgid "pixels"
-msgstr "pixels"
-
 msgid "Save"
 msgstr "Enregistrer"
-
-msgid ""
-"After saving, the settings will be applied to the editable sample text below."
-msgstr ""
-"Après l'enregistrement, les paramètres seront appliqués au texte d'exemple "
-"modifiable ci-dessous."
-
-msgid "Available Bibles:"
-msgstr "Bibles disponibles :"
-
-msgid "Create a new empty Bible"
-msgstr "Créer une nouvelle Bible vide"
-
-msgid "Chapters:"
-msgstr "Chapitres :"
-
-msgid "Create chapter"
-msgstr "Créer un chapitre"
-
-msgid "Delete this book"
-msgstr "Supprimer ce livre"
-
-msgid "Import Bible text."
-msgstr "Importer du texte biblique."
-
-msgid "Paste the text into the box below and submit it."
-msgstr "Collez le texte dans la zone ci-dessous et envoyez-le."
-
-msgid "Submit"
-msgstr "Soumettre"
-
-msgid "You can also upload a file with the text."
-msgstr "Vous pouvez aussi téléverser un fichier avec le texte."
-
-msgid "Or a compressed archive of such files."
-msgstr "Ou une archive avec de tels fichiers."
-
-msgid "Upload"
-msgstr "Téléverser"
-
-msgid "The upload may take some time."
-msgstr "Le téléversement peut prendre un certain temps"
-
-msgid "This can be done in Bibledit Cloud."
-msgstr "Cela peut être fait dans Bibledit Cloud."
-
-msgid "This page helps with importing Bible text."
-msgstr "Cette page aide à l'importation de texte biblique."
-
-msgid "It recognizes two types of text."
-msgstr "L'importation reconnait deux types de texte."
-
-msgid "It recognizes Unified Standard Format Markers text."
-msgstr "Elle reconnaît le texte au format USFM."
-
-msgid "More information about that."
-msgstr "Plus d'informations à ce sujet."
-
-msgid ""
-"Bibledit recognizes books through the id markup and chapters through the c "
-"markup."
-msgstr ""
-"Bibledit reconnaît les livres avec la balise id et les chapitres avec la "
-"balise c."
-
-msgid "It also recognizes plain text."
-msgstr "Elle reconnaît également le texte brut."
-
-msgid "It does that one chapter at a time."
-msgstr "Elle fait cela un chapitre à la fois."
-
-msgid ""
-"It imports the text into the book and chapter indicated by the passage "
-"navigator at the top of the window."
-msgstr ""
-"Elle importe le texte dans le livre et le chapitre indiqués par le "
-"navigateur de passage en haut de la fenêtre."
-
-msgid ""
-"It considers numbers at the start of a line of text to be verse numbers."
-msgstr ""
-"Elle considère les numéros au début d'une ligne comme des numéros de versets."
-
-msgid "It does not discover verse numbers somewhere else in the text."
-msgstr "Il ne trouve pas les numéros de verset ailleurs dans le texte."
-
-msgid "After importing some text, it is recommended to run the checks on it."
-msgstr ""
-"Après l'importation de texte, il est recommandé d’exécuter les vérifications "
-"dessus."
-
-msgid "An imported chapter overwrites the chapter already in the Bible."
-msgstr "Un chapitre importé écrase le chapitre déjà dans la Bible."
-
-msgid ""
-"If you import for example Genesis chapter 1, it will overwrite Genesis 1 if "
-"that chapter already was in the Bible."
-msgstr ""
-"Si vous importez par exemple Genèse chapitre 1, cela écrasera Genèse 1 si ce "
-"chapitre était déjà dans la Bible."
-
-msgid "It will not overwrite anything else."
-msgstr "Il n'écrasera rien d'autre."
-
-msgid "If Genesis 1 was not yet there, it will be created."
-msgstr "Si Genèse 1 n'est pas encore là, il sera créé."
-
-msgid ""
-"You can import one chapter, or several chapters, or one book, or several "
-"books, all in one go."
-msgstr ""
-"Vous pouvez importer un chapitre, ou plusieurs chapitres, un livre ou "
-"plusieurs livres, tous ensemble."
-
-msgid "The text to be imported should be in Unicode UTF-8 format."
-msgstr "Le texte pour être importé doit être au format Unicode UTF-8."
-
-msgid "Delete this chapter"
-msgstr "Supprimer ce chapitre"
-
-msgid "Available books"
-msgstr "Livres disponibles"
-
-msgid "Versification system"
-msgstr "Système de versification"
-
-msgid "Verse mapping"
-msgstr "Organisation des versets"
-
-msgid "Import text"
-msgstr "Importer du texte"
-
-msgid "Copy this Bible"
-msgstr "Copier cette Bible"
-
-msgid "Delete this Bible"
-msgstr "Supprimer cette Bible"
-
-msgid "Convert to USFM resource"
-msgstr "Convertir en ressource USFM"
-
-msgid "Compare with ..."
-msgstr "Comparer avec…"
-
-msgid "The public can give feedback"
-msgstr "Le public peut faire des commentaires"
-
-msgid "Send the changes to the RSS feed"
-msgstr "Envoyer les modifications vers le flux RSS"
-
-msgid "Import text from a resource"
-msgstr "Importer du texte depuis une ressource"
 
 msgid "To update the verse mappings, make changes above, and save them."
 msgstr ""
@@ -4344,6 +2438,9 @@ msgstr ""
 msgid "Step 4"
 msgstr "Étape 4"
 
+msgid "Submit"
+msgstr "Soumettre"
+
 msgid "Example URLs:"
 msgstr "Exemple d'URLs :"
 
@@ -4351,7 +2448,7 @@ msgid "USB drive"
 msgstr "clé USB"
 
 msgid "Open network repository"
-msgstr ""
+msgstr "Ouvrir le dépôt en réseau"
 
 msgid "Password protected network repository"
 msgstr "Dépôt réseau protégé par mot de passe"
@@ -4556,6 +2653,8 @@ msgstr "C'est une vérifcation supplémentaire en plus de la normale."
 msgid ""
 "The list of consultation notes shows the name of the Bible the note refers to"
 msgstr ""
+"La liste des notes de consultation montre le nom de la Bible à laquelle "
+"elles se réfèrent"
 
 msgid "Send / Receive"
 msgstr "Envoyer / Recevoir"
@@ -4657,6 +2756,240 @@ msgstr "Afficher l'historique :"
 
 msgid "The Journal displays progress and diagnostic messages."
 msgstr "Le journal affiche les messages de progression et de diagnostic."
+
+msgid "Book order"
+msgstr "Ordre des livres"
+
+msgid ""
+"Click to move books to another location to update the order of the books in "
+"this Bible."
+msgstr ""
+"Cliquez pour déplacer des livres vers un autre emplacement pour mettre à "
+"jour l'ordre des livres dans cette Bible."
+
+msgid "Reset order."
+msgstr "Réinitialiser l'ordre."
+
+msgid "Font and text settings"
+msgstr "Paramètres de police et de texte"
+
+msgid "Make settings for font and text for the Bible editors."
+msgstr ""
+"Effectuez les réglages de la police et du texte pour les éditeurs de la "
+"Bible."
+
+msgid "Font"
+msgstr "Police de caractère"
+
+msgid "Enter the name of a locally available font."
+msgstr "Entrez le nom d'une police locale disponible."
+
+msgid "Example:"
+msgstr "Exemple :"
+
+msgid "Upload a font file."
+msgstr "Téléverser un fichier de police."
+
+msgid "Then enter its name."
+msgstr "Alors entrez son nom."
+
+msgid "Enter the name of a font available on the Internet."
+msgstr "Entrez le nom d'une police disponible sur interne."
+
+msgid "If the font is empty, it takes the font entered in Bibledit Cloud."
+msgstr ""
+"Si la police est vide, elle prend la police saisie dans Bibledit Cloud."
+
+msgid "Direction"
+msgstr "Orientation"
+
+msgid "Unspecified"
+msgstr "Non spécifiée"
+
+msgid "Left-to-right"
+msgstr "De gauche à droite"
+
+msgid "Right-to-left"
+msgstr "De droite à gauche"
+
+msgid "Writing mode"
+msgstr "Orientation de l'écriture"
+
+msgid "Top to bottom and left to right"
+msgstr "De haut en bas et de gauche à droite"
+
+msgid "Top to bottom and right to left"
+msgstr "De haut en bas et de droite à gauche"
+
+msgid "Bottom to top and left to right"
+msgstr "De bas en haut et de gauche à droite"
+
+msgid "Bottom to top and right to left"
+msgstr "De bas en haut et de droite à gauche"
+
+msgid "Line height"
+msgstr "Hauteur de ligne"
+
+msgid "percent"
+msgstr "pourcents"
+
+msgid "Letter spacing"
+msgstr "Espacement des lettres"
+
+msgid "pixels"
+msgstr "pixels"
+
+msgid ""
+"After saving, the settings will be applied to the editable sample text below."
+msgstr ""
+"Après l'enregistrement, les paramètres seront appliqués au texte d'exemple "
+"modifiable ci-dessous."
+
+msgid "Available Bibles:"
+msgstr "Bibles disponibles :"
+
+msgid "Create a new empty Bible"
+msgstr "Créer une nouvelle Bible vide"
+
+msgid "Chapters:"
+msgstr "Chapitres :"
+
+msgid "Create chapter"
+msgstr "Créer un chapitre"
+
+msgid "Delete this book"
+msgstr "Supprimer ce livre"
+
+msgid "Import Bible text."
+msgstr "Importer du texte biblique."
+
+msgid "Paste the text into the box below and submit it."
+msgstr "Collez le texte dans la zone ci-dessous et envoyez-le."
+
+msgid "You can also upload a file with the text."
+msgstr "Vous pouvez aussi téléverser un fichier avec le texte."
+
+msgid "Or a compressed archive of such files."
+msgstr "Ou une archive avec de tels fichiers."
+
+msgid "Upload"
+msgstr "Téléverser"
+
+msgid "The upload may take some time."
+msgstr "Le téléversement peut prendre un certain temps"
+
+msgid "This can be done in Bibledit Cloud."
+msgstr "Cela peut être fait dans Bibledit Cloud."
+
+msgid "This page helps with importing Bible text."
+msgstr "Cette page aide à l'importation de texte biblique."
+
+msgid "It recognizes two types of text."
+msgstr "L'importation reconnait deux types de texte."
+
+msgid "It recognizes Unified Standard Format Markers text."
+msgstr "Elle reconnaît le texte au format USFM."
+
+msgid "More information about that."
+msgstr "Plus d'informations à ce sujet."
+
+msgid ""
+"Bibledit recognizes books through the id markup and chapters through the c "
+"markup."
+msgstr ""
+"Bibledit reconnaît les livres avec la balise id et les chapitres avec la "
+"balise c."
+
+msgid "It also recognizes plain text."
+msgstr "Elle reconnaît également le texte brut."
+
+msgid "It does that one chapter at a time."
+msgstr "Elle fait cela un chapitre à la fois."
+
+msgid ""
+"It imports the text into the book and chapter indicated by the passage "
+"navigator at the top of the window."
+msgstr ""
+"Elle importe le texte dans le livre et le chapitre indiqués par le "
+"navigateur de passage en haut de la fenêtre."
+
+msgid ""
+"It considers numbers at the start of a line of text to be verse numbers."
+msgstr ""
+"Elle considère les numéros au début d'une ligne comme des numéros de versets."
+
+msgid "It does not discover verse numbers somewhere else in the text."
+msgstr "Il ne trouve pas les numéros de verset ailleurs dans le texte."
+
+msgid "After importing some text, it is recommended to run the checks on it."
+msgstr ""
+"Après l'importation de texte, il est recommandé d’exécuter les vérifications "
+"dessus."
+
+msgid "An imported chapter overwrites the chapter already in the Bible."
+msgstr "Un chapitre importé écrase le chapitre déjà dans la Bible."
+
+msgid ""
+"If you import for example Genesis chapter 1, it will overwrite Genesis 1 if "
+"that chapter already was in the Bible."
+msgstr ""
+"Si vous importez par exemple Genèse chapitre 1, cela écrasera Genèse 1 si ce "
+"chapitre était déjà dans la Bible."
+
+msgid "It will not overwrite anything else."
+msgstr "Il n'écrasera rien d'autre."
+
+msgid "If Genesis 1 was not yet there, it will be created."
+msgstr "Si Genèse 1 n'est pas encore là, il sera créé."
+
+msgid ""
+"You can import one chapter, or several chapters, or one book, or several "
+"books, all in one go."
+msgstr ""
+"Vous pouvez importer un chapitre, ou plusieurs chapitres, un livre ou "
+"plusieurs livres, tous ensemble."
+
+msgid "The text to be imported should be in Unicode UTF-8 format."
+msgstr "Le texte pour être importé doit être au format Unicode UTF-8."
+
+msgid "Delete this chapter"
+msgstr "Supprimer ce chapitre"
+
+msgid "Available books"
+msgstr "Livres disponibles"
+
+msgid "Versification system"
+msgstr "Système de versification"
+
+msgid "Verse mapping"
+msgstr "Organisation des versets"
+
+msgid "Import text"
+msgstr "Importer du texte"
+
+msgid "Copy this Bible"
+msgstr "Copier cette Bible"
+
+msgid "Delete this Bible"
+msgstr "Supprimer cette Bible"
+
+msgid "Convert to USFM resource"
+msgstr "Convertir en ressource USFM"
+
+msgid "Compare with ..."
+msgstr "Comparer avec…"
+
+msgid "Editing settings"
+msgstr "Édition des paramètres"
+
+msgid "The public can give feedback"
+msgstr "Le public peut faire des commentaires"
+
+msgid "Send the changes to the RSS feed"
+msgstr "Envoyer les modifications vers le flux RSS"
+
+msgid "Import text from a resource"
+msgstr "Importer du texte depuis une ressource"
 
 msgid "help"
 msgstr "aide"
@@ -5552,9 +3885,6 @@ msgstr "Encore nouveau mot de passe"
 msgid "New email address"
 msgstr "Nouvelle adresse courriel"
 
-msgid "chapters"
-msgstr "chapitres"
-
 msgid "Passages:"
 msgstr "Passages :"
 
@@ -5799,7 +4129,7 @@ msgid "First line indent"
 msgstr "Retrait de la première ligne"
 
 msgid "Span columns"
-msgstr "Étendre les colonnes"
+msgstr "Une seule colonne"
 
 msgid "Color"
 msgstr "Couleur"
@@ -6142,6 +4472,9 @@ msgstr "Cette note vous a été attribuée pour que vous puissiez y intervenir."
 msgid "I have done my part on it."
 msgstr "J'ai fait ma part."
 
+msgid "Status"
+msgstr "Statut"
+
 msgid "Verses"
 msgstr "Versets"
 
@@ -6170,8 +4503,8 @@ msgstr "sélectionner"
 msgid "update"
 msgstr "mettre à jour"
 
-msgid "Assign the notes to another Bible"
-msgstr "Attribuer des notes à une autre Bible"
+msgid "Assign this note to another Bible"
+msgstr "Attribuer cette note à une autre Bible"
 
 msgid "Update the severity of this note"
 msgstr "Mettre à jour l'importance de cette note"
@@ -6208,6 +4541,9 @@ msgstr "Éditer le contenu de la note"
 
 msgid "Select the new status for the note"
 msgstr "Sélectionnez le nouveau statut de la note"
+
+msgid "Assign the notes to another Bible"
+msgstr "Attribuer des notes à une autre Bible"
 
 msgid "Update the severity of the notes"
 msgstr "Mettre à jour l'importance des notes"
@@ -6250,9 +4586,6 @@ msgstr "Changer la Bible des notes"
 
 msgid "Delete the notes"
 msgstr "Supprimer les notes"
-
-msgid "Assign this note to another Bible"
-msgstr "Attribuer cette note à une autre Bible"
 
 msgid "Edit the verses?"
 msgstr "Modifier les versets ?"
@@ -6388,7 +4721,7 @@ msgstr ""
 "le tiret court sera inséré à cet endroit dans le texte."
 
 msgid "First set of characters"
-msgstr ""
+msgstr "Premier jeu de caractères"
 
 msgid "Second set of characters"
 msgstr "Second jeu de caractères"
@@ -6525,6 +4858,9 @@ msgstr ""
 
 msgid "Submit the Bible to the Bible Drop Box now."
 msgstr "Soumettez la Bible à Bible Drop Box maintenant."
+
+msgid "Visit the Bible Drop Box for more options."
+msgstr "Visitez Bible Drop Box pour plus d'options."
 
 msgid "Username"
 msgstr "Identifiant"
@@ -6687,39 +5023,6 @@ msgid "It displays a web page based on the focused passage within Bibledit."
 msgstr ""
 "Elles affichent une page Web basée sur le passage ciblé dans Bibledit."
 
-msgid "Convert Bible to USFM Resource"
-msgstr "Convertir la Bible en ressource USFM"
-
-msgid "You can convert a Bible to a USFM Resource."
-msgstr "Vous pouvez convertir une Bible en ressource USFM."
-
-msgid "It means that the text of the Bible will be moved to a Resource."
-msgstr ""
-"Cela signifie que le texte de la Bible sera déplacé vers une ressource."
-
-msgid "The users can display this resource."
-msgstr "Les utilisateurs peuvent afficher cette ressource."
-
-msgid "A Resource will be created with the same name and text as the Bible."
-msgstr ""
-"Une ressource sera créée avec le même nom et le même texte que la Bible."
-
-msgid "When the conversion is complete, the Bible will be deleted."
-msgstr "Lorsque la conversion est terminée, la Bible sera supprimée."
-
-msgid "A Bible can be edited, but a USFM Resource cannot."
-msgstr "Une Bible peut être éditée, mais pas une ressource USFM."
-
-msgid "A Bible can be searched, but a USFM Resource cannot."
-msgstr "Une Bible peut être recherchée, mais pas une ressource USFM."
-
-msgid "The USFM Resource uses less space."
-msgstr "La ressource USFM utilise moins d'espace."
-
-msgid "Start the conversion process and view it in the Journal."
-msgstr ""
-"Commencez le processus de conversion et consultez-le dans le Journal."
-
 msgid "Image"
 msgstr "Image"
 
@@ -6750,6 +5053,9 @@ msgstr "Vous pouvez convertir une ressource USFM en Bible."
 
 msgid "Progress will be visible in the Journal."
 msgstr "La progression est visible dans le journal."
+
+msgid "Refresh the list of resources from BibleGateway."
+msgstr "Actualisez la liste des ressources de BibleGateway."
 
 msgid "The following resources are being installed:"
 msgstr "Les ressources suivantes sont en cours d'installation :"
@@ -6789,8 +5095,38 @@ msgstr "Imprimer depuis"
 msgid "Generate the document."
 msgstr "Générer le document."
 
-msgid "Refresh the list of resources from BibleGateway."
-msgstr "Actualisez la liste des ressources de BibleGateway."
+msgid "Convert Bible to USFM Resource"
+msgstr "Convertir la Bible en ressource USFM"
+
+msgid "You can convert a Bible to a USFM Resource."
+msgstr "Vous pouvez convertir une Bible en ressource USFM."
+
+msgid "It means that the text of the Bible will be moved to a Resource."
+msgstr ""
+"Cela signifie que le texte de la Bible sera déplacé vers une ressource."
+
+msgid "The users can display this resource."
+msgstr "Les utilisateurs peuvent afficher cette ressource."
+
+msgid "A Resource will be created with the same name and text as the Bible."
+msgstr ""
+"Une ressource sera créée avec le même nom et le même texte que la Bible."
+
+msgid "When the conversion is complete, the Bible will be deleted."
+msgstr "Lorsque la conversion est terminée, la Bible sera supprimée."
+
+msgid "A Bible can be edited, but a USFM Resource cannot."
+msgstr "Une Bible peut être éditée, mais pas une ressource USFM."
+
+msgid "A Bible can be searched, but a USFM Resource cannot."
+msgstr "Une Bible peut être recherchée, mais pas une ressource USFM."
+
+msgid "The USFM Resource uses less space."
+msgstr "La ressource USFM utilise moins d'espace."
+
+msgid "Start the conversion process and view it in the Journal."
+msgstr ""
+"Commencez le processus de conversion et consultez-le dans le Journal."
 
 msgid "Refresh the list of resources from StudyLight."
 msgstr "Rafraîchir la liste des ressources depuis StudyLight."
@@ -6975,6 +5311,9 @@ msgstr "Ajouter"
 msgid "Enter task completion categories."
 msgstr "Entrez les catégories d'achèvement des tâches."
 
+msgid "chapters"
+msgstr "chapitres"
+
 msgid "Bibledit Cloud connection"
 msgstr "Connexion au nuage Bibledit"
 
@@ -7012,12 +5351,6 @@ msgstr "Sinon, connectez-vous à la démo de Bibledit Cloud."
 msgid "To get access to Bibledit Cloud, install a server instance."
 msgstr "Pour accéder à Bibledit Cloud, installez une instance de serveur."
 
-msgid ""
-"Or request a server instance from bibledit.org through the contact form."
-msgstr ""
-"Ou demandez une instance de serveur à bibledit.org via le formulaire de "
-"contact."
-
 msgid "This page deals with setting up the email system."
 msgstr ""
 "Cette page traite de la configuration du système de messagerie électronique."
@@ -7047,6 +5380,20 @@ msgid ""
 msgstr ""
 "L'adresse courriel est bibletranslation@gmail.com, et le mot de passe est "
 "pazzwrd."
+
+msgid "The Google mail account should let less secure apps use the account."
+msgstr ""
+"Le compte de messagerie Google doit permettre aux applications moins "
+"sécurisées d'utiliser le compte."
+
+msgid "Bibledit email setup requires this."
+msgstr "La configuration du courriel pour Bibledit le requiert."
+
+msgid ""
+"In case the setup fails to work, all diagnostics can be seen in the Journal."
+msgstr ""
+"Au cas où la configuration échoue, tous les diagnostics peuvent être "
+"visualisés dans le journal."
 
 msgid "Site name and email address"
 msgstr "Nom du site et adresse courriel"
@@ -7424,6 +5771,522 @@ msgstr "À propos"
 
 msgid "The Free Bible"
 msgstr "La Bible Libre"
+
+msgid ""
+"While Bibledit may be used for making any Bibles, there are some distinct "
+"advantages to releasing Bibles under a free license."
+msgstr ""
+"Bien que Bibledit peut être utilisé pour créer toutes sortes de Bibles, il y "
+"a certains avantages à en créer sous licence libre."
+
+msgid ""
+"Others will feel free to publish the open Bible. You don't need to do "
+"everything yourself: Others will help spreading the Word of God."
+msgstr ""
+"D'autres se sentiront libres de publier la Bible libre. Vous n'avez pas "
+"besoin de tout faire vous-même : d'autres aideront à répandre la Parole de "
+"Dieu."
+
+msgid ""
+"It becomes easy to publish Bibles in a variety of formats by a variety of "
+"people: on paper, phones, the Internet."
+msgstr ""
+"Il devient facile de publier des Bibles dans une variété de formats par une "
+"variété de personnes : sur le papier, les téléphones, l'Internet."
+
+msgid ""
+"If you think that the Bible you translated is good and reliable, and you "
+"release it under an open license, it will rapidly spread over the Internet."
+msgstr ""
+"Si vous pensez que la Bible que vous avez traduite est bonne et fiable, et "
+"que vous la publiez sous licence libre, elle se répand rapidement sur "
+"Internet."
+
+msgid ""
+"Compare an open Bible to the Greek minuscules: They were copied freely, and "
+"they can now be found all over the place."
+msgstr ""
+"Comparez une Bible libre aux minuscules grecques : Elles ont été copiées "
+"librement, et peuvent maintenant être trouvées partout."
+
+msgid "Freely you received, freely give."
+msgstr "Vous avez reçu gratuitement, donnez gratuitement."
+
+msgid ""
+"Various church people regularly express a desire to have a more accurate "
+"Bible than what they have now."
+msgstr ""
+"Diverses personnes de l'église expriment régulièrement le désir d'avoir une "
+"Bible plus précise que ce qu'ils ont maintenant."
+
+msgid "The years pass by and the desire becomes stronger."
+msgstr "Les années passent et leur désir devient plus fort."
+
+msgid ""
+"They pray about the matter, discuss it, and decide to start the work on "
+"improving the Bible themselves, with the help of a booklet with directions."
+msgstr ""
+"Ils prient sur la question, en discutent et décident de commencer eux-mêmes "
+"le travail sur  l'amélioration de la Bible, à l'aide d'un livret avec des "
+"indications."
+
+msgid "The booklet is published by the Bible Society."
+msgstr "Le livret est publié par la Société Biblique."
+
+msgid ""
+"Over the years some people join the group, and others leave the group."
+msgstr ""
+"Au fil des ans, certaines personnes se joignent au groupe et d'autres "
+"quittent le groupe."
+
+msgid ""
+"The church now has a translation team consisting of four people who by the "
+"grace of God work full time on the revision of the Bible."
+msgstr ""
+"L'église a maintenant une équipe de traduction composée de quatre personnes "
+"qui, par la grâce de Dieu, travaillent à temps plein sur la révision de la "
+"Bible."
+
+msgid "Each of the four people bring in their own expertise."
+msgstr "Chacune des quatre personnes apporte leur propre expertise."
+
+msgid "Two of them focus on the target language."
+msgstr "Deux d'entre eux se concentrent sur la langue cible."
+
+msgid ""
+"They aim at using accurate, faithful, beautiful and contemporary language."
+msgstr ""
+"Ils visent à utiliser une langue précise, fidèle, belle et contemporaine."
+
+msgid "One of them focuses on the original Greek and Hebrew."
+msgstr "L'un d'eux se concentre sur l'original grec et hébreu."
+
+msgid "He ensures that the translated text matches the originals."
+msgstr "Il veille à ce que le texte traduit corresponde aux originaux."
+
+msgid "One of them focuses, more than the others, on the recipients."
+msgstr ""
+"L'un d'entre eux se concentre, plus que les autres, sur les bénéficiaires."
+
+msgid "She aims at acceptance of the language by the future readers."
+msgstr "Elle vise à l'acceptation de la langue par les futurs lecteurs."
+
+msgid "Many proof-readers contribute to the work."
+msgstr "Beaucoup de correcteurs contribuent au travail."
+
+msgid ""
+"The translation team regularly consults with language scholars and church "
+"representatives about the Bible translation."
+msgstr ""
+"L'équipe de traduction consulte régulièrement les spécialistes de la langue "
+"et les représentants de l'église au sujet de la traduction de la Bible."
+
+msgid ""
+"The Bible Society answers queries about how to translate difficult passages."
+msgstr ""
+"La Société Biblique répond aux questions sur la façon de traduire les "
+"passages difficiles."
+
+msgid "After several years the New Testament becomes ready."
+msgstr "Après plusieurs années, le Nouveau Testament est prêt."
+
+msgid "The manuscript is submitted to the Bible Society for publishing."
+msgstr "Le manuscrit est soumis à la Société Biblique pour publication."
+
+msgid "The manuscript is formatted and uploaded to the church website."
+msgstr "Le manuscrit est formaté et téléchargé sur le site Web de l'église."
+
+msgid ""
+"It can now be used by whoever wants to do so before it would be published in "
+"paper form."
+msgstr ""
+"Il peut maintenant être utilisé par quiconque le souhaite avant qu'il soit "
+"publié sous forme papier."
+
+msgid "The translation team starts to translate the Old Testament."
+msgstr "L'équipe de traduction commence à traduire l'Ancien Testament."
+
+msgid "The years pass by."
+msgstr "Les années passent."
+
+msgid ""
+"The team eagerly awaits news from the Bible Society about publishing the New "
+"Testament."
+msgstr ""
+"L'équipe attend avec impatience les nouvelles de la Société Biblique sur la "
+"publication du Nouveau Testament."
+
+msgid ""
+"Five years later the news arrives that the Bible Society starts the "
+"preparations for publishing it."
+msgstr ""
+"Cinq ans plus tard, les nouvelles arrivent que la Société biblique commence "
+"les préparatifs pour sa publication."
+
+msgid ""
+"Another year later the team sees the first copies of the New Testament in "
+"book form."
+msgstr ""
+"Un an plus tard, l'équipe voit les premières copies du Nouveau Testament "
+"sous forme de livre."
+
+msgid ""
+"During all those years the New Testament has been locked up in the offices "
+"of the Bible Society."
+msgstr ""
+"Pendant toutes ces années, le Nouveau Testament a été enfermé dans les "
+"bureaux de la Société Biblique."
+
+msgid ""
+"It was not free to go out to the people in book form, but was kept locked up."
+msgstr ""
+"Il n'était pas libre d'aller vers la population sous forme de livre, mais a "
+"été gardé enfermé."
+
+msgid "It was enslaved."
+msgstr "Il était asservi."
+
+msgid "The team keeps working on the Old Testament during many years."
+msgstr ""
+"L'équipe continue à travailler sur l'Ancien Testament pendant de nombreuses "
+"années."
+
+msgid "They are enabled to do so by the Lord God."
+msgstr "Ils sont habilités à le faire par le Seigneur Dieu."
+
+msgid "The Old Testament becomes ready."
+msgstr "L'Ancien Testament est prêt."
+
+msgid ""
+"The manuscript of the whole Bible is submitted to the Bible Society for "
+"publishing."
+msgstr ""
+"Le manuscrit de toute la Bible est soumis à la Société Biblique pour la "
+"publication."
+
+msgid ""
+"One member of the translation team suggests to upload the formatted "
+"manuscript to the church website, just as was done with the New Testament."
+msgstr ""
+"Un membre de l'équipe de traduction suggère de télécharger le manuscrit "
+"formaté sur le site de l'église, comme cela a été fait avec le Nouveau "
+"Testament."
+
+msgid ""
+"The team leader decides to not do this, but let the Bible Society be the "
+"first to publish the Bible."
+msgstr ""
+"Le chef d'équipe décide de ne pas le faire, mais de laisser la Société "
+"biblique être la première à publier la Bible."
+
+msgid ""
+"The translator feels disappointed, because the Bible, now complete and "
+"accurate, is not free to go out to the people."
+msgstr ""
+"Le traducteur se sent déçu, parce que la Bible, maintenant complète et "
+"précise, n'est pas libre d'aller au peuple."
+
+msgid "Not in paper form, not in digital form."
+msgstr "Ni sous forme papier, ni sous forme numérique."
+
+msgid "It is enslaved, again."
+msgstr "Elle est asservi, encore une fois."
+
+msgid ""
+"Over the years the translator heard stories from others who had similar "
+"experiences."
+msgstr ""
+"Au fil des années, le traducteur a entendu des histoires d'autres personnes "
+"ayant eu des expériences similaires."
+
+msgid "It occurs to him that the current way of doing things is not right."
+msgstr ""
+"Il lui apparaît que la manière actuelle de faire les choses n'est pas juste."
+
+msgid ""
+"It leads to a situation where the Bible is not free to go where it is needed "
+"most:"
+msgstr ""
+"Cela conduit à une situation où la Bible n'est pas libre d'aller où elle est "
+"le plus nécessaire :"
+
+msgid "To the people."
+msgstr "Au peuple."
+
+msgid ""
+"The translator begins to see more clearly that Christians should have "
+"freedom to publish Bibles or portions of it any time they wish to do so."
+msgstr ""
+"Le traducteur commence à voir plus clairement que les chrétiens doivent "
+"avoir la liberté de publier des Bibles ou des parties de celle-ci quand ils "
+"le désirent."
+
+msgid "The translator becomes the leader of the translation team."
+msgstr "Le traducteur devient le chef de file de l'équipe de traduction."
+
+msgid "The team leader is acquainted with open licenses."
+msgstr "Le chef d'équipe connaît les licences libres."
+
+msgid ""
+"He chooses the GNU Free Documentation License as an appropriate license for "
+"the Bible."
+msgstr ""
+"Il choisit la licence de documentation libre GNU comme une licence "
+"appropriée pour la Bible."
+
+msgid ""
+"He is of the view that it is appropriate for the Word of God to be created "
+"under an open license to allow it to have free course."
+msgstr ""
+"Il est d'avis qu'il est approprié que la Parole de Dieu soit créée sous une "
+"licence libre pour lui permettre de se répandre librement."
+
+msgid ""
+"The GNU Free Documentation License allows noncommercial distribution of the "
+"Bible by anyone who accepts the license."
+msgstr ""
+"La licence de documentation libre GNU permet la distribution non-commerciale "
+"de la Bible par toute personne qui accepte la licence."
+
+msgid ""
+"That is a good thing because this enables anyone to print the Bible and give "
+"it to someone else."
+msgstr ""
+"C'est une bonne chose parce que cela permet à quiconque d'imprimer la Bible "
+"et de la donner à quelqu'un d'autre."
+
+msgid ""
+"The GNU Free Documentation License allows commercial distribution of the "
+"Bible by any publisher who accepts the license."
+msgstr ""
+"Elle permet la distribution commerciale de la Bible par tout éditeur qui "
+"accepte la licence."
+
+msgid ""
+"This is good, because it maximizes the distribution potential by allowing "
+"sales of printed Bibles."
+msgstr ""
+"Ceci est bon, car il maximise le potentiel de distribution en permettant la "
+"vente de Bibles imprimées."
+
+msgid "It also harnesses the profit motive for distribution."
+msgstr "Il exploite également le but lucratif de la distribution."
+
+msgid "It limits overcharging with competitive pressure on prices."
+msgstr "Il limite les surcharges à la pression concurrentielle sur les prix."
+
+msgid ""
+"The GNU Free Documentation License allows to update the Bible, provided the "
+"updated version is shared under the same license."
+msgstr ""
+"Elle permet encore de mettre à jour la Bible, à condition que la version "
+"mise à jour soit partagée sous la même licence."
+
+msgid ""
+"This is a good thing because it allows legitimate updates, revisions, "
+"adaptations with no hassle to the translators and no delay for getting "
+"permission."
+msgstr ""
+"C'est une bonne chose parce qu'elle permet des mises à jour légitimes, des "
+"révisions, des adaptations sans aucun tracas pour les traducteurs et aucun "
+"délai pour obtenir la permission."
+
+msgid ""
+"A disadvantage is that changes can be made by people who might not be "
+"qualified or called to make changes, with possibly heretical results."
+msgstr ""
+"Un inconvénient est que des changements peuvent être apportés par des "
+"personnes qui pourraient ne pas être qualifiées ou appelées à apporter des "
+"changements, avec éventuellement des résultats hérétiques."
+
+msgid ""
+"There is some fear that granting permission to make revisions would make it "
+"easier for somebody to make heretical changes to the Bible."
+msgstr ""
+"Il y a une certaine crainte que l'octroi de la permission de faire des "
+"révisions, rende plus facile pour quelqu'un de faire des changements "
+"hérétiques à la Bible."
+
+msgid "But copyright law is not about preventing this."
+msgstr "Mais le droit d'auteur ne vise pas à empêcher cela."
+
+msgid "If anyone wants to make those changes, he would still do it."
+msgstr "Si quelqu'un veut faire ces changements, il le ferait tout de même."
+
+msgid ""
+"There is no need for this fear, because it is God who protects His own work."
+msgstr ""
+"Ces craintes ne sont pas justifiées parce que Dieu protège lui-même Son "
+"œuvre."
+
+msgid "He makes clear what is a good translation, and what is not."
+msgstr "Il précise ce qu'est une bonne traduction, et ce qui ne l'est pas."
+
+msgid ""
+"If a Bible Society is so protective about a Bible, so as not to grant a "
+"license to make revisions, then there is a bigger danger than that of heresy."
+msgstr ""
+"Si une société biblique est si protectrice sur une Bible, afin de ne pas "
+"accorder une licence pour faire des révisions, alors il y a un plus grand "
+"danger que celui de l'hérésie."
+
+msgid ""
+"The bigger danger is that the copyright holder holds on to the Bible, or "
+"disappears, or dies, or fails to be a good steward of it."
+msgstr ""
+"Ce plus grand danger est que le détenteur du droit d'auteur tienne à la "
+"Bible, ou disparaît, ou meurt, ou ne parvienne pas à être un bon intendant "
+"de celle-ci."
+
+msgid "Nobody would be allowed to improve or update the text."
+msgstr "Personne ne serait autorisé à améliorer ou à mettre à jour le texte."
+
+msgid "Trust God."
+msgstr "Fais confiance à Dieu."
+
+msgid "He takes care of His Word."
+msgstr "Il prend soin de Sa Parole."
+
+msgid "He deals with anyone who might abuse it."
+msgstr "Il s'arrange avec celui qui pourrait l'abuser."
+
+msgid "The Bible Society says:"
+msgstr "La société biblique dit :"
+
+msgid ""
+"We own copyright, not in any way to restrict distribution, but to preserve "
+"the text."
+msgstr ""
+"Nous possédons des droits d'auteur, non pas pour restreindre la "
+"distribution, mais pour préserver le texte."
+
+msgid "Protecting the text may at times restrict distribution."
+msgstr "La protection du texte peut parfois restreindre la distribution."
+
+msgid ""
+"For example, the Bible must be distributed by us, or under our supervision."
+msgstr ""
+"Par exemple, la Bible doit être distribuée par nous, ou sous notre "
+"supervision."
+
+msgid "We have made a big investment in the Bible."
+msgstr "Nous avons fait un gros investissement dans la Bible."
+
+msgid "Nobody may improve it without our authority."
+msgstr "Personne ne peut l'améliorer sans notre autorité."
+
+msgid ""
+"If anybody gives us details as to where the Bible can be improved, they can "
+"improve it, but only when we agree."
+msgstr ""
+"Si quelqu'un nous donne des détails sur l'endroit où la Bible peut être "
+"améliorée, ils peuvent l'améliorer, mais seulement quand nous sommes "
+"d'accord."
+
+msgid "This Bible is our property."
+msgstr "Cette Bible est notre propriété."
+
+msgid "We share it."
+msgstr "Nous la partageons."
+
+msgid "It is not entirely ours, so there is a shared property."
+msgstr ""
+"Ce n'est pas tout à fait la nôtre, il y a donc une propriété partagée."
+
+msgid "The Free Documentation License is good in an ideal world."
+msgstr "La licence de documentation libre est bonne dans un monde idéal."
+
+msgid ""
+"But the world is evil, so we need a license where we can protect the "
+"integrity of the text."
+msgstr ""
+"Mais le monde est mauvais, alors nous avons besoin d'une licence où nous "
+"pouvons protéger l'intégrité du texte."
+
+msgid "The proponent of the free Bible says:"
+msgstr "Le promoteur de la Bible libre dit :"
+
+msgid "A free license enables spreading the Word of God more quickly."
+msgstr ""
+"Une licence libre permet de diffuser la Parole de Dieu plus rapidement."
+
+msgid "The Bible Society has made such a reliable and good Bible."
+msgstr "La société biblique a fait une bible fiable et bonne."
+
+msgid "Is it not worthy of being spread as far and wide as possible?"
+msgstr "N'est-elle pas digne d'être répandue aussi loin que possible ?"
+
+msgid ""
+"A restrictive license confines the Word to one publisher, one channel."
+msgstr ""
+"Une licence restrictive confine la Parole à un unique éditeur, par un seul "
+"canal."
+
+msgid "A free license opens up the Word to being spread by more channels."
+msgstr ""
+"Une licence libre ouvre la Parole à la propagation par de plus nombreux "
+"canaux."
+
+msgid ""
+"If the license is restrictive, it is not the bad people who are afraid of "
+"illegally copying the Word of God, making changes, then publish it."
+msgstr ""
+"Si la licence est restrictive, ce ne sont pas les mauvaises personnes qui "
+"craignent de copier illégalement la Parole de Dieu, de faire des "
+"changements, puis de la publier."
+
+msgid ""
+"But it's the good people who would be worried to violate copyright law when "
+"spreading the Word, thinking that God's blessing cannot be on something "
+"illegal."
+msgstr ""
+"Mais ce sont les bonnes personnes qui seraient inquiètes de violer la loi "
+"sur le droit d'auteur en répandant la Parole, pensant que la bénédiction de "
+"Dieu ne peut pas être sur quelque chose d'illégal."
+
+msgid ""
+"The free license does not aid bad people much, but it assists good people in "
+"many ways."
+msgstr ""
+"Une licence libre n'aide pas beaucoup les mauvaises personnes, mais elle "
+"aide de nombreuses façons les bonnes personnes."
+
+msgid ""
+"A restrictive license does not stop heretics in any way, but it stops good "
+"people from spreading the Word."
+msgstr ""
+"Une licence restrictive n'arrête les hérétiques d'aucune façon, mais elle "
+"empêche les bonnes personnes de répandre la Parole."
+
+msgid "The restrictive Bible Society says:"
+msgstr "La Société Biblique restrictive dit :"
+
+msgid "If you revise our Bible, we'll see you in court."
+msgstr "Si vous révisez notre Bible, nous vous intenterons un procès."
+
+msgid "The free and open Bible Society says:"
+msgstr "La Société Biblique libre et ouverte dit :"
+
+msgid ""
+"If you revise and spread our Bible, we thank God for opening another channel "
+"for distribution."
+msgstr ""
+"Si vous révisez et répandez notre Bible, nous remercions Dieu d'avoir ouvert "
+"un autre moyen de la distribuer."
+
+msgid "God wanted property rights to be there for the benefit of humans."
+msgstr ""
+"Dieu voulait que le droit de propriété soit au service de tous, au bénéfice "
+"de tous."
+
+msgid "But did he also want copyright on Bibles?"
+msgstr "Mais voulait-il aussi le droit d'auteur sur les Bibles ?"
+
+msgid "Show from the Word where this is the case."
+msgstr "Montrez où cela est dit dans la Parole si c'est le cas."
+
+msgid "bibledit"
+msgstr "bibledit"
 
 msgid "Licenses"
 msgstr "Licences"
@@ -8426,11 +7289,24 @@ msgstr ""
 msgid "ETCBC4 Hebrew text database"
 msgstr "Base de données du texte hébreu ETCBC4"
 
-msgid "Bibledit obtained the data from"
-msgstr "Bibledit obtient les données depuis"
+msgid ""
+"The ETCBC database of the Hebrew Bible contains the scholarly text of the "
+"Hebrew Bible with linguistic markup."
+msgstr ""
+"La base de données ETCBC de la Bible en hébreu contient le texte "
+"scientifique de celle-ci avec balisage linguistique."
+
+msgid "Original data source:"
+msgstr "Données sources d'origine :"
+
+msgid "Bibledit's data source:"
+msgstr "Données sources de bibledit :"
 
 msgid "SHEBANQ, a search engine for the Hebrew Bible"
 msgstr "SHEBANQ, un moteur de recherche pour la Bible en hébreu"
+
+msgid "License:"
+msgstr "Licence :"
 
 msgid "Creative Commons Attribution-NonCommercial 4.0 International License"
 msgstr "License international Creative Commons Attribution-NonCommercial 4.0"
@@ -8443,8 +7319,17 @@ msgstr ""
 msgid "Other code and data"
 msgstr "Autre code et données"
 
-msgid "See the source code repository"
-msgstr "Voir le dépôt du code source"
+msgid ""
+"All the code and data included in Bibledit that does not fall in the above "
+"license categories has been licensed as mentioned in various bits of source "
+"code included in Bibledit."
+msgstr ""
+"Tout le code et les données inclus dans Bibledit qui ne tombent pas dans les "
+"catégories de licence ci-dessus ont été concédés sous licence comme "
+"mentionné dans les diverses parties de code source inclus dans Bibledit."
+
+msgid "See the source code repository."
+msgstr "Voir le dépôt du code source."
 
 msgid "Install Bibledit on Windows"
 msgstr "Installer Bibledit sur Windows"
@@ -8747,11 +7632,20 @@ msgstr ""
 "Lorsque le navigateur est affiché, permet de se focaliser sur le nom du "
 "livre de la Bible."
 
+msgid "Escape"
+msgstr "Échap"
+
 msgid "Cancel any navigation or style operation."
 msgstr "Annule toute opération de navigation ou de style."
 
+msgid "Alt-Down Arrow"
+msgstr "Alt-Flêche du bas"
+
 msgid "Navigate to the next verse."
 msgstr "Navigue jusqu'au verset suivant."
+
+msgid "Alt-Up Arrow"
+msgstr "Alt-Flêche du haut"
 
 msgid "Navigate to the previous verse."
 msgstr "Navigue vers le verset précédent."
@@ -10305,519 +9199,6 @@ msgstr "LibreOffice"
 msgid "Adobe InDesign"
 msgstr "Adobe InDesign"
 
-msgid ""
-"While Bibledit may be used for making any Bibles, there are some distinct "
-"advantages to releasing Bibles under a free license."
-msgstr ""
-"Bien que Bibledit peut être utilisé pour créer toutes sortes de Bibles, il y "
-"a certains avantages à en créer sous licence libre."
-
-msgid ""
-"Others will feel free to publish the open Bible. You don't need to do "
-"everything yourself: Others will help spreading the Word of God."
-msgstr ""
-"D'autres se sentiront libres de publier la Bible libre. Vous n'avez pas "
-"besoin de tout faire vous-même : d'autres aideront à répandre la Parole de "
-"Dieu."
-
-msgid ""
-"It becomes easy to publish Bibles in a variety of formats by a variety of "
-"people: on paper, phones, the Internet."
-msgstr ""
-"Il devient facile de publier des Bibles dans une variété de formats par une "
-"variété de personnes : sur le papier, les téléphones, l'Internet."
-
-msgid ""
-"If you think that the Bible you translated is good and reliable, and you "
-"release it under an open license, it will rapidly spread over the Internet."
-msgstr ""
-"Si vous pensez que la Bible que vous avez traduite est bonne et fiable, et "
-"que vous la publiez sous licence libre, elle se répand rapidement sur "
-"Internet."
-
-msgid ""
-"Compare an open Bible to the Greek minuscules: They were copied freely, and "
-"they can now be found all over the place."
-msgstr ""
-"Comparez une Bible libre aux minuscules grecques : Elles ont été copiées "
-"librement, et peuvent maintenant être trouvées partout."
-
-msgid "Freely you received, freely give."
-msgstr "Vous avez reçu gratuitement, donnez gratuitement."
-
-msgid ""
-"Various church people regularly express a desire to have a more accurate "
-"Bible than what they have now."
-msgstr ""
-"Diverses personnes de l'église expriment régulièrement le désir d'avoir une "
-"Bible plus précise que ce qu'ils ont maintenant."
-
-msgid "The years pass by and the desire becomes stronger."
-msgstr "Les années passent et leur désir devient plus fort."
-
-msgid ""
-"They pray about the matter, discuss it, and decide to start the work on "
-"improving the Bible themselves, with the help of a booklet with directions."
-msgstr ""
-"Ils prient sur la question, en discutent et décident de commencer eux-mêmes "
-"le travail sur  l'amélioration de la Bible, à l'aide d'un livret avec des "
-"indications."
-
-msgid "The booklet is published by the Bible Society."
-msgstr "Le livret est publié par la Société Biblique."
-
-msgid ""
-"Over the years some people join the group, and others leave the group."
-msgstr ""
-"Au fil des ans, certaines personnes se joignent au groupe et d'autres "
-"quittent le groupe."
-
-msgid ""
-"The church now has a translation team consisting of four people who by the "
-"grace of God work full time on the revision of the Bible."
-msgstr ""
-"L'église a maintenant une équipe de traduction composée de quatre personnes "
-"qui, par la grâce de Dieu, travaillent à temps plein sur la révision de la "
-"Bible."
-
-msgid "Each of the four people bring in their own expertise."
-msgstr "Chacune des quatre personnes apporte leur propre expertise."
-
-msgid "Two of them focus on the target language."
-msgstr "Deux d'entre eux se concentrent sur la langue cible."
-
-msgid ""
-"They aim at using accurate, faithful, beautiful and contemporary language."
-msgstr ""
-"Ils visent à utiliser une langue précise, fidèle, belle et contemporaine."
-
-msgid "One of them focuses on the original Greek and Hebrew."
-msgstr "L'un d'eux se concentre sur l'original grec et hébreu."
-
-msgid "He ensures that the translated text matches the originals."
-msgstr "Il veille à ce que le texte traduit corresponde aux originaux."
-
-msgid "One of them focuses, more than the others, on the recipients."
-msgstr ""
-"L'un d'entre eux se concentre, plus que les autres, sur les bénéficiaires."
-
-msgid "She aims at acceptance of the language by the future readers."
-msgstr "Elle vise à l'acceptation de la langue par les futurs lecteurs."
-
-msgid "Many proof-readers contribute to the work."
-msgstr "Beaucoup de correcteurs contribuent au travail."
-
-msgid ""
-"The translation team regularly consults with language scholars and church "
-"representatives about the Bible translation."
-msgstr ""
-"L'équipe de traduction consulte régulièrement les spécialistes de la langue "
-"et les représentants de l'église au sujet de la traduction de la Bible."
-
-msgid ""
-"The Bible Society answers queries about how to translate difficult passages."
-msgstr ""
-"La Société Biblique répond aux questions sur la façon de traduire les "
-"passages difficiles."
-
-msgid "After several years the New Testament becomes ready."
-msgstr "Après plusieurs années, le Nouveau Testament est prêt."
-
-msgid "The manuscript is submitted to the Bible Society for publishing."
-msgstr "Le manuscrit est soumis à la Société Biblique pour publication."
-
-msgid "The manuscript is formatted and uploaded to the church website."
-msgstr "Le manuscrit est formaté et téléchargé sur le site Web de l'église."
-
-msgid ""
-"It can now be used by whoever wants to do so before it would be published in "
-"paper form."
-msgstr ""
-"Il peut maintenant être utilisé par quiconque le souhaite avant qu'il soit "
-"publié sous forme papier."
-
-msgid "The translation team starts to translate the Old Testament."
-msgstr "L'équipe de traduction commence à traduire l'Ancien Testament."
-
-msgid "The years pass by."
-msgstr "Les années passent."
-
-msgid ""
-"The team eagerly awaits news from the Bible Society about publishing the New "
-"Testament."
-msgstr ""
-"L'équipe attend avec impatience les nouvelles de la Société Biblique sur la "
-"publication du Nouveau Testament."
-
-msgid ""
-"Five years later the news arrives that the Bible Society starts the "
-"preparations for publishing it."
-msgstr ""
-"Cinq ans plus tard, les nouvelles arrivent que la Société biblique commence "
-"les préparatifs pour sa publication."
-
-msgid ""
-"Another year later the team sees the first copies of the New Testament in "
-"book form."
-msgstr ""
-"Un an plus tard, l'équipe voit les premières copies du Nouveau Testament "
-"sous forme de livre."
-
-msgid ""
-"During all those years the New Testament has been locked up in the offices "
-"of the Bible Society."
-msgstr ""
-"Pendant toutes ces années, le Nouveau Testament a été enfermé dans les "
-"bureaux de la Société Biblique."
-
-msgid ""
-"It was not free to go out to the people in book form, but was kept locked up."
-msgstr ""
-"Il n'était pas libre d'aller vers la population sous forme de livre, mais a "
-"été gardé enfermé."
-
-msgid "It was enslaved."
-msgstr "Il était asservi."
-
-msgid "The team keeps working on the Old Testament during many years."
-msgstr ""
-"L'équipe continue à travailler sur l'Ancien Testament pendant de nombreuses "
-"années."
-
-msgid "They are enabled to do so by the Lord God."
-msgstr "Ils sont habilités à le faire par le Seigneur Dieu."
-
-msgid "The Old Testament becomes ready."
-msgstr "L'Ancien Testament est prêt."
-
-msgid ""
-"The manuscript of the whole Bible is submitted to the Bible Society for "
-"publishing."
-msgstr ""
-"Le manuscrit de toute la Bible est soumis à la Société Biblique pour la "
-"publication."
-
-msgid ""
-"One member of the translation team suggests to upload the formatted "
-"manuscript to the church website, just as was done with the New Testament."
-msgstr ""
-"Un membre de l'équipe de traduction suggère de télécharger le manuscrit "
-"formaté sur le site de l'église, comme cela a été fait avec le Nouveau "
-"Testament."
-
-msgid ""
-"The team leader decides to not do this, but let the Bible Society be the "
-"first to publish the Bible."
-msgstr ""
-"Le chef d'équipe décide de ne pas le faire, mais de laisser la Société "
-"biblique être la première à publier la Bible."
-
-msgid ""
-"The translator feels disappointed, because the Bible, now complete and "
-"accurate, is not free to go out to the people."
-msgstr ""
-"Le traducteur se sent déçu, parce que la Bible, maintenant complète et "
-"précise, n'est pas libre d'aller au peuple."
-
-msgid "Not in paper form, not in digital form."
-msgstr "Ni sous forme papier, ni sous forme numérique."
-
-msgid "It is enslaved, again."
-msgstr "Elle est asservi, encore une fois."
-
-msgid ""
-"Over the years the translator heard stories from others who had similar "
-"experiences."
-msgstr ""
-"Au fil des années, le traducteur a entendu des histoires d'autres personnes "
-"ayant eu des expériences similaires."
-
-msgid "It occurs to him that the current way of doing things is not right."
-msgstr ""
-"Il lui apparaît que la manière actuelle de faire les choses n'est pas juste."
-
-msgid ""
-"It leads to a situation where the Bible is not free to go where it is needed "
-"most:"
-msgstr ""
-"Cela conduit à une situation où la Bible n'est pas libre d'aller où elle est "
-"le plus nécessaire :"
-
-msgid "To the people."
-msgstr "Au peuple."
-
-msgid ""
-"The translator begins to see more clearly that Christians should have "
-"freedom to publish Bibles or portions of it any time they wish to do so."
-msgstr ""
-"Le traducteur commence à voir plus clairement que les chrétiens doivent "
-"avoir la liberté de publier des Bibles ou des parties de celle-ci quand ils "
-"le désirent."
-
-msgid "The translator becomes the leader of the translation team."
-msgstr "Le traducteur devient le chef de file de l'équipe de traduction."
-
-msgid "The team leader is acquainted with open licenses."
-msgstr "Le chef d'équipe connaît les licences libres."
-
-msgid ""
-"He chooses the GNU Free Documentation License as an appropriate license for "
-"the Bible."
-msgstr ""
-"Il choisit la licence de documentation libre GNU comme une licence "
-"appropriée pour la Bible."
-
-msgid ""
-"He is of the view that it is appropriate for the Word of God to be created "
-"under an open license to allow it to have free course."
-msgstr ""
-"Il est d'avis qu'il est approprié que la Parole de Dieu soit créée sous une "
-"licence libre pour lui permettre de se répandre librement."
-
-msgid ""
-"The GNU Free Documentation License allows noncommercial distribution of the "
-"Bible by anyone who accepts the license."
-msgstr ""
-"La licence de documentation libre GNU permet la distribution non-commerciale "
-"de la Bible par toute personne qui accepte la licence."
-
-msgid ""
-"That is a good thing because this enables anyone to print the Bible and give "
-"it to someone else."
-msgstr ""
-"C'est une bonne chose parce que cela permet à quiconque d'imprimer la Bible "
-"et de la donner à quelqu'un d'autre."
-
-msgid ""
-"The GNU Free Documentation License allows commercial distribution of the "
-"Bible by any publisher who accepts the license."
-msgstr ""
-"Elle permet la distribution commerciale de la Bible par tout éditeur qui "
-"accepte la licence."
-
-msgid ""
-"This is good, because it maximizes the distribution potential by allowing "
-"sales of printed Bibles."
-msgstr ""
-"Ceci est bon, car il maximise le potentiel de distribution en permettant la "
-"vente de Bibles imprimées."
-
-msgid "It also harnesses the profit motive for distribution."
-msgstr "Il exploite également le but lucratif de la distribution."
-
-msgid "It limits overcharging with competitive pressure on prices."
-msgstr "Il limite les surcharges à la pression concurrentielle sur les prix."
-
-msgid ""
-"The GNU Free Documentation License allows to update the Bible, provided the "
-"updated version is shared under the same license."
-msgstr ""
-"Elle permet encore de mettre à jour la Bible, à condition que la version "
-"mise à jour soit partagée sous la même licence."
-
-msgid ""
-"This is a good thing because it allows legitimate updates, revisions, "
-"adaptations with no hassle to the translators and no delay for getting "
-"permission."
-msgstr ""
-"C'est une bonne chose parce qu'elle permet des mises à jour légitimes, des "
-"révisions, des adaptations sans aucun tracas pour les traducteurs et aucun "
-"délai pour obtenir la permission."
-
-msgid ""
-"A disadvantage is that changes can be made by people who might not be "
-"qualified or called to make changes, with possibly heretical results."
-msgstr ""
-"Un inconvénient est que des changements peuvent être apportés par des "
-"personnes qui pourraient ne pas être qualifiées ou appelées à apporter des "
-"changements, avec éventuellement des résultats hérétiques."
-
-msgid ""
-"There is some fear that granting permission to make revisions would make it "
-"easier for somebody to make heretical changes to the Bible."
-msgstr ""
-"Il y a une certaine crainte que l'octroi de la permission de faire des "
-"révisions, rende plus facile pour quelqu'un de faire des changements "
-"hérétiques à la Bible."
-
-msgid "But copyright law is not about preventing this."
-msgstr "Mais le droit d'auteur ne vise pas à empêcher cela."
-
-msgid "If anyone wants to make those changes, he would still do it."
-msgstr "Si quelqu'un veut faire ces changements, il le ferait tout de même."
-
-msgid ""
-"There is no need for this fear, because it is God who protects His own work."
-msgstr ""
-"Ces craintes ne sont pas justifiées parce que Dieu protège lui-même Son "
-"œuvre."
-
-msgid "He makes clear what is a good translation, and what is not."
-msgstr "Il précise ce qu'est une bonne traduction, et ce qui ne l'est pas."
-
-msgid ""
-"If a Bible Society is so protective about a Bible, so as not to grant a "
-"license to make revisions, then there is a bigger danger than that of heresy."
-msgstr ""
-"Si une société biblique est si protectrice sur une Bible, afin de ne pas "
-"accorder une licence pour faire des révisions, alors il y a un plus grand "
-"danger que celui de l'hérésie."
-
-msgid ""
-"The bigger danger is that the copyright holder holds on to the Bible, or "
-"disappears, or dies, or fails to be a good steward of it."
-msgstr ""
-"Ce plus grand danger est que le détenteur du droit d'auteur tienne à la "
-"Bible, ou disparaît, ou meurt, ou ne parvienne pas à être un bon intendant "
-"de celle-ci."
-
-msgid "Nobody would be allowed to improve or update the text."
-msgstr "Personne ne serait autorisé à améliorer ou à mettre à jour le texte."
-
-msgid "Trust God."
-msgstr "Fais confiance à Dieu."
-
-msgid "He takes care of His Word."
-msgstr "Il prend soin de Sa Parole."
-
-msgid "He deals with anyone who might abuse it."
-msgstr "Il s'arrange avec celui qui pourrait l'abuser."
-
-msgid "The Bible Society says:"
-msgstr "La société biblique dit :"
-
-msgid ""
-"We own copyright, not in any way to restrict distribution, but to preserve "
-"the text."
-msgstr ""
-"Nous possédons des droits d'auteur, non pas pour restreindre la "
-"distribution, mais pour préserver le texte."
-
-msgid "Protecting the text may at times restrict distribution."
-msgstr "La protection du texte peut parfois restreindre la distribution."
-
-msgid ""
-"For example, the Bible must be distributed by us, or under our supervision."
-msgstr ""
-"Par exemple, la Bible doit être distribuée par nous, ou sous notre "
-"supervision."
-
-msgid "We have made a big investment in the Bible."
-msgstr "Nous avons fait un gros investissement dans la Bible."
-
-msgid "Nobody may improve it without our authority."
-msgstr "Personne ne peut l'améliorer sans notre autorité."
-
-msgid ""
-"If anybody gives us details as to where the Bible can be improved, they can "
-"improve it, but only when we agree."
-msgstr ""
-"Si quelqu'un nous donne des détails sur l'endroit où la Bible peut être "
-"améliorée, ils peuvent l'améliorer, mais seulement quand nous sommes "
-"d'accord."
-
-msgid "This Bible is our property."
-msgstr "Cette Bible est notre propriété."
-
-msgid "We share it."
-msgstr "Nous la partageons."
-
-msgid "It is not entirely ours, so there is a shared property."
-msgstr ""
-"Ce n'est pas tout à fait la nôtre, il y a donc une propriété partagée."
-
-msgid "The Free Documentation License is good in an ideal world."
-msgstr "La licence de documentation libre est bonne dans un monde idéal."
-
-msgid ""
-"But the world is evil, so we need a license where we can protect the "
-"integrity of the text."
-msgstr ""
-"Mais le monde est mauvais, alors nous avons besoin d'une licence où nous "
-"pouvons protéger l'intégrité du texte."
-
-msgid "The proponent of the free Bible says:"
-msgstr "Le promoteur de la Bible libre dit :"
-
-msgid "A free license enables spreading the Word of God more quickly."
-msgstr ""
-"Une licence libre permet de diffuser la Parole de Dieu plus rapidement."
-
-msgid "The Bible Society has made such a reliable and good Bible."
-msgstr "La société biblique a fait une bible fiable et bonne."
-
-msgid "Is it not worthy of being spread as far and wide as possible?"
-msgstr "N'est-elle pas digne d'être répandue aussi loin que possible ?"
-
-msgid ""
-"A restrictive license confines the Word to one publisher, one channel."
-msgstr ""
-"Une licence restrictive confine la Parole à un unique éditeur, par un seul "
-"canal."
-
-msgid "A free license opens up the Word to being spread by more channels."
-msgstr ""
-"Une licence libre ouvre la Parole à la propagation par de plus nombreux "
-"canaux."
-
-msgid ""
-"If the license is restrictive, it is not the bad people who are afraid of "
-"illegally copying the Word of God, making changes, then publish it."
-msgstr ""
-"Si la licence est restrictive, ce ne sont pas les mauvaises personnes qui "
-"craignent de copier illégalement la Parole de Dieu, de faire des "
-"changements, puis de la publier."
-
-msgid ""
-"But it's the good people who would be worried to violate copyright law when "
-"spreading the Word, thinking that God's blessing cannot be on something "
-"illegal."
-msgstr ""
-"Mais ce sont les bonnes personnes qui seraient inquiètes de violer la loi "
-"sur le droit d'auteur en répandant la Parole, pensant que la bénédiction de "
-"Dieu ne peut pas être sur quelque chose d'illégal."
-
-msgid ""
-"The free license does not aid bad people much, but it assists good people in "
-"many ways."
-msgstr ""
-"Une licence libre n'aide pas beaucoup les mauvaises personnes, mais elle "
-"aide de nombreuses façons les bonnes personnes."
-
-msgid ""
-"A restrictive license does not stop heretics in any way, but it stops good "
-"people from spreading the Word."
-msgstr ""
-"Une licence restrictive n'arrête les hérétiques d'aucune façon, mais elle "
-"empêche les bonnes personnes de répandre la Parole."
-
-msgid "The restrictive Bible Society says:"
-msgstr "La Société Biblique restrictive dit :"
-
-msgid "If you revise our Bible, we'll see you in court."
-msgstr "Si vous révisez notre Bible, nous vous intenterons un procès."
-
-msgid "The free and open Bible Society says:"
-msgstr "La Société Biblique libre et ouverte dit :"
-
-msgid ""
-"If you revise and spread our Bible, we thank God for opening another channel "
-"for distribution."
-msgstr ""
-"Si vous révisez et répandez notre Bible, nous remercions Dieu d'avoir ouvert "
-"un autre moyen de la distribuer."
-
-msgid "God wanted property rights to be there for the benefit of humans."
-msgstr ""
-"Dieu voulait que le droit de propriété soit au service de tous, au bénéfice "
-"de tous."
-
-msgid "But did he also want copyright on Bibles?"
-msgstr "Mais voulait-il aussi le droit d'auteur sur les Bibles ?"
-
-msgid "Show from the Word where this is the case."
-msgstr "Montrez où cela est dit dans la Parole si c'est le cas."
-
 msgid "Scrum-based translation process."
 msgstr "Processus de traduction basé sur Scrum."
 
@@ -11395,15 +9776,28 @@ msgid "Security"
 msgstr "Sécurité"
 
 msgid ""
-"It is possible to secure traffic between a user's browser and Bibledit "
-"Cloud, and between Bibledit clients and Bibledit Cloud."
+"There are various ways to improve the security of working with Bibledit."
 msgstr ""
-"Il est possible de sécuriser le trafic entre le navigateur d'un utilisateur "
-"et Bibledit Cloud, et entre les clients Bibledit et Bibledit Cloud."
+"Il y a plusieurs manières d'améliorer la sécurité du travail avec Bibledit."
 
-msgid "For better security, access Bibledit Cloud through a Tor browser."
+msgid ""
+"Securing traffic between a users' browsers and Bibledit Cloud, and between "
+"Bibledit clients and Bibledit Cloud."
 msgstr ""
-"Pour une meilleure sécurité, accédez à Bibledit Cloud via un navigateur Tor."
+"Sécurise le trafic entre les navigateurs des utilisateurs et Bibledit Cloud, "
+"et entre les clients Bibledit et Bibledit Cloud."
+
+msgid "Obfuscating Bibledit Cloud and Bibledit Linux clients."
+msgstr "Camouflage de Bibledit Cloud et des clients Bibledit Linux."
+
+msgid "Accessing Bibledit Cloud through a Tor browser."
+msgstr "Accès à Bibledit Cloud via un navigateur Tor."
+
+msgid ""
+"The following file in the Bibledit installation provides more information:"
+msgstr ""
+"Le fichier suivant dans l'installation de Bibledit fournit plus "
+"d'informations :"
 
 msgid "Install Bibledit on macOS"
 msgstr "Installer Bibledit Cloud sur macOS"
@@ -11871,6 +10265,1761 @@ msgstr ""
 "Envoyez votre nom d'utilisateur ou votre adresse courriel et les "
 "instructions vous seront envoyées par courriel électronique."
 
+msgid "Translator’s addition"
+msgstr "Addition du traducteur"
+
+msgid ""
+"A translator’s explanation - words added by the translator for clarity – "
+"text which is not literally a part of the original language, but which was "
+"supplied to make the meaning of the original clear."
+msgstr ""
+"Une explication du traducteur – un mot ajouté par le traducteur pour la "
+"clarté – texte qui ne fait pas littéralement partie de la langue originale, "
+"mais qui y est intégré pour donner le sens du texte original."
+
+msgid "Combined add and pn style"
+msgstr "Combinaison du style add et pn"
+
+msgid ""
+"Support for overlapping pn ...pn* and add ...add* occurrences. Deprecated."
+msgstr ""
+"Prend en charge le chevauchement des occurrences pn ...pn* et add ... add*. "
+"Obsolète."
+
+msgid "Blank line"
+msgstr "Ligne vide"
+
+msgid ""
+"May be used to explicitly indicate additional white space between "
+"paragraphs. Poetry text stanza break."
+msgstr ""
+"Peut être utilisé pour indiquer explicitement un espace blanc supplémentaire "
+"entre les paragraphes. Saut de texte de strophe  de poésie."
+
+msgid "Bold text"
+msgstr "Texte en gras"
+
+msgid "Bold-italic text"
+msgstr "Texte en gras et en italique"
+
+msgid "A character style, use bold + italic text"
+msgstr "Style de caractère en gras et en italique"
+
+msgid "Quoted book title"
+msgstr "Titre de livre en italique"
+
+msgid "For the quoted name of a book"
+msgstr "Pour les noms de livre en italique"
+
+msgid "Chapter number"
+msgstr "Numéro de chapitre"
+
+msgid "Alternate chapter number"
+msgstr "Numéro de chapitre alternatif"
+
+msgid ""
+"Second or alternate chapter number. For coding dual versification. Useful "
+"for places where different traditions of chapter breaks need to be supported "
+"in the same translation. Bibledit does nothing with this marker yet."
+msgstr ""
+"Second ou autre numéro de chapitre. Pour baliser la double versification. "
+"Utile pour les endroits où différentes traditions de chapitrage doivent être "
+"supportées dans la même traduction. Bibledit ne fait rien avec cette balise "
+"pour le moment."
+
+msgid "Category tag"
+msgstr "Catégorie des étiquettes"
+
+msgid "Extended note or sidebar category tag."
+msgstr "Note étendue ou balise de catégorie d'encadré."
+
+msgid "Chapter description"
+msgstr "Description de chapitre"
+
+msgid "Chapter label"
+msgstr "Étiquette de chapitre"
+
+msgid ""
+"Chapter label used for translations that add a word such as 'Chapter' before "
+"chapter numbers, e.g. Psalms."
+msgstr ""
+"Étiquette de chapitre, utilisé pour les traductions qui ajoutent un mot "
+"comme « Chapitre » avant le numéro de chapitre, par exemple les Psaumes."
+
+msgid "Closure of an epistle"
+msgstr "Fermeture d'une épître"
+
+msgid "Published chapter character"
+msgstr "Caractère de chapitre pour la publication"
+
+msgid ""
+"Published chapter number. This is a chapter marking that would be used in "
+"the published text."
+msgstr ""
+"Caractère de chapitre pour la publication. Correspond à une balise de "
+"chapitre alternative, qui peut être utilisée pour l'édition du texte."
+
+msgid "Descriptive title or Hebrew subtitle"
+msgstr "Titre descriptif ou sous-titre hébreu"
+
+msgid "A Hebrew text heading, to provide description, e.g. Psalms"
+msgstr "Entêtes de texte hébreux donnant une description, ex. Psaumes"
+
+msgid "Deuterocanonical"
+msgstr "Deutérocanonique"
+
+msgid ""
+"Deuterocanonical / LXX additions or insertions in the Protocanonical text"
+msgstr ""
+"Deutérocanonique / additions ou insertions de la LXX dans le texte "
+"protocanonique"
+
+msgid "Extended footnote"
+msgstr "Note de bas de page étendue"
+
+msgid "Extended footnote element."
+msgstr "Élément de note de bas de page étendue"
+
+msgid "Emphasized text"
+msgstr "Texte avec emphase"
+
+msgid "A character style, use emphasized text style."
+msgstr "Style de caractère, utilise le style de texte avec emphase."
+
+msgid "Sidebar start"
+msgstr "Début de l'encadré"
+
+msgid "Beginning or opening of the sidebar content section"
+msgstr "Début ou ouverture de la section de contenu de l'encadré"
+
+msgid "Sidebar end"
+msgstr "Fin de l'encadré"
+
+msgid "End or closing of the sidebar content section"
+msgstr "Fin ou fermeture de la section de contenu de l'encadré"
+
+msgid "Extended cross reference"
+msgstr "Référence croisée étendue"
+
+msgid "Extended cross reference element."
+msgstr "Élément de référence croisée étendue."
+
+msgid "Footnote"
+msgstr "Note de bas de page"
+
+msgid "A footnote text item."
+msgstr "Un élément de texte de note de bas de page."
+
+msgid "Footnote Deuterocanonical content"
+msgstr "Note de pied avec contenu deutérocanonique"
+
+msgid ""
+"Text between these markers is material to be included only in published "
+"editions that contain the Deuterocanonical books. Deprecated."
+msgstr ""
+"Le texte entre ces balises est du contenu à inclure uniquement dans les "
+"éditions publiées qui contiennent les livres deutérocanoniques. Obsolète."
+
+msgid "Endnote"
+msgstr "Note de fin"
+
+msgid "An endnote text item."
+msgstr "Un élément de texte de note de bas de fin."
+
+msgid "Figure / illustration / map"
+msgstr "Image / illustration / carte"
+
+msgid "Illustration [columns to span, height, filename, caption text]"
+msgstr ""
+"Illustration [colonnes à étendre, hauteur, nom de fichier, texte de légende]"
+
+msgid "Footnote keyword"
+msgstr "Mot clé en note"
+
+msgid ""
+"The specific keyword or term from the text for which the footnote is being "
+"provided."
+msgstr ""
+"Le mot clé ou le terme spécifique du texte pour lequel la note de bas de "
+"page est fournie."
+
+msgid "Footnote label text"
+msgstr "Texte étiqueté de note de bas de page"
+
+msgid ""
+"Can be used for marking or “labeling” a word or words which are used "
+"consistently across certain types of translation notes, such as the words "
+"'Or' in an alternative translation note, 'Others', 'Heb.', 'LXX' etc."
+msgstr ""
+"Peut être utiliser pour marquer ou « étiqueter » un mot ou des mots qui sont "
+"utilisés de manière cohérente pour certains types de notes de traduction, "
+"tels que les mots « Ou » dans une autre note de traduction, « Autres », "
+"« Heb. », « LXX », etc."
+
+msgid "Footnote reference mark"
+msgstr "Balise de référence dans une note de bas de page"
+
+msgid "An additional footnote marker location for a previous footnote."
+msgstr ""
+"Un emplacement de balise de note de bas de page supplémentaire pour une note "
+"de bas de page précédente."
+
+msgid "Footnote additional paragraph"
+msgstr "Paragraphe additionnel dans une note"
+
+msgid ""
+"Use this marker to if you need to indicate the start of a new paragraph "
+"within a footnote."
+msgstr ""
+"Utilisez cette balise si vous devez indiquer le début d'un nouveau "
+"paragraphe dans une note de bas de page."
+
+msgid "Footnote translation quotation"
+msgstr "Traduction en italique dans note de bas de page"
+
+msgid ""
+"A quotation from the current scripture text translation for which the note "
+"is being provided."
+msgstr ""
+"Une citation de la traduction actuelle du texte de l'Écriture  pour laquelle "
+"la note est fournie."
+
+msgid "Footnote alternate translation"
+msgstr "Traduction alternative dans note de bas de page"
+
+msgid ""
+"Used to distinguish between a quotation of the current scripture text "
+"translation, and an alternate translation."
+msgstr ""
+"Utilisé pour faire la distinction entre une citation de la traduction du "
+"texte des Écritures actuelle et une autre traduction."
+
+msgid "Footnote origin reference"
+msgstr "Référence d'origine de la note de bas de page"
+
+msgid "This is the chapter and verse or verses that note refers to."
+msgstr ""
+"Contient le chapitre et le verset ou les versets à laquelle la note fait "
+"référence."
+
+msgid "Footnote text"
+msgstr "Texte de la note de bas de page"
+
+msgid "The essential or explanatory text of the footnote."
+msgstr "Texte essentiel ou explicatif de la note de bas de page."
+
+msgid "Footnote verse number"
+msgstr "Numéro de verset de la note"
+
+msgid "A verse number within the footnote text."
+msgstr "Un numéro de verset dans le texte de la note de bas de page."
+
+msgid "Running header"
+msgstr "Titre courant"
+
+msgid "Running header text for a book"
+msgstr "Texte du titre courant pour un livre"
+
+msgid "Deprecated running header"
+msgstr "Titre courant obsolète"
+
+msgid "Deprecated running header text"
+msgstr "Texte de titre courant obsolète"
+
+msgid "Deprecated left running header"
+msgstr "Texte de titre courant gauche obsolète"
+
+msgid "Deprecated running header text, left side of page"
+msgstr "Texte de titre courant obsolète, page de gauche"
+
+msgid "Deprecated right running header"
+msgstr "Texte de titre courant droit obsolète"
+
+msgid "Deprecated running header text, right side of page"
+msgstr "Texte de titre courant obsolète, page de droite"
+
+msgid "Introduction blank line"
+msgstr "Ligne vide dans l'introduction"
+
+msgid ""
+"May be used to explicitly indicate additional white space between paragraphs."
+msgstr ""
+"Peut être utilisé pour indiquer explicitement une espace blanche "
+"supplémentaire entre les paragraphes."
+
+msgid "Identification"
+msgstr "Identification"
+
+msgid ""
+"File identification information [name of file, book name, language, last "
+"edited, date etc.]"
+msgstr ""
+"Informations d'identification du fichier [nom du fichier, nom du livre, "
+"langue, dernière édition, date, etc.]"
+
+msgid "Encoding"
+msgstr "Encodage"
+
+msgid ""
+"File encoding information. Bibledit disregards this marker, as all text in "
+"Bibledit is in UTF-8 encoding."
+msgstr ""
+"Informations sur l'encodage de fichiers. Bibledit ignore cette balise, car "
+"tout le texte dans Bibledit est encodé en UTF-8."
+
+msgid "Introduction end"
+msgstr "Fin d'introduction"
+
+msgid ""
+"Optionally included to explicitly indicate the end of the introduction "
+"material"
+msgstr ""
+"Optionnellement inclus pour indiquer explicitement la fin du matériel "
+"d'introduction"
+
+msgid "Explanatory or bridge text"
+msgstr "Texte explicatif ou ponctuel"
+
+msgid ""
+"Introduction explanatory or bridge text, e.g. explanation of missing book in "
+"Short Old Testament)"
+msgstr ""
+"Introduction explicative ou texte de transition, p. ex. d'un livre manquant "
+"dans l'Ancien Testament réduit)"
+
+msgid "Introduction list item"
+msgstr "Élément d'introduction de liste"
+
+msgid "A list entry, level 1, if single level"
+msgstr "Une rubrique de liste, niveau 1, si un niveau unique"
+
+msgid "Introduction list item level 1"
+msgstr "Élément d'introduction de liste de niveau 1"
+
+msgid "A list entry, level 1, if multiple levels"
+msgstr "Une rubrique de liste, niveau 1,  si de multiples niveaux"
+
+msgid "Introduction list item level 2"
+msgstr "Élément d'introduction de liste de niveau 2"
+
+msgid "A list entry, level 2"
+msgstr "Rubrique de liste, niveau 2"
+
+msgid "Introduction flush left paragraph"
+msgstr "Paragraphe d'introduction aligné à gauche"
+
+msgid ""
+"Introduction prose paragraph, with no first line indent. May occur after "
+"poetry)."
+msgstr ""
+"Paragraphe d'introduction en prose, sans retrait de première ligne. Peut "
+"survenir après de la poésie)."
+
+msgid "Indented introduction flush left paragraph"
+msgstr "Paragraphe d'introduction aligné à gauche avec retrait"
+
+msgid ""
+"Introduction prose paragraph text, indented, with no first line indent"
+msgstr ""
+"Texte d'introduction de paragraphe en prose, avec retrait et sans  retrait "
+"de première ligne"
+
+msgid "Introduction flush left quote from text paragraph"
+msgstr "Texte de paragraphe d'introduction aligné à gauche  en italique"
+
+msgid ""
+"Introduction prose paragraph, quote from the body text, with no first line "
+"indent"
+msgstr ""
+"Paragraphe d'introduction en prose, italique du corps du texte, sans retrait "
+"de première ligne."
+
+msgid "Introduction major title level 1"
+msgstr "Titre principale d'introduction niveau 1"
+
+msgid "Introduction major title, level 1, if single level"
+msgstr "Titre principale d'introduction, niveau 1, si un seul niveau"
+
+msgid "Introduction major title, level 1, if multiple levels"
+msgstr "Titre principale d'introduction, niveau 1, si un plusieurs niveaux"
+
+msgid "Introduction major title level 2"
+msgstr "Titre principale d'introduction niveau 2"
+
+msgid "Introduction major title, level 2"
+msgstr "Titre principale d'introduction, niveau 2"
+
+msgid "Introduction major title level 3"
+msgstr "Titre principale d'introduction niveau 3"
+
+msgid "Introduction major title, level 3"
+msgstr "Titre principale d'introduction, niveau 3"
+
+msgid "Introduction major title level 4"
+msgstr "Titre principale d'introduction niveau 4"
+
+msgid "Introduction major title, level 4."
+msgstr "Titre principale d'introduction, niveau 4"
+
+msgid "Introduction major title ending"
+msgstr "Fin de titre principale d'introduction"
+
+msgid "Used to mark a major title indicating the end of the introduction"
+msgstr ""
+"Utilisé pour marquer un titre majeur indiquant la fin de l'introduction"
+
+msgid "Introduction major title ending level 1"
+msgstr "Titre principal d'introduction de niveau 1 fermant"
+
+msgid "Introduction major title ending level 2"
+msgstr "Titre principal d'introduction de niveau 2 fermant"
+
+msgid "Introduction outline entry"
+msgstr "Entrée d'esquisse d'introduction"
+
+msgid "Introduction outline text, level 1, if single level"
+msgstr "Texte d'esquisse d'introduction, niveau 1, si un niveau"
+
+msgid "Introduction outline entry Level 1"
+msgstr "Entrée d'esquisse d'introduction de niveau 1"
+
+msgid "Introduction outline text, level 1, if multiple levels"
+msgstr "Texte d'esquisse d'introduction, niveau 1, si plusieurs niveaux"
+
+msgid "Introduction outline entry Level 2"
+msgstr "Entrée d'esquisse d'introduction niveau 2"
+
+msgid "Introduction outline text, level 2"
+msgstr "Texte d'esquisse d'introduction, niveau 2"
+
+msgid "Introduction outline entry level 3"
+msgstr "Entrée d'esquisse d'introduction niveau 3"
+
+msgid "Introduction outline text, level 3"
+msgstr "Introduction texte de plan, niveau  3"
+
+msgid "Introduction outline entry level 4"
+msgstr "Entrée d'esquisse d'introduction niveau 3"
+
+msgid "Introduction outline text, level 4"
+msgstr "Introduction texte de plan, niveau  4"
+
+msgid "Introduction outline reference range"
+msgstr "Plage de référence d'esquisse d'introduction"
+
+msgid ""
+"Introduction references range for outline entry; for marking references "
+"separately"
+msgstr ""
+"Entrée de plage de références d'esquisse d'introduction ; pour marquer les "
+"références séparément"
+
+msgid "Introduction outline title"
+msgstr "Introduction titre de plan"
+
+msgid "Introduction paragraph"
+msgstr "Paragraphe d'introduction"
+
+msgid "Introduction prose paragraph"
+msgstr "Paragraphe d'introduction en prose"
+
+msgid "Indented introduction paragraph"
+msgstr "Paragraphe d'introduction en retrait"
+
+msgid "Introduction prose paragraph, with first line indent"
+msgstr "Paragraphe d'introduction en prose avec la première ligne en retrait"
+
+msgid "Introduction quote from text paragraph"
+msgstr "Paragraphe de texte d'introduction en italique"
+
+msgid "Introduction prose paragraph, quote from the body text"
+msgstr "Paragraphe d'introduction en prose, italique dans le corps de texte."
+
+msgid "Introduction right-aligned paragraph"
+msgstr "Paragraphe d'introduction aligné à droite"
+
+msgid "Introduction prose paragraph, right aligned"
+msgstr "Texte d'introduction en prose, aligné à droite"
+
+msgid "Introduction poetic line"
+msgstr "Ligne d'introduction poétique"
+
+msgid "Introduction poetry text, level 1, if single level"
+msgstr "Texte d'introduction poétique, niveau 1, si un seul niveau"
+
+msgid "Introduction poetic line Level 1"
+msgstr "Ligne d'introduction poétique niveau 1"
+
+msgid "Introduction poetry text, level 1, if multiple levels"
+msgstr "Texte d'introduction poétique, niveau 1, si plusieurs niveaux"
+
+msgid "Introduction poetic line level 2"
+msgstr "Texte d'introduction poétique niveau 2"
+
+msgid "Introduction poetry text, level 2"
+msgstr "Texte d'introduction poétique, niveau 2"
+
+msgid "Introduction poetic line level 3"
+msgstr "Ligne d'introduction poétique niveau 3"
+
+msgid "Introduction poetry text, level 3"
+msgstr "Texte d'introduction poétique niveau 3"
+
+msgid "Introduction quoted text"
+msgstr "Introduction texte de citation"
+
+msgid ""
+"Scripture quotations, or other quoted text, appearing in the introduction"
+msgstr ""
+"Citations de l'Écriture, ou autre texte cité, apparaissant dans "
+"l'introduction"
+
+msgid "Introduction section heading level 1"
+msgstr "En-tête de section d'introduction niveau  1"
+
+msgid "Introduction section heading, level 1, if single level"
+msgstr "En-tête de section d'introduction, niveau  1, si un seul niveau"
+
+msgid "Introduction section heading, level 1, if multiple levels"
+msgstr ""
+"En-tête de section d'introduction, niveau  1, si un plusieurs niveaux"
+
+msgid "Introduction section heading level 2"
+msgstr "En-tête de section d'introduction niveau  2"
+
+msgid "Introduction section heading, level 2"
+msgstr "En-tête de section d'introduction, niveau  2"
+
+msgid "Italic text"
+msgstr "Italique"
+
+msgid "A character style, use italic text"
+msgstr "Style de caractère en italique"
+
+msgid "Link text"
+msgstr "Texte de lien"
+
+msgid ""
+"Optionally used for associating linking attributes to a span of text when no "
+"other character level markup is applied to the same span."
+msgstr ""
+"Facultativement utilisé pour associer des attributs de liaison à une plage "
+"de texte lorsqu'aucun autre balisage de niveau de caractère n'est appliqué à "
+"la même plage."
+
+msgid "Keyword"
+msgstr "Mot-clé"
+
+msgid "Keyword / keyterm"
+msgstr "Mot-clé/terme-clé"
+
+msgid "List footer"
+msgstr "Sommaire de liste"
+
+msgid ""
+"Some lists include an introductory and concluding remark. They are an "
+"integral part of the list content, but are not list items. A list does not "
+"require either or both of these elements."
+msgstr ""
+"Certaines listes comprennent une remarque d'introduction et de conclusion. "
+"Ils font partie intégrante du contenu de la liste, mais ne sont pas des "
+"éléments de liste. Une liste ne nécessite ni l'un ni l'autre de ces éléments."
+
+msgid "List header"
+msgstr "Titre de liste"
+
+msgid "List entry"
+msgstr "Rubrique de liste"
+
+msgid "List entry level 1"
+msgstr "Rubrique de liste niveau 1"
+
+msgid "List entry level 2"
+msgstr "Rubrique de liste niveau 2"
+
+msgid "List entry level 3"
+msgstr "Rubrique de liste niveau 3"
+
+msgid "A list entry, level 3"
+msgstr "Une rubrique de liste, niveau 3"
+
+msgid "List entry level 4"
+msgstr "Rubrique de liste niveau 4"
+
+msgid "A list entry, level 4"
+msgstr "Une rubrique de liste, niveau 4"
+
+msgid "List entry 'key' content"
+msgstr "Rubrique de liste de contenu 'clé'"
+
+msgid "The 'key' content will be followed by 'value' content"
+msgstr "Le contenu 'clé' sera suivi du contenu 'valeur'"
+
+msgid "Embedded list entry"
+msgstr "Rubrique de liste incorporée"
+
+msgid ""
+"An out-dented paragraph meant to highlight the items of an embedded list"
+msgstr ""
+"Un paragraphe avec une indentation négative destiné à mettre en évidence les "
+"éléments d'une liste incorporée"
+
+msgid "Embedded list entry level 1"
+msgstr "Rubrique de liste incorporée niveau 1"
+
+msgid ""
+"An out-dented paragraph meant to highlight the items of an embedded list, "
+"level 1"
+msgstr ""
+"Un paragraphe avec une indentation négative destiné à mettre en évidence les "
+"éléments d'une liste incorporée, niveau 1"
+
+msgid "Embedded list entry level 2"
+msgstr "Rubrique de liste incorporée niveau 2"
+
+msgid ""
+"An out-dented paragraph meant to highlight the items of an embedded list, "
+"level 2"
+msgstr ""
+"Un paragraphe avec une indentation négative destiné à mettre en évidence les "
+"éléments d'une liste incorporée, niveau 2"
+
+msgid "Liturgical note"
+msgstr "Note liturgique"
+
+msgid ""
+"A guide which tells the reader or worshipper that he should recite a prayer "
+"or recitation etc."
+msgstr ""
+"Un guide qui indique au lecteur ou au priant qu'il devrait réciter une "
+"prière ou une récitation, etc."
+
+msgid "List entry total"
+msgstr "Total des rubriques de liste"
+
+msgid ""
+"Use in accounting lists for denoting the total component of the text within "
+"a list item"
+msgstr ""
+"Utilisé dans les listes de comptage pour indiquer le composant total du "
+"texte dans un élément de liste"
+
+msgid "List entry 'value' content"
+msgstr "Contenu de la 'valeur' de la rubrique de liste"
+
+msgid "The 'value' content follows the 'key' content"
+msgstr "Le contenu 'valeur' suit le contenu 'clé'"
+
+msgid "List entry 'value' content level 1"
+msgstr "Contenu de la 'valeur' de la rubrique de liste niveau 1"
+
+msgid "The 'value' content follows the 'key' content, level 1"
+msgstr "Le contenu 'valeur' suit le contenu 'clé', niveau 1"
+
+msgid "Continuation paragraph"
+msgstr "Paragraphe sans retrait (de continuation)"
+
+msgid "Paragraph text, with no first line indent"
+msgstr "Texte de paragraphe, sans retrait de première ligne"
+
+msgid "Indented flush left paragraph"
+msgstr "Paragraphe avec retrait aligné à gauche"
+
+msgid ""
+"Paragraph text, indented, with no first line indent, often used for "
+"discourse."
+msgstr ""
+"Texte de paragraphe, en retrait, sans retrait de première ligne, souvent "
+"utilisé pour le discours."
+
+msgid "Major section reference range"
+msgstr "Plage de références de section majeur"
+
+msgid "The text reference range listed under a major section heading"
+msgstr ""
+"La plage de référence du texte répertoriée sous un titre de section majeur"
+
+msgid "Major section heading"
+msgstr "Titre de section majeure"
+
+msgid "A major section division heading, level 1, if single level"
+msgstr "Un titre de section majeure, niveau 1, si un seul niveau"
+
+msgid "Major section heading level 1"
+msgstr "Un titre de section majeure niveau 1"
+
+msgid "A major section division heading, level 1, if multiple levels"
+msgstr "Un titre de section majeure, niveau 1, si un plusieurs niveaux"
+
+msgid "Major section heading level 2"
+msgstr "Un titre de section majeure niveau 2"
+
+msgid "A major section division heading, level 2"
+msgstr "Un titre de section majeure, niveau 2"
+
+msgid "Major title"
+msgstr "Titre principal"
+
+msgid "The main title of the book, if single level"
+msgstr "Le titre principal du livre, si un seul niveau"
+
+msgid "Major title level 1"
+msgstr "Titre principal niveau 1"
+
+msgid "The main title of the book, if multiple levels"
+msgstr "Le titre principal du livre, si un plusieurs niveaux"
+
+msgid "Major title level 2"
+msgstr "Titre principal niveau 2"
+
+msgid ""
+"A secondary title with less important information than the main title."
+msgstr ""
+"Un titre secondaire avec des informations moins importantes que le titre "
+"principal."
+
+msgid "Major title level 3"
+msgstr "Titre principal niveau 3"
+
+msgid "A secondary title, less important than the main title."
+msgstr "Un titre secondaire, moins important que le titre principal."
+
+msgid "Major title level 4"
+msgstr "Titre principal niveau 4"
+
+msgid "A small secondary title sometimes occurring within parentheses."
+msgstr "Un petit titre secondaire apparaissant parfois entre parenthèses."
+
+msgid "Major title at ending"
+msgstr "Titre principal à la fin"
+
+msgid ""
+"The main title of the book repeated at the end of the book, if single level."
+msgstr ""
+"Le titre principal du livre répété à la fin du livre, si un seul niveau."
+
+msgid "Major title at ending level 1"
+msgstr "Titre principal à la fin niveau 1"
+
+msgid ""
+"The main title of the book repeated at the end of the book, if multiple "
+"levels"
+msgstr ""
+"Le titre principal du livre répété à la fin du livre, si plusieurs niveaux"
+
+msgid "Major title at ending level 2"
+msgstr "Titre principal à la fin niveau 2"
+
+msgid "A secondary title occurring before or after the ending main title."
+msgstr ""
+"Un titre secondaire arrivant avant ou après le titre principal final."
+
+msgid "No break with previous paragraph"
+msgstr "Pas de saut avec le paragraphe précédent"
+
+msgid ""
+"Paragraph text, with no break from previous paragraph text, at chapter "
+"boundary."
+msgstr ""
+"Texte du paragraphe, sans rupture avec le texte du paragraphe précédent, à "
+"la limite du chapitre."
+
+msgid "Name of God"
+msgstr "Nom divin"
+
+msgid "For name of God"
+msgstr "Pour le nom divin"
+
+msgid "Subject index entry"
+msgstr "Entrée d'index de thèmes"
+
+msgid ""
+"Surround a word or words with this markup to indicate that it appears or "
+"should appear in the subject index."
+msgstr ""
+"Entourez un mot ou des mots avec ce balisage pour indiquer qu'il apparaît ou "
+"devrait apparaître dans l'index de thèmes."
+
+msgid "Normal text"
+msgstr "Texte standard"
+
+msgid ""
+"May be used when a larger paragraph element is set in an alternate font "
+"style, e.g. italic, and a selected section of text should be displayed in "
+"normal text."
+msgstr ""
+"Peut être utilisé lorsqu'un élément de paragraphe plus grand est défini dans "
+"un autre style de police, par ex. italique et qu'une section de texte "
+"sélectionnée doit être affichée en texte normal."
+
+msgid "Ordinal number ending"
+msgstr "Fin d'adjectif numéral ordinal"
+
+msgid "For the text portion of an ordinal number"
+msgstr "Pour la partie de texte d'un nombre ordinaire"
+
+msgid "Normal paragraph"
+msgstr "Paragraphe standard"
+
+msgid "Paragraph text, with first line indent"
+msgstr "Texte de paragraphe avec un retrait de la première ligne"
+
+msgid "Page break"
+msgstr "Saut de page"
+
+msgid ""
+"Page break used for new reader portions and children's bibles where content "
+"is controlled by the page."
+msgstr ""
+
+msgid "Centered paragraph"
+msgstr "Paragraphe centré"
+
+msgid "Paragraph text, centered, for inscription."
+msgstr "Texte de paragraphe centré, pour une inscription."
+
+msgid "Indented paragraph"
+msgstr "Paragraphe en retrait"
+
+msgid ""
+"Paragraph text, level 1 indent, if single level, with first line indent; "
+"often used for discourse."
+msgstr ""
+"Texte de paragraphe niveau 1 avec retrait, si un seul niveau, avec "
+"indentation de première ligne ; souvent utilisé pour le discours."
+
+msgid "Indented paragraph level 1"
+msgstr "Paragraphe en retrait niveau 1"
+
+msgid ""
+"Paragraph text, level 1 indent, if multiple levels, with first line indent; "
+"often used for discourse."
+msgstr ""
+"Texte de paragraphe niveau 1 avec retrait, si un plusieurs niveaux, avec "
+"indentation de première ligne ; souvent utilisé pour le discours."
+
+msgid "Indented paragraph level 2"
+msgstr "Paragraphe en retrait niveau 2"
+
+msgid ""
+"Paragraph text, level 2 indent, with first line indent; often used for "
+"discourse."
+msgstr ""
+"Texte de paragraphe niveau 2 avec retrait, avec indentation de première "
+"ligne ; souvent utilisé pour le discours."
+
+msgid "Indented paragraph level 3"
+msgstr "Paragraphe en retrait niveau 3"
+
+msgid ""
+"Paragraph text, level 3 indent, with first line indent; often used for "
+"discourse."
+msgstr ""
+"Texte de paragraphe niveau 3 avec retrait, avec indentation de première "
+"ligne ; souvent utilisé pour le discours."
+
+msgid "Embedded text paragraph"
+msgstr "Texte de paragraphe incorporé"
+
+msgid "Embedded text paragraph."
+msgstr "Texte de paragraphe incorporé."
+
+msgid "Embedded text closing"
+msgstr "Texte de paragraphe incorporé fermant"
+
+msgid "Embedded text closing."
+msgstr "Texte de paragraphe incorporé fermant."
+
+msgid "Embedded text opening"
+msgstr "Texte de paragraphe incorporé ouvrant"
+
+msgid "Embedded text opening."
+msgstr "Texte de paragraphe incorporé ouvrant."
+
+msgid "Embedded text refrain"
+msgstr "Texte de refrain incorporé"
+
+msgid "Embedded text refrain, e.g. Then all the people shall say, Amen!"
+msgstr ""
+"Texte de refrain incorporé, par ex. Alors tout le peuple pourra dire, Amen !"
+
+msgid "Proper name"
+msgstr "Nom propre"
+
+msgid "For a proper name."
+msgstr "Pour un nom propre."
+
+msgid "Geographic proper name"
+msgstr "Nom propre géographique"
+
+msgid "For a geographic proper name."
+msgstr "Pour un nom propre géographique."
+
+msgid "Paragraph opening an epistle"
+msgstr "Paragraphe ouvrant une épître"
+
+msgid "Paragraph opening an epistle or letter, without first line indent."
+msgstr ""
+"Paragraphe ouvrant une épître ou une lettre, sans retrait à la première "
+"ligne."
+
+msgid "Pronunciation annotation"
+msgstr "Annotation de prononciation"
+
+msgid "For indicating pronunciation in CJK texts. Deprecated."
+msgstr "Pour indiquer la prononciation dans les textes CJK. Obsolète."
+
+msgid "Poetic line"
+msgstr "Ligne de poésie"
+
+msgid "Poetry text, level 1 indent, if single level."
+msgstr "Texte de poésie niveau 1 avec retrait, si un seul niveau."
+
+msgid "Poetic line level 1"
+msgstr "Ligne de poésie niveau 1"
+
+msgid "Poetry text, level 1 indent, if multiple levels."
+msgstr "Texte de poésie niveau 1 avec retrait, si plusieurs niveaux."
+
+msgid "Poetic line level 2"
+msgstr "Ligne de poésie niveau 2"
+
+msgid "Poetry text, level 2 indent."
+msgstr "Texte de poésie niveau 2 avec retrait."
+
+msgid "Poetic line level 3"
+msgstr "Ligne de poésie niveau 2"
+
+msgid "Poetry text, level 3 indent."
+msgstr "Texte de poésie niveau 3 avec retrait."
+
+msgid "Acrostic heading"
+msgstr "Titre acrostiche"
+
+msgid "Poetry text, acrostic marker or heading."
+msgstr "Texte de poésie, balise d'acrostiche ou titre."
+
+msgid "Acrostic letter"
+msgstr "Lettre acrostiche"
+
+msgid ""
+"Poetry text, acrostic markup of the first character of a line of acrostic "
+"poetry."
+msgstr ""
+"Texte de poésie, balisage acrostiche du premier caractère d'une ligne de "
+"poésie acrostiche."
+
+msgid "Centered poetic line"
+msgstr "Ligne de poésie centrée"
+
+msgid "Poetry text, centered."
+msgstr "Texte de poésie centré."
+
+msgid "Hebrew note"
+msgstr "Note en hébreux"
+
+msgid ""
+"A Hebrew musical performance comment similar in content to many of the "
+"Hebrew Psalm titles, but placed at the end of the poetic section."
+msgstr ""
+"Un commentaire hébreu d'interprétation musicale  similaire en contenu à de "
+"nombreux titres de psaume hébreu, mais placé à la fin de la section poétique."
+
+msgid "Embedded text poetic line"
+msgstr "Ligne de texte de poésie incorporée"
+
+msgid "Poetry text, embedded, level 1 indent, if single level."
+msgstr ""
+"Texte de poésie, incorporée, niveau 1 avec retrait, si un seul niveau."
+
+msgid "Embedded text poetic line level 1"
+msgstr "Ligne de texte de poésie incorporée niveau 1"
+
+msgid "Poetry text, embedded, level 1 indent, if multiple levels."
+msgstr ""
+"Texte de poésie, incorporée, niveau 1 avec retrait, si un plusieurs niveaux."
+
+msgid "Embedded text poetic line level 2"
+msgstr "Ligne de texte de poésie incorporée niveau 2"
+
+msgid "Poetry text, embedded, level 2 indent."
+msgstr "Texte de poésie, incorporée, niveau 2 avec retrait."
+
+msgid "Embedded text poetic line level 3"
+msgstr "Ligne de texte de poésie incorporée niveau 3"
+
+msgid "Poetry text, embedded, level 3 indent."
+msgstr "Texte de poésie, incorporée, niveau 3 avec retrait."
+
+msgid "Right-aligned poetic line"
+msgstr "Ligne de poésie aligné à droite"
+
+msgid "Commonly used for a poetic refrain."
+msgstr "Habituellement utilisé pour un refrain en poésie."
+
+msgid "Selah"
+msgstr "Pause"
+
+msgid "Poetry text, Selah."
+msgstr "Texte de poésie, Pause."
+
+msgid "Quoted text"
+msgstr "Texte en italique"
+
+msgid "Old Testament quotations in the New Testament, or other quotations."
+msgstr ""
+"Citations de l'Ancien Testament dans le Nouveau, ou autres citations."
+
+msgid "Parallel passage references"
+msgstr "Références de passage parallèle"
+
+msgid "Parallel references."
+msgstr "Références parallèles"
+
+msgid "Annotated base text"
+msgstr "Texte de base annoté"
+
+msgid "Used to mark the base text being annotated with ruby characters."
+msgstr ""
+"Utilisé pour baliser le texte de base annoté avec des caractères ruby."
+
+msgid "Remark"
+msgstr "Remarque"
+
+msgid "Comments and remarks."
+msgstr "Commentaires et remarques."
+
+msgid "Inline quotation references"
+msgstr "Références en italique dans texte"
+
+msgid ""
+"A cross-reference indicating the source text for the preceding quotation."
+msgstr ""
+"Une référence croisée indiquant le texte source de la citation précédente."
+
+msgid "Ruby annotation text"
+msgstr "Texte d'annotation ruby"
+
+msgid ""
+"In the case where the annotation text is associated with only a single "
+"preceding ideogram, only the 'rt ...rt*' marker is required. The base text "
+"markup 'rb ...rb*' is optional in these cases."
+msgstr ""
+"Dans le cas où le texte d'annotation n'est associé qu'à un seul idéogramme "
+"précédent, seul la balise 'rt ...rt*' est requis. Le balisage de base 'rb "
+"...rb*' est facultatif dans ces cas."
+
+msgid "Section heading"
+msgstr "Titre de section"
+
+msgid "A section heading, level 1, if single level."
+msgstr "Titre de section niveau 1, si un seul niveau."
+
+msgid "Section heading level 1"
+msgstr "Titre de section niveau 1"
+
+msgid "A section heading, level 1, if multiple levels."
+msgstr "Titre de section niveau 1, si plusieurs niveaux."
+
+msgid "Section heading Level 2"
+msgstr "Titre de section niveau 2"
+
+msgid "A section heading, level 2."
+msgstr "Titre de section, niveau 2."
+
+msgid "Section heading level 3"
+msgstr "Titre de section niveau 3"
+
+msgid "A section heading, level 3."
+msgstr "Titre de section, niveau 3."
+
+msgid "Section heading level 4"
+msgstr "Titre de section niveau 4"
+
+msgid "A section heading, level 4."
+msgstr "Titre de section, niveau 4."
+
+msgid "Small-cap text"
+msgstr "Texte en petite majuscule"
+
+msgid "A character style, for small capitalization text."
+msgstr "Un style de caractère, pour le texte en petite majuscule."
+
+msgid "Semantic division"
+msgstr "Division sémantique"
+
+msgid ""
+"Vertical space used to divide the text into sections, in a manner similar to "
+"the structure added through the use of a sequence of heading texts."
+msgstr ""
+"Espace verticale utilisée pour diviser le texte en sections, d'une manière "
+"similaire à la structure ajoutée par l'utilisation d'une séquence de textes "
+"de titres."
+
+msgid "Semantic division level 1"
+msgstr "Division sémantique niveau 1"
+
+msgid "Semantic division level 2"
+msgstr "Division sémantique niveau 2"
+
+msgid "Semantic division level 3"
+msgstr "Division sémantique niveau 3"
+
+msgid "Semantic division level 4"
+msgstr "Division sémantique niveau 4"
+
+msgid "Signature of the author"
+msgstr "Signature de l'auteur"
+
+msgid "Signature of the author of a letter or epistle."
+msgstr "Signature de l'auteur d'une lettre ou d'une épître."
+
+msgid "Secondary language or text source"
+msgstr "Langue secondaire ou texte source"
+
+msgid ""
+"Passage of text based on a secondary language or alternate text source."
+msgstr ""
+"Passage d'un texte basé sur une langue secondaire ou un texte source "
+"alternatif."
+
+msgid "Speaker"
+msgstr "Orateur"
+
+msgid "A heading to identify the speaker."
+msgstr "Un titre pour identifier l'orateur."
+
+msgid "Section reference range"
+msgstr "Plage de références de section"
+
+msgid "The text reference range listed under a section heading."
+msgstr "Plage de texte de références listée sous un titre de section."
+
+msgid "Project text status tracking."
+msgstr "Suivi du statut du texte du projet."
+
+msgid "Table column 1 cell"
+msgstr "Cellule de tableau colonne 1"
+
+msgid "A table cell item, column 1."
+msgstr "Un élément de cellule de tableau, colonne 1."
+
+msgid "Table column 2 cell"
+msgstr "Cellule de tableau colonne 2"
+
+msgid "A table cell item, column 2."
+msgstr "Un élément de cellule de tableau, colonne 2."
+
+msgid "Table column 3 cell"
+msgstr "Cellule de tableau colonne 3"
+
+msgid "A table cell item, column 3."
+msgstr "Un élément de cellule de tableau, colonne 3."
+
+msgid "Table column 4 cell"
+msgstr "Cellule de tableau colonne 4"
+
+msgid "A table cell item, column 4."
+msgstr "Un élément de cellule de tableau, colonne 4."
+
+msgid "Right aligned table cell column 1"
+msgstr "Cellule de tableau aligné à droite colonne 1"
+
+msgid "A table cell item, column 1, right aligned."
+msgstr "Un élément de cellule de tableau, colonne 1, aligné à droite."
+
+msgid "Right aligned table cell column 2"
+msgstr "Cellule de tableau aligné à droite colonne 2"
+
+msgid "A table cell item, column 2, right aligned."
+msgstr "Un élément de cellule de tableau, colonne 2, aligné à droite."
+
+msgid "Right aligned table cell column 3"
+msgstr "Cellule de tableau aligné à droite colonne 3"
+
+msgid "A table cell item, column 3, right aligned."
+msgstr "Un élément de cellule de tableau, colonne 2, aligné à droite."
+
+msgid "Right aligned table cell column 4"
+msgstr "Cellule de tableau aligné à droite colonne 4"
+
+msgid "A table cell item, column 4, right aligned."
+msgstr "Un élément de cellule de tableau, colonne 4, aligné à droite."
+
+msgid "Table column 1 heading"
+msgstr "Titre de tableau colonne 1"
+
+msgid "A table heading, column 1."
+msgstr "Un titre de tableau, colonne 1."
+
+msgid "Table column 2 heading"
+msgstr "Titre de tableau colonne 2"
+
+msgid "A table heading, column 2."
+msgstr "Un titre de tableau, colonne 2."
+
+msgid "Table column 3 heading"
+msgstr "Titre de tableau colonne 3"
+
+msgid "A table heading, column 3."
+msgstr "Un titre de tableau, colonne 3."
+
+msgid "Table column 4 heading"
+msgstr "Titre de tableau colonne 4"
+
+msgid "A table heading, column 4."
+msgstr "Un titre de tableau, colonne 4."
+
+msgid "Right aligned table column 1 heading"
+msgstr "Titre de tableau colonne 1 aligné à droite"
+
+msgid "A table heading, column 1, right aligned."
+msgstr "Un titre de tableau colonne 1, aligné à droite."
+
+msgid "Right aligned table column 2 heading"
+msgstr "Titre de tableau colonne 2 aligné à droite"
+
+msgid "A table heading, column 2, right aligned."
+msgstr "Titre de tableau colonne 2, aligné à droite."
+
+msgid "Right aligned table 3 column heading"
+msgstr "Titre de tableau colonne 3 aligné à droite"
+
+msgid "A table heading, column 3, right aligned."
+msgstr "Titre de tableau colonne 3, aligné à droite."
+
+msgid "Right aligned table column 4 heading"
+msgstr "Titre de tableau colonne 4 aligné à droite"
+
+msgid "A table heading, column 4, right aligned."
+msgstr "Titre de tableau colonne 4, aligné à droite."
+
+msgid "Transliterated word"
+msgstr "Mot translittéré"
+
+msgid "Transliterated or foreign words."
+msgstr "Mots translittérés ou étrangers."
+
+msgid "Table of contents"
+msgstr "Table des matières"
+
+msgid "Front matter table of contents."
+msgstr "Table des matières dans l'avant-propos ."
+
+msgid "Long table of contents text"
+msgstr "Texte de table des matières longue"
+
+msgid "Long table of contents text."
+msgstr "Texte de table des matières longue."
+
+msgid "Short table of contents text"
+msgstr "Texte de table des matières courte"
+
+msgid "Short table of contents text."
+msgstr "Texte de table des matières courte."
+
+msgid "Book abbreviation"
+msgstr "Abréviation de livre"
+
+msgid "Book abbreviation. Not yet supported in Bibledit."
+msgstr "Abréviation de livre. Pas encore pris en charge par Bibledit."
+
+msgid "Table row start"
+msgstr "Début de la rangée du tableau"
+
+msgid "A new table row."
+msgstr "Une nouvelle rangée de tableau."
+
+msgid "Verse number"
+msgstr "Numéro de verset"
+
+msgid "A verse number."
+msgstr "Un numéro de verset."
+
+msgid "Alternate verse number"
+msgstr "Numéro de verset alternatif"
+
+msgid ""
+"Second or alternate verse number. For coding dual numeration in Psalms."
+msgstr ""
+"Numéro de verset alternatif ou secondaire. Pour encoder la double "
+"numérotation dans les Psaumes."
+
+msgid "Publishing alternate verse"
+msgstr "Verset alternatif pour l'édition"
+
+msgid ""
+"Published verse marker. This is a verse marking that would be used in the "
+"published text."
+msgstr ""
+"Balise de verset pour l'édition. C'est une balise de verset qui peut être "
+"utilisée dans l'édition du texte."
+
+msgid "Wordlist entry"
+msgstr "Entrée de liste de mots"
+
+msgid ""
+"Surround words with this markup to indicate that it appears or should appear "
+"in the word list."
+msgstr ""
+"Entourer les mots avec ce balisage permet d'indiquer qu'il apparaît ou "
+"devrait apparaître dans la liste de mots."
+
+msgid "Aramaic word list entry"
+msgstr "Entrée de liste de mots araméens"
+
+msgid ""
+"Surround words with this markup to indicate that it appears or should appear "
+"in the Aramaic word list."
+msgstr ""
+"Entourez les mots avec ce balisage pour indiquer qu'il apparaît ou devrait "
+"apparaître dans la liste de mots araméen."
+
+msgid "Greek word list entry"
+msgstr "Entrée de liste de mots grecs"
+
+msgid "A Greek word list text item."
+msgstr "Élément de liste de mots grecs."
+
+msgid "Hebrew word list entry"
+msgstr "Entrée de liste de mots hébreux"
+
+msgid "A Hebrew word list text item."
+msgstr "Élément de liste de mots hébreux."
+
+msgid "Words of Jesus"
+msgstr "Le mot de Jésus"
+
+msgid "For marking the words of Jesus."
+msgstr "Pour baliser le mot de Jésus."
+
+msgid "Cross reference"
+msgstr "Références croisées"
+
+msgid "A list of cross references."
+msgstr "Une liste de références croisées."
+
+msgid "Cross reference deuterocanonical"
+msgstr "Références croisées deutérocanoniques."
+
+msgid ""
+"References or other text between these markers is material to be included "
+"only in published editions that contain the Deuterocanonical books. "
+"Deprecated."
+msgstr ""
+"Les références ou autres textes entre ces balises sont des éléments à "
+"inclure uniquement dans les éditions publiées contenant les livres "
+"deutérocanoniques. Obsolète."
+
+msgid "Cross reference keyword"
+msgstr "Mot-clé de référence croisée"
+
+msgid ""
+"A keyword from the scripture translation text which the target references "
+"also refer to."
+msgstr ""
+"Un mot-clé du texte de la traduction de l'Écriture auquel les références de "
+"la cible se réfèrent également."
+
+msgid "Cross reference New Testament"
+msgstr "Références croisées du Nouveau Testament"
+
+msgid ""
+"References or other text between these markers is material to be included "
+"only in published editions that contain the New Testament books."
+msgstr ""
+"Les références ou autres textes entre ces balises sont des éléments à "
+"inclure uniquement dans les éditions publiées qui contiennent les livres du "
+"Nouveau Testament."
+
+msgid "Cross reference origin reference"
+msgstr "Référence d'origine de la référence croisée"
+
+msgid ""
+"This is the chapter and verse or verses that target references are being "
+"provided for."
+msgstr ""
+"C'est le chapitre et le verset ou les versets auxquels les références cibles "
+"sont fournies."
+
+msgid "Published cross reference origin text"
+msgstr "Texte de la référence croisée d'origine publié"
+
+msgid ""
+"In some texts, the content intended to be published in the position of the "
+"cross reference origin text 'xo' does not follow the typical chapter-"
+"separator-verse pattern. An origin reference following this pattern is "
+"required for validation of the cross reference location. 'xop' ...'xop*' can "
+"be used in order to supply the content intended for publishing, similar to "
+"the use of 'cp' and 'vp ...vp*'."
+msgstr ""
+"Dans certains textes, le contenu destiné à être publié à la position du "
+"texte d'origine de référence croisée 'xo' ne suit pas le modèle typique de "
+"chapitre-séparateur-verset. Une référence d'origine suivant ce modèle est "
+"requise pour la validation de l'emplacement de référence croisée. 'xop' ... "
+"'xop*' peut être utilisé pour fournir le contenu destiné à la publication, "
+"similaire à l'utilisation de 'cp' et 'vp ... vp*'."
+
+msgid "Cross reference Old Testament"
+msgstr "Références croisées de l'Ancien Testament"
+
+msgid ""
+"References or other text between these markers is material to be included "
+"only in published editions that contain the Old Testament books."
+msgstr ""
+"Les références ou autres textes entre ces balises sont des éléments à "
+"inclure uniquement dans les éditions publiées qui contiennent les livres de "
+"l'Ancien Testament."
+
+msgid "Cross reference quotation"
+msgstr "Référence croisée italique"
+
+msgid "A cross reference quotation from the scripture text."
+msgstr "Une citation de référence croisée du texte de l'Écriture."
+
+msgid "Cross reference target references"
+msgstr "Référence croisée des références cibles"
+
+msgid "The cross reference target references."
+msgstr "La référence croisée des références cibles"
+
+msgid "Target references added text"
+msgstr "Référence cible texte ajouté"
+
+msgid ""
+"Used for marking text which should be ignored when identifying or linking to "
+"cross reference target references."
+msgstr ""
+"Utilisé pour baliser le texte qui doit être ignoré lors de l'identification "
+"ou de la liaison à des références cibles de références croisées."
+
+msgid "Genesis"
+msgstr "Genèse"
+
+msgid "Exodus"
+msgstr "Exode"
+
+msgid "Leviticus"
+msgstr "Lévitique"
+
+msgid "Numbers"
+msgstr "Nombres"
+
+msgid "Deuteronomy"
+msgstr "Deutéronome"
+
+msgid "Joshua"
+msgstr "Josué"
+
+msgid "Judges"
+msgstr "Juges"
+
+msgid "Ruth"
+msgstr "Ruth"
+
+msgid "1 Samuel"
+msgstr "1 Samuel"
+
+msgid "2 Samuel"
+msgstr "2 Samuel"
+
+msgid "1 Kings"
+msgstr "1 Rois"
+
+msgid "2 Kings"
+msgstr "2 Rois"
+
+msgid "1 Chronicles"
+msgstr "1 Chroniques"
+
+msgid "2 Chronicles"
+msgstr "2 Chroniques"
+
+msgid "Ezra"
+msgstr "Esdras"
+
+msgid "Nehemiah"
+msgstr "Néhémie"
+
+msgid "Esther"
+msgstr "Esther"
+
+msgid "Job"
+msgstr "Job"
+
+msgid "Psalms"
+msgstr "Psaumes"
+
+msgid "Proverbs"
+msgstr "Proverbes"
+
+msgid "Ecclesiastes"
+msgstr "Ecclésiaste"
+
+msgid "Song of Solomon"
+msgstr "Cantique des cantiques"
+
+msgid "Isaiah"
+msgstr "Esaïe"
+
+msgid "Jeremiah"
+msgstr "Jérémie"
+
+msgid "Lamentations"
+msgstr "Lamentations"
+
+msgid "Ezekiel"
+msgstr "Ezéchiel"
+
+msgid "Daniel"
+msgstr "Daniel"
+
+msgid "Hosea"
+msgstr "Osée"
+
+msgid "Joel"
+msgstr "Joël"
+
+msgid "Amos"
+msgstr "Amos"
+
+msgid "Obadiah"
+msgstr "Abdias"
+
+msgid "Jonah"
+msgstr "Jonas"
+
+msgid "Micah"
+msgstr "Michée"
+
+msgid "Nahum"
+msgstr "Nahum"
+
+msgid "Habakkuk"
+msgstr "Habaquq"
+
+msgid "Zephaniah"
+msgstr "Sophonie"
+
+msgid "Haggai"
+msgstr "Aggée"
+
+msgid "Zechariah"
+msgstr "Zacharie"
+
+msgid "Malachi"
+msgstr "Malachie"
+
+msgid "Matthew"
+msgstr "Matthieu"
+
+msgid "Mark"
+msgstr "Marc"
+
+msgid "Luke"
+msgstr "Luc"
+
+msgid "John"
+msgstr "Jean"
+
+msgid "Acts"
+msgstr "Actes"
+
+msgid "Romans"
+msgstr "Romains"
+
+msgid "1 Corinthians"
+msgstr "1 Corinthiens"
+
+msgid "2 Corinthians"
+msgstr "2 Corinthiens"
+
+msgid "Galatians"
+msgstr "Galates"
+
+msgid "Ephesians"
+msgstr "Ephésiens"
+
+msgid "Philippians"
+msgstr "Philippiens"
+
+msgid "Colossians"
+msgstr "Colossiens"
+
+msgid "1 Thessalonians"
+msgstr "1 Thessaloniciens"
+
+msgid "2 Thessalonians"
+msgstr "2 Thessaloniciens"
+
+msgid "1 Timothy"
+msgstr "1 Timothée"
+
+msgid "2 Timothy"
+msgstr "2 Timothée"
+
+msgid "Titus"
+msgstr "Tite"
+
+msgid "Philemon"
+msgstr "Philémon"
+
+msgid "Hebrews"
+msgstr "Hébreux"
+
+msgid "James"
+msgstr "Jacques"
+
+msgid "1 Peter"
+msgstr "1 Pierre"
+
+msgid "2 Peter"
+msgstr "2 Pierre"
+
+msgid "1 John"
+msgstr "1 Jean"
+
+msgid "2 John"
+msgstr "2 Jean"
+
+msgid "3 John"
+msgstr "3 Jean"
+
+msgid "Jude"
+msgstr "Jude"
+
+msgid "Revelation"
+msgstr "Apocalypse"
+
+msgid "Front Matter"
+msgstr "Introduction principale"
+
+msgid "Back Matter"
+msgstr "Conclusion"
+
+msgid "Other Material"
+msgstr "Autre contenu"
+
+msgid "Tobit"
+msgstr "Tobie"
+
+msgid "Judith"
+msgstr "Judith"
+
+msgid "Esther (Greek)"
+msgstr "Esther (Grec)"
+
+msgid "Wisdom of Solomon"
+msgstr "Sagesse de Salomon"
+
+msgid "Sirach"
+msgstr "Siracide"
+
+msgid "Baruch"
+msgstr "Baruch"
+
+msgid "Letter of Jeremiah"
+msgstr "Lettre de Jérémie"
+
+msgid "Song of the Three Children"
+msgstr "Cantique des trois enfants"
+
+msgid "Susanna"
+msgstr "Suzanne"
+
+msgid "Bel and the Dragon"
+msgstr "Bel et le dragon"
+
+msgid "1 Maccabees"
+msgstr "1 Maccabées"
+
+msgid "2 Maccabees"
+msgstr "1 Maccabées"
+
+msgid "1 Esdras (Greek)"
+msgstr ""
+
+msgid "Prayer of Manasses"
+msgstr "Prière de Manassé"
+
+msgid "Psalm 151"
+msgstr "Psaume 151"
+
+msgid "3 Maccabees"
+msgstr "3 Maccabées"
+
+msgid "2 Esdras (Latin)"
+msgstr ""
+
+msgid "4 Maccabees"
+msgstr "4 Maccabées"
+
+msgid "Daniel (Greek)"
+msgstr "Daniel (grec)"
+
+msgid "Odes"
+msgstr ""
+
+msgid "Psalms of Solomon"
+msgstr ""
+
+msgid "Ezra Apocalypse"
+msgstr ""
+
+msgid "5 Ezra"
+msgstr ""
+
+msgid "6 Ezra"
+msgstr ""
+
+msgid "Psalms 152-155"
+msgstr ""
+
+msgid "2 Baruch (Apocalypse)"
+msgstr ""
+
+msgid "Letter of Baruch"
+msgstr ""
+
+msgid "Jubilees"
+msgstr ""
+
+msgid "Enoch"
+msgstr ""
+
+msgid "1 Meqabyan/Mekabis"
+msgstr ""
+
+msgid "2 Meqabyan/Mekabis"
+msgstr ""
+
+msgid "3 Meqabyan/Mekabis"
+msgstr ""
+
+msgid "Reproof"
+msgstr ""
+
+msgid "4 Baruch"
+msgstr ""
+
+msgid "Letter to the Laodiceans"
+msgstr ""
+
+msgid "Introduction Matter"
+msgstr ""
+
+msgid "Concordance"
+msgstr "Concordance"
+
+msgid "Glossary / Wordlist"
+msgstr ""
+
+msgid "Topical Index"
+msgstr "Index de lieu"
+
+msgid "Names Index"
+msgstr "Index de noms"
+
 msgid "No files in this folder"
 msgstr "Aucun fichier dans ce dossier"
 
@@ -12111,6 +12260,9 @@ msgstr "Un traducteur a supprimé un livre"
 msgid "A collaborator deleted chapter"
 msgstr "Un collaborateur a fait une mise à jour"
 
+msgid "Bibledit fixed merge conflicts"
+msgstr "Bibledit a résolu les conflits de fusion"
+
 msgid "Received from client"
 msgstr "Reçu du client"
 
@@ -12132,8 +12284,8 @@ msgstr "Exporté en Quick Bible"
 msgid "Submit to the Bible Drop Box"
 msgstr "Soumettre à Bible Drop Box"
 
-msgid "Ready"
-msgstr "Prêt"
+msgid "Bible translation through Bibledit"
+msgstr "Traduction de la Bible par Bibledit"
 
 msgid "Go back to"
 msgstr "Précédent"
@@ -12247,6 +12399,9 @@ msgstr "Veuillez donner un nom pour la ressource image"
 
 msgid "The image resource was created"
 msgstr "La ressource d'image a été créée"
+
+msgid "Bibledit Cloud could not localize this resource"
+msgstr "Bibledit Cloud ne peut pas localiser cette ressource"
 
 msgid "Please enter the number of verses"
 msgstr "Veuillez entrer le nombre de versets"
@@ -12415,13 +12570,6 @@ msgstr "Le compte a été consulté avec succès."
 
 msgid "Messages on server:"
 msgstr "Messages sur le serveur :"
-
-msgid ""
-"For the purpose of trying whether Bibledit can send email, a test email was "
-"sent out to the account above:"
-msgstr ""
-"Pour vérifier si Bibledit peut envoyer un courriel, un courriel de test a "
-"été envoyé au compte ci-dessus :"
 
 msgid "Select style"
 msgstr "Sélectionner un style"

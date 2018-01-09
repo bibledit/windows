@@ -17,7 +17,7 @@
  */
 
 
-#include <bible/order.h>
+#include <bb/order.h>
 #include <assets/view.h>
 #include <assets/page.h>
 #include <assets/header.h>
@@ -29,7 +29,7 @@
 #include <locale/translate.h>
 #include <access/bible.h>
 #include <menu/logic.h>
-#include <bible/manage.h>
+#include <bb/manage.h>
 
 
 string bible_order_url ()
@@ -80,13 +80,14 @@ string bible_order (void * webserver_request)
   vector <int> books = filter_passage_get_ordered_books (bible);
   for (size_t i = 0; i < books.size (); i++) {
     string bookname = Database_Books::getEnglishFromId (books[i]);
+    bookname = translate (bookname);
     view.add_iteration ("order", { make_pair ("offset", convert_to_string (i)), make_pair ("bookname", bookname) } );
   }
 
   view.set_variable ("uparrow", unicode_black_up_pointing_triangle ());
   view.set_variable ("downarrow", unicode_black_down_pointing_triangle ());
 
-  page += view.render ("bible", "order");
+  page += view.render ("bb", "order");
   
   page += Assets_Page::footer ();
   

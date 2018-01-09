@@ -17,7 +17,7 @@
  */
 
 
-#include <bible/settings.h>
+#include <bb/settings.h>
 #include <assets/view.h>
 #include <assets/page.h>
 #include <filter/roles.h>
@@ -34,9 +34,9 @@
 #include <dialog/books.h>
 #include <access/bible.h>
 #include <book/create.h>
-#include <bible/logic.h>
+#include <bb/logic.h>
 #include <client/logic.h>
-#include <bible/manage.h>
+#include <bb/manage.h>
 #include <assets/header.h>
 #include <menu/logic.h>
 #include <resource/external.h>
@@ -143,7 +143,7 @@ string bible_settings (void * webserver_request)
       vector <string> feedback;
       if (write_access) book_create (bible, convert_to_int (createbook), -1, feedback);
     }
-    // User create a book in this Bible: Set it as the default Bible.
+    // User creates a book in this Bible: Set it as the default Bible.
     request->database_config_user()->setBible (bible);
   }
   
@@ -223,6 +223,27 @@ string bible_settings (void * webserver_request)
   }
   view.set_variable ("rss", get_checkbox_status (Database_Config_Bible::getSendChangesToRSS (bible)));
 #endif
+
+  
+  // Stylesheet.
+  if (request->query.count ("stylesheet")) {
+    string stylesheet = request->query["stylesheet"];
+    if (stylesheet == "") {
+      Dialog_List dialog_list = Dialog_List ("settings", translate("Would you like to change the stylesheet?"), translate ("A stylesheet affects how the Bible text in the editor looks.") + " " + translate ("Please make your choice below."), "");
+      dialog_list.add_query ("bible", bible);
+      Database_Styles database_styles = Database_Styles();
+      vector <string> sheets = database_styles.getSheets();
+      for (auto & name : sheets) {
+        dialog_list.add_row (name, "stylesheet", name);
+      }
+      page += dialog_list.run ();
+      return page;
+    } else {
+      if (write_access) Database_Config_Bible::setEditorStylesheet (bible, stylesheet);
+    }
+  }
+  string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
+  view.set_variable ("stylesheet", stylesheet);
   
   
   view.set_variable ("systemindex", system_index_url());
@@ -238,7 +259,7 @@ string bible_settings (void * webserver_request)
   }
 
   
-  page += view.render ("bible", "settings");
+  page += view.render ("bb", "settings");
   page += Assets_Page::footer ();
   return page;
 }

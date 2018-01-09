@@ -33,7 +33,7 @@
 #include <styles/logic.h>
 #include <styles/sheets.h>
 #include <locale/logic.h>
-#include <bible/logic.h>
+#include <bb/logic.h>
 #include <editone/index.h>
 #include <editusfm/index.h>
 #include <resource/index.h>
@@ -146,12 +146,12 @@ void demo_clean_data ()
   styles_sheets_create_all ();
   
   
-  // Set the export stylesheet to "Standard" for all Bibles and the admin.
+  // Set both stylesheets to "Standard" for all Bibles.
   vector <string> bibles = request.database_bibles()->getBibles ();
   for (auto & bible : bibles) {
     Database_Config_Bible::setExportStylesheet (bible, styles_logic_standard_sheet ());
+    Database_Config_Bible::setEditorStylesheet (bible, styles_logic_standard_sheet ());
   }
-  request.database_config_user()->setStylesheet (styles_logic_standard_sheet ());
   
   
   // Set the site language to "Default"
@@ -214,7 +214,7 @@ void demo_clean_data ()
 // The name of the sample Bible.
 string demo_sample_bible_name ()
 {
-  return "Bibledit Sample Bible";
+  return "Sample";
 }
 
 
@@ -323,7 +323,7 @@ void demo_prepare_sample_bible ()
 #ifdef HAVE_CLOUD
   system ("find . -path '*logbook/15*' -delete");
   system ("find . -name state.sqlite -delete");
-  system ("find . -name 'Bibledit Sample Bible.*' -delete");
+  system ("find . -name 'Sample.*' -delete");
 #endif
 }
 
@@ -390,11 +390,18 @@ void demo_create_sample_workspaces (void * webserver_request)
 
 vector <string> demo_logic_default_resources ()
 {
-  return {
+  vector <string> resources;
+  // Add a few resources that are also safe in an obfuscated version.
+  resources = {
     demo_sample_bible_name (),
-    resource_logic_violet_divider (),
-    resource_external_biblehub_interlinear_name (),
-    resource_external_net_bible_name (),
-    SBLGNT_NAME
+    resource_logic_violet_divider ()
   };
+  // For demo purposes, add some more resources to show-case some of the capabilities.
+  if (config_logic_demo_enabled ()) {
+    resources.push_back (resource_external_biblehub_interlinear_name ());
+    resources.push_back (resource_external_net_bible_name ());
+    resources.push_back (SBLGNT_NAME);
+  }
+  // Done.
+  return resources;
 }

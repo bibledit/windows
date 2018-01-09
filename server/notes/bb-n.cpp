@@ -17,52 +17,58 @@
  */
 
 
-#include <bible/editing.h>
+#include <notes/bb-n.h>
 #include <assets/view.h>
 #include <assets/page.h>
 #include <assets/header.h>
 #include <filter/roles.h>
 #include <filter/string.h>
+#include <filter/url.h>
 #include <webserver/request.h>
-#include <database/config/bible.h>
 #include <locale/translate.h>
+#include <database/notes.h>
+#include <notes/logic.h>
 #include <access/bible.h>
-#include <menu/logic.h>
-#include <bible/manage.h>
+#include <ipc/focus.h>
+#include <navigation/passage.h>
+#include <notes/actions.h>
 
 
-string bible_editing_url ()
+string notes_bible_n_url ()
 {
-  return "bible/editing";
+  return "notes/bb-n";
 }
 
 
-bool bible_editing_acl (void * webserver_request)
+bool notes_bible_n_acl (void * webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
+  return Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ());
 }
 
 
-string bible_editing (void * webserver_request)
+string notes_bible_n (void * webserver_request)
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Database_Notes database_notes (webserver_request);
+  Notes_Logic notes_logic = Notes_Logic (webserver_request);
+
   
   string page;
-  
-  Assets_Header header = Assets_Header (translate("Editing settings"), request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.addBreadCrumb (bible_manage_url (), menu_logic_bible_manage_text ());
-  page = header.run ();
-  
+  Assets_Header header = Assets_Header (translate("Bibles"), request);
+  page += header.run ();
   Assets_View view;
   
-  // The name of the Bible.
-  string bible = access_bible_clamp (request, request->query ["bible"]);
-  view.set_variable ("bible", filter_string_sanitize_html (bible));
   
-  page += view.render ("bible", "editing");
+  string bibleblock;
+  vector <string> bibles = access_bible_bibles (webserver_request);
+  bibles.push_back (notes_logic.generalBibleName ());
+  for (auto & bible : bibles) {
+    bibleblock.append ("<li><a href=\"bulk?bible=" + bible + "\">" + bible + "</a></li>\n");
+  }
+  view.set_variable ("bibleblock", bibleblock);
   
+  
+  page += view.render ("notes", "bb-n");
   page += Assets_Page::footer ();
-  
   return page;
 }

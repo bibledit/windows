@@ -77,7 +77,8 @@ void Assets_Header::setNavigator ()
 void Assets_Header::setStylesheet ()
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
-  string stylesheet = request->database_config_user()->getStylesheet ();
+  string stylesheet;
+  // Todo set again. stylesheet = request->database_config_user()->getStylesheet ();
   includedStylesheet = stylesheet;
 }
 
@@ -86,7 +87,8 @@ void Assets_Header::setStylesheet ()
 void Assets_Header::setEditorStylesheet ()
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
-  string stylesheet = request->database_config_user()->getStylesheet ();
+  string stylesheet;
+  // Todo set again, but why? stylesheet = request->database_config_user()->getStylesheet ();
   includedEditorStylesheet = stylesheet;
 }
 
@@ -222,8 +224,6 @@ string Assets_Header::run ()
       menublock = menu_logic_settings_category (webserver_request);
     } else if (item == menu_logic_settings_resources_menu ()) {
       menublock = menu_logic_settings_resources_category (webserver_request);
-    } else if (item == menu_logic_settings_styles_menu ()) {
-      menublock = menu_logic_settings_styles_category (webserver_request);
     } else if (item == "help") {
       menublock = menu_logic_help_category (webserver_request);
     }

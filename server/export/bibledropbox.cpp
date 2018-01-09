@@ -72,7 +72,7 @@ void export_bibledropbox (string user, string bible)
     
     
     // The filename for the USFM for this book.
-    string filename = Export_Logic::baseBookFileName (book);
+    string filename = Export_Logic::baseBookFileName (bible, book);
     string path = filter_url_create_path (directory, filename + ".usfm");
     
     
@@ -82,7 +82,7 @@ void export_bibledropbox (string user, string bible)
   
   
   // Compress USFM files into one zip file.
-  string zipfile = filter_url_create_path (directory, Export_Logic::baseBookFileName (0) + ".zip");
+  string zipfile = filter_url_create_path (directory, Export_Logic::baseBookFileName ("", 0) + ".zip");
   
   string archive = filter_archive_zip_folder (directory);
   filter_url_rename (archive, zipfile);
@@ -115,7 +115,7 @@ void export_bibledropbox (string user, string bible)
   post ["emailLine"] = database_users.get_email (user);
   post ["projectLine"] = bible;
   post ["permission"] = "Yes";
-  post ["goalLine"] = "Bible translation through Bibledit";
+  post ["goalLine"] = translate ("Bible translation through Bibledit");
   // Just one request: Is it possible to make the Bibledit submission system default to turning off the three check-boxes for the tasks that take heavy processing on The Bible Drop Box: PhotoBible, ODFs using the Python interface to LibreOffice (which is slow compared to the Pathway method of creating the XML files directly), and PDF exports (via TeX). If the user is only after, say a Sword module, it's quite a heavy cost to wastefully produce these other exports.
   //post ["photoBible"] = "Yes";
   //post ["odfs"] = "Yes";

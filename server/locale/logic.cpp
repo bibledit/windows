@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/string.h>
 #include <filter/url.h>
 #include <filter/date.h>
+#include <config/globals.h>
 
 
 // Filters out the default language.
@@ -94,7 +95,7 @@ map <string, string> locale_logic_localizations ()
       string basename = filter_string_str_replace ("." + suffix, "", file);
       string path = filter_url_create_path (directory, file);
       string contents = filter_url_file_get_contents (path);
-      string language = "Unknown";
+      string language = translate ("Unknown");
       vector <string> lines = filter_string_explode (contents, '\n');
       for (auto line : lines) {
         if (line.find ("translation for bibledit") != string::npos) {
@@ -119,7 +120,11 @@ map <string, string> locale_logic_read_po (string file)
   string msgstr;
   int stage = 0;
   for (size_t i = 0; i < lines.size (); i++) {
+    // Clean the line up.
     string line = filter_string_trim (lines[i]);
+    // Skip a comment.
+    if (line.find ("#") == 0) continue;
+    // Deal with the messages.
     if (line.find ("msgid") == 0) {
       stage = 1;
       line.erase (0, 5);
@@ -227,3 +232,84 @@ string locale_logic_space_get_name (string space, bool english)
   return translate ("unknown");
 }
 
+
+string locale_logic_deobfuscate (string value)
+{
+  // Replace longest strings first.
+  
+  // Change "Bbe" to "Bibledit".
+  value = filter_string_str_replace ("Bbe", "Bibledit", value);
+
+  // Change "bbe" to "bibledit".
+  value = filter_string_str_replace ("bbe", "bibledit", value);
+  
+  // Change "Bb" to "Bible".
+  value = filter_string_str_replace ("Bb", "Bible", value);
+  
+  // Change "bb" to "bible". This includes "bbe" to "Bibledit".
+  value = filter_string_str_replace ("bb", "bible", value);
+  
+  // Done.
+  return value;
+}
+
+
+bool locale_logic_obfuscate_compare_internal (const string& a, const string& b)
+{
+  return (a.size() > b.size());
+}
+
+
+void locale_logic_obfuscate_initialize ()
+{
+  // Load the contents of the obfuscation configuration file
+  string filename = filter_url_create_root_path ("obfuscate", "texts.txt");
+  string contents = filter_url_file_get_contents (filename);
+  vector <string> lines = filter_string_explode (contents, '\n');
+  
+  // Container to map the original string to the obfuscated version.
+  map <string, string> original_to_obfuscated;
+  
+  // Iterate over each line.
+  for (auto & line : lines) {
+
+    // Trim lines.
+    line = filter_string_trim (line);
+    
+    // Skip empty lines.
+    if (line.empty ()) continue;
+    
+    // Skip lines that start with the number sign #.
+    size_t pos = line.find ("#");
+    if (pos != string::npos) if (pos < 3) continue;
+    
+    // Apart from texts to obfuscate,
+    // the settings can also contain a line to hide the Bible resources.
+    // Deal with it here.
+    pos = line.find ("HideBibleResources");
+    if (pos != string::npos) {
+      config_globals_hide_bible_resources = true;
+      continue;
+    }
+    
+    // Lines require the equal sign = once.
+    vector <string> obfuscation_pair = filter_string_explode (line, '=');
+    if (obfuscation_pair.size () != 2) continue;
+
+    // Deobfuscate recognized search terms.
+    string searchfor = locale_logic_deobfuscate (obfuscation_pair[0]);
+    
+    // Store the unsorted obfuscation data.
+    original_to_obfuscated [searchfor] = obfuscation_pair [1];
+    locale_translate_obfuscation_search.push_back (searchfor);
+  }
+
+  // Sort the original strings by their lengths.
+  // This enables the obfuscation to replace the longest string first, and the shortest last.
+  sort (locale_translate_obfuscation_search.begin(), locale_translate_obfuscation_search.end (), locale_logic_obfuscate_compare_internal);
+  
+  // Store the obfuscation data for use.
+  for (auto original : locale_translate_obfuscation_search) {
+    locale_translate_obfuscation_replace.push_back (original_to_obfuscated [original]);
+  }
+}

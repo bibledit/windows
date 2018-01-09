@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <menu/logic.h>
 #include <menu/index.h>
 #include <system/index.h>
-#include <bible/manage.h>
+#include <bb/manage.h>
 #include <changes/changes.h>
 #include <changes/manage.h>
 #include <checks/index.h>
@@ -61,7 +61,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <resource/cache.h>
 #include <resource/user9edit.h>
 #include <resource/user9view.h>
-#include <resource/biblegateway.h>
+#include <resource/bbgateway.h>
 #include <resource/studylight.h>
 #include <search/index.h>
 #include <search/replace.h>
@@ -77,7 +77,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <session/logout.h>
 #include <sprint/index.h>
 #include <styles/indexm.h>
-#include <styles/indext.h>
 #include <user/account.h>
 #include <user/notifications.h>
 #include <versification/index.h>
@@ -90,7 +89,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <public/index.h>
 #include <public/logic.h>
 #include <filter/url.h>
-#include <bible/logic.h>
+#include <bb/logic.h>
 #include <ldap/logic.h>
 #include <jsonxx/jsonxx.h>
 
@@ -158,12 +157,6 @@ string menu_logic_settings_menu ()
 string menu_logic_settings_resources_menu ()
 {
   return "settings-resources";
-}
-
-
-string menu_logic_settings_styles_menu ()
-{
-  return "settings-styles";
 }
 
 
@@ -750,9 +743,9 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
     }
     
     if (label == styles) {
-      if (!menu_logic_settings_styles_category (webserver_request).empty ()) {
-        html.push_back (menu_logic_create_item (menu_logic_settings_styles_menu (), label, false));
-        tiplabels.push_back (menu_logic_settings_styles_menu ());
+      if (styles_indexm_acl (webserver_request)) {
+        html.push_back (menu_logic_create_item (styles_indexm_url (), menu_logic_styles_text (), true));
+        tiplabels.push_back (menu_logic_styles_text ());
       }
     }
     
@@ -885,8 +878,10 @@ string menu_logic_settings_resources_category (void * webserver_request)
 #endif
   
 #ifdef HAVE_CLOUD
-  if (resource_sword_acl (webserver_request)) {
-    html.push_back (menu_logic_create_item (resource_sword_url (), translate ("SWORD"), true));
+  if (!config_globals_hide_bible_resources) {
+    if (resource_sword_acl (webserver_request)) {
+      html.push_back (menu_logic_create_item (resource_sword_url (), translate ("SWORD"), true));
+    }
   }
 #endif
 
@@ -897,14 +892,18 @@ string menu_logic_settings_resources_category (void * webserver_request)
 #endif
 
 #ifdef HAVE_CLOUD
-  if (resource_biblegateway_acl (webserver_request)) {
-    html.push_back (menu_logic_create_item (resource_biblegateway_url (), "BibleGateway", true));
+  if (!config_globals_hide_bible_resources) {
+    if (resource_biblegateway_acl (webserver_request)) {
+      html.push_back (menu_logic_create_item (resource_biblegateway_url (), "BibleGateway", true));
+    }
   }
 #endif
 
 #ifdef HAVE_CLOUD
-  if (resource_studylight_acl (webserver_request)) {
-    html.push_back (menu_logic_create_item (resource_studylight_url (), "StudyLight", true));
+  if (!config_globals_hide_bible_resources) {
+    if (resource_studylight_acl (webserver_request)) {
+      html.push_back (menu_logic_create_item (resource_studylight_url (), "StudyLight", true));
+    }
   }
 #endif
 
@@ -912,26 +911,6 @@ string menu_logic_settings_resources_category (void * webserver_request)
   
   if (!html.empty ()) {
     html.insert (html.begin (), menu_logic_resources_text () + ": ");
-  }
-  
-  return filter_string_implode (html, "\n");
-}
-
-
-string menu_logic_settings_styles_category (void * webserver_request)
-{
-  vector <string> html;
-  
-  if (styles_indext_acl (webserver_request)) {
-    html.push_back (menu_logic_create_item (styles_indext_url (), translate ("Select stylesheet"), true));
-  }
-  
-  if (styles_indexm_acl (webserver_request)) {
-    html.push_back (menu_logic_create_item (styles_indexm_url (), menu_logic_styles_indexm_text (), true));
-  }
-  
-  if (!html.empty ()) {
-    html.insert (html.begin (), menu_logic_styles_text () + ": ");
   }
   
   return filter_string_implode (html, "\n");
@@ -1000,8 +979,6 @@ string menu_logic_menu_url (string menu_item)
       (menu_item == menu_logic_tools_menu ())
       ||
       (menu_item == menu_logic_settings_menu ())
-      ||
-      (menu_item == menu_logic_settings_styles_menu ())
     ) {
     return filter_url_build_http_query (index_index_url (), "item", menu_item);
   }

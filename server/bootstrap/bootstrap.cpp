@@ -45,20 +45,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <system/index.h>
 #include <collaboration/index.h>
 #include <collaboration/settings.h>
-#include <styles/indext.h>
 #include <styles/indexm.h>
 #include <styles/sheetm.h>
 #include <styles/view.h>
 #include <versification/index.h>
 #include <versification/system.h>
-#include <bible/manage.h>
-#include <bible/settings.h>
-#include <bible/book.h>
-#include <bible/chapter.h>
-#include <bible/import.h>
-#include <bible/order.h>
-#include <bible/css.h>
-#include <bible/editing.h>
+#include <bb/manage.h>
+#include <bb/settings.h>
+#include <bb/book.h>
+#include <bb/chapter.h>
+#include <bb/import.h>
+#include <bb/order.h>
+#include <bb/css.h>
 #include <compare/index.h>
 #include <jobs/index.h>
 #include <editverse/index.h>
@@ -114,7 +112,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <resource/index.h>
 #include <resource/organize.h>
 #include <resource/get.h>
-#include <resource/bible2resource.h>
+#include <resource/bb2resource.h>
 #include <resource/manage.h>
 #include <resource/print.h>
 #include <resource/download.h>
@@ -129,7 +127,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <resource/user1edit.h>
 #include <resource/user9view.h>
 #include <resource/user1view.h>
-#include <resource/biblegateway.h>
+#include <resource/bbgateway.h>
 #include <resource/studylight.h>
 #include <resource/unload.h>
 #include <mapping/index.h>
@@ -150,8 +148,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <notes/verses.h>
 #include <notes/severity-1.h>
 #include <notes/severity-n.h>
-#include <notes/bible-1.h>
-#include <notes/bible-n.h>
+#include <notes/bb-1.h>
+#include <notes/bb-n.h>
 #include <notes/bulk.h>
 #include <notes/edit.h>
 #include <notes/summary.h>
@@ -171,7 +169,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <checks/suppress.h>
 #include <consistency/poll.h>
 #include <consistency/input.h>
-#include <webbible/search.h>
+#include <webbb/search.h>
 #include <developer/index.h>
 #include <paratext/index.h>
 #include <personalize/index.h>
@@ -378,11 +376,6 @@ void bootstrap_index (void * webserver_request)
   
   if ((url == workspace_organize_url ()) && browser_request_security_okay (request) && workspace_organize_acl (request)) {
     request->reply = workspace_organize (request);
-    return;
-  }
-  
-  if ((url == bible_editing_url ()) && browser_request_security_okay (request) && bible_editing_acl (request)) {
-    request->reply = bible_editing (request);
     return;
   }
   
@@ -654,11 +647,6 @@ void bootstrap_index (void * webserver_request)
   
   if ((url == email_index_url ()) && browser_request_security_okay (request) && email_index_acl (request)) {
     request->reply = email_index (request);
-    return;
-  }
-  
-  if ((url == styles_indext_url ()) && browser_request_security_okay (request) && styles_indext_acl (request)) {
-    request->reply = styles_indext (request);
     return;
   }
   

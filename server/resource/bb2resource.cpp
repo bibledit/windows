@@ -17,7 +17,7 @@
  */
 
 
-#include <resource/bible2resource.h>
+#include <resource/bb2resource.h>
 #include <assets/view.h>
 #include <assets/page.h>
 #include <assets/header.h>
@@ -33,12 +33,12 @@
 #include <journal/index.h>
 #include <resource/external.h>
 #include <menu/logic.h>
-#include <bible/manage.h>
+#include <bb/manage.h>
 
 
 string resource_bible2resource_url ()
 {
-  return "resource/bible2resource";
+  return "resource/bb2resource";
 }
 
 
@@ -87,7 +87,7 @@ string resource_bible2resource (void * webserver_request)
   }
 
   
-  page += view.render ("resource", "bible2resource");
+  page += view.render ("resource", "bb2resource");
   page += Assets_Page::footer ();
   return page;
 }

@@ -34,7 +34,7 @@
 #include <dialog/list.h>
 #include <ipc/focus.h>
 #include <menu/logic.h>
-#include <bible/logic.h>
+#include <bb/logic.h>
 #include <editor/usfm2html.h>
 
 
@@ -92,7 +92,7 @@ string edit_preview (void * webserver_request)
   int book = Ipc_Focus::getBook (webserver_request);
   int chapter = Ipc_Focus::getChapter (webserver_request);
   
-  string stylesheet = request->database_config_user()->getStylesheet ();
+  string stylesheet = Database_Config_Bible::getEditorStylesheet (bible); // Todo test it.
   
   string usfm = request->database_bibles()->getChapter (bible, book, chapter);
   
