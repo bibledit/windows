@@ -63,9 +63,6 @@
     <ClCompile Include="checks\settings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="bible\settings.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="checks\sentences.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -75,19 +72,10 @@
     <ClCompile Include="checks\pairs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="bible\order.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="changes\modifications.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="changes\manage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bible\manage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bible\logic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="checksum\logic.cpp">
@@ -102,25 +90,10 @@
     <ClCompile Include="checks\index.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="bible\import_run.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bible\import.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="checks\headers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="bible\editing.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bible\css.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="book\create.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bible\chapter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="changes\changes.cpp">
@@ -130,9 +103,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="bootstrap\bootstrap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bible\book.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="filter\usfm.cpp">
@@ -289,9 +259,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="styles\indexm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="styles\indext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="styles\logic.cpp">
@@ -588,9 +555,6 @@
     <ClCompile Include="pugixml\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="onlinebible\text.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="odf\text.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -666,9 +630,6 @@
     <ClCompile Include="sync\usfmresources.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="resource\bible2resource.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="resource\cache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -739,12 +700,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="notes\assign-n.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="notes\bible-1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="notes\bible-n.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="notes\bulk.cpp">
@@ -1128,9 +1083,6 @@
     <ClCompile Include="editone\verse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="webbible\search.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="consistency\index.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1236,9 +1188,6 @@
     <ClCompile Include="edit\preview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="resource\biblegateway.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="resource\studylight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1279,6 +1228,51 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="checks\french.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bb\book.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bb\chapter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bb\css.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bb\import.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bb\import_run.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bb\logic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bb\manage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bb\order.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bb\settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="olb\text.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="webbb\search.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="notes\bb-1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="notes\bb-n.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\bb2resource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\bbgateway.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
