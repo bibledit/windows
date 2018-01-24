@@ -13,7 +13,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Launchpad (build 18521)\n"
+"X-Generator: Launchpad (build 18532)\n"
 
 msgid "Has been sending and receiving during the past hour"
 msgstr ""
@@ -619,6 +619,15 @@ msgstr ""
 msgid "The journal shows the progress."
 msgstr ""
 
+msgid "Would you like to change the stylesheet?"
+msgstr ""
+
+msgid "A stylesheet affects how the Bible text in the editor looks."
+msgstr ""
+
+msgid "Please make your choice below."
+msgstr ""
+
 msgid "More operations in the Cloud"
 msgstr ""
 
@@ -820,6 +829,12 @@ msgid ""
 "The previous paragraph contains a citation not closed with a » therefore the "
 "current paragraph is expected to start with a « to continue that citation in "
 "French"
+msgstr ""
+
+msgid "The paragraph contains more left guillements than needed"
+msgstr ""
+
+msgid "The paragraph contains more right guillements than needed"
 msgstr ""
 
 msgid "Patterns"
@@ -1536,12 +1551,6 @@ msgstr ""
 msgid "Upon encountering a certain marker"
 msgstr ""
 
-msgid "Styles"
-msgstr ""
-
-msgid "Would you like to switch to another stylesheet?"
-msgstr ""
-
 msgid "Style"
 msgstr ""
 
@@ -1669,6 +1678,9 @@ msgid "Please enter a marker at which the endnotes should be dumped"
 msgstr ""
 
 msgid "The marker is to be given without the backslash, e.g. \"zendnotes\"."
+msgstr ""
+
+msgid "Styles"
 msgstr ""
 
 msgid "This stylesheet already exists"
@@ -2051,9 +2063,6 @@ msgstr ""
 msgid "User-defined"
 msgstr ""
 
-msgid "Select stylesheet"
-msgstr ""
-
 msgid "Help and About"
 msgstr ""
 
@@ -2076,6 +2085,9 @@ msgid "Users"
 msgstr "Pengguna"
 
 msgid "Versifications"
+msgstr ""
+
+msgid "Select stylesheet"
 msgstr ""
 
 msgid "Edit stylesheet"
@@ -2480,7 +2492,7 @@ msgstr ""
 msgid "Logout."
 msgstr ""
 
-msgid "Controls for dismissing change notifications at the top"
+msgid "Controls for selecting and dismissing change notifications at the top"
 msgstr ""
 
 msgid "This applies to the page with the change notifications."
@@ -2503,8 +2515,10 @@ msgstr ""
 msgid "This is an extra control in addition to the normal one."
 msgstr ""
 
-msgid ""
-"The list of consultation notes shows the name of the Bible the note refers to"
+msgid "The list of consultation notes shows the Bible the note refers to"
+msgstr ""
+
+msgid "The consultation notes show the note status"
 msgstr ""
 
 msgid "Send / Receive"
@@ -2602,12 +2616,19 @@ msgstr ""
 msgid "Book order"
 msgstr ""
 
-msgid ""
-"Click to move books to another location to update the order of the books in "
-"this Bible."
+msgid "Update the order and put the deuterocanonical or apocryphal books:"
 msgstr ""
 
-msgid "Reset order."
+msgid "Interspersed among the books of the Hebrew Bible."
+msgstr ""
+
+msgid "Between the Hebrew Bible and the New Testament."
+msgstr ""
+
+msgid "At the very end of the entire Bible."
+msgstr ""
+
+msgid "Click the arrows below to put the books in a custom order:"
 msgstr ""
 
 msgid "Font and text settings"
@@ -3012,6 +3033,9 @@ msgid "(if their changes and verses match)"
 msgstr ""
 
 msgid "(all of them)"
+msgstr ""
+
+msgid "Select Bible:"
 msgstr ""
 
 msgid "This page lists the notifications of the changes in the Bible text."
@@ -3702,16 +3726,6 @@ msgid "Select this stylesheet."
 msgstr ""
 
 msgid "Delete the entire stylesheet."
-msgstr ""
-
-msgid ""
-"The various styles for the Bible editor are contained in a stylesheet."
-msgstr ""
-
-msgid "The stylesheet you are currently using is:"
-msgstr ""
-
-msgid "switch"
 msgstr ""
 
 msgid "Category"

@@ -61,7 +61,7 @@ string edit_navigate (void * webserver_request)
   size_t offset = convert_to_int (request->query ["offset"]);
 
   
-  string stylesheet = Database_Config_Bible::getEditorStylesheet (bible); // Todo test it.
+  string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
   string usfm = request->database_bibles()->getChapter (bible, book, chapter);
   
   

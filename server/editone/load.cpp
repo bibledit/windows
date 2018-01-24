@@ -59,7 +59,7 @@ string editone_load (void * webserver_request)
   int chapter = convert_to_int (request->query ["chapter"]);
   int verse = convert_to_int (request->query ["verse"]);
   
-  string stylesheet = Database_Config_Bible::getEditorStylesheet (bible); // Todo test it.
+  string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
 
   string chapter_usfm = request->database_bibles()->getChapter (bible, book, chapter);
 

@@ -5244,6 +5244,7 @@
 /sources/morphhb/Ruth.xml
 /sources/morphhb/Song.xml
 /sources/morphhb.txt
+/sources/morphhb/VerseMap.xml
 /sources/morphhb/Zech.xml
 /sources/morphhb/Zeph.xml
 /sources/oshb.txt

@@ -103,7 +103,7 @@ string editone_save (void * webserver_request)
   }
 
   
-  string stylesheet = Database_Config_Bible::getEditorStylesheet (bible); // Todo test it.
+  string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
  
   
   string usfm = editone_logic_html_to_usfm (stylesheet, html);

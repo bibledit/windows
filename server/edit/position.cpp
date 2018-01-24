@@ -58,7 +58,7 @@ string edit_position (void * webserver_request)
   int chapter = convert_to_int (request->query ["chapter"]);
   
   
-  string stylesheet = Database_Config_Bible::getEditorStylesheet (bible); // Todo test it.
+  string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
   string usfm = request->database_bibles()->getChapter (bible, book, chapter);
   int verse = Ipc_Focus::getVerse (request);
 
