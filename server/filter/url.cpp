@@ -1658,11 +1658,10 @@ string filter_url_filename_unclean (string name)
 
 // Changes a Unix directory separator to a Windows one.
 // Works on Windows only.
-void filter_url_windows_directory_separator (string & filename)
+string filter_url_update_directory_separator_if_windows (string filename)
 {
 #ifdef HAVE_WINDOWS
   filename = filter_string_str_replace ("/", DIRECTORY_SEPARATOR, filename);
-#else
-  (void) filename;
 #endif
+  return filename;
 }

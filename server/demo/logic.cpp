@@ -243,7 +243,7 @@ void demo_create_sample_bible ()
     // Since the filename contains the foward slash for on Linux,
     // and since Windows needs the backslash as directory separator,
     // replace these on Windows.
-    filter_url_windows_directory_separator (file);
+    file = filter_url_update_directory_separator_if_windows (file);
     // Proceed with the path.
     file = filter_url_create_root_path (file);
     string path = filter_url_dirname (file);

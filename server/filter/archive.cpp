@@ -206,7 +206,8 @@ string filter_archive_unzip_miniz_internal (string zipfile)
   // Directory where to unzip the archive.
   string folder = filter_url_tempfile ();
   filter_url_mkdir (folder);
-  
+  Database_Logs::log ("Directory where to unzip the archive: " + folder);
+
   // Open the zip archive.
   mz_bool status;
   mz_zip_archive zip_archive;
@@ -229,18 +230,26 @@ string filter_archive_unzip_miniz_internal (string zipfile)
       return "";
     }
   
+    Database_Logs::log ("Iterating over archive file: " + string (file_stat.m_filename));
     string filename = filter_url_create_path (folder, file_stat.m_filename); // Todo
+    Database_Logs::log ("This archive file produces filename: " + filename);
+
     // The miniz library returns Unix directory separators above.
     // So in case of Windows, convert them to Windows ones.
-    filter_url_windows_directory_separator (filename);
+    string filename_fixed = filter_url_update_directory_separator_if_windows (filename);
+    Database_Logs::log ("Fixing the filename leads to: " + filename_fixed);
 
     if (mz_zip_reader_is_file_a_directory (&zip_archive, i)) {
       // Create this directory.
-      if (!file_or_dir_exists (filename)) filter_url_mkdir (filename);
+      if (!file_or_dir_exists (filename_fixed)) filter_url_mkdir (filename_fixed);
+      Database_Logs::log ("This filename is a directory: " + filename_fixed);
     } else {
       // Ensure this file's folder exists.
       string dirname = filter_url_dirname (filename);
-      if (!file_or_dir_exists (dirname)) filter_url_mkdir (dirname);
+      Database_Logs::log ("This filename's directory is: " + dirname);
+      string dirname_fixed = filter_url_update_directory_separator_if_windows (dirname);
+      Database_Logs::log ("This filename's fixed directory is: " + dirname_fixed);
+      if (!file_or_dir_exists (dirname_fixed)) filter_url_mkdir (dirname_fixed);
       // Extract this file.
       status = mz_zip_reader_extract_to_file (&zip_archive, i, filename.c_str(), 0);
       if (!status) {

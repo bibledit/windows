@@ -78,7 +78,7 @@ string filter_url_set_scheme (string url, bool secure);
 string filter_url_clean_filename (string name);
 string filter_url_filename_clean (string name);
 string filter_url_filename_unclean (string name);
-void filter_url_windows_directory_separator (string & filename);
+string filter_url_update_directory_separator_if_windows (string filename);
 
 
 #endif
