@@ -13,7 +13,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Launchpad (build 18532)\n"
+"X-Generator: Launchpad (build 18534)\n"
 
 msgid "Has been sending and receiving during the past hour"
 msgstr ""
@@ -1935,6 +1935,9 @@ msgid "The notes were assigned to the user"
 msgstr ""
 
 msgid "The notes are no longer assigned to the user"
+msgstr ""
+
+msgid "The notes are no longer assigned to you"
 msgstr ""
 
 msgid "The status of the notes was updated"
@@ -4188,6 +4191,17 @@ msgstr ""
 msgid "Changes made here are not easily reverted."
 msgstr ""
 
+msgid ""
+"Use this mass update function only after you have selected which notes you "
+"want the update to apply to."
+msgstr ""
+
+msgid ""
+"For example, if you are un-assigning notes for a certain user or deleting "
+"notes for a certain book, use the Select screen first to make sure that only "
+"the notes for that user or book are selected."
+msgstr ""
+
 msgid "Amount of notes to be updated in one go:"
 msgstr ""
 
@@ -4200,7 +4214,10 @@ msgstr ""
 msgid "Assign the notes to somebody"
 msgstr ""
 
-msgid "Unassign the notes from somebody"
+msgid "Unassign somebody from the notes"
+msgstr ""
+
+msgid "Unassign yourself from the notes"
 msgstr ""
 
 msgid "Change the status of the notes"
