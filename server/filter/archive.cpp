@@ -82,7 +82,7 @@ string filter_archive_zip_folder_miniz_internal (string folder) // Todo
     bool is_dir = filter_url_is_dir (path);
     string file = path.substr (folder.size () + 1);
 #ifdef HAVE_WINDOWS
-    file = filter_string_str_replace (DIRECTORY_SEPARATOR, "/", filename); // Todo test it, if it works, comment on it.
+    file = filter_string_str_replace (DIRECTORY_SEPARATOR, "/", file); // Todo test it, if it works, comment on it.
 #endif
     mz_bool status;
     if (is_dir) {
