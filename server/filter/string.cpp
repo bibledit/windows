@@ -306,29 +306,41 @@ bool filter_string_is_numeric (string s)
 }
 
 
-// C++ equivalent for PHP function htmlspecialchars.
-string filter_string_sanitize_html (string html)
+// This takes the five special XML characters and escapes them.
+// < : &lt;
+// & : &amp;
+// > : &gt;
+// " : &quot;
+// ' : &apos;
+string escape_special_xml_characters (string s)
 {
-  html = filter_string_str_replace ("&", "&amp;", html);
-  html = filter_string_str_replace ("\"", "&quot;", html);
-  html = filter_string_str_replace ("'", "&apos;", html);
-  html = filter_string_str_replace ("<", "&lt;", html);
-  html = filter_string_str_replace (">", "&gt;", html);
-  return html;
+  s = filter_string_str_replace ("&", "&amp;", s);
+  s = filter_string_str_replace ("\"", "&quot;", s);
+  s = filter_string_str_replace ("'", "&apos;", s);
+  s = filter_string_str_replace ("<", "&lt;", s);
+  s = filter_string_str_replace (">", "&gt;", s);
+  return s;
 }
 
 
-// Does the opposite of its counterpart.
-string filter_string_desanitize_html (string html)
+// This unescapes the five special XML characters.
+string unescape_special_xml_characters (string s)
 {
-  html = filter_string_str_replace ("&quot;", """", html);
-  html = filter_string_str_replace ("&amp;", "&", html);
-  html = filter_string_str_replace ("&apos;", "'", html);
-  html = filter_string_str_replace ("&lt;", "<", html);
-  html = filter_string_str_replace ("&gt;", ">", html);
-  html = filter_string_str_replace (unicode_non_breaking_space_entity (), " ", html);
-  html = filter_string_str_replace (non_breaking_space_u00A0 (), " ", html);
-  return html;
+  s = filter_string_str_replace ("&quot;", """", s);
+  s = filter_string_str_replace ("&amp;", "&", s);
+  s = filter_string_str_replace ("&apos;", "'", s);
+  s = filter_string_str_replace ("&lt;", "<", s);
+  s = filter_string_str_replace ("&gt;", ">", s);
+  return s;
+}
+
+
+// Converts other types of spaces to standard spaces.
+string any_space_to_standard_space (string s)
+{
+  s = filter_string_str_replace (unicode_non_breaking_space_entity (), " ", s);
+  s = filter_string_str_replace (non_breaking_space_u00A0 (), " ", s);
+  return s;
 }
 
 
@@ -698,7 +710,7 @@ string filter_string_html2text (string html)
   text.append (html);
 
   // Replace xml entities with their text.
-  text = filter_string_desanitize_html (text);
+  text = unescape_special_xml_characters (text);
 
   while (text.find ("\n\n") != string::npos) {
     text = filter_string_str_replace ("\n\n", "\n", text);

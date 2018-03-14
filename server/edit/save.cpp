@@ -79,7 +79,7 @@ string edit_save (void * webserver_request)
 
   html = filter_url_tag_to_plus (html);
   html = filter_string_trim (html);
-  
+
   if (html.empty ()) {
     Database_Logs::log (translate ("There was no text.") + " " + translate ("Nothing was saved.") + " " + translate ("The original text of the chapter was reloaded."));
     return translate("Nothing to save");
@@ -102,7 +102,7 @@ string edit_save (void * webserver_request)
   editor_export.stylesheet (stylesheet);
   editor_export.run ();
   string user_usfm = editor_export.get ();
-  
+
   string ancestor_usfm = getLoadedUsfm (webserver_request, bible, book, chapter, "editql");
   
   vector <BookChapterData> book_chapter_text = usfm_import (user_usfm, stylesheet);

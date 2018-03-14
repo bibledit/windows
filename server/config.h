@@ -4,12 +4,6 @@
 /* Define whether to compile for Android */
 /* #undef HAVE_ANDROID */
 
-/* Define whether to compile for Chrome App */
-/* #undef HAVE_CHROMEAPP */
-
-/* Define whether to compile for Chrome OS */
-/* #undef HAVE_CHROMEOS */
-
 /* define if the compiler supports basic C++11 syntax */
 #define HAVE_CXX11 1
 
@@ -90,7 +84,7 @@
 #define PACKAGE_PREFIX_DIR "NONE"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "bibledit 5.0.426"
+#define PACKAGE_STRING "bibledit 5.0.462"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "bibledit"
@@ -99,13 +93,13 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "5.0.426"
+#define PACKAGE_VERSION "5.0.462"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "5.0.426"
+#define VERSION "5.0.462"
 
 /* Define whether to compile on Windows */
 #define WIN32 1
