@@ -408,9 +408,6 @@
     <ClCompile Include="mbedtls\memory_buffer_alloc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mbedtls\net.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="mbedtls\oid.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1273,6 +1270,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="resource\bbgateway.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\net_sockets.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\rsa_internal.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

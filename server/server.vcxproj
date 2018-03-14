@@ -400,7 +400,7 @@
     <ClCompile Include="mbedtls\md5.c" />
     <ClCompile Include="mbedtls\md_wrap.c" />
     <ClCompile Include="mbedtls\memory_buffer_alloc.c" />
-    <ClCompile Include="mbedtls\net.c" />
+    <ClCompile Include="mbedtls\net_sockets.c" />
     <ClCompile Include="mbedtls\oid.c" />
     <ClCompile Include="mbedtls\padlock.c" />
     <ClCompile Include="mbedtls\pem.c" />
@@ -414,6 +414,7 @@
     <ClCompile Include="mbedtls\platform.c" />
     <ClCompile Include="mbedtls\ripemd160.c" />
     <ClCompile Include="mbedtls\rsa.c" />
+    <ClCompile Include="mbedtls\rsa_internal.c" />
     <ClCompile Include="mbedtls\sha1.c" />
     <ClCompile Include="mbedtls\sha256.c" />
     <ClCompile Include="mbedtls\sha512.c" />
