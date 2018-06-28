@@ -11,9 +11,20 @@
 WINDOWSDIR=`dirname $0 | realpath`
 
 
-echo Remove existing code.
+echo Build the core library once more
+# The purpose of this is to make sure
+# that the autoconf and automake systems
+# are in a consistent state.
+# There were cases that an inconsistent system
+# led to this script failing.
+cd $WINDOWSDIR
+cd ../cloud
+make --jobs=4
+
+
+echo Remove all existing code.
 # The point of doing this is to remove code
-# still in the Windows port
+# that still is in the Windows port
 # but no longer in the core library.
 cd $WINDOWSDIR
 cd server
@@ -24,7 +35,7 @@ find . -name "*.cpp" -delete
 
 cd $WINDOWSDIR
 echo Pulling in the relevant Bibledit library source code.
-rsync --archive --exclude '.deps' --exclude '*.o' --exclude '*.a' --exclude '.dirstamp' --exclude 'server' --exclude 'unittest' --exclude '.DS_Store' --exclude 'autom4te.cache' --exclude 'bibledit' --exclude '*~' --exclude 'dev' --exclude 'generate' --exclude 'valgrind' --exclude 'AUTHORS' --exclude 'NEWS' --exclude 'README' --exclude 'ChangeLog' --exclude 'reconfigure' --exclude 'xcode' --exclude 'DEVELOP' ../cloud/* server
+rsync --archive --exclude '*.o' --exclude '*.a' --exclude '.dirstamp' --exclude 'server' --exclude 'unittest' --exclude '.DS_Store' --exclude 'autom4te.cache' --exclude 'bibledit' --exclude '*~' --exclude 'dev' --exclude 'generate' --exclude 'valgrind' --exclude 'AUTHORS' --exclude 'NEWS' --exclude 'README' --exclude 'ChangeLog' --exclude 'reconfigure' --exclude 'xcode' --exclude 'DEVELOP' --exclude '*.Po' ../cloud/* server
 
 
 echo Change directory to the core library.
@@ -34,7 +45,7 @@ cd server
 echo Prepare the sample Bible.
 ./configure
 if [ $? != 0 ]; then exit; fi
-make --jobs=24
+make --jobs=4
 if [ $? != 0 ]; then exit; fi
 ./generate . samplebible
 if [ $? != 0 ]; then exit; fi
@@ -103,4 +114,6 @@ sed -i.bak "s/AppVersion=.*/AppVersion=$VERSION/" package.iss
 sed -i.bak "s/OutputBaseFilename=.*/OutputBaseFilename=bibledit-$VERSION/" package.iss
 rm package.iss.bak
 
+
+echo Ready
 
