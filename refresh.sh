@@ -100,6 +100,7 @@ rm missing
 rm stamp-h1
 rmdir unittests
 rmdir sources
+rm -rf autom4te.cache
 
 
 # Clean stuff out.
