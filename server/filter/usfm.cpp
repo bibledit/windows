@@ -722,11 +722,7 @@ string usfm_safely_store_verse (void * webserver_request,
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
   
-  cout << __LINE__ << endl; // Todo
-  cout << "size " << usfm.size () << endl; // Todo
   usfm = filter_string_trim (usfm);
-  cout << __LINE__ << endl; // Todo
-  cout << "size " << usfm.size () << endl; // Todo
 
   // Check that the USFM to be saved is for the correct verse.
   vector <int> save_verses = usfm_get_verse_numbers (usfm);
@@ -783,6 +779,10 @@ string usfm_safely_store_verse (void * webserver_request,
   }
 
   // Check maximum difference between new and existing USFM.
+  cout << __LINE__ << endl; // Todo
+  cout << "size " << existing_verse_usfm.size () << endl; // Todo
+  cout << __LINE__ << endl; // Todo
+  cout << "size " << usfm.size () << endl; // Todo
   string message = usfm_save_is_safe (webserver_request, existing_verse_usfm, usfm, false, explanation);
   if (!message.empty ()) return message;
   
