@@ -722,7 +722,11 @@ string usfm_safely_store_verse (void * webserver_request,
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
   
+  cout << __LINE__ << endl; // Todo
+  cout << "size " << usfm.size () << endl; // Todo
   usfm = filter_string_trim (usfm);
+  cout << __LINE__ << endl; // Todo
+  cout << "size " << usfm.size () << endl; // Todo
 
   // Check that the USFM to be saved is for the correct verse.
   vector <int> save_verses = usfm_get_verse_numbers (usfm);
@@ -750,7 +754,9 @@ string usfm_safely_store_verse (void * webserver_request,
   if (quill) existing_verse_usfm = usfm_get_verse_text_quill (chapter_usfm, verse);
   else existing_verse_usfm = usfm_get_verse_text (chapter_usfm, verse);
   existing_verse_usfm = filter_string_trim (existing_verse_usfm);
-  
+  cout << __LINE__ << endl; // Todo
+  cout << "size " << existing_verse_usfm.size () << endl; // Todo
+
   // Check that there is a match between the existing verse numbers and the verse numbers to save.
   vector <int> existing_verses = usfm_get_verse_numbers (existing_verse_usfm);
   save_verses = usfm_get_verse_numbers (usfm);
@@ -790,7 +796,9 @@ string usfm_safely_store_verse (void * webserver_request,
   }
   chapter_usfm.erase (pos, length);
   chapter_usfm.insert (pos, usfm);
-  
+  cout << __LINE__ << endl; // Todo
+  cout << "size " << chapter_usfm.size () << endl; // Todo
+
   // Record the change in the journal.
   string user = request->session_logic ()->currentUser ();
   bible_logic_log_change (bible, book, chapter, chapter_usfm, user, translate ("Saving verse"), false);
