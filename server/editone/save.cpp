@@ -71,6 +71,8 @@ string editone_save (void * webserver_request)
   int chapter = convert_to_int (request->post["chapter"]);
   int verse = convert_to_int (request->post["verse"]);
   string html = request->post["html"];
+  cout << __LINE__ << endl; // Todo
+  cout << "html size " << html.size () << endl; // Todo
   string checksum = request->post["checksum"];
 
   
@@ -83,6 +85,8 @@ string editone_save (void * webserver_request)
   
   // Decode html encoded in javascript.
   html = filter_url_tag_to_plus (html);
+  cout << __LINE__ << endl; // Todo
+  cout << "html size " << html.size () << endl; // Todo
 
   
   // Check there's anything to save at all.
@@ -107,6 +111,8 @@ string editone_save (void * webserver_request)
  
   
   string usfm = editone_logic_html_to_usfm (stylesheet, html);
+  cout << __LINE__ << endl; // Todo
+  cout << "html size " << usfm.size () << endl; // Todo
 
   // Collect some data about the changes for this user.
   string username = request->session_logic()->currentUser ();
