@@ -783,14 +783,20 @@ string usfm_safely_store_verse (void * webserver_request,
   if (!message.empty ()) return message;
   
   // Store the new verse USFM in the existing chapter USFM.
+  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), existing_verse_usfm); // Todo
+  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), chapter_usfm); // Todo
   size_t pos = chapter_usfm.find (existing_verse_usfm);
+  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), to_string (pos)); // Todo
   size_t length = existing_verse_usfm.length ();
+  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), to_string (length)); // Todo
   if (pos == string::npos) {
     explanation = "Cannot find the exact location in the chapter where to save this USFM fragment";
     Database_Logs::log (explanation + ": " + usfm);
     return translate ("Doesn't know where to save");
   }
+  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), chapter_usfm); // Todo
   chapter_usfm.erase (pos, length);
+  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), chapter_usfm); // Todo
   chapter_usfm.insert (pos, usfm);
   filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), chapter_usfm); // Todo
 
