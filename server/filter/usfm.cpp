@@ -610,7 +610,7 @@ string usfm_get_closing_usfm (string text, bool embedded)
 // It returns an empty string if the difference is below the limit set for the Bible.
 // It returns a short message specifying the difference if it exceeds that limit.
 // It fills $explanation with a longer message in case saving is not safe.
-string usfm_save_is_safe (void * webserver_request, string oldtext, string newtext, bool chapter, string & explanation) // Todo
+string usfm_save_is_safe (void * webserver_request, string oldtext, string newtext, bool chapter, string & explanation)
 {
   // Two texts are equal: safe.
   if (newtext == oldtext) return "";
@@ -632,15 +632,9 @@ string usfm_save_is_safe (void * webserver_request, string oldtext, string newte
   
   // The length of the new text should not differ more than a set percentage from the old text.
   float existingLength = oldtext.length();
-  cout << __LINE__ << endl; // Todo
-  cout << "existingLength " << existingLength << endl; // Todo
   float newLength = newtext.length ();
-  cout << __LINE__ << endl; // Todo
-  cout << "newLength " << newLength << endl; // Todo
   int percentage = 100 * (newLength - existingLength) / existingLength;
   percentage = abs (percentage);
-  cout << __LINE__ << endl; // Todo
-  cout << "percentage " << percentage << endl; // Todo
   if (percentage > 100) percentage = 100;
   if (percentage > allowed_percentage) {
     explanation.append (explanation1);
@@ -663,8 +657,6 @@ string usfm_save_is_safe (void * webserver_request, string oldtext, string newte
   } else {
     // For shorter texts, work at the character level, for better accuracy.
     percentage = filter_diff_character_similarity (oldtext, newtext);
-    cout << __LINE__ << endl; // Todo
-    cout << "percentage " << percentage << endl; // Todo
   }
   if (percentage < (100 - allowed_percentage)) {
     explanation.append (explanation1);
@@ -677,7 +669,6 @@ string usfm_save_is_safe (void * webserver_request, string oldtext, string newte
   }
   
   // Safety checks have passed.
-  cout << __LINE__ << endl; // Todo
   return "";
 }
 
