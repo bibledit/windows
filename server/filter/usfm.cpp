@@ -724,7 +724,6 @@ string usfm_safely_store_verse (void * webserver_request,
   
   filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), usfm); // Todo
   usfm = filter_string_trim (usfm);
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), usfm); // Todo
 
   // Check that the USFM to be saved is for the correct verse.
   vector <int> save_verses = usfm_get_verse_numbers (usfm);
@@ -746,14 +745,12 @@ string usfm_safely_store_verse (void * webserver_request,
 
   // Get the existing chapter USFM.
   string chapter_usfm = request->database_bibles()->getChapter (bible, book, chapter);
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), chapter_usfm); // Todo
   
   // Get the existing USFM fragment for the verse to save.
   string existing_verse_usfm;
   if (quill) existing_verse_usfm = usfm_get_verse_text_quill (chapter_usfm, verse);
   else existing_verse_usfm = usfm_get_verse_text (chapter_usfm, verse);
   existing_verse_usfm = filter_string_trim (existing_verse_usfm);
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), existing_verse_usfm); // Todo
 
   // Check that there is a match between the existing verse numbers and the verse numbers to save.
   vector <int> existing_verses = usfm_get_verse_numbers (existing_verse_usfm);
@@ -785,22 +782,15 @@ string usfm_safely_store_verse (void * webserver_request,
   if (!message.empty ()) return message;
   
   // Store the new verse USFM in the existing chapter USFM.
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), existing_verse_usfm); // Todo
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), chapter_usfm); // Todo
   size_t pos = chapter_usfm.find (existing_verse_usfm);
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), to_string (pos)); // Todo
   size_t length = existing_verse_usfm.length ();
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), to_string (length)); // Todo
   if (pos == string::npos) {
     explanation = "Cannot find the exact location in the chapter where to save this USFM fragment";
     Database_Logs::log (explanation + ": " + usfm);
     return translate ("Doesn't know where to save");
   }
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), chapter_usfm); // Todo
   chapter_usfm.erase (pos, length);
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), chapter_usfm); // Todo
   chapter_usfm.insert (pos, usfm);
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), chapter_usfm); // Todo
 
   // Record the change in the journal.
   string user = request->session_logic ()->currentUser ();
