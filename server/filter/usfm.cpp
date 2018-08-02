@@ -718,11 +718,10 @@ string usfm_safely_store_chapter (void * webserver_request,
 // It handles combined verses.
 string usfm_safely_store_verse (void * webserver_request,
                                 string bible, int book, int chapter, int verse, string usfm,
-                                string & explanation, bool quill) // Todo
+                                string & explanation, bool quill)
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
   
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), usfm); // Todo
   usfm = filter_string_trim (usfm);
 
   // Check that the USFM to be saved is for the correct verse.

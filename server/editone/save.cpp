@@ -71,7 +71,6 @@ string editone_save (void * webserver_request)
   int chapter = convert_to_int (request->post["chapter"]);
   int verse = convert_to_int (request->post["verse"]);
   string html = request->post["html"];
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), html); // Todo
   string checksum = request->post["checksum"];
 
   
@@ -80,12 +79,10 @@ string editone_save (void * webserver_request)
     request->response_code = 409;
     return translate ("Checksum error");
   }
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), html); // Todo
 
   
   // Decode html encoded in javascript.
   html = filter_url_tag_to_plus (html);
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), html); // Todo
 
   
   // Check there's anything to save at all.
@@ -110,7 +107,6 @@ string editone_save (void * webserver_request)
  
   
   string usfm = editone_logic_html_to_usfm (stylesheet, html);
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), usfm); // Todo
 
   // Collect some data about the changes for this user.
   string username = request->session_logic()->currentUser ();
