@@ -722,7 +722,9 @@ string usfm_safely_store_verse (void * webserver_request,
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
   
+  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), usfm); // Todo
   usfm = filter_string_trim (usfm);
+  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), usfm); // Todo
 
   // Check that the USFM to be saved is for the correct verse.
   vector <int> save_verses = usfm_get_verse_numbers (usfm);
