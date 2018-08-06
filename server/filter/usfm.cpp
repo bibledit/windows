@@ -796,7 +796,8 @@ string usfm_safely_store_verse (void * webserver_request,
   bible_logic_log_change (bible, book, chapter, chapter_usfm, user, translate ("Saving verse"), false);
   
   // Safety checks have passed: Save chapter.
-  // Todo temporarily off. bible_logic_store_chapter (bible, book, chapter, chapter_usfm);
+  // Todo temporarily off.
+  bible_logic_store_chapter (bible, book, chapter, chapter_usfm);
 
   // Done: OK.
   return "";

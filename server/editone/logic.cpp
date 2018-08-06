@@ -105,13 +105,10 @@ string editone_logic_html_to_usfm (string stylesheet, string html)
   // It does it much later now, before saving the USFM that the converter produces.
   
   // Convert special spaces to normal ones.
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), html); // Todo
   html = any_space_to_standard_space (html);
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), html); // Todo
 
   // Convert the html back to USFM in the special way for editing one verse.
   string usfm = editor_export_verse_quill (stylesheet, html);
-  filter_url_file_put_contents (filter_url_create_root_path (filter_url_temp_dir (), to_string (__LINE__)), usfm); // Todo
 
   // Done.
   return usfm;
