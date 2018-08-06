@@ -338,8 +338,8 @@ string unescape_special_xml_characters (string s)
 // Converts other types of spaces to standard spaces.
 string any_space_to_standard_space (string s) // Todo
 {
-  s = unicode_string_str_replace (unicode_non_breaking_space_entity (), " ", s);
-  s = unicode_string_str_replace (non_breaking_space_u00A0 (), " ", s);
+  s = filter_string_str_replace (unicode_non_breaking_space_entity (), " ", s);
+  s = filter_string_str_replace (non_breaking_space_u00A0 (), " ", s);
   return s;
 }
 
@@ -347,6 +347,10 @@ string any_space_to_standard_space (string s) // Todo
 // Returns a no-break space (NBSP) (x00A0).
 string non_breaking_space_u00A0 ()
 {
+#ifdef HAVE_WINDOWS
+  // On Visual Studio 2015 the C-style code below does not work.
+  return " ";
+#endif
   // Use C-style code.
   return "\u00A0";
 }
