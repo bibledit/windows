@@ -1153,7 +1153,7 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
     // Get a list of address structures. There can be several of them.
     int res = getaddrinfo (hostname.c_str(), service.c_str (), &hints, &address_results);
     if (res != 0) {
-      error = hostname + ": ";
+      error = "Internet connection failure: " + hostname + ": ";
 #ifdef HAVE_WINDOWS
       wchar_t * err = gai_strerrorW (res);
       error.append (wstring2string (err));

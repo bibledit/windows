@@ -267,6 +267,7 @@
 /email/index.html
 /esword
 /executable
+/executable/generate-ebca2dc4.o.tmp
 /export
 /export/quickbb.html
 /export/quickbible.html
@@ -322,6 +323,7 @@
 /help/typesetting.html
 /help/typesettingindesign.html
 /help/typesettinglibreoffice.html
+/help/typesettingscribus.html
 /help/wikipedia.txt
 /html
 /i18n
@@ -5105,6 +5107,7 @@
 /search/all.html
 /search/index.html
 /search/index.js
+/search/logic-fcb97fad.o.tmp
 /search/originals.html
 /search/originals.js
 /search/replace2.html
@@ -5234,6 +5237,7 @@
 /sources/sblgnt/sblgnt.xml
 /sources/sblgnt/strongsgreek.txt
 /sources/sblgnt/strongsgreek.xml
+/sources/styles-527063e3.o.tmp
 /sources/usfm.sty
 /sprint
 /sprint/index.html

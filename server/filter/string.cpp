@@ -336,7 +336,7 @@ string unescape_special_xml_characters (string s)
 
 
 // Converts other types of spaces to standard spaces.
-string any_space_to_standard_space (string s) // Todo
+string any_space_to_standard_space (string s)
 {
   s = filter_string_str_replace (unicode_non_breaking_space_entity (), " ", s);
   s = filter_string_str_replace (non_breaking_space_u00A0 (), " ", s);
@@ -359,6 +359,10 @@ string non_breaking_space_u00A0 ()
 // Returns a soft hyphen.
 string soft_hyphen_u00AD ()
 {
+#ifdef HAVE_WINDOWS
+  // On Visual Studio 2015 the C-style code below does not work.
+  return "­";
+#endif
   // Soft hyphen U+00AD.
   return "\u00AD";
 }
@@ -367,6 +371,10 @@ string soft_hyphen_u00AD ()
 // Returns an "en space", this is a nut, half an em space.
 string en_space_u2002 ()
 {
+#ifdef HAVE_WINDOWS
+  // On Visual Studio 2015 the C-style code below does not work.
+  return " ";
+#endif
   // U+2002.
   return "\u2002";
 }
@@ -378,6 +386,10 @@ string en_space_u2002 ()
 // It does not break, it keeps the numbers together.
 string figure_space_u2007 ()
 {
+#ifdef HAVE_WINDOWS
+  // On Visual Studio 2015 the C-style code below does not work.
+  return " ";
+#endif
   return "\u2007";
 }
 
@@ -385,8 +397,13 @@ string figure_space_u2007 ()
 // Returns a "narrow no-break space (x202F)
 string narrow_non_breaking_space_u202F ()
 {
+#ifdef HAVE_WINDOWS
+  // On Visual Studio 2015 the C-style code below does not work.
+  return " ";
+#endif
   return "\u202F";
 }
+
 
 // Returns the length of string s in unicode points, not in bytes.
 size_t unicode_string_length (string s)
@@ -673,7 +690,7 @@ int unicode_string_convert_to_codepoint (string s)
 }
 
 
-string unicode_string_str_replace (string search, string replace, string subject) // Todo
+string unicode_string_str_replace (string search, string replace, string subject)
 {
   // The needle to look for should not be empty.
   if (!search.empty ()) {
