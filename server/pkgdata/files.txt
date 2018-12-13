@@ -71,6 +71,9 @@
 /config/config.txt
 /config/ldap.txt
 /config/local.authorities.crt
+/config/local.cert.pem
+/config/local.chain.pem
+/config/local.privkey.pem
 /config/local.server.crt
 /config/local.server.key
 /config/network-port
@@ -267,7 +270,7 @@
 /email/index.html
 /esword
 /executable
-/executable/generate-ebca2dc4.o.tmp
+/executable/generate-01b5f2b5.o.tmp
 /export
 /export/quickbb.html
 /export/quickbible.html
@@ -365,6 +368,7 @@
 /locale/bibledit.pot
 /locale/cs.po
 /locale/de.po
+/locale/en_GB.po
 /locale/es.po
 /locale/fr.po
 /locale/hi
@@ -5107,7 +5111,7 @@
 /search/all.html
 /search/index.html
 /search/index.js
-/search/logic-fcb97fad.o.tmp
+/search/logic-b1423611.o.tmp
 /search/originals.html
 /search/originals.js
 /search/replace2.html
@@ -5237,7 +5241,7 @@
 /sources/sblgnt/sblgnt.xml
 /sources/sblgnt/strongsgreek.txt
 /sources/sblgnt/strongsgreek.xml
-/sources/styles-527063e3.o.tmp
+/sources/styles-e8deb790.o.tmp
 /sources/usfm.sty
 /sprint
 /sprint/index.html

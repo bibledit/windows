@@ -172,42 +172,49 @@ string config_logic_manual_user_facing_url ()
 
 
 // Returns the path to the secure server's private key.
+// See also https://github.com/bibledit/cloud/issues/235
 string config_logic_server_key_path ()
 {
   // Try the correct config file first.
-  string path = filter_url_create_root_path ("config", "server.key");
+  string path = filter_url_create_root_path (config_logic_config_folder (), "privkey.pem");
   if (file_or_dir_exists (path)) return path;
   // Try the file for localhost next.
-  // path = filter_url_create_root_path ("config", "local.server.key");
-  // if (file_or_dir_exists (path)) return path;
+  path = filter_url_create_root_path (config_logic_config_folder (), "local.privkey.pem");
+  if (file_or_dir_exists (path)) return path;
   // Nothing found.
   return "";
 }
 
 
 // Returns the path to the secure server's public certificate.
+// See also https://github.com/bibledit/cloud/issues/235
 string config_logic_server_certificate_path ()
 {
   // Try the correct config file first.
-  string path = filter_url_create_root_path ("config", "server.crt");
+  string path = filter_url_create_root_path (config_logic_config_folder (), "cert.pem");
   if (file_or_dir_exists (path)) return path;
   // Try the file for localhost next.
-  // path = filter_url_create_root_path ("config", "local.server.crt");
-  // if (file_or_dir_exists (path)) return path;
+  path = filter_url_create_root_path (config_logic_config_folder (), "local.cert.pem");
+  if (file_or_dir_exists (path)) return path;
   // Nothing found.
   return "";
 }
 
 
-// Returns the path to the secure server's chain of certificates of the signing authorities.
+// Returns the path to the secure server's certificates of the signing authorities.
+// This file contains the chain of trusted certificate authorities that have issued the server certificate.
+// At the top of the file will be the intermediate authority that issued the server certificate.
+// Next can be more intermediate authorities.
+// At the bottom of the file should be the trusted root certificate.
+// See also https://github.com/bibledit/cloud/issues/235
 string config_logic_authorities_certificates_path ()
 {
   // Try the correct config file first.
-  string path = filter_url_create_root_path ("config", "authorities.crt");
+  string path = filter_url_create_root_path (config_logic_config_folder (), "chain.pem");
   if (file_or_dir_exists (path)) return path;
   // Try the file for localhost next.
-  // path = filter_url_create_root_path ("config", "local.authorities.crt");
-  // if (file_or_dir_exists (path)) return path;
+  path = filter_url_create_root_path (config_logic_config_folder (), "local.chain.pem");
+  if (file_or_dir_exists (path)) return path;
   // Nothing found.
   return "";
 }
@@ -216,14 +223,14 @@ string config_logic_authorities_certificates_path ()
 // Whether to enforce https traffic for browser communications.
 bool config_logic_enforce_https_browser ()
 {
-  return file_or_dir_exists (filter_url_create_root_path ("config", "browser.https"));
+  return file_or_dir_exists (filter_url_create_root_path (config_logic_config_folder (), "browser.https"));
 }
 
 
 // Whether to enforce https traffic for client communications.
 bool config_logic_enforce_https_client ()
 {
-  return file_or_dir_exists (filter_url_create_root_path ("config", "client.https"));
+  return file_or_dir_exists (filter_url_create_root_path (config_logic_config_folder (), "client.https"));
 }
 
 
