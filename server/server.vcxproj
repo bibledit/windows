@@ -377,6 +377,8 @@
     <ClCompile Include="mbedtls\camellia.c" />
     <ClCompile Include="mbedtls\ccm.c" />
     <ClCompile Include="mbedtls\certs.c" />
+    <ClCompile Include="mbedtls\chacha20.c" />
+    <ClCompile Include="mbedtls\chachapoly.c" />
     <ClCompile Include="mbedtls\cipher.c" />
     <ClCompile Include="mbedtls\cipher_wrap.c" />
     <ClCompile Include="mbedtls\ctr_drbg.c" />
@@ -412,6 +414,8 @@
     <ClCompile Include="mbedtls\pkwrite.c" />
     <ClCompile Include="mbedtls\pk_wrap.c" />
     <ClCompile Include="mbedtls\platform.c" />
+    <ClCompile Include="mbedtls\platform_util.c" />
+    <ClCompile Include="mbedtls\poly1305.c" />
     <ClCompile Include="mbedtls\ripemd160.c" />
     <ClCompile Include="mbedtls\rsa.c" />
     <ClCompile Include="mbedtls\rsa_internal.c" />
