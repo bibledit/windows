@@ -828,9 +828,6 @@
     <ClCompile Include="export\onlinebible.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="export\quickbible.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="export\textusfm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

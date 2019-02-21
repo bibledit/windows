@@ -318,7 +318,6 @@
     <ClCompile Include="export\logic.cpp" />
     <ClCompile Include="export\odt.cpp" />
     <ClCompile Include="export\onlinebible.cpp" />
-    <ClCompile Include="export\quickbible.cpp" />
     <ClCompile Include="export\textusfm.cpp" />
     <ClCompile Include="export\usfm.cpp" />
     <ClCompile Include="export\web.cpp" />
