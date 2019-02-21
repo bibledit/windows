@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (©) 2003-2017 Teus Benschop.
+# Copyright (©) 2003-2018 Teus Benschop.
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -380,11 +380,6 @@ fi
 # mmv ";*bibledit.png*" "#1#2$bibledit.png#3"
 # if [ $? -ne 0 ]; then exit; fi
 # sed -i.bak "s/bibledit.png/$bibledit.png/g" Makefile.am setup/index.html
-# if [ $? -ne 0 ]; then exit; fi
-
-
-# Deal with "quickbible.html" and where it is called.
-# mmv ";*quickbible.html*" "#1#2quick${bible}.html#3"
 # if [ $? -ne 0 ]; then exit; fi
 
 

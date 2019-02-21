@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2017 Teus Benschop.
+Copyright (©) 2003-2018 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -59,7 +59,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <export/esword.h>
 #include <export/onlinebible.h>
 #include <export/bibledropbox.h>
-#include <export/quickbible.h>
 #include <manage/hyphenate.h>
 #include <paratext/logic.h>
 #include <resource/logic.h>
@@ -71,6 +70,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <system/logic.h>
 #include <notes/logic.h>
 #include <changes/logic.h>
+#include <database/cache.h>
 
 
 atomic <int> running_tasks (0);
@@ -234,9 +234,6 @@ void tasks_run_one (string filename)
   else if (command == EXPORTONLINEBIBLE) {
     export_onlinebible (parameter1, convert_to_bool (parameter2));
   }
-  else if (command == EXPORTQUICKBIBLE) {
-    export_quickbible (parameter1, convert_to_bool (parameter2));
-  }
   else if (command == HYPHENATE) {
     manage_hyphenate (parameter1, parameter2);
   }
@@ -304,6 +301,9 @@ void tasks_run_one (string filename)
   }
   else if (command == DELETECHANGES) {
     changes_clear_notifications_user (parameter1, parameter2);
+  }
+  else if (command == CLEARCACHES) {
+    database_cache_trim (true);
   }
   else {
     Database_Logs::log ("Unknown task: " + command);

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2017 Teus Benschop.
+Copyright (©) 2003-2018 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -569,8 +569,12 @@ void Odf_Text::addText (string text)
     }
     domElement = textSpanDomElement;
   }
-  domElement.text ().set (escape_special_xml_characters (text).c_str());
-  
+  // It used to escape the special XML characters.
+  // Ecaping e.g. the apostrophy (') would lead to the following fragment in the .odt file:
+  // &apos;
+  // So it no longer escaped the special XML characters.
+  domElement.text ().set (text.c_str());
+
   // Update public paragraph text.
   currentParagraphContent += text;
 }

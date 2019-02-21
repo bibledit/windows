@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2017 Teus Benschop.
+Copyright (©) 2003-2018 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -615,16 +615,6 @@ bool Database_Config_Bible::getExportOnlineBibleDuringNight (string bible)
 void Database_Config_Bible::setExportOnlineBibleDuringNight (string bible, bool value)
 {
   setBValue (bible, "export-onlinebible-during-night", value);
-}
-
-
-bool Database_Config_Bible::getExportQuickBibleDuringNight (string bible)
-{
-  return getBValue (bible, "export-quickbible-during-night", false);
-}
-void Database_Config_Bible::setExportQuickBibleDuringNight (string bible, bool value)
-{
-  setBValue (bible, "export-quickbible-during-night", value);
 }
 
 

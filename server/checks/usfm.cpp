@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2017 Teus Benschop.
+ Copyright (©) 2003-2018 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -39,7 +39,9 @@ Checks_Usfm::Checks_Usfm (string bible)
     int styleSubtype = style.subtype;
 
     // Find out which markers require an endmarker.
+    // And which ones are embeddable.
     bool requiredEndmarker = false;
+    bool embeddableMarker = false;
     if (styleType == StyleTypeFootEndNote) {
       if ((styleSubtype == FootEndNoteSubtypeFootnote) || (styleSubtype == FootEndNoteSubtypeEndnote)) {
         requiredEndmarker = true;
@@ -50,10 +52,19 @@ Checks_Usfm::Checks_Usfm (string bible)
         requiredEndmarker = true;
       }
     }
-    if (styleType == StyleTypeInlineText) requiredEndmarker = true;
-    if (styleType == StyleTypeWordlistElement) requiredEndmarker = true;
+    if (styleType == StyleTypeInlineText) {
+      requiredEndmarker = true;
+      embeddableMarker = true;
+    }
+    if (styleType == StyleTypeWordlistElement) {
+      requiredEndmarker = true;
+      embeddableMarker = true;
+    }
     if (requiredEndmarker) {
       markersRequiringEndmarkers.push_back (marker);
+    }
+    if (embeddableMarker) {
+      embeddableMarkers.push_back (marker);
     }
     
     // Look for the \toc[1-3] markers.
@@ -115,6 +126,8 @@ void Checks_Usfm::check (string usfm)
       widowBackSlash ();
       
       matchingEndmarker ();
+      
+      embeddedMarker ();
     }
   }
 }
@@ -255,6 +268,59 @@ void Checks_Usfm::matchingEndmarker ()
 }
 
 
+void Checks_Usfm::embeddedMarker ()
+{
+  // The marker, e.g. '\add'.
+  string marker = usfmItem;
+
+  // Remove the initial backslash, e.g. '\add' becomes 'add'.
+  marker = marker.substr (1);
+  marker = filter_string_trim (marker);
+
+  bool isOpener = usfm_is_opening_marker (marker);
+
+  // Clean a closing marker, e.g. '\add*' becomes '\add'.
+  if (!isOpener) {
+    if (!marker.empty ()) marker = marker.substr (0, marker.length () - 1);
+  }
+  
+  // If the marker is not relevant for this check, bail out.
+  if (!in_array (marker, embeddableMarkers)) return;
+  
+  // Checking method is as follows:
+  // If there's no open embeddable markers, then the '+' sign is not needed.
+  // If there's open embeddable markers, and another marker is opened,
+  // then the '+' sign is needed.
+  // Example USFM:
+  // \v 1 This \add is an \+w embedded\+w* marker\add*.
+  // See the following URL for more information about embedding markers:
+  // https://ubsicap.github.io/usfm/characters/nesting.html
+  
+  bool checkEmbedding = false;
+  if (isOpener) {
+    if (!in_array (marker, openEmbeddableMarkers)) {
+      if (!openEmbeddableMarkers.empty ()) {
+        checkEmbedding = true;
+      }
+      openEmbeddableMarkers.push_back (marker);
+    }
+  } else {
+    if (in_array (marker, openEmbeddableMarkers)) {
+      openEmbeddableMarkers = filter_string_array_diff (openEmbeddableMarkers, {marker});
+      if (!openEmbeddableMarkers.empty ()) {
+        checkEmbedding = true;
+      }
+    }
+  }
+  
+  if (checkEmbedding) {
+    if (marker.substr (0, 1) != "+") {
+      addResult (translate ("Embedded marker requires a plus sign"), displayFull);
+    }
+  }
+}
+
+
 void Checks_Usfm::toc (string usfm)
 {
   // Only check the 66 canonical books.
@@ -327,8 +393,8 @@ void Checks_Usfm::addResult (string text, int modifier)
 
  The official usfm.sty from paratext.org shows where each marker occurs under.
  That could be used to do a mechanical check on the position of the various markers.
- But this is not implemented just now because it is not the purpose of Bibledit 
- to exactly check every aspect of USFM.
+ But this is not implemented just now
+ because it is not the purpose of Bibledit to exactly check every aspect of USFM.
  Rather Bibledit checks some important issues that may occur in daily USFM editing.
  Checking every aspect of USFM is a bit of an overkill.
 

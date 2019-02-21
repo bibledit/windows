@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2017 Teus Benschop.
+Copyright (©) 2003-2018 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -41,6 +41,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <jobs/index.h>
 #include <tasks/logic.h>
 #include <journal/logic.h>
+#include <journal/index.h>
+#include <fonts/logic.h>
+#include <manage/index.h>
+#include <client/logic.h>
 
 
 string system_index_url ()
@@ -270,11 +274,80 @@ string system_index (void * webserver_request)
 #endif
 
   
+  // Force re-index Bibles.
+  if (request->query ["reindex"] == "bibles") {
+    Database_Config_General::setIndexBibles (true);
+    tasks_logic_queue (REINDEXBIBLES, {"1"});
+    redirect_browser (request, journal_index_url ());
+    return "";
+  }
+  
+  
+  // Re-index consultation notes.
+  if (request->query ["reindex"] == "notes") {
+    Database_Config_General::setIndexNotes (true);
+    tasks_logic_queue (REINDEXNOTES);
+    redirect_browser (request, journal_index_url ());
+    return "";
+  }
+
+  
+  // Delete a font.
+  string deletefont = request->query ["deletefont"];
+  if (!deletefont.empty ()) {
+    string font = filter_url_basename_web (deletefont);
+    bool font_in_use = false;
+    vector <string> bibles = request->database_bibles ()->getBibles ();
+    for (auto & bible : bibles) {
+      if (font == Fonts_Logic::getTextFont (bible)) font_in_use = true;
+    }
+    if (!font_in_use) {
+      // Only delete a font when it is not in use.
+      Fonts_Logic::erase (font);
+    } else {
+      error = translate("The font could not be deleted because it is in use");
+    }
+  }
+  
+  
+  // Upload a font.
+  if (request->post.count ("uploadfont")) {
+    string filename = request->post ["filename"];
+    string path = filter_url_create_root_path ("fonts", filename);
+    string fontdata = request->post ["fontdata"];
+    filter_url_file_put_contents (path, fontdata);
+    success = translate("The font has been uploaded.");
+  }
+  
+  
+  // Assemble the font block html.
+  vector <string> fonts = Fonts_Logic::getFonts ();
+  vector <string> fontsblock;
+  for (auto & font : fonts) {
+    fontsblock.push_back ("<p>");
+#ifndef HAVE_CLIENT
+    fontsblock.push_back ("<a href=\"?deletefont=" + font+ "\" title=\"" + translate("Delete font") + "\">" + emoji_wastebasket () + "</a>");
+#endif
+    fontsblock.push_back (font);
+    fontsblock.push_back ("</p>");
+  }
+  view.set_variable ("fontsblock", filter_string_implode (fontsblock, "\n"));
+
+  
+  // Handle the command to clear the web and resources caches.
+  if (request->query.count ("clearcache")) {
+    tasks_logic_queue (CLEARCACHES);
+    redirect_browser (request, journal_index_url ());
+    return "";
+  }
+
+  
 #ifdef HAVE_CLOUD
   view.enable_zone ("cloud");
 #endif
 #ifdef HAVE_CLIENT
   view.enable_zone ("client");
+  view.set_variable ("cloudlink", client_logic_link_to_cloud (manage_index_url (), ""));
 #endif
   
   

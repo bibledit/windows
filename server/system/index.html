@@ -58,5 +58,38 @@ translate("Import it there.")
 <p><a href="?importresources=">translate("Import a Resources archive into this device.")</a></p>
 <!-- #ENDZONE client -->
 
+<h3>translate("Indexing")</h3>
+<p>
+translate("Bibledit uses indexes for fast lookup.")
+translate("Normally the indexes are refreshed automatically.")
+translate("When the Journal indicates unusual behaviour of an index, or errors, it needs to be recreated.")
+</p>
+<p><a href="?reindex=bibles">translate("Recreate Bibles index.")</a></p>
+<p><a href="?reindex=notes">translate("Recreate Consultation Notes index.")</a></p>
+
+<h3>translate("Fonts")</h3>
+<p>translate("The following fonts are available in Bibledit:")</p>
+<br>
+##fontsblock##
+<br>
+<!-- #BEGINZONE client -->
+<p>
+translate("You can add or remove fonts in Bibledit Cloud:")
+##cloudlink##
+</p>
+<!-- #ENDZONE client -->
+<!-- #BEGINZONE cloud -->
+<p>translate("You can upload a new font.")</p>
+<form enctype="multipart/form-data" action="index" method="POST">
+  <input name="fontdata" type="file" />
+  <input type="submit" name="uploadfont" value="translate("Upload")" />
+</form>
+<!-- #ENDZONE cloud -->
+
+<!-- #BEGINZONE cloud -->
+<h3>translate("Cache")</h3>
+<p><a href="?clearcache=">translate("Clear the web cache and the resources cache.")</a></p>
+<!-- #ENDZONE cloud -->
+
 <script type="text/javascript" src="../assets/checkbox.js"></script>
 <script type="text/javascript" src="../assets/external.js"></script>

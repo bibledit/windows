@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2017 Teus Benschop.
+ Copyright (©) 2003-2018 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -119,12 +119,6 @@ void Export_Logic::scheduleOnlineBible (string bible, bool log)
 void Export_Logic::scheduleESword (string bible, bool log)
 {
   tasks_logic_queue (EXPORTESWORD, {bible, convert_to_string (log)});
-}
-
-
-void Export_Logic::scheduleQuickBible (string bible, bool log)
-{
-  tasks_logic_queue (EXPORTQUICKBIBLE, {bible, convert_to_string (log)});
 }
 
 

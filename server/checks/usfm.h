@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2017 Teus Benschop.
+ Copyright (©) 2003-2018 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -55,6 +55,10 @@ private:
   vector <string> markersRequiringEndmarkers;
   vector <string> openMatchingMarkers;
   
+  // Embedded markers.
+  vector <string> embeddableMarkers;
+  vector <string> openEmbeddableMarkers;
+
   // Table of contents markers and flags.
   string longToc1Marker;
   string shortToc2Marker;
@@ -68,6 +72,7 @@ private:
   void forwardSlash (string usfm);
   void widowBackSlash ();
   void matchingEndmarker ();
+  void embeddedMarker ();
   void toc (string usfm);
   void addResult (string text, int modifier);
 };

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2017 Teus Benschop.
+Copyright (©) 2003-2018 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -121,7 +121,7 @@ void webserver_process_request (int connfd, string clientaddress)
         // Parse the browser's request's headers.
         header_parsed = http_parse_header (buffer, &request);
       } while (header_parsed);
-      
+
       if (connection_healthy) {
         
         // In the case of a POST request, more data follows: The POST request itself.

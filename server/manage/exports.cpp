@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2017 Teus Benschop.
+ Copyright (©) 2003-2018 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -356,19 +356,6 @@ string manage_exports (void * webserver_request)
   if (request->query.count ("onlinebiblenow")) {
     Export_Logic::scheduleOnlineBible (bible, true);
     view.set_variable ("success", translate("The Bible is being exported to Online Bible format."));
-  }
-  
-  
-  if (checkbox == "quickbible") {
-    Database_Config_Bible::setExportQuickBibleDuringNight (bible, checked);
-    Database_State::setExport (bible, 0, Export_Logic::export_needed);
-  }
-  view.set_variable ("quickbible", get_checkbox_status (Database_Config_Bible::getExportQuickBibleDuringNight (bible)));
-  
-  
-  if (request->query.count ("quickbiblenow")) {
-    Export_Logic::scheduleQuickBible (bible, true);
-    view.set_variable ("success", translate("The Bible is being exported to Quick Bible format."));
   }
   
   

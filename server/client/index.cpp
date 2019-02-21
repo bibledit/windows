@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2017 Teus Benschop.
+ Copyright (©) 2003-2018 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ string client_index_url ()
 
 bool client_index_acl (void * webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ());
+  return Filter_Roles::access_control (webserver_request, Filter_Roles::member ());
 }
 
 

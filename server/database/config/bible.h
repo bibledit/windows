@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2017 Teus Benschop.
+Copyright (©) 2003-2018 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -124,8 +124,6 @@ public:
   static void setExportESwordDuringNight (string bible, bool value);
   static bool getExportOnlineBibleDuringNight (string bible);
   static void setExportOnlineBibleDuringNight (string bible, bool value);
-  static bool getExportQuickBibleDuringNight (string bible);
-  static void setExportQuickBibleDuringNight (string bible, bool value);
   static string getExportPassword (string bible);
   static void setExportPassword (string bible, string value);
   static bool getSecureUsfmExport (string bible);
