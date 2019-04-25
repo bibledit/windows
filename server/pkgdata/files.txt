@@ -270,7 +270,7 @@
 /email/index.html
 /esword
 /executable
-/executable/generate-788cff53.o.tmp
+/executable/generate-08d7671e.o.tmp
 /export
 /export/quickbb.html
 /export/quickbible.html
@@ -5111,7 +5111,7 @@
 /search/all.html
 /search/index.html
 /search/index.js
-/search/logic-e5695731.o.tmp
+/search/logic-d9e66fbd.o.tmp
 /search/originals.html
 /search/originals.js
 /search/replace2.html
@@ -5241,7 +5241,7 @@
 /sources/sblgnt/sblgnt.xml
 /sources/sblgnt/strongsgreek.txt
 /sources/sblgnt/strongsgreek.xml
-/sources/styles-602a3819.o.tmp
+/sources/styles-346fb077.o.tmp
 /sources/usfm.sty
 /sprint
 /sprint/index.html
