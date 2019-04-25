@@ -218,20 +218,29 @@ namespace Bibledit
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // Save window state for the next time this window is opened.
-            IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForAssembly();
-            using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(windowstate, FileMode.Create, storage))
-            using (StreamWriter writer = new StreamWriter(stream))
+            try
             {
-                // Write window state to file.
-                writer.WriteLine(WindowState.ToString());
-                writer.WriteLine(Location.X.ToString());
-                writer.WriteLine(Location.Y.ToString());
-                writer.WriteLine(Size.Width.ToString());
-                writer.WriteLine(Size.Height.ToString());
+                // Save window state for the next time this window is opened.
+                IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForAssembly();
+                using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(windowstate, FileMode.Create, storage))
+                using (StreamWriter writer = new StreamWriter(stream))
+                {
+                    // Write window state to file.
+                    writer.WriteLine(WindowState.ToString());
+                    writer.WriteLine(Location.X.ToString());
+                    writer.WriteLine(Location.Y.ToString());
+                    writer.WriteLine(Size.Width.ToString());
+                    writer.WriteLine(Size.Height.ToString());
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                // Handle case when file cannot be stored in isolated storage.
+                // This has happened in the case reported below.
+                // https://github.com/bibledit/cloud/issues/266
             }
 
-
+            // Kill the bibledit core.
             BibleditCore.EnableRaisingEvents = false;
             BibleditCore.CloseMainWindow();
             BibleditCore.Kill();
