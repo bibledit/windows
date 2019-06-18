@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2018 Teus Benschop.
+Copyright (©) 2003-2019 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -686,7 +686,7 @@ void Database_Modifications::indexTrimAllNotifications ()
 }
 
 
-vector <int> Database_Modifications::getNotificationIdentifiers (string username, string bible)
+vector <int> Database_Modifications::getNotificationIdentifiers (string username, string bible, bool sort_on_category)
 {
   vector <int> ids;
 
@@ -700,8 +700,12 @@ vector <int> Database_Modifications::getNotificationIdentifiers (string username
     sql.add ("AND bible =");
     sql.add (bible);
   }
-  // Sort on reference, so that related change notifications are near each other.
-  sql.add ("ORDER BY book ASC, chapter ASC, verse ASC, identifier ASC;");
+  // Sort on reference, so that related change notifications are in context.
+  // Or sort on user, so it's easy to view a user's changes together.
+  // https://github.com/bibledit/cloud/issues/267
+  sql.add ("ORDER BY");
+  if (sort_on_category) sql.add ("category ASC,");
+  sql.add ("book ASC, chapter ASC, verse ASC, identifier ASC;");
 
   sqlite3 * db = connect ();
   vector <string> sidentifiers = database_sqlite_query (db, sql.sql) ["identifier"];
@@ -892,7 +896,8 @@ string Database_Modifications::getNotificationNewText (int id)
 int Database_Modifications::clearNotificationsUser (const string& username)
 {
   int cleared_counter = 0;
-  vector <int> identifiers = getNotificationIdentifiers (username);
+  string any_bible = "";
+  vector <int> identifiers = getNotificationIdentifiers (username, any_bible);
   sqlite3 * db = connect ();
   // A transaction speeds up the operation.
   database_sqlite_exec (db, "BEGIN;");

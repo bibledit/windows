@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2018 Teus Benschop.
+Copyright (©) 2003-2019 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <filter/roles.h>
 #include <filter/string.h>
-#include <filter/md5.h>
 #include <database/logs.h>
 #include <database/config/general.h>
 #include <index/index.h>

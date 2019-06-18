@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2018 Teus Benschop.
+ Copyright (©) 2003-2019 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -91,7 +91,8 @@ string changes_manage (void * webserver_request)
   bool notifications = false;
   vector <string> users = access_user_assignees (webserver_request);
   for (auto user : users) {
-    vector <int> ids = database_modifications.getNotificationIdentifiers (user);
+    string any_bible = "";
+    vector <int> ids = database_modifications.getNotificationIdentifiers (user, any_bible);
     if (!ids.empty ()) {
       notifications = true;
       map <string, string> values;

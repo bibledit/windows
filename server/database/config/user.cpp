@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2018 Teus Benschop.
+Copyright (©) 2003-2019 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1319,15 +1319,16 @@ void Database_Config_User::setShowVerseTextAtCreateNote (bool value)
 }
 
 
-const char * night_mode_key ()
+const char * order_changes_by_author_key ()
 {
-  return "night-mode";
+  return "order-changes-by-author";
 }
-bool Database_Config_User::getNightMode ()
+bool Database_Config_User::getOrderChangesByAuthor ()
 {
-  return getBValue (night_mode_key (), false);
+  return getBValue (order_changes_by_author_key (), false);
 }
-void Database_Config_User::setNightMode (bool value)
+void Database_Config_User::setOrderChangesByAuthor (bool value)
 {
-  setBValue (night_mode_key (), value);
+  setBValue (order_changes_by_author_key (), value);
 }
+

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2018 Teus Benschop.
+Copyright (©) 2003-2019 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -72,7 +72,7 @@ public:
   int getNextAvailableNotificationIdentifier ();
   void recordNotification (const vector <string> & users, const string& category, const string& bible, int book, int chapter, int verse, const string& oldtext, const string& modification, const string& newtext);
   void indexTrimAllNotifications ();
-  vector <int> getNotificationIdentifiers (string username = "", string bible = "");
+  vector <int> getNotificationIdentifiers (string username, string bible, bool sort_on_category = false);
   vector <int> getNotificationTeamIdentifiers (const string& username, const string& category, string bible = "");
   vector <string> getNotificationDistinctBibles (string username = "");
   void deleteNotification (int identifier, sqlite3 * db = NULL);

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2018 Teus Benschop.
+ Copyright (©) 2003-2019 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -106,6 +106,15 @@ string changes_changes (void * webserver_request)
   }
   
   
+  // Handle query to update the sorting order.
+  string sort = request->query ["sort"];
+  if (sort == "verse") {
+    request->database_config_user ()->setOrderChangesByAuthor (false);
+  }
+  if (sort == "author") {
+    request->database_config_user ()->setOrderChangesByAuthor (true);
+  }
+
   
   string username = request->session_logic()->currentUser ();
   bool touch = request->session_logic ()->touchEnabled ();
@@ -186,8 +195,9 @@ string changes_changes (void * webserver_request)
   }
   
   
-  // Read the identifiers.
-  vector <int> notification_ids = database_modifications.getNotificationIdentifiers (username, selectedbible);
+  // Read the identifiers, optionally sorted on author (that is, category).
+  bool sort_on_author = request->database_config_user ()->getOrderChangesByAuthor ();
+  vector <int> notification_ids = database_modifications.getNotificationIdentifiers (username, selectedbible, sort_on_author);
   // Send the identifiers to the browser for download there.
   string pendingidentifiers;
   for (auto id : notification_ids) {
@@ -287,6 +297,19 @@ string changes_changes (void * webserver_request)
   
   view.set_variable ("interlinks", changes_interlinks (webserver_request, changes_changes_url ()));
   
+  
+  // Create data for the link for how to sort the change notifications.
+  string sortquery, sorttext;
+  if (request->database_config_user ()->getOrderChangesByAuthor ()) {
+    sortquery = "verse";
+    sorttext = translate ("Sort on verse" );
+  } else {
+    sortquery = "author";
+    sorttext = translate ("Sort on author");
+  }
+  view.set_variable ("sortquery", sortquery);
+  view.set_variable ("sorttext", sorttext);
+
   
   // Whether to show the controls for dismissing the changes.
   if (!notification_ids.empty ()) {

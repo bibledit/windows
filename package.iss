@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{C414BE13-5F10-48B7-AF92-9E4E7265D720}
 AppName=Bibledit
-AppVersion=5.0.769
+AppVersion=5.0.777
 AppPublisher=Teus Benschop
 AppPublisherURL=http://bibledit.org
 AppSupportURL=http://bibledit.org
@@ -19,7 +19,7 @@ DisableDirPage=yes
 DefaultGroupName=Bibledit
 LicenseFile=COPYING
 ; OutputDir=C:\bibledit-windows-packager
-OutputBaseFilename=bibledit-5.0.769
+OutputBaseFilename=bibledit-5.0.777
 Compression=lzma
 SolidCompression=yes
 ; Create a log file in the user's TEMP directory detailing file installation and [Run] actions taken during the installation process.

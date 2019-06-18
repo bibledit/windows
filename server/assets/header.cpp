@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2018 Teus Benschop.
+Copyright (©) 2003-2019 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -141,10 +141,6 @@ string Assets_Header::run ()
   // Include the software version number in the stylesheet and javascript URL
   // to refresh the browser's cache after a software upgrade.
   view->set_variable("VERSION", config_logic_version ());
-
-  if (request->database_config_user ()->getNightMode ()) {
-    view->enable_zone ("nightmode");
-  }
 
   if (includeJQueryTouch) {
     view->enable_zone ("include_jquery_touch");

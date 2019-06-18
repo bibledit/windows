@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2018 Teus Benschop.
+ Copyright (©) 2003-2019 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -55,33 +55,51 @@ const char * changes_bible_category ()
 
 string changes_interlinks (void * webserver_request, string my_url)
 {
-  // The available links.
+  // Storage the available links.
   vector <string> urls;
   vector <string> labels;
+  
+  // Handle situation that the user has permission to view the changes.
   if (changes_changes_acl (webserver_request)) {
-    urls.push_back (changes_changes_url ());
-    labels.push_back (translate ("View"));
+    
+    // Handle situation that the user is not currently displaying the changes.
+    if (changes_changes_url () != my_url) {
+      urls.push_back (changes_changes_url ());
+      labels.push_back (translate ("View"));
+    }
+
   }
+  
 #ifndef HAVE_CLIENT
-  if (changes_statistics_acl (webserver_request)) {
-    urls.push_back (changes_statistics_url ());
-    labels.push_back (translate ("Statistics"));
+
+  if (changes_statistics_url () != my_url) {
+    if (changes_statistics_acl (webserver_request)) {
+      urls.push_back (changes_statistics_url ());
+      labels.push_back (translate ("Statistics"));
+    }
   }
-  if (index_listing_acl (webserver_request, "revisions")) {
-    urls.push_back (index_listing_url ("revisions"));
-    labels.push_back (translate ("Download"));
+
+  string revisions = "revisions";
+  if (index_listing_url (revisions) != my_url) {
+    if (index_listing_acl (webserver_request, revisions)) {
+      urls.push_back (index_listing_url (revisions));
+      labels.push_back (translate ("Download"));
+    }
   }
-  if (changes_manage_acl (webserver_request)) {
-    urls.push_back (changes_manage_url ());
-    labels.push_back (translate ("Manage"));
+
+  if (changes_manage_url () != my_url) {
+    if (changes_manage_acl (webserver_request)) {
+      urls.push_back (changes_manage_url ());
+      labels.push_back (translate ("Manage"));
+    }
   }
+  
 #endif
 
   // Generate the links in XML.
   xml_document document;
   bool first = true;
   for (unsigned int i = 0; i < urls.size (); i++) {
-    if (urls[i] == my_url) continue;
     if (!first) {
       xml_node node = document.append_child ("span");
       node.text ().set (" | ");
@@ -108,7 +126,8 @@ void changes_clear_notifications_user (string jobid, string username)
   Database_Jobs database_jobs;
 
   // Get the total amount of change notifications to clear for the user.
-  vector <int> identifiers = database_modifications.getNotificationIdentifiers (username);
+  string any_bible = "";
+  vector <int> identifiers = database_modifications.getNotificationIdentifiers (username, any_bible);
   
   // Total notes cleared.
   int total_cleared = 0;

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (©) 2003-2018 Teus Benschop.
+# Copyright (©) 2003-2019 Teus Benschop.
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@ sed -i.bak '/\.git/d' pkgdata/files.txt
 sed -i.bak '/\.deps/d' pkgdata/files.txt
 sed -i.bak '/\.dirstamp/d' pkgdata/files.txt
 sed -i.bak '/\.o$/d' pkgdata/files.txt
+sed -i.bak '/\.o\.tmp$/d' pkgdata/files.txt
 sed -i.bak '/\.a$/d' pkgdata/files.txt
 sed -i.bak '/\.tar\.gz$/d' pkgdata/files.txt
 sed -i.bak '/autom4te/d' pkgdata/files.txt
