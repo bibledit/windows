@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <webserver/request.h>
 #include <database/config/general.h>
 #include <database/config/user.h>
+#include <database/logs.h>
 #include <locale/translate.h>
 #include <dialog/entry.h>
 #include <styles/sheets.h>
@@ -38,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <bb/logic.h>
 #include <ipc/focus.h>
 #include <client/logic.h>
+#include <config/globals.h>
 
 
 string personalize_index_url ()
@@ -424,7 +426,7 @@ string personalize_index (void * webserver_request)
   view.set_variable ("shownotestatus", on_off);
 
   
-  // Whether to show the text of the focuses Bible passage, while creating a new Consultation Note.
+  // Whether to show the text of the focused Bible passage, while creating a new Consultation Note.
   // This helps the translators and consultants if they are using notes in full screen mode,
   // rather than from a workspace that may already show the focused Bible verse text.
   // It shows the users if they have the focus on the verse they want to comment on.
@@ -436,6 +438,23 @@ string personalize_index (void * webserver_request)
   on_off = styles_logic_off_on_inherit_toggle_text (request->database_config_user ()->getShowVerseTextAtCreateNote ());
   view.set_variable ("showversetextcreatenote", on_off);
   
+  
+  // Whether to disable the "Copy / Paste / SelectAll / ..." popup on Chrome OS.
+  // This pop-up appears on some Chrome OS devices when selecting text in an editable area.
+  // See https://github.com/bibledit/cloud/issues/282 for more information.
+  if (request->query.count ("disableselectionpopupchromeos")) {
+    bool state = Database_Config_General::getDisableSelectionPopupChromeOS ();
+    Database_Config_General::setDisableSelectionPopupChromeOS (!state);
+  }
+  on_off = styles_logic_off_on_inherit_toggle_text (Database_Config_General::getDisableSelectionPopupChromeOS ());
+  view.set_variable ("disableselectionpopupchromeos", on_off);
+  Database_Logs::log ("personalize index before check"); // Todo
+  if (config_globals_running_on_chrome_os) {
+    view.enable_zone ("chromeos"); // Todo
+    Database_Logs::log ("personalize index enable chromeos zone"); // Todo
+  }
+  Database_Logs::log ("personalize index after check"); // Todo
+
   
   // Enable the sections with settings relevant to the user and device.
   bool resources = access_logic_privilege_view_resources (webserver_request);
