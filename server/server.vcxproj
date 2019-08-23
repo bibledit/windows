@@ -245,6 +245,7 @@
     <ClCompile Include="database\jobs.cpp" />
     <ClCompile Include="database\kjv.cpp" />
     <ClCompile Include="database\localization.cpp" />
+    <ClCompile Include="database\logic.cpp" />
     <ClCompile Include="database\login.cpp" />
     <ClCompile Include="database\logs.cpp" />
     <ClCompile Include="database\mail.cpp" />

@@ -1287,6 +1287,9 @@
     <ClCompile Include="mbedtls\platform_util.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="database\logic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assets\header.h">
