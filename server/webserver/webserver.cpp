@@ -723,7 +723,7 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
 
 void https_server ()
 {
-#ifndef HAVE_CLIENT
+#ifdef RUN_SECURE_SERVER
   // On clients, don't run the secure web server.
   // It is not possible to get a https certificate for https://localhost anyway.
   // Not running this secure server saves valuable system resources on low power devices.

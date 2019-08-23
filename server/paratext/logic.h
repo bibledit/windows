@@ -22,6 +22,7 @@
 
 
 #include <config/libraries.h>
+#include <classes/merge.h>
 
 
 class Paratext_Logic
@@ -37,6 +38,9 @@ public:
   static string ancestorPath (string bible, int book);
   static vector <string> enabledBibles ();
   static void synchronize ();
+  static string synchronize (string ancestor, string bibledit, string paratext,
+                             vector <string> & messages,
+                             bool & merged, vector <Merge_Conflict> & conflicts);
   static string synchronizeStartText ();
   static string synchronizeReadyText ();
 private:

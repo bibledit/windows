@@ -297,8 +297,8 @@ void bibledit_stop_library ()
   url.append (config_logic_http_network_port ());
   filter_url_http_get (url, error, false);
 
+#ifdef RUN_SECURE_SERVER
   // Connect to the secure server to initiate its shutdown mechanism.
-#ifndef HAVE_CLIENT
   url = "https://localhost:";
   url.append (convert_to_string (config_logic_https_network_port ()));
   filter_url_http_get (url, error, false);
@@ -353,10 +353,9 @@ void bibledit_log (const char * message)
 // The Bibledit outer shell calls this function when it runs on Chrome OS,
 // rather than on Android.
 // See https://github.com/bibledit/cloud/issues/282
-void bibledit_run_on_chrome_os () // Todo
+void bibledit_run_on_chrome_os ()
 {
   config_globals_running_on_chrome_os = true;
-  Database_Logs::log (__FUNCTION__);
 }
 
 

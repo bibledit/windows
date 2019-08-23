@@ -50,6 +50,9 @@ void export_web_book (string bible, int book, bool log)
   string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
   
   
+  string feedback_email = Database_Config_Bible::getExportFeedbackEmail (bible);
+  
+  
   // Copy font to the output directory.
   string font = Fonts_Logic::getTextFont (bible);
   if (!font.empty ()) {
@@ -72,14 +75,20 @@ void export_web_book (string bible, int book, bool log)
   Html_Text html_text_rich_book_index (bibleBookText);
   Html_Header htmlHeader = Html_Header (&html_text_rich_book_index);
   htmlHeader.searchBackLink (backLinkPath + filter_url_html_file_name_bible ("", book), translate("Go back to") + " " + bibleBookText);
-  htmlHeader.create ({ make_pair (bible, filter_url_html_file_name_bible ()), make_pair (translate (Database_Books::getEnglishFromId (book)), filter_url_html_file_name_bible ()) });
+  htmlHeader.create ({
+    make_pair (bible, filter_url_html_file_name_bible ()),
+    make_pair (translate (Database_Books::getEnglishFromId (book)), filter_url_html_file_name_bible ())
+  });
   html_text_rich_book_index.newParagraph ("navigationbar");
   html_text_rich_book_index.addText ("|");
   
   
   // Go through the chapters of this book.
   vector <int> chapters = database_bibles.getChapters (bible, book);
-  for (auto chapter : chapters) {
+  for (size_t c = 0; c < chapters.size(); c++) {
+    int chapter = chapters [c];
+    bool is_first_chapter = (c == 0);
+    bool is_last_chapter = (c == chapters.size() - 1);
     
     // The text filter for this chapter.
     Filter_Text filter_text_chapter = Filter_Text (bible);
@@ -97,11 +106,29 @@ void export_web_book (string bible, int book, bool log)
     filter_text_chapter.html_text_linked = new Html_Text (translate("Bible"));
     filter_text_chapter.html_text_linked->customClass = Filter_Css::getClass (bible);
     
-    // Create breadcrumbs for the chapter.
+    // Create breadcrumbs and navigator for the chapter.
     Html_Header htmlHeader = Html_Header (filter_text_chapter.html_text_linked);
     htmlHeader.searchBackLink (backLinkPath + filter_url_html_file_name_bible ("", book, chapter), translate("Go back to") + " " + bibleBookText + " " + convert_to_string (chapter));
-    htmlHeader.create ({ make_pair (bible, filter_url_html_file_name_bible ()), make_pair (translate (Database_Books::getEnglishFromId (book)), filter_url_html_file_name_bible ()), make_pair (convert_to_string (chapter), filter_url_html_file_name_bible ("", book))});
-     
+    vector <pair <string, string> > breadcrumbs_navigator;
+    breadcrumbs_navigator.push_back (make_pair (bible, filter_url_html_file_name_bible ()));
+    breadcrumbs_navigator.push_back (make_pair (translate (Database_Books::getEnglishFromId (book)), filter_url_html_file_name_bible ()));
+    if (!is_first_chapter) {
+      breadcrumbs_navigator.push_back (make_pair ("«", filter_url_html_file_name_bible ("", book, chapter - 1)));
+    }
+    breadcrumbs_navigator.push_back (make_pair (convert_to_string (chapter), filter_url_html_file_name_bible ("", book)));
+    if (!is_last_chapter) {
+      breadcrumbs_navigator.push_back (make_pair ("»", filter_url_html_file_name_bible ("", book, chapter + 1)));
+    }
+    // Optionally add a link for giving feedback by email.
+    if (!feedback_email.empty ()) {
+      breadcrumbs_navigator.push_back (make_pair ("|", ""));
+      string subject = translate ("Comment on") + " " + bible + " " + Database_Books::getEnglishFromId (book) + " " + convert_to_string (chapter);
+      subject = filter_string_str_replace (" ", "%20", subject);
+      string link = "mailto:" + feedback_email + "?Subject=" + subject;
+      breadcrumbs_navigator.push_back (make_pair (translate ("Feedback"), link));
+    }
+    htmlHeader.create (breadcrumbs_navigator);
+    
     // Create interlinked html for the chapter.
     filter_text_chapter.run (stylesheet);
     filter_text_chapter.html_text_linked->save (filter_url_html_file_name_bible (directory, book, chapter));

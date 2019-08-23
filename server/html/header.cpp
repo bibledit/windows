@@ -52,14 +52,8 @@ void Html_Header::create (const vector <pair <string, string> > & breadcrumbs)
   xml_node tableElement = html_text->newTable ();
   xml_node tableRowElement = html_text->newTableRow (tableElement);
   xml_node tableDataElement = html_text->newTableData (tableRowElement);
-  bool crumbAdded = false;
   for (auto breadcrumb : breadcrumbs) {
-    if (crumbAdded) {
-      xml_node spanElement = tableDataElement.append_child ("span");
-      spanElement.text ().set ("»");
-    }
     html_text->addLink (tableDataElement, breadcrumb.second, "", breadcrumb.first, "", ' ' + breadcrumb.first + ' ');
-    crumbAdded = true;
   }
   tableDataElement = html_text->newTableData (tableRowElement, true);
   xml_node formElement = tableDataElement.append_child ("form");

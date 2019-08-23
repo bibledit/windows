@@ -185,6 +185,21 @@ void Editor_Usfm2Html::process ()
         switch (style.type)
         {
           case StyleTypeIdentifier:
+          {
+            if (style.subtype == IdentifierSubtypePublishedVerseMarker) {
+              // Treat the \vp ...\vp* marker as inline text.
+              if (isOpeningMarker) {
+                openTextStyle (style, isEmbeddedMarker);
+              } else {
+                closeTextStyle (isEmbeddedMarker);
+              }
+            } else {
+              // Any other identifier: Plain text.
+              closeTextStyle (false);
+              outputAsIs (marker, isOpeningMarker);
+            }
+            break;
+          }
           case StyleTypeNotUsedComment:
           case StyleTypeNotUsedRunningHeader:
           {

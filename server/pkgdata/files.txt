@@ -57,6 +57,7 @@
 /checks/suppress.html
 /checksum
 /checksum/logic.js
+/classes
 /client
 /client/index.html
 /collaboration

@@ -118,6 +118,25 @@ string manage_exports (void * webserver_request)
   }
   
   
+  if (request->post.count ("emailsubmit")) {
+    string email = request->post["emailentry"];
+    bool save = false;
+    if (email.empty ()) {
+      save = true;
+      view.set_variable ("success", translate("The email address for the feedback link was removed."));
+    } else {
+      if (filter_url_email_is_valid (email)) {
+        save = true;
+        view.set_variable ("success", translate("The email address for the feedback link was saved."));
+      } else {
+        view.set_variable ("error", translate("The email address is not valid."));
+      }
+    }
+    if (save) Database_Config_Bible::setExportFeedbackEmail (bible, email);
+  }
+  view.set_variable ("email", Database_Config_Bible::getExportFeedbackEmail (bible));
+
+  
   if (checkbox == "html") {
     Database_Config_Bible::setExportHtmlDuringNight (bible, checked);
     Database_State::setExport (bible, 0, Export_Logic::export_needed);
