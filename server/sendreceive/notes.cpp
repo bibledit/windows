@@ -155,7 +155,7 @@ bool sendreceive_notes_upload ()
   for (auto identifier : notes) {
     
 
-    string summary = database_notes.get_summary_v12 (identifier);
+    string summary = database_notes.get_summary (identifier);
     if (summary.empty ()) summary = "<deleted>";
     Database_Logs::log (sendreceive_notes_text () + translate("Sending note to server") + ": " + summary, Filter_Roles::translator ());
     
@@ -186,7 +186,7 @@ bool sendreceive_notes_upload ()
         case Sync_Logic::notes_put_create_complete: break;
         case Sync_Logic::notes_put_summary:
         {
-          content = database_notes.get_summary_v12 (identifier);
+          content = database_notes.get_summary (identifier);
           break;
         }
         case Sync_Logic::notes_put_contents: break;
@@ -197,22 +197,22 @@ bool sendreceive_notes_upload ()
         case Sync_Logic::notes_put_unassign: break;
         case Sync_Logic::notes_put_status:
         {
-          content = database_notes.get_raw_status_v12 (identifier);
+          content = database_notes.get_raw_status (identifier);
           break;
         }
         case Sync_Logic::notes_put_passages:
         {
-          content = database_notes.get_raw_passage_v12 (identifier);
+          content = database_notes.decode_passage (identifier);
           break;
         }
         case Sync_Logic::notes_put_severity:
         {
-          content = convert_to_string (database_notes.get_raw_severity_v12 (identifier));
+          content = convert_to_string (database_notes.get_raw_severity (identifier));
           break;
         }
         case Sync_Logic::notes_put_bible:
         {
-          content = database_notes.get_bible_v12 (identifier);
+          content = database_notes.get_bible (identifier);
           break;
         }
         case Sync_Logic::notes_put_mark_delete: break;
@@ -289,20 +289,20 @@ bool sendreceive_notes_upload ()
       response = sync_logic.post (post, url, error);
       if (error.empty ()) {
         if (action == Sync_Logic::notes_get_contents) {
-          if (response != database_notes.get_contents_v12 (identifier)) {
-            database_notes.set_contents_v12 (identifier, response);
+          if (response != database_notes.get_contents (identifier)) {
+            database_notes.set_contents (identifier, response);
           }
         }
         if (action == Sync_Logic::notes_get_subscribers) {
           vector <string> subscribers = filter_string_explode (response, '\n');
-          database_notes.set_subscribers_v12 (identifier, subscribers);
+          database_notes.set_subscribers (identifier, subscribers);
         }
         if (action == Sync_Logic::notes_get_assignees) {
           vector <string> assignees = filter_string_explode (response, '\n');
-          database_notes.set_assignees_v12 (identifier, assignees);
+          database_notes.set_assignees (identifier, assignees);
         }
         if (action == Sync_Logic::notes_get_modified) {
-          database_notes.set_modified_v12 (identifier, convert_to_int (response));
+          database_notes.set_modified (identifier, convert_to_int (response));
         }
       }
     }
@@ -347,8 +347,8 @@ bool sendreceive_notes_download (int lowId, int highId)
   
   // Check for the health of the notes databases and take action if needed.
   bool healthy = true;
-  if (!database_notes.healthy_v12 ()) healthy = false;
-  if (!database_notes.checksums_healthy_v12 ()) healthy = false;
+  if (!database_notes.healthy ()) healthy = false;
+  if (!database_notes.checksums_healthy ()) healthy = false;
   if (!healthy) {
     Database_Logs::log (sendreceive_notes_text () + "Abort receive just now because of database problems", Filter_Roles::translator ());
     return false;
@@ -389,12 +389,12 @@ bool sendreceive_notes_download (int lowId, int highId)
   if (vresponse.size () >= 1) server_total = convert_to_int (vresponse [0]);
   string server_checksum;
   if (vresponse.size () >= 2) server_checksum = vresponse [1];
-  vector <int> identifiers = database_notes.get_notes_in_range_for_bibles_v12 (lowId, highId, {}, true);
+  vector <int> identifiers = database_notes.get_notes_in_range_for_bibles (lowId, highId, {}, true);
   int client_total = identifiers.size ();
   // Checksum cache to speed things up in case of thousands of notes.
   string client_checksum = Database_State::getNotesChecksum (lowId, highId);
   if (client_checksum.empty ()) {
-    client_checksum = database_notes.get_multiple_checksum_v12 (identifiers);
+    client_checksum = database_notes.get_multiple_checksum (identifiers);
     Database_State::putNotesChecksum (lowId, highId, client_checksum);
   }
   if (server_total == client_total) {
@@ -450,7 +450,7 @@ bool sendreceive_notes_download (int lowId, int highId)
   
 
   // Get note identifiers as locally on the client.
-  vector <int> client_identifiers = database_notes.get_notes_in_range_for_bibles_v12 (lowId, highId, {}, true);
+  vector <int> client_identifiers = database_notes.get_notes_in_range_for_bibles (lowId, highId, {}, true);
   
   
   // The client deletes notes no longer on the server.
@@ -466,8 +466,8 @@ bool sendreceive_notes_download (int lowId, int highId)
     // Therefore limit the number of notes a client can delete in one go.
     delete_counter++;
     if (delete_counter > 15) continue;
-    string summary = database_notes.get_summary_v12 (identifier);
-    database_notes.erase_v12 (identifier);
+    string summary = database_notes.get_summary (identifier);
+    database_notes.erase (identifier);
     Database_Logs::log (sendreceive_notes_text () + "Deleting because it is not on the server: " + summary, Filter_Roles::translator ());
   }
   
@@ -485,7 +485,7 @@ bool sendreceive_notes_download (int lowId, int highId)
     if (database_noteactions.exists (identifier)) continue;
     
     string server_checksum = server_checksums [i];
-    string client_checksum = database_notes.get_checksum_v12 (identifier);
+    string client_checksum = database_notes.get_checksum (identifier);
     if (client_checksum == server_checksum) continue;
     
     // Store the identifier to be downloaded as part of a bulk download.
@@ -509,7 +509,7 @@ bool sendreceive_notes_download (int lowId, int highId)
       return false;
     }
     // Store the notes in the file system.
-    vector <string> summaries = database_notes.set_bulk_v2 (json);
+    vector <string> summaries = database_notes.set_bulk (json);
     // More specific feedback in case it downloaded only a few notes, rather than notes in bulk.
     if (identifiers_bulk_download.size () < 3) {
       for (auto & summary : summaries) {

@@ -50,16 +50,16 @@ string public_notes (void * webserver_request)
   int chapter = convert_to_int (request->query ["chapter"]);
   
   
-  vector <int> identifiers = database_notes.select_notes_v12 ({bible}, book, chapter, 0, 1, 0, 0, "", "", "", false, -1, 0, "", -1);
+  vector <int> identifiers = database_notes.select_notes ({bible}, book, chapter, 0, 1, 0, 0, "", "", "", false, -1, 0, "", -1);
 
   
   string notesblock;
   for (auto & identifier : identifiers) {
     // Display only public notes.
-    if (database_notes.get_public_v12 (identifier)) {
+    if (database_notes.get_public (identifier)) {
       notesblock.append ("<p class=\"nowrap\">");
       notesblock.append ("<a href=\"note?id=" + convert_to_string (identifier) + "\">");
-      vector <Passage> passages = database_notes.get_passages_v12 (identifier);
+      vector <Passage> passages = database_notes.get_passages (identifier);
       string verses;
       for (auto & passage : passages) {
         if (passage.book != book) continue;
@@ -69,7 +69,7 @@ string public_notes (void * webserver_request)
       }
       notesblock.append (verses);
       notesblock.append (" | ");
-      string summary = database_notes.get_summary_v12 (identifier);
+      string summary = database_notes.get_summary (identifier);
       notesblock.append (summary);
       notesblock.append ("</a>");
       notesblock.append ("</p>");

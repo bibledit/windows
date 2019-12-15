@@ -77,7 +77,7 @@ sqlite3 * Database_Notes::connect_checksums ()
 }
 
 
-void Database_Notes::create_v12 ()
+void Database_Notes::create ()
 {
   // Create the main database and table.
   sqlite3 * db = connect ();
@@ -134,40 +134,40 @@ void Database_Notes::create_v12 ()
 }
 
 
-string Database_Notes::database_path_v12 ()
+string Database_Notes::database_path ()
 {
   return filter_url_create_root_path (database_logic_databases (), "notes.sqlite");
 }
 
 
-string Database_Notes::checksums_database_path_v12 ()
+string Database_Notes::checksums_database_path ()
 {
   return filter_url_create_root_path (database_logic_databases (), "notes_checksums.sqlite");
 }
 
 
 // Returns whether the notes database is healthy, as a boolean.
-bool Database_Notes::healthy_v12 ()
+bool Database_Notes::healthy ()
 {
-  return database_sqlite_healthy (database_path_v12 ());
+  return database_sqlite_healthy (database_path ());
 }
 
 
 // Returns whether the notes checksums database is healthy, as a boolean.
-bool Database_Notes::checksums_healthy_v12 ()
+bool Database_Notes::checksums_healthy ()
 {
-  return database_sqlite_healthy (checksums_database_path_v12 ());
+  return database_sqlite_healthy (checksums_database_path ());
 }
 
 
 // Does a checkup on the health of the main database.
 // Optionally recreates it.
 // Returns true if to be synced, else false.
-bool Database_Notes::checkup_v12 ()
+bool Database_Notes::checkup ()
 {
-  if (healthy_v12 ()) return false;
-  filter_url_unlink (database_path_v12 ());
-  create_v12 ();
+  if (healthy ()) return false;
+  filter_url_unlink (database_path ());
+  create ();
   return true;
 }
 
@@ -175,20 +175,20 @@ bool Database_Notes::checkup_v12 ()
 // Does a checkup on the health of the checksums database.
 // Optionally recreates it.
 // Returns true if to synced, else false.
-bool Database_Notes::checkup_checksums_v12 ()
+bool Database_Notes::checkup_checksums ()
 {
-  if (checksums_healthy_v12 ()) return false;
-  filter_url_unlink (checksums_database_path_v12 ());
-  create_v12 ();
+  if (checksums_healthy ()) return false;
+  filter_url_unlink (checksums_database_path ());
+  create ();
   return true;
 }
 
 
-void Database_Notes::trim_v12 ()
+void Database_Notes::trim ()
 {
   // Clean empty directories.
   string message = "Deleting empty notes folder ";
-  string main_folder = main_folder_v12 ();
+  string main_folder = main_folder_path ();
   vector <string> bits1 = filter_url_scandir (main_folder);
   for (auto bit1 : bits1) {
     if (bit1.length () == 3) {
@@ -213,28 +213,22 @@ void Database_Notes::trim_v12 ()
 }
 
 
-void Database_Notes::trim_server_v12 ()
+void Database_Notes::trim_server ()
 {
   // Notes expiry.
-  touch_marked_for_deletion_v12 ();
+  touch_marked_for_deletion ();
   /// Storage for notes to be deleted.
   vector <int> identifiers;
-  // Deal with old notes storage.
-  identifiers = get_due_for_deletion_v1 ();
-  for (auto & identifier : identifiers) {
-    trash_consultation_note (webserver_request, identifier);
-    erase_v12 (identifier);
-  }
   // Deal with new notes storage in JSON.
-  identifiers = get_due_for_deletion_v2 ();
+  identifiers = get_due_for_deletion ();
   for (auto & identifier : identifiers) {
     trash_consultation_note (webserver_request, identifier);
-    erase_v12 (identifier);
+    erase (identifier);
   }
 }
 
 
-void Database_Notes::optimize_v12 ()
+void Database_Notes::optimize ()
 {
   sqlite3 * db = connect ();
   database_sqlite_exec (db, "VACUUM;");
@@ -242,9 +236,9 @@ void Database_Notes::optimize_v12 ()
 }
 
 
-void Database_Notes::sync_v12 ()
+void Database_Notes::sync ()
 {
-  string main_folder = main_folder_v12 ();
+  string main_folder = main_folder_path ();
 
   // List of notes in the filesystem.
   vector <int> identifiers;
@@ -264,9 +258,7 @@ void Database_Notes::sync_v12 ()
             if (bit3.length () == 3) {
               int identifier = convert_to_int (bit1 + bit2 + bit3);
               identifiers.push_back (identifier);
-              update_database_v1 (identifier);
-              update_search_fields_v12 (identifier);
-              update_checksum_v1 (identifier);
+              update_search_fields (identifier);
             }
           }
         }
@@ -274,9 +266,9 @@ void Database_Notes::sync_v12 ()
         if ((bit2.length () == 11) && bit2.find (".json") != string::npos) {
           int identifier = convert_to_int (bit1 + bit2.substr (0,6));
           identifiers.push_back (identifier);
-          update_database_v2 (identifier);
-          update_search_fields_v12 (identifier);
-          update_checksum_v2 (identifier);
+          update_database (identifier);
+          update_search_fields (identifier);
+          update_checksum (identifier);
         }
       }
     }
@@ -295,7 +287,7 @@ void Database_Notes::sync_v12 ()
   for (auto id : database_identifiers) {
     if (find (identifiers.begin(), identifiers.end(), id) == identifiers.end()) {
       trash_consultation_note (webserver_request, id);
-      erase_v12 (id);
+      erase (id);
     }
   }
   
@@ -311,63 +303,25 @@ void Database_Notes::sync_v12 ()
   // Any note identifiers in the checksums database, and not in the filesystem, remove them.
   for (auto id : database_identifiers) {
     if (find (identifiers.begin(), identifiers.end(), id) == identifiers.end()) {
-      delete_checksum_v12 (id);
+      delete_checksum (id);
     }
   }
   
 }
 
 
-void Database_Notes::update_database_v12 (int identifier)
-{
-  if (is_v1 (identifier)) {
-    update_database_v1 (identifier);
-  } else {
-    update_database_v2 (identifier);
-  }
-}
-
-
-void Database_Notes::update_database_v1 (int identifier)
+void Database_Notes::update_database (int identifier)
 {
   // Read the relevant values from the filesystem.
-  int modified = get_modified_v1 (identifier);
-  
-  string file = assigned_file_v1 (identifier);
-  string assigned = filter_url_file_get_contents (file);
-  
-  file = subscriptions_file_v1 (identifier);
-  string subscriptions = filter_url_file_get_contents (file);
-  
-  string bible = get_bible_v1 (identifier);
-  
-  string passage = get_raw_passage_v1 (identifier);
-  
-  string status = get_raw_status_v1 (identifier);
-  
-  int severity = get_raw_severity_v1 (identifier);
-  
-  string summary = get_summary_v1 (identifier);
-  
-  string contents = get_contents_v1 (identifier);
-
-  // Sync the values to the database.
-  update_database_internal (identifier, modified, assigned, subscriptions, bible, passage, status, severity, summary, contents);
-}
-
-
-void Database_Notes::update_database_v2 (int identifier)
-{
-  // Read the relevant values from the filesystem.
-  int modified = get_modified_v2 (identifier);
-  string assigned = get_field_v2 (identifier, assigned_key_v2 ());
-  string subscriptions = get_field_v2 (identifier, subscriptions_key_v2 ());
-  string bible = get_bible_v2 (identifier);
-  string passage = get_raw_passage_v2 (identifier);
-  string status = get_raw_status_v2 (identifier);
-  int severity = get_raw_severity_v2 (identifier);
-  string summary = get_summary_v2 (identifier);
-  string contents = get_contents_v2 (identifier);
+  int modified = get_modified (identifier);
+  string assigned = get_field (identifier, assigned_key ());
+  string subscriptions = get_field (identifier, subscriptions_key ());
+  string bible = get_bible (identifier);
+  string passage = get_raw_passage (identifier);
+  string status = get_raw_status (identifier);
+  int severity = get_raw_severity (identifier);
+  string summary = get_summary (identifier);
+  string contents = get_contents (identifier);
   
   // Sync the values to the database.
   update_database_internal (identifier, modified, assigned, subscriptions, bible, passage, status, severity, summary, contents);
@@ -449,168 +403,42 @@ void Database_Notes::update_database_internal (int identifier, int modified, str
 }
 
 
-string Database_Notes::main_folder_v12 ()
+string Database_Notes::main_folder_path ()
 {
   return filter_url_create_root_path ("consultations");
 }
 
 
-string Database_Notes::note_folder_v1 (int identifier)
-{
-  // The maximum number of folders a folder may contain is constrained by the filesystem.
-  // To overcome this, the notes will be stored in a deep folder structure.
-  string sidentifier = convert_to_string (identifier);
-  string bit1 = sidentifier.substr (0, 3);
-  string bit2 = sidentifier.substr (3, 3);
-  string bit3 = sidentifier.substr (6, 3);
-  return filter_url_create_path (main_folder_v12 (), bit1, bit2, bit3);
-}
-
-
-string Database_Notes::note_file_v2 (int identifier)
+string Database_Notes::note_file (int identifier)
 {
   // The maximum number of folders a folder may contain is constrained by the filesystem.
   // To overcome this, the notes will be stored in a folder structure.
   string sidentifier = convert_to_string (identifier);
   string folder = sidentifier.substr (0, 3);
   string file = sidentifier.substr (3, 6) + ".json";
-  return filter_url_create_path (main_folder_v12 (), folder, file);
-}
-
-
-string Database_Notes::bible_file_v1 (int identifier)
-{
-  return filter_url_create_path (note_folder_v1 (identifier), "bible");
-}
-
-
-string Database_Notes::passage_file_v1 (int identifier)
-{
-  return filter_url_create_path (note_folder_v1 (identifier), "passage");
-}
-
-
-string Database_Notes::status_file_v1 (int identifier)
-{
-  return filter_url_create_path (note_folder_v1 (identifier), "status");
-}
-
-
-string Database_Notes::severity_file_v1 (int identifier)
-{
-  return filter_url_create_path (note_folder_v1 (identifier), "severity");
-}
-
-
-string Database_Notes::modified_file_v1 (int identifier)
-{
-  return filter_url_create_path (note_folder_v1 (identifier), "modified");
-}
-
-
-string Database_Notes::summary_file_v1 (int identifier)
-{
-  return filter_url_create_path (note_folder_v1 (identifier), "summary");
-}
-
-
-string Database_Notes::contents_file_v1 (int identifier)
-{
-  return filter_url_create_path (note_folder_v1 (identifier), "contents");
-}
-
-
-string Database_Notes::subscriptions_file_v1 (int identifier)
-{
-  return filter_url_create_path (note_folder_v1 (identifier), "subscriptions");
-}
-
-
-string Database_Notes::assigned_file_v1 (int identifier)
-{
-  return filter_url_create_path (note_folder_v1 (identifier), "assigned");
-}
-
-
-string Database_Notes::public_file_v1 (int identifier)
-{
-  return filter_url_create_path (note_folder_v1 (identifier), "public");
-}
-
-
-string Database_Notes::expiry_file_v1 (int identifier)
-{
-  return filter_url_create_path (note_folder_v1 (identifier), "expiry");
+  return filter_url_create_path (main_folder_path (), folder, file);
 }
 
 
 // This checks whether the note identifier exists.
 // It works for the old way of storing notes in many files,
 // and for the new way of storing notes in JSON.
-bool Database_Notes::identifier_exists_v12 (int identifier)
+bool Database_Notes::identifier_exists (int identifier)
 {
-  if (file_or_dir_exists (note_file_v2 (identifier))) return true;
-  if (file_or_dir_exists (note_folder_v1 (identifier))) return true;
+  if (file_or_dir_exists (note_file (identifier))) return true;
   return false;
 }
 
 
 // Update a note's identifier.
-// new_identifier is the value given to the note identifier by identifier.
-void Database_Notes::set_identifier_v12 (int identifier, int new_identifier)
-{
-  if (is_v1 (identifier)) {
-    set_identifier_v1 (identifier, new_identifier);
-  } else {
-    set_identifier_v2 (identifier, new_identifier);
-  }
-}
-
-
-void Database_Notes::set_identifier_v1 (int identifier, int new_identifier)
+// new_identifier is the value given to the note identified by $identifier.
+void Database_Notes::set_identifier (int identifier, int new_identifier)
 {
   // Move data on the filesystem.
-  erase_v12 (new_identifier);
-  string file = note_folder_v1 (identifier);
-  string newfile = note_folder_v1 (new_identifier);
-  filter_url_mkdir (filter_url_dirname (newfile));
-  filter_url_rename (file, newfile);
-  
-  // Update main notes database.
-  sqlite3 * db = connect ();
-  SqliteSQL sql;
-  sql.add ("UPDATE notes SET identifier =");
-  sql.add (new_identifier);
-  sql.add ("WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
-  
-  // Update checksums database.
-  db = connect_checksums ();
-  sql.clear ();
-  sql.add ("UPDATE checksums SET identifier =");
-  sql.add (new_identifier);
-  sql.add ("WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
-  // The range-based one also.
-  Database_State::eraseNoteChecksum (identifier);
-}
-
-
-// Update a note's identifier.
-// $new_identifier is the value given to the note $identifier.
-void Database_Notes::set_identifier_v2 (int identifier, int new_identifier)
-{
-  // Move data on the filesystem.
-  erase_v12 (new_identifier);
-  string path = note_file_v2 (identifier);
+  erase (new_identifier);
+  string path = note_file (identifier);
   string json = filter_url_file_get_contents (path);
-  path = note_file_v2 (new_identifier);
+  path = note_file (new_identifier);
   string folder = filter_url_dirname (path);
   filter_url_mkdir (folder);
   filter_url_file_put_contents (path, json);
@@ -641,23 +469,23 @@ void Database_Notes::set_identifier_v2 (int identifier, int new_identifier)
   Database_State::eraseNoteChecksum (identifier);
   
   // Remove old identifier that was copied to the new.
-  erase_v12 (identifier);
+  erase (identifier);
 }
 
 
 // Gets new unique note identifier.
 // Works for the old and new storage system.
-int Database_Notes::get_new_unique_identifier_v12 ()
+int Database_Notes::get_new_unique_identifier ()
 {
   int identifier = 0;
   do {
     identifier = filter_string_rand (Notes_Logic::lowNoteIdentifier, Notes_Logic::highNoteIdentifier);
-  } while (identifier_exists_v12 (identifier));
+  } while (identifier_exists (identifier));
   return identifier;
 }
 
 
-vector <int> Database_Notes::get_identifiers_v12 ()
+vector <int> Database_Notes::get_identifiers ()
 {
   sqlite3 * db = connect ();
   vector <int> identifiers;
@@ -670,11 +498,9 @@ vector <int> Database_Notes::get_identifiers_v12 ()
 }
 
 
-string Database_Notes::assemble_contents_v12 (int identifier, string contents)
+string Database_Notes::assemble_contents (int identifier, string contents)
 {
-  string new_contents;
-  if (is_v1 (identifier)) new_contents = get_contents_v1 (identifier);
-  else new_contents = get_contents_v2 (identifier);
+  string new_contents = get_contents (identifier);
   int time = filter_date_seconds_since_epoch ();
   string datetime = convert_to_string (filter_date_numerical_month_day (time)) + "/" + convert_to_string (filter_date_numerical_month (time)) + "/" + convert_to_string (filter_date_numerical_year (time));
   string user = ((Webserver_Request *) webserver_request)->session_logic ()->currentUser ();
@@ -704,75 +530,6 @@ string Database_Notes::assemble_contents_v12 (int identifier, string contents)
 }
 
 
-// Store a new note into the database.
-// bible: The notes's Bible.
-// book, chapter, verse: The note's passage.
-// summary: The note's summary.
-// contents: The note's contents.
-// raw: Import contents as it is.
-// It returns the identifier of this new note.
-int Database_Notes::store_new_note_v1 (const string& bible, int book, int chapter, int verse, string summary, string contents, bool raw)
-{
-  // Create a new identifier.
-  int identifier = get_new_unique_identifier_v12 ();
-
-  // Passage.
-  string passage = encode_passage_v12 (book, chapter, verse);
-  
-  string status = "New";
-  int severity = 2;
-
-  // If the summary is not given, take the first line of the contents as the summary.
-  if (summary == "") {
-    // The notes editor does not put new lines at each line, but instead <div>s. Handle these also.
-    summary = filter_string_str_replace ("<", "\n", contents);
-    vector <string> bits = filter_string_explode (summary, '\n');
-    if (!bits.empty ()) summary = bits [0];
-  }
-
-  // Assemble contents.
-  if (!raw) contents = assemble_contents_v12 (identifier, contents);
-  if ((contents.empty()) && (summary.empty())) return 0;
-  
-  // Store the note in the file system.
-  filter_url_mkdir (note_folder_v1 (identifier));
-  filter_url_file_put_contents (bible_file_v1 (identifier), bible);
-  filter_url_file_put_contents (passage_file_v1 (identifier), passage);
-  filter_url_file_put_contents (status_file_v1 (identifier), status);
-  filter_url_file_put_contents (severity_file_v1 (identifier), convert_to_string (severity));
-  filter_url_file_put_contents (summary_file_v1 (identifier), summary);
-  set_raw_contents_v1 (identifier, contents);
-  
-  // Store new default note into the database.
-  sqlite3 * db = connect ();
-  SqliteSQL sql;
-  sql.add ("INSERT INTO notes (identifier, modified, assigned, subscriptions, bible, passage, status, severity, summary, contents) VALUES (");
-  sql.add (identifier);
-  sql.add (", 0, '', '',");
-  sql.add (bible);
-  sql.add (",");
-  sql.add (passage);
-  sql.add (",");
-  sql.add (status);
-  sql.add (",");
-  sql.add (severity);
-  sql.add (",");
-  sql.add (summary);
-  sql.add (",");
-  sql.add (contents);
-  sql.add (")");
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
-
-  // Updates.
-  update_search_fields_v12 (identifier);
-  note_modified_actions_v12 (identifier);
-
-  // Return this new note´s identifier.
-  return identifier;
-}
-
-
 // Store a new consultation note into the database and in JSON.
 // bible: The notes's Bible.
 // book, chapter, verse: The note's passage.
@@ -780,13 +537,13 @@ int Database_Notes::store_new_note_v1 (const string& bible, int book, int chapte
 // contents: The note's contents.
 // raw: Import contents as it is.
 // It returns the identifier of this new note.
-int Database_Notes::store_new_note_v2 (const string& bible, int book, int chapter, int verse, string summary, string contents, bool raw)
+int Database_Notes::store_new_note (const string& bible, int book, int chapter, int verse, string summary, string contents, bool raw)
 {
   // Create a new identifier.
-  int identifier = get_new_unique_identifier_v12 ();
+  int identifier = get_new_unique_identifier ();
   
   // Passage.
-  string passage = encode_passage_v12 (book, chapter, verse);
+  string passage = encode_passage (book, chapter, verse);
   
   string status = "New";
   int severity = 2;
@@ -800,20 +557,20 @@ int Database_Notes::store_new_note_v2 (const string& bible, int book, int chapte
   }
   
   // Assemble contents.
-  if (!raw) contents = assemble_contents_v12 (identifier, contents);
+  if (!raw) contents = assemble_contents (identifier, contents);
   if ((contents.empty()) && (summary.empty())) return 0;
   
   // Store the JSON representation of the note in the file system.
-  string path = note_file_v2 (identifier);
+  string path = note_file (identifier);
   string folder = filter_url_dirname (path);
   filter_url_mkdir (folder);
   Object note;
-  note << bible_key_v2 () << bible;
-  note << passage_key_v2 () << passage;
-  note << status_key_v2 () << status;
-  note << severity_key_v2 () << convert_to_string (severity);
-  note << summary_key_v2 () << summary;
-  note << contents_key_v2 () << contents;
+  note << bible_key () << bible;
+  note << passage_key () << passage;
+  note << status_key () << status;
+  note << severity_key () << convert_to_string (severity);
+  note << summary_key () << summary;
+  note << contents_key () << contents;
   string json = note.json ();
   filter_url_file_put_contents (path, json);
   
@@ -839,8 +596,8 @@ int Database_Notes::store_new_note_v2 (const string& bible, int book, int chapte
   database_sqlite_disconnect (db);
   
   // Updates.
-  update_search_fields_v12 (identifier);
-  note_modified_actions_v12 (identifier);
+  update_search_fields (identifier);
+  note_modified_actions (identifier);
   
   // Return this new note´s identifier.
   return identifier;
@@ -860,7 +617,7 @@ int Database_Notes::store_new_note_v2 (const string& bible, int book, int chapte
 // text_selector: Optionally limits the selection to notes that contains certain text. Used for searching notes.
 // search_text: Works with text_selector, contains the text to search for.
 // limit: If >= 0, it indicates the starting limit for the selection.
-vector <int> Database_Notes::select_notes_v12 (vector <string> bibles, int book, int chapter, int verse, int passage_selector, int edit_selector, int non_edit_selector, const string& status_selector, string bible_selector, string assignment_selector, bool subscription_selector, int severity_selector, int text_selector, const string& search_text, int limit)
+vector <int> Database_Notes::select_notes (vector <string> bibles, int book, int chapter, int verse, int passage_selector, int edit_selector, int non_edit_selector, const string& status_selector, string bible_selector, string assignment_selector, bool subscription_selector, int severity_selector, int text_selector, const string& search_text, int limit)
 {
   string username = ((Webserver_Request *) webserver_request)->session_logic ()->currentUser ();
   vector <int> identifiers;
@@ -878,19 +635,19 @@ vector <int> Database_Notes::select_notes_v12 (vector <string> bibles, int book,
     case 0:
       // Select notes that refer to the current verse.
       // It means that the book, the chapter, and the verse, should match.
-      passage = encode_passage_v12 (book, chapter, verse);
+      passage = encode_passage (book, chapter, verse);
       query.append (" AND passage LIKE '%" + passage + "%' ");
       break;
     case 1:
       // Select notes that refer to the current chapter.
       // It means that the book and the chapter should match.
-      passage = encode_passage_v12 (book, chapter, -1);
+      passage = encode_passage (book, chapter, -1);
       query.append (" AND passage LIKE '%" + passage + "%' ");
       break;
     case 2:
       // Select notes that refer to the current book.
       // It means that the book should match.
-      passage = encode_passage_v12 (book, -1, -1);
+      passage = encode_passage (book, -1, -1);
       query.append (" AND passage LIKE '%" + passage + "%' ");
       break;
     case 3:
@@ -1034,44 +791,16 @@ vector <int> Database_Notes::select_notes_v12 (vector <string> bibles, int book,
 }
 
 
-string Database_Notes::get_summary_v12 (int identifier)
+string Database_Notes::get_summary (int identifier)
 {
-  if (is_v1 (identifier)) {
-    return get_summary_v1 (identifier);
-  } else {
-    return get_summary_v2 (identifier);
-  }
+  return get_field (identifier, summary_key ());
 }
 
 
-string Database_Notes::get_summary_v1 (int identifier)
-{
-  string file = summary_file_v1 (identifier);
-  return filter_url_file_get_contents (file);
-}
-
-
-string Database_Notes::get_summary_v2 (int identifier)
-{
-  return get_field_v2 (identifier, summary_key_v2 ());
-}
-
-
-void Database_Notes::set_summary_v12 (int identifier, const string& summary)
-{
-  if (is_v1 (identifier)) {
-    set_summary_v1 (identifier, summary);
-  } else {
-    set_summary_v2 (identifier, summary);
-  }
-}
-
-
-void Database_Notes::set_summary_v1 (int identifier, const string& summary)
+void Database_Notes::set_summary (int identifier, const string& summary)
 {
   // Store authoritative copy in the filesystem.
-  string file = summary_file_v1 (identifier);
-  filter_url_file_put_contents (file, summary);
+  set_field (identifier, summary_key (), summary);
   // Update the shadow database.
   SqliteSQL sql;
   sql.add ("UPDATE notes SET summary =");
@@ -1083,83 +812,28 @@ void Database_Notes::set_summary_v1 (int identifier, const string& summary)
   database_sqlite_exec (db, sql.sql);
   database_sqlite_disconnect (db);
   // Update the search data in the database.
-  update_search_fields_v12 (identifier);
+  update_search_fields (identifier);
   // Update checksum.
-  update_checksum_v1 (identifier);
+  update_checksum (identifier);
 }
 
 
-void Database_Notes::set_summary_v2 (int identifier, string summary)
+string Database_Notes::get_contents (int identifier)
 {
-  // Store authoritative copy in the filesystem.
-  set_field_v2 (identifier, summary_key_v2 (), summary);
-  // Update the shadow database.
-  SqliteSQL sql;
-  sql.add ("UPDATE notes SET summary =");
-  sql.add (summary);
-  sql.add ("WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
-  // Update the search data in the database.
-  update_search_fields_v12 (identifier);
-  // Update checksum.
-  update_checksum_v2 (identifier);
+  return get_field (identifier, contents_key ());
 }
 
 
-string Database_Notes::get_contents_v12 (int identifier)
+void Database_Notes::set_raw_contents (int identifier, const string& contents)
 {
-  if (is_v1 (identifier)) {
-    return get_contents_v1 (identifier);
-  } else {
-    return get_contents_v2 (identifier);
-  }
+  set_field (identifier, contents_key (), contents);
 }
 
 
-string Database_Notes::get_contents_v1 (int identifier)
-{
-  string file = contents_file_v1 (identifier);
-  return filter_url_file_get_contents (file);
-}
-
-
-string Database_Notes::get_contents_v2 (int identifier)
-{
-  return get_field_v2 (identifier, contents_key_v2 ());
-}
-
-
-void Database_Notes::set_raw_contents_v1 (int identifier, const string& contents)
-{
-  string file = contents_file_v1 (identifier);
-  filter_url_file_put_contents (file, contents);
-}
-
-
-void Database_Notes::set_raw_contents_v2 (int identifier, const string& contents)
-{
-  set_field_v2 (identifier, contents_key_v2 (), contents);
-}
-
-
-void Database_Notes::set_contents_v12 (int identifier, const string& contents)
-{
-  if (is_v1 (identifier)) {
-    set_contents_v1 (identifier, contents);
-  } else {
-    set_contents_v2 (identifier, contents);
-  }
-}
-
-
-void Database_Notes::set_contents_v1 (int identifier, const string& contents)
+void Database_Notes::set_contents (int identifier, const string& contents)
 {
   // Store in file system.
-  set_raw_contents_v1 (identifier, contents);
+  set_raw_contents (identifier, contents);
   // Update database.
   SqliteSQL sql;
   sql.add ("UPDATE notes SET contents =");
@@ -1171,44 +845,20 @@ void Database_Notes::set_contents_v1 (int identifier, const string& contents)
   database_sqlite_exec (db, sql.sql);
   database_sqlite_disconnect (db);
   // Update search system.
-  update_search_fields_v12 (identifier);
+  update_search_fields (identifier);
   // Update checksum.
-  update_checksum_v1 (identifier);
-}
-
-
-void Database_Notes::set_contents_v2 (int identifier, const string& contents)
-{
-  // Store in file system.
-  set_raw_contents_v2 (identifier, contents);
-  // Update database.
-  SqliteSQL sql;
-  sql.add ("UPDATE notes SET contents =");
-  sql.add (contents);
-  sql.add ("WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
-  // Update search system.
-  update_search_fields_v12 (identifier);
-  // Update checksum.
-  update_checksum_v2 (identifier);
+  update_checksum (identifier);
 }
 
 
 // Erases a note stored in the old and in the new format.
-void Database_Notes::erase_v12 (int identifier)
+void Database_Notes::erase (int identifier)
 {
-  // Delete old storage from filesystem.
-  string folder = note_folder_v1 (identifier);
-  filter_url_rmdir (folder);
   // Delete new storage from filesystem.
-  string path = note_file_v2 (identifier);
+  string path = note_file (identifier);
   filter_url_unlink (path);
   // Update databases as well.
-  delete_checksum_v12 (identifier);
+  delete_checksum (identifier);
   SqliteSQL sql;
   sql.add ("DELETE FROM notes WHERE identifier =");
   sql.add (identifier);
@@ -1219,53 +869,17 @@ void Database_Notes::erase_v12 (int identifier)
 }
 
 
-// Add a comment to an exiting note identified by identifier.
-void Database_Notes::add_comment_v12 (int identifier, const string& comment)
-{
-  if (is_v1 (identifier)) {
-    add_comment_v1 (identifier, comment);
-  } else {
-    add_comment_v2 (identifier, comment);
-  }
-}
-
-
-// Add a comment to an exiting note identified by identifier.
-void Database_Notes::add_comment_v1 (int identifier, const string& comment)
+// Add a comment to an exiting note identified by $identifier.
+void Database_Notes::add_comment (int identifier, const string& comment)
 {
   // Assemble the new content and store it.
   // This updates the search database also.
-  string contents = assemble_contents_v12 (identifier, comment);
-  set_contents_v1 (identifier, contents);
+  string contents = assemble_contents (identifier, comment);
+  set_contents (identifier, contents);
   
   // Some triggers.
-  note_modified_actions_v12 (identifier);
-  unmark_for_deletion_v1 (identifier);
-  
-  // Update shadow database.
-  SqliteSQL sql;
-  sql.add ("UPDATE notes SET contents =");
-  sql.add (contents);
-  sql.add ("WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
-}
-
-
-// Add a comment to an exiting note identified by identifier.
-void Database_Notes::add_comment_v2 (int identifier, const string& comment)
-{
-  // Assemble the new content and store it.
-  // This updates the search database also.
-  string contents = assemble_contents_v12 (identifier, comment);
-  set_contents_v2 (identifier, contents);
-  
-  // Some triggers.
-  note_modified_actions_v12 (identifier);
-  unmark_for_deletion_v2 (identifier);
+  note_modified_actions (identifier);
+  unmark_for_deletion (identifier);
   
   // Update shadow database.
   SqliteSQL sql;
@@ -1281,83 +895,29 @@ void Database_Notes::add_comment_v2 (int identifier, const string& comment)
 
 
 // Subscribe the current user to the note identified by identifier.
-void Database_Notes::subscribe_v12 (int identifier)
-{
-  if (is_v1 (identifier)) {
-    subscribe_v1 (identifier);
-  } else {
-    subscribe_v2 (identifier);
-  }
-}
-
-
-// Subscribe the current user to the note identified by identifier.
-void Database_Notes::subscribe_v1 (int identifier)
+void Database_Notes::subscribe (int identifier)
 {
   string user = ((Webserver_Request *) webserver_request)->session_logic ()->currentUser ();
-  subscribe_user_v1 (identifier, user);
-}
-
-
-// Subscribe the current user to the note identified by identifier.
-void Database_Notes::subscribe_v2 (int identifier)
-{
-  string user = ((Webserver_Request *) webserver_request)->session_logic ()->currentUser ();
-  subscribe_user_v2 (identifier, user);
+  subscribe_user (identifier, user);
 }
 
 
 // Subscribe the user to the note identified by identifier.
-void Database_Notes::subscribe_user_v12 (int identifier, const string& user)
-{
-  if (is_v1 (identifier)) {
-    subscribe_user_v1 (identifier, user);
-  } else {
-    subscribe_user_v2 (identifier, user);
-  }
-}
-
-
-// Subscribe the user to the note identified by identifier.
-void Database_Notes::subscribe_user_v1 (int identifier, const string& user)
+void Database_Notes::subscribe_user (int identifier, const string& user)
 {
   // If the user already is subscribed to the note, bail out.
-  vector <string> subscribers = get_subscribers_v1 (identifier);
+  vector <string> subscribers = get_subscribers (identifier);
   if (find (subscribers.begin(), subscribers.end(), user) != subscribers.end()) return;
   // Subscribe user.
   subscribers.push_back (user);
-  set_subscribers_v1 (identifier, subscribers);
-}
-
-
-// Subscribe the user to the note identified by identifier.
-void Database_Notes::subscribe_user_v2 (int identifier, const string& user)
-{
-  // If the user already is subscribed to the note, bail out.
-  vector <string> subscribers = get_subscribers_v2 (identifier);
-  if (find (subscribers.begin(), subscribers.end(), user) != subscribers.end()) return;
-  // Subscribe user.
-  subscribers.push_back (user);
-  set_subscribers_v2 (identifier, subscribers);
+  set_subscribers (identifier, subscribers);
 }
 
 
 // Returns an array with the subscribers to the note identified by identifier.
-vector <string> Database_Notes::get_subscribers_v12 (int identifier)
+vector <string> Database_Notes::get_subscribers (int identifier)
 {
-  if (is_v1 (identifier)) {
-    return get_subscribers_v1 (identifier);
-  } else {
-    return get_subscribers_v2 (identifier);
-  }
-}
-
-
-// Returns an array with the subscribers to the note identified by identifier.
-vector <string> Database_Notes::get_subscribers_v1 (int identifier)
-{
-  string file = subscriptions_file_v1 (identifier);
-  string contents = filter_url_file_get_contents (file);
+  string contents = get_raw_subscriptions (identifier);
   if (contents.empty()) return {};
   vector <string> subscribers = filter_string_explode (contents, '\n');
   for (auto & subscriber : subscribers) {
@@ -1367,29 +927,16 @@ vector <string> Database_Notes::get_subscribers_v1 (int identifier)
 }
 
 
-// Returns an array with the subscribers to the note identified by identifier.
-vector <string> Database_Notes::get_subscribers_v2 (int identifier)
+string Database_Notes::get_raw_subscriptions (int identifier)
 {
-  string contents = get_raw_subscriptions_v2 (identifier);
-  if (contents.empty()) return {};
-  vector <string> subscribers = filter_string_explode (contents, '\n');
-  for (auto & subscriber : subscribers) {
-    subscriber = filter_string_trim (subscriber);
-  }
-  return subscribers;
+  return get_field (identifier, subscriptions_key ());
 }
 
 
-string Database_Notes::get_raw_subscriptions_v2 (int identifier)
-{
-  return get_field_v2 (identifier, subscriptions_key_v2 ());
-}
-
-
-void Database_Notes::set_raw_subscriptions_v2 (int identifier, const string& subscriptions)
+void Database_Notes::set_raw_subscriptions (int identifier, const string& subscriptions)
 {
   // Store them in the filesystem.
-  set_field_v2 (identifier, subscriptions_key_v2 (), subscriptions);
+  set_field (identifier, subscriptions_key (), subscriptions);
   
   // Store them in the database as well.
   SqliteSQL sql;
@@ -1404,46 +951,7 @@ void Database_Notes::set_raw_subscriptions_v2 (int identifier, const string& sub
 }
 
 
-void Database_Notes::set_subscribers_v12 (int identifier, vector <string> subscribers)
-{
-  if (is_v1 (identifier)) {
-    set_subscribers_v1 (identifier, subscribers);
-  } else {
-    set_subscribers_v2 (identifier, subscribers);
-  }
-}
-
-void Database_Notes::set_subscribers_v1 (int identifier, vector <string> subscribers)
-{
-  // Add a space at both sides of the subscriber to allow for easier note selection based on note assignment.
-  for (auto & subscriber : subscribers) {
-    subscriber.insert (0, " ");
-    subscriber.append (" ");
-  }
-  string subscriberstring = filter_string_implode (subscribers, "\n");
-  
-  // Store them in the filesystem, and remove the file if there's no data to store.
-  string file = subscriptions_file_v1 (identifier);
-  if (subscriberstring.empty ()) filter_url_unlink (file);
-  else filter_url_file_put_contents (file, subscriberstring);
-  
-  // Store them in the database as well.
-  SqliteSQL sql;
-  sql.add ("UPDATE notes SET subscriptions =");
-  sql.add (subscriberstring);
-  sql.add ("WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
-
-  // Checksum.
-  update_checksum_v1 (identifier);
-}
-
-
-void Database_Notes::set_subscribers_v2 (int identifier, vector <string> subscribers)
+void Database_Notes::set_subscribers (int identifier, vector <string> subscribers)
 {
   // Add a space at both sides of the subscriber to allow for easier note selection based on note assignment.
   for (auto & subscriber : subscribers) {
@@ -1453,113 +961,52 @@ void Database_Notes::set_subscribers_v2 (int identifier, vector <string> subscri
   string subscriberstring = filter_string_implode (subscribers, "\n");
   
   // Store them to file and in the database.
-  set_raw_subscriptions_v2 (identifier, subscriberstring);
+  set_raw_subscriptions (identifier, subscriberstring);
   
   // Checksum.
-  update_checksum_v2 (identifier);
+  update_checksum (identifier);
 }
 
 
 // Returns true if user is subscribed to the note identified by identifier.
-bool Database_Notes::is_subscribed_v12 (int identifier, const string& user)
+bool Database_Notes::is_subscribed (int identifier, const string& user)
 {
-  if (is_v1 (identifier)) {
-    return is_subscribed_v1 (identifier, user);
-  } else {
-    return is_subscribed_v2 (identifier, user);
-  }
-}
-
-
-// Returns true if user is subscribed to the note identified by identifier.
-bool Database_Notes::is_subscribed_v1 (int identifier, const string& user)
-{
-  vector <string> subscribers = get_subscribers_v1 (identifier);
-  return find (subscribers.begin(), subscribers.end(), user) != subscribers.end();
-}
-
-
-// Returns true if user is subscribed to the note identified by identifier.
-bool Database_Notes::is_subscribed_v2 (int identifier, const string& user)
-{
-  vector <string> subscribers = get_subscribers_v2 (identifier);
+  vector <string> subscribers = get_subscribers (identifier);
   return find (subscribers.begin(), subscribers.end(), user) != subscribers.end();
 }
 
 
 // Unsubscribes the currently logged in user from the note identified by identifier.
-void Database_Notes::unsubscribe_v12 (int identifier)
-{
-  if (is_v1 (identifier)) {
-    unsubscribe_v1 (identifier);
-  } else {
-    unsubscribe_v2 (identifier);
-  }
-}
-
-
-// Unsubscribes the currently logged in user from the note identified by identifier.
-void Database_Notes::unsubscribe_v1 (int identifier)
+void Database_Notes::unsubscribe (int identifier)
 {
   string user = ((Webserver_Request *) webserver_request)->session_logic ()->currentUser ();
-  unsubscribe_user_v1 (identifier, user);
-}
-
-
-// Unsubscribes the currently logged in user from the note identified by identifier.
-void Database_Notes::unsubscribe_v2 (int identifier)
-{
-  string user = ((Webserver_Request *) webserver_request)->session_logic ()->currentUser ();
-  unsubscribe_user_v2 (identifier, user);
+  unsubscribe_user (identifier, user);
 }
 
 
 // Unsubscribes user from the note identified by identifier.
-void Database_Notes::unsubscribe_user_v12 (int identifier, const string& user)
-{
-  if (is_v1 (identifier)) {
-    unsubscribe_user_v1 (identifier, user);
-  } else {
-    unsubscribe_user_v2 (identifier, user);
-  }
-}
-
-
-// Unsubscribes user from the note identified by identifier.
-void Database_Notes::unsubscribe_user_v1 (int identifier, const string& user)
+void Database_Notes::unsubscribe_user (int identifier, const string& user)
 {
   // If the user is not subscribed to the note, bail out.
-  vector <string> subscribers = get_subscribers_v1 (identifier);
+  vector <string> subscribers = get_subscribers (identifier);
   if (find (subscribers.begin(), subscribers.end(), user) == subscribers.end()) return;
   // Unsubscribe user.
   subscribers.erase (remove (subscribers.begin(), subscribers.end(), user), subscribers.end());
-  set_subscribers_v1 (identifier, subscribers);
+  set_subscribers (identifier, subscribers);
 }
 
 
-// Unsubscribes user from the note identified by identifier.
-void Database_Notes::unsubscribe_user_v2 (int identifier, const string& user)
-{
-  // If the user is not subscribed to the note, bail out.
-  vector <string> subscribers = get_subscribers_v2 (identifier);
-  if (find (subscribers.begin(), subscribers.end(), user) == subscribers.end()) return;
-  // Unsubscribe user.
-  subscribers.erase (remove (subscribers.begin(), subscribers.end(), user), subscribers.end());
-  set_subscribers_v2 (identifier, subscribers);
-}
-
-
-string Database_Notes::get_raw_assigned_v2 (int identifier)
+string Database_Notes::get_raw_assigned (int identifier)
 {
   // Get the asssignees from the filesystem.
-  return get_field_v2 (identifier, assigned_key_v2 ());
+  return get_field (identifier, assigned_key ());
 }
 
 
-void Database_Notes::set_raw_assigned_v2 (int identifier, const string& assigned)
+void Database_Notes::set_raw_assigned (int identifier, const string& assigned)
 {
   // Store the assignees in the filesystem.
-  set_field_v2 (identifier, assigned_key_v2 (), assigned);
+  set_field (identifier, assigned_key (), assigned);
   
   // Store the assignees in the database also.
   SqliteSQL sql;
@@ -1581,7 +1028,7 @@ void Database_Notes::set_raw_assigned_v2 (int identifier, const string& assigned
 // But as retrieving the assignees from the file system would be slow, 
 // this function retrieves them from the database.
 // Normally the database is in sync with the filesystem.
-vector <string> Database_Notes::get_all_assignees_v12 (const vector <string>& bibles)
+vector <string> Database_Notes::get_all_assignees (const vector <string>& bibles)
 {
   set <string> unique_assignees;
   SqliteSQL sql;
@@ -1609,35 +1056,15 @@ vector <string> Database_Notes::get_all_assignees_v12 (const vector <string>& bi
 
 
 // Returns an array with the assignees to the note identified by identifier.
-vector <string> Database_Notes::get_assignees_v12 (int identifier)
-{
-  if (is_v1 (identifier)) {
-    return get_assignees_v1 (identifier);
-  } else {
-    return get_assignees_v2 (identifier);
-  }
-}
-
-// Returns an array with the assignees to the note identified by identifier.
-vector <string> Database_Notes::get_assignees_v1 (int identifier)
+vector <string> Database_Notes::get_assignees (int identifier)
 {
   // Get the asssignees from the filesystem.
-  string file = assigned_file_v1 (identifier);
-  string assignees = filter_url_file_get_contents (file);
-  return get_assignees_internal_v12 (assignees);
+  string assignees = get_raw_assigned (identifier);
+  return get_assignees_internal (assignees);
 }
 
 
-// Returns an array with the assignees to the note identified by identifier.
-vector <string> Database_Notes::get_assignees_v2 (int identifier)
-{
-  // Get the asssignees from the filesystem.
-  string assignees = get_raw_assigned_v2 (identifier);
-  return get_assignees_internal_v12 (assignees);
-}
-
-
-vector <string> Database_Notes::get_assignees_internal_v12 (string assignees)
+vector <string> Database_Notes::get_assignees_internal (string assignees)
 {
   if (assignees.empty ()) return {};
   vector <string> assignees_vector = filter_string_explode (assignees, '\n');
@@ -1652,20 +1079,7 @@ vector <string> Database_Notes::get_assignees_internal_v12 (string assignees)
 // Sets the note's assignees.
 // identifier : note identifier.
 // assignees : array of user names.
-void Database_Notes::set_assignees_v12 (int identifier, vector <string> assignees)
-{
-  if (is_v1 (identifier)) {
-    set_assignees_v1 (identifier, assignees);
-  } else {
-    set_assignees_v2 (identifier, assignees);
-  }
-}
-
-
-// Sets the note's assignees.
-// identifier : note identifier.
-// assignees : array of user names.
-void Database_Notes::set_assignees_v1 (int identifier, vector <string> assignees)
+void Database_Notes::set_assignees (int identifier, vector <string> assignees)
 {
   // Add a space at both sides of the assignee to allow for easier note selection based on note assignment.
   for (auto & assignee : assignees) {
@@ -1673,201 +1087,54 @@ void Database_Notes::set_assignees_v1 (int identifier, vector <string> assignees
     assignee.append (" ");
   }
   string assignees_string = filter_string_implode (assignees, "\n");
-  
-  // Store the assignees in the filesystem, or remove the file if there's no data to store.
-  string file = assigned_file_v1 (identifier);
-  if (assignees_string.empty ()) filter_url_unlink (file);
-  else filter_url_file_put_contents (file, assignees_string);
-  
-  // Store the assignees in the database also.
-  SqliteSQL sql;
-  sql.add ("UPDATE notes SET assigned =");
-  sql.add (assignees_string);
-  sql.add ("WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
-  
-  note_modified_actions_v12 (identifier);
-}
-
-
-// Sets the note's assignees.
-// identifier : note identifier.
-// assignees : array of user names.
-void Database_Notes::set_assignees_v2 (int identifier, vector <string> assignees)
-{
-  // Add a space at both sides of the assignee to allow for easier note selection based on note assignment.
-  for (auto & assignee : assignees) {
-    assignee.insert (0, " ");
-    assignee.append (" ");
-  }
-  string assignees_string = filter_string_implode (assignees, "\n");
-  set_raw_assigned_v2 (identifier, assignees_string);
-  note_modified_actions_v12 (identifier);
+  set_raw_assigned (identifier, assignees_string);
+  note_modified_actions (identifier);
 }
 
 
 // Assign the note identified by identifier to user.
-void Database_Notes::assign_user_v12 (int identifier, const string& user)
-{
-  if (is_v1 (identifier)) {
-    assign_user_v1 (identifier, user);
-  } else {
-    assign_user_v2 (identifier, user);
-  }
-}
-
-
-// Assign the note identified by identifier to user.
-void Database_Notes::assign_user_v1 (int identifier, const string& user)
+void Database_Notes::assign_user (int identifier, const string& user)
 {
   // If the note already is assigned to the user, bail out.
-  vector <string> assignees = get_assignees_v1 (identifier);
+  vector <string> assignees = get_assignees (identifier);
   if (find (assignees.begin (), assignees.end(), user) != assignees.end()) return;
   // Assign the note to the user.
   assignees.push_back (user);
   // Store the whole lot.
-  set_assignees_v1 (identifier, assignees);
-}
-
-
-// Assign the note identified by identifier to user.
-void Database_Notes::assign_user_v2 (int identifier, const string& user)
-{
-  // If the note already is assigned to the user, bail out.
-  vector <string> assignees = get_assignees_v2 (identifier);
-  if (find (assignees.begin (), assignees.end(), user) != assignees.end()) return;
-  // Assign the note to the user.
-  assignees.push_back (user);
-  // Store the whole lot.
-  set_assignees_v2 (identifier, assignees);
+  set_assignees (identifier, assignees);
 }
 
 
 // Returns true if the note identified by identifier has been assigned to user.
-bool Database_Notes::is_assigned_v12 (int identifier, const string& user)
+bool Database_Notes::is_assigned (int identifier, const string& user)
 {
-  if (is_v1 (identifier)) {
-    return is_assigned_v1 (identifier, user);
-  } else {
-    return is_assigned_v2 (identifier, user);
-  }
-}
-
-
-// Returns true if the note identified by identifier has been assigned to user.
-bool Database_Notes::is_assigned_v1 (int identifier, const string& user)
-{
-  vector <string> assignees = get_assignees_v1 (identifier);
-  return find (assignees.begin(), assignees.end(), user) != assignees.end();
-}
-
-
-// Returns true if the note identified by identifier has been assigned to user.
-bool Database_Notes::is_assigned_v2 (int identifier, const string& user)
-{
-  vector <string> assignees = get_assignees_v2 (identifier);
+  vector <string> assignees = get_assignees (identifier);
   return find (assignees.begin(), assignees.end(), user) != assignees.end();
 }
 
 
 // Unassigns user from the note identified by identifier.
-void Database_Notes::unassign_user_v12 (int identifier, const string& user)
-{
-  if (is_v1 (identifier)) {
-    unassign_user_v1 (identifier, user);
-  } else {
-    unassign_user_v2 (identifier, user);
-  }
-}
-
-
-// Unassigns user from the note identified by identifier.
-void Database_Notes::unassign_user_v1 (int identifier, const string& user)
+void Database_Notes::unassign_user (int identifier, const string& user)
 {
   // If the note is not assigned to the user, bail out.
-  vector <string> assignees = get_assignees_v1 (identifier);
+  vector <string> assignees = get_assignees (identifier);
   if (find (assignees.begin(), assignees.end(), user) == assignees.end()) return;
   // Remove assigned user.
   assignees.erase (remove (assignees.begin(), assignees.end(), user), assignees.end());
-  set_assignees_v1 (identifier, assignees);
+  set_assignees (identifier, assignees);
 }
 
 
-// Unassigns user from the note identified by identifier.
-void Database_Notes::unassign_user_v2 (int identifier, const string& user)
+string Database_Notes::get_bible (int identifier)
 {
-  // If the note is not assigned to the user, bail out.
-  vector <string> assignees = get_assignees_v2 (identifier);
-  if (find (assignees.begin(), assignees.end(), user) == assignees.end()) return;
-  // Remove assigned user.
-  assignees.erase (remove (assignees.begin(), assignees.end(), user), assignees.end());
-  set_assignees_v2 (identifier, assignees);
+  return get_field (identifier, bible_key ());
 }
 
 
-string Database_Notes::get_bible_v12 (int identifier)
-{
-  if (is_v1 (identifier)) {
-    return get_bible_v1 (identifier);
-  } else {
-    return get_bible_v2 (identifier);
-  }
-}
-
-
-string Database_Notes::get_bible_v1 (int identifier)
-{
-  string file = bible_file_v1 (identifier);
-  return filter_url_file_get_contents (file);
-}
-
-
-string Database_Notes::get_bible_v2 (int identifier)
-{
-  return get_field_v2 (identifier, bible_key_v2 ());
-}
-
-
-void Database_Notes::set_bible_v12 (int identifier, const string& bible)
-{
-  if (is_v1 (identifier)) {
-    set_bible_v1 (identifier, bible);
-  } else {
-    set_bible_v2 (identifier, bible);
-  }
-}
-
-
-void Database_Notes::set_bible_v1 (int identifier, const string& bible)
-{
-  // Write the bible to the filesystem, or remove the bible in case there's no data to store.
-  string file = bible_file_v1 (identifier);
-  if (bible.empty ()) filter_url_unlink (file);
-  else filter_url_file_put_contents (file, bible);
-  
-  // Update the database also.
-  SqliteSQL sql;
-  sql.add ("UPDATE notes SET bible =");
-  sql.add (bible);
-  sql.add ("WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
-  
-  note_modified_actions_v12 (identifier);
-}
-
-
-void Database_Notes::set_bible_v2 (int identifier, const string& bible)
+void Database_Notes::set_bible (int identifier, const string& bible)
 {
   // Write the bible to the filesystem.
-  set_field_v2 (identifier, bible_key_v2 (), bible);
+  set_field (identifier, bible_key (), bible);
   
   // Update the database also.
   SqliteSQL sql;
@@ -1880,11 +1147,11 @@ void Database_Notes::set_bible_v2 (int identifier, const string& bible)
   database_sqlite_exec (db, sql.sql);
   database_sqlite_disconnect (db);
   
-  note_modified_actions_v12 (identifier);
+  note_modified_actions (identifier);
 }
 
 
-vector <string> Database_Notes::get_all_bibles_v12 ()
+vector <string> Database_Notes::get_all_bibles ()
 {
   vector <string> bibles;
   sqlite3 * db = connect ();
@@ -1902,7 +1169,7 @@ vector <string> Database_Notes::get_all_bibles_v12 ()
 // Encodes the book, chapter and verse, like to, e.g.: "40.5.13",
 // and returns this as a string.
 // The chapter and the verse can be negative, in which case they won't be included.
-string Database_Notes::encode_passage_v12 (int book, int chapter, int verse)
+string Database_Notes::encode_passage (int book, int chapter, int verse)
 {
   // Space before and after the passage enables notes selection on passage.
   // Special way of encoding, as done below, is to enable note selection on book / chapter / verse.
@@ -1925,7 +1192,7 @@ string Database_Notes::encode_passage_v12 (int book, int chapter, int verse)
 
 
 // Takes the passage as a string, and returns an object with book, chapter, and verse.
-Passage Database_Notes::decode_passage_v12 (string passage)
+Passage Database_Notes::decode_passage (string passage)
 {
   passage = filter_string_trim (passage);
   Passage decodedpassage = Passage ();
@@ -1938,71 +1205,30 @@ Passage Database_Notes::decode_passage_v12 (string passage)
 
 
 // Returns the raw passage text of the note identified by identifier.
-string Database_Notes::get_raw_passage_v12 (int identifier)
+string Database_Notes::decode_passage (int identifier)
 {
-  if (is_v1 (identifier)) {
-    return get_raw_passage_v1 (identifier);
-  } else {
-    return get_raw_passage_v2 (identifier);
-  }
+  return get_raw_passage (identifier);
 }
 
 
 // Returns the raw passage text of the note identified by identifier.
-string Database_Notes::get_raw_passage_v1 (int identifier)
+string Database_Notes::get_raw_passage (int identifier)
 {
-  string file = passage_file_v1 (identifier);
-  return filter_url_file_get_contents (file);
-}
-
-
-// Returns the raw passage text of the note identified by identifier.
-string Database_Notes::get_raw_passage_v2 (int identifier)
-{
-  return get_field_v2 (identifier, passage_key_v2 ());
+  return get_field (identifier, passage_key ());
 }
 
 
 // Returns an array with the passages that the note identified by identifier refers to.
 // Each passages is an array (book, chapter, verse).
-vector <Passage> Database_Notes::get_passages_v12 (int identifier)
+vector <Passage> Database_Notes::get_passages (int identifier)
 {
-  if (is_v1 (identifier)) {
-    return get_passages_v1 (identifier);
-  } else {
-    return get_passages_v2 (identifier);
-  }
-}
-
-
-// Returns an array with the passages that the note identified by identifier refers to.
-// Each passages is an array (book, chapter, verse).
-vector <Passage> Database_Notes::get_passages_v1 (int identifier)
-{
-  string contents = get_raw_passage_v1 (identifier);
+  string contents = get_raw_passage (identifier);
   if (contents.empty()) return {};
   vector <string> lines = filter_string_explode (contents, '\n');
   vector <Passage> passages;
   for (auto & line : lines) {
     if (line.empty()) continue;
-    Passage passage = decode_passage_v12 (line);
-    passages.push_back (passage);
-  }
-  return passages;
-}
-
-
-// Returns an array with the passages that the note identified by identifier refers to.
-// Each passages is an array (book, chapter, verse).
-vector <Passage> Database_Notes::get_passages_v2 (int identifier)
-{
-  string contents = get_raw_passage_v2 (identifier);
-  if (contents.empty()) return {};
-  vector <string> lines = filter_string_explode (contents, '\n');
-  vector <Passage> passages;
-  for (auto & line : lines) {
-    if (line.empty()) continue;
-    Passage passage = decode_passage_v12 (line);
+    Passage passage = decode_passage (line);
     passages.push_back (passage);
   }
   return passages;
@@ -2012,55 +1238,21 @@ vector <Passage> Database_Notes::get_passages_v2 (int identifier)
 // Set the passages for note identifier.
 // passages is an array of an array (book, chapter, verse) passages.
 // import: If true, just write passages, no further actions.
-void Database_Notes::set_passages_v12 (int identifier, const vector <Passage>& passages, bool import)
-{
-  if (is_v1 (identifier)) {
-    set_passages_v1 (identifier, passages, import);
-  } else {
-    set_passages_v2 (identifier, passages, import);
-  }
-}
-
-
-// Set the passages for note identifier.
-// passages is an array of an array (book, chapter, verse) passages.
-// import: If true, just write passages, no further actions.
-void Database_Notes::set_passages_v1 (int identifier, const vector <Passage>& passages, bool import)
+void Database_Notes::set_passages (int identifier, const vector <Passage>& passages, bool import)
 {
   // Format the passages.
   string line;
   for (auto & passage : passages) {
     if (!line.empty ()) line.append ("\n");
-    line.append (encode_passage_v12 (passage.book, passage.chapter, convert_to_int (passage.verse)));
+    line.append (encode_passage (passage.book, passage.chapter, convert_to_int (passage.verse)));
   }
   // Store it.
-  set_raw_passage_v1 (identifier, line);
-
-  // Update index.
-  index_raw_passage_v12 (identifier, line);
-
-  if (!import) note_modified_actions_v12 (identifier);
-}
-
-
-// Set the passages for note identifier.
-// passages is an array of an array (book, chapter, verse) passages.
-// import: If true, just write passages, no further actions.
-void Database_Notes::set_passages_v2 (int identifier, const vector <Passage>& passages, bool import)
-{
-  // Format the passages.
-  string line;
-  for (auto & passage : passages) {
-    if (!line.empty ()) line.append ("\n");
-    line.append (encode_passage_v12 (passage.book, passage.chapter, convert_to_int (passage.verse)));
-  }
-  // Store it.
-  set_raw_passage_v2 (identifier, line);
+  set_raw_passage (identifier, line);
   
   // Update index.
-  index_raw_passage_v12 (identifier, line);
+  index_raw_passage (identifier, line);
 
-  if (!import) note_modified_actions_v12 (identifier);
+  if (!import) note_modified_actions (identifier);
 }
 
 
@@ -2073,50 +1265,14 @@ void Database_Notes::set_passages_v2 (int identifier, const vector <Passage>& pa
 // it should download the exact passage file contents as it is on the server,
 // so as to prevent keeping to download the same notes over and over,
 // due to the above mentioned difference in adding a new line or not.
-void Database_Notes::set_raw_passage_v12 (int identifier, const string& passage)
-{
-  if (is_v1 (identifier)) {
-    set_raw_passage_v1 (identifier, passage);
-  } else {
-    set_raw_passage_v2 (identifier, passage);
-  }
-}
-
-
-// Sets the raw $passage(s) for a note $identifier.
-// The reason for having this function is this:
-// There is a slight difference in adding a new line or not to the passage
-// between Bibledit as it was written in PHP,
-// and Bibledit as it is now written in C++.
-// Due to this difference, when a client downloads a note from the server,
-// it should download the exact passage file contents as it is on the server,
-// so as to prevent keeping to download the same notes over and over,
-// due to the above mentioned difference in adding a new line or not.
-void Database_Notes::set_raw_passage_v1 (int identifier, const string& passage)
+void Database_Notes::set_raw_passage (int identifier, const string& passage)
 {
   // Store the authoritative copy in the filesystem.
-  string file = passage_file_v1 (identifier);
-  filter_url_file_put_contents (file, passage);
+  set_field (identifier, passage_key (), passage);
 }
 
 
-// Sets the raw $passage(s) for a note $identifier.
-// The reason for having this function is this:
-// There is a slight difference in adding a new line or not to the passage
-// between Bibledit as it was written in PHP,
-// and Bibledit as it is now written in C++.
-// Due to this difference, when a client downloads a note from the server,
-// it should download the exact passage file contents as it is on the server,
-// so as to prevent keeping to download the same notes over and over,
-// due to the above mentioned difference in adding a new line or not.
-void Database_Notes::set_raw_passage_v2 (int identifier, const string& passage)
-{
-  // Store the authoritative copy in the filesystem.
-  set_field_v2 (identifier, passage_key_v2 (), passage);
-}
-
-
-void Database_Notes::index_raw_passage_v12 (int identifier, const string& passage)
+void Database_Notes::index_raw_passage (int identifier, const string& passage)
 {
   // Update the search index database.
   SqliteSQL sql;
@@ -2134,62 +1290,17 @@ void Database_Notes::index_raw_passage_v12 (int identifier, const string& passag
 
 // Gets the raw status of a note.
 // Returns it as a string.
-string Database_Notes::get_raw_status_v12 (int identifier)
+string Database_Notes::get_raw_status (int identifier)
 {
-  if (is_v1 (identifier)) {
-    return get_raw_status_v1 (identifier);
-  } else {
-    return get_raw_status_v2 (identifier);
-  }
-}
-
-
-// Gets the raw status of a note.
-// Returns it as a string.
-string Database_Notes::get_raw_status_v1 (int identifier)
-{
-  string file = status_file_v1 (identifier);
-  return filter_url_file_get_contents (file);
-}
-
-
-// Gets the raw status of a note.
-// Returns it as a string.
-string Database_Notes::get_raw_status_v2 (int identifier)
-{
-  return get_field_v2 (identifier, status_key_v2 ());
+  return get_field (identifier, status_key ());
 }
 
 
 // Gets the localized status of a note.
 // Returns it as a string.
-string Database_Notes::get_status_v12 (int identifier)
+string Database_Notes::get_status (int identifier)
 {
-  if (is_v1 (identifier)) {
-    return get_status_v1 (identifier);
-  } else {
-    return get_status_v2 (identifier);
-  }
-}
-
-
-// Gets the localized status of a note.
-// Returns it as a string.
-string Database_Notes::get_status_v1 (int identifier)
-{
-  string status = get_raw_status_v1 (identifier);
-  // Localize status if possible.
-  status = translate (status.c_str());
-  // Return status.
-  return status;
-}
-
-
-// Gets the localized status of a note.
-// Returns it as a string.
-string Database_Notes::get_status_v2 (int identifier)
-{
-  string status = get_raw_status_v2 (identifier);
+  string status = get_raw_status (identifier);
   // Localize status if possible.
   status = translate (status.c_str());
   // Return status.
@@ -2200,49 +1311,12 @@ string Database_Notes::get_status_v2 (int identifier)
 // Sets the status of the note identified by identifier.
 // status is a string.
 // import: Just write the status, and skip any logic.
-void Database_Notes::set_status_v12 (int identifier, const string& status, bool import)
-{
-  if (is_v1 (identifier)) {
-    set_status_v1 (identifier, status, import);
-  } else {
-    set_status_v2 (identifier, status, import);
-  }
-}
-
-
-// Sets the status of the note identified by identifier.
-// status is a string.
-// import: Just write the status, and skip any logic.
-void Database_Notes::set_status_v1 (int identifier, const string& status, bool import)
+void Database_Notes::set_status (int identifier, const string& status, bool import)
 {
   // Store the authoritative copy in the filesystem.
-  string file = status_file_v1 (identifier);
-  filter_url_file_put_contents (file, status);
+  set_field (identifier, status_key (), status);
   
-  if (!import) note_modified_actions_v12(identifier);
-  
-  // Store a copy in the database also.
-  SqliteSQL sql;
-  sql.add ("UPDATE notes SET status =");
-  sql.add (status);
-  sql.add ("WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
-}
-
-
-// Sets the status of the note identified by identifier.
-// status is a string.
-// import: Just write the status, and skip any logic.
-void Database_Notes::set_status_v2 (int identifier, const string& status, bool import)
-{
-  // Store the authoritative copy in the filesystem.
-  set_field_v2 (identifier, status_key_v2 (), status);
-  
-  if (!import) note_modified_actions_v12 (identifier);
+  if (!import) note_modified_actions (identifier);
   
   // Store a copy in the database also.
   SqliteSQL sql;
@@ -2259,7 +1333,7 @@ void Database_Notes::set_status_v2 (int identifier, const string& status, bool i
 
 // Gets an array of array with the possible statuses of consultation notes,
 // both raw and localized versions.
-vector <Database_Notes_Text> Database_Notes::get_possible_statuses_v12 ()
+vector <Database_Notes_Text> Database_Notes::get_possible_statuses ()
 {
   // Get an array with the statuses used in the database, ordered by occurrence, most often used ones first.
   string query = "SELECT status, COUNT(status) AS occurrences FROM notes GROUP BY status ORDER BY occurrences DESC;";
@@ -2287,71 +1361,26 @@ vector <Database_Notes_Text> Database_Notes::get_possible_statuses_v12 ()
 }
 
 
-vector <string> Database_Notes::standard_severities_v12 ()
+vector <string> Database_Notes::standard_severities ()
 {
   return {"Wish", "Minor", "Normal", "Important", "Major", "Critical"};
 }
 
 
 // Returns the severity of a note as a number.
-int Database_Notes::get_raw_severity_v12 (int identifier)
+int Database_Notes::get_raw_severity (int identifier)
 {
-  if (is_v1 (identifier)) {
-    return get_raw_severity_v1 (identifier);
-  } else {
-    return get_raw_severity_v2 (identifier);
-  }
-}
-
-
-// Returns the severity of a note as a number.
-int Database_Notes::get_raw_severity_v1 (int identifier)
-{
-  string file = severity_file_v1 (identifier);
-  string severity = filter_url_file_get_contents (file);
-  if (severity.empty ()) return 2;
-  return convert_to_int (severity);
-}
-
-
-// Returns the severity of a note as a number.
-int Database_Notes::get_raw_severity_v2 (int identifier)
-{
-  string severity = get_field_v2 (identifier, severity_key_v2 ());
+  string severity = get_field (identifier, severity_key ());
   if (severity.empty ()) return 2;
   return convert_to_int (severity);
 }
 
 
 // Returns the severity of a note as a localized string.
-string Database_Notes::get_severity_v12 (int identifier)
+string Database_Notes::get_severity (int identifier)
 {
-  if (is_v1 (identifier)) {
-    return get_severity_v1 (identifier);
-  } else {
-    return get_severity_v2 (identifier);
-  }
-}
-
-
-// Returns the severity of a note as a localized string.
-string Database_Notes::get_severity_v1 (int identifier)
-{
-  int severity = get_raw_severity_v1 (identifier);
-  vector <string> standard = standard_severities_v12 ();
-  string severitystring;
-  if ((severity >= 0) && (severity < (int)standard.size())) severitystring = standard [severity];
-  if (severitystring.empty()) severitystring = "Normal";
-  severitystring = translate (severitystring.c_str());
-  return severitystring;
-}
-
-
-// Returns the severity of a note as a localized string.
-string Database_Notes::get_severity_v2 (int identifier)
-{
-  int severity = get_raw_severity_v2 (identifier);
-  vector <string> standard = standard_severities_v12 ();
+  int severity = get_raw_severity (identifier);
+  vector <string> standard = standard_severities ();
   string severitystring;
   if ((severity >= 0) && (severity < (int)standard.size())) severitystring = standard [severity];
   if (severitystring.empty()) severitystring = "Normal";
@@ -2362,47 +1391,12 @@ string Database_Notes::get_severity_v2 (int identifier)
 
 // Sets the severity of the note identified by identifier.
 // severity is a number.
-void Database_Notes::set_raw_severity_v12 (int identifier, int severity)
-{
-  if (is_v1 (identifier)) {
-    set_raw_severity_v1 (identifier, severity);
-  } else {
-    set_raw_severity_v2 (identifier, severity);
-  }
-}
-
-
-// Sets the severity of the note identified by identifier.
-// severity is a number.
-void Database_Notes::set_raw_severity_v1 (int identifier, int severity)
+void Database_Notes::set_raw_severity (int identifier, int severity)
 {
   // Update the file system.
-  string file = severity_file_v1 (identifier);
-  filter_url_file_put_contents (file, convert_to_string (severity));
+  set_field (identifier, severity_key (), convert_to_string (severity));
   
-  note_modified_actions_v12 (identifier);
-  
-  // Update the database also.
-  SqliteSQL sql;
-  sql.add ("UPDATE notes SET severity =");
-  sql.add (severity);
-  sql.add ("WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
-}
-
-
-// Sets the severity of the note identified by identifier.
-// severity is a number.
-void Database_Notes::set_raw_severity_v2 (int identifier, int severity)
-{
-  // Update the file system.
-  set_field_v2 (identifier, severity_key_v2 (), convert_to_string (severity));
-  
-  note_modified_actions_v12 (identifier);
+  note_modified_actions (identifier);
   
   // Update the database also.
   SqliteSQL sql;
@@ -2418,9 +1412,9 @@ void Database_Notes::set_raw_severity_v2 (int identifier, int severity)
 
 
 // Gets an array with the possible severities.
-vector <Database_Notes_Text> Database_Notes::get_possible_severities_v12 ()
+vector <Database_Notes_Text> Database_Notes::get_possible_severities ()
 {
-  vector <string> standard = standard_severities_v12 ();
+  vector <string> standard = standard_severities ();
   vector <Database_Notes_Text> severities;
   for (size_t i = 0; i < standard.size(); i++) {
     Database_Notes_Text severity;
@@ -2432,47 +1426,18 @@ vector <Database_Notes_Text> Database_Notes::get_possible_severities_v12 ()
 }
 
 
-int Database_Notes::get_modified_v12 (int identifier)
+int Database_Notes::get_modified (int identifier)
 {
-  if (is_v1 (identifier)) {
-    return get_modified_v1 (identifier);
-  } else {
-    return get_modified_v2 (identifier);
-  }
-}
-
-
-int Database_Notes::get_modified_v1 (int identifier)
-{
-  string file = modified_file_v1 (identifier);
-  string modified = filter_url_file_get_contents (file);
+  string modified = get_field (identifier, modified_key ());
   if (modified.empty ()) return 0;
   return convert_to_int (modified);
 }
 
 
-int Database_Notes::get_modified_v2 (int identifier)
-{
-  string modified = get_field_v2 (identifier, modified_key_v2 ());
-  if (modified.empty ()) return 0;
-  return convert_to_int (modified);
-}
-
-
-void Database_Notes::set_modified_v12 (int identifier, int time)
-{
-  if (is_v1 (identifier)) {
-    set_modified_v1 (identifier, time);
-  } else {
-    set_modified_v2 (identifier, time);
-  }
-}
-
-void Database_Notes::set_modified_v1 (int identifier, int time)
+void Database_Notes::set_modified (int identifier, int time)
 {
   // Update the filesystem.
-  string file = modified_file_v1 (identifier);
-  filter_url_file_put_contents (file, convert_to_string (time));
+  set_field (identifier, modified_key (), convert_to_string (time));
   // Update the database.
   SqliteSQL sql;
   sql.add ("UPDATE notes SET modified =");
@@ -2484,111 +1449,40 @@ void Database_Notes::set_modified_v1 (int identifier, int time)
   database_sqlite_exec (db, sql.sql);
   database_sqlite_disconnect (db);
   // Update checksum.
-  update_checksum_v1 (identifier);
+  update_checksum (identifier);
 }
 
 
-void Database_Notes::set_modified_v2 (int identifier, int time)
+bool Database_Notes::get_public (int identifier)
 {
-  // Update the filesystem.
-  set_field_v2 (identifier, modified_key_v2 (), convert_to_string (time));
-  // Update the database.
-  SqliteSQL sql;
-  sql.add ("UPDATE notes SET modified =");
-  sql.add (time);
-  sql.add ("WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
-  // Update checksum.
-  update_checksum_v2 (identifier);
-}
-
-
-bool Database_Notes::get_public_v12 (int identifier)
-{
-  if (is_v1 (identifier)) {
-    return get_public_v1 (identifier);
-  } else {
-    return get_public_v2 (identifier);
-  }
-}
-
-
-bool Database_Notes::get_public_v1 (int identifier)
-{
-  string file = public_file_v1 (identifier);
-  return file_or_dir_exists (file);
-}
-
-
-bool Database_Notes::get_public_v2 (int identifier)
-{
-  string value = get_field_v2 (identifier, public_key_v2 ());
+  string value = get_field (identifier, public_key ());
   return convert_to_bool (value);
 }
 
 
-void Database_Notes::set_public_v12 (int identifier, bool value)
+void Database_Notes::set_public (int identifier, bool value)
 {
-  if (is_v1 (identifier)) {
-    set_public_v1 (identifier, value);
-  } else {
-    set_public_v2 (identifier, value);
-  }
-}
-
-
-void Database_Notes::set_public_v1 (int identifier, bool value)
-{
-  string file = public_file_v1 (identifier);
-  if (value) {
-    filter_url_file_put_contents (file, "");
-  } else {
-    filter_url_unlink (file);
-  }
-}
-
-
-void Database_Notes::set_public_v2 (int identifier, bool value)
-{
-  set_field_v2 (identifier, public_key_v2 (), convert_to_string (value));
+  set_field (identifier, public_key (), convert_to_string (value));
 }
 
 
 // Takes actions when a note has been edited.
-void Database_Notes::note_modified_actions_v12 (int identifier)
+void Database_Notes::note_modified_actions (int identifier)
 {
   // Update 'modified' field.
-  if (is_v1 (identifier)) {
-    set_modified_v1 (identifier, filter_date_seconds_since_epoch());
-  } else {
-    set_modified_v2 (identifier, filter_date_seconds_since_epoch());
-  }
+  set_modified (identifier, filter_date_seconds_since_epoch());
 }
 
 
-void Database_Notes::update_search_fields_v12 (int identifier)
-{
-  if (is_v1 (identifier)) {
-    update_search_fields_v1 (identifier);
-  } else {
-    update_search_fields_v2 (identifier);
-  }
-}
-
-
-void Database_Notes::update_search_fields_v1 (int identifier)
+void Database_Notes::update_search_fields (int identifier)
 {
   // The search field is a combination of the summary and content converted to clean text.
   // It enables us to search with wildcards before and after the search query.
-  string noteSummary = get_summary_v1 (identifier);
-  string noteContents = get_contents_v1 (identifier);
+  string noteSummary = get_summary (identifier);
+  string noteContents = get_contents (identifier);
   string cleanText = noteSummary + "\n" + filter_string_html2text (noteContents);
   // Bail out if the search field is already up to date.
-  if (cleanText == get_search_field_v12 (identifier)) return;
+  if (cleanText == get_search_field (identifier)) return;
   // Update the field.
   SqliteSQL sql;
   sql.add ("UPDATE notes SET cleantext =");
@@ -2602,29 +1496,7 @@ void Database_Notes::update_search_fields_v1 (int identifier)
 }
 
 
-void Database_Notes::update_search_fields_v2 (int identifier)
-{
-  // The search field is a combination of the summary and content converted to clean text.
-  // It enables us to search with wildcards before and after the search query.
-  string noteSummary = get_summary_v2 (identifier);
-  string noteContents = get_contents_v2 (identifier);
-  string cleanText = noteSummary + "\n" + filter_string_html2text (noteContents);
-  // Bail out if the search field is already up to date.
-  if (cleanText == get_search_field_v12 (identifier)) return;
-  // Update the field.
-  SqliteSQL sql;
-  sql.add ("UPDATE notes SET cleantext =");
-  sql.add (cleanText);
-  sql.add ("WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
-}
-
-
-string Database_Notes::get_search_field_v12 (int identifier)
+string Database_Notes::get_search_field (int identifier)
 {
   SqliteSQL sql;
   sql.add ("SELECT cleantext FROM notes WHERE identifier =");
@@ -2645,7 +1517,7 @@ string Database_Notes::get_search_field_v12 (int identifier)
 // Returns an array of note identifiers.
 // search: Contains the text to search for.
 // bibles: Array of Bibles the notes should refer to.
-vector <int> Database_Notes::search_notes_v12 (string search, const vector <string> & bibles)
+vector <int> Database_Notes::search_notes (string search, const vector <string> & bibles)
 {
   vector <int> identifiers;
 
@@ -2694,126 +1566,47 @@ vector <int> Database_Notes::search_notes_v12 (string search, const vector <stri
 }
 
 
-void Database_Notes::mark_for_deletion_v12 (int identifier)
-{
-  if (is_v1 (identifier)) {
-    mark_for_deletion_v1 (identifier);
-  } else {
-    mark_for_deletion_v2 (identifier);
-  }
-}
-
-
-void Database_Notes::mark_for_deletion_v1 (int identifier)
-{
-  string file = expiry_file_v1 (identifier);
-  // Delete after 7 days.
-  filter_url_file_put_contents (file, "7");
-}
-
-
-void Database_Notes::mark_for_deletion_v2 (int identifier)
+void Database_Notes::mark_for_deletion (int identifier)
 {
   // Delete after 7 days.
-  set_field_v2 (identifier, expiry_key_v2 (), "7");
+  set_field (identifier, expiry_key (), "7");
 }
 
 
-void Database_Notes::unmark_for_deletion_v12 (int identifier)
+void Database_Notes::unmark_for_deletion (int identifier)
 {
-  if (is_v1 (identifier)) {
-    unmark_for_deletion_v1 (identifier);
-  } else {
-    unmark_for_deletion_v2 (identifier);
-  }
+  set_field (identifier, expiry_key (), "");
 }
 
 
-void Database_Notes::unmark_for_deletion_v1 (int identifier)
+bool Database_Notes::is_marked_for_deletion (int identifier)
 {
-  string file = expiry_file_v1 (identifier);
-  filter_url_unlink (file);
-}
-
-
-void Database_Notes::unmark_for_deletion_v2 (int identifier)
-{
-  set_field_v2 (identifier, expiry_key_v2 (), "");
-}
-
-
-bool Database_Notes::is_marked_for_deletion_v12 (int identifier)
-{
-  if (is_v1 (identifier)) {
-    return is_marked_for_deletion_v1 (identifier);
-  } else {
-    return is_marked_for_deletion_v2 (identifier);
-  }
-}
-
-
-bool Database_Notes::is_marked_for_deletion_v1 (int identifier)
-{
-  string file = expiry_file_v1 (identifier);
-  return file_or_dir_exists (file);
-}
-
-
-bool Database_Notes::is_marked_for_deletion_v2 (int identifier)
-{
-  string expiry = get_field_v2 (identifier, expiry_key_v2 ());
+  string expiry = get_field (identifier, expiry_key ());
   return !expiry.empty ();
 }
 
 
-void Database_Notes::touch_marked_for_deletion_v12 ()
+void Database_Notes::touch_marked_for_deletion ()
 {
-  vector <int> identifiers = get_identifiers_v12 ();
+  vector <int> identifiers = get_identifiers ();
   for (auto & identifier : identifiers) {
-    if (is_v1 (identifier)) {
-      if (is_marked_for_deletion_v1 (identifier)) {
-        string file = expiry_file_v1 (identifier);
-        int days = convert_to_int (filter_url_file_get_contents (file));
-        days--;
-        filter_url_file_put_contents (file, convert_to_string (days));
-      }
-    } else {
-      if (is_marked_for_deletion_v2 (identifier)) {
-        string expiry = get_field_v2 (identifier, expiry_key_v2 ());
-        int days = convert_to_int (expiry);
-        days--;
-        set_field_v2 (identifier, expiry_key_v2 (), convert_to_string (days));
-      }
+    if (is_marked_for_deletion (identifier)) {
+      string expiry = get_field (identifier, expiry_key ());
+      int days = convert_to_int (expiry);
+      days--;
+      set_field (identifier, expiry_key (), convert_to_string (days));
     }
   }
 }
 
 
-vector <int> Database_Notes::get_due_for_deletion_v1 ()
+vector <int> Database_Notes::get_due_for_deletion ()
 {
   vector <int> deletes;
-  vector <int> identifiers = get_identifiers_v12 ();
+  vector <int> identifiers = get_identifiers ();
   for (auto & identifier : identifiers) {
-    if (is_marked_for_deletion_v1 (identifier)) {
-      string file = expiry_file_v1 (identifier);
-      string sdays = filter_url_file_get_contents (file);
-      int idays = convert_to_int (sdays);
-      if ((sdays == "0") || (idays < 0)) {
-        deletes.push_back (identifier);
-      }
-    }
-  }
-  return deletes;
-}
-
-
-vector <int> Database_Notes::get_due_for_deletion_v2 ()
-{
-  vector <int> deletes;
-  vector <int> identifiers = get_identifiers_v12 ();
-  for (auto & identifier : identifiers) {
-    if (is_marked_for_deletion_v2 (identifier)) {
-      string sdays = get_field_v2 (identifier, expiry_key_v2 ());
+    if (is_marked_for_deletion (identifier)) {
+      string sdays = get_field (identifier, expiry_key ());
       int idays = convert_to_int (sdays);
       if ((sdays == "0") || (idays < 0)) {
         deletes.push_back (identifier);
@@ -2825,12 +1618,12 @@ vector <int> Database_Notes::get_due_for_deletion_v2 ()
 
 
 // Writes the checksum for note identifier in the database.
-void Database_Notes::set_checksum_v12 (int identifier, const string & checksum)
+void Database_Notes::set_checksum (int identifier, const string & checksum)
 {
   // Do not write the checksum if it is already up to date.
-  if (checksum == get_checksum_v12 (identifier)) return;
+  if (checksum == get_checksum (identifier)) return;
   // Write the checksum to the database.
-  delete_checksum_v12 (identifier);
+  delete_checksum (identifier);
   SqliteSQL sql;
   sql.add ("INSERT INTO checksums VALUES (");
   sql.add (identifier);
@@ -2844,7 +1637,7 @@ void Database_Notes::set_checksum_v12 (int identifier, const string & checksum)
 
 
 // Reads the checksum for note identifier from the database.
-string Database_Notes::get_checksum_v12 (int identifier)
+string Database_Notes::get_checksum (int identifier)
 {
   SqliteSQL sql;
   sql.add ("SELECT checksum FROM checksums WHERE identifier =");
@@ -2862,7 +1655,7 @@ string Database_Notes::get_checksum_v12 (int identifier)
 
 
 // Deletes the checksum for note identifier from the database.
-void Database_Notes::delete_checksum_v12 (int identifier)
+void Database_Notes::delete_checksum (int identifier)
 {
   SqliteSQL sql;
   sql.add ("DELETE FROM checksums WHERE identifier =");
@@ -2876,76 +1669,37 @@ void Database_Notes::delete_checksum_v12 (int identifier)
 }
 
 
-void Database_Notes::update_checksum_v12 (int identifier)
-{
-  if (is_v1 (identifier)) {
-    update_checksum_v1 (identifier);
-  }
-  else {
-    update_checksum_v2 (identifier); 
-  }
-}
-
 // The function calculates the checksum of the note signature,
 // and writes it to the filesystem.
-void Database_Notes::update_checksum_v1 (int identifier)
+void Database_Notes::update_checksum (int identifier)
 {
   // Read the raw data from disk to speed up checksumming.
   string checksum;
   checksum.append ("modified");
-  checksum.append (filter_url_file_get_contents (modified_file_v1 (identifier)));
+  checksum.append (get_field (identifier, modified_key ()));
   checksum.append ("assignees");
-  checksum.append (filter_url_file_get_contents (assigned_file_v1 (identifier)));
+  checksum.append (get_field (identifier, assigned_key ()));
   checksum.append ("subscribers");
-  checksum.append (filter_url_file_get_contents (subscriptions_file_v1 (identifier)));
+  checksum.append (get_field (identifier, subscriptions_key ()));
   checksum.append ("bible");
-  checksum.append (filter_url_file_get_contents (bible_file_v1 (identifier)));
+  checksum.append (get_field (identifier, bible_key ()));
   checksum.append ("passages");
-  checksum.append (filter_url_file_get_contents (passage_file_v1 (identifier)));
+  checksum.append (get_field (identifier, passage_key ()));
   checksum.append ("status");
-  checksum.append (filter_url_file_get_contents (status_file_v1 (identifier)));
+  checksum.append (get_field (identifier, status_key ()));
   checksum.append ("severity");
-  checksum.append (filter_url_file_get_contents (severity_file_v1 (identifier)));
+  checksum.append (get_field (identifier, severity_key ()));
   checksum.append ("summary");
-  checksum.append (filter_url_file_get_contents (summary_file_v1 (identifier)));
+  checksum.append (get_field (identifier, summary_key ()));
   checksum.append ("contents");
-  checksum.append (filter_url_file_get_contents (contents_file_v1 (identifier)));
+  checksum.append (get_field (identifier, contents_key ()));
   checksum = md5 (checksum);
-  set_checksum_v12 (identifier, checksum);
-}
-
-
-// The function calculates the checksum of the note signature,
-// and writes it to the filesystem.
-void Database_Notes::update_checksum_v2 (int identifier)
-{
-  // Read the raw data from disk to speed up checksumming.
-  string checksum;
-  checksum.append ("modified");
-  checksum.append (get_field_v2 (identifier, modified_key_v2 ()));
-  checksum.append ("assignees");
-  checksum.append (get_field_v2 (identifier, assigned_key_v2 ()));
-  checksum.append ("subscribers");
-  checksum.append (get_field_v2 (identifier, subscriptions_key_v2 ()));
-  checksum.append ("bible");
-  checksum.append (get_field_v2 (identifier, bible_key_v2 ()));
-  checksum.append ("passages");
-  checksum.append (get_field_v2 (identifier, passage_key_v2 ()));
-  checksum.append ("status");
-  checksum.append (get_field_v2 (identifier, status_key_v2 ()));
-  checksum.append ("severity");
-  checksum.append (get_field_v2 (identifier, severity_key_v2 ()));
-  checksum.append ("summary");
-  checksum.append (get_field_v2 (identifier, summary_key_v2 ()));
-  checksum.append ("contents");
-  checksum.append (get_field_v2 (identifier, contents_key_v2 ()));
-  checksum = md5 (checksum);
-  set_checksum_v12 (identifier, checksum);
+  set_checksum (identifier, checksum);
 }
 
 
 // Queries the database for the checksum for the notes given in the list of $identifiers.
-string Database_Notes::get_multiple_checksum_v12 (const vector <int> & identifiers)
+string Database_Notes::get_multiple_checksum (const vector <int> & identifiers)
 {
   sqlite3 * db = connect_checksums ();
   string checksum;
@@ -2971,7 +1725,7 @@ string Database_Notes::get_multiple_checksum_v12 (const vector <int> & identifie
 // within the note identifier range of lowId to highId
 // which refer to any Bible in the array of bibles
 // or refer to no Bible.
-vector <int> Database_Notes::get_notes_in_range_for_bibles_v12 (int lowId, int highId, vector <string> bibles, bool anybible)
+vector <int> Database_Notes::get_notes_in_range_for_bibles (int lowId, int highId, vector <string> bibles, bool anybible)
 {
   vector <int> identifiers;
   
@@ -3013,7 +1767,7 @@ string Database_Notes::availability_flag ()
 
 
 // Sets whether the notes databases are available, as a boolean.
-void Database_Notes::set_availability_v12 (bool available)
+void Database_Notes::set_availability (bool available)
 {
   if (available) {
     filter_url_unlink (availability_flag ());
@@ -3024,7 +1778,7 @@ void Database_Notes::set_availability_v12 (bool available)
 
 
 // Returns whether the notes databases are available, as a boolean.
-bool Database_Notes::available_v12 ()
+bool Database_Notes::available ()
 {
   return !file_or_dir_exists (availability_flag ());
 }
@@ -3069,7 +1823,7 @@ string Database_Notes::notes_order_by_relevance_statement ()
 
 
 // This returns JSON that contains the notes indicated by $identifiers.
-string Database_Notes::get_bulk_v12 (vector <int> identifiers)
+string Database_Notes::get_bulk (vector <int> identifiers)
 {
   // JSON container for the bulk notes.
   Array bulk;
@@ -3077,45 +1831,27 @@ string Database_Notes::get_bulk_v12 (vector <int> identifiers)
   for (auto identifier : identifiers) {
     // JSON object for the note.
     Object note;
-    // Determine the note's storage mechanism: Version 1 (old) or version 2 (new, JSON).
-    bool v1 = is_v1 (identifier);
     // Add all the fields of the note.
-    string assigned;
-    if (v1) assigned = filter_url_file_get_contents (assigned_file_v1 (identifier));
-    else assigned = get_field_v2 (identifier, assigned_key_v2 ());
+    string assigned = get_field (identifier, assigned_key ());
     note << "a" << assigned;
-    string bible;
-    if (v1) bible = get_bible_v1 (identifier);
-    else bible = get_bible_v2 (identifier);;
+    string bible = get_bible (identifier);;
     note << "b" << bible;
-    string contents;
-    if (v1) contents = get_contents_v1 (identifier);
-    else contents = get_contents_v2 (identifier);
+    string contents = get_contents (identifier);
     note << "c" << contents;
     note << "i" << identifier;
-    int modified;
-    if (v1) modified = get_modified_v1 (identifier);
-    else modified = get_modified_v2 (identifier);
+    int modified = get_modified (identifier);
     note << "m" << modified;
-    string passage;
-    if (v1) passage = get_raw_passage_v1 (identifier);
-    else passage = get_raw_passage_v2 (identifier);
+    string passage = get_raw_passage (identifier);
     note << "p" << passage;
-    string subscriptions;
-    if (v1) subscriptions = filter_url_file_get_contents (subscriptions_file_v1 (identifier));
-    else subscriptions = get_field_v2 (identifier, subscriptions_key_v2 ());
+    string subscriptions = get_field (identifier, subscriptions_key ());
     note << "sb" << subscriptions;
     string summary;
-    if (v1) summary = get_summary_v1 (identifier);
-    else summary = get_summary_v2 (identifier);
+    summary = get_summary (identifier);
     note << "sm" << summary;
     string status;
-    if (v1) status = get_raw_status_v1 (identifier);
-    else status = get_raw_status_v2 (identifier);
+    status = get_raw_status (identifier);
     note << "st" << status;
-    int severity;
-    if (v1) severity = get_raw_severity_v1 (identifier);
-    else severity = get_raw_severity_v2 (identifier);
+    int severity = get_raw_severity (identifier);
     note << "sv" << severity;
     // Add the note to the bulk container.
     bulk << note;
@@ -3126,56 +1862,7 @@ string Database_Notes::get_bulk_v12 (vector <int> identifiers)
 
 
 // This takes $json and stores all the notes it contains in the filesystem.
-vector <string> Database_Notes::set_bulk_v1 (string json)
-{
-  // Container for the summaries that were stored.
-  vector <string> summaries;
-
-  // Parse the incoming JSON.
-  Array bulk;
-  bulk.parse (json);
-  
-  // Go through the notes the JSON contains.
-  for (size_t i = 0; i < bulk.size (); i++) {
-
-    // Get all the different fields for this note.
-    Object note = bulk.get<Object>(i);
-    string assigned = note.get<String> ("a");
-    string bible = note.get<String> ("b");
-    string contents = note.get<String> ("c");
-    int identifier = note.get<Number> ("i");
-    int modified = note.get<Number> ("m");
-    string passage = note.get<String> ("p");
-    string subscriptions = note.get<String> ("sb");
-    string summary = note.get<String> ("sm");
-    string status = note.get<String> ("st");
-    int severity = note.get<Number> ("sv");
-
-    // Store the note in the filesystem.
-    filter_url_mkdir (note_folder_v1 (identifier));
-    filter_url_file_put_contents (assigned_file_v1 (identifier), assigned);
-    filter_url_file_put_contents (bible_file_v1 (identifier), bible);
-    set_raw_contents_v1 (identifier, contents);
-    filter_url_file_put_contents (modified_file_v1 (identifier), convert_to_string (modified));
-    filter_url_file_put_contents (passage_file_v1 (identifier), passage);
-    filter_url_file_put_contents (severity_file_v1 (identifier), convert_to_string (severity));
-    filter_url_file_put_contents (status_file_v1 (identifier), status);
-    filter_url_file_put_contents (subscriptions_file_v1 (identifier), subscriptions);
-    filter_url_file_put_contents (summary_file_v1 (identifier), summary);
-
-    // Update the indexes.
-    update_database_v1 (identifier);
-    update_search_fields_v12 (identifier);
-    update_checksum_v1 (identifier);
-  }
-  
-  // Container with all the summaries of the notes that were stored.
-  return summaries;
-}
-
-
-// This takes $json and stores all the notes it contains in the filesystem.
-vector <string> Database_Notes::set_bulk_v2 (string json)
+vector <string> Database_Notes::set_bulk (string json)
 {
   // Container for the summaries that were stored.
   vector <string> summaries;
@@ -3203,33 +1890,27 @@ vector <string> Database_Notes::set_bulk_v2 (string json)
     // Feedback about which note it received in bulk.
     summaries.push_back (summary);
     
-    // If the note exists in the old format, delete it.
-    string oldfolder = note_folder_v1 (identifier);
-    if (file_or_dir_exists (oldfolder)) {
-      filter_url_rmdir (oldfolder);
-    }
-    
     // Store the note in the filesystem.
-    string path = note_file_v2 (identifier);
+    string path = note_file (identifier);
     string folder = filter_url_dirname (path);
     filter_url_mkdir (folder);
     Object note2;
-    note2 << assigned_key_v2 () << assigned;
-    note2 << bible_key_v2 () << bible;
-    note2 << contents_key_v2 () << contents;
-    note2 << modified_key_v2 () << convert_to_string (modified);
-    note2 << passage_key_v2 () << passage;
-    note2 << subscriptions_key_v2 () << subscriptions;
-    note2 << summary_key_v2 () << summary;
-    note2 << status_key_v2 () << status;
-    note2 << severity_key_v2 () << convert_to_string (severity);
+    note2 << assigned_key () << assigned;
+    note2 << bible_key () << bible;
+    note2 << contents_key () << contents;
+    note2 << modified_key () << convert_to_string (modified);
+    note2 << passage_key () << passage;
+    note2 << subscriptions_key () << subscriptions;
+    note2 << summary_key () << summary;
+    note2 << status_key () << status;
+    note2 << severity_key () << convert_to_string (severity);
     string json = note2.json ();
     filter_url_file_put_contents (path, json);
     
     // Update the indexes.
-    update_database_v2 (identifier);
-    update_search_fields_v12 (identifier);
-    update_checksum_v2 (identifier);
+    update_database (identifier);
+    update_search_fields (identifier);
+    update_checksum (identifier);
   }
   
   // Container with all the summaries of the notes that were stored.
@@ -3238,9 +1919,9 @@ vector <string> Database_Notes::set_bulk_v2 (string json)
 
 
 // Gets a field from a note in JSON format.
-string Database_Notes::get_field_v2 (int identifier, string key)
+string Database_Notes::get_field (int identifier, string key)
 {
-  string file = note_file_v2 (identifier);
+  string file = note_file (identifier);
   string json = filter_url_file_get_contents (file);
   Object note;
   note.parse (json);
@@ -3251,9 +1932,9 @@ string Database_Notes::get_field_v2 (int identifier, string key)
 
 
 // Sets a field in a note in JSON format.
-void Database_Notes::set_field_v2 (int identifier, string key, string value)
+void Database_Notes::set_field (int identifier, string key, string value)
 {
-  string file = note_file_v2 (identifier);
+  string file = note_file (identifier);
   string json = filter_url_file_get_contents (file);
   Object note;
   note.parse (json);
@@ -3263,165 +1944,67 @@ void Database_Notes::set_field_v2 (int identifier, string key, string value)
 }
 
 
-string Database_Notes::bible_key_v2 ()
+string Database_Notes::bible_key ()
 {
   return "bible";
 }
 
 
-string Database_Notes::passage_key_v2 ()
+string Database_Notes::passage_key ()
 {
   return "passage";
 }
 
 
-string Database_Notes::status_key_v2 ()
+string Database_Notes::status_key ()
 {
   return "status";
 }
 
 
-string Database_Notes::severity_key_v2 ()
+string Database_Notes::severity_key ()
 {
   return "severity";
 }
 
 
-string Database_Notes::modified_key_v2 ()
+string Database_Notes::modified_key ()
 {
   return "modified";
 }
 
 
-string Database_Notes::summary_key_v2 ()
+string Database_Notes::summary_key ()
 {
   return "summary";
 }
 
 
-string Database_Notes::contents_key_v2 ()
+string Database_Notes::contents_key ()
 {
   return "contents";
 }
 
 
-string Database_Notes::subscriptions_key_v2 ()
+string Database_Notes::subscriptions_key ()
 {
   return "subscriptions";
 }
 
 
-string Database_Notes::assigned_key_v2 ()
+string Database_Notes::assigned_key ()
 {
   return "assigned";
 }
 
 
-string Database_Notes::expiry_key_v2 ()
+string Database_Notes::expiry_key ()
 {
   return "expiry";
 }
 
 
-string Database_Notes::public_key_v2 ()
+string Database_Notes::public_key ()
 {
   return "public";
 }
-
-
-// Returns true if the note $identifier is stored in format version 1.
-// If the note is stored in the new format, version 2, it returns false.
-// That is the JSON format.
-bool Database_Notes::is_v1 (int identifier)
-{
-  string file_v2 = note_file_v2 (identifier);
-  return !file_or_dir_exists (file_v2);
-}
-
-
-// Converts the storage model of note $identifier
-// from version 1 to version 2 - JSON.
-void Database_Notes::convert_v1_to_v2 (int identifier)
-{
-  // Read the note in version 1 format.
-  string assigned = filter_url_file_get_contents (assigned_file_v1 (identifier));
-  string bible = filter_url_file_get_contents (bible_file_v1 (identifier));
-  string contents = filter_url_file_get_contents (contents_file_v1 (identifier));
-  string expiry = filter_url_file_get_contents (expiry_file_v1 (identifier));
-  string modified = filter_url_file_get_contents (modified_file_v1 (identifier));
-  string passage = filter_url_file_get_contents (passage_file_v1 (identifier));
-  string publicc = filter_url_file_get_contents (public_file_v1 (identifier));
-  string severity = filter_url_file_get_contents (severity_file_v1 (identifier));
-  string status = filter_url_file_get_contents (status_file_v1 (identifier));
-  string subscriptions = filter_url_file_get_contents (subscriptions_file_v1 (identifier));
-  string summary = filter_url_file_get_contents (summary_file_v1 (identifier));
-
-  // Remove the note's folder.
-  string folder = note_folder_v1 (identifier);
-  filter_url_rmdir (folder);
- 
-  // Get the note in version 2 - JSON - format.
-  Object note;
-  note << assigned_key_v2 () << assigned;
-  note << bible_key_v2 () << bible;
-  note << contents_key_v2 () << contents;
-  note << expiry_key_v2 () << expiry;
-  note << modified_key_v2 () << convert_to_string (modified);
-  note << passage_key_v2 () << passage;
-  note << public_key_v2 () << publicc;
-  note << severity_key_v2 () << convert_to_string (severity);
-  note << status_key_v2 () << status;
-  note << subscriptions_key_v2 () << subscriptions;
-  note << summary_key_v2 () << summary;
-  string json = note.json ();
-
-  // Store the JSON note to file.
-  string path = note_file_v2 (identifier);
-  folder = filter_url_dirname (path);
-  filter_url_mkdir (folder);
-  filter_url_file_put_contents (path, json);
-
-  // No need to update any database, as there's no change there.
-}
-
-
-// This function assist with gradually converting notes from storage version 1 to version 2.
-bool Database_Notes::gradually_convert_v1_to_v2 (int amount, vector <int> & ids)
-{
-  // This is to skip checking for more notes once all have been done.
-  static bool done = false;
-  // Saves system resources.
-  if (done) return true;
-  // Scan the main notes folder.
-  string main_folder = main_folder_v12 ();
-  vector <string> bits1 = filter_url_scandir (main_folder);
-  for (auto & bit1 : bits1) {
-    if (bit1.length () == 3) {
-      // Scan the folder one level deeper.
-      vector <string> bits2 = filter_url_scandir (filter_url_create_path (main_folder, bit1));
-      for (auto & bit2 : bits2) {
-        if (bit2.length () == 3) {
-          // Scan the deepest folder level.
-          vector <string> bits3 = filter_url_scandir (filter_url_create_path (main_folder, bit1, bit2));
-          for (auto & bit3 : bits3) {
-            if (bit3.length () == 3) {
-              // Convert the note from V1 to V2.
-              int identifier = convert_to_int (bit1 + bit2 + bit3);
-              convert_v1_to_v2 (identifier);
-              // Store the converted identifier.
-              ids.push_back (identifier);
-              // Limit the number of notes to be done in one go.
-              amount--;
-              // All notes not yet done: Indicate that to the caller.
-              if (amount <= 0) return false;
-            }
-          }
-        }
-      }
-    }
-  }
-  // All notes done.
-  done = true;
-  return true;
-}
-

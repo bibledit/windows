@@ -53,7 +53,7 @@ int Notes_Logic::createNote (string bible, int book, int chapter, int verse, str
 {
   summary = filter_string_str_replace ("\n", "", summary);
   Database_Notes database_notes (webserver_request);
-  int note_id = database_notes.store_new_note_v2 (bible, book, chapter, verse, summary, contents, raw);
+  int note_id = database_notes.store_new_note (bible, book, chapter, verse, summary, contents, raw);
   if (client_logic_client_enabled ()) {
     // Client: record the action in the database.
     Database_NoteActions database_noteactions;
@@ -61,7 +61,7 @@ int Notes_Logic::createNote (string bible, int book, int chapter, int verse, str
     database_noteactions.record (request->session_logic()->currentUser (), note_id, Sync_Logic::notes_put_create_initiate, "");
     database_noteactions.record (request->session_logic()->currentUser (), note_id, Sync_Logic::notes_put_summary, "");
     // The contents to submit to the server, take it from the database, as it was updated in the logic above.
-    database_noteactions.record (request->session_logic()->currentUser (), note_id, Sync_Logic::notes_put_contents, database_notes.get_contents_v12 (note_id));
+    database_noteactions.record (request->session_logic()->currentUser (), note_id, Sync_Logic::notes_put_contents, database_notes.get_contents (note_id));
     database_noteactions.record (request->session_logic()->currentUser (), note_id, Sync_Logic::notes_put_bible, "");
     database_noteactions.record (request->session_logic()->currentUser (), note_id, Sync_Logic::notes_put_passages, "");
     database_noteactions.record (request->session_logic()->currentUser (), note_id, Sync_Logic::notes_put_create_complete, "");
@@ -80,7 +80,7 @@ void Notes_Logic::setContent (int identifier, const string& content)
   if (content.empty ()) return;
   
   Database_Notes database_notes (webserver_request);
-  database_notes.set_contents_v12 (identifier, content);
+  database_notes.set_contents (identifier, content);
 
   if (client_logic_client_enabled ()) {
     // Client: record the action in the database.
@@ -101,7 +101,7 @@ void Notes_Logic::addComment (int identifier, const string& comment)
   if (comment == "") return;
 
   Database_Notes database_notes (webserver_request);
-  database_notes.add_comment_v12 (identifier, comment);
+  database_notes.add_comment (identifier, comment);
   if (client_logic_client_enabled ()) {
     // Client: record the action in the database.
     string user = ((Webserver_Request *) webserver_request)->session_logic ()->currentUser ();
@@ -114,10 +114,10 @@ void Notes_Logic::addComment (int identifier, const string& comment)
 }
 
 
-void Notes_Logic::set_summary_v12 (int identifier, const string& summary)
+void Notes_Logic::set_summary (int identifier, const string& summary)
 {
   Database_Notes database_notes (webserver_request);
-  database_notes.set_summary_v12 (identifier, summary);
+  database_notes.set_summary (identifier, summary);
   if (client_logic_client_enabled ()) {
     // Client: record the action in the database.
     string user = ((Webserver_Request *) webserver_request)->session_logic ()->currentUser ();
@@ -132,7 +132,7 @@ void Notes_Logic::set_summary_v12 (int identifier, const string& summary)
 void Notes_Logic::subscribe (int identifier)
 {
   Database_Notes database_notes (webserver_request);
-  database_notes.subscribe_v12 (identifier);
+  database_notes.subscribe (identifier);
   if (client_logic_client_enabled ()) {
     // Client: record the action in the database.
     string user = ((Webserver_Request *) webserver_request)->session_logic ()->currentUser ();
@@ -147,7 +147,7 @@ void Notes_Logic::subscribe (int identifier)
 void Notes_Logic::unsubscribe (int identifier)
 {
   Database_Notes database_notes (webserver_request);
-  database_notes.unsubscribe_v12 (identifier);
+  database_notes.unsubscribe (identifier);
   if (client_logic_client_enabled ()) {
     // Client: record the action in the database.
     string user = ((Webserver_Request *) webserver_request)->session_logic ()->currentUser ();
@@ -172,14 +172,14 @@ void Notes_Logic::assignUser (int identifier, const string& user)
     // Assign logic comes before the database action in this particular case.
     handlerAssignNote (identifier, user);
   }
-  database_notes.assign_user_v12 (identifier, user);
+  database_notes.assign_user (identifier, user);
 }
 
 
 void Notes_Logic::unassignUser (int identifier, const string& user)
 {
   Database_Notes database_notes (webserver_request);
-  database_notes.unassign_user_v12 (identifier, user);
+  database_notes.unassign_user (identifier, user);
   if (client_logic_client_enabled ()) {
     // Client: record the action in the database.
     string myuser = ((Webserver_Request *) webserver_request)->session_logic ()->currentUser ();
@@ -194,7 +194,7 @@ void Notes_Logic::unassignUser (int identifier, const string& user)
 void Notes_Logic::setStatus (int identifier, const string& status)
 {
   Database_Notes database_notes (webserver_request);
-  database_notes.set_status_v12 (identifier, status);
+  database_notes.set_status (identifier, status);
   if (client_logic_client_enabled ()) {
     // Client: record the action in the database.
     string user = ((Webserver_Request *) webserver_request)->session_logic ()->currentUser ();
@@ -210,7 +210,7 @@ void Notes_Logic::setStatus (int identifier, const string& status)
 void Notes_Logic::setPassages (int identifier, const vector <Passage> & passages)
 {
   Database_Notes database_notes (webserver_request);
-  database_notes.set_passages_v12 (identifier, passages);
+  database_notes.set_passages (identifier, passages);
   if (client_logic_client_enabled ()) {
     // Client: record the action in the database.
     string user = ((Webserver_Request *) webserver_request)->session_logic ()->currentUser ();
@@ -226,7 +226,7 @@ void Notes_Logic::setPassages (int identifier, const vector <Passage> & passages
 void Notes_Logic::setRawSeverity (int identifier, int severity)
 {
   Database_Notes database_notes (webserver_request);
-  database_notes.set_raw_severity_v12 (identifier, severity);
+  database_notes.set_raw_severity (identifier, severity);
   if (client_logic_client_enabled ()) {
     // Client: record the action in the database.
     string user = ((Webserver_Request *) webserver_request)->session_logic ()->currentUser ();
@@ -242,7 +242,7 @@ void Notes_Logic::setRawSeverity (int identifier, int severity)
 void Notes_Logic::setBible (int identifier, const string& bible)
 {
   Database_Notes database_notes (webserver_request);
-  database_notes.set_bible_v12 (identifier, bible);
+  database_notes.set_bible (identifier, bible);
   if (client_logic_client_enabled ()) {
     // Client: record the action in the database.
     string user = ((Webserver_Request *) webserver_request)->session_logic ()->currentUser ();
@@ -257,7 +257,7 @@ void Notes_Logic::setBible (int identifier, const string& bible)
 void Notes_Logic::markForDeletion (int identifier)
 {
   Database_Notes database_notes (webserver_request);
-  database_notes.mark_for_deletion_v12 (identifier);
+  database_notes.mark_for_deletion (identifier);
   trash_consultation_note (webserver_request, identifier);
   if (client_logic_client_enabled ()) {
     // Client: record the action in the database.
@@ -274,7 +274,7 @@ void Notes_Logic::markForDeletion (int identifier)
 void Notes_Logic::unmarkForDeletion (int identifier)
 {
   Database_Notes database_notes (webserver_request);
-  database_notes.unmark_for_deletion_v12 (identifier);
+  database_notes.unmark_for_deletion (identifier);
   if (client_logic_client_enabled ()) {
     // Client: record the action in the database.
     string user = ((Webserver_Request *) webserver_request)->session_logic ()->currentUser ();
@@ -299,7 +299,7 @@ void Notes_Logic::erase (int identifier)
     handlerDeleteNote (identifier);
   }
   trash_consultation_note (webserver_request, identifier);
-  database_notes.erase_v12 (identifier);
+  database_notes.erase (identifier);
 }
 
 
@@ -314,9 +314,9 @@ void Notes_Logic::handlerAddComment (int identifier)
   notifyUsers (identifier, notifyNoteComment);
   // If the note status was Done, and a comment is added, mark it Reopened.
   Database_Notes database_notes (webserver_request);
-  string status = database_notes.get_raw_status_v12 (identifier);
+  string status = database_notes.get_raw_status (identifier);
   if (status == "Done") {
-    database_notes.set_status_v12 (identifier, "Reopened");
+    database_notes.set_status (identifier, "Reopened");
   }
 }
 
@@ -330,7 +330,7 @@ void Notes_Logic::handlerAssignNote (int identifier, const string& user)
   if (database_config_user.getUserAssignedConsultationNoteNotification (user)) {
     // Only email the user if the user was not yet assigned this note.
     Database_Notes database_notes (webserver_request);
-    vector <string> assignees = database_notes.get_assignees_v12 (identifier);
+    vector <string> assignees = database_notes.get_assignees (identifier);
     if (find (assignees.begin(), assignees.end(), user) == assignees.end()) {
       emailUsers (identifier, translate("Assigned"), "", {user}, false);
     }
@@ -363,7 +363,7 @@ void Notes_Logic::notifyUsers (int identifier, int notification)
   Database_Notes database_notes (webserver_request);
   
   // This note's Bible.
-  string bible = database_notes.get_bible_v12 (identifier);
+  string bible = database_notes.get_bible (identifier);
 
   // Subscription and assignment not to be used for notes marked for deletion,
   // because marking notes for deletion is nearly the same as deleting them straightaway.
@@ -371,7 +371,7 @@ void Notes_Logic::notifyUsers (int identifier, int notification)
 
     // Whether current user gets subscribed to the note.
     if (request->database_config_user ()->getSubscribeToConsultationNotesEditedByMe ()) {
-      database_notes.subscribe_v12 (identifier);
+      database_notes.subscribe (identifier);
     }
 
     // Users to get subscribed to the note, or to whom the note is to be assigned.
@@ -379,10 +379,10 @@ void Notes_Logic::notifyUsers (int identifier, int notification)
     for (const string & user : users) {
       if (access_bible_read (webserver_request, bible, user)) {
         if (request->database_config_user ()->getNotifyUserOfAnyConsultationNotesEdits (user)) {
-          database_notes.subscribe_user_v12 (identifier, user);
+          database_notes.subscribe_user (identifier, user);
         }
         if (request->database_config_user ()->getUserAssignedToConsultationNotesChanges (user)) {
-          database_notes.assign_user_v12 (identifier, user);
+          database_notes.assign_user (identifier, user);
         }
       }
     }
@@ -392,7 +392,7 @@ void Notes_Logic::notifyUsers (int identifier, int notification)
   vector <string> recipients;
 
   // Subscribers who receive email.
-  vector <string> subscribers = database_notes.get_subscribers_v12 (identifier);
+  vector <string> subscribers = database_notes.get_subscribers (identifier);
   for (const string & subscriber : subscribers) {
     if (request->database_config_user ()->getUserSubscribedConsultationNoteNotification (subscriber)) {
       recipients.push_back (subscriber);
@@ -400,7 +400,7 @@ void Notes_Logic::notifyUsers (int identifier, int notification)
   }
 
   // Assignees who receive email.
-  vector <string> assignees = database_notes.get_assignees_v12 (identifier);
+  vector <string> assignees = database_notes.get_assignees (identifier);
   for (const string & assignee : assignees) {
     if (request->database_config_user ()->getUserAssignedConsultationNoteNotification (assignee)) {
       recipients.push_back (assignee);
@@ -465,9 +465,9 @@ void Notes_Logic::emailUsers (int identifier, const string& label, string bible,
   Database_Notes database_notes (webserver_request);
 
   // Send mail to all users.
-  string summary = database_notes.get_summary_v12 (identifier);
-  string passages = filter_passage_display_inline (database_notes.get_passages_v12 (identifier));
-  string contents = database_notes.get_contents_v12 (identifier);
+  string summary = database_notes.get_summary (identifier);
+  string passages = filter_passage_display_inline (database_notes.get_passages (identifier));
+  string contents = database_notes.get_contents (identifier);
 
   // Include links to the Cloud: One to the note, and one to the active workspace.
   contents.append ("<br>\n");
@@ -544,7 +544,7 @@ bool Notes_Logic::handleEmailComment (string from, string subject, string body)
   // Check that the identifier is an existing Consultation Note.
   int identifier = convert_to_int (subject);
   Database_Notes database_notes (webserver_request);
-  if (!database_notes.identifier_exists_v12 (identifier)) return false;
+  if (!database_notes.identifier_exists (identifier)) return false;
   // Check that the from address of the email belongs to an existing user.
   // Or else use the obfuscated email address as the user name.
   string username;
@@ -655,7 +655,7 @@ bool Notes_Logic::handleEmailNew (string from, string subject, string body)
   request->session_logic()->setUsername (username);
   Database_Notes database_notes = Database_Notes(webserver_request);
   string bible = request->database_config_user()->getBible ();
-  int identifier = database_notes.store_new_note_v2 (bible, book, chapter, verse, summary, body, false);
+  int identifier = database_notes.store_new_note (bible, book, chapter, verse, summary, body, false);
   handlerNewNote (identifier);
   request->session_logic()->setUsername (sessionuser);
   // Mail confirmation to the username.
@@ -716,22 +716,5 @@ void notes_logic_maintain_note_assignees (bool force)
 
     assignees = array_unique (assignees);
     database_noteassignment.assignees (user, assignees);
-  }
-}
-
-
-void notes_logic_gradual_upgrader ()
-{
-  Webserver_Request request;
-  Database_Notes database_notes (&request);
-  vector <int> identifiers;
-  database_notes.gradually_convert_v1_to_v2 (20, identifiers);
-  if (!identifiers.empty ()) {
-    string message = translate ("The following notes were upgraded to the newest storage format:");
-    for (auto id : identifiers) {
-      message.append (" ");
-      message.append (convert_to_string (id));
-    }
-    Database_Logs::log (message);
   }
 }

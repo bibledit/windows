@@ -24,6 +24,7 @@
 #include <filter/roles.h>
 #include <filter/string.h>
 #include <filter/url.h>
+#include <filter/html.h>
 #include <webserver/request.h>
 #include <locale/translate.h>
 #include <database/notes.h>
@@ -74,7 +75,7 @@ string notes_note (void * webserver_request)
   
   
   // When a note is opened, then the passage navigator should go to the passage that belongs to that note.
-  vector <Passage> passages = database_notes.get_passages_v12 (id);
+  vector <Passage> passages = database_notes.get_passages (id);
   if (!passages.empty ()) {
     Passage focused_passage;
     focused_passage.book = Ipc_Focus::getBook (webserver_request);
@@ -101,13 +102,13 @@ string notes_note (void * webserver_request)
   view.set_variable ("id", convert_to_string (id));
   
 
-  string summary = database_notes.get_summary_v12 (id);
+  string summary = database_notes.get_summary (id);
   view.set_variable ("summary", summary);
 
   
   bool show_note_status = request->database_config_user ()->getShowNoteStatus ();
   if (show_note_status) {
-    string status = database_notes.get_status_v12 (id);
+    string status = database_notes.get_status (id);
     view.set_variable ("status", status);
   }
   
@@ -117,10 +118,17 @@ string notes_note (void * webserver_request)
   }
   
   
-  string content = database_notes.get_contents_v12 (id);
+  string content = database_notes.get_contents (id);
   view.set_variable ("content", content);
 
   
+  // Extra space at the bottom of the page.
+  // See issues:
+  // https://github.com/bibledit/cloud/issues/321
+  // https://github.com/bibledit/cloud/issues/310
+  view.set_variable ("brs", filter_html_android_brs ());
+  
+
   if (request->database_config_user ()->getQuickNoteEditLink ()) {
     view.enable_zone ("editcontent");
   }
