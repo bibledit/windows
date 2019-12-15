@@ -327,6 +327,7 @@
     <ClCompile Include="filter\date.cpp" />
     <ClCompile Include="filter\diff.cpp" />
     <ClCompile Include="filter\git.cpp" />
+    <ClCompile Include="filter\html.cpp" />
     <ClCompile Include="filter\md5.cpp" />
     <ClCompile Include="filter\merge.cpp" />
     <ClCompile Include="filter\passage.cpp" />
