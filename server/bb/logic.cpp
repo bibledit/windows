@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <locale/translate.h>
 #include <email/send.h>
 #include <developer/logic.h>
+#include <locale/translate.h>
 
 
 void bible_logic_store_chapter (const string& bible, int book, int chapter, const string& usfm)
@@ -712,6 +713,86 @@ void bible_logic_client_no_write_access_mail (const string & bible, int book, in
     node = document.append_child ("p");
     string difference = filter_diff_diff (client_old_diff[i], client_new_diff[i]);
     node.append_buffer (difference.c_str (), difference.size ());
+  }
+  
+  // Convert the document to a string.
+  stringstream output;
+  document.print (output, "", format_raw);
+  string html = output.str ();
+  
+  // Schedule the mail for sending to the user.
+  email_schedule (user, subject, html);
+}
+
+
+void bible_logic_recent_save_email (const string & bible, int book, int chapter, int verse,
+                                    const string & user,
+                                    const string & old_usfm, const string & new_usfm)
+{
+  (void) verse;
+  
+  vector <string> old_verses;
+  vector <string> new_verses;
+
+  // Go through all verses available in the USFM,
+  // and make a record for each verse,
+  // where the USFM differs between the old and the new USFM.
+  vector <int> verses = usfm_get_verse_numbers (new_usfm);
+  for (auto verse : verses) {
+    string old_verse = usfm_get_verse_text (old_usfm, verse);
+    string new_verse = usfm_get_verse_text (new_usfm, verse);
+    // When there's no change in the verse, skip further checks.
+    if (old_verse == new_verse) continue;
+    // Record the difference.
+    old_verses.push_back (old_verse);
+    new_verses.push_back (new_verse);
+  }
+
+  // No differences found: Done.
+  if (new_verses.empty ()) return;
+
+  string subject = translate ("Check whether Bible text was saved");
+  
+  // Create the body of the email.
+  xml_document document;
+  xml_node node;
+  node = document.append_child ("h3");
+  node.text ().set (subject.c_str());
+  
+  // Add some information for the user.
+  node = document.append_child ("p");
+  string information;
+  information.append (translate ("Bibledit saved the Bible text below."));
+  information.append (" ");
+  information.append (translate ("But it found that other Bible text was saved to the same chapter."));
+  information.append (" ");
+  information.append (translate ("This may have been done by you or by someone else."));
+  information.append (" ");
+  information.append (translate ("You may want to check whether the Bible text was saved correctly."));
+  node.text ().set (information.c_str());
+  node = document.append_child ("p");
+  string location = bible + " " + filter_passage_display (book, chapter, "") +  ".";
+  node.text ().set (location.c_str ());
+
+  for (unsigned int i = 0; i < new_verses.size(); i++) {
+    Filter_Text filter_text_old = Filter_Text (bible);
+    Filter_Text filter_text_new = Filter_Text (bible);
+    filter_text_old.html_text_standard = new Html_Text (translate("Bible"));
+    filter_text_new.html_text_standard = new Html_Text (translate("Bible"));
+    filter_text_old.text_text = new Text_Text ();
+    filter_text_new.text_text = new Text_Text ();
+    filter_text_old.addUsfmCode (old_verses[i]);
+    filter_text_new.addUsfmCode (new_verses[i]);
+    filter_text_old.run (styles_logic_standard_sheet());
+    filter_text_new.run (styles_logic_standard_sheet());
+    string old_text = filter_text_old.text_text->get ();
+    string new_text = filter_text_new.text_text->get ();
+    if (old_text != new_text) {
+      node = document.append_child ("p");
+      string modification = filter_diff_diff (old_text, new_text);
+      string fragment = /* convert_to_string (verse) + " " + */ modification;
+      node.append_buffer (fragment.c_str (), fragment.size ());
+    }
   }
   
   // Convert the document to a string.

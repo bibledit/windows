@@ -28,7 +28,7 @@ $ (document).ready (function ()
   $ ("#workspacemenu").append (bar);
 
   visualVerseEditorInitializeOnce ();
-  visualVerseEditorInitialize ();
+  visualVerseEditorInitializeLoad ();
 
   navigationNewPassage ();
   
@@ -71,7 +71,7 @@ function visualVerseEditorInitializeOnce ()
 }
 
 
-function visualVerseEditorInitialize ()
+function visualVerseEditorInitializeLoad ()
 {
   // Work around https://github.com/quilljs/quill/issues/1116
   // It sets the margins to 0 by adding an overriding class.
@@ -118,6 +118,8 @@ var oneverseSaveAsync;
 var oneverseLoadAjaxRequest;
 var oneverseSaving = false;
 var oneverseEditorWriteAccess = true;
+var oneverseEditorLoadDate = new Date(0);
+var oneverseEditorSaveDate = new Date(0);
 
 
 //
@@ -166,6 +168,8 @@ function oneverseEditorLoadVerse ()
       oneverseReloadPosition = oneverseCaretPosition ();
     } else {
       oneverseReloadPosition = undefined;
+      // When saving and immediately going to another verse, do not give an alert.
+      oneverseEditorSaveDate = new Date(0);
     }
     if (oneverseLoadAjaxRequest && oneverseLoadAjaxRequest.readystate != 4) {
       oneverseLoadAjaxRequest.abort();
@@ -200,11 +204,10 @@ function oneverseEditorLoadVerse ()
           oneverseVerseLoaded = oneverseVerseLoading;
           oneverseEditorStatus (oneverseEditorVerseLoaded);
           // Create the editor based on the DOM's content.
-          visualVerseEditorInitialize ();
+          visualVerseEditorInitializeLoad ();
           quill.enable (oneverseEditorWriteAccess);
           // The browser may reformat the loaded html, so take the possible reformatted data for reference.
           oneverseLoadedText = $ (".ql-editor").html ();
-          oneverseReloadFlag = false;
           oneverseCaretMovedTimeoutStart ();
           // Create CSS for embedded styles.
           css4embeddedstyles ();
@@ -218,6 +221,13 @@ function oneverseEditorLoadVerse ()
         if (response !== false) {
           oneverseScrollVerseIntoView ();
           oneversePositionCaret ();
+          // https://github.com/bibledit/cloud/issues/346
+          oneverseEditorLoadDate = new Date();
+          var seconds = (oneverseEditorLoadDate.getTime() - oneverseEditorSaveDate.getTime()) / 1000;
+          if ((seconds < 2) | oneverseReloadFlag)  {
+            if (oneverseEditorWriteAccess) alert (oneverseEditorVerseUpdatedLoaded);
+          }
+          oneverseReloadFlag = false;
         }
         if (response === false) {
           // Checksum or other error: Reload.
@@ -274,6 +284,11 @@ function oneverseEditorSaveVerse (sync)
     complete: function (xhr, status) {
       oneverseSaveAsync = true;
       oneverseSaving = false;
+      oneverseEditorSaveDate = new Date();
+      var seconds = (oneverseEditorSaveDate.getTime() - oneverseEditorLoadDate.getTime()) / 1000;
+      if (seconds < 2) {
+        if (oneverseEditorWriteAccess) alert (oneverseEditorVerseUpdatedLoaded);
+      }
     }
   });
 }
@@ -284,9 +299,6 @@ function oneverseEditorSaveVerse (sync)
 // Portion dealing with triggers for editor's content change.
 //
 //
-
-
-var visualVerseEditorBlockingChange = false;
 
 
 // Arguments: delta: Delta, oldContents: Delta, source: String
@@ -380,6 +392,9 @@ function oneverseEditorPollId ()
       if (!oneverseSaving) {
         if (oneverseIdChapter != 0) {
           if (response != oneverseIdChapter) {
+            if (oneverseEditorTextChanged) {
+              oneverseEditorSaveVerse (true);
+            }
             oneverseReloadFlag = true;
             oneverseEditorLoadVerse ();
             oneverseIdChapter = 0;

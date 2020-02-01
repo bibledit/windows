@@ -425,8 +425,13 @@ void Paratext_Logic::synchronize ()
         
         // Store the updated chapter in Bibledit.
         if (!usfm.empty ()) {
-          bible_logic_store_chapter (bible, book, chapter, usfm);
+          // Set flag for saving to Paratext.
           book_is_updated = true;
+          // Store it only in case the Bibledit data was updated.
+          // https://github.com/bibledit/cloud/issues/339
+          if (usfm != bibledit) {
+            bible_logic_store_chapter (bible, book, chapter, usfm);
+          }
         }
 
       }

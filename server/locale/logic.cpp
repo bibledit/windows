@@ -206,6 +206,18 @@ string locale_logic_text_no_privileges_modify_book ()
 }
 
 
+string locale_logic_text_reload ()
+{
+  string message;
+  message.append (translate("Updated Bible text was loaded."));
+  message.append (" ");
+  message.append (translate("Press Enter to continue."));
+  message.append (" ");
+  message.append (translate("Please check the updated text."));
+  return message;
+}
+
+
 // Returns the Unicode name of the $space.
 string locale_logic_space_get_name (string space, bool english)
 {

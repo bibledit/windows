@@ -143,6 +143,18 @@ string edit_save (void * webserver_request)
   // Check on the merge.
   bible_logic_merge_irregularity_mail ({username}, conflicts);
   
+  // Check whether the USFM on disk has changed compared to the USFM that was loaded in the editor.
+  // If there's a difference, email the user.
+  // Although a merge was done, still, it's good to alert the user on this.
+  // The rationale is that if Bible text was saved through Send/receive,
+  // or if another user saved Bible text,
+  // it's worth to check on this.
+  // Because the user's editor may not yet have loaded this updated Bible text.
+  // https://github.com/bibledit/cloud/issues/340
+  if (ancestor_usfm != server_usfm) {
+    bible_logic_recent_save_email (bible, book, chapter, 0, username, ancestor_usfm, server_usfm);
+  }
+  
   // Safely store the chapter.
   string explanation;
   string message = usfm_safely_store_chapter (request, bible, book, chapter, user_usfm, explanation);
@@ -162,7 +174,7 @@ string edit_save (void * webserver_request)
 #else
   (void) oldID;
 #endif
-  
+
   // Store a copy of the USFM loaded in the editor for later reference.
   storeLoadedUsfm (webserver_request, bible, book, chapter, "editql");
   

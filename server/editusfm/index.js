@@ -70,6 +70,8 @@ var usfmPreviousHeight;
 var usfmEditorTextChanged = false;
 var usfmSaveAsync;
 var usfmSaving = false;
+var usfmLoadDate = new Date(0);
+var usfmSaveDate = new Date(0);
 
 
 function navigationNewPassage ()
@@ -120,6 +122,13 @@ function usfmEditorLoadChapter ()
             usfmPositionCaret (usfmCaretPosition);
           } else {
             usfmPositionCaretViaAjax ();
+          }
+          // Alert on reload soon after save, or on any reload.
+          // https://github.com/bibledit/cloud/issues/346
+          usfmLoadDate = new Date();
+          var seconds = (usfmLoadDate.getTime() - usfmSaveDate.getTime()) / 1000;
+          if ((seconds < 2) | usfmReload) {
+            if (usfmEditorWriteAccess) alert (usfmEditorVerseUpdatedLoaded); // Todo
           }
           usfmReload = false;
         } else {
@@ -177,6 +186,11 @@ function usfmEditorSaveChapter (sync)
     complete: function (xhr, status) {
       usfmSaveAsync = true;
       usfmSaving = false;
+      usfmSaveDate = new Date();
+      var seconds = (usfmSaveDate.getTime() - usfmLoadDate.getTime()) / 1000;
+      if (seconds < 2) {
+        if (usfmEditorWriteAccess) alert (usfmEditorVerseUpdatedLoaded); // Todo
+      }
     }
   });
 }
