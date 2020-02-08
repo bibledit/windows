@@ -103,13 +103,13 @@ exit /b %errorlevel%
 )
 
 
-echo Signing the setup.exe
-cd C:\bibledit-windows-packager\Output
-"C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool" sign /f "C:\Users\Teus Benschop\Desktop\TeunisBenschop.pfx" /p "" /tr http://tsa.startssl.com/rfc3161 bibledit-*.exe
-if %errorlevel% neq 0 (
-pause
-exit /b %errorlevel%
-)
+rem echo Signing the setup.exe
+rem cd C:\bibledit-windows-packager\Output
+rem "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool" sign /f "C:\Users\Teus Benschop\Desktop\TeunisBenschop.pfx" /p "" /tr http://tsa.startssl.com/rfc3161 bibledit-*.exe
+rem if %errorlevel% neq 0 (
+rem pause
+rem exit /b %errorlevel%
+rem )
 
 
 IF "%1" == "" (
