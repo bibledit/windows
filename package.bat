@@ -7,8 +7,11 @@ echo This will build and package Bibledit
 echo Setting environment
 setlocal
 SET PATH=%PATH%;C:\Program Files\Git\cmd
-SET PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC
-call vcvarsall.bat x86
+rem Visual Studio 2015.
+rem SET PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC
+rem Visual Studio 2019.
+rem SET PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build
+call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x86
 SET PATH=%PATH%;C:\Program Files (x86)\Inno Setup 5
 
 
