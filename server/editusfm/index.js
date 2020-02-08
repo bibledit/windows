@@ -17,6 +17,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
+var usfmEditorUniqueID = Math.floor (Math.random() * 100000000);
+
+
 $(document).ready (function () {
 
   // Make the editor's menu to never scroll out of view.
@@ -35,7 +38,7 @@ $(document).ready (function () {
   usfmIdPoller ();
   $ ("#usfmeditor").on ("paste cut click", usfmCaretChanged);
   $ ("#usfmeditor").on ("keydown", usfmHandleKeyDown);
-  $ ("#usfmeditor").focus ();
+  if (usfmEditorWriteAccess) $ ("#usfmeditor").focus ();
   $ (window).on ("focus", usfmWindowFocused);
   if (swipe_operations) {
     $ ("body").swipe ( {
@@ -101,14 +104,15 @@ function usfmEditorLoadChapter ()
     usfmBook = usfmNavigationBook;
     usfmChapter = usfmNavigationChapter;
     usfmIdChapter = 0;
-    $ ("#usfmeditor").focus;
+    if (usfmEditorWriteAccess) $ ("#usfmeditor").focus;
     usfmCaretPosition = usfmGetCaretPosition ();
     $.ajax ({
       url: "load",
       type: "GET",
-      data: { bible: usfmBible, book: usfmBook, chapter: usfmChapter },
+      data: { bible: usfmBible, book: usfmBook, chapter: usfmChapter, id: usfmEditorUniqueID },
       success: function (response) {
         usfmEditorWriteAccess = checksum_readwrite (response);
+        if (usfmForceReadOnly) usfmEditorWriteAccess = false;
         var contenteditable = ($ ("#usfmeditor").attr('contenteditable') === 'true');
         if (usfmEditorWriteAccess != contenteditable) $ ("#usfmeditor").attr('contenteditable', usfmEditorWriteAccess);
         // Checksumming.
@@ -128,7 +132,7 @@ function usfmEditorLoadChapter ()
           usfmLoadDate = new Date();
           var seconds = (usfmLoadDate.getTime() - usfmSaveDate.getTime()) / 1000;
           if ((seconds < 2) | usfmReload) {
-            if (usfmEditorWriteAccess) alert (usfmEditorVerseUpdatedLoaded); // Todo
+            if (usfmEditorWriteAccess) alert (usfmEditorVerseUpdatedLoaded);
           }
           usfmReload = false;
         } else {
@@ -173,7 +177,7 @@ function usfmEditorSaveChapter (sync)
     url: "save",
     type: "POST",
     async: usfmSaveAsync,
-    data: { bible: usfmBible, book: usfmBook, chapter: usfmChapter, usfm: encodedUsfm, checksum: checksum },
+    data: { bible: usfmBible, book: usfmBook, chapter: usfmChapter, usfm: encodedUsfm, checksum: checksum, id: usfmEditorUniqueID },
     error: function (jqXHR, textStatus, errorThrown) {
       usfmEditorStatus (usfmEditorChapterRetrying);
       usfmLoadedText = "";
@@ -189,7 +193,7 @@ function usfmEditorSaveChapter (sync)
       usfmSaveDate = new Date();
       var seconds = (usfmSaveDate.getTime() - usfmLoadDate.getTime()) / 1000;
       if (seconds < 2) {
-        if (usfmEditorWriteAccess) alert (usfmEditorVerseUpdatedLoaded); // Todo
+        if (usfmEditorWriteAccess) alert (usfmEditorVerseUpdatedLoaded);
       }
     }
   });
@@ -311,7 +315,7 @@ function usfmPositionCaretViaAjax ()
   // Due to, most likely, network latency,
   // setting the caret at times causes the caret to jump to undesired places.
   // Therefore the caret is to be set only on chapter load.
-  $ ("#usfmeditor").focus ();
+  if (usfmEditorWriteAccess) $ ("#usfmeditor").focus ();
   $.ajax ({
     url: "focus",
     type: "GET",
@@ -366,7 +370,7 @@ function usfmGetCaretCharacterOffsetWithin (element)
 
 function usfmPositionCaret (position)
 {
-  $ ("#usfmeditor").focus ();
+  if (usfmEditorWriteAccess) $ ("#usfmeditor").focus ();
   var currentPosition = usfmGetCaretPosition ();
   if (currentPosition == undefined) return;
   if (position == undefined) return;
