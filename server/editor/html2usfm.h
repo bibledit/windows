@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2019 Teus Benschop.
+ Copyright (©) 2003-2020 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@ private:
   set <string> noteOpeners;
   vector <string> characterStyles; // Active character styles.
   bool processingNote = false; // Note processing flag.
+  string lastNoteStyle; // The most recent style opened inside a note.
   void preprocess ();
   void flushLine ();
   void postprocess ();

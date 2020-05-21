@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2019 Teus Benschop.
+Copyright (©) 2003-2020 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // Class for creating OpenDocument text documents.
 // Initially the ODF Toolkit was used.
 // But the Java code to generate this became too big for the Java compiler.
-// The other thing is that Java is slow compared to the method below in C++.
+// The other thing is that Java is slow compared to the methods below written in C++.
 
 
 Odf_Text::Odf_Text (string bible_in)

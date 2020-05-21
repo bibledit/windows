@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2019 Teus Benschop.
+Copyright (©) 2003-2020 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -157,7 +157,6 @@ void database_maintenance ()
   
   
 #ifdef HAVE_CLOUD
-  database_cache_trim (false);
   sword_logic_trim_modules ();
 #endif
 }

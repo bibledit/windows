@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2019 Teus Benschop.
+ Copyright (©) 2003-2020 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@
 bool journal_logic_filter_entry (const string& entry);
 string journal_logic_filtered_message ();
 string journal_logic_see_journal_for_progress ();
+void journal_logic_log_incoming_connection (void * webserver_request);
+void journal_logic_log_incoming_connections ();
 
 
 #endif

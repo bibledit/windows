@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2019 Teus Benschop.
+Copyright (©) 2003-2020 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -119,6 +119,9 @@ void bibledit_initialize_library (const char * package, const char * webroot)
 
   // Initialize obfuscation data.
   locale_logic_obfuscate_initialize ();
+  
+  // Read some configuration settings into memory for faster access.
+  config_logic_load_settings ();
   
   // Initialize data in a thread.
   thread setup_thread = thread (setup_conditionally, package);

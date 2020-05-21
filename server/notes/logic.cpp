@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2019 Teus Benschop.
+Copyright (©) 2003-2020 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -385,6 +385,10 @@ void Notes_Logic::notifyUsers (int identifier, int notification)
           database_notes.assign_user (identifier, user);
         }
       }
+    }
+    vector <string> auto_assignees = request->database_config_user ()->getAutomaticNoteAssignment ();
+    for (auto assignee : auto_assignees) {
+      database_notes.assign_user (identifier, assignee);
     }
   }
 

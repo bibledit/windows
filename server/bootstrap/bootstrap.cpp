@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2019 Teus Benschop.
+Copyright (©) 2003-2020 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -191,6 +191,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <system/logic.h>
 #include <filter/date.h>
 #include <filter/string.h>
+#include <journal/logic.h>
+#include <nmt/index.h>
 
 
 // Internal function to check whether a request coming from the browser is considered secure enough.
@@ -198,11 +200,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 bool browser_request_security_okay (Webserver_Request * request)
 {
   // If the request is made via https, the security is OK.
-  if (request->secure) return true;
+  if (request->secure) {
+    return true;
+  }
 
   // At this stage the request is made via plain http.
   // If https is not enforced for the browser, the security is OK.
-  if (!config_globals_enforce_https_browser) return true;
+  if (!config_globals_enforce_https_browser) {
+    return true;
+  }
   
   // Not secure enough:
   return false;
@@ -214,6 +220,10 @@ bool browser_request_security_okay (Webserver_Request * request)
 // it decides which functions to call to obtain the response.
 void bootstrap_index (void * webserver_request)
 {
+  if (config_logic_log_incoming_connections ()) {
+    journal_logic_log_incoming_connection (webserver_request);
+  }
+
   Webserver_Request * request = (Webserver_Request *) webserver_request;
   
   // Record the POST request made to the web server.
@@ -1112,7 +1122,12 @@ void bootstrap_index (void * webserver_request)
     request->reply = rss_feed (request);
     return;
   }
-  
+
+  if ((url == nmt_index_url ()) && browser_request_security_okay (request) && nmt_index_acl (request)) {
+    request->reply = nmt_index (request);
+    return;
+  }
+
   // Forward the browser to the default home page.
   redirect_browser (request, index_index_url ());
 }

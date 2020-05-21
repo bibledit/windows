@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2019 Teus Benschop.
+Copyright (©) 2003-2020 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/config/general.h>
 #include <database/config/bible.h>
 #include <database/jobs.h>
+#include <database/mail.h>
 #include <assets/header.h>
 #include <menu/logic.h>
 #include <config/globals.h>
@@ -340,6 +341,21 @@ string system_index (void * webserver_request)
     redirect_browser (request, journal_index_url ());
     return "";
   }
+
+
+  // Handle display the number of unsent emails and clearing them.
+#ifdef HAVE_CLOUD
+  Database_Mail database_mail (webserver_request);
+  if (request->query.count ("clearemails")) {
+    vector <int> mails = database_mail.getAllMails ();
+    for (auto rowid : mails) {
+      database_mail.erase (rowid);
+    }
+  }
+  vector <int> mails = database_mail.getAllMails ();
+  string mailcount = convert_to_string (mails.size());
+  view.set_variable ("emailscount", mailcount);
+#endif
 
   
 #ifdef HAVE_CLOUD

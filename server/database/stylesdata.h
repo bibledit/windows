@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2019 Teus Benschop.
+Copyright (©) 2003-2020 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -6730,7 +6730,7 @@ style_record styles_table [] =
     /* info */ "Used for marking text which should be ignored when identifying or linking to cross reference target references.",
     /* category */ "x",
     /* type */ 8,
-    /* subtype */ 1,
+    /* subtype */ 3,
     /* fontsize */ 12,
     /* italic */ 0,
     /* bold */ 0,

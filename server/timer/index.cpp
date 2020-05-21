@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2019 Teus Benschop.
+Copyright (©) 2003-2020 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <export/logic.h>
 #include <developer/logic.h>
 #include <setup/logic.h>
+#include <journal/logic.h>
 
 
 // CPU-intensive actions run at night.
@@ -79,6 +80,8 @@ void timer_index ()
       // Every second:
       // Check whether client sends/receives Bibles and Consultation Notes and other stuff.
       sendreceive_queue_sync (minute, second);
+      // Log any connections that have come in.
+      journal_logic_log_incoming_connections ();
 
       // Run the part below every so many seconds.
       int fraction = second / 5;
@@ -101,7 +104,7 @@ void timer_index ()
       }
 #endif
 
-      // At the nineth minute after every full hour rotate the journal.
+      // At the ninth minute after every full hour rotate the journal.
       // The nine is chosen, because the journal rotation will summarize the send/receive messages.
       // In case send/receive happens every five minutes, it is expected that under normal circumstances
       // the whole process of sending/receivning will be over, so summarization can then be done.
@@ -140,7 +143,20 @@ void timer_index ()
       if ((hour == 0) && (minute == 50)) {
         tasks_logic_queue (MAINTAINDATABASE);
       }
-      
+
+#ifdef HAVE_CLOUD
+      // File cache trimming.
+      // https://github.com/bibledit/cloud/issues/364
+      // This used to be done once a day, and the trimming left files for multiple days.
+      // This way of doing things led to a full disk when disk space was tight.
+      // The new way of trimming on the Cloud is to do the trimming every hour.
+      // And to leave files in the files cache for only a couple of hours.
+      if (minute == 10) {
+        tasks_logic_queue (TRIMCACHES);
+      }
+
+#endif
+
 #ifdef HAVE_CLOUD
       // Export the Bibles to the various output formats.
       // This may take an hour on a production machine.
@@ -150,7 +166,7 @@ void timer_index ()
       }
 #endif
       
-      // Delete temporal files older than a few days.
+      // Delete expired temporal files.
       if ((hour == 2) && (minute == 0)) {
         tasks_logic_queue (CLEANTMPFILES);
       }

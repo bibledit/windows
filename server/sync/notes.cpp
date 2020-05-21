@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2019 Teus Benschop.
+ Copyright (©) 2003-2020 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ string sync_notes (void * webserver_request)
   }
 
   
-  // Bail out if the notes databases are not available or in good shape.
+  // Bail out if the notes databases are not available or not in good shape.
   bool available = true;
   if (!database_notes.healthy ()) available = false;
   if (!database_notes.checksums_healthy ()) available = false;

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2019 Teus Benschop.
+Copyright (©) 2003-2020 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -82,6 +82,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #define IMPORTRESOURCESTRANSFERFILE "importresourcestransferfile"
 #define DELETECHANGES "deletechanges"
 #define CLEARCACHES "clearcaches"
+#define TRIMCACHES "trimcaches"
+#define EXPORT2NMT "export2nmt"
 
 
 string tasks_logic_folder ();

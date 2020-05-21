@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2019 Teus Benschop.
+ Copyright (©) 2003-2020 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ string notes_summary_url ()
 
 bool notes_summary_acl (void * webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
+  return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
 }
 
 

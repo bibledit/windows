@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2019 Teus Benschop.
+Copyright (©) 2003-2020 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #ifndef HAVE_CLIENT
 #include <curl/curl.h>
 #endif
-#include <mbedtls/net.h>
+#include <mbedtls/net_sockets.h>
 #include <mbedtls/debug.h>
 #include <mbedtls/ssl.h>
 #include <mbedtls/entropy.h>

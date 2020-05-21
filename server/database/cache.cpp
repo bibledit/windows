@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2019 Teus Benschop.
+Copyright (©) 2003-2020 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -308,63 +308,56 @@ void database_filebased_cache_remove (string schema)
 }
 
 
-// Deletes old cached items.
+// Deletes expired cached items.
 void database_cache_trim (bool clear)
 {
-  if (clear) Database_Logs::log ("Claaring cache");
+  if (clear) Database_Logs::log ("Clearing cache");
 
   string output, error;
 
   // The directory that contains the file-based cache files.
   string path = database_cache_full_path ("");
 
-  // The space this cache uses.
-  int megabytes = 0;
-  filter_shell_run ("", "du", {"-csm", path}, &output, &error);
-  vector <string> lines = filter_string_explode (output, '\n');
-  for (auto line : lines) {
-    megabytes = convert_to_int (line);
-  }
-  
-  // The number of days to keep cached data depends on the size the cache takes.
   // There have been instances that the cache takes up 4, 5, or 6 Gbytes in the Cloud.
-  // This can be even more.
-  // This may lead to errors when the disk runs out of space.
-  // Therefore it's good to limit large caches more speedy.
-  string days = "+5";
-  if (megabytes >=  500) days = "+4";
-  if (megabytes >= 1000) days = "+3";
-  if (megabytes >= 1500) days = "+2";
-  if (megabytes >= 2000) days = "+1";
-  if (megabytes >= 2500) days = "0";
-  
+  // If the cache is left untrimmed, the size can be even larger.
+  // This leads to errors when the disk runs out of space.
+  // Therefore it's good to remove cached files older than a couple of hours.
+  string minutes = "+120";
+
   // Handle clearing the cache immediately.
-  if (clear) days = "0";
-  
-  // Remove files that have not been modified for x days.
-  // It uses a Linux shell command. This can be done because it runs on the server only.
+  if (clear) minutes = "+0";
+
+  // Remove files that have not been modified for x minutes.
+  // It uses a Linux shell command.
+  // This can be done because it runs on the server only.
+  // It used to do "cd /path/to/cache; find /path/to/cache ...".
+  // This could remove the folder "cache" too.
+  // After this folder was removed, no caching could take place anymore.
+  // https://github.com/bibledit/cloud/issues/366
+  // This was not visible on macOS, but it was visible on Linux.
+  // The fix is to do "cd /path/to/cache; find . ...".
   output.clear ();
   error.clear ();
-  filter_shell_run (path, "find", {path, "-atime", days, "-delete"}, &output, &error);
+  filter_shell_run (path, "find", {".", "-amin", minutes, "-delete"}, &output, &error);
   if (!output.empty ()) Database_Logs::log (output);
   if (!error.empty ()) Database_Logs::log (error);
   
   // Remove empty directories.
   output.clear ();
   error.clear ();
-  filter_shell_run (path, "find", {path, "-type", "d", "-empty", "-delete"}, &output, &error);
+  filter_shell_run (path, "find", {".", "-type", "d", "-empty", "-delete"}, &output, &error);
   if (!output.empty ()) Database_Logs::log (output);
   if (!error.empty ()) Database_Logs::log (error);
   
   // The directory that contains the database-based cache files.
   path = filter_url_create_root_path (database_logic_databases ());
 
-  // The space these database-based cache uses.
+  // The space these database-based cache files use.
   output.clear ();
   error.clear ();
-  megabytes = 0;
+  int megabytes = 0;
   filter_shell_run ("cd " + path + "; du -csm " + Database_Cache::fragment () + "*", output);
-  lines = filter_string_explode (output, '\n');
+  vector <string> lines = filter_string_explode (output, '\n');
   for (auto line : lines) {
     megabytes = convert_to_int (line);
   }
@@ -374,7 +367,7 @@ void database_cache_trim (bool clear)
   // This can be even more.
   // This may lead to errors when the disk runs out of space.
   // Therefore it's good to limit large caches more speedy.
-  days = "+5";
+  string days = "+5";
   if (megabytes >=  50) days = "+4";
   if (megabytes >= 100) days = "+3";
   if (megabytes >= 150) days = "+2";
@@ -390,5 +383,5 @@ void database_cache_trim (bool clear)
   if (!output.empty ()) Database_Logs::log (output);
   if (!error.empty ()) Database_Logs::log (error);
   
-  if (clear) Database_Logs::log ("Reading claaring cache");
+  if (clear) Database_Logs::log ("Ready clearing  cache");
 }

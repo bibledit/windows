@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2019 Teus Benschop.
+ Copyright (©) 2003-2020 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@
 #include <webserver/request.h>
 #include <checksum/logic.h>
 #include <editor/usfm2html.h>
-#include <pugixml/pugixml.hpp>
 #include <config/globals.h>
 #include <access/bible.h>
 #include <editone/logic.h>

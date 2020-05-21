@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2019 Teus Benschop.
+Copyright (©) 2003-2020 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -504,7 +504,7 @@ void Filter_Text::processUsfm ()
                     // But this space should not be converted to text output.
                     // https://github.com/bibledit/cloud/issues/311
                     // It is going to be removed here.
-                    int pointer = chapterUsfmMarkersAndTextPointer + 1;
+                    size_t pointer = chapterUsfmMarkersAndTextPointer + 1;
                     if (pointer < chapterUsfmMarkersAndText.size()) {
                       string text = chapterUsfmMarkersAndText[pointer];
                       text = filter_string_ltrim (text);

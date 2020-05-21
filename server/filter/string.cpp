@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2019 Teus Benschop.
+Copyright (©) 2003-2020 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -41,6 +41,26 @@ vector <string> filter_string_explode (string value, char delimiter)
   for (string token; getline (iss, token, delimiter); )
   {
     result.push_back (move (token));
+  }
+  return result;
+}
+
+
+// Explodes an input string on multiple delimiters.
+vector <string> filter_string_explode (string value, string delimiters)
+{
+  vector <string> result;
+  while (!value.empty ()) {
+    size_t pos = value.find_first_of (delimiters);
+    if (pos == string::npos) {
+      result.push_back (value);
+      value.clear ();
+    } else {
+      string s = value.substr (0, pos);
+      if (!s.empty()) result.push_back (s);
+      pos++;
+      value.erase (0, pos);
+    }
   }
   return result;
 }
