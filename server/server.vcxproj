@@ -295,7 +295,6 @@
     <ClCompile Include="editusfm\load.cpp" />
     <ClCompile Include="editusfm\offset.cpp" />
     <ClCompile Include="editusfm\save.cpp" />
-    <ClCompile Include="editverse\index.cpp" />
     <ClCompile Include="edit\edit.cpp" />
     <ClCompile Include="edit\id.cpp" />
     <ClCompile Include="edit\index.cpp" />

@@ -1131,9 +1131,6 @@
     <ClCompile Include="editusfm\offset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="editverse\index.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="jobs\index.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
