@@ -55,6 +55,7 @@ $ (document).ready (function ()
   }
   
   $ ("#oneeditor").on ("click", oneEditorNoteCitationClicked);
+
 });
 
 
@@ -119,8 +120,8 @@ var oneverseSaveAsync;
 var oneverseLoadAjaxRequest;
 var oneverseSaving = false;
 var oneverseEditorWriteAccess = true;
-var oneverseEditorLoadDate = new Date(0);
-var oneverseEditorSaveDate = new Date(0);
+var oneverseEditorLoadDate = {};
+var oneverseEditorSaveDate = {};
 
 
 //
@@ -170,7 +171,7 @@ function oneverseEditorLoadVerse ()
     } else {
       oneverseReloadPosition = undefined;
       // When saving and immediately going to another verse, do not give an alert.
-      oneverseEditorSaveDate = new Date(0);
+      oneverseEditorSaveDate[oneverseVerseLoading] = new Date(0);
     }
     if (oneverseLoadAjaxRequest && oneverseLoadAjaxRequest.readystate != 4) {
       oneverseLoadAjaxRequest.abort();
@@ -182,7 +183,15 @@ function oneverseEditorLoadVerse ()
       success: function (response) {
         // Flag for editor read-write or read-only.
         oneverseEditorWriteAccess = checksum_readwrite (response);
-        if (oneverseForceReadOnly) oneverseEditorWriteAccess = false;
+        // If this is the second or third or higher editor in the workspace,
+        // make the editor read-only.
+        if (window.frameElement) {
+          iframe = $(window.frameElement);
+          var data_editor_number = iframe.attr("data-editor-no");
+          if (data_editor_number > 1) {
+            oneverseEditorWriteAccess = false;
+          }
+        }
         // Checksumming.
         response = checksum_receive (response);
         // Splitting.
@@ -224,10 +233,12 @@ function oneverseEditorLoadVerse ()
           oneverseScrollVerseIntoView ();
           oneversePositionCaret ();
           // https://github.com/bibledit/cloud/issues/346
-          oneverseEditorLoadDate = new Date();
-          var seconds = (oneverseEditorLoadDate.getTime() - oneverseEditorSaveDate.getTime()) / 1000;
-          if ((seconds < 2) | oneverseReloadFlag)  {
-            if (oneverseEditorWriteAccess) alert (oneverseEditorVerseUpdatedLoaded);
+          oneverseEditorLoadDate[oneverseVerseLoading] = new Date();
+          if (oneverseVerseLoading in oneverseEditorSaveDate) {
+            var seconds = (oneverseEditorLoadDate[oneverseVerseLoading].getTime() - oneverseEditorSaveDate[oneverseVerseLoading].getTime()) / 1000;
+            if ((seconds < 2) | oneverseReloadFlag)  {
+              if (oneverseEditorWriteAccess) alert (oneverseEditorVerseUpdatedLoaded);
+            }
           }
           oneverseReloadFlag = false;
         }
@@ -286,11 +297,7 @@ function oneverseEditorSaveVerse (sync)
     complete: function (xhr, status) {
       oneverseSaveAsync = true;
       oneverseSaving = false;
-      oneverseEditorSaveDate = new Date();
-      var seconds = (oneverseEditorSaveDate.getTime() - oneverseEditorLoadDate.getTime()) / 1000;
-      if (seconds < 2) {
-        if (oneverseEditorWriteAccess) alert (oneverseEditorVerseUpdatedLoaded);
-      }
+      oneverseEditorSaveDate [oneverseVerseLoaded] = new Date();
     }
   });
 }

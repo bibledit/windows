@@ -179,7 +179,15 @@ function editorLoadChapter (reload)
     success: function (response) {
       // Set the editor read-write or read-only.
       editorWriteAccess = checksum_readwrite (response);
-      if (editorForceReadOnly) editorWriteAccess = false;
+      // If this is the second or third or higher editor in the workspace,
+      // make the editor read-only.
+      if (window.frameElement) {
+        iframe = $(window.frameElement);
+        var data_editor_number = iframe.attr("data-editor-no");
+        if (data_editor_number > 1) {
+          editorWriteAccess = false;
+        }
+      }
       // Checksumming.
       response = checksum_receive (response);
       if (response !== false) {
@@ -295,7 +303,7 @@ function editorGetHtml ()
 
 /*
 
-Portion dealing with triggers for editor's content change.
+Portion dealing with triggers for when the editor's content changes.
 
 */
 
@@ -661,7 +669,7 @@ function editorScrollVerseIntoView ()
   var bounds = quill.getBounds (position);
   var workspaceHeight = $("#workspacewrapper").height();
   var currentScrollTop = $("#workspacewrapper").scrollTop();
-  var scrollTo = bounds.top - (workspaceHeight /  2);
+  var scrollTo = bounds.top - (workspaceHeight * verticalCaretPosition / 100);
   scrollTo = parseInt (scrollTo);
   var lowerBoundary = currentScrollTop - (workspaceHeight / 10);
   var upperBoundary = currentScrollTop + (workspaceHeight / 10);

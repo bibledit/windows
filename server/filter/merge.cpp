@@ -104,7 +104,7 @@ void filter_merge_detect_conflict (string base, string change, string prioritize
   change = filter_string_trim (change);
   prioritized_change = filter_string_trim (prioritized_change);
   result = filter_string_trim (result);
-  
+
   bool irregularity = false;
   string subject;
   

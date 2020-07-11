@@ -93,7 +93,11 @@ function navigationNewPassage ()
   usfmEditorSaveChapter ();
   usfmReload = false;
   usfmEditorLoadChapter ();
-  // usfmPositionCaretViaAjax ();
+  if (usfmEditorWriteAccess) {
+    usfmPositionCaretViaAjax ();
+  } else {
+    usfmPositionFocusedVerseViaAjax ();
+  }
 }
 
 
@@ -112,7 +116,15 @@ function usfmEditorLoadChapter ()
       data: { bible: usfmBible, book: usfmBook, chapter: usfmChapter, id: usfmEditorUniqueID },
       success: function (response) {
         usfmEditorWriteAccess = checksum_readwrite (response);
-        if (usfmForceReadOnly) usfmEditorWriteAccess = false;
+        // If this is the second or third or higher editor in the workspace,
+        // make the editor read-only.
+        if (window.frameElement) {
+          iframe = $(window.frameElement);
+          var data_editor_number = iframe.attr("data-editor-no");
+          if (data_editor_number > 1) {
+            usfmEditorWriteAccess = false;
+          }
+        }
         var contenteditable = ($ ("#usfmeditor").attr('contenteditable') === 'true');
         if (usfmEditorWriteAccess != contenteditable) $ ("#usfmeditor").attr('contenteditable', usfmEditorWriteAccess);
         // Checksumming.
@@ -122,10 +134,12 @@ function usfmEditorLoadChapter ()
           $ ("#usfmeditor").append (response);
           usfmEditorStatus (usfmEditorChapterLoaded);
           usfmLoadedText = response;
-          if (usfmReload) {
-            usfmPositionCaret (usfmCaretPosition);
-          } else {
-            usfmPositionCaretViaAjax ();
+          if (usfmEditorWriteAccess) {
+            if (usfmReload) {
+              usfmPositionCaret (usfmCaretPosition);
+            } else {
+              usfmPositionCaretViaAjax ();
+            }
           }
           // Alert on reload soon after save, or on any reload.
           // https://github.com/bibledit/cloud/issues/346
@@ -140,6 +154,7 @@ function usfmEditorLoadChapter ()
           usfmReload = true;
           usfmEditorLoadChapter ();
         }
+        if (!usfmEditorWriteAccess) usfmPositionFocusedVerseViaAjax ();
       },
     });
   }
@@ -326,8 +341,9 @@ function usfmPositionCaretViaAjax ()
       var end = parseInt (response [1], 10);
       var offset = usfmGetCaretPosition ();
       if ((offset < start) || (offset > end)) {
-        // Position caret right at the start of the text after the verse number.
-        var position = start + 4 + usfmNavigationVerse.toString().length;
+        // Position caret right after the verse number.
+        // That cares for empty verse text too.
+        var position = start + 3 + usfmNavigationVerse.toString().length;
         usfmPositionCaret (position);
       }
       restartCaretClarifier ();
@@ -350,27 +366,38 @@ function usfmGetCaretPosition ()
 
 function usfmGetCaretCharacterOffsetWithin (element)
 {
-  var caretOffset = 0;
+  var elementText = "";
   if (typeof window.getSelection != "undefined") {
     var range = window.getSelection().getRangeAt(0);
     var preCaretRange = range.cloneRange();
     preCaretRange.selectNodeContents(element);
     preCaretRange.setEnd(range.endContainer, range.endOffset);
-    caretOffset = preCaretRange.toString().length;
+    elementText = preCaretRange.toString();
   } else if (typeof document.selection != "undefined" && document.selection.type != "Control") {
     var textRange = document.selection.createRange();
     var preCaretTextRange = document.body.createTextRange();
     preCaretTextRange.moveToElementText(element);
     preCaretTextRange.setEndPoint("EndToEnd", textRange);
-    caretOffset = preCaretTextRange.text.length;
+    elementText = preCaretTextRange.text;
   }
+  // Trim one space off at the right side.
+  // See https://github.com/bibledit/cloud/issues/393.
+  var caretOffset = elementText.length;
+  var pos = elementText.length - 1;
+  if (elementText != "") {
+    if (elementText.charCodeAt(pos) == 32) {
+      elementText = elementText.substr (0, pos);
+    }
+  }
+  var caretOffset = elementText.length;
   return caretOffset;
 }
 
 
 function usfmPositionCaret (position)
 {
-  if (usfmEditorWriteAccess) $ ("#usfmeditor").focus ();
+  if (!usfmEditorWriteAccess) return;
+  $ ("#usfmeditor").focus ();
   var currentPosition = usfmGetCaretPosition ();
   if (currentPosition == undefined) return;
   if (position == undefined) return;
@@ -394,7 +421,8 @@ function restartCaretClarifier ()
 }
 
 
-function getSelectionCoordinates() {
+function getSelectionCoordinates()
+{
   var x = 0, y = 0;
   var sel = document.selection, range;
   if (sel) {
@@ -432,17 +460,6 @@ function clarifyCaret ()
   var viewportHeight = $(window).height ();
   $ ("#workspacewrapper").stop (true);
   $ ("#workspacewrapper").animate ({ scrollTop: caretTop - (viewportHeight * verticalCaretPosition / 100) }, 500);
-  /*
-  var barOffset = $ ("#caretbar").offset ().top;
-  $ ("#caretbar").empty ();
-  $ ("#caretbar").prepend ("<span><mark>￫</mark></span>");
-  var barTop = barOffset + $ ("#caretbar").height ();
-  while (barTop <= caretTop) {
-    $ ("#caretbar").prepend ("\n");
-    barTop = barOffset + $ ("#caretbar").height ();
-  }
-  $ ("#caretbar").prepend ("\n");
-  */
 }
 
 
@@ -472,6 +489,41 @@ function editusfmSwipeRight (event)
   }
 }
 
+                                                            
+/*
+
+Section for positioning focused verse in non-editable USFM editor.
+
+*/
+
+
+
+function usfmPositionFocusedVerseViaAjax ()
+{
+  $.ajax ({
+    url: "focus",
+    type: "GET",
+    data: { bible: usfmBible, book: usfmBook, chapter: usfmChapter },
+    success: function (response) {
+      response = response.split (" ");
+      var start = parseInt (response [0], 10);
+      var end = parseInt (response [1], 10);
+      var offset = parseInt ((start + end) / 2);
+      var cache = $ ("#usfmeditor").html();
+      $ ("#usfmeditor").html(function (index, html) {
+        return html.slice (0, offset) + '<span id="usfmfocus">' + html.slice(offset, offset + 1) + '</span>' + html.slice(offset + 1);
+      });
+      var verseTop = $("#usfmfocus").offset().top;
+      $ ("#usfmeditor").html(cache);
+      var workspaceHeight = $("#workspacewrapper").height();
+      var viewportHeight = $(window).height ();
+      var scrolltop = $ ("#workspacewrapper").scrollTop ();
+      var scrollTo = verseTop - parseInt (workspaceHeight * verticalCaretPosition / 100) + scrolltop;
+      $ ("#workspacewrapper").stop (true);
+      $ ("#workspacewrapper").animate ({ scrollTop: scrollTo }, 500);
+    }
+  });
+}
 
 // Note that some focus operations were removed for a situation where the workspace has two editors, and the user edits in the visual editor, and then the USFM editor grabs focus, and then the user keeps typing, so he or she was expecting to type in the visual editor but is now typing in the USFM editor.
 // Due to removing the focus operations, the caret positioner no longer works when the USFM editor is not focused.
