@@ -35,7 +35,7 @@ $ (document).ready (function ()
   
   $ (window).on ("unload", oneverseEditorUnload);
   
-  oneverseIdPoller ();
+  oneverseIdPollerOn ();
 
   oneverseBindUnselectable ();
   
@@ -112,16 +112,16 @@ var oneverseVerseLoaded;
 var oneverseEditorChangedTimeout;
 var oneverseLoadedText;
 var oneverseIdChapter = 0;
-var oneverseIdTimeout;
-var oneverseReloadFlag = false;
+var oneverseReloadCozChanged = false;
+var oneverseReloadCozError = false;
 var oneverseReloadPosition = undefined;
 var oneverseEditorTextChanged = false;
 var oneverseSaveAsync;
 var oneverseLoadAjaxRequest;
 var oneverseSaving = false;
 var oneverseEditorWriteAccess = true;
-var oneverseEditorLoadDate = {};
-var oneverseEditorSaveDate = {};
+var oneverseEditorLoadDate = new Date(0);
+var oneverseEditorSaveDate = new Date(0);
 
 
 //
@@ -144,9 +144,21 @@ function navigationNewPassage ()
   } else {
     return;
   }
+
+  //if ((oneverseNavigationBook != oneverseBook) || (oneverseNavigationChapter != oneverseChapter)) {
+  //}
+  // Fixed: Reload text message when switching to another chapter.
+  // https://github.com/bibledit/cloud/issues/408
+  // Going to another verse, it also resets the editor save timer,
+  // and the chapter identifier poller.
+  oneverseIdPollerOff ();
+  oneverseEditorSaveDate = new Date(0);
   oneverseEditorSaveVerse (true);
-  oneverseReloadFlag = false;
+  oneverseEditorSaveDate = new Date(0);
+  oneverseReloadCozChanged = false;
+  oneverseReloadCozError = false;
   oneverseEditorLoadVerse ();
+  oneverseIdPollerOn ();
 }
 
 
@@ -159,19 +171,19 @@ function navigationNewPassage ()
 
 function oneverseEditorLoadVerse ()
 {
-  if ((oneverseNavigationBook != oneverseBook) || (oneverseNavigationChapter != oneverseChapter) || (oneverseNavigationVerse != oneverseVerse) || oneverseReloadFlag) {
+  if ((oneverseNavigationBook != oneverseBook) || (oneverseNavigationChapter != oneverseChapter) || (oneverseNavigationVerse != oneverseVerse) || oneverseReloadCozChanged || oneverseReloadCozError ) {
     oneverseBible = navigationBible;
     oneverseBook = oneverseNavigationBook;
     oneverseChapter = oneverseNavigationChapter;
     oneverseVerse = oneverseNavigationVerse;
     oneverseVerseLoading = oneverseNavigationVerse;
     oneverseIdChapter = 0;
-    if (oneverseReloadFlag) {
+    if (oneverseReloadCozChanged) {
       oneverseReloadPosition = oneverseCaretPosition ();
     } else {
       oneverseReloadPosition = undefined;
       // When saving and immediately going to another verse, do not give an alert.
-      oneverseEditorSaveDate[oneverseVerseLoading] = new Date(0);
+      oneverseEditorSaveDate = new Date(0);
     }
     if (oneverseLoadAjaxRequest && oneverseLoadAjaxRequest.readystate != 4) {
       oneverseLoadAjaxRequest.abort();
@@ -233,18 +245,21 @@ function oneverseEditorLoadVerse ()
           oneverseScrollVerseIntoView ();
           oneversePositionCaret ();
           // https://github.com/bibledit/cloud/issues/346
-          oneverseEditorLoadDate[oneverseVerseLoading] = new Date();
-          if (oneverseVerseLoading in oneverseEditorSaveDate) {
-            var seconds = (oneverseEditorLoadDate[oneverseVerseLoading].getTime() - oneverseEditorSaveDate[oneverseVerseLoading].getTime()) / 1000;
-            if ((seconds < 2) | oneverseReloadFlag)  {
-              if (oneverseEditorWriteAccess) alert (oneverseEditorVerseUpdatedLoaded);
+          oneverseEditorLoadDate = new Date();
+          // In case of network error, don't keep showing the notification.
+          if (!oneverseReloadCozError) {
+            var seconds = oneverseEditorLoadDate.getTime() - oneverseEditorSaveDate.getTime() / 1000;
+            if ((seconds < 2) | oneverseReloadCozChanged)  {
+              console.log ("seconds", seconds, "flag", oneverseReloadCozChanged);
+              if (oneverseEditorWriteAccess) oneverseReloadAlert (oneverseEditorVerseUpdatedLoaded);
             }
           }
-          oneverseReloadFlag = false;
+          oneverseReloadCozChanged = false;
+          oneverseReloadCozError = false;
         }
         if (response === false) {
           // Checksum or other error: Reload.
-          oneverseReloadFlag = true;
+          oneverseReloadCozError = true;
           oneverseEditorLoadVerse ();
         }
       },
@@ -273,6 +288,10 @@ function oneverseEditorSaveVerse (sync)
   var html = $ (".ql-editor").html ();
   if (html == oneverseLoadedText) return;
   oneverseEditorStatus (oneverseEditorVerseSaving);
+  
+  // Chapter identifier poller off as network latency may lead to problems if left on.
+  oneverseIdPollerOff ();
+  
   oneverseLoadedText = html;
   oneverseIdChapter = 0;
   oneverseSaveAsync = true;
@@ -297,7 +316,8 @@ function oneverseEditorSaveVerse (sync)
     complete: function (xhr, status) {
       oneverseSaveAsync = true;
       oneverseSaving = false;
-      oneverseEditorSaveDate [oneverseVerseLoaded] = new Date();
+      oneverseEditorSaveDate = new Date();
+      oneverseIdPollerOn ();
     }
   });
 }
@@ -381,39 +401,65 @@ function oneverseEditorSelectiveNotification (message)
 //
 
 
-function oneverseIdPoller ()
+var oneverseIdTimeout;
+var oneverseIdAjaxRequest;
+
+
+function oneverseIdPollerOff ()
 {
   if (oneverseIdTimeout) {
     clearTimeout (oneverseIdTimeout);
   }
+  if (oneverseIdAjaxRequest && oneverseIdAjaxRequest.readystate != 4) {
+    oneverseIdAjaxRequest.abort();
+  }
+}
+
+
+function oneverseIdPollerOn ()
+{
+  oneverseIdPollerOff ();
   oneverseIdTimeout = setTimeout (oneverseEditorPollId, 1000);
 }
 
 
 function oneverseEditorPollId ()
 {
-  $.ajax ({
+  // Due to network latency, there may be multiple ongoing polls.
+  // Multiple polls may return multiple chapter identifiers.
+  // This could lead to false "text reloaded" notifications.
+  // https://github.com/bibledit/cloud/issues/424
+  // To handle this, switch the poller off.
+  oneverseIdPollerOff ();
+  
+  if (oneverseSaving) {
+    oneverseIdPollerOn ();
+    return;
+  }
+  oneverseIdAjaxRequest = $.ajax ({
     url: "../edit/id",
     type: "GET",
     data: { bible: oneverseBible, book: oneverseBook, chapter: oneverseChapter },
     cache: false,
     success: function (response) {
-      if (!oneverseSaving) {
-        if (oneverseIdChapter != 0) {
-          if (response != oneverseIdChapter) {
-            if (oneverseEditorTextChanged) {
-              oneverseEditorSaveVerse (true);
-            }
-            oneverseReloadFlag = true;
-            oneverseEditorLoadVerse ();
-            oneverseIdChapter = 0;
+      if (oneverseIdChapter != 0) {
+        if (response != oneverseIdChapter) {
+          if (oneverseEditorTextChanged) {
+            oneverseEditorSaveVerse (true);
           }
+          oneverseReloadCozChanged = true;
+          oneverseEditorLoadVerse ();
+          oneverseIdChapter = 0;
         }
-        oneverseIdChapter = response;
       }
+      oneverseIdChapter = response;
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
     },
     complete: function (xhr, status) {
-      oneverseIdPoller ();
+      if (status != "abort") {
+        oneverseIdPollerOn ();
+      }
     }
   });
 }
@@ -709,10 +755,10 @@ function visualVerseEditorSelectionChangeHandler (range, oldRange, source)
 {
   // Bail out if editor not focused.
   if (!range) return;
-  
+
   // Bail out if text was selected.
   if (range.length != 0) return;
-  
+
   oneverseCaretMovedTimeoutStart ();
 }
 
@@ -762,13 +808,8 @@ function oneverseApplyNotesStyle (style)
   quill.setSelection (caret, 0);
   quill.insertText (caret, caller, "character", "notecall" + noteId, "user");
 
-  // Append note text to notes section:
-  // <p class="b-f"><span class="i-notebody1">1</span> + .</p>
-  var length = quill.getLength ();
-  quill.insertText (length, "\n", "paragraph", style, "user");
-  quill.insertText (length, caller, "character", "notebody" + noteId, "user");
-  length++;
-  quill.insertText (length, " + .", "character", "", "user");
+  // Append note text to notes section.
+  assetsEditorAddNote (quill, style, caller, noteId, oneverseNavigationChapter, verseSeparator, oneverseNavigationVerse);
 
   oneverseInsertedNotesCount++;
   
@@ -888,3 +929,30 @@ function oneverseSwipeRight (event)
     parent.window.navigatePreviousVerse (event);
   }
 }
+
+
+/*
+
+Section for reload notifications.
+
+*/
+
+
+function oneverseReloadAlert (message)
+{
+  // Take action only if the editor has focus and the user can type in it.
+  if (!quill.hasFocus ()) return;
+  // Do the notification stuff.
+  notifyItSuccess (message)
+  quill.enable (false);
+  setTimeout (oneverseReloadAlertTimeout, 3000);
+}
+
+
+function oneverseReloadAlertTimeout ()
+{
+  quill.enable (oneverseEditorWriteAccess);
+  quill.focus ();
+}
+
+

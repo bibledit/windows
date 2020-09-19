@@ -35,7 +35,7 @@ $(document).ready (function () {
     e.preventDefault();
     document.execCommand ("insertHTML", false, data);
   });
-  usfmIdPoller ();
+  usfmIdPollerOn ();
   $ ("#usfmeditor").on ("paste cut click", usfmCaretChanged);
   $ ("#usfmeditor").on ("keydown", usfmHandleKeyDown);
   if (usfmEditorWriteAccess) $ ("#usfmeditor").focus ();
@@ -62,7 +62,6 @@ var usfmNavigationVerse;
 var usfmEditorChangedTimeout;
 var usfmLoadedText;
 var usfmIdChapter = 0;
-var usfmIdTimeout;
 var usfmCaretTimeout;
 var usfmReload = false;
 var usfmCaretPosition = 0;
@@ -90,6 +89,11 @@ function navigationNewPassage ()
   } else {
     return;
   }
+  if ((usfmNavigationBook != usfmBook) || (usfmNavigationChapter != usfmChapter)) {
+    // Fixed: Reload text message when switching to another chapter.
+    // https://github.com/bibledit/cloud/issues/408
+    usfmSaveDate = new Date(0);
+  }
   usfmEditorSaveChapter ();
   usfmReload = false;
   usfmEditorLoadChapter ();
@@ -108,7 +112,7 @@ function usfmEditorLoadChapter ()
     usfmBook = usfmNavigationBook;
     usfmChapter = usfmNavigationChapter;
     usfmIdChapter = 0;
-    if (usfmEditorWriteAccess) $ ("#usfmeditor").focus;
+    if (usfmEditorWriteAccess) $ ("#usfmeditor").focus ();
     usfmCaretPosition = usfmGetCaretPosition ();
     $.ajax ({
       url: "load",
@@ -146,7 +150,7 @@ function usfmEditorLoadChapter ()
           usfmLoadDate = new Date();
           var seconds = (usfmLoadDate.getTime() - usfmSaveDate.getTime()) / 1000;
           if ((seconds < 2) | usfmReload) {
-            if (usfmEditorWriteAccess) alert (usfmEditorVerseUpdatedLoaded);
+            if (usfmEditorWriteAccess) usfmEditorReloadAlert (usfmEditorVerseUpdatedLoaded);
           }
           usfmReload = false;
         } else {
@@ -208,7 +212,7 @@ function usfmEditorSaveChapter (sync)
       usfmSaveDate = new Date();
       var seconds = (usfmSaveDate.getTime() - usfmLoadDate.getTime()) / 1000;
       if (seconds < 2) {
-        if (usfmEditorWriteAccess) alert (usfmEditorVerseUpdatedLoaded);
+        if (usfmEditorWriteAccess) usfmEditorReloadAlert (usfmEditorVerseUpdatedLoaded);
       }
     }
   });
@@ -246,17 +250,31 @@ function usfmEditorSelectiveNotification (message)
 }
 
 
-function usfmIdPoller ()
+var usfmIdTimeout;
+var usfmIdAjaxRequest;
+
+
+function usfmIdPollerOff ()
 {
   if (usfmIdTimeout) {
     clearTimeout (usfmIdTimeout);
   }
+  if (usfmIdAjaxRequest && usfmIdAjaxRequest.readystate != 4) {
+    usfmIdAjaxRequest.abort();
+  }
+}
+
+
+function usfmIdPollerOn ()
+{
+  usfmIdPollerOff ();
   usfmIdTimeout = setTimeout (usfmEditorPollId, 1000);
 }
 
 
 function usfmEditorPollId ()
 {
+  usfmIdPollerOff ();
   $.ajax ({
     url: "../edit/id",
     type: "GET",
@@ -275,7 +293,9 @@ function usfmEditorPollId ()
       }
     },
     complete: function (xhr, status) {
-      usfmIdPoller ();
+      if (status != "abort") {
+        usfmIdPollerOn ();
+      }
     }
   });
 }
@@ -525,6 +545,34 @@ function usfmPositionFocusedVerseViaAjax ()
   });
 }
 
+                             
+/*
+
+Section for reload notifications.
+
+*/
+
+
+function usfmEditorReloadAlert (message)
+{
+  // Take action only if the editor has focus and the user can type in it.
+  var editor = $ ("#usfmeditor");
+  if (editor.is (":focus")) {
+    notifyItSuccess (message)
+    editor.attr('contenteditable', false);
+    setTimeout (usfmEditorReloadAlertTimeout, 3000);
+  }
+}
+
+
+function usfmEditorReloadAlertTimeout ()
+{
+  var editor = $ ("#usfmeditor");
+  editor.attr('contenteditable', usfmEditorWriteAccess);
+  editor.focus ();
+}
+
+                             
 // Note that some focus operations were removed for a situation where the workspace has two editors, and the user edits in the visual editor, and then the USFM editor grabs focus, and then the user keeps typing, so he or she was expecting to type in the visual editor but is now typing in the USFM editor.
 // Due to removing the focus operations, the caret positioner no longer works when the USFM editor is not focused.
 // A new USFM chapter editor could be having multiple editors: One for each line, or rather one for each verse. These editors could be loaded from the server separately, each time it loads a verse line. This system makes placing the caret and scrolling the caret into view easier. Because the javascript just places the caret in a known <div> and scrolls that <div> into view.

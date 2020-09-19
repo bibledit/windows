@@ -124,9 +124,13 @@ function navigationNewPassage ()
   } else {
     return;
   }
-
+  
   if ((editorNavigationBook != editorLoadedBook) || (editorNavigationChapter != editorLoadedChapter)) {
+    // Fixed: Reload text message when switching to another chapter.
+    // https://github.com/bibledit/cloud/issues/408
+    editorSaveDate = new Date(0);
     editorSaveChapter ();
+    editorSaveDate = new Date(0);
     editorLoadChapter (false);
   } else {
     editorScheduleCaretPositioning ();
@@ -218,7 +222,7 @@ function editorLoadChapter (reload)
         editorLoadDate = new Date();
         var seconds = (editorLoadDate.getTime() - editorSaveDate.getTime()) / 1000;
         if ((seconds < 2) || reload) {
-          if (editorWriteAccess) alert (editorChapterVerseUpdatedLoaded);
+          if (editorWriteAccess) editorReloadAlert (editorChapterVerseUpdatedLoaded);
         }
       } else {
         // Checksum error: Reload.
@@ -275,7 +279,7 @@ function editorSaveChapter (sync)
       editorSaveDate = new Date();
       var seconds = (editorSaveDate.getTime() - editorLoadDate.getTime()) / 1000;
       if (seconds < 2) {
-        if (editorWriteAccess) alert (editorChapterVerseUpdatedLoaded);
+        if (editorWriteAccess) editorReloadAlert (editorChapterVerseUpdatedLoaded);
       }
     },
   });
@@ -349,6 +353,18 @@ Section for polling the server for updates on the loaded chapter.
 
 var editorChapterIdOnServer = 0;
 var editorChapterIdPollerTimeoutId;
+var editorChapterIdAjaxRequest;
+
+
+function editorIdPollerTimeoutStop ()
+{
+  if (editorChapterIdPollerTimeoutId) {
+    clearTimeout (editorChapterIdPollerTimeoutId);
+  }
+  if (editorChapterIdAjaxRequest && editorChapterIdAjaxRequest.readystate != 4) {
+    editorChapterIdAjaxRequest.abort();
+  }
+}
 
 
 function editorIdPollerTimeoutStart ()
@@ -358,15 +374,16 @@ function editorIdPollerTimeoutStart ()
 }
 
 
-function editorIdPollerTimeoutStop ()
-{
-  if (editorChapterIdPollerTimeoutId) clearTimeout (editorChapterIdPollerTimeoutId);
-}
-
-
 function editorEditorPollId ()
 {
-  $.ajax ({
+  // Due to network latency, there may be multiple ongoing polls.
+  // Multiple polls may return multiple chapter identifiers.
+  // This could lead to false "text reloaded" notifications.
+  // https://github.com/bibledit/cloud/issues/424
+  // To handle this, switch the poller off.
+  editorIdPollerTimeoutStop ();
+
+  editorChapterIdAjaxRequest = $.ajax ({
     url: "id",
     type: "GET",
     data: { bible: editorLoadedBible, book: editorLoadedBook, chapter: editorLoadedChapter },
@@ -382,7 +399,9 @@ function editorEditorPollId ()
       }
     },
     complete: function (xhr, status) {
-      editorIdPollerTimeoutStart ();
+      if (status != "abort") {
+        editorIdPollerTimeoutStart ();
+      }
     }
   });
 }
@@ -912,14 +931,9 @@ function applyNotesStyle (style)
   quill.setSelection (caret, 0);
   quill.insertText (caret, caller, "character", "notecall" + noteId, "user");
 
-  // Append note text to notes section:
-  // <p class="b-f"><span class="i-notebody1">1</span> + .</p>
-  var length = quill.getLength ();
-  quill.insertText (length, "\n", "paragraph", style, "user");
-  quill.insertText (length, caller, "character", "notebody" + noteId, "user");
-  length++;
-  quill.insertText (length, " + .", "character", "", "user");
-  
+  // Append note text to notes section.
+  assetsEditorAddNote (quill, style, caller, noteId, editorNavigationChapter, verseSeparator, editorNavigationVerse);
+
   editorInsertedNotesCount++;
   
   editorActiveStylesFeedback ();
@@ -1054,4 +1068,28 @@ function editorSwipeRight (event)
   }
 }
 
+
+/*
+
+Section for reload notifications.
+
+*/
+
+
+function editorReloadAlert (message)
+{
+  // Take action only if the editor has focus and the user can type in it.
+  if (quill.hasFocus ()) {
+    notifyItSuccess (message)
+    quill.enable (false);
+    setTimeout (editorReloadAlertTimeout, 3000);
+  }
+}
+
+
+function editorReloadAlertTimeout ()
+{
+  quill.enable (editorWriteAccess);
+  quill.focus ();
+}
 

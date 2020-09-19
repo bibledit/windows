@@ -426,11 +426,15 @@ void bible_logic_merge_irregularity_mail (vector <string> users, vector <Merge_C
   
   for (auto & conflict : conflicts) {
     
+    // Add the passage to the subject.
+    string newsubject = conflict.subject;
+    if (conflict.book) newsubject.append (" | " + filter_passage_display (conflict.book, conflict.chapter, ""));
+    
     // Create the body of the email.
     xml_document document;
     xml_node node;
     node = document.append_child ("h3");
-    node.text ().set (conflict.subject.c_str());
+    node.text ().set (newsubject.c_str());
 
     // Storage of the changes the user sent, and the result that was saved, in raw USFM, per verse.
     vector <string> change_usfm;
@@ -452,7 +456,7 @@ void bible_logic_merge_irregularity_mail (vector <string> users, vector <Merge_C
 
     // Add some information for the user.
     node = document.append_child ("p");
-    node.text ().set ("You sent changes to the Cloud. The Cloud crossed the parts below out, and replaced it with the bold text below.");
+    node.text ().set ("You sent changes to the Cloud. The changes were merged with other changes already in the Cloud. The crossed out parts below could not be merged. They were replaced with the bold text below. You may want to check the changes or resend them.");
 
     // Go over each verse where the change differs from the resulting text that was saved.
     // For each verse, outline the difference between the change and the result.
@@ -469,13 +473,12 @@ void bible_logic_merge_irregularity_mail (vector <string> users, vector <Merge_C
     // Add some information for the user.
     document.append_child ("hr");
     document.append_child ("br");
-    document.append_child ("br");
     xml_node div_node;
     div_node = document.append_child ("div");
-    div_node.append_attribute ("style") = "font-size: xx-small";
+    div_node.append_attribute ("style") = "font-size: 30%";
 
     node = div_node.append_child ("p");
-    node.text ().set ("Here are some details.");
+    node.text ().set ("Full details follow below.");
     
     // Add the base text.
     div_node.append_child ("br");
@@ -512,7 +515,7 @@ void bible_logic_merge_irregularity_mail (vector <string> users, vector <Merge_C
     
     // Schedule the mail for sending to the user(s).
     for (auto user : users) {
-      email_schedule (user, conflict.subject, html);
+      email_schedule (user, newsubject, html);
     }
   }
 }
@@ -552,7 +555,8 @@ void bible_logic_unsafe_save_mail (const string & message, const string & explan
 // This function sends an email
 // if the USFM received from the client
 // does not match the USFM that gets stored on the server.
-void bible_logic_client_receive_merge_mail (const string & bible, int book, int chapter, const string & user,
+void bible_logic_client_receive_merge_mail (const string & bible, int book, int chapter,
+                                            const string & user,
                                             const string & client_old,
                                             const string & client_new,
                                             const string & server)
@@ -582,7 +586,8 @@ void bible_logic_client_receive_merge_mail (const string & bible, int book, int 
   // No differences found: Done.
   if (client_diff.empty ()) return;
   
-  string subject = "Saved Bible text was merged";
+  string location = bible + " " + filter_passage_display (book, chapter, "");
+  string subject = "Saved Bible text was merged " + location;
   
   // Create the body of the email.
   xml_document document;
@@ -604,7 +609,7 @@ void bible_logic_client_receive_merge_mail (const string & bible, int book, int 
   information.append (translate ("You may want to check the result of the merge, whether it is correct."));
   node.text ().set (information.c_str());
   node = document.append_child ("p");
-  string location = bible + " " + filter_passage_display (book, chapter, "") +  ".";
+  location = bible + " " + filter_passage_display (book, chapter, "") +  ".";
   node.text ().set (location.c_str ());
 
   for (unsigned int i = 0; i < client_diff.size(); i++) {
@@ -807,9 +812,7 @@ void bible_logic_recent_save_email (const string & bible, int book, int chapter,
   string information;
   information.append (translate ("Bibledit saved the Bible text below."));
   information.append (" ");
-  information.append (translate ("But it found that other Bible text was saved to the same chapter."));
-  information.append (" ");
-  information.append (translate ("This may have been done by you or by someone else."));
+  information.append (translate ("But Bibledit is not entirely sure that all went well."));
   information.append (" ");
   information.append (translate ("You may want to check whether the Bible text was saved correctly."));
   node.text ().set (information.c_str());
@@ -817,6 +820,7 @@ void bible_logic_recent_save_email (const string & bible, int book, int chapter,
   string location = bible + " " + filter_passage_display (book, chapter, "") +  ".";
   node.text ().set (location.c_str ());
 
+  bool differences_found = false;
   for (unsigned int i = 0; i < new_verses.size(); i++) {
     Filter_Text filter_text_old = Filter_Text (bible);
     Filter_Text filter_text_new = Filter_Text (bible);
@@ -835,14 +839,20 @@ void bible_logic_recent_save_email (const string & bible, int book, int chapter,
       string modification = filter_diff_diff (old_text, new_text);
       string fragment = /* convert_to_string (verse) + " " + */ modification;
       node.append_buffer (fragment.c_str (), fragment.size ());
+      differences_found = true;
     }
   }
+  // If no differences were found, bail out.
+  // This also handles differences in spacing.
+  // If the differences consist of whitespace only, bail out here.
+  // See issue https://github.com/bibledit/cloud/issues/413
+  if (!differences_found) return;
   
   // Convert the document to a string.
   stringstream output;
   document.print (output, "", format_raw);
   string html = output.str ();
-  
+
   // Schedule the mail for sending to the user.
   email_schedule (user, subject, html);
 }

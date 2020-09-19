@@ -42,14 +42,18 @@ using namespace pugi;
 // If case of conflicts, it returns an empty container.
 vector <string> filter_merge_merge (const vector <string>& base, const vector <string>& user, const vector <string>& server)
 {
-  typedef string elem;
-  typedef vector <string> sequence;
+  // See issue https://github.com/bibledit/cloud/issues/418
+  // It is unclear at this time whether the code below
+  // to find the differences between texts, is thread-safe.
+  // So just to be sure, a mutex is placed around it.
+  static mutex mutex1;
+  lock_guard<mutex> lock(mutex1);
 
-  sequence A (user);
-  sequence B (base);
-  sequence C (server);
+  vector <string> user_sequence (user);
+  vector <string> base_sequence (base);
+  vector <string> server_sequence (server);
 
-  Diff3 <elem, sequence> diff3 (A, B, C);
+  Diff3 <string, vector <string>> diff3 (user_sequence, base_sequence, server_sequence);
   diff3.compose ();
   if (!diff3.merge ()) {
     return {};
@@ -138,7 +142,7 @@ void filter_merge_detect_conflict (string base, string change, string prioritize
   
   if (!irregularity) {
     if ((change != base) && (prioritized_change != change) && (prioritized_change == result)) {
-      subject = "Failed to merge: The existing text was kept";
+      subject = "Failed to merge your changes";
       irregularity = true;
     }
   }

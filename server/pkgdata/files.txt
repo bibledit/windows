@@ -3,6 +3,7 @@
 /assets/bibledit.png
 /assets/bibledit.xpm
 /assets/checkbox.js
+/assets/editor.js
 /assets/error.html
 /assets/external.js
 /assets/footer.html
@@ -60,6 +61,7 @@
 /classes
 /client
 /client/index.html
+/cloud-macos.entitlements
 /collaboration
 /collaboration/direction.html
 /collaboration/index.html
@@ -342,8 +344,6 @@
 /journal/index.html
 /journal/index.js
 /jquery
-/jquery/jquery-3.1.0.js
-/jquery/jquery-3.1.0.min.js
 /jquery/jquery-3.5.1.js
 /jquery/jquery-3.5.1.min.js
 /jquery/jquery.LICENSE.js
@@ -5585,6 +5585,10 @@
 /unittests/tests/merge_3_modification.usfm
 /unittests/tests/merge_3_result.usfm
 /unittests/tests/merge_3_server.usfm
+/unittests/tests/merge_4_base.usfm
+/unittests/tests/merge_4_modification.usfm
+/unittests/tests/merge_4_result.usfm
+/unittests/tests/merge_4_server.usfm
 /unittests/tests/nl.po
 /unittests/tests/notes.sqlite.damaged
 /unittests/tests/onlinebible1.exp

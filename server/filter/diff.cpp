@@ -42,10 +42,6 @@ using dtl::Diff;
 // The function returns the differences marked.
 string filter_diff_diff (string oldstring, string newstring)
 {
-  // Type definitions for the diff template engine.
-  typedef string elem;
-  typedef vector <string> sequence;
-
   // Save the new lines.
   string newline = " newline_newline_newline ";
   oldstring = filter_string_str_replace ("\n", newline, oldstring);
@@ -53,16 +49,25 @@ string filter_diff_diff (string oldstring, string newstring)
   
   // Split the input up into words.
   // It compares with word granularity.
-  sequence oldvector = filter_string_explode (oldstring, ' ');
-  sequence newvector = filter_string_explode (newstring, ' ');
+  vector <string> old_sequence = filter_string_explode (oldstring, ' ');
+  vector <string> new_sequence = filter_string_explode (newstring, ' ');
   
+  // See issue https://github.com/bibledit/cloud/issues/419
+  // It is unclear at this time whether the code below
+  // to find the differences between texts, is thread-safe.
+  // So just to be sure, a mutex is placed around it.
+  static mutex mutex1;
+  lock_guard<mutex> lock(mutex1);
+
   // Run the diff engine.
-  Diff <elem> d (oldvector, newvector);
-  d.compose();
+  Diff <string> diff (old_sequence, new_sequence);
+  diff.compose();
   
   // Get the shortest edit distance.
   stringstream result;
-  d.printSES (result);
+  diff.printSES (result);
+
+  mutex1.unlock();
   
   // Add html markup for bold and strikethrough.
   vector <string> output = filter_string_explode (result.str (), '\n');
@@ -99,30 +104,35 @@ string filter_diff_diff (string oldstring, string newstring)
 int filter_diff_character_similarity (string oldstring, string newstring)
 {
   try {
-
-    // Type definitions for the diff template engine.
-    typedef string elem;
-    typedef vector <string> sequence;
-    
+   
     // Split the input up into unicode characers.
-    sequence oldvector;
-    sequence newvector;
+    vector <string> old_sequence;
+    vector <string> new_sequence;
     size_t oldlength = oldstring.size();
     for (size_t i = 0; i < oldlength; i++) {
-      oldvector.push_back (oldstring.substr (i, 1));
+      old_sequence.push_back (oldstring.substr (i, 1));
     }
     size_t newlength = newstring.size();
     for (size_t i = 0; i < newlength; i++) {
-      newvector.push_back (newstring.substr (i, 1));
+      new_sequence.push_back (newstring.substr (i, 1));
     }
 
+    // See issue https://github.com/bibledit/cloud/issues/419
+    // It is unclear at this time whether the code below
+    // to find the differences between texts, is thread-safe.
+    // So just to be sure, a mutex is placed around it.
+    static mutex mutex1;
+    lock_guard<mutex> lock(mutex1);
+
     // Run the diff engine.
-    Diff <elem> d (oldvector, newvector);
-    d.compose();
+    Diff <string> diff (old_sequence, new_sequence);
+    diff.compose();
     
     // Get the shortest edit distance.
     stringstream result;
-    d.printSES (result);
+    diff.printSES (result);
+
+    mutex1.unlock();
     
     // Calculate the total elements compared, and the total differences found.
     int element_count = 0;
@@ -156,25 +166,30 @@ int filter_diff_character_similarity (string oldstring, string newstring)
 // The output ranges from 0 to 100%.
 int filter_diff_word_similarity (string oldstring, string newstring)
 {
-  // Type definitions for the diff template engine.
-  typedef string elem;
-  typedef vector <string> sequence;
-  
   // Split the input up into words separated by spaces.
-  sequence oldvector;
-  sequence newvector;
+  vector <string> old_sequence;
+  vector <string> new_sequence;
   oldstring = filter_string_str_replace ("\n", " ", oldstring);
   newstring = filter_string_str_replace ("\n", " ", newstring);
-  oldvector = filter_string_explode (oldstring, ' ');
-  newvector = filter_string_explode (newstring, ' ');
+  old_sequence = filter_string_explode (oldstring, ' ');
+  new_sequence = filter_string_explode (newstring, ' ');
   
+  // See issue https://github.com/bibledit/cloud/issues/419
+  // It is unclear at this time whether the code below
+  // to find the differences between texts, is thread-safe.
+  // So just to be sure, a mutex is placed around it.
+  static mutex mutex1;
+  lock_guard<mutex> lock(mutex1);
+
   // Run the diff engine.
-  Diff <elem> d (oldvector, newvector);
-  d.compose();
+  Diff <string> diff (old_sequence, new_sequence);
+  diff.compose();
   
   // Get the shortest edit distance.
   stringstream result;
-  d.printSES (result);
+  diff.printSES (result);
+
+  mutex1.unlock();
   
   // Calculate the total elements compared, and the total differences found.
   int element_count = 0;
