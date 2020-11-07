@@ -176,6 +176,18 @@ string locale_logic_text_will_save ()
 }
 
 
+string locale_logic_text_updating ()
+{
+  return translate ("Updating...");
+}
+
+
+string locale_logic_text_updated ()
+{
+  return translate ("Updated");
+}
+
+
 string locale_logic_text_saving ()
 {
   return translate ("Saving...");

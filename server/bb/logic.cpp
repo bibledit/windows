@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <email/send.h>
 #include <developer/logic.h>
 #include <locale/translate.h>
+#include <editor/html2format.h>
 
 
 void bible_logic_store_chapter (const string& bible, int book, int chapter, const string& usfm)
@@ -815,6 +816,10 @@ void bible_logic_recent_save_email (const string & bible, int book, int chapter,
   information.append (translate ("But Bibledit is not entirely sure that all went well."));
   information.append (" ");
   information.append (translate ("You may want to check whether the Bible text was saved correctly."));
+  information.append (" ");
+  information.append (translate ("The text in bold was added."));
+  information.append (" ");
+  information.append (translate ("The text in strikethrough was removed."));
   node.text ().set (information.c_str());
   node = document.append_child ("p");
   string location = bible + " " + filter_passage_display (book, chapter, "") +  ".";
@@ -855,4 +860,279 @@ void bible_logic_recent_save_email (const string & bible, int book, int chapter,
 
   // Schedule the mail for sending to the user.
   email_schedule (user, subject, html);
+}
+
+
+void bible_logic_optional_merge_irregularity_email (const string & bible, int book, int chapter,
+                                                    const string & user,
+                                                    const string & ancestor_usfm,
+                                                    const string & edited_usfm,
+                                                    const string & merged_usfm)
+{
+  // If the merged edited USFM is the same as the edited USFM,
+  // that means that the user's changes will get saved to the chapter.
+  if (edited_usfm == merged_usfm) return;
+  // But if the merged edited USFM differs from the original edited USFM,
+  // more checks need to be done to be sure that the user's edits made it.
+
+  string subject = translate ("Check whether Bible text was saved");
+
+  // Create the body of the email.
+  xml_document document;
+  xml_node node;
+  node = document.append_child ("h3");
+  node.text ().set (subject.c_str());
+  
+  // Add some information for the user.
+  node = document.append_child ("p");
+  string information;
+  information.append (translate ("Bibledit saved the Bible text below."));
+  information.append (" ");
+  information.append (translate ("But Bibledit is not entirely sure that all went well."));
+  information.append (" ");
+  information.append (translate ("You may want to check whether the Bible text was saved correctly."));
+  information.append (" ");
+  information.append (translate ("The text in bold was added."));
+  information.append (" ");
+  information.append (translate ("The text in strikethrough was removed."));
+  node.text ().set (information.c_str());
+  node = document.append_child ("p");
+  string location = bible + " " + filter_passage_display (book, chapter, "") +  ".";
+  node.text ().set (location.c_str ());
+
+  bool anomalies_found = false;
+
+  // Go through all verses available in the USFM,
+  // and check the differences for each verse.
+  vector <int> verses = usfm_get_verse_numbers (merged_usfm);
+  for (auto verse : verses) {
+    string ancestor_verse_usfm = usfm_get_verse_text (ancestor_usfm, verse);
+    string edited_verse_usfm = usfm_get_verse_text (edited_usfm, verse);
+    string merged_verse_usfm = usfm_get_verse_text (merged_usfm, verse);
+    // There's going to be a check to find out that all the changes the user made,
+    // are available among the changes resulting from the merge.
+    // If all the changes are there, all is good.
+    // If not, then email the user about this.
+    bool anomaly_found = false;
+    vector <string> user_removals, user_additions, merged_removals, merged_additions;
+    filter_diff_diff (ancestor_verse_usfm, edited_verse_usfm, &user_removals, &user_additions);
+    filter_diff_diff (ancestor_verse_usfm, merged_verse_usfm, &merged_removals, &merged_additions);
+    //vector <string> missed_removals, missed_additions;
+    for (auto user_removal : user_removals) {
+      //if (!in_array (user_removal, merged_removals)) missed_removals.push_back (user_removal);
+      if (!in_array (user_removal, merged_removals)) anomaly_found = true;
+    }
+    for (auto user_addition : user_additions) {
+      //if (!in_array (user_addition, merged_additions)) missed_additions.push_back (user_addition);
+      if (!in_array (user_addition, merged_additions)) anomaly_found = true;
+    }
+    if (!anomaly_found) continue;
+    anomalies_found = true;
+    Filter_Text filter_text_ancestor = Filter_Text (bible);
+    Filter_Text filter_text_edited = Filter_Text (bible);
+    Filter_Text filter_text_merged = Filter_Text (bible);
+    filter_text_ancestor.html_text_standard = new Html_Text (translate("Bible"));
+    filter_text_edited.html_text_standard = new Html_Text (translate("Bible"));
+    filter_text_merged.html_text_standard = new Html_Text (translate("Bible"));
+    filter_text_ancestor.text_text = new Text_Text ();
+    filter_text_edited.text_text = new Text_Text ();
+    filter_text_merged.text_text = new Text_Text ();
+    filter_text_ancestor.addUsfmCode (ancestor_verse_usfm);
+    filter_text_edited.addUsfmCode (edited_verse_usfm);
+    filter_text_merged.addUsfmCode (merged_verse_usfm);
+    filter_text_ancestor.run (styles_logic_standard_sheet());
+    filter_text_edited.run (styles_logic_standard_sheet());
+    filter_text_merged.run (styles_logic_standard_sheet());
+    string ancestor_text = filter_text_ancestor.text_text->get ();
+    string edited_text = filter_text_edited.text_text->get ();
+    string merged_text = filter_text_merged.text_text->get ();
+    string modification;
+    node = document.append_child ("p");
+    modification = translate ("You edited:") + " " + filter_diff_diff (ancestor_text, edited_text);
+    node.append_buffer (modification.c_str (), modification.size ());
+    node = document.append_child ("p");
+    modification = translate ("Bibledit saved:") + " " + filter_diff_diff (ancestor_text, merged_text);
+    node.append_buffer (modification.c_str (), modification.size ());
+  }
+
+  // If no differences were found, bail out.
+  // This also handles differences in spacing.
+  // If the differences consist of whitespace only, bail out here.
+  // See issue https://github.com/bibledit/cloud/issues/413
+  if (!anomalies_found) return;
+  
+  // Convert the document to a string.
+  stringstream output;
+  document.print (output, "", format_raw);
+  string html = output.str ();
+
+  // Schedule the mail for sending to the user.
+  email_schedule (user, subject, html);
+}
+
+
+const char * bible_logic_insert_operator ()
+{
+  return "i";
+}
+const char * bible_logic_delete_operator ()
+{
+  return "d";
+}
+const char * bible_logic_format_paragraph_operator ()
+{
+  return "p";
+}
+const char * bible_logic_format_character_operator ()
+{
+  return "c";
+}
+
+// There are three containers with updating information.
+// The function condenses this updating information.
+// This condensed information works better for the Quill editor.
+void bible_logic_condense_editor_updates (const vector <int> & positions_in,
+                                          const vector <int> & sizes_in,
+                                          const vector <bool> & additions_in,
+                                          const vector <string> & content_in,
+                                          vector <int> & positions_out,
+                                          vector <int> & sizes_out,
+                                          vector <string> & operators_out,
+                                          vector <string> & content_out)
+{
+  positions_out.clear();
+  sizes_out.clear();
+  operators_out.clear();
+  content_out.clear();
+  
+  int previous_position = numeric_limits<int>::min();
+  bool previous_addition = false;
+  string previous_character = string();
+  for (size_t i = 0; i < positions_in.size(); i++) {
+    int position     = positions_in[i];
+    int size         = sizes_in[i];
+    bool addition    = additions_in[i];
+    string character = content_in[i].substr (0, 1);
+    string format = content_in[i].substr (1);
+
+    // The following situation occurs when changing the style of a paragraph.
+    // Like for example changing a paragraph style from "p" to "s".
+    // The current sequence for this change is:
+    // 1. Delete a new line at a known position.
+    // 2. Insert a new line at the same position, with a given format.
+    // Condense this as follows:
+    // 1. Apply the given paragraph format to the given position.
+    // Without condensing this, the following would happen:
+    // 1. Delete the new line before the second line.
+    // Result: The first line gets the format of the second line.
+    // 2. Insert the new line before the second line again.
+    // 3. Appy formatting to the second line.
+    // The net result is that the first line remains with the paragraph format of the second line.
+    bool newlineflag = addition && !previous_addition && (character == "\n") && (character == previous_character) && (position == previous_position);
+    if (newlineflag) {
+      // Remove the previous "delete new line".
+      positions_out.pop_back();
+      sizes_out.pop_back();
+      operators_out.pop_back();
+      content_out.pop_back();
+      // Add the paragraph format operation data.
+      positions_out.push_back(position);
+      sizes_out.push_back(size);
+      operators_out.push_back(bible_logic_format_paragraph_operator());
+      content_out.push_back(format);
+    } else {
+      positions_out.push_back(position);
+      sizes_out.push_back(size);
+      if (addition) operators_out.push_back(bible_logic_insert_operator());
+      else operators_out.push_back(bible_logic_delete_operator());
+      content_out.push_back(character + format);
+    }
+
+    // Store data for the next iteration.
+    previous_position = position;
+    previous_addition = addition;
+    previous_character = character;
+  }
+  
+}
+
+
+void bible_logic_html_to_editor_updates (const string & editor_html,
+                                         const string & server_html,
+                                         vector <int> & positions,
+                                         vector <int> & sizes,
+                                         vector <string> & operators,
+                                         vector <string> & content)
+{
+  // Clear outputs.
+  positions.clear();
+  sizes.clear();
+  operators.clear();
+  content.clear();
+  
+  // Convert the html to formatted text.
+  Editor_Html2Format editor_format;
+  Editor_Html2Format server_format;
+  editor_format.load (editor_html);
+  server_format.load (server_html);
+  editor_format.run ();
+  server_format.run ();
+
+  // Convert the formatted text fragments to formatted UTF-8 characters.
+  vector <string> editor_formatted_character_content;
+  for (size_t i = 0; i < editor_format.texts.size(); i++) {
+    string text = editor_format.texts[i];
+    string format = editor_format.formats[i];
+    size_t length = unicode_string_length (text);
+    for (size_t pos = 0; pos < length; pos++) {
+      string utf8_character = unicode_string_substr (text, pos, 1);
+      editor_formatted_character_content.push_back (utf8_character + format);
+    }
+  }
+  vector <string> server_formatted_character_content;
+  vector <string> server_utf8_characters;
+  for (size_t i = 0; i < server_format.texts.size(); i++) {
+    string text = server_format.texts[i];
+    string format = server_format.formats[i];
+    size_t length = unicode_string_length (text);
+    for (size_t pos = 0; pos < length; pos++) {
+      string utf8_character = unicode_string_substr (text, pos, 1);
+      server_formatted_character_content.push_back (utf8_character + format);
+      server_utf8_characters.push_back(utf8_character);
+    }
+  }
+
+  // Find the differences between the two sets of content.
+  vector <int> positions_diff;
+  vector <int> sizes_diff;
+  vector <bool> additions_diff;
+  vector <string> content_diff;
+  int new_line_diff_count;
+  filter_diff_diff_utf16 (editor_formatted_character_content, server_formatted_character_content,
+                          positions_diff, sizes_diff, additions_diff, content_diff, new_line_diff_count);
+
+  // Condense the differences a bit and render them to another format.
+  bible_logic_condense_editor_updates (positions_diff, sizes_diff, additions_diff, content_diff,
+                                       positions, sizes, operators, content);
+
+  // Problem description:
+  // User action: Remove the new line at the end of the current paragraph.
+  // Result: The current paragraph takes the style of the next paragraph.
+  // User actions: While removing notes, this goes wrong.
+  // Solution:
+  // If there's new line(s) added or removed, apply all paragraph styles again.
+  if (new_line_diff_count) {
+    int position = 0;
+    for (size_t i = 0; i < server_utf8_characters.size(); i++) {
+      int size = (int)convert_to_u16string (server_utf8_characters[i]).length();
+      if (server_utf8_characters[i] == "\n") {
+        positions.push_back(position);
+        sizes.push_back(size);
+        operators.push_back(bible_logic_format_paragraph_operator());
+        content.push_back(server_formatted_character_content[i].substr (1));
+      }
+      position += size;
+    }
+  }
+  
 }

@@ -49,6 +49,29 @@ void bible_logic_client_no_write_access_mail (const string & bible, int book, in
 void bible_logic_recent_save_email (const string & bible, int book, int chapter, int verse,
                                     const string & user,
                                     const string & old_usfm, const string & new_usfm);
+void bible_logic_optional_merge_irregularity_email (const string & bible, int book, int chapter,
+                                                    const string & user,
+                                                    const string & ancestor_usfm,
+                                                    const string & edited_usfm,
+                                                    const string & merged_usfm);
+const char * bible_logic_insert_operator ();
+const char * bible_logic_delete_operator ();
+const char * bible_logic_format_paragraph_operator ();
+const char * bible_logic_format_character_operator ();
+void bible_logic_condense_editor_updates (const vector <int> & positions_in,
+                                          const vector <int> & sizes_in,
+                                          const vector <bool> & additions_in,
+                                          const vector <string> & content_in,
+                                          vector <int> & positions_out,
+                                          vector <int> & sizes_out,
+                                          vector <string> & operators_out,
+                                          vector <string> & content_out);
+void bible_logic_html_to_editor_updates (const string & editor_html,
+                                         const string & server_html,
+                                         vector <int> & positions,
+                                         vector <int> & sizes,
+                                         vector <string> & operators,
+                                         vector <string> & content);
 
 
 #endif

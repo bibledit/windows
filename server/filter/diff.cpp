@@ -36,11 +36,15 @@
 using dtl::Diff;
 
 
-// This filter returns the diff of two input strngs.
+// This filter returns the diff of two input strings.
 // $oldstring: The old string for input.
 // $newstring: The new string for input.
 // The function returns the differences marked.
-string filter_diff_diff (string oldstring, string newstring)
+// If the containers for $removals and $additions are given,
+// they will be filled with the appropriate text fragments.
+string filter_diff_diff (string oldstring, string newstring,
+                         vector <string> * removals,
+                         vector <string> * additions)
 {
   // Save the new lines.
   string newline = " newline_newline_newline ";
@@ -76,10 +80,12 @@ string filter_diff_diff (string oldstring, string newstring)
     char indicator = line.front ();
     line.erase (0, 1);
     if (indicator == '+') {
+      if (additions) additions->push_back (line);
       line.insert (0, "<span style=\"font-weight: bold;\"> ");
       line.append (" </span>");
     }
     if (indicator == '-') {
+      if (removals) removals->push_back(line);
       line.insert (0, "<span style=\"text-decoration: line-through;\"> ");
       line.append (" </span>");
     }
@@ -92,6 +98,117 @@ string filter_diff_diff (string oldstring, string newstring)
   html = filter_string_str_replace (filter_string_trim (newline), "\n", html);
   
   return html;
+}
+
+
+// This filter returns the diff of two input vector<string>'s.
+// $old: The old vector<string> for input.
+// $new: The new vector<string> for input.
+//
+// The function produces information,
+// that if applied to the old input, will produce the new input.
+// This information consists of positions
+// for addition or deletion operators,
+// and if an addition, which content to add.
+//
+// Most UTF-8 characters in common use fit within two bytes when encoded in UTF-16.
+// Javascript works with UTF-16.
+// Also the Quilljs editor works with UTF-16.
+// The positions in the Quill editor are influenced by
+// whether the character is represented by 2 bytes in UTF-16, or by 4 bytes.
+// A 2-byte UTF-16 character when inserted increases the position by 1.
+// A 4-byte UTF-16 character when inserted increases the position by 2.
+// When deleting a 4-byte UTF-16 character, the Quill API deletes 2 positions.
+//
+// The C++ server works with UTF-8.
+// So there is a need for some translation in positios between UTF-8 in C++ and UTF-16 in Javascript.
+// This function gives the positions as related to UTF-16.
+// That means that characters that fit in 2-byte UTF-16 give their positions as 1.
+// Those that fit in 4-byte UTF-16 give their positions as 2.
+// Each differing character is given a size of 1 or 2 accordingly.
+void filter_diff_diff_utf16 (const vector<string> & oldinput, const vector<string> & newinput,
+                             vector <int> & positions,
+                             vector <int> & sizes,
+                             vector <bool> & additions,
+                             vector <string> & content,
+                             int & new_line_diff_count)
+{
+  // Clear anything from the output containers just to be sure.
+  positions.clear();
+  sizes.clear();
+  additions.clear();
+  content.clear();
+  
+  // Start with zero changes in a new line.
+  new_line_diff_count = 0;
+  
+  // The sequences to compare.
+  vector <string> old_sequence = oldinput;
+  vector <string> new_sequence = newinput;
+
+  // Save the new lines.
+  string newline = "_newline_";
+  for (auto & s : old_sequence) {
+    s = filter_string_str_replace ("\n", newline, s);
+  }
+  for (auto & s : new_sequence) {
+    s = filter_string_str_replace ("\n", newline, s);
+  }
+
+  // Run the diff engine.
+  Diff <string> diff (old_sequence, new_sequence);
+  diff.compose();
+  
+  // Get the shortest edit distance.
+  stringstream result;
+  diff.printSES (result);
+
+  // Convert the new line place holder back to the original new line.
+  vector <string> differences = filter_string_explode (result.str (), '\n');
+  for (auto & s : differences) {
+    s = filter_string_str_replace (newline, "\n", s);
+  }
+
+  // Convert the additions and deletions to a change set.
+  int position = 0;
+  for (auto & line : differences) {
+    if (line.empty ()) continue;
+    char indicator = line.front ();
+    line.erase (0, 1);
+    // Get the size of the character in UTF-16, whether 1 or 2.
+    string utf8 = unicode_string_substr (line, 0, 1);
+    u16string utf16 = convert_to_u16string (utf8);
+    size_t size = utf16.length();
+    if (indicator == '+') {
+      // Something to be inserted into the old sequence to get at the new sequence.
+      positions.push_back(position);
+      sizes.push_back((int)size);
+      additions.push_back(true);
+      content.push_back(line);
+      // Something was inserted.
+      // So increase the position to point to the next offset in the sequence from where to proceed.
+      position += size;
+      // Check on number of changes in paragraphs.
+      if (line.substr(0, 1) == "\n") new_line_diff_count++;
+    }
+    else if (indicator == '-') {
+      // Something to be deleted at the given position.
+      positions.push_back(position);
+      sizes.push_back((int)size);
+      additions.push_back(false);
+      content.push_back(line);
+      // Something was deleted.
+      // So the position will remain to point to the same offset in the sequence from where to proceed.
+      // Check on number of changes in paragraphs.
+      if (line.substr(0, 1) == "\n") new_line_diff_count++;
+    }
+    else {
+      // No difference.
+      // Increase the position of the subsequent edit
+      // with the amount of 16-bits code points of the current text bit in UTF-16.
+      position += size;
+    }
+  }
 }
 
 
