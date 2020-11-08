@@ -67,3 +67,6 @@ server/paratext/ancestors/t*
 server/paratext/ancestors/B*
 server/databases/statistics.sqlite
 .vs/server/v16/ipch/AutoPCH/7d6ca72c500d70a8/INDEX.ipch
+*.db-shm
+*.db-wal
+*.ipch
