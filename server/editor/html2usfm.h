@@ -34,7 +34,6 @@ class Editor_Html2Usfm
 public:
   void load (string html);
   void stylesheet (string stylesheet);
-  void quill ();
   void run ();
   string get ();
 private:
@@ -58,8 +57,7 @@ private:
   void openInline (string className);
   void processNoteCitation (xml_node node);
   string cleanUSFM (string usfm);
-  xml_node get_note_pointer (xml_node node, string id);
-  bool quill_enabled = false;
+  xml_node get_note_pointer (xml_node body, string id);
   string update_quill_class (string classname);
 };
 

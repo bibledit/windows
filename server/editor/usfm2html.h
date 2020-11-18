@@ -34,7 +34,6 @@ class Editor_Usfm2Html
 public:
   void load (string usfm);
   void stylesheet (string stylesheet);
-  void quill ();
   void run ();
   string get ();
   size_t textLength;
@@ -69,7 +68,6 @@ private:
   bool noteOpened = false;
   
   // Lengths and offsets.
-  bool quill_enabled = false;
   bool first_line_done = false;
   
   void preprocess ();
@@ -84,8 +82,7 @@ private:
   void addNote (string citation, string style, bool endnote = false);
   void addNoteText (string text);
   void closeCurrentNote ();
-  void addNoteDomLink (xml_node domNode, string reference, string identifier, string style, string text);
-  void addNoteQuillLink (xml_node domNode, int identifier, string style, string text);
+  void addNotelLink (xml_node domNode, int identifier, string style, string text);
   
   bool roadIsClear ();
 };

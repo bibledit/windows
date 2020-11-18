@@ -62,13 +62,6 @@ void Editor_Usfm2Html::stylesheet (string stylesheet)
 }
 
 
-// Enable styles suitable for Quill-based editor.
-void Editor_Usfm2Html::quill ()
-{
-  quill_enabled = true;
-}
-
-
 void Editor_Usfm2Html::run ()
 {
   preprocess ();
@@ -90,10 +83,8 @@ string Editor_Usfm2Html::get ()
 
   // A Quill-based editor does not work with embedded <p> elements.
   // Move the notes out of their parent and append them to the end of the main body.
-  if (quill_enabled) {
-    while (xml_node note = notes_node.first_child ().next_sibling ()) {
-      body_node.append_move (note);
-    }
+  while (xml_node note = notes_node.first_child ().next_sibling ()) {
+    body_node.append_move (note);
   }
   
   // Get the html code, including body, without head.
@@ -141,16 +132,10 @@ void Editor_Usfm2Html::preprocess ()
   // It comes at the start of the document.
   // (Later, it will either be deleted, or moved to the end).
   string notes_value = "notes";
-  if (quill_enabled) {
-    notes_node = document.append_child ("p");
-    notes_value.insert (0, quill_logic_class_prefix_block ());
-    notes_node.append_attribute ("class") = notes_value.c_str ();
-    notes_node.text().set(non_breaking_space_u00A0().c_str());
-  } else {
-    notes_node = document.append_child ("div");
-    notes_node.append_attribute ("id") = notes_value.c_str ();
-    notes_node.append_child ("hr");
-  }
+  notes_node = document.append_child ("p");
+  notes_value.insert (0, quill_logic_class_prefix_block ());
+  notes_node.append_attribute ("class") = notes_value.c_str ();
+  notes_node.text().set(non_breaking_space_u00A0().c_str());
 }
 
 
@@ -425,16 +410,14 @@ void Editor_Usfm2Html::newParagraph (string style)
   current_p_open = true;
   if (!style.empty()) {
     string style2 (style);
-    if (quill_enabled) style2.insert (0, quill_logic_class_prefix_block ());
+    style2.insert (0, quill_logic_class_prefix_block ());
     current_p_node.append_attribute ("class") = style2.c_str();
   }
   currentParagraphStyle = style;
   currentParagraphContent.clear();
   // A Quill-based editor assigns a length of one to a new line.
-  if (quill_enabled) {
-    // Skip the first line.
-    if (first_line_done) textLength++;
-  }
+  // Skip the first line.
+  if (first_line_done) textLength++;
   first_line_done = true;
 }
 
@@ -505,12 +488,11 @@ void Editor_Usfm2Html::addText (string text)
           // That causes the whole class to be removed.
           // Right now the way to deal with a class with two styles is like this "i-add0nd".
           // It has one hyphen. And a "0" to separate the two styles.
-          if (quill_enabled) textstyle.append ("0");
-          else textstyle.append (" ");
+          textstyle.append ("0");
         }
         textstyle.append (style);
       }
-      if (quill_enabled) textstyle.insert (0, quill_logic_class_prefix_inline ());
+      textstyle.insert (0, quill_logic_class_prefix_inline ());
       spanDomElement.append_attribute ("class") = textstyle.c_str();
     }
     currentParagraphContent.append (text);
@@ -543,31 +525,19 @@ void Editor_Usfm2Html::addNote (string citation, string style, bool endnote)
   noteOpened = true;
   
   // Add the link with all relevant data for the note citation.
-  if (quill_enabled) {
-    addNoteQuillLink (current_p_node, noteCount, "call", citation);
-  } else {
-    string reference = "#note" + convert_to_string (noteCount);
-    string identifier = "citation" + convert_to_string (noteCount);
-    addNoteDomLink (current_p_node, reference, identifier, "superscript", citation);
-  }
+  addNotelLink (current_p_node, noteCount, "call", citation);
   
   // Open a paragraph element for the note body.
   notePnode = notes_node.append_child ("p");
   note_p_open = true;
   string cls (style);
-  if (quill_enabled) cls.insert (0, quill_logic_class_prefix_block ());
+  cls.insert (0, quill_logic_class_prefix_block ());
   notePnode.append_attribute ("class") = cls.c_str();
   
   closeTextStyle (false);
   
   // Add the link with all relevant data for the note body.
-  if (quill_enabled) {
-    addNoteQuillLink (notePnode, noteCount, "body", citation);
-  } else {
-    string reference = "#citation" + convert_to_string (noteCount);
-    string identifier = "note" + convert_to_string (noteCount);
-    addNoteDomLink (notePnode, reference, identifier, "", citation);
-  }
+  addNotelLink (notePnode, noteCount, "body", citation);
   
   // Add a space.
   addNoteText (" ");
@@ -590,14 +560,8 @@ void Editor_Usfm2Html::addNoteText (string text)
   if (!currentNoteTextStyles.empty()) {
     // Take character style(s) as specified in this object.
     string classs;
-    if (quill_enabled) {
-      classs = filter_string_implode (currentNoteTextStyles, "0");
-    } else {
-      classs = filter_string_implode (currentNoteTextStyles, " ");
-    }
-    if (quill_enabled) {
-      classs.insert (0, quill_logic_class_prefix_inline ());
-    }
+    classs = filter_string_implode (currentNoteTextStyles, "0");
+    classs.insert (0, quill_logic_class_prefix_inline ());
     spanDomElement.append_attribute ("class") = classs.c_str();
   }
 }
@@ -615,36 +579,11 @@ void Editor_Usfm2Html::closeCurrentNote ()
 
 // This adds a link as a mechanism to connect body text with a note body.
 // $domNode: The DOM node where to add the link to.
-// $reference: The link's href, e.g. where it links to.
-// $identifier: The link's identifier. Others can link to it.
-// $style: The link text's style.
-// $text: The link's text.
-// It also deals with a Quill-based editor, in a slightly different way.
-void Editor_Usfm2Html::addNoteDomLink (xml_node domNode, string reference, string identifier, string style, string text)
-{
-  xml_node aDomElement = domNode.append_child ("a");
-  aDomElement.append_attribute ("href") = reference.c_str();
-  aDomElement.append_attribute ("id") = identifier.c_str();
-  // The link itself, for the notes, is not editable, so it can be clicked.
-  // It was disabled again due to Chrome removing content on backspace.
-  // $aDomElement->setAttribute ("contenteditable", "false");
-  // Remove the blue color from the link, and the underline.
-  // The reason for this is that, if the blue and underline are there, people expect one can click on it.
-  // Clicking it does nothing. Therefore it's better to remove the typical link style.
-  aDomElement.append_attribute ("style") = "text-decoration:none; color: inherit;";
-  // Style = class.
-  if (style != "") aDomElement.append_attribute ("class") = style.c_str();
-  aDomElement.text ().set (text.c_str());
-}
-
-
-// This adds a link as a mechanism to connect body text with a note body.
-// $domNode: The DOM node where to add the link to.
 // $identifier: The link's identifier.
 // $style: A style for the note citation, and one for the note body.
 // $text: The link's text.
 // It also deals with a Quill-based editor, in a slightly different way.
-void Editor_Usfm2Html::addNoteQuillLink (xml_node domNode, int identifier, string style, string text)
+void Editor_Usfm2Html::addNotelLink (xml_node domNode, int identifier, string style, string text)
 {
   xml_node aDomElement = domNode.append_child ("span");
   string cls = "i-note" + style + convert_to_string (identifier);

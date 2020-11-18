@@ -55,6 +55,9 @@ $ (document).ready (function ()
   }
 
   $ ("#editor").on ("click", editorNoteCitationClicked);
+  
+  $ ("#editor").bind ("paste", editorClipboardPasteHandler);
+
 });
 
 
@@ -96,6 +99,18 @@ function editorInitialize ()
   // Event handlers.
   quill.on ("text-change", editorTextChangeHandler);
   quill.on ("selection-change", editorSelectionChangeHandler);
+}
+
+
+// This fixes an issue where upon pasting text in the editor,
+// the editor scrolls to the very top of the text.
+// If the text is long, then the focused verse is thrown off the screen.
+// Here it fixes that.
+// https://github.com/bibledit/cloud/issues/428
+function editorClipboardPasteHandler (event)
+{
+  var currentScrollTop = $("#workspacewrapper").scrollTop();
+  $("#workspacewrapper").animate({ scrollTop: currentScrollTop }, 100);
 }
 
 
@@ -196,7 +211,11 @@ function editorLoadChapter (reload)
       response = checksum_receive (response);
       if (response !== false) {
         // Only load new text when it is different.
-        if (response != editorGetHtml ()) {
+        // Extract the plain text from the html and compare that.
+        // https://github.com/bibledit/cloud/issues/449
+        var responseText = $(response).text();
+        var editorText = $(editorGetHtml ()).text();
+        if (responseText != editorText) {
           // Destroy existing editor.
           if (quill) delete quill;
           // Load the html in the DOM.
@@ -223,7 +242,7 @@ function editorLoadChapter (reload)
         var seconds = (editorLoadDate.getTime() - editorSaveDate.getTime()) / 1000;
         seconds = 2; // Disable timer.
         if ((seconds < 2) || reload) {
-          if (editorWriteAccess) editorReloadAlert (editorChapterVerseUpdatedLoaded);
+          //if (editorWriteAccess) editorReloadAlert (editorChapterVerseUpdatedLoaded);
         }
       } else {
         // Checksum error: Reload.
@@ -237,6 +256,7 @@ function editorLoadChapter (reload)
 
 function editorSaveChapter (sync)
 {
+  editorStatus ("");
   if (editorSaving) {
     editorContentChangedTimeoutStart ();
     return;
@@ -573,6 +593,7 @@ function editorSelectiveNotification (message)
   if (message == editorChapterSaving) return;
   if (message == editorChapterSaved) return;
   if (message == editorChapterReformat) return;
+  if (message == "") return;
   notifyItError (message);
 }
 

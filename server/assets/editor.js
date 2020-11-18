@@ -21,25 +21,25 @@ function assetsEditorAddNote (quill, style, caller, noteId, chapter, separator, 
 {
   // <p class="b-f"><span class="i-notebody1">1</span> + <span class="i-fr">1.1 </span><span class="i-fk"> keyword </span><span class="i-ft"> Footnote text.</span></p>
   // Footnote uses \fr \fk \ft.
-  // Cross reference uses \xo \xk \xt.
+  // Cross reference uses \xo \xt.
   var length = quill.getLength ();
   quill.insertText (length, "\n", "paragraph", style, "user");
   quill.insertText (length, caller, "character", "notebody" + noteId, "user");
   length++;
   quill.insertText (length, " + ", "character", "", "user");
   length += 3;
-  var referenceText = chapter + separator + verse + " ";
+  var referenceText = chapter + separator + verse;
   var referenceStyle = "fr";
   if (style == "x") referenceStyle = "xo";
   quill.insertText (length, referenceText, "character", referenceStyle, "user");
   length += referenceText.length;
   if (style != "x") {
     var keywordStyle = "fk";
-    quill.insertText (length, "| keyword |", "character", keywordStyle, "user");
-    length += 11;
+    quill.insertText (length, " keyword", "character", keywordStyle, "user");
+    length += 8;
   }
   var textStyle = "ft";
   if (style == "x") textStyle = "xt";
-  quill.insertText (length, "| Text.", "character", textStyle, "user");
+  quill.insertText (length, " Text.", "character", textStyle, "user");
 }
 
