@@ -462,6 +462,7 @@
     <ClCompile Include="menu\logic.cpp" />
     <ClCompile Include="microtar\microtar.c" />
     <ClCompile Include="miniz\miniz.c" />
+    <ClCompile Include="navigation\paratext.cpp" />
     <ClCompile Include="navigation\passage.cpp" />
     <ClCompile Include="navigation\poll.cpp" />
     <ClCompile Include="navigation\update.cpp" />

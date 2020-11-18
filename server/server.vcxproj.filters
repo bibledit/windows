@@ -1347,6 +1347,9 @@
     <ClCompile Include="editor\html2format.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="navigation\paratext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assets\header.h">
