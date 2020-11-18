@@ -9,7 +9,7 @@ using System.IO.IsolatedStorage;
 using System.Runtime.InteropServices;
 using System.Timers;
 using System.Net.Sockets;
-
+using Microsoft.Win32;
 
 namespace Bibledit
 {
@@ -49,7 +49,8 @@ namespace Bibledit
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
 
-        private System.Timers.Timer aTimer;
+        private System.Timers.Timer externalUrlTimer;
+        private System.Timers.Timer focusedReferenceTimer;
 
 
         private static Boolean PrintDialogOpen = false;
@@ -113,19 +114,25 @@ namespace Bibledit
             MyHookID = SetHook(MyKeyboardProcessor);
 
             // Create a timer with a one-second interval.
-            aTimer = new System.Timers.Timer(1000);
+            externalUrlTimer = new System.Timers.Timer(1000);
             // Hook up the Elapsed event for the timer. 
-            aTimer.Elapsed += OnTimedEvent;
-            aTimer.AutoReset = false;
-            aTimer.Start();
+            externalUrlTimer.Elapsed += OnTimedEvent;
+            externalUrlTimer.AutoReset = false;
+            externalUrlTimer.Start();
+
+            // Create a timer for receiving the Paratext focused reference.
+            focusedReferenceTimer = new System.Timers.Timer(1000);
+            focusedReferenceTimer.Elapsed += OnFocusedReferenceTimedEvent;
+            focusedReferenceTimer.AutoReset = false;
+            focusedReferenceTimer.Start();
         }
 
 
         ~Form1()
         {
             UnhookWindowsHookEx(MyHookID);
-            aTimer.Stop();
-            aTimer.Dispose();
+            externalUrlTimer.Stop();
+            externalUrlTimer.Dispose();
         }
 
 
@@ -356,8 +363,60 @@ namespace Bibledit
                 Console.WriteLine(ex.Message);
             }
             // Restart the timeout.
-            aTimer.Stop();
-            aTimer.Start();
+            externalUrlTimer.Stop();
+            externalUrlTimer.Start();
+        }
+
+
+        private void OnFocusedReferenceTimedEvent(Object source, ElapsedEventArgs e)
+        {
+            try
+            {
+                // Read the reference from Paratext from the registry.
+                String SantaFeFocusKey = @"SOFTWARE\SantaFe\Focus\";
+                String ScriptureReferenceKey = "ScriptureReference";
+                //String ScriptureReferenceListKey = "ScriptureReferenceList";
+                using (var hkcu = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64))
+                using (var key = hkcu.OpenSubKey(SantaFeFocusKey + ScriptureReferenceKey))
+                {
+                    if (key != null)
+                    {
+                        var value = key?.GetValue("");
+                        if (value != null)
+                        {
+                            String focus = value.ToString();
+                            // Encode the space.
+                            focus = Uri.EscapeUriString(focus);
+                            // Connect to the local Bibledit client server.
+                            TcpClient socket = new TcpClient();
+                            socket.Connect("localhost", 9876);
+                            // Send the Paratext focused reference to the correct link.
+                            NetworkStream ns = socket.GetStream();
+                            StreamWriter sw = new StreamWriter(ns);
+                            sw.WriteLine("GET /navigation/paratext?from=" + focus + " HTTP/1.1");
+                            sw.WriteLine("");
+                            sw.Flush();
+                            // Read the response from the local Bibledit client server.
+                            String response;
+                            StreamReader sr = new StreamReader(ns);
+                            do
+                            {
+                                response = sr.ReadLine();
+                            }
+                            while (response != null);
+                            // Close connection.
+                            socket.Close();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            // Restart the timeout.
+            focusedReferenceTimer.Stop();
+            focusedReferenceTimer.Start();
         }
 
 
