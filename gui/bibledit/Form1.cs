@@ -101,7 +101,7 @@ namespace Bibledit
         {
             Cef.Initialize(new CefSettings());
             browser = new ChromiumWebBrowser("http://localhost:9876");
-            browser.DownloadHandler = new DownloadHandler();
+            //browser.DownloadHandler = new DownloadHandler();
             Controls.Add(browser);
             browser.Dock = DockStyle.Fill;
         }
@@ -321,7 +321,7 @@ namespace Bibledit
                 // If the users enters an empty string, any markup is supposed to be removed from the webview.
                 // This is done by searching for something that is not likely to be found.
                 if (search.Length == 0) search = "b.i.b.l.e.d.i.t";
-                WebBrowserExtensions.Find(browser, 1, search, true, false, false);
+                //CefSharp.WinForms.WebBrowserExtensions.Find(browser, 1, search, true, false, false);
             }
 
             SearchDialogOpen = false;

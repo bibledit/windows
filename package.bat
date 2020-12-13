@@ -74,7 +74,7 @@ cd C:\bibledit-windows
 # For some reason the bibledit.exe built in Release mode does not start with the WebKit library.
 # msbuild gui.sln /property:Configuration=Release /property:Platform=x86
 # The bibledit.exe built in Debug mode works with the WebKit library.
-msbuild gui.sln /property:Configuration=Debug /property:Platform=x86
+msbuild gui.sln /property:Configuration=Debug /property:Platform=x64
 if %errorlevel% neq 0 (
 pause
 exit /b %errorlevel%
