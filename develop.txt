@@ -1,10 +1,10 @@
-Building Bibledit for Windows through Visual Studio Community 2015.
+Building Bibledit for Windows through Visual Studio.
 
 
 There is a git repository on Windows 10 and there's one on on macOS. 
 Keep both repositories in sync. 
 This ensures that the data on both operating systems are in sync.
-Visual Studio 2015 is used on Windows for building Bibledit for Windows.
+Visual Studio is used on Windows for building Bibledit for Windows.
 On macOS there's a script that refreshes the source of the Bibledit library.
 
 
@@ -19,17 +19,24 @@ How to include the SQlite library.
 You will need to include the sqlite3.dll in the same directory as your program, or in a System Folder.
 
 
-Folder "server" contains the Bibledit library. It produces server.exe.
-Folder "gui" contains the Bibledit interface. It produces bibledit.exe
+CefSharp eats all key press events. Handling keyboard events works through a global keyboard hook in Windows.
+
+
+Folder "server" contains the Bibledit library. Build it from within Visual Studio. It produces server.exe.
+
+
+Folder "gui" contains the Bibledit interface. Build it from within Visual Studio. It produces bibledit.exe. It puts CefSharp files in the bin folder.
 
 
 To create a package, use Inno Setup.
 It was installed from innosetup-5.5.9-unicode.exe.
-To have a clean package, do this:
-* Remove the entire C:\bibledit directory.
-* Run the builder.
-* Copy bibledit.exe into C:\bibledit.
-* Run the package.iss script.
+
+
+To create a clean package, do this:
+* Build server.sln and gui.sln from Visual Studio.
+* Remove the entire C:\bibledit-dev directory.
+* Run the copyall.bat script.
+* Run the package.bat script.
 
 
 Free legal Windows virtual images for testing are available from https://dev.modern.ie/tools/vms/windows/
@@ -48,37 +55,4 @@ The signtool.exe needs a certificate.pfx format:
 $ openssl pkcs12 -export -out CommonName.pfx -inkey codesign.key -in CommonName.crt -password pass:""
 Copy the .pfx file to the Windows developer machine.
 
-
-Embedded WebKit library.
-Building from source:
-* https://webkit.org/webkit-on-windows/
-* https://webkit.org/building-webkit-on-windows/
-Webkit for C# ready binaries:
-* http://cefsharp.github.io/
-* https://www.teamdev.com/dotnetbrowser
-Steps to embed it:
-* Start with a Windows Application in Visual Studio in C#.
-* Download the binary "CefSharp51_x32.zip" and unpack all files into folder "CefSharp_x32".
-* Add references to the project to the following files: 
-  CefSharp.dll
-  CefSharp.Core.dll
-  CefSharp.WinForms.dll
-* Copy all files also to the project's Debug (or Release) folder.
-* Add this into the import section:
-  using CefSharp;
-  using CefSharp.WinForms;     
-* Add this to the code section:
-  public ChromiumWebBrowser browser;
-  public void InitBrowser(){
-    Cef.Initialize(new CefSettings());
-    browser = new ChromiumWebBrowser ("www.google.com");
-    this.Controls.Add(browser);
-    browser.Dock = DockStyle.Fill;
-  }
-* Call InitBrowser() just after the call to InitializeComponent():
-  InitBrowser();
-* Windows needs the Visual C++ Redistributable Packages for Visual Studio 2013 for x86.
-
-
-CefSharp eats all key press events. Handling keyboard events works through a global keyboard hook in Windows.
 
