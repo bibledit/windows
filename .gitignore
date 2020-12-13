@@ -71,3 +71,5 @@ server/databases/statistics.sqlite
 *.db-wal
 *.ipch
 server/cloud-macos.xcodeproj/project.xcworkspace/xcuserdata/teus.xcuserdatad/UserInterfaceState.xcuserstate
+gui/bibledit/bin/Release/*
+packages/cef*
