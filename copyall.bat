@@ -15,10 +15,6 @@ xcopy server\* C:\bibledit-windows /E /I /Y /Q
 if %errorlevel% neq 0 ( pause; exit /b %errorlevel% )
 
 
-echo Cleaning unwanted files from staging directory
-del C:\bibledit-windows\server.*
-
-
 echo Copying kernel binary into staging directory
 copy Debug\server.exe C:\bibledit-windows /Y
 if %errorlevel% neq 0 ( pause; exit /b %errorlevel% )
@@ -27,6 +23,11 @@ if %errorlevel% neq 0 ( pause; exit /b %errorlevel% )
 echo Copying GUI binaries into staging directory
 xcopy gui\bibledit\bin\Release\* C:\bibledit-windows /E /I /Y /Q
 if %errorlevel% neq 0 ( pause; exit /b %errorlevel% )
+
+
+echo Cleaning unwanted files from staging directory
+del C:\bibledit-windows\server.*
+rmdir /S /Q C:\bibledit-windows\Debug
 
 
 echo If the script gets here, all went well
