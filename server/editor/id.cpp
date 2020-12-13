@@ -17,21 +17,24 @@
  */
 
 
-#include <editone/verse.h>
+#include <editor/id.h>
 #include <filter/roles.h>
 #include <filter/string.h>
+#include <filter/usfm.h>
+#include <filter/date.h>
 #include <webserver/request.h>
 #include <ipc/focus.h>
+#include <database/ipc.h>
 #include <access/bible.h>
 
 
-string editone_verse_url ()
+string editor_id_url ()
 {
-  return "editone/verse";
+  return "editor/id";
 }
 
 
-bool editone_verse_acl (void * webserver_request)
+bool editor_id_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
   bool read, write;
@@ -40,28 +43,18 @@ bool editone_verse_acl (void * webserver_request)
 }
 
 
-string editone_verse (void * webserver_request)
+string editor_id (void * webserver_request)
 {
   Webserver_Request * request = (Webserver_Request *) webserver_request;
 
+  
+  // Update the timestamp indicating that the Bible editor is alive.
+  request->database_config_user()->setLiveBibleEditor (filter_date_seconds_since_epoch ());
 
-  // Only act if a verse was found
-  string sverse = request->query ["verse"];
-  if (!sverse.empty ()) {
-    
-    
-    // Only update navigation in case the verse changed.
-    // This avoids unnecessary focus operations in the clients.
-    int iverse = convert_to_int (sverse);
-    if (iverse != Ipc_Focus::getVerse (request)) {
-      int book = Ipc_Focus::getBook (request);
-      int chapter = Ipc_Focus::getChapter (request);
-      Ipc_Focus::set (request, book, chapter, iverse);
-    }
-    
-    
-  }
   
-  
-  return "";
+  string bible = request->query ["bible"];
+  int book = convert_to_int (request->query ["book"]);
+  int chapter = convert_to_int (request->query ["chapter"]);
+  int id = request->database_bibles()->getChapterId (bible, book, chapter);
+  return convert_to_string (id);
 }

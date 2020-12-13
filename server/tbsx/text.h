@@ -17,18 +17,35 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#ifndef INCLUDED_EDITONE_LOGIC_H
-#define INCLUDED_EDITONE_LOGIC_H
+#ifndef INCLUDED_TBSX_TEXT_H
+#define INCLUDED_TBSX_TEXT_H
 
 
 #include <config/libraries.h>
 
 
-void editone_logic_prefix_html (string usfm, string stylesheet, string & html, string & last_p_style);
-void editone_logic_editable_html (string usfm, string stylesheet, string & html);
-void editone_logic_suffix_html (string editable_last_p_style, string usfm, string stylesheet, string & html);
-string editone_logic_html_to_usfm (string stylesheet, string html);
-void editone_logic_move_notes (string & prefix, string & suffix);
+class Tbsx_Text
+{
+public:
+  void set_book_id (string id);
+  void set_book_name (string name);
+  void set_chapter (int chapter);
+  void set_header (string header);
+  void open_paragraph ();
+  void open_verse (int verse);
+  void add_text (string text, bool supplied = false);
+  void open_note ();
+  void close_note ();
+  void line_break ();
+  void flush ();
+  string line ();
+  string get_document ();
+  void save_document (string filename);
+private:
+  string buffer;
+  bool in_note;
+  vector <string> output;
+};
 
 
 #endif

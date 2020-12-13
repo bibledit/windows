@@ -17,16 +17,16 @@
  */
 
 
-#ifndef INCLUDED_EDITONE_INDEX_H
-#define INCLUDED_EDITONE_INDEX_H
+#ifndef INCLUDED_EDIT2_UPDATE_H
+#define INCLUDED_EDIT2_UPDATE_H
 
 
 #include <config/libraries.h>
 
 
-string editone_index_url ();
-bool editone_index_acl (void * webserver_request);
-string editone_index (void * webserver_request);
+string edit2_update_url ();
+bool edit2_update_acl (void * webserver_request);
+string edit2_update (void * webserver_request);
 
 
 #endif

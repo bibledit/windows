@@ -17,16 +17,27 @@
  */
 
 
-#ifndef INCLUDED_EDIT2_ID_H
-#define INCLUDED_EDIT2_ID_H
+#include <redirect/index.h>
+#include <filter/url.h>
+#include <webserver/request.h>
+#include <editone2/index.h>
 
 
-#include <config/libraries.h>
+string editone_index_url ()
+{
+  return "editone/index";
+}
 
 
-string edit2_id_url ();
-bool edit2_id_acl (void * webserver_request);
-string edit2_id (void * webserver_request);
+bool editone_index_acl ()
+{
+  return true;
+}
 
 
-#endif
+string editone_index (void * webserver_request)
+{
+  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  redirect_browser (request, editone2_index_url ());
+  return "";
+}

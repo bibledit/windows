@@ -76,10 +76,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <edit/preview.h>
 #include <edit/position.h>
 #include <edit/navigate.h>
-#include <editone/index.h>
-#include <editone/load.h>
-#include <editone/save.h>
-#include <editone/verse.h>
+#include <redirect/index.h>
 #include <search/all.h>
 #include <search/index.h>
 #include <search/replace.h>
@@ -195,13 +192,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <nmt/index.h>
 #include <edit2/index.h>
 #include <edit2/edit.h>
-#include <edit2/id.h>
+#include <editor/id.h>
 #include <edit2/load.h>
 #include <edit2/save.h>
-#include <edit2/styles.h>
+#include <editor/style.h>
 #include <edit2/preview.h>
 #include <edit2/position.h>
 #include <edit2/navigate.h>
+#include <edit2/update.h>
 #include <editone2/index.h>
 #include <editone2/load.h>
 #include <editone2/save.h>
@@ -385,7 +383,7 @@ void bootstrap_index (void * webserver_request)
     return;
   }
   
-  if ((url == editone_index_url ()) && browser_request_security_okay (request) && editone_index_acl (request)) {
+  if ((url == editone_index_url ()) && browser_request_security_okay (request) && editone_index_acl ()) {
     request->reply = editone_index (request);
     return;
   }
@@ -985,21 +983,6 @@ void bootstrap_index (void * webserver_request)
   }
 #endif
 
-  if ((url == editone_load_url ()) && browser_request_security_okay (request) && editone_load_acl (request)) {
-    request->reply = editone_load (request);
-    return;
-  }
-  
-  if ((url == editone_save_url ()) && browser_request_security_okay (request) && editone_save_acl (request)) {
-    request->reply = editone_save (request);
-    return;
-  }
-  
-  if ((url == editone_verse_url ()) && browser_request_security_okay (request) && editone_verse_acl (request)) {
-    request->reply = editone_verse (request);
-    return;
-  }
-  
   if ((url == edit_preview_url ()) && browser_request_security_okay (request) && edit_preview_acl (request)) {
     request->reply = edit_preview (request);
     return;
@@ -1163,9 +1146,14 @@ void bootstrap_index (void * webserver_request)
     request->reply = edit2_edit (request);
     return;
   }
-  
-  if ((url == edit2_id_url ()) && browser_request_security_okay (request) && edit2_id_acl (request)) {
-    request->reply = edit2_id (request);
+
+  if ((url == edit2_update_url ()) && browser_request_security_okay (request) && edit2_update_acl (request)) {
+    request->reply = edit2_update (request);
+    return;
+  }
+
+  if ((url == editor_id_url ()) && browser_request_security_okay (request) && editor_id_acl (request)) {
+    request->reply = editor_id (request);
     return;
   }
   
@@ -1179,8 +1167,8 @@ void bootstrap_index (void * webserver_request)
     return;
   }
   
-  if ((url == edit2_styles_url ()) && browser_request_security_okay (request) && edit2_styles_acl (request)) {
-    request->reply = edit2_styles (request);
+  if ((url == editor_style_url ()) && browser_request_security_okay (request) && editor_style_acl (request)) {
+    request->reply = editor_style (request);
     return;
   }
 

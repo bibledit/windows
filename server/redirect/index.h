@@ -17,16 +17,16 @@
  */
 
 
-#ifndef INCLUDED_EDIT2_STYLES_H
-#define INCLUDED_EDIT2_STYLES_H
+#ifndef INCLUDED_EDITONE_INDEX_H
+#define INCLUDED_EDITONE_INDEX_H
 
 
 #include <config/libraries.h>
 
 
-string edit2_styles_url ();
-bool edit2_styles_acl (void * webserver_request);
-string edit2_styles (void * webserver_request);
+string editone_index_url ();
+bool editone_index_acl ();
+string editone_index (void * webserver_request);
 
 
 #endif

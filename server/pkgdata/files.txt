@@ -562,6 +562,7 @@
 /rangy13/rangy-serializer.min.js
 /rangy13/rangy-textrange.js
 /rangy13/rangy-textrange.min.js
+/redirect
 /related
 /related/ot-quotations-in-nt.xml
 /related/parallel-passages-nt.xml
@@ -5383,6 +5384,14 @@
 /system/index.html
 /tasks
 /tasks/holder
+/tbsx
+/tbsx/example.txt
+/tbsx/specs.html
+/tbsx/specs_html_622595c2542694fe.png
+/tbsx/specs_html_74141d66e02c8b0c.png
+/tbsx/specs_html_768dd1f5292670ef.png
+/tbsx/specs_html_85ad3e9582aca4e.png
+/tbsx/specs_html_f86d168cc11a0987.png
 /text
 /timer
 /tmp
