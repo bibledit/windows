@@ -26,7 +26,6 @@ if %errorlevel% neq 0 ( pause; exit /b %errorlevel% )
 
 
 echo Cleaning unwanted files from staging directory
-del C:\bibledit-windows\server.*
 rmdir /S /Q C:\bibledit-windows\Debug
 
 
