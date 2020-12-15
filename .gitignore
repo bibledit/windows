@@ -73,3 +73,4 @@ server/databases/statistics.sqlite
 server/cloud-macos.xcodeproj/project.xcworkspace/xcuserdata/teus.xcuserdatad/UserInterfaceState.xcuserstate
 gui/bibledit/bin/Release/*
 packages/cef*
+server/x64/*
