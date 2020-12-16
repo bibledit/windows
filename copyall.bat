@@ -27,6 +27,7 @@ if %errorlevel% neq 0 ( pause; exit /b %errorlevel% )
 
 echo Cleaning unwanted files from staging directory
 rmdir /S /Q C:\bibledit-windows\Debug
+rmdir /S /Q C:\bibledit-windows\x64
 
 
 echo If the script gets here, all went well
