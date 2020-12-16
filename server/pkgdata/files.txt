@@ -102,7 +102,6 @@
 /databases/client/gitflag
 /databases/clients
 /databases/clients/gitflag
-/databases/client/sword_modules.txt
 /databases/config
 /databases/config/bible
 /databases/config/bible/gitflag
@@ -254,18 +253,12 @@
 /edit/index.html
 /edit/index.js
 /edit/keys.js
-/editold
-/editold/index.html
-/editold/index.js
 /editone
 /editone2
 /editone2/index.html
 /editone2/index.js
 /editone/index.html
 /editone/index.js
-/editoneold
-/editoneold/index.html
-/editoneold/index.js
 /editone/preview.html
 /editone/preview.js
 /editor
@@ -424,8 +417,6 @@
 /mapping/Vulgate.txt
 /mbedtls
 /mbedtls/0readme.txt
-/mbedtls.old
-/mbedtls.old/0readme.txt
 /menu
 /microtar
 /microtar/LICENSE
@@ -5160,7 +5151,6 @@
 /sendreceive
 /sendreceive/index.html
 /sendreceive/index.js
-/server.rc
 /server.vcxproj
 /server.vcxproj.filters
 /server.vcxproj.user

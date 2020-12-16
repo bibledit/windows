@@ -74,3 +74,4 @@ server/cloud-macos.xcodeproj/project.xcworkspace/xcuserdata/teus.xcuserdatad/Use
 gui/bibledit/bin/Release/*
 packages/cef*
 server/x64/*
+*.xcuserstate
