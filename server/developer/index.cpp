@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #endif
 #include <resource/external.h>
 #include <config/globals.h>
+#include <library/bibledit.h>
 
 
 const char * developer_index_url ()
@@ -132,7 +133,13 @@ string developer_index (void * webserver_request)
     tasks_logic_queue (MAINTAINDATABASE);
     view.set_variable ("success", "Starting to maintain the databases");
   }
-  
+
+  if (debug == "accordance") {
+    string reference = bibledit_get_reference_for_accordance ();
+    view.set_variable ("success", "Accordance reference: " + reference);
+    bibledit_put_reference_from_accordance("PSA 3:2");
+  }
+
   view.set_variable ("code", code);
 
   page += view.render ("developer", "index");
