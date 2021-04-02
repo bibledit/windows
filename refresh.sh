@@ -72,6 +72,7 @@ echo 9876 > config/network-port
 # Remove some Linux related definitions as they don't work on Windows.
 sed -i.bak '/HAVE_LIBPROC/d' config.h
 sed -i.bak '/HAVE_EXECINFO/d' config.h
+sed -i.bak '/HAVE_ICU/d' config.h
 
 
 # Disable threading in mbedTLS on Windows.
