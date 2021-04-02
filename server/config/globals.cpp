@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -57,4 +57,5 @@ string config_globals_pages_to_open;
 bool config_globals_hide_bible_resources = false;
 bool config_globals_running_on_chrome_os = false;
 bool config_globals_log_incoming_connections = false;
+int config_globals_start_up_second_since_epoch = 0;
 

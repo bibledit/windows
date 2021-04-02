@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <config/globals.h>
 #include <filter/url.h>
 #include <filter/string.h>
+#include <filter/date.h>
 #include <thread>
 #include <timer/index.h>
 #include <database/config/general.h>
@@ -41,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <ldap/logic.h>
 #include <locale/logic.h>
 #include <ipc/focus.h>
+#include <client/logic.h>
 
 
 bool bibledit_started = false;
@@ -133,6 +135,9 @@ void bibledit_initialize_library (const char * package, const char * webroot)
   
   // Multiple start/stop guard.
   bibledit_started = false;
+  
+  // Set the number of seconds since the Unix epoch that Bibledit started.
+  config_globals_start_up_second_since_epoch = filter_date_seconds_since_epoch ();
 }
 
 
@@ -305,12 +310,15 @@ void bibledit_stop_library ()
   filter_url_http_get (url, error, false);
 
 #ifdef RUN_SECURE_SERVER
-  // Connect to the secure server to initiate its shutdown mechanism.
-  url = "https://localhost:";
-  url.append (convert_to_string (config_logic_https_network_port ()));
-  filter_url_http_get (url, error, false);
-  // Let the connection start, then close it.
-  // The server will then abort the TLS handshake, and shut down.
+  // If the secure server runs, connect to it to initiate its shutdown mechanism.
+  string https_port = config_logic_https_network_port ();
+  if (https_port.length() > 1) {
+    url = "https://localhost:";
+    url.append (https_port);
+    filter_url_http_get (url, error, false);
+    // Let the connection start, then close it.
+    // The server will then abort the TLS handshake, and shut down.
+  }
 #endif
 
 #ifndef HAVE_ANDROID
@@ -388,13 +396,8 @@ const char * bibledit_get_reference_for_accordance ()
   // even after the function has returned, and local variables will have been destroyed.
   static string reference;
 
-  // Set the user name to the first one in the database.
-  // Or if the database has no users, make the user admin.
-  // That happens when disconnected from the Cloud.
-  string user = "admin";
-  Database_Users database_users;
-  vector <string> users = database_users.getUsers ();
-  if (!users.empty()) user = users [0];
+  // Get the username on this client device.
+  string user = client_logic_get_username ();
 
   // Get the active Bible and its versification system.
   Webserver_Request request;
@@ -435,13 +438,8 @@ const char * bibledit_get_reference_for_accordance ()
 // will instead become the standardized (KJV-like) Psalm 13:2.
 void bibledit_put_reference_from_accordance (const char * reference)
 {
-  // Set the user name to the first one in the database.
-  // If the database has no users, make the user admin.
-  // That happens when disconnected from the Cloud.
-  string user = "admin";
-  Database_Users database_users;
-  vector <string> users = database_users.getUsers ();
-  if (!users.empty()) user = users [0];
+  // Get and set the user name on this client device.
+  string user = client_logic_get_username ();
   Webserver_Request request;
   request.session_logic()->setUsername(user);
 

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,5 +28,13 @@ $(document).ready (function () {
       var touch = $ ("#touch");
       touch.attr ("value", "0");
     }
+  });
+  $("#show").change(function() {
+    var input = $("#pass");
+      if (input.attr("type") === "password") {
+        input.attr("type", "text");
+      } else {
+        input.attr("type", "password");
+      }
   });
 });

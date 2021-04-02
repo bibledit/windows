@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2020 Teus Benschop.
+ Copyright (©) 2003-2021 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -42,13 +42,11 @@ string navigation_update (void * webserver_request)
 
   
   string bible;
-  /*
-  if (request->query.count ("bible")) {
-    bible = request->query ["bible"];
-  } else {
-    bible = request->database_config_user()->getBible ();
-  }
-  */
+  //if (request->query.count ("bible")) {
+  //  bible = request->query ["bible"];
+  //} else {
+  //  bible = request->database_config_user()->getBible ();
+  //}
   // It used to take the Bible from the Bible variable stored in javascript.
   // But then, when switching from a Bible that has the NT only, to a Bible that has OT and NT,
   // the navigator would only show the NT books.

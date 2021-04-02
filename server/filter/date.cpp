@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2020 Teus Benschop.
+ Copyright (©) 2003-2021 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -286,3 +286,17 @@ string filter_date_rfc822 (int seconds)
   rfc822.append ("00");
   return rfc822;
 }
+
+
+// Calculates the number of microseconds elapsed since $start.
+// It returns the elapsed number of microseconds.
+long filter_date_elapsed_microseconds (long start)
+{
+  auto now = chrono::system_clock::now ();
+  auto duration = now.time_since_epoch ();
+  auto microseconds = chrono::duration_cast<std::chrono::microseconds>(duration).count();
+  long elapsed = microseconds - start;
+  return elapsed;
+}
+
+

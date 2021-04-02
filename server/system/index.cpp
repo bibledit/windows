@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -341,6 +341,16 @@ string system_index (void * webserver_request)
     redirect_browser (request, journal_index_url ());
     return "";
   }
+  
+  
+  // Handle the setting whether to keep the resource caches for an extended period of time.
+#ifdef HAVE_CLOUD
+  if (checkbox == "keepcache") {
+    Database_Config_General::setKeepResourcesCacheForLong (checked);
+    return "";
+  }
+  view.set_variable ("keepcache", get_checkbox_status (Database_Config_General::getKeepResourcesCacheForLong ()));
+#endif
 
 
   // Handle display the number of unsent emails and clearing them.

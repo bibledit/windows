@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -513,9 +513,67 @@ const char * notes_verse_separator_key ()
 }
 string Database_Config_General::getNotesVerseSeparator ()
 {
-  return getValue (notes_verse_separator_key (), ".");
+  // The colon is the default value. See https://github.com/bibledit/cloud/issues/509
+  return getValue (notes_verse_separator_key (), ":");
 }
 void Database_Config_General::setNotesVerseSeparator (string value)
 {
   setValue (notes_verse_separator_key (), value);
 }
+
+
+const char * comparative_resources_key ()
+{
+  return "comparative-resources";
+}
+vector <string> Database_Config_General::getComparativeResources ()
+{
+  return getList (comparative_resources_key ());
+}
+void Database_Config_General::setComparativeResources (vector <string> values)
+{
+  setList (comparative_resources_key (), values);
+}
+
+
+const char * active_resources_key ()
+{
+  return "active-resources";
+}
+vector <string> Database_Config_General::getActiveResources ()
+{
+  return getList (active_resources_key ());
+}
+void Database_Config_General::setActiveResources (vector <string> values)
+{
+  setList (active_resources_key (), values);
+}
+
+
+const char * account_creation_times_key ()
+{
+  return "account-creation-times";
+}
+vector <string> Database_Config_General::getAccountCreationTimes ()
+{
+  return getList (account_creation_times_key ());
+}
+void Database_Config_General::setAccountCreationTimes (vector <string> values)
+{
+  setList (account_creation_times_key (), values);
+}
+
+
+const char * keep_resources_cache_for_long_key ()
+{
+  return "keep-resources-cache-for-long";
+}
+bool Database_Config_General::getKeepResourcesCacheForLong ()
+{
+  return getBValue (keep_resources_cache_for_long_key (), false);
+}
+void Database_Config_General::setKeepResourcesCacheForLong (bool value)
+{
+  setBValue (keep_resources_cache_for_long_key (), value);
+}
+

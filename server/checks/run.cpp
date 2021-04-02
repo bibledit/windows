@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2020 Teus Benschop.
+ Copyright (©) 2003-2021 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@
 #include <database/books.h>
 #include <database/config/bible.h>
 #include <database/config/general.h>
+#include <database/modifications.h>
+#include <database/git.h>
 #include <filter/roles.h>
 #include <filter/string.h>
 #include <filter/usfm.h>
@@ -42,13 +44,18 @@
 #include <checks/settings.h>
 #include <checks/french.h>
 #include <email/send.h>
+#include <sendreceive/logic.h>
+#include <rss/logic.h>
 
 
 void checks_run (string bible)
 {
   Webserver_Request request;
   Database_Check database_check;
-  
+#ifndef HAVE_CLIENT
+  Database_Modifications database_modifications;
+#endif
+
   
   if (bible == "") return;
   
@@ -104,6 +111,8 @@ void checks_run (string bible)
   bool check_space_end_verse = Database_Config_Bible::getCheckSpaceEndVerse (bible);
   bool check_french_punctuation = Database_Config_Bible::getCheckFrenchPunctuation (bible);
   bool check_french_citation_style = Database_Config_Bible::getCheckFrenchCitationStyle (bible);
+  bool transpose_fix_space_in_notes = Database_Config_Bible::getTransposeFixSpacesNotes (bible);
+  bool check_valid_utf8_text = Database_Config_Bible::getCheckValidUTF8Text (bible);
 
   
   vector <int> books = request.database_bibles()->getBooks (bible);
@@ -119,6 +128,29 @@ void checks_run (string bible)
     
     for (auto chapter : chapters) {
       string chapterUsfm = request.database_bibles()->getChapter (bible, book, chapter);
+    
+      
+      // Transpose and fix spacing around certain markers in footnotes and cross references.
+      if (transpose_fix_space_in_notes) {
+        string old_usfm (chapterUsfm);
+        bool transposed = Checks_Space::transposeNoteSpace (chapterUsfm);
+        if (transposed) {
+#ifndef HAVE_CLIENT
+          int oldID = request.database_bibles()->getChapterId (bible, book, chapter);
+#endif
+          request.database_bibles()->storeChapter(bible, book, chapter, chapterUsfm);
+#ifndef HAVE_CLIENT
+          int newID = request.database_bibles()->getChapterId (bible, book, chapter);
+          string username = "Bibledit";
+          database_modifications.recordUserSave (username, bible, book, chapter, oldID, old_usfm, newID, chapterUsfm);
+          if (sendreceive_git_repository_linked (bible)) {
+            Database_Git::store_chapter (username, bible, book, chapter, old_usfm, chapterUsfm);
+          }
+          rss_logic_schedule_update (username, bible, book, chapter, old_usfm, chapterUsfm);
+#endif
+          Database_Logs::log ("Transposed and fixed double spaces around markers in footnotes or cross references in " + filter_passage_display (book, chapter, "") + " in Bible " + bible);
+        }
+      }
       
       
       vector <int> verses = usfm_get_verse_numbers (chapterUsfm);
@@ -129,6 +161,12 @@ void checks_run (string bible)
         string verseUsfm = usfm_get_verse_text (chapterUsfm, verse);
         if (check_double_spaces_usfm) {
           Checks_Space::doubleSpaceUsfm (bible, book, chapter, verse, verseUsfm);
+        }
+        if (check_valid_utf8_text) {
+          if (!unicode_string_is_valid (verseUsfm)) {
+            string msg = "Invalid UTF-8 Unicode in verse text";
+            database_check.recordOutput (bible, book, chapter, verse, msg);
+          }
         }
       }
       

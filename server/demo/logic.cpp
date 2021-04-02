@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2020 Teus Benschop.
+ Copyright (©) 2003-2021 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -23,11 +23,13 @@
 #include <filter/usfm.h>
 #include <filter/url.h>
 #include <filter/string.h>
+#include <filter/indonesian.h>
 #include <database/config/general.h>
 #include <database/config/bible.h>
 #include <database/logs.h>
 #include <database/notes.h>
 #include <database/sample.h>
+#include <database/books.h>
 #include <locale/translate.h>
 #include <client/logic.h>
 #include <styles/logic.h>
@@ -43,6 +45,7 @@
 #include <ipc/focus.h>
 #include <lexicon/logic.h>
 #include <search/logic.h>
+#include <book/create.h>
 
 
 /*
@@ -96,13 +99,13 @@ string demo_address_secure ()
 
 int demo_port ()
 {
-  return 8080;
+  return 8090;
 }
 
 
 int demo_port_secure ()
 {
-  return 8081;
+  return 8091;
 }
 
 
@@ -232,7 +235,7 @@ void demo_create_sample_bible ()
   
   // Remove index for the sample Bible.
   search_logic_delete_bible (demo_sample_bible_name ());
-  
+
   // Copy the sample Bible data and search index into place.
   vector <int> rowids = Database_Sample::get ();
   for (auto rowid : rowids) {
@@ -244,6 +247,14 @@ void demo_create_sample_bible ()
     // and since Windows needs the backslash as directory separator,
     // replace these on Windows.
     file = filter_url_update_directory_separator_if_windows (file);
+    // The name of the Sample Bible should be part of the filename.
+    // If that is not the case,
+    // * it means that Bibledit uses a different name for the Sample Bible,
+    // * and the file needs an update.
+    size_t pos = file.find(demo_sample_bible_name());
+    if (pos == string::npos) {
+      file = filter_string_str_replace("Sample", demo_sample_bible_name(), file);
+    }
     // Proceed with the path.
     file = filter_url_create_root_path (file);
     string path = filter_url_dirname (file);

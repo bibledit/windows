@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -541,9 +541,14 @@ string personalize_index (void * webserver_request)
 #endif
 
   
+  bool enable_accordance_settings = false;
 #ifdef HAVE_MAC
+  enable_accordance_settings = true;
 #endif
-  view.enable_zone ("macos");
+#ifdef HAVE_WINDOWS
+  enable_accordance_settings = true;
+#endif
+  if (enable_accordance_settings) view.enable_zone ("macos");
 
   
   view.set_variable ("success", success);

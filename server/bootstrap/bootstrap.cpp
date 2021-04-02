@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,11 +38,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <user/account.h>
 #include <manage/index.h>
 #include <manage/users.h>
+#include <manage/accounts.h>
 #include <manage/exports.h>
 #include <manage/hyphenation.h>
 #include <manage/write.h>
 #include <manage/privileges.h>
 #include <system/index.h>
+#include <system/indonesianfree.h>
 #include <collaboration/index.h>
 #include <collaboration/settings.h>
 #include <styles/indexm.h>
@@ -205,6 +207,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <editone2/save.h>
 #include <editone2/verse.h>
 #include <editone2/update.h>
+#include <read/index.h>
+#include <read/load.h>
+#include <read/verse.h>
+#include <resource/divider.h>
+#include <session/confirm.h>
+#include <resource/comparative9edit.h>
+#include <resource/comparative1edit.h>
 
 
 // Internal function to check whether a request coming from the browser is considered secure enough.
@@ -678,7 +687,12 @@ void bootstrap_index (void * webserver_request)
     request->reply = manage_users (request);
     return;
   }
-  
+
+  if ((url == manage_accounts_url ()) && browser_request_security_okay (request) && manage_accounts_acl (request)) {
+    request->reply = manage_accounts (request);
+    return;
+  }
+
   if ((url == manage_index_url ()) && browser_request_security_okay (request) && manage_index_acl (request)) {
     request->reply = manage_index (request);
     return;
@@ -688,7 +702,12 @@ void bootstrap_index (void * webserver_request)
     request->reply = system_index (request);
     return;
   }
-  
+
+  if ((url == system_indonesianfree_url ()) && browser_request_security_okay (request) && system_indonesianfree_acl (request)) {
+    request->reply = system_indonesianfree (request);
+    return;
+  }
+
   if ((url == email_index_url ()) && browser_request_security_okay (request) && email_index_acl (request)) {
     request->reply = email_index (request);
     return;
@@ -1194,6 +1213,41 @@ void bootstrap_index (void * webserver_request)
   
   if ((url == editone2_update_url ()) && browser_request_security_okay (request) && editone2_update_acl (request)) {
     request->reply = editone2_update (request);
+    return;
+  }
+
+  if ((url == read_index_url ()) && browser_request_security_okay (request) && read_index_acl (request)) {
+    request->reply = read_index (request);
+    return;
+  }
+
+  if ((url == read_load_url ()) && browser_request_security_okay (request) && read_load_acl (request)) {
+    request->reply = read_load (request);
+    return;
+  }
+
+  if ((url == read_verse_url ()) && browser_request_security_okay (request) && read_verse_acl (request)) {
+    request->reply = read_verse (request);
+    return;
+  }
+
+  if ((url == resource_divider_url ()) && browser_request_security_okay (request) && resource_divider_acl (request)) {
+    request->reply = resource_divider (request);
+    return;
+  }
+
+  if ((url == session_confirm_url ()) && browser_request_security_okay (request) && session_confirm_acl (request)) {
+    request->reply = session_confirm (request);
+    return;
+  }
+  
+  if ((url == resource_comparative9edit_url ()) && browser_request_security_okay (request) && resource_comparative9edit_acl (request)) {
+    request->reply = resource_comparative9edit (request);
+    return;
+  }
+
+  if ((url == resource_comparative1edit_url ()) && browser_request_security_okay (request) && resource_comparative1edit_acl (request)) {
+    request->reply = resource_comparative1edit (request);
     return;
   }
 

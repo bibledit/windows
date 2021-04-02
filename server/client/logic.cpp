@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2020 Teus Benschop.
+ Copyright (©) 2003-2021 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -208,4 +208,17 @@ vector <string> client_logic_usfm_resources_get ()
 {
   string contents = filter_url_file_get_contents (client_logic_usfm_resources_path ());
   return filter_string_explode (contents, '\n');
+}
+
+
+string client_logic_get_username ()
+{
+  // Set the user name to the first one in the database.
+  // Or if the database has no users, make the user admin.
+  // That happens when disconnected from the Cloud.
+  string user = session_admin_credentials ();
+  Database_Users database_users;
+  vector <string> users = database_users.getUsers ();
+  if (!users.empty()) user = users [0];
+  return user;
 }

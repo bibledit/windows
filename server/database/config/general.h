@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -137,6 +137,18 @@ public:
 
   static string getNotesVerseSeparator ();
   static void setNotesVerseSeparator (string url);
+
+  static vector <string> getComparativeResources ();
+  static void setComparativeResources (vector <string> values);
+
+  static vector <string> getActiveResources ();
+  static void setActiveResources (vector <string> values);
+
+  static vector <string> getAccountCreationTimes ();
+  static void setAccountCreationTimes (vector <string> values);
+
+  static bool getKeepResourcesCacheForLong ();
+  static void setKeepResourcesCacheForLong (bool value);
 
 private:
   static string file (const char * key);

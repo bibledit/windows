@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2020 Teus Benschop.
+ Copyright (©) 2003-2021 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@ void filter_date_get_next_month (int & month, int & year);
 string filter_date_day_rfc822 (int day);
 string filter_date_month_rfc822 (int month);
 string filter_date_rfc822 (int seconds);
+long filter_date_elapsed_microseconds (long start);
 
 
 #endif

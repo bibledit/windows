@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2020 Teus Benschop.
+ Copyright (©) 2003-2021 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -62,7 +62,6 @@ private:
 };
 
 
-string editor_export_verse (string stylesheet, string html);
 string editor_export_verse_quill (string stylesheet, string html);
 
 

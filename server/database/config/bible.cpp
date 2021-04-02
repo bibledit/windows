@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -379,6 +379,34 @@ void Database_Config_Bible::setCheckFrenchCitationStyle (string bible, bool valu
 }
 
 
+const char * transpose_fix_spaces_notes_key ()
+{
+  return "transpose-fix-spaces-notes";
+}
+bool Database_Config_Bible::getTransposeFixSpacesNotes (string bible)
+{
+  return getBValue (bible, transpose_fix_spaces_notes_key (), false);
+}
+void Database_Config_Bible::setTransposeFixSpacesNotes (string bible, bool value)
+{
+  setBValue (bible, transpose_fix_spaces_notes_key (), value);
+}
+
+
+const char * check_valid_utf8_text_key ()
+{
+  return "check-valid-utf8-text";
+}
+bool Database_Config_Bible::getCheckValidUTF8Text (string bible)
+{
+  return getBValue (bible, check_french_citation_style_key (), false);
+}
+void Database_Config_Bible::setCheckValidUTF8Text (string bible, bool value)
+{
+  setBValue (bible, check_french_citation_style_key (), value);
+}
+
+
 string Database_Config_Bible::getSprintTaskCompletionCategories (string bible)
 {
   return getValue (bible, "sprint-task-completion-categories", "Translate\nCheck\nHebrew/Greek\nDiscussions");
@@ -526,16 +554,6 @@ string Database_Config_Bible::getVersificationSystem (string bible)
 void Database_Config_Bible::setVersificationSystem (string bible, string value)
 {
   setValue (bible, "versification-system", value);
-}
-
-
-string Database_Config_Bible::getVerseMapping (string bible)
-{
-  return getValue (bible, "verse-mapping", english ());
-}
-void Database_Config_Bible::setVerseMapping (string bible, string value)
-{
-  setValue (bible, "verse-mapping", value);
 }
 
 

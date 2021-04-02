@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2020 Teus Benschop.
+ Copyright (©) 2003-2021 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ public:
   static string getKeyboardNavigator (void * webserver_request, string bible);
   static void interpretKeyboardNavigator (void * webserver_request, string bible, string passage);
 private:
-  static void addSelectorLink (string& html, string id, string href, string text, bool selected);
+  static void addSelectorLink (string& html, string id, string href, string text, bool selected, string extra_class);
   static Passage getNextChapter (void * webserver_request, string bible, int book, int chapter);
   static Passage getPreviousChapter (void * webserver_request, string bible, int book, int chapter);
   static Passage getNextVerse (void * webserver_request, string bible, int book, int chapter, int verse);

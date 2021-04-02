@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2020 Teus Benschop.
+ Copyright (©) 2003-2021 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 
 // Creates book template with ID $book in Bible $bible.
 // If a $chapter is given instead of -1, it creates that chapter only.
+// If the $chapter is -1, it creates all chapters within that book.
 bool book_create (string bible, int book, int chapter, vector <string> & feedback)
 {
   Database_Bibles database_bibles;

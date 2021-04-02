@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2020 Teus Benschop.
+ Copyright (©) 2003-2021 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -234,7 +234,30 @@ string Filter_Css::getCss (string class_, string font, int directionvalue, int l
 }
 
 
+string Filter_Css::distinction_set_1 (int offset)
+{
+  if (offset == 0) return "white-on-green";
+  if (offset == 1) return "black-on-orange";
+  if (offset == 2) return "black-on-neon-green";
+  if (offset == 3) return "white-on-purple";
+  if (offset == 4) return "white-on-pink";
+  return "";
+}
+
+
+string Filter_Css::distinction_set_2 (int offset)
+{
+  if (offset == 0) return "manatee-blue";
+  if (offset == 1) return "logan-blue";
+  if (offset == 2) return "blossom-red";
+  if (offset == 3) return "rosy-brown";
+  if (offset == 4) return "opium-brown";
+  return "";
+}
+
+
 string filter_css_grey_background ()
 {
   return "style=\"background-color: #CCCCCC\"";
 }
+

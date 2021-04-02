@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -270,7 +270,8 @@ string email_send (string to_mail, string to_name, string subject, string body, 
   string smtp = "smtp://";
   smtp.append (Database_Config_General::getMailSendHost());
   smtp.append (":");
-  smtp.append (Database_Config_General::getMailSendPort());
+  string port = Database_Config_General::getMailSendPort();
+  smtp.append (port);
   curl_easy_setopt(curl, CURLOPT_URL, smtp.c_str());
 
   /* In this example, we'll start with a plain text connection, and upgrade
@@ -278,7 +279,7 @@ string email_send (string to_mail, string to_name, string subject, string body, 
    * of using CURLUSESSL_TRY here, because if TLS upgrade fails, the transfer
    * will continue anyway - see the security discussion in the libcurl
    * tutorial for more details. */
-  curl_easy_setopt(curl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
+  if (port != "25") curl_easy_setopt(curl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
 
   /* If your server doesn't have a valid certificate, then you can disable
    * part of the Transport Layer Security protection by setting the
@@ -356,22 +357,26 @@ void email_schedule (string to, string subject, string body, int time)
 // If the email sending and receiving has not yet been (completely) set up,
 // it returns information about that.
 // If everything's OK, it returns nothing.
-string email_setup_information ()
+string email_setup_information (bool require_send, bool require_receive)
 {
 #ifdef HAVE_CLOUD
-  int missing_items = 0;
-  if (Database_Config_General::getSiteMailName ().empty ()) missing_items++;
-  if (Database_Config_General::getSiteMailAddress ().empty ()) missing_items++;
-  if (Database_Config_General::getMailStorageHost ().empty ()) missing_items++;
-  if (Database_Config_General::getMailStorageUsername ().empty ()) missing_items++;
-  if (Database_Config_General::getMailStoragePassword ().empty ()) missing_items++;
-  if (Database_Config_General::getMailStorageProtocol ().empty ()) missing_items++;
-  if (Database_Config_General::getMailStoragePort ().empty ()) missing_items++;
-  if (Database_Config_General::getMailSendHost ().empty ()) missing_items++;
-  if (Database_Config_General::getMailSendUsername ().empty ()) missing_items++;
-  if (Database_Config_General::getMailSendPassword ().empty ()) missing_items++;
-  if (Database_Config_General::getMailSendPort ().empty ()) missing_items++;
-  if (missing_items) {
+  bool incomplete = false;
+  if (Database_Config_General::getSiteMailName ().empty ()) incomplete = true;
+  if (Database_Config_General::getSiteMailAddress ().empty ()) incomplete = true;
+  if (require_receive) {
+    if (Database_Config_General::getMailStorageHost ().empty ()) incomplete = true;
+    if (Database_Config_General::getMailStorageUsername ().empty ()) incomplete = true;
+    if (Database_Config_General::getMailStoragePassword ().empty ()) incomplete = true;
+    if (Database_Config_General::getMailStorageProtocol ().empty ()) incomplete = true;
+    if (Database_Config_General::getMailStoragePort ().empty ()) incomplete = true;
+  }
+  if (require_send) {
+    if (Database_Config_General::getMailSendHost ().empty ()) incomplete = true;
+    if (Database_Config_General::getMailSendUsername ().empty ()) incomplete = true;
+    if (Database_Config_General::getMailSendPassword ().empty ()) incomplete = true;
+    if (Database_Config_General::getMailSendPort ().empty ()) incomplete = true;
+  }
+  if (incomplete) {
     string msg1 = translate ("Cannot send email yet.");
     string msg2 = translate ("The emailer is not yet set up.");
     return msg1 + " <a href=\"../" + email_index_url () + + "\">" + msg2 + "</a>";

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2020 Teus Benschop.
+ Copyright (©) 2003-2021 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -178,6 +178,18 @@ string checks_settings (void * webserver_request)
     Database_Config_Bible::setCheckFrenchCitationStyle (bible, checked);
   }
   view.set_variable ("frenchcitation", get_checkbox_status (Database_Config_Bible::getCheckFrenchCitationStyle (bible)));
+
+  
+  if (checkbox == "transposenotes") {
+    Database_Config_Bible::setTransposeFixSpacesNotes (bible, checked);
+  }
+  view.set_variable ("transposenotes", get_checkbox_status (Database_Config_Bible::getTransposeFixSpacesNotes (bible)));
+
+  
+  if (checkbox == "validutf8") {
+    Database_Config_Bible::setCheckValidUTF8Text (bible, checked);
+  }
+  view.set_variable ("validutf8", get_checkbox_status (Database_Config_Bible::getCheckValidUTF8Text (bible)));
 
   
   view.set_variable ("bible", bible);

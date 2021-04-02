@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -72,6 +72,7 @@ void bible_logic_html_to_editor_updates (const string & editor_html,
                                          vector <int> & sizes,
                                          vector <string> & operators,
                                          vector <string> & content);
+void bible_logic_create_empty_bible (const string & name);
 
 
 #endif

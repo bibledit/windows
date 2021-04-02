@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2020 Teus Benschop.
+ Copyright (©) 2003-2021 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -257,7 +257,7 @@ string sprint_index (void * webserver_request)
   view.set_variable ("chart", sprint_create_burndown_chart (bible, year, month));
   
   
-  view.set_variable ("mailer", email_setup_information ());
+  view.set_variable ("mailer", email_setup_information (true, false));
 
 
   page += view.render ("sprint", "index");

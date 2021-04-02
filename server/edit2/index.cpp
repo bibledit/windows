@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2020 Teus Benschop.
+ Copyright (©) 2003-2021 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -162,6 +162,9 @@ string edit2_index (void * webserver_request)
   if (!basic_mode && request->database_config_user ()->getFastEditorSwitchingAvailable ()) {
     view.enable_zone ("fastswitcheditor");
   }
+#ifdef HAVE_INDONESIANCLOUDFREE
+  view.enable_zone ("fastswitcheditor");
+#endif
 
   
   // Whether to enable the styles button.

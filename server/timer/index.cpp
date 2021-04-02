@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // This keeps the site more responsive during the day.
 
 
-// The order for running the following nightly scripts is important.
+// The order in which the following nightly scripts run is important.
 // Any of those scripts may influence the subsequent ones.
 // The order is such that all information generated is as recent as possible.
 // More important tasks are done first, and the less important ones at the end.
@@ -92,15 +92,26 @@ void timer_index ()
       // Run the part below once per minute.
       if (minute == previous_minute) continue;
       previous_minute = minute;
+
+      // In a client, it can always do the emailing.
+      // In a Cloud, it can only begin to mail some time after startup.
+      // Reason: If the external mailer causes a crash,
+      // the Bibledit will keep crashing right after startup,
+      // rendering Bibledit hard to use.
+      // https://github.com/bibledit/cloud/issues/466
+      bool can_mail = true;
+#ifdef HAVE_CLOUD
+      can_mail = (filter_date_seconds_since_epoch () > (config_globals_start_up_second_since_epoch + 600));
+#endif
       
       // Every minute send out queued email.
-      tasks_logic_queue (SENDEMAIL);
+      if (can_mail) tasks_logic_queue (SENDEMAIL);
 
 #ifdef HAVE_CLOUD
       // Check for new mail every five minutes.
       // Do not check more often with gmail else the account may be shut down.
       if ((minute % 5) == 0) {
-        tasks_logic_queue (RECEIVEEMAIL);
+        if (can_mail) tasks_logic_queue (RECEIVEEMAIL);
       }
 #endif
 
@@ -111,7 +122,7 @@ void timer_index ()
       if (minute == 9) tasks_logic_queue (ROTATEJOURNAL);
       
       // Sending and receiving Bibles to and from the git repository.
-      // On a production website running on an inexpensive virtual private server
+      // On a production website running on an inexpensive virtual private server,
       // with 512 Mbyte of memory and a fast network connection,
       // sending and receiving two Bibles takes more than 15 minutes when there are many changes.
       bool sendreceive = ((hour == 0) && (minute == 5));

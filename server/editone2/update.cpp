@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2020 Teus Benschop.
+ Copyright (©) 2003-2021 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -51,6 +51,9 @@ string editone2_update_url ()
 
 bool editone2_update_acl (void * webserver_request)
 {
+#ifdef HAVE_INDONESIANCLOUDFREE
+  return true;
+#endif
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
   bool read, write;
   access_a_bible (webserver_request, read, write);
@@ -171,14 +174,14 @@ string editone2_update (void * webserver_request)
   string edited_verse_usfm = editone_logic_html_to_usfm (stylesheet, edited_html);
   string existing_verse_usfm = usfm_get_verse_text_quill (old_chapter_usfm, verse);
   existing_verse_usfm = filter_string_trim (existing_verse_usfm);
-
+  
   // Set a flag if there is a reason to save the editor text, since it was edited.
   // This is important because the same routine is used for saving editor text
   // as well as updating the editor text.
   // So if the text in the editor was not changed, it should not save it,
   // as saving the editor text would overwrite saves made by other(s).
   bool text_was_edited = (loaded_verse_usfm != edited_verse_usfm);
-  
+
   
   // Do a three-way merge if needed.
   // There's a need for this if there were user-edits,

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2020 Teus Benschop.
+ Copyright (©) 2003-2021 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -294,6 +294,9 @@ textarea {
 .width50 {
   width: 50%;
 }
+.height50 {
+  height: 50% !important;
+}
 .topalign {
   vertical-align: top;
 }
@@ -328,7 +331,7 @@ textarea {
   clear: both;
 }
 #topbar a {
-  color: #000;
+  color: inherit;
 }
 #breadcrumbs:not(:empty) {
   margin: 0.2em 0;
@@ -342,10 +345,7 @@ textarea {
 .menu-basic a {
   padding: 0 0.4em;
   border-style: solid;
-  text-decoration: none!important;
-  -webkit-appearance: button;
-     -moz-appearance: button;
-          appearance: button;
+  text-decoration: none;
 }
 .menu-advanced span {
   margin-right: 0.2em;
@@ -577,28 +577,52 @@ table.interlinear.rtl {
   cursor: default;
 }
 
-.note-new {
-  color: #fff;
+.white-on-green {
+  color: #fff!important;
   background-color: #008080;
 }
 
-.note-pending {
-  color: #0a0a0a;
+.black-on-orange {
+  color: #0a0a0a!important;
   background-color: #ffa500;
 }
 
-.note-inprogress {
-  color: #0a0a0a;
+.black-on-neon-green {
+  color: #0a0a0a!important;
   background-color: #00ff00;
 }
 
-.note-done {
-  color: #fff;
+.white-on-purple {
+  color: #fff!important;
   background-color: #0000ff;
 }
 
-.note-reopened {
-  color: #fff;
+.white-on-pink {
+  color: #fff!important;
   background-color: #ff1493;
 }
 
+.black-on-yellow {
+  color: #0a0a0a!important;
+  background-color: #ffff54
+}
+
+.black-on-light-blue {
+  color: #0a0a0a!important;
+  background-color: #7ba6d7
+}
+
+.white-on-dark-blue {
+  color: #fff!important;
+  background-color: #2654c5
+}
+
+.white-on-turkish-blue {
+  color: #fff!important;
+  background-color: #53808c
+}
+
+.divider {
+  width: 100%;
+  height: 8px;
+}

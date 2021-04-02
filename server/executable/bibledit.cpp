@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -195,7 +195,10 @@ int main (int argc, char **argv)
   bibledit_log ("The server started");
   cout << "Listening on http://localhost:" << config_logic_http_network_port ();
 #ifdef HAVE_CLOUD
-  cout << " and https://localhost:" << config_logic_https_network_port ();
+  string https_port = config_logic_https_network_port ();
+  if (https_port.length() > 1) {
+    cout << " and https://localhost:" << https_port;
+  }
 #endif
   cout << endl;
   cout << "Press Ctrl-C to quit" << endl;

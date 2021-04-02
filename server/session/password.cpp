@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -98,7 +98,7 @@ string session_password (void * webserver_request)
     }
   }
   
-  view.set_variable ("mailer", email_setup_information ());
+  view.set_variable ("mailer", email_setup_information (true, false));
 
   page += view.render ("session", "password");
 

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2020 Teus Benschop.
+ Copyright (©) 2003-2021 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -45,6 +45,8 @@ public:
   static int writingModeValue (string mode);
   static string getClass (string bible);
   static string getCss (string class_, string font, int directionvalue, int lineheight = 100, int letterspacing = 0);
+  static string distinction_set_1 (int offset);
+  static string distinction_set_2 (int offset);
 };
 
 

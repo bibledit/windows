@@ -9,6 +9,12 @@
 
 /* Define whether execinfo.h is present */
 
+/* Define whether ICU is available */
+#define HAVE_ICU 1
+
+/* Define whether to compile for Indonesian Cloud Free */
+/* #undef HAVE_INDONESIANCLOUDFREE */
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
 
@@ -84,7 +90,7 @@
 #define PACKAGE_PREFIX_DIR "NONE"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "bibledit 5.0.932"
+#define PACKAGE_STRING "bibledit 5.0.941"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "bibledit"
@@ -93,13 +99,13 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "5.0.932"
+#define PACKAGE_VERSION "5.0.941"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "5.0.932"
+#define VERSION "5.0.941"
 
 /* Define whether to compile on Windows */
 #define WIN32 1

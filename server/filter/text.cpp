@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <styles/logic.h>
 #include <database/books.h>
 #include <database/config/bible.h>
+#include <database/logs.h>
 #include <locale/translate.h>
 
 
@@ -100,6 +101,10 @@ Filter_Text::~Filter_Text ()
 // $code: USFM code.
 void Filter_Text::addUsfmCode (string usfm)
 {
+  // Check that the USFM is valid UTF-8.
+  if (!unicode_string_is_valid (usfm)) {
+    Database_Logs::log (translate ("Exporting invalid UTF-8.") + " " + translate ("Please check.") + " " + usfm);
+  }
   // Clean the USFM.
   usfm = filter_string_trim (usfm);
   usfm += "\n";

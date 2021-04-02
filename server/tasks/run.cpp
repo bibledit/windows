@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -308,6 +308,9 @@ void tasks_run_one (string filename)
   }
   else if (command == EXPORT2NMT) {
     nmt_logic_export (parameter1, parameter2);
+  }
+  else if (command == CREATEEMPTYBIBLE) {
+    bible_logic_create_empty_bible (parameter1);
   }
   else {
     Database_Logs::log ("Unknown task: " + command);

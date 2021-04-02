@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -76,6 +76,10 @@ public:
   static void setCheckFrenchPunctuation (string bible, bool value);
   static bool getCheckFrenchCitationStyle (string bible);
   static void setCheckFrenchCitationStyle (string bible, bool value);
+  static bool getTransposeFixSpacesNotes (string bible);
+  static void setTransposeFixSpacesNotes (string bible, bool value);
+  static bool getCheckValidUTF8Text (string bible);
+  static void setCheckValidUTF8Text (string bible, bool value);
   static string getSprintTaskCompletionCategories (string bible);
   static void setSprintTaskCompletionCategories (string bible, string value);
   static int getRepeatSendReceive (string bible);
@@ -106,8 +110,6 @@ public:
   static void setExportStylesheet (string bible, string value);
   static string getVersificationSystem (string bible);
   static void setVersificationSystem (string bible, string value);
-  static string getVerseMapping (string bible);
-  static void setVerseMapping (string bible, string value);
   static bool getExportWebDuringNight (string bible);
   static void setExportWebDuringNight (string bible, bool value);
   static bool getExportHtmlDuringNight (string bible);

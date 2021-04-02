@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2020 Teus Benschop.
+Copyright (©) 2003-2021 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -113,7 +113,7 @@ string get_base_url (void * webserver_request)
   string port;
   if (request->secure || config_globals_enforce_https_browser) {
     scheme = "https";
-    port = convert_to_string (config_logic_https_network_port ());
+    port = config_logic_https_network_port ();
   } else {
     scheme = "http";
     port = config_logic_http_network_port ();
@@ -143,7 +143,7 @@ void redirect_browser (void * webserver_request, string path)
   if (request->secure || config_globals_enforce_https_browser) {
     location = filter_string_str_replace ("http:", "https:", location);
     string plainport = config_logic_http_network_port ();
-    string secureport = convert_to_string (config_logic_https_network_port ());
+    string secureport = config_logic_https_network_port ();
     location = filter_string_str_replace (":" + plainport, ":" + secureport, location);
   }
   
