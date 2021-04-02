@@ -228,6 +228,7 @@
     <ClCompile Include="consistency\input.cpp" />
     <ClCompile Include="consistency\logic.cpp" />
     <ClCompile Include="consistency\poll.cpp" />
+    <ClCompile Include="database\abbottsmith.cpp" />
     <ClCompile Include="database\bibleactions.cpp" />
     <ClCompile Include="database\bibles.cpp" />
     <ClCompile Include="database\books.cpp" />
@@ -370,6 +371,7 @@
     <ClCompile Include="library\locks.c" />
     <ClCompile Include="locale\logic.cpp" />
     <ClCompile Include="locale\translate.cpp" />
+    <ClCompile Include="manage\accounts.cpp" />
     <ClCompile Include="manage\exports.cpp" />
     <ClCompile Include="manage\hyphenate.cpp" />
     <ClCompile Include="manage\hyphenation.cpp" />
@@ -506,13 +508,19 @@
     <ClCompile Include="pugixml\pugixml.cpp" />
     <ClCompile Include="pugixml\utils.cpp" />
     <ClCompile Include="quill\logic.cpp" />
+    <ClCompile Include="read\index.cpp" />
+    <ClCompile Include="read\load.cpp" />
+    <ClCompile Include="read\verse.cpp" />
     <ClCompile Include="redirect\index.cpp" />
     <ClCompile Include="related\logic.cpp" />
     <ClCompile Include="resource\bb2resource.cpp" />
     <ClCompile Include="resource\bbgateway.cpp" />
     <ClCompile Include="resource\cache.cpp" />
+    <ClCompile Include="resource\comparative1edit.cpp" />
+    <ClCompile Include="resource\comparative9edit.cpp" />
     <ClCompile Include="resource\convert2bible.cpp" />
     <ClCompile Include="resource\convert2resource.cpp" />
+    <ClCompile Include="resource\divider.cpp" />
     <ClCompile Include="resource\download.cpp" />
     <ClCompile Include="resource\external.cpp" />
     <ClCompile Include="resource\get.cpp" />
@@ -562,6 +570,7 @@
     <ClCompile Include="sendreceive\resources.cpp" />
     <ClCompile Include="sendreceive\sendreceive.cpp" />
     <ClCompile Include="sendreceive\settings.cpp" />
+    <ClCompile Include="session\confirm.cpp" />
     <ClCompile Include="session\logic.cpp" />
     <ClCompile Include="session\login.cpp" />
     <ClCompile Include="session\logout.cpp" />
@@ -592,6 +601,7 @@
     <ClCompile Include="sync\setup.cpp" />
     <ClCompile Include="sync\usfmresources.cpp" />
     <ClCompile Include="system\index.cpp" />
+    <ClCompile Include="system\indonesianfree.cpp" />
     <ClCompile Include="system\logic.cpp" />
     <ClCompile Include="tasks\logic.cpp" />
     <ClCompile Include="tasks\run.cpp" />
