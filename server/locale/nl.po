@@ -13,7 +13,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Launchpad (build 21fefc602783aa4ba863a4a6c29d38d788ce04ad)\n"
+"X-Generator: Launchpad (build 1552fceb1603b3da6cfa437575d9c9fc4b2e683a)\n"
 
 msgid "Has been sending and receiving during the past hour"
 msgstr "Bezig geweest met zenden en ontvangen gedurende het afgelopen uur"
@@ -1886,12 +1886,6 @@ msgstr "Stel de taal voor Bibledit in"
 msgid "System"
 msgstr ""
 
-msgid "Please enter a name for the Bible"
-msgstr ""
-
-msgid "The Bible was renamed"
-msgstr ""
-
 msgid "Please enter a timezone between -12 and +14"
 msgstr ""
 
@@ -2517,6 +2511,9 @@ msgid ""
 msgstr ""
 
 msgid "Initial vertical position of the editing cursor in the Bible editors"
+msgstr ""
+
+msgid "Choose theme"
 msgstr ""
 
 msgid "Show breadcrumbs"
@@ -4113,16 +4110,21 @@ msgstr ""
 msgid "Cache"
 msgstr ""
 
-msgid "Clear the web cache and the resources cache."
+msgid "Clear the web cache and the resources cache now."
+msgstr ""
+
+msgid "Keep the resources cache for an extended period of time."
+msgstr ""
+
+msgid ""
+"This makes the second and subsequent resources downloads by Bibledit clients "
+"much faster."
 msgstr ""
 
 msgid "Queued emails"
 msgstr ""
 
 msgid "Number of emails still to be sent:"
-msgstr ""
-
-msgid "The name of the Bible is"
 msgstr ""
 
 msgid "Visit alkitabkita.info for more information."
@@ -4462,13 +4464,13 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
+msgid "Days"
+msgstr ""
+
 msgid "Role"
 msgstr ""
 
 msgid "Email"
-msgstr ""
-
-msgid "Privileges"
 msgstr ""
 
 msgid "This lists several user accounts and their properties."
@@ -4673,6 +4675,9 @@ msgid "Visit the Bible Drop Box for more options."
 msgstr ""
 
 msgid "There are more export formats through the BibleMultiConverter."
+msgstr ""
+
+msgid "Privileges"
 msgstr ""
 
 msgid ""
@@ -8651,6 +8656,9 @@ msgstr ""
 msgid "Give it a while to initialize."
 msgstr ""
 
+msgid "Alternative installation options:"
+msgstr ""
+
 msgid "Versions"
 msgstr ""
 
@@ -10581,53 +10589,137 @@ msgstr ""
 msgid "Genesis"
 msgstr "Genesis"
 
+msgid "Gen"
+msgstr ""
+
 msgid "Exodus"
 msgstr "Exodus"
+
+msgid "Exod"
+msgstr ""
+
+msgid "Exo"
+msgstr ""
 
 msgid "Leviticus"
 msgstr "Leviticus"
 
+msgid "Lev"
+msgstr ""
+
 msgid "Numbers"
 msgstr "Numeri"
+
+msgid "Num"
+msgstr ""
 
 msgid "Deuteronomy"
 msgstr "Deuteronomium"
 
+msgid "Deut"
+msgstr ""
+
+msgid "Deu"
+msgstr ""
+
 msgid "Joshua"
 msgstr "Jozua"
+
+msgid "Josh"
+msgstr ""
+
+msgid "Jos"
+msgstr ""
 
 msgid "Judges"
 msgstr "Rechters"
 
+msgid "Judg"
+msgstr ""
+
+msgid "Jdg"
+msgstr ""
+
 msgid "Ruth"
 msgstr "Ruth"
+
+msgid "Rut"
+msgstr ""
 
 msgid "1 Samuel"
 msgstr "1 Samuël"
 
+msgid "1Sam"
+msgstr ""
+
+msgid "1Sa"
+msgstr ""
+
 msgid "2 Samuel"
 msgstr "2 Samuël"
+
+msgid "2Sam"
+msgstr ""
+
+msgid "2Sa"
+msgstr ""
 
 msgid "1 Kings"
 msgstr "1 Koningen"
 
+msgid "1Kgs"
+msgstr ""
+
+msgid "1Ki"
+msgstr ""
+
 msgid "2 Kings"
 msgstr "2 Koningen"
+
+msgid "2Kgs"
+msgstr ""
+
+msgid "2Ki"
+msgstr ""
 
 msgid "1 Chronicles"
 msgstr "1 Kronieken"
 
+msgid "1Chr"
+msgstr ""
+
+msgid "1Ch"
+msgstr ""
+
 msgid "2 Chronicles"
 msgstr "2 Kronieken"
+
+msgid "2Chr"
+msgstr ""
+
+msgid "2Ch"
+msgstr ""
 
 msgid "Ezra"
 msgstr "Ezra"
 
+msgid "Ezr"
+msgstr ""
+
 msgid "Nehemiah"
 msgstr "Nehemia"
 
+msgid "Neh"
+msgstr ""
+
 msgid "Esther"
 msgstr "Esther"
+
+msgid "Esth"
+msgstr ""
+
+msgid "Est"
+msgstr ""
 
 msgid "Job"
 msgstr "Job"
@@ -10635,146 +10727,359 @@ msgstr "Job"
 msgid "Psalms"
 msgstr "Psalmen"
 
+msgid "Ps"
+msgstr ""
+
+msgid "Psa"
+msgstr ""
+
 msgid "Proverbs"
 msgstr "Spreuken"
+
+msgid "Prov"
+msgstr ""
+
+msgid "Pro"
+msgstr ""
 
 msgid "Ecclesiastes"
 msgstr "Prediker"
 
+msgid "Eccl"
+msgstr ""
+
+msgid "Ecc"
+msgstr ""
+
 msgid "Song of Solomon"
 msgstr "Hooglied"
+
+msgid "Song"
+msgstr ""
+
+msgid "Sol"
+msgstr ""
 
 msgid "Isaiah"
 msgstr "Jesaja"
 
+msgid "Isa"
+msgstr ""
+
 msgid "Jeremiah"
 msgstr "Jeremia"
+
+msgid "Jer"
+msgstr ""
 
 msgid "Lamentations"
 msgstr "Klaagliederen"
 
+msgid "Lam"
+msgstr ""
+
 msgid "Ezekiel"
 msgstr "Ezechiël"
+
+msgid "Ezek"
+msgstr ""
+
+msgid "Eze"
+msgstr ""
 
 msgid "Daniel"
 msgstr "Daniël"
 
+msgid "Dan"
+msgstr ""
+
 msgid "Hosea"
 msgstr "Hosea"
+
+msgid "Hos"
+msgstr ""
 
 msgid "Joel"
 msgstr "Joël"
 
+msgid "Joe"
+msgstr ""
+
 msgid "Amos"
 msgstr "Amos"
+
+msgid "Amo"
+msgstr ""
 
 msgid "Obadiah"
 msgstr "Obadja"
 
+msgid "Obad"
+msgstr ""
+
+msgid "Oba"
+msgstr ""
+
 msgid "Jonah"
 msgstr "Jona"
+
+msgid "Jon"
+msgstr ""
 
 msgid "Micah"
 msgstr "Micha"
 
+msgid "Mic"
+msgstr ""
+
 msgid "Nahum"
 msgstr "Nahum"
+
+msgid "Nah"
+msgstr ""
 
 msgid "Habakkuk"
 msgstr "Habakuk"
 
+msgid "Hab"
+msgstr ""
+
 msgid "Zephaniah"
 msgstr "Sefanja"
+
+msgid "Zeph"
+msgstr ""
+
+msgid "Zep"
+msgstr ""
 
 msgid "Haggai"
 msgstr "Haggai"
 
+msgid "Hag"
+msgstr ""
+
 msgid "Zechariah"
 msgstr "Zacharia"
+
+msgid "Zech"
+msgstr ""
+
+msgid "Zec"
+msgstr ""
 
 msgid "Malachi"
 msgstr "Maleachi"
 
+msgid "Mal"
+msgstr ""
+
 msgid "Matthew"
 msgstr "Matteüs"
+
+msgid "Matt"
+msgstr ""
+
+msgid "Mat"
+msgstr ""
 
 msgid "Mark"
 msgstr "Marcus"
 
+msgid "Mar"
+msgstr ""
+
 msgid "Luke"
 msgstr "Lucas"
+
+msgid "Luk"
+msgstr ""
 
 msgid "John"
 msgstr "Johannes"
 
+msgid "Joh"
+msgstr ""
+
 msgid "Acts"
 msgstr "Handelingen"
+
+msgid "Act"
+msgstr ""
 
 msgid "Romans"
 msgstr "Romeinen"
 
+msgid "Rom"
+msgstr ""
+
 msgid "1 Corinthians"
 msgstr "1 Korintiërs"
+
+msgid "1Cor"
+msgstr ""
+
+msgid "1Co"
+msgstr ""
 
 msgid "2 Corinthians"
 msgstr "2 Korintiërs"
 
+msgid "2Cor"
+msgstr ""
+
+msgid "2Co"
+msgstr ""
+
 msgid "Galatians"
 msgstr "Galaten"
+
+msgid "Gal"
+msgstr ""
 
 msgid "Ephesians"
 msgstr "Efeziërs"
 
+msgid "Eph"
+msgstr ""
+
 msgid "Philippians"
 msgstr "Filippenzen"
+
+msgid "Phil"
+msgstr ""
+
+msgid "Phi"
+msgstr ""
 
 msgid "Colossians"
 msgstr "Kolossenzen"
 
+msgid "Col"
+msgstr ""
+
 msgid "1 Thessalonians"
 msgstr "1 Tessalonicenzen"
+
+msgid "1Thess"
+msgstr ""
+
+msgid "1Th"
+msgstr ""
 
 msgid "2 Thessalonians"
 msgstr "2 Tessalonicenzen"
 
+msgid "2Thess"
+msgstr ""
+
+msgid "2Th"
+msgstr ""
+
 msgid "1 Timothy"
 msgstr "1 Timoteüs"
+
+msgid "1Tim"
+msgstr ""
+
+msgid "1Ti"
+msgstr ""
 
 msgid "2 Timothy"
 msgstr "2 Timoteüs"
 
+msgid "2Tim"
+msgstr ""
+
+msgid "2Ti"
+msgstr ""
+
 msgid "Titus"
 msgstr "Titus"
+
+msgid "Tit"
+msgstr ""
 
 msgid "Philemon"
 msgstr "Filemon"
 
+msgid "Phlm"
+msgstr ""
+
+msgid "Phm"
+msgstr ""
+
 msgid "Hebrews"
 msgstr "Hebreeën"
+
+msgid "Heb"
+msgstr ""
 
 msgid "James"
 msgstr "Jakobus"
 
+msgid "Jas"
+msgstr ""
+
+msgid "Jam"
+msgstr ""
+
 msgid "1 Peter"
 msgstr "1 Petrus"
+
+msgid "1Pet"
+msgstr ""
+
+msgid "1Pe"
+msgstr ""
 
 msgid "2 Peter"
 msgstr "2 Petrus"
 
+msgid "2Pet"
+msgstr ""
+
+msgid "2Pe"
+msgstr ""
+
 msgid "1 John"
 msgstr "1 Johannes"
+
+msgid "1John"
+msgstr ""
+
+msgid "1Jo"
+msgstr ""
 
 msgid "2 John"
 msgstr "2 Johannes"
 
+msgid "2John"
+msgstr ""
+
+msgid "2Jo"
+msgstr ""
+
 msgid "3 John"
 msgstr "3 Johannes"
+
+msgid "3John"
+msgstr ""
+
+msgid "3Jo"
+msgstr ""
 
 msgid "Jude"
 msgstr "Judas"
 
+msgid "Jud"
+msgstr ""
+
 msgid "Revelation"
 msgstr "Openbaring"
+
+msgid "Rev"
+msgstr ""
 
 msgid "Front Matter"
 msgstr ""
@@ -10788,55 +11093,142 @@ msgstr "Ander materiaal"
 msgid "Tobit"
 msgstr ""
 
+msgid "Tob"
+msgstr ""
+
 msgid "Judith"
+msgstr ""
+
+msgid "Jdt"
 msgstr ""
 
 msgid "Esther (Greek)"
 msgstr ""
 
+msgid "AddEsth"
+msgstr ""
+
+msgid "EsG"
+msgstr ""
+
 msgid "Wisdom of Solomon"
+msgstr ""
+
+msgid "Wis"
 msgstr ""
 
 msgid "Sirach"
 msgstr ""
 
+msgid "Sir"
+msgstr ""
+
 msgid "Baruch"
+msgstr ""
+
+msgid "Bar"
 msgstr ""
 
 msgid "Letter of Jeremiah"
 msgstr ""
 
+msgid "EpJer"
+msgstr ""
+
+msgid "LJe"
+msgstr ""
+
 msgid "Song of the Three Children"
+msgstr ""
+
+msgid "PrAzar"
+msgstr ""
+
+msgid "S3Y"
 msgstr ""
 
 msgid "Susanna"
 msgstr ""
 
+msgid "Sus"
+msgstr ""
+
 msgid "Bel and the Dragon"
+msgstr ""
+
+msgid "Bel"
 msgstr ""
 
 msgid "1 Maccabees"
 msgstr ""
 
+msgid "1Macc"
+msgstr ""
+
+msgid "1Ma"
+msgstr ""
+
 msgid "2 Maccabees"
+msgstr ""
+
+msgid "2Macc"
+msgstr ""
+
+msgid "2Ma"
 msgstr ""
 
 msgid "1 Esdras (Greek)"
 msgstr ""
 
+msgid "1Esd"
+msgstr ""
+
+msgid "1Es"
+msgstr ""
+
 msgid "Prayer of Manasses"
+msgstr ""
+
+msgid "PrMan"
+msgstr ""
+
+msgid "Man"
 msgstr ""
 
 msgid "Psalm 151"
 msgstr ""
 
+msgid "Ps151"
+msgstr ""
+
+msgid "Ps2"
+msgstr ""
+
 msgid "3 Maccabees"
+msgstr ""
+
+msgid "3Macc"
+msgstr ""
+
+msgid "3Ma"
 msgstr ""
 
 msgid "2 Esdras (Latin)"
 msgstr ""
 
+msgid "2Esd"
+msgstr ""
+
+msgid "2Es"
+msgstr ""
+
 msgid "4 Maccabees"
+msgstr ""
+
+msgid "4Macc"
+msgstr ""
+
+msgid "4Ma"
 msgstr ""
 
 msgid "Daniel (Greek)"
@@ -11371,7 +11763,7 @@ msgstr ""
 msgid "Conversion completed"
 msgstr ""
 
-msgid "Select a resource to be used as a base resource."
+msgid "Select a resource to be used as a base resource"
 msgstr ""
 
 msgid "The base resource is used as a starting point for the comparison."
@@ -11598,12 +11990,175 @@ msgstr "Patmos"
 
 msgid ""
 "I, John, your brother and companion in the persecution, and in the kingdom "
-"and endurance of Jesus Christ, was in the island which is called Patmos, "
-"because of the word of God, and because of the testimony of Jesus Christ."
+"and endurance of Jesus Christ, was in the island called Patmos, because of "
+"the word of God, and because of the testimony of Jesus Christ."
 msgstr ""
-"Ik, Johanes, je broer en metgezel in de verdrukking en in het koninkrijk en "
-"de volharding van Jezus Christus, was in het eiland genaamd Patmos, vanwege "
-"het woord van God, en vanwege het getuigenis van Jezus Christus."
+
+msgid "Who is the first person to acknowledge Jesus as the Christ?"
+msgstr ""
+
+msgid "Simeon"
+msgstr ""
+
+msgid ""
+"There was Simeon. A just and devout man. The Holy Spirit told him that he "
+"will see Christ before his death."
+msgstr ""
+
+msgid "To whom was the Acts Of Apostles written?"
+msgstr ""
+
+msgid "Theophilus"
+msgstr ""
+
+msgid ""
+"The former treatise have I made, O Theophilus, of all that Jesus began both "
+"to do and teach,"
+msgstr ""
+
+msgid "Where did Jesus met the woman from Samaria?"
+msgstr ""
+
+msgid "Jacob's well"
+msgstr ""
+
+msgid ""
+"Jesus being wearied by his journey, sat on Jacob's well. Then came a woman "
+"from Samaria to get water."
+msgstr ""
+
+msgid "Who was the father of Abraham?"
+msgstr ""
+
+msgid "Terah"
+msgstr ""
+
+msgid "And Terah took Abram his son,"
+msgstr ""
+
+msgid "Who was the son of Cush, the mighty hunter before the Lord?"
+msgstr ""
+
+msgid "Nimrod"
+msgstr ""
+
+msgid "And Cush bore Nimrod. He was a mighty hunter before the Lord."
+msgstr ""
+
+msgid "What is the name of Job's friend that answered him first?"
+msgstr ""
+
+msgid "Eliphaz"
+msgstr ""
+
+msgid "Then Eliphaz the Temanite answered and said to Job."
+msgstr ""
+
+msgid "What is the name of Ruth's husband?"
+msgstr ""
+
+msgid "Boaz"
+msgstr ""
+
+msgid "So Boaz took Ruth as his wife."
+msgstr ""
+
+msgid "Who taught Lemuel Proverbs chapter 31?"
+msgstr ""
+
+msgid "Lemuel's mother"
+msgstr ""
+
+msgid "The words of king Lemuel, the prophecy that his mother taught him."
+msgstr ""
+
+msgid "Who is the chosen people of God in the Old Testament?"
+msgstr ""
+
+msgid "Israel"
+msgstr ""
+
+msgid "Israel, you are the chosen people of the Lord your God."
+msgstr ""
+
+msgid "Where did God rescue Israel from?"
+msgstr ""
+
+msgid "Egypt"
+msgstr ""
+
+msgid "Then with his mighty arm, he rescued you from Egypt."
+msgstr ""
+
+msgid "Who's the father of Abimelech?"
+msgstr ""
+
+msgid "Gideon"
+msgstr ""
+
+msgid "Abimelech the son of Gideon went to Shechem."
+msgstr ""
+
+msgid "Who's the father of Joshua the priest in the time of Ezra?"
+msgstr ""
+
+msgid "Jozadak"
+msgstr ""
+
+msgid "The priest Joshua son of Jozadak."
+msgstr ""
+
+msgid "Who's Nebuchadnezzar?"
+msgstr ""
+
+msgid "The king of Babylonia"
+msgstr ""
+
+msgid ""
+"We were told that their people had made God angry, and he let them be "
+"captured by Nebuchadnezzar, the king of Babylonia."
+msgstr ""
+
+msgid "Who's Cyrus?"
+msgstr ""
+
+msgid "King of Babylonia"
+msgstr ""
+
+msgid ""
+"They also said that during the first year Cyrus was king of Babylonia."
+msgstr ""
+
+msgid ""
+"For how many days does Jesus appeared to the disciples after he rose from "
+"the dead?"
+msgstr ""
+
+msgid "40"
+msgstr ""
+
+msgid ""
+"For 40 days after Jesus had suffered and died, he proved in many ways that "
+"he had been raised from death."
+msgstr ""
+
+msgid "Who wrote Song of Songs?"
+msgstr ""
+
+msgid "Solomon"
+msgstr ""
+
+msgid "This is Solomon's most beautiful song."
+msgstr ""
+
+msgid "Who's the father of Hosea?"
+msgstr ""
+
+msgid "Beeri"
+msgstr ""
+
+msgid "I am Hosea son of Beeri."
+msgstr ""
 
 msgid "Username should be at least four characters long"
 msgstr ""

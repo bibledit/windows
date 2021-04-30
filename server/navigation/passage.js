@@ -42,9 +42,15 @@ function buildKeyboardNavigator () {
     data: { bible: navigationBible, keyboard: "" },
     cache: false,
     success: function (response) {
+      navigatorContainer = $ ("#versepickerwrapper");
+      if (navigatorContainer.length == 0) {
+        navigatorContainer = $(parent.document).find ("#versepickerwrapper");
+      }
       navigatorContainer.empty ();
       navigatorContainer.append (response);
-      $ ("#keyboard").focus ();
+      var keyboard = $ ("#keyboard");
+      if (keyboard.length == 0) keyboard = $(parent.document).find ("#keyboard");
+      keyboard.focus ();
     },
   });
 }
@@ -94,6 +100,7 @@ function bindClickHandlers () {
   });
   $("#selectbook").on ("click", function (event) {
     $ (".fadeout").hide ();
+    $ ('#topbar').addClass('wrap-active');
     displayBooks (event);
   });
   $("#selectchapter").on ("click", function (event) {
@@ -158,6 +165,7 @@ function displayBooks (event) {
       navigatorContainer.empty ();
       navigatorContainer.append (response);
       $("#applybook").on ("click", function (event) {
+        $ ('#topbar').removeClass('wrap-active');
         applyBook (event);
       });
     },

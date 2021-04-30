@@ -297,7 +297,12 @@
 /flate
 /fonts
 /fonts/Cardo-Regular.ttf
+/fonts/Esteban-License(OFL).txt
+/fonts/Esteban-Regular.ttf
 /fonts/index.html
+/fonts/Montserrat-License(OFL).txt
+/fonts/Montserrat-Light.ttf
+/fonts/Montserrat-Regular.ttf
 /fonts/SILEOT.ttf
 /fonts/SIL-Licenses.txt
 /git
@@ -5613,6 +5618,8 @@
 /unittests/tests/flate2.html
 /unittests/tests/flate3.html
 /unittests/tests/Genesis-1-1-18.gif
+/unittests/tests/html-fixed-1.html
+/unittests/tests/html-invalid-1.html
 /unittests/tests/invalid-utf8-2.usfm
 /unittests/tests/invalid-utf8-new.txt
 /unittests/tests/invalid-utf8-old.txt

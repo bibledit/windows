@@ -104,7 +104,15 @@ string system_indonesianfree (void * webserver_request)
     }
   }
 
+
+  // Set the user chosen theme as the current theme.
+  if (request->query.count ("themepicker")) {
+    int themepicker = convert_to_int (request->query ["themepicker"]);
+    request->database_config_user ()->setCurrentTheme(themepicker);
+    return "";
+  }
   
+
   // The header: The language has been set already.
   Assets_Header header = Assets_Header (translate("System"), webserver_request);
   header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
@@ -206,41 +214,21 @@ string system_indonesianfree (void * webserver_request)
   }
   view.set_variable ("fontsizegreek", convert_to_string (request->database_config_user ()->getGreekFontSize ()));
 
+
+  // Set the chosen theme on the option HTML tag.
+  int current_theme_index = request->database_config_user ()->getCurrentTheme ();
+  view.set_variable ("themepicker", convert_to_string(current_theme_index));
+  switch (current_theme_index) {
+    case 0: view.set_variable ("themepickerindex0", "selected"); break;
+    case 1: view.set_variable ("themepickerindex1", "selected"); break;
+    case 2: view.set_variable ("themepickerindex2", "selected"); break;
+  }
+
   
   // Set the language on the page.
   string language = locale_logic_filter_default_language (Database_Config_General::getSiteLanguage ());
   language = localizations [language];
   view.set_variable ("language", language);
-  
-  
-  // Since the Bible can be set, first ensure there's one available.
-  string bible = access_bible_clamp (request, request->database_config_user()->getBible ());
-  if (request->query.count ("bible")) bible = access_bible_clamp (request, request->query ["bible"]);
-
- 
-  // Change the name of the Bible.
-  if (request->query.count ("bible")) {
-    Dialog_Entry dialog_entry = Dialog_Entry ("indonesianfree", translate ("Please enter a name for the Bible"), bible, "bible", "");
-    page += dialog_entry.run ();
-    return page;
-  }
-  if (request->post.count ("bible")) {
-    string bible2 = request->post ["entry"];
-    // Copy the Bible data.
-    string origin_folder = request->database_bibles ()->bibleFolder (bible);
-    string destination_folder = request->database_bibles ()->bibleFolder (bible2);
-    filter_url_dir_cp (origin_folder, destination_folder);
-    // Copy the Bible search index.
-    search_logic_copy_bible (bible, bible2);
-    // Remove the old Bible.
-    request->database_bibles ()->deleteBible (bible);
-    search_logic_delete_bible (bible);
-    // Update logic.
-    bible = bible2;
-    // Feedback.
-    success = translate ("The Bible was renamed");
-  }
-  view.set_variable ("bible", bible);
   
   
   view.set_variable ("external", assets_external_logic_link_addon ());

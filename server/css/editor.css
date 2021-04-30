@@ -46,11 +46,21 @@
   transition: box-shadow 1s ease-in-out;
   box-shadow: 0px 0px 15px red;
 }
+.dark-versebeam {
+  transition: box-shadow 1s ease-in-out;
+  box-shadow: 0px 0px 15px #0FF;
+}
 .b-notes {
   height: 1px;
   width: 50%;
   margin: 0.5em;
   background: black;
+}
+.dark-background .b-notes {
+  background: #efefef !important;
+}
+.light-background .b-notes {
+  background: #171717 !important;
 }
 [class^='i-note'] {
   cursor: pointer;

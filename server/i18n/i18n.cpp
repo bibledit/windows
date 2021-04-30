@@ -177,6 +177,14 @@ int main ()
     english.insert (0, "translate(\"");
     english.append ("\")");
     translatables.push_back (english);
+    string osis = books_table[i].osis;
+    osis.insert (0, "translate(\"");
+    osis.append ("\")");
+    translatables.push_back (osis);
+    string bibleworks = books_table[i].bibleworks;
+    bibleworks.insert (0, "translate(\"");
+    bibleworks.append ("\")");
+    translatables.push_back (bibleworks);
   }
   
   // Store translatable strings.
