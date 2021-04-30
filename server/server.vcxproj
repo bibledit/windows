@@ -282,15 +282,6 @@
     <ClCompile Include="dialog\list.cpp" />
     <ClCompile Include="dialog\upload.cpp" />
     <ClCompile Include="dialog\yes.cpp" />
-    <ClCompile Include="edit2\edit.cpp" />
-    <ClCompile Include="edit2\index.cpp" />
-    <ClCompile Include="edit2\load.cpp" />
-    <ClCompile Include="edit2\logic.cpp" />
-    <ClCompile Include="edit2\navigate.cpp" />
-    <ClCompile Include="edit2\position.cpp" />
-    <ClCompile Include="edit2\preview.cpp" />
-    <ClCompile Include="edit2\save.cpp" />
-    <ClCompile Include="edit2\update.cpp" />
     <ClCompile Include="editone2\index.cpp" />
     <ClCompile Include="editone2\load.cpp" />
     <ClCompile Include="editone2\logic.cpp" />
@@ -319,6 +310,7 @@
     <ClCompile Include="edit\preview.cpp" />
     <ClCompile Include="edit\save.cpp" />
     <ClCompile Include="edit\styles.cpp" />
+    <ClCompile Include="edit\update.cpp" />
     <ClCompile Include="email\index.cpp" />
     <ClCompile Include="email\receive.cpp" />
     <ClCompile Include="email\send.cpp" />
