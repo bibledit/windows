@@ -65,8 +65,8 @@ rm -rf cloud.xcodeproj
 if [ $? != 0 ]; then exit; fi
 
 
-echo Set the network port it listens on.
-echo 9876 > config/network-port
+# echo Set the network port it listens on.
+# echo 9876 > config/network-port
 
 
 # Remove some Linux related definitions as they don't work on Windows.
