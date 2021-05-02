@@ -10,6 +10,9 @@ using System.Runtime.InteropServices;
 using System.Timers;
 using System.Net.Sockets;
 using Microsoft.Win32;
+using System.Text.RegularExpressions;
+using System.Windows.Threading;
+
 
 namespace Bibledit
 {
@@ -43,7 +46,7 @@ namespace Bibledit
 
         string windowstate = "windowstate.txt";
         Process BibleditCore;
-        public static ChromiumWebBrowser browser;
+        public static ChromiumWebBrowser browser = null;
 
 
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
@@ -51,6 +54,10 @@ namespace Bibledit
 
         private System.Timers.Timer externalUrlTimer;
         private System.Timers.Timer focusedReferenceTimer;
+
+
+        private DispatcherTimer dispatcherTimer = null;
+        String portNumber = String.Empty;
 
 
         private static Boolean PrintDialogOpen = false;
@@ -100,7 +107,8 @@ namespace Bibledit
         public void InitBrowser()
         {
             Cef.Initialize(new CefSettings());
-            browser = new ChromiumWebBrowser("http://localhost:9876");
+            browser = new ChromiumWebBrowser("http://localhost:" + portNumber);
+            //Console.WriteLine("http://localhost:" + portNumber);
             //browser.DownloadHandler = new DownloadHandler();
             Controls.Add(browser);
             browser.Dock = DockStyle.Fill;
@@ -110,7 +118,7 @@ namespace Bibledit
         public Form1()
         {
             InitializeComponent();
-            InitBrowser();
+            //InitBrowser();
             MyHookID = SetHook(MyKeyboardProcessor);
 
             // Create a timer with a one-second interval.
@@ -125,6 +133,11 @@ namespace Bibledit
             focusedReferenceTimer.Elapsed += OnFocusedReferenceTimedEvent;
             focusedReferenceTimer.AutoReset = false;
             focusedReferenceTimer.Start();
+
+            dispatcherTimer = new DispatcherTimer();
+            dispatcherTimer.Tick += new EventHandler(GuiUpdaterTick);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 50);
+            dispatcherTimer.Start();
         }
 
 
@@ -204,12 +217,30 @@ namespace Bibledit
             }
             BibleditCore = new Process();
             BibleditCore.StartInfo.WorkingDirectory = System.IO.Path.Combine(Application.StartupPath);
-            BibleditCore.StartInfo.FileName = "server.exe";
+            BibleditCore.StartInfo.FileName = System.IO.Path.Combine(Application.StartupPath, "server.exe");
+            //BibleditCore.StartInfo.WorkingDirectory = @"C:\bibledit-windows";
+            //BibleditCore.StartInfo.FileName = @"C:\bibledit-windows\server.exe";
             BibleditCore.StartInfo.Arguments = "";
             BibleditCore.StartInfo.CreateNoWindow = true;
             BibleditCore.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             BibleditCore.EnableRaisingEvents = true;
             BibleditCore.Exited += new EventHandler(ProcessExited);
+            BibleditCore.StartInfo.UseShellExecute = false;
+            BibleditCore.StartInfo.RedirectStandardOutput = true;
+            BibleditCore.EnableRaisingEvents = true;
+            BibleditCore.OutputDataReceived += new DataReceivedEventHandler((sender2, e2) =>
+            {
+                String line = e2.Data;
+                if (!String.IsNullOrWhiteSpace(line))
+                {
+                    String number = Regex.Match(e2.Data, @"\d+$").Value;
+                    if (!String.IsNullOrWhiteSpace(number))
+                    {
+                        portNumber = number;
+                        //Console.WriteLine(portNumber);
+                    }
+                }
+            });
             BibleditCore.Start();
             // Set the server to run on one processor only. 
             // That gives a huge boost to the speed of the Cygwin library.
@@ -220,6 +251,10 @@ namespace Bibledit
             // What works well too: PsExec.exe -a 1 server.exe
             // After the C++ code was compiled through Visual Studio, the processor limit is no longer relevant.
             // BibleditCore.ProcessorAffinity = (IntPtr)1;
+
+            // Asynchronously read the standard output of the spawned process.
+            // This raises OutputDataReceived events for each line of output.
+            BibleditCore.BeginOutputReadLine();
         }
 
 
@@ -426,6 +461,14 @@ namespace Bibledit
             PrintDialogOpen = true;
             browser.Print();
             PrintDialogOpen = false;
+        }
+
+
+        private void GuiUpdaterTick(object sender, EventArgs e)
+        {
+            if (browser != null) return;
+            if (String.IsNullOrEmpty(portNumber)) return;
+            InitBrowser();
         }
 
 
