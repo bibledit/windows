@@ -1350,6 +1350,15 @@
     <ClCompile Include="edit\update.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="developer\delay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="filter\indonesian.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\list2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assets\header.h">

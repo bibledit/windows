@@ -274,12 +274,14 @@
     <ClCompile Include="database\versifications.cpp" />
     <ClCompile Include="database\volatile.cpp" />
     <ClCompile Include="demo\logic.cpp" />
+    <ClCompile Include="developer\delay.cpp" />
     <ClCompile Include="developer\index.cpp" />
     <ClCompile Include="developer\logic.cpp" />
     <ClCompile Include="dialog\books.cpp" />
     <ClCompile Include="dialog\color.cpp" />
     <ClCompile Include="dialog\entry.cpp" />
     <ClCompile Include="dialog\list.cpp" />
+    <ClCompile Include="dialog\list2.cpp" />
     <ClCompile Include="dialog\upload.cpp" />
     <ClCompile Include="dialog\yes.cpp" />
     <ClCompile Include="editone2\index.cpp" />
@@ -333,6 +335,7 @@
     <ClCompile Include="filter\diff.cpp" />
     <ClCompile Include="filter\git.cpp" />
     <ClCompile Include="filter\html.cpp" />
+    <ClCompile Include="filter\indonesian.cpp" />
     <ClCompile Include="filter\md5.cpp" />
     <ClCompile Include="filter\merge.cpp" />
     <ClCompile Include="filter\passage.cpp" />
