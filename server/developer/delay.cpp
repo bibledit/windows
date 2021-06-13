@@ -17,33 +17,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#ifndef INCLUDED_CONFIRM_WORKER_H
-#define INCLUDED_CONFIRM_WORKER_H
+#include <developer/delay.h>
+#include <filter/roles.h>
+#include <filter/url.h>
+#include <config/globals.h>
 
 
-#include <config/libraries.h>
-
-
-#ifdef HAVE_CLOUD
-
-
-class Confirm_Worker
+const char * developer_delay_url ()
 {
-public:
-  Confirm_Worker (void * webserver_request_in);
-  void setup (string mailto, string username,
-              string initial_subject, string initial_body,
-              string query,
-              string subsequent_subject, string subsequent_body);
-  bool handleEmail (string from, string subject, string body);
-  bool handleLink (string & email);
-private:
-  void * webserver_request;
-  void informManagers (string email, string body);
-};
+  return "developer/delay";
+}
 
 
-#endif
+bool developer_delay_acl (void * webserver_request) // Todo only in demo mode.
+{
+  return true;
+}
 
 
-#endif
+string developer_delay (void * webserver_request)
+{
+  (void) webserver_request;
+  // Here is a delay routine that waits multiple seconds before sending the reponse.
+  // The purpose is to test timeouts of the website live monitors.
+  //this_thread::sleep_for(chrono::seconds(10));
+  // Done.
+  return "OK";
+}

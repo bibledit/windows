@@ -129,6 +129,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <resource/bbgateway.h>
 #include <resource/studylight.h>
 #include <resource/unload.h>
+#include <locale/translate.h>
 #include <mapping/index.h>
 #include <mapping/map.h>
 #include <notes/index.h>
@@ -207,6 +208,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <session/confirm.h>
 #include <resource/comparative9edit.h>
 #include <resource/comparative1edit.h>
+#include <developer/logic.h>
+#include <developer/delay.h>
 
 
 // Internal function to check whether a request coming from the browser is considered secure enough.
@@ -234,8 +237,9 @@ bool browser_request_security_okay (Webserver_Request * request)
 // it decides which functions to call to obtain the response.
 void bootstrap_index (void * webserver_request)
 {
-  if (config_logic_log_incoming_connections ()) {
-    journal_logic_log_incoming_connection (webserver_request);
+  shared_ptr<Developer_Logic_Tracer> developer_logic_tracer = nullptr;
+  if (config_globals_log_network) {
+    developer_logic_tracer = make_shared<Developer_Logic_Tracer>(webserver_request);
   }
 
   Webserver_Request * request = (Webserver_Request *) webserver_request;
@@ -283,6 +287,8 @@ void bootstrap_index (void * webserver_request)
     http_stream_file (request, true);
     return;
   }
+
+  // check_user_localization_preference (request);
 
   if ((url == resource_imagefetch_url ()) && resource_imagefetch_acl (request)) {
     request->reply = resource_imagefetch (request);
@@ -1241,6 +1247,11 @@ void bootstrap_index (void * webserver_request)
 
   if ((url == resource_comparative1edit_url ()) && browser_request_security_okay (request) && resource_comparative1edit_acl (request)) {
     request->reply = resource_comparative1edit (request);
+    return;
+  }
+
+  if ((url == developer_delay_url ()) && developer_delay_acl (request)) {
+    request->reply = developer_delay (request);
     return;
   }
 

@@ -28,6 +28,7 @@
 #include <database/notes.h>
 #include <ipc/notes.h>
 #include <access/logic.h>
+#include <developer/logic.h>
 
 
 string notes_poll_url ()

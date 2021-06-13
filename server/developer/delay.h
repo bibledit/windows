@@ -17,33 +17,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#ifndef INCLUDED_CONFIRM_WORKER_H
-#define INCLUDED_CONFIRM_WORKER_H
+#ifndef INCLUDED_DEBUG_DELAY_H
+#define INCLUDED_DEBUG_DELAY_H
 
 
 #include <config/libraries.h>
 
 
-#ifdef HAVE_CLOUD
-
-
-class Confirm_Worker
-{
-public:
-  Confirm_Worker (void * webserver_request_in);
-  void setup (string mailto, string username,
-              string initial_subject, string initial_body,
-              string query,
-              string subsequent_subject, string subsequent_body);
-  bool handleEmail (string from, string subject, string body);
-  bool handleLink (string & email);
-private:
-  void * webserver_request;
-  void informManagers (string email, string body);
-};
-
-
-#endif
+const char * developer_delay_url ();
+bool developer_delay_acl (void * webserver_request);
+string developer_delay (void * webserver_request);
 
 
 #endif

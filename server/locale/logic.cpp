@@ -25,15 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <config/globals.h>
 
 
-// Filters out the default language.
-// Returns the $localization, or "" in case of the default language.
-string locale_logic_filter_default_language (string localization)
-{
-  if (localization == "default") localization.clear ();
-  return localization;
-}
-
-
 // Takes a month from 1 to 12, and returns its localized name.
 string locale_logic_month (int month)
 {

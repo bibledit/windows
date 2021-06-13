@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2021 Teus Benschop.
+Copyright (©) 2021 Aranggi Toar.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,33 +17,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#ifndef INCLUDED_CONFIRM_WORKER_H
-#define INCLUDED_CONFIRM_WORKER_H
+#ifndef INCLUDED_OPTIONS_TO_SELECT_H
+#define INCLUDED_OPTIONS_TO_SELECT_H
 
 
 #include <config/libraries.h>
 
 
-#ifdef HAVE_CLOUD
-
-
-class Confirm_Worker
+class Options_To_Select
 {
 public:
-  Confirm_Worker (void * webserver_request_in);
-  void setup (string mailto, string username,
-              string initial_subject, string initial_body,
-              string query,
-              string subsequent_subject, string subsequent_body);
-  bool handleEmail (string from, string subject, string body);
-  bool handleLink (string & email);
-private:
-  void * webserver_request;
-  void informManagers (string email, string body);
+  static string add_selection (string text, string value, string html);
+  static string mark_selected (string value, string html);
 };
-
-
-#endif
 
 
 #endif

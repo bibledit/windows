@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/date.h>
 #include <database/logic.h>
 #include <database/config/general.h>
+#include <locale/logic.h>
 
 
 Database_Config_User::Database_Config_User (void * webserver_request_in)
@@ -236,7 +237,7 @@ void Database_Config_User::trim ()
   // If the Sprint is not reset, the user may enter new tasks in the wrong sprint.
   int time = filter_date_seconds_since_epoch () - (2 * 24 * 3600);
   Database_Users database_users;
-  vector <string> users = database_users.getUsers ();
+  vector <string> users = database_users.get_users ();
   for (unsigned int i = 0; i < users.size(); i++) {
     string filename = file (users[i], keySprintMonth ());
     if (file_or_dir_exists (filename)) {
@@ -649,22 +650,21 @@ void Database_Config_User::setSuppressMailFromYourUpdatesNotes (bool value)
 
 vector <string> Database_Config_User::getActiveResources ()
 {
-#ifdef DEFAULT_BIBLEDIT_CONFIGURATION
+  if (config_logic_indonesian_cloud_free ()) {
+    // In the Indonesian Cloud free, there's one central location for storing the active resources.
+    return Database_Config_General::getActiveResources ();
+  }
+  // Default values.
   return getList ("active-resources");
-#endif
-#ifdef HAVE_INDONESIANCLOUDFREE
-  // In the Indonesian Cloud free, there's one central location for storing the active resources.
-  return Database_Config_General::getActiveResources ();
-#endif
 }
 void Database_Config_User::setActiveResources (vector <string> values)
 {
-#ifdef DEFAULT_BIBLEDIT_CONFIGURATION
-  setList ("active-resources", values);
-#endif
-#ifdef HAVE_INDONESIANCLOUDFREE
-  Database_Config_General::setActiveResources (values);
-#endif
+  if (config_logic_default_bibledit_configuration ()) {
+    setList ("active-resources", values);
+  }
+  if (config_logic_indonesian_cloud_free ()) {
+    Database_Config_General::setActiveResources (values);
+  }
 }
 
 
@@ -1004,6 +1004,23 @@ void Database_Config_User::setSyncKey (string key)
 {
   setValue ("sync-key", key);
 }
+
+
+
+//const char * site_language_key ()
+//{
+//  return "site-language";
+//}
+//string Database_Config_User::getSiteLanguage ()
+//{
+//  // The default value is "default".
+//  // That means: Take the system setting. The user has no language preference.
+//  return getValue (site_language_key (), "");
+//}
+//void Database_Config_User::setSiteLanguage (string value)
+//{
+//  setValue (site_language_key (), value);
+//}
 
 
 const char * general_font_size_key ()

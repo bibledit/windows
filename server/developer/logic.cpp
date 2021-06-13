@@ -21,25 +21,59 @@
 #include <filter/date.h>
 #include <filter/url.h>
 #include <filter/string.h>
+#include <webserver/request.h>
 
 
-void developer_logic_timing (int order, bool initialize)
+mutex log_network_mutex;
+vector <string> log_network_cache;
+
+
+void developer_logic_log_network_write ()
 {
-  int now = filter_date_seconds_since_epoch ();
-  int unow = filter_date_numerical_microseconds ();
-  static int seconds = 0;
-  static int useconds = 0;
-  if (initialize) {
-    seconds = now;
-    useconds = unow;
+  if (!log_network_cache.empty ()) {
+    log_network_mutex.lock ();
+    string lines;
+    for (auto line : log_network_cache) {
+      lines.append (line);
+      lines.append ("\n");
+    }
+    log_network_cache.clear ();
+    log_network_mutex.unlock ();
+    string path = filter_url_create_root_path (filter_url_temp_dir(), "log-network.csv");
+    if (!file_or_dir_exists(path)) {
+      filter_url_file_put_contents_append (path, "date,IPaddress,URL,query,username\n");
+    }
+    filter_url_file_put_contents_append (path, lines);
   }
-  cout << order << ": " << 1000000 * (now - seconds) + (unow - useconds) << endl;
 }
 
 
-void developer_logic_log (string message)
+Developer_Logic_Tracer::Developer_Logic_Tracer(void * webserver_request)
 {
-  string path = filter_url_create_root_path ("developer", "log.txt");
-  if (!file_or_dir_exists (path)) return;
-  filter_url_file_put_contents_append (path, filter_string_trim (message) + "\n");
+  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  seconds1 = filter_date_seconds_since_epoch ();
+  microseconds1 = filter_date_numerical_microseconds();
+  rfc822 = filter_date_rfc822 (seconds1);
+  remote_address = request->remote_address;
+  request_get = request->get;
+  for (auto element : request->query) {
+    request_query.append(" ");
+    request_query.append(element.first);
+    request_query.append("=");
+    request_query.append(element.second);
+  }
+  username = request->session_logic()->currentUser();
+}
+
+
+Developer_Logic_Tracer::~Developer_Logic_Tracer()
+{
+  int seconds2 = filter_date_seconds_since_epoch();
+  int microseconds2 = filter_date_numerical_microseconds();
+  int microseconds = (seconds2 - seconds1) * 1000000 + microseconds2 - microseconds1;
+  vector <string> bits = {rfc822, convert_to_string (microseconds), request_get, request_query, username};
+  string entry = filter_string_implode(bits, ",");
+  log_network_mutex.lock();
+  log_network_cache.push_back(entry);
+  log_network_mutex.unlock();
 }

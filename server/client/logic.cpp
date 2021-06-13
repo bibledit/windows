@@ -70,7 +70,7 @@ string client_logic_connection_setup (string user, string hash)
   Database_Users database_users;
   
   if (user.empty ()) {
-    vector <string> users = database_users.getUsers ();
+    vector <string> users = database_users.get_users ();
     if (users.empty()) return "";
     user = users [0];
     hash = database_users.get_md5 (user);
@@ -218,7 +218,47 @@ string client_logic_get_username ()
   // That happens when disconnected from the Cloud.
   string user = session_admin_credentials ();
   Database_Users database_users;
-  vector <string> users = database_users.getUsers ();
+  vector <string> users = database_users.get_users ();
   if (!users.empty()) user = users [0];
   return user;
+}
+
+
+string client_logic_no_cache_resources_path ()
+{
+  return filter_url_create_root_path (database_logic_databases (), "client", "no_cache_resources.txt");
+}
+
+
+void client_logic_no_cache_resources_save (vector<string> resources)
+{
+  string contents = filter_string_implode(resources, "\n");
+  string path = client_logic_no_cache_resources_path ();
+  filter_url_file_put_contents(path, contents);
+}
+
+
+void client_logic_no_cache_resource_add (string name)
+{
+  vector <string> resources = client_logic_no_cache_resources_get();
+  if (in_array(name, resources)) return;
+  resources.push_back(name);
+  client_logic_no_cache_resources_save(resources);
+}
+
+
+void client_logic_no_cache_resource_remove (string name)
+{
+  vector <string> resources = client_logic_no_cache_resources_get();
+  if (!in_array(name, resources)) return;
+  resources = filter_string_array_diff(resources, {name});
+  client_logic_no_cache_resources_save(resources);
+}
+
+
+vector <string> client_logic_no_cache_resources_get ()
+{
+  string contents = filter_url_file_get_contents (client_logic_no_cache_resources_path());
+  vector<string> resources = filter_string_explode(contents, "\n");
+  return resources;
 }

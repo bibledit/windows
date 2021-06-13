@@ -22,6 +22,9 @@
 #include <filter/url.h>
 #include <filter/archive.h>
 #include <filter/usfm.h>
+#include <filter/indonesian.h>
+#include <filter/roles.h>
+#include <filter/date.h>
 #include <locale/translate.h>
 #include <locale/logic.h>
 #include <database/jobs.h>
@@ -30,10 +33,16 @@
 #include <database/books.h>
 #include <database/logs.h>
 #include <database/config/general.h>
+#include <database/config/bible.h>
+#include <database/privileges.h>
+#include <database/confirm.h>
 #include <html/text.h>
 #include <styles/logic.h>
 #include <tasks/logic.h>
 #include <database/logic.h>
+#include <email/send.h>
+#include <search/logic.h>
+#include <user/logic.h>
 
 
 string system_logic_bibles_file_name ()
@@ -52,11 +61,11 @@ void system_logic_produce_bibles_file (int jobid)
   // Generate the initial page.
   {
     Html_Text html_text ("");
-    html_text.newParagraph ();
-    html_text.addText (translate ("Generating a file with the Bibles."));
-    html_text.newParagraph ();
-    html_text.addText (translate ("In progress..."));
-    database_jobs.setStart (jobid, html_text.getInnerHtml ());
+    html_text.new_paragraph ();
+    html_text.add_text (translate ("Generating a file with the Bibles."));
+    html_text.new_paragraph ();
+    html_text.add_text (translate ("In progress..."));
+    database_jobs.setStart (jobid, html_text.get_inner_html ());
   }
 
   
@@ -100,21 +109,21 @@ void system_logic_produce_bibles_file (int jobid)
   // Ready, provide info about how to download the file, or about the error.
   {
     Html_Text html_text ("");
-    html_text.newParagraph ();
+    html_text.new_paragraph ();
     if (error.empty ()) {
-      html_text.addText (translate ("The file with Bibles is ready."));
-      html_text.newParagraph ();
-      html_text.addLink (html_text.currentPDomElement, "/" + system_logic_bibles_file_name (), "", "", "", translate ("Get it."));
-      html_text.newParagraph ();
-      html_text.addText (translate ("The file can be imported in another Bibledit client."));
-      html_text.addText (" ");
-      html_text.addText (translate ("This will create the same Bibles in that other client."));
+      html_text.add_text (translate ("The file with Bibles is ready."));
+      html_text.new_paragraph ();
+      html_text.add_link (html_text.current_p_node, "/" + system_logic_bibles_file_name (), "", "", "", translate ("Get it."));
+      html_text.new_paragraph ();
+      html_text.add_text (translate ("The file can be imported in another Bibledit client."));
+      html_text.add_text (" ");
+      html_text.add_text (translate ("This will create the same Bibles in that other client."));
     } else {
-      html_text.addText (translate ("It failed to create the file with Bibles."));
-      html_text.newParagraph ();
-      html_text.addText (error);
+      html_text.add_text (translate ("It failed to create the file with Bibles."));
+      html_text.new_paragraph ();
+      html_text.add_text (error);
     }
-    database_jobs.setResult (jobid, html_text.getInnerHtml ());
+    database_jobs.setResult (jobid, html_text.get_inner_html ());
   }
 }
 
@@ -195,11 +204,11 @@ void system_logic_produce_notes_file (int jobid)
   // Generate the initial page.
   {
     Html_Text html_text ("");
-    html_text.newParagraph ();
-    html_text.addText (translate ("Generating a file with the Consultation Notes."));
-    html_text.newParagraph ();
-    html_text.addText (translate ("In progress..."));
-    database_jobs.setStart (jobid, html_text.getInnerHtml ());
+    html_text.new_paragraph ();
+    html_text.add_text (translate ("Generating a file with the Consultation Notes."));
+    html_text.new_paragraph ();
+    html_text.add_text (translate ("In progress..."));
+    database_jobs.setStart (jobid, html_text.get_inner_html ());
   }
   
   
@@ -226,21 +235,21 @@ void system_logic_produce_notes_file (int jobid)
   // Ready, provide info about how to download the file, or about the error.
   {
     Html_Text html_text ("");
-    html_text.newParagraph ();
+    html_text.new_paragraph ();
     if (error.empty ()) {
-      html_text.addText (translate ("The file with Consultation Notes is ready."));
-      html_text.newParagraph ();
-      html_text.addLink (html_text.currentPDomElement, "/" + system_logic_notes_file_name (), "", "", "", translate ("Get it."));
-      html_text.newParagraph ();
-      html_text.addText (translate ("The file can be imported in another Bibledit client."));
-      html_text.addText (" ");
-      html_text.addText (translate ("This will create the same Consultation Notes in that other client."));
+      html_text.add_text (translate ("The file with Consultation Notes is ready."));
+      html_text.new_paragraph ();
+      html_text.add_link (html_text.current_p_node, "/" + system_logic_notes_file_name (), "", "", "", translate ("Get it."));
+      html_text.new_paragraph ();
+      html_text.add_text (translate ("The file can be imported in another Bibledit client."));
+      html_text.add_text (" ");
+      html_text.add_text (translate ("This will create the same Consultation Notes in that other client."));
     } else {
-      html_text.addText (translate ("It failed to create the file with Consultation Notes."));
-      html_text.newParagraph ();
-      html_text.addText (error);
+      html_text.add_text (translate ("It failed to create the file with Consultation Notes."));
+      html_text.new_paragraph ();
+      html_text.add_text (error);
     }
-    database_jobs.setResult (jobid, html_text.getInnerHtml ());
+    database_jobs.setResult (jobid, html_text.get_inner_html ());
   }
 }
 
@@ -287,11 +296,11 @@ void system_logic_produce_resources_file (int jobid)
   // Generate the initial page.
   {
     Html_Text html_text ("");
-    html_text.newParagraph ();
-    html_text.addText (translate ("Generating a file with the resources."));
-    html_text.newParagraph ();
-    html_text.addText (translate ("In progress..."));
-    database_jobs.setStart (jobid, html_text.getInnerHtml ());
+    html_text.new_paragraph ();
+    html_text.add_text (translate ("Generating a file with the resources."));
+    html_text.new_paragraph ();
+    html_text.add_text (translate ("In progress..."));
+    database_jobs.setStart (jobid, html_text.get_inner_html ());
   }
   
   // The location of the single tarball to generate.
@@ -365,43 +374,43 @@ void system_logic_produce_resources_file (int jobid)
   // Ready, provide info about how to download the file or about the error.
   {
     Html_Text html_text ("");
-    html_text.newParagraph ();
+    html_text.new_paragraph ();
     if (!resources.empty ()) {
       if (error.empty ()) {
-        html_text.addText (translate ("The file with all of the installed resources is ready."));
-        html_text.addText (" ");
-        html_text.addText (translate ("Amount of resources:"));
-        html_text.addText (" ");
-        html_text.addText (convert_to_string (single_resources.size()));
-        html_text.addText (".");
-        html_text.newParagraph ();
-        html_text.addLink (html_text.currentPDomElement, "/" + system_logic_resources_file_name (), "", "", "", translate ("Download the archive with all installed resources."));
-        html_text.newParagraph ();
-        html_text.addText (translate ("The file can be imported in another Bibledit client."));
-        html_text.addText (" ");
-        html_text.addText (translate ("This will create the same resources in that other client."));
-        html_text.newParagraph ();
-        html_text.addText (translate ("The above file may be huge in case there is lots of installed resources."));
-        html_text.addText (" ");
-        html_text.addText (translate ("For that reason there are alternative files with individual resources below."));
-        html_text.addText (" ");
-        html_text.addText (translate ("These are smaller in size."));
+        html_text.add_text (translate ("The file with all of the installed resources is ready."));
+        html_text.add_text (" ");
+        html_text.add_text (translate ("Amount of resources:"));
+        html_text.add_text (" ");
+        html_text.add_text (convert_to_string (single_resources.size()));
+        html_text.add_text (".");
+        html_text.new_paragraph ();
+        html_text.add_link (html_text.current_p_node, "/" + system_logic_resources_file_name (), "", "", "", translate ("Download the archive with all installed resources."));
+        html_text.new_paragraph ();
+        html_text.add_text (translate ("The file can be imported in another Bibledit client."));
+        html_text.add_text (" ");
+        html_text.add_text (translate ("This will create the same resources in that other client."));
+        html_text.new_paragraph ();
+        html_text.add_text (translate ("The above file may be huge in case there is lots of installed resources."));
+        html_text.add_text (" ");
+        html_text.add_text (translate ("For that reason there are alternative files with individual resources below."));
+        html_text.add_text (" ");
+        html_text.add_text (translate ("These are smaller in size."));
         for (auto element : single_resources) {
           string resource_name = element.first;
-          html_text.newParagraph ();
-          html_text.addLink (html_text.currentPDomElement, "/" + system_logic_resources_file_name (resource_name), "", "", "", translate ("Download") + " " + resource_name);
+          html_text.new_paragraph ();
+          html_text.add_link (html_text.current_p_node, "/" + system_logic_resources_file_name (resource_name), "", "", "", translate ("Download") + " " + resource_name);
         }
       } else {
-        html_text.addText (translate ("It failed to create the file with resources."));
-        html_text.newParagraph ();
-        html_text.addText (error);
+        html_text.add_text (translate ("It failed to create the file with resources."));
+        html_text.new_paragraph ();
+        html_text.add_text (error);
       }
     } else {
-      html_text.addText (translate ("There were no installed resources to make an archive from."));
-      html_text.addText (" ");
-      html_text.addText (translate ("Install some resources on the device, and try again."));
+      html_text.add_text (translate ("There were no installed resources to make an archive from."));
+      html_text.add_text (" ");
+      html_text.add_text (translate ("Install some resources on the device, and try again."));
     }
-    database_jobs.setResult (jobid, html_text.getInnerHtml ());
+    database_jobs.setResult (jobid, html_text.get_inner_html ());
   }
 }
 
@@ -439,4 +448,170 @@ void system_logic_import_resources_file (string tarball)
 
   // Ready, hallelujah!
   Database_Logs::log ("Importing Resources ready");
+}
+
+
+void system_logic_indonesian_free_deletion (string username, string email)
+{
+  (void) username;
+  (void) email;
+#ifdef HAVE_CLOUD
+  Database_Logs::log ("Starting to inform and delete user " + username + " and associated Bible");
+
+  {
+    // Create the body of the email.
+    xml_document document;
+    xml_node node;
+    
+    node = document.append_child ("p");
+    node.text ().set ("Shalom Bapak/Ibu Pengguna Bibledit,");
+    
+    node = document.append_child ("p");
+    node.text ().set ("Kami berharap Saudara sempat menggunakan Bibledit Tamu selama sebulan ini. Kami mengundang Saudara untuk mendaftar kembali sekarang, atau di saat di mana Saudara punya keperluan meneliti ayat Alkitab. Kami juga mengundang Saudara mengunjungi situs http://alkitabkita.info untuk segala informasi dari bahan penelitian Alkitab yang akan ditambahkan.");
+
+    node = document.append_child ("p");
+    node.text ().set ("Apabila Saudara sudah memasukkan ayat-ayat dalam bagian Terjemahanku pasal-pasal itu akan dikirim lewat email kepada Saudara.");
+
+    node = document.append_child ("p");
+    node.text ().set ("Klik link ini untuk membaca tentang kelebihan tingkat Bibledit Anggota https://sites.google.com/view/alkitabkita/menjadi-anggota-bibledit.");
+
+    node = document.append_child ("p");
+    node.text ().set ("Tuhan memberkati Saudara,");
+
+    node = document.append_child ("p");
+    node.text ().set ("Balazi Gulo");
+
+    node = document.append_child ("p");
+    node.text ().set ("Pengurus Albata");
+
+    node = document.append_child ("p");
+    node.text ().set ("(albata.info)");
+
+    // Convert the document to a string.
+    stringstream output;
+    document.print (output, "", format_raw);
+    string html = output.str ();
+    
+    // Schedule the mail for sending to the user.
+    email_schedule (email, "Bibledit", html);
+  }
+  
+  Database_Bibles database_bibles;
+  string bible = filter_indonesian_terjemahanku_mytranslation_name (username);
+  vector <int> books = database_bibles.getBooks (bible);
+  for (auto book : books) {
+    vector <int> chapters = database_bibles.getChapters (bible, book);
+    for (auto chapter : chapters) {
+
+      // If the chapter identifier is equal to the initial ID,
+      // it means the chapter was not changed by anyone.
+      int chapter_id = database_bibles.getChapterId (bible, book, chapter);
+      if (chapter_id == 100000001) continue;
+      // If the chapter was changed, email the contents of that chapter to the user.
+
+      // Create the body of the email.
+      xml_document document;
+      xml_node node;
+      
+      string heading = filter_passage_display (book, chapter, {});
+      node = document.append_child ("h3");
+      node.text ().set (heading.c_str());
+      
+      string explanation = translate ("Inilah hasil terjemahan Saudara:");
+      node = document.append_child ("p");
+      node.text ().set (explanation.c_str ());
+
+      document.append_child ("br");
+      node = document.append_child ("pre");
+      string usfm = database_bibles.getChapter(bible, book, chapter);
+      node.text ().set (usfm.c_str ());
+      
+      // Convert the document to a string.
+      stringstream output;
+      document.print (output, "", format_raw);
+      string html = output.str ();
+      
+      // Schedule the mail for sending to the user.
+      email_schedule (email, translate (bible + ": " + heading), html);
+    }
+  }
+  
+  // Delete the user's Bible and associated data.
+  database_bibles.deleteBible(bible);
+  search_logic_delete_bible (bible);
+  Database_Privileges::removeBible (bible);
+  Database_Config_Bible::remove (bible);
+  
+  Database_Logs::log ("Ready handling user and associated data");
+#endif
+}
+
+
+void system_logic_indonesian_free_expiration ()
+{
+#ifdef HAVE_CLOUD
+  // The first sequence is to removed expired accounts and data that belongs to it.
+  Database_Logs::log ("Expiring free Indonesian Cloud accounts and associated data");
+  Database_Users database_users;
+  vector<string> users = database_users.get_users();
+  for (auto user : users) {
+    // In the free Indonesian Cloud, the relevant level is that of Consultant.
+    int level = database_users.get_level(user);
+    if (level != Filter_Roles::consultant()) continue;
+    // Expire this account after 30 days.
+    int account_creation_time = filter_date_seconds_since_epoch();
+    {
+      vector <string> lines = Database_Config_General::getAccountCreationTimes ();
+      for (auto line : lines) {
+        vector <string> bits = filter_string_explode(line, '|');
+        if (bits.size() != 2) continue;
+        int seconds = convert_to_int(bits[0]);
+        if (user == bits[1]) account_creation_time = seconds;
+      }
+    }
+    int seconds = filter_date_seconds_since_epoch() - account_creation_time;
+    int days = seconds / (3600 * 24);
+    if (days <= 30) continue;
+    // Get details of this user.
+    string email = database_users.get_email(user);
+    // Delete the user account.
+    Database_Logs::log("Deleting free user " + user + " with email " + email);
+    string message;
+    user_logic_delete_account (user, "free", email, message);
+    system_logic_indonesian_free_deletion (user, email);
+  }
+  
+  // The next sequence is to delete a Bible that was created for a user,
+  // but the user is no longer there, or did not confirm the account.
+  
+  // Create a container with Indonesian Bibles that are associated to an existing or pending user.
+  vector<string> valid_indonesian_bibles;
+  users = database_users.get_users();
+  for (auto user : users) {
+    string bible = filter_indonesian_terjemahanku_mytranslation_name (user);
+    valid_indonesian_bibles.push_back(bible);
+  }
+  Database_Confirm database_confirm;
+  vector <int> ids = database_confirm.get_ids();
+  for (auto id : ids) {
+    string username = database_confirm.get_username(id);
+    string bible = filter_indonesian_terjemahanku_mytranslation_name (username);
+    valid_indonesian_bibles.push_back(bible);
+  }
+  // Get all available Bibles at the system.
+  Database_Bibles database_bibles;
+  vector<string> bibles = database_bibles.getBibles();
+  // Get array of Bibles to delete.
+  vector <string> bibles_to_delete = filter_string_array_diff(bibles, valid_indonesian_bibles);
+  for (auto bible : bibles_to_delete) {
+    // Skip the shared Indonesian Bible.
+    if (bible == filter_indonesian_alkitabkita_ourtranslation_name()) continue;
+    // Delete this unassociated Bible.
+    Database_Logs::log("Deleting Bible not associated with any account: " + bible);
+    database_bibles.deleteBible(bible);
+    search_logic_delete_bible (bible);
+    Database_Privileges::removeBible (bible);
+    Database_Config_Bible::remove (bible);
+  }
+#endif
 }

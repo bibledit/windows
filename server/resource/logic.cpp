@@ -284,7 +284,7 @@ string resource_logic_get_verse (void * webserver_request, string resource, int 
     filter_text.html_text_standard = new Html_Text ("");
     filter_text.addUsfmCode (verse_usfm);
     filter_text.run (stylesheet);
-    data = filter_text.html_text_standard->getInnerHtml ();
+    data = filter_text.html_text_standard->get_inner_html ();
   } else if (isRemoteUsfm) {
     data = resource_logic_client_fetch_cache_from_cloud (resource, book, chapter, verse);
   } else if (isExternal) {
@@ -435,7 +435,7 @@ string resource_logic_get_contents_for_client (string resource, int book, int ch
     filter_text.html_text_standard = new Html_Text ("");
     filter_text.addUsfmCode (verse_usfm);
     filter_text.run (stylesheet);
-    return filter_text.html_text_standard->getInnerHtml ();
+    return filter_text.html_text_standard->get_inner_html ();
   }
   
   if (isSword) {
@@ -475,17 +475,20 @@ string resource_logic_get_contents_for_client (string resource, int book, int ch
 // and to return the requested content.
 string resource_logic_client_fetch_cache_from_cloud (string resource, int book, int chapter, int verse)
 {
+  // Whether the client should cache this resource.
+  bool cache = !in_array(resource, client_logic_no_cache_resources_get ());
+  
   // Ensure that the cache for this resource exists on the client.
-  if (!Database_Cache::exists (resource, book)) {
+  if (cache && !Database_Cache::exists (resource, book)) {
     Database_Cache::create (resource, book);
   }
   
-  // If the content exists in the cache, return that content.
-  if (Database_Cache::exists (resource, book, chapter, verse)) {
+  // If content is to be cached and the content exists in the cache, return that content.
+  if (cache && Database_Cache::exists (resource, book, chapter, verse)) {
     return Database_Cache::retrieve (resource, book, chapter, verse);
   }
   
-  // Fetch this resource from Bibledit Cloud or from the cache.
+  // Fetch this resource from Bibledit Cloud.
   string address = Database_Config_General::getServerAddress ();
   int port = Database_Config_General::getServerPort ();
   if (!client_logic_client_enabled ()) {
@@ -504,8 +507,8 @@ string resource_logic_client_fetch_cache_from_cloud (string resource, int book, 
   string content = filter_url_http_get (url, error, false);
   
   if (error.empty ()) {
-    // No error: Cache content.
-    Database_Cache::cache (resource, book, chapter, verse, content);
+    // No error: Cache content (if to be cached).
+    if (cache) Database_Cache::cache (resource, book, chapter, verse, content);
   } else {
     // Error: Log it, and return it.
     Database_Logs::log (resource + ": " + error);
@@ -1418,7 +1421,15 @@ string resource_logic_comparative_resource ()
 }
 
 
-bool resource_logic_parse_comparative_resource (string input, string * title, string * base, string * update, string * remove, string * replace, bool * diacritics, bool * casefold)
+bool resource_logic_parse_comparative_resource (string input,
+                                                string * title,
+                                                string * base,
+                                                string * update,
+                                                string * remove,
+                                                string * replace,
+                                                bool * diacritics,
+                                                bool * casefold,
+                                                bool * cache)
 {
   // The definite check whether this is a comparative resource
   // is to check that "Comparative " is the first part of the input.
@@ -1432,6 +1443,7 @@ bool resource_logic_parse_comparative_resource (string input, string * title, st
   if (replace) replace->clear();
   if (diacritics) * diacritics = false;
   if (casefold) * casefold = false;
+  if (cache) * cache = false;
   vector <string> bits = filter_string_explode(input, '|');
   if (bits.size() > 0) if (title) title->assign (bits[0]);
   if (bits.size() > 1) if (base) base->assign(bits[1]);
@@ -1440,13 +1452,21 @@ bool resource_logic_parse_comparative_resource (string input, string * title, st
   if (bits.size() > 4) if (replace) replace->assign(bits[4]);
   if (bits.size() > 5) if (diacritics) * diacritics = convert_to_bool(bits[5]);
   if (bits.size() > 6) if (casefold) * casefold = convert_to_bool(bits[6]);
+  if (bits.size() > 7) if (cache) * cache = convert_to_bool(bits[7]);
 
   // Done.
   return true;
 }
 
 
-string resource_logic_assemble_comparative_resource (string title, string base, string update, string remove, string replace, bool diacritics, bool casefold)
+string resource_logic_assemble_comparative_resource (string title,
+                                                     string base,
+                                                     string update,
+                                                     string remove,
+                                                     string replace,
+                                                     bool diacritics,
+                                                     bool casefold,
+                                                     bool cache)
 {
   // Check whether the "Comparative " flag already is included in the given $title.
   size_t pos = title.find (resource_logic_comparative_resource ());
@@ -1454,8 +1474,6 @@ string resource_logic_assemble_comparative_resource (string title, string base, 
     title.erase (pos, resource_logic_comparative_resource ().length());
   }
   // Ensure the "Comparative " flag is always included right at the start.
-  vector <string> bits = {resource_logic_comparative_resource() + title, base, update, remove, replace, convert_to_true_false(diacritics), convert_to_true_false(casefold)};
+  vector <string> bits = {resource_logic_comparative_resource() + title, base, update, remove, replace, convert_to_true_false(diacritics), convert_to_true_false(casefold), convert_to_true_false(cache)};
   return filter_string_implode(bits, "|");
 }
-
-

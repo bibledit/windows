@@ -105,7 +105,7 @@ string manage_users (void * webserver_request)
   if (request->query.count ("delete")) {
     string role = Filter_Roles::text (objectUserLevel);
     string email = request->database_users ()->get_email (objectUsername);
-    vector <string> users = request->database_users ()->getUsers ();
+    vector <string> users = request->database_users ()->get_users ();
     vector <string> administrators = request->database_users ()->getAdministrators ();
     if (users.size () == 1) {
       page += Assets_Page::error (translate("Cannot remove the last user"));
@@ -359,11 +359,9 @@ string manage_users (void * webserver_request)
     view.enable_zone ("local");
   }
 
-  bool manage_accounts = false;
-#ifdef HAVE_INDONESIANCLOUDFREE
-  manage_accounts = true;
-#endif
-  if (manage_accounts) view.enable_zone("accounts");
+  if (config_logic_indonesian_cloud_free ()) {
+    view.enable_zone("accounts");
+  }
 
   page += view.render ("manage", "users");
 

@@ -53,14 +53,23 @@ translate("Example"): ῃ=η ῳ=ω search=replace
 
 <br>
 <p>
-<input type="checkbox" name="diacritics" onchange="checkbox(this)" ##diacritics## />
+<input type="checkbox" name="diacritics" onchange="checkbox_v2(this, '##name##')" ##diacritics## />
 translate("Remove diacritics from the resources before doing the comparison.")
 </p>
 
 <br>
 <p>
-<input type="checkbox" name="casefold" onchange="checkbox(this)" ##casefold## />
+<input type="checkbox" name="casefold" onchange="checkbox_v2(this, '##name##')" ##casefold## />
 translate("Do case folding of the resources before doing the comparison.")
+</p>
+
+<br>
+<p>
+<input type="checkbox" name="cache" onchange="checkbox_v2(this, '##name##')" ##cache## />
+translate("Cache the resource on client devices.")
+translate("Caching makes the resource available offline.")
+translate("Caching makes a snapshot of the base and updated resources.")
+translate("If the base or updated resources change after the snapshot, the client device does not display those changes.")
 </p>
 
 <br>
@@ -68,4 +77,4 @@ translate("Do case folding of the resources before doing the comparison.")
 <br>
 <p><a href="comparative9edit?delete=##name##">translate("Delete this resource")</a></p>
 <br>
-<script type="text/javascript" src="../assets/checkbox.js"></script>
+<script type="text/javascript" src="../assets/checkbox.js?##VERSION##"></script>

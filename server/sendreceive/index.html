@@ -101,7 +101,7 @@ translate("Send it now.")
 <!-- #ENDZONE gitwrite -->
 </a></p>
 <p>
-<input type="checkbox" name="repeatbible" onchange="checkbox(this)" ##repeatbible## />
+<input type="checkbox" name="repeatbible" onchange="checkbox_v2(this)" ##repeatbible## />
 <!-- #BEGINZONE gitreadwrite -->
 translate("Send and receive it every five minutes.")
 <!-- #ENDZONE gitreadwrite -->
@@ -121,5 +121,5 @@ translate("View the history:")
 
 <p><a href="/journal/index">translate("The Journal displays progress and diagnostic messages.")</a></p>
 <p id="status"></p>
-<script type="text/javascript" src="../assets/checkbox.js"></script>
+<script type="text/javascript" src="../assets/checkbox.js?##VERSION##"></script>
 <script type="text/javascript" src="index.js?"></script>

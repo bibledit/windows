@@ -69,11 +69,14 @@ string notes_actions (void * webserver_request)
   int level = request->session_logic()->currentLevel ();
 
   
-  int id;
-  if (request->query.count ("id")) id = convert_to_int (request->query ["id"]);
-  else id = convert_to_int (request->post ["id"]);
+  int id = convert_to_int (request->query ["id"]);
+  if (!id) id = convert_to_int (request->post ["val1"]);
 
   
+  string checkbox = request->post ["checkbox"];
+  bool checked = convert_to_bool (request->post ["checked"]);
+
+
   if (request->query.count ("unsubscribe")) {
     notes_logic.unsubscribe (id);
   }
@@ -113,9 +116,9 @@ string notes_actions (void * webserver_request)
   }
   
   
-  if (request->query.count ("publicnote")) {
-    bool state = database_notes.get_public (id);
-    database_notes.set_public (id, !state);
+  if (checkbox == "public") {
+    database_notes.set_public (id, checked);
+    return "";
   }
 
   
@@ -170,19 +173,19 @@ string notes_actions (void * webserver_request)
   if (level >= Filter_Roles::manager ()) view.enable_zone ("rawedit");
   
 
-  if (access_logic_privilege_delete_consultation_notes (webserver_request)) view.enable_zone ("deletenote");
+  if (access_logic_privilege_delete_consultation_notes (webserver_request))
+    view.enable_zone ("deletenote");
   bool marked = database_notes.is_marked_for_deletion (id);
   if (marked) view.enable_zone ("marked");
   else view.enable_zone ("mark");
   
   
-#ifndef HAVE_CLIENT
+#ifdef HAVE_CLOUD
   view.enable_zone ("cloud");
-  string on_off = styles_logic_off_on_inherit_toggle_text (database_notes.get_public (id));
-  view.set_variable ("publicnote", on_off);
+  view.set_variable ("public", get_checkbox_status (database_notes.get_public (id)));
 #endif
   // Roles of translator or higher can edit the public visibility of a note.
-  if (level >= Filter_Roles::translator ()) view.enable_zone ("translator");
+  if (level < Filter_Roles::translator ()) view.set_variable(get_disabled(), get_disabled());
 
   
   view.set_variable ("success", success);

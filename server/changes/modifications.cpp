@@ -84,8 +84,8 @@ void changes_process_identifiers (Webserver_Request * request,
         filter_text_new.addUsfmCode (new_verse_usfm);
         filter_text_old.run (stylesheet);
         filter_text_new.run (stylesheet);
-        string old_html = filter_text_old.html_text_standard->getInnerHtml ();
-        string new_html = filter_text_new.html_text_standard->getInnerHtml ();
+        string old_html = filter_text_old.html_text_standard->get_inner_html ();
+        string new_html = filter_text_new.html_text_standard->get_inner_html ();
         string old_text = filter_text_old.text_text->get ();
         string new_text = filter_text_new.text_text->get ();
         if (old_text != new_text) {
@@ -142,7 +142,7 @@ void changes_modifications ()
   // Get the users who will receive the changes entered by the contributors.
   vector <string> recipients;
   {
-    vector <string> users = request.database_users ()->getUsers ();
+    vector <string> users = request.database_users ()->get_users ();
     for (auto & user : users) {
       if (request.database_config_user ()->getContributorChangesNotificationsOnline (user)) {
         recipients.push_back (user);
@@ -246,7 +246,7 @@ void changes_modifications ()
     
     
     vector <string> changeNotificationUsers;
-    vector <string> users = request.database_users ()->getUsers ();
+    vector <string> users = request.database_users ()->get_users ();
     for (auto user : users) {
       if (access_bible_read (&request, bible, user)) {
         if (request.database_config_user()->getUserGenerateChangeNotifications (user)) {
@@ -327,8 +327,8 @@ void changes_modifications ()
               filter_text_new.addUsfmCode (new_verse_usfm);
               filter_text_old.run (stylesheet);
               filter_text_new.run (stylesheet);
-              old_html = filter_text_old.html_text_standard->getInnerHtml ();
-              new_html = filter_text_new.html_text_standard->getInnerHtml ();
+              old_html = filter_text_old.html_text_standard->get_inner_html ();
+              new_html = filter_text_new.html_text_standard->get_inner_html ();
               old_text = filter_text_old.text_text->get ();
               new_text = filter_text_new.text_text->get ();
             }
@@ -379,7 +379,7 @@ void changes_modifications ()
         if (bodies.size () > 1) {
           subject.append (" (" + convert_to_string (b + 1) + "/" + convert_to_string (bodies.size ()) + ")");
         }
-        vector <string> users = request.database_users ()->getUsers ();
+        vector <string> users = request.database_users ()->get_users ();
         for (auto & user : users) {
           if (request.database_config_user()->getUserBibleChangesNotification (user)) {
             if (access_bible_read (&request, bible, user)) {
@@ -427,7 +427,7 @@ void changes_modifications ()
   
   
   // Clear checksum caches.
-  users = request.database_users ()->getUsers ();
+  users = request.database_users ()->get_users ();
   for (auto user : users) {
     request.database_config_user ()->setUserChangeNotificationsChecksum (user, "");
   }

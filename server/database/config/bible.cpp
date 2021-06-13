@@ -399,11 +399,11 @@ const char * check_valid_utf8_text_key ()
 }
 bool Database_Config_Bible::getCheckValidUTF8Text (string bible)
 {
-  return getBValue (bible, check_french_citation_style_key (), false);
+  return getBValue (bible, check_valid_utf8_text_key (), false);
 }
 void Database_Config_Bible::setCheckValidUTF8Text (string bible, bool value)
 {
-  setBValue (bible, check_french_citation_style_key (), value);
+  setBValue (bible, check_valid_utf8_text_key (), value);
 }
 
 
@@ -574,6 +574,20 @@ bool Database_Config_Bible::getExportHtmlDuringNight (string bible)
 void Database_Config_Bible::setExportHtmlDuringNight (string bible, bool value)
 {
   setBValue (bible, "export-html-during-night", value);
+}
+
+
+const char * export_html_notes_on_hover_key ()
+{
+  return "export-html-notes-on-hover";
+}
+bool Database_Config_Bible::getExportHtmlNotesOnHover (string bible)
+{
+  return getBValue (bible, export_html_notes_on_hover_key (), false);
+}
+void Database_Config_Bible::setExportHtmlNotesOnHover (string bible, bool value)
+{
+  setBValue (bible, export_html_notes_on_hover_key (), value);
 }
 
 

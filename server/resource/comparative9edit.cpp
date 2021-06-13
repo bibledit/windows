@@ -32,6 +32,7 @@
 #include <database/config/general.h>
 #include <pugixml/pugixml.hpp>
 #include <resource/comparative1edit.h>
+#include <client/logic.h>
 
 
 using namespace pugi;
@@ -96,6 +97,9 @@ string resource_comparative9edit (void * webserver_request)
       resources.push_back (resource);
       Database_Config_General::setComparativeResources (resources);
       success = translate("The comparative resource was created");
+      // Since the default for a new resource is not to cache it,
+      // add the resource to the ones not to be cached by the client.
+      client_logic_no_cache_resource_add (new_resource);
       // Redirect the user to the place where to edit that new resource.
       string url = resource_comparative1edit_url () + "?name=" + new_resource;
       redirect_browser (webserver_request, url);
@@ -122,6 +126,7 @@ string resource_comparative9edit (void * webserver_request)
         if (title != title2remove) updated_resources.push_back (resource);
       }
       Database_Config_General::setComparativeResources (updated_resources);
+      client_logic_no_cache_resource_remove (title2remove);
       success = translate ("The resource was deleted");
     }
   }
