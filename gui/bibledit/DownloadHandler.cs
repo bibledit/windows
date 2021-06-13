@@ -2,18 +2,18 @@
 //
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
+using CefSharp;
 using System;
 
-namespace CefSharp.Example
+namespace Bibledit
 {
-    public class DownloadHandler
-        //: IDownloadHandler
+    public class DownloadHandler : IDownloadHandler
     {
         public event EventHandler<DownloadItem> OnBeforeDownloadFired;
 
         public event EventHandler<DownloadItem> OnDownloadUpdatedFired;
 
-        public void OnBeforeDownload(IBrowser browser, DownloadItem downloadItem, IBeforeDownloadCallback callback)
+        public void OnBeforeDownload(IWebBrowser chromiumWebBrowser, IBrowser browser, DownloadItem downloadItem, IBeforeDownloadCallback callback)
         {
             var handler = OnBeforeDownloadFired;
             if (handler != null)
@@ -30,7 +30,7 @@ namespace CefSharp.Example
             }
         }
 
-        public void OnDownloadUpdated(IBrowser browser, DownloadItem downloadItem, IDownloadItemCallback callback)
+        public void OnDownloadUpdated(IWebBrowser chromiumWebBrowser, IBrowser browser, DownloadItem downloadItem, IDownloadItemCallback callback)
         {
             var handler = OnDownloadUpdatedFired;
             if (handler != null)
