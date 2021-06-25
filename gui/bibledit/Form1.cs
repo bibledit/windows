@@ -362,7 +362,7 @@ namespace Bibledit
         }
 
 
-        private void OnTimedEvent(Object source, ElapsedEventArgs e) // Todo could handle downloads here.
+        private void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
             try
             {
