@@ -42,6 +42,7 @@
 #include <filter/string.h>
 #include <filter/url.h>
 #include <filter/roles.h>
+#include <filter/date.h>
 #include <config/globals.h>
 #include <demo/logic.h>
 #include <locale/logic.h>
