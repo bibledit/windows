@@ -70,7 +70,7 @@ bool system_index_acl (void * webserver_request)
 
 string system_index (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   
   string page;
@@ -173,8 +173,8 @@ string system_index (void * webserver_request)
   bool produceresources = request->query.count ("produceresources");
   if (producebibles || producenotes || produceresources) {
     Database_Jobs database_jobs;
-    int jobId = database_jobs.getNewId ();
-    database_jobs.setLevel (jobId, Filter_Roles::member ());
+    int jobId = database_jobs.get_new_id ();
+    database_jobs.set_level (jobId, Filter_Roles::member ());
     string task;
     if (producebibles) task = PRODUCEBIBLESTRANSFERFILE;
     if (producenotes) task = PRODUCERENOTESTRANSFERFILE;

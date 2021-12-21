@@ -45,7 +45,7 @@ bool public_new_acl (void * webserver_request)
 
 string public_new (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
 
   if (!request->query.empty ()) {
@@ -59,7 +59,7 @@ string public_new (void * webserver_request)
     string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
     Filter_Text filter_text = Filter_Text (bible);
     filter_text.html_text_standard = new Html_Text (bible);
-    filter_text.addUsfmCode (verse_usfm);
+    filter_text.add_usfm_code (verse_usfm);
     filter_text.run (stylesheet);
     return filter_text.html_text_standard->get_inner_html ();
   }

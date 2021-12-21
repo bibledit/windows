@@ -65,7 +65,7 @@ bool editone2_index_acl (void * webserver_request)
 
 string editone2_index (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   bool touch = request->session_logic ()->touchEnabled ();
   
@@ -73,7 +73,7 @@ string editone2_index (void * webserver_request)
     int switchbook = convert_to_int (request->query ["switchbook"]);
     int switchchapter = convert_to_int (request->query ["switchchapter"]);
     Ipc_Focus::set (request, switchbook, switchchapter, 1);
-    Navigation_Passage::recordHistory (request, switchbook, switchchapter, 1);
+    Navigation_Passage::record_history (request, switchbook, switchchapter, 1);
   }
 
   if (config_logic_indonesian_cloud_free ()) {

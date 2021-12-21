@@ -30,11 +30,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <codecvt>
 #endif
 #ifdef HAVE_ICU
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdocumentation"
 #include <unicode/ustdio.h>
 #include <unicode/normlzr.h>
 #include <unicode/utypes.h>
 #include <unicode/unistr.h>
 #include <unicode/translit.h>
+#pragma clang diagnostic pop
 #endif
 #ifdef HAVE_CLOUD
 #include <libxml/tree.h>
@@ -230,6 +234,7 @@ float convert_to_float (string s)
 
 bool convert_to_bool (string s)
 {
+  if (s.empty()) return false;
   if (s == "true") return true;
   if (s == "TRUE") return true;
   bool b;
@@ -463,7 +468,7 @@ string narrow_non_breaking_space_u202F ()
 // Returns the length of string s in unicode points, not in bytes.
 size_t unicode_string_length (string s)
 {
-  int length = utf8::distance (s.begin(), s.end());
+  size_t length = utf8::distance (s.begin(), s.end());
   return length;
 }
 
@@ -472,8 +477,8 @@ size_t unicode_string_length (string s)
 // If len = 0, the string from start till end is returned.
 string unicode_string_substr (string s, size_t pos, size_t len)
 {
-  char * input = (char *) s.c_str();
-  char * startiter = (char *) input;
+  char * input = const_cast<char *>(s.c_str());
+  char * startiter = input;
   size_t length = strlen (input);
   char * veryend = input + length + 1;
   // Iterate forward pos times.
@@ -515,9 +520,9 @@ string unicode_string_substr (string s, size_t pos, size_t len)
 // Equivalent to PHP's mb_strpos function.
 size_t unicode_string_strpos (string haystack, string needle, size_t offset)
 {
-  int haystack_length = unicode_string_length (haystack);
-  int needle_length = unicode_string_length (needle);
-  for (int pos = offset; pos <= haystack_length - needle_length; pos++) {
+  int haystack_length = static_cast<int>(unicode_string_length (haystack));
+  int needle_length = static_cast<int>(unicode_string_length (needle));
+  for (int pos = static_cast<int>(offset); pos <= haystack_length - needle_length; pos++) {
     string substring = unicode_string_substr (haystack, pos, needle_length);
     if (substring == needle) return pos;
   }
@@ -531,9 +536,9 @@ size_t unicode_string_strpos_case_insensitive (string haystack, string needle, s
   haystack = unicode_string_casefold (haystack);
   needle = unicode_string_casefold (needle);
   
-  int haystack_length = unicode_string_length (haystack);
-  int needle_length = unicode_string_length (needle);
-  for (int pos = offset; pos <= haystack_length - needle_length; pos++) {
+  int haystack_length = static_cast<int>(unicode_string_length (haystack));
+  int needle_length = static_cast<int>(unicode_string_length (needle));
+  for (int pos = static_cast<int>(offset); pos <= haystack_length - needle_length; pos++) {
     string substring = unicode_string_substr (haystack, pos, needle_length);
     if (substring == needle) return pos;
   }
@@ -1396,7 +1401,7 @@ vector <string> filter_string_search_needles (string search, string text)
 // Returns an integer identifier based on the name of the current user.
 int filter_string_user_identifier (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   string username = request->session_logic()->currentUser ();
   string hash = md5 (username).substr (0, 5);
   int identifier = my_stoi (hash, NULL, 36);
@@ -1637,11 +1642,11 @@ void array_move_from_to (vector <string> & container, size_t from, size_t to)
   to *= 2;
   
   // Remove the item, and insert it by a key that puts it at the desired position.
-  string moving_item = mapped_container [from];
-  mapped_container.erase (from);
+  string moving_item = mapped_container [(int)from];
+  mapped_container.erase ((int)from);
   if (move_up) to++;
   else to--;
-  mapped_container [to] = moving_item;
+  mapped_container [(int)to] = moving_item;
   
   // Since the map sorts by key,
   // transfer its data back to the original container.
@@ -1751,4 +1756,17 @@ string filter_string_tidy_invalid_html (string html)
 #endif
 
   return html;
+}
+
+
+string filter_string_collapse_whitespace (string s)
+{
+  int count;
+  int iterator = 0;
+  do {
+    count = 0;
+    s = filter_string_str_replace ("  ", " ", s, &count);
+    iterator++;
+  } while ((count > 0) && iterator < 5);
+  return s;
 }

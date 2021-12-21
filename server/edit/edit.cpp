@@ -49,13 +49,13 @@ bool edit_edit_acl (void * webserver_request)
 
 string edit_edit (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   
-  string href = request->query ["href"];
-  Passage passage = filter_integer_to_passage (convert_to_int (href));
+  string passage_query = request->query ["passage"];
+  Passage passage = filter_integer_to_passage (convert_to_int (passage_query));
   Ipc_Focus::set (request, passage.book, passage.chapter, convert_to_int (passage.verse));
-  Navigation_Passage::recordHistory (request, passage.book, passage.chapter, convert_to_int (passage.verse));
+  Navigation_Passage::record_history (request, passage.book, passage.chapter, convert_to_int (passage.verse));
   
   
   // Check whether a Bible editor is alive.
@@ -64,5 +64,5 @@ string edit_edit (void * webserver_request)
   
   
   if (alive) return translate ("The passage has been opened in the existing Bible editor");
-  return "<a href=\"/editone2/index\">" + translate ("Open a Bible editor to edit the passage") + "</a>";
+  return R"(<a href="../editone2/index">)" + translate ("Open a Bible editor to edit the passage") + "</a>";
 }

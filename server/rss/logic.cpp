@@ -128,8 +128,8 @@ void rss_logic_execute_update (string user, string bible, int book, int chapter,
       Filter_Text filter_text_new = Filter_Text (bible);
       filter_text_old.text_text = new Text_Text ();
       filter_text_new.text_text = new Text_Text ();
-      filter_text_old.addUsfmCode (old_verse_usfm);
-      filter_text_new.addUsfmCode (new_verse_usfm);
+      filter_text_old.add_usfm_code (old_verse_usfm);
+      filter_text_new.add_usfm_code (new_verse_usfm);
       filter_text_old.run (stylesheet);
       filter_text_new.run (stylesheet);
       string old_text = filter_text_old.text_text->get ();
@@ -206,7 +206,7 @@ void rss_logic_update_xml (vector <string> titles, vector <string> authors, vect
     document_updated = true;
   }
   int rss_size = 100;
-  int count = distance (channel.children ().begin (), channel.children ().end ());
+  int count = static_cast<int>(distance (channel.children ().begin (), channel.children ().end ()));
   count -= 3;
   count -= rss_size;
   while (count > 0) {

@@ -58,7 +58,7 @@ bool manage_users_acl (void * webserver_request)
 
 string manage_users (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
   
   bool user_updated = false;
@@ -111,6 +111,8 @@ string manage_users (void * webserver_request)
       page += Assets_Page::error (translate("Cannot remove the last user"));
     } else if ((objectUserLevel >= Filter_Roles::admin ()) && (administrators.size () == 1)) {
       page += Assets_Page::error (translate("Cannot remove the last administrator"));
+    } else if (config_logic_demo_enabled () && (objectUsername ==  session_admin_credentials ())) {
+      page += Assets_Page::error (translate("Cannot remove the demo admin"));
     } else {
       string message;
       user_logic_delete_account (objectUsername, role, email, message);

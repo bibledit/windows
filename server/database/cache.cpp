@@ -221,7 +221,8 @@ bool Database_Cache::ready (string resource, int book)
   SqliteDatabase sql = SqliteDatabase (filename (resource, book));
   sql.add ("SELECT ready FROM ready;");
   vector <string> result = sql.query () ["ready"];
-  for (auto ready : result) {
+  if (!result.empty()) {
+    auto ready = result[0];
     return convert_to_bool (ready);
   }
   return false;
@@ -405,4 +406,21 @@ void database_cache_trim (bool clear)
   if (!error.empty ()) Database_Logs::log (error);
   
   if (clear) Database_Logs::log ("Ready clearing  cache");
+}
+
+
+// This returns true if the $html can be cached.
+bool database_cache_can_cache (const string & error, const string & html)
+{
+  // Normally if everything is fine, then caching is possible.
+  bool cache = true;
+  
+  // Do not cache the data in an error situation.
+  if (!error.empty()) cache = false;
+
+  // Do not cache the data if Cloudflare does DDoS protection.
+  // https://github.com/bibledit/cloud/issues/693.
+  if (html.find ("Cloudflare") != string::npos) cache = false;
+
+  return cache;
 }

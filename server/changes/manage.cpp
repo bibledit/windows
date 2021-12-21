@@ -55,7 +55,7 @@ bool changes_manage_acl (void * webserver_request)
 
 string changes_manage (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   Database_Modifications database_modifications;
   
   
@@ -73,9 +73,9 @@ string changes_manage (void * webserver_request)
     // For that reason, it starts a background job to clear the change notifications.
     // The app will remain responsive to the user.
     Database_Jobs database_jobs = Database_Jobs ();
-    int jobId = database_jobs.getNewId ();
-    database_jobs.setLevel (jobId, Filter_Roles::manager ());
-    database_jobs.setStart (jobId, translate ("Clearing change notifications."));
+    int jobId = database_jobs.get_new_id ();
+    database_jobs.set_level (jobId, Filter_Roles::manager ());
+    database_jobs.set_start (jobId, translate ("Clearing change notifications."));
     tasks_logic_queue (DELETECHANGES, {convert_to_string (jobId), username});
     redirect_browser (request, jobs_index_url () + "?id=" + convert_to_string (jobId));
     return "";

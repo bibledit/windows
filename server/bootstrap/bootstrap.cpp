@@ -210,6 +210,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <resource/comparative1edit.h>
 #include <developer/logic.h>
 #include <developer/delay.h>
+#include <images/index.h>
+#include <images/view.h>
+#include <images/fetch.h>
 
 
 // Internal function to check whether a request coming from the browser is considered secure enough.
@@ -242,7 +245,7 @@ void bootstrap_index (void * webserver_request)
     developer_logic_tracer = make_shared<Developer_Logic_Tracer>(webserver_request);
   }
 
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   // Record the POST request made to the web server.
   // This can be used for debugging.
@@ -274,14 +277,11 @@ void bootstrap_index (void * webserver_request)
   
   // Serve graphics, stylesheets, JavaScript, fonts, with direct streaming for low memory usage.
   if (   (extension == "ico")
-      || (extension == "png")
-      || (extension == "gif")
-      || (extension == "jpg")
+      || (filter_url_is_image (extension))
       || (extension == "css")
       || (extension == "js")
       || (Fonts_Logic::isFont (extension))
       || (extension == "sh")
-      || (extension == "svg")
       || (extension == "map")
       ) {
     http_stream_file (request, true);
@@ -1252,6 +1252,21 @@ void bootstrap_index (void * webserver_request)
 
   if ((url == developer_delay_url ()) && developer_delay_acl (request)) {
     request->reply = developer_delay (request);
+    return;
+  }
+
+  if ((url == images_index_url ()) && browser_request_security_okay (request) && images_index_acl (request)) {
+    request->reply = images_index (request);
+    return;
+  }
+
+  if ((url == images_view_url ()) && browser_request_security_okay (request) && images_view_acl (request)) {
+    request->reply = images_view (request);
+    return;
+  }
+
+  if ((url == images_fetch_url ()) && browser_request_security_okay (request) && images_fetch_acl (request)) {
+    request->reply = images_fetch (request);
     return;
   }
 

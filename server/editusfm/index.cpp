@@ -55,7 +55,7 @@ bool editusfm_index_acl (void * webserver_request)
 
 string editusfm_index (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
   
   bool touch = request->session_logic ()->touchEnabled ();
@@ -67,7 +67,7 @@ string editusfm_index (void * webserver_request)
     int book = convert_to_int (switchbook);
     int chapter = convert_to_int (switchchapter);
     Ipc_Focus::set (request, book, chapter, 1);
-    Navigation_Passage::recordHistory (request, book, chapter, 1);
+    Navigation_Passage::record_history (request, book, chapter, 1);
   }
   
   

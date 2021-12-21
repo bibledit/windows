@@ -60,7 +60,7 @@ bool bible_settings_acl (void * webserver_request)
 
 string bible_settings (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   string page;
   Assets_Header header = Assets_Header (translate("Bible"), webserver_request);
@@ -202,6 +202,7 @@ string bible_settings (void * webserver_request)
   view.set_variable ("public", get_checkbox_status (Database_Config_Bible::getPublicFeedbackEnabled (bible)));
 
   
+ 
   // RSS feed.
 #ifdef HAVE_CLOUD
   if (checkbox == "rss") {
@@ -214,16 +215,16 @@ string bible_settings (void * webserver_request)
 #endif
 
   
-  // Stylesheet.
-  if (request->query.count ("stylesheet")) {
-    string stylesheet = request->query["stylesheet"];
-    if (stylesheet == "") {
-      Dialog_List dialog_list = Dialog_List ("settings", translate("Would you like to change the stylesheet?"), translate ("A stylesheet affects how the Bible text in the editor looks.") + " " + translate ("Please make your choice below."), "");
+  // Stylesheet for editing.
+  if (request->query.count ("stylesheetediting")) {
+    string stylesheet = request->query["stylesheetediting"];
+    if (stylesheet.empty()) {
+      Dialog_List dialog_list = Dialog_List ("settings", translate("Would you like to change the stylesheet for editing?"), translate ("The stylesheet affects how the Bible text in the editor looks.") + " " + translate ("Please make your choice below."), "");
       dialog_list.add_query ("bible", bible);
       Database_Styles database_styles = Database_Styles();
       vector <string> sheets = database_styles.getSheets();
       for (auto & name : sheets) {
-        dialog_list.add_row (name, "stylesheet", name);
+        dialog_list.add_row (name, "stylesheetediting", name);
       }
       page += dialog_list.run ();
       return page;
@@ -232,8 +233,45 @@ string bible_settings (void * webserver_request)
     }
   }
   string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
-  view.set_variable ("stylesheet", stylesheet);
+  view.set_variable ("stylesheetediting", stylesheet);
+
   
+  // Stylesheet for export.
+  if (request->query.count ("stylesheetexport")) {
+    string stylesheet = request->query["stylesheetexport"];
+    if (stylesheet.empty()) {
+      Dialog_List dialog_list = Dialog_List ("settings", translate("Would you like to change the stylesheet for export?"), translate ("The stylesheet affects how the Bible text looks when exported.") + " " + translate ("Please make your choice below."), "");
+      dialog_list.add_query ("bible", bible);
+      Database_Styles database_styles = Database_Styles();
+      vector <string> sheets = database_styles.getSheets();
+      for (auto & name : sheets) {
+        dialog_list.add_row (name, "stylesheetexport", name);
+      }
+      page += dialog_list.run ();
+      return page;
+    } else {
+      if (write_access) Database_Config_Bible::setExportStylesheet (bible, stylesheet);
+    }
+  }
+  stylesheet = Database_Config_Bible::getExportStylesheet (bible);
+  view.set_variable ("stylesheetexport", stylesheet);
+  
+  
+  // Automatic daily checks on text.
+#ifdef HAVE_CLOUD
+  if (checkbox == "checks") {
+    if (write_access) {
+      Database_Config_Bible::setDailyChecksEnabled (bible, checked);
+      if (!checked) {
+        // If checking is switched off, also remove any existing checking results for this Bible.
+        Database_Check database_check;
+        database_check.truncateOutput(bible);
+      }
+    }
+  }
+  view.set_variable ("checks", get_checkbox_status (Database_Config_Bible::getDailyChecksEnabled (bible)));
+#endif
+
   
   view.set_variable ("systemindex", system_index_url());
   view.set_variable ("success_message", success_message);

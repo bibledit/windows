@@ -41,7 +41,7 @@ bool public_chapter_acl (void * webserver_request)
 
 string public_chapter (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
  
   string bible = request->query ["bible"];
   int book = convert_to_int (request->query ["book"]);
@@ -54,7 +54,7 @@ string public_chapter (void * webserver_request)
   Filter_Text filter_text = Filter_Text (bible);
   filter_text.html_text_standard = new Html_Text (bible);
   filter_text.html_text_standard->custom_class = Filter_Css::getClass (bible);
-  filter_text.addUsfmCode (usfm);
+  filter_text.add_usfm_code (usfm);
   filter_text.run (stylesheet);
 
   string html = filter_text.html_text_standard->get_inner_html ();

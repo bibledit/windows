@@ -52,7 +52,7 @@ bool changes_changes_acl (void * webserver_request)
 
 string changes_changes (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   Database_Modifications database_modifications;
   
   
@@ -97,7 +97,7 @@ string changes_changes (void * webserver_request)
     Passage passage = database_modifications.getNotificationPassage (id);
     if (passage.book) {
       Ipc_Focus::set (request, passage.book, passage.chapter, convert_to_int (passage.verse));
-      Navigation_Passage::recordHistory (request, passage.book, passage.chapter, convert_to_int (passage.verse));
+      Navigation_Passage::record_history (request, passage.book, passage.chapter, convert_to_int (passage.verse));
     }
     // Set the correct default Bible for the user.
     string bible = database_modifications.getNotificationBible (id);
@@ -252,7 +252,6 @@ string changes_changes (void * webserver_request)
   
   
   // Add links to clear the notifications from the individual contributors.
-  string dismissblock;
   vector <string> categories = database_modifications.getCategories ();
   for (auto & category : categories) {
     if (category == changes_personal_category ()) continue;
@@ -260,20 +259,13 @@ string changes_changes (void * webserver_request)
     string user = category;
     vector <int> ids = database_modifications.getNotificationTeamIdentifiers (username, user, selectedbible);
     if (!ids.empty ()) {
-      dismissblock.append ("<p>* <a href=\"?dismiss=");
-      dismissblock.append (user);
-      dismissblock.append ("&selectbible=");
-      dismissblock.append (selectedbible);
-      dismissblock.append ("\">");
-      dismissblock.append (user);
-      dismissblock.append (": ");
-      dismissblock.append (translate("all of them"));
-      dismissblock.append (": ");
-      dismissblock.append (convert_to_string (ids.size ()));
-      dismissblock.append ("</a></p>\n");
+      view.add_iteration ("individual", {
+        make_pair ("user", user),
+        make_pair ("selectedbible", selectedbible),
+        make_pair ("count", convert_to_string(ids.size()))
+      } );
     }
   }
-  view.set_variable ("dismissblock", dismissblock);
 
   
   // Add links to clear matching notifications of the various users.
@@ -281,10 +273,12 @@ string changes_changes (void * webserver_request)
     if (category == changes_bible_category ()) continue;
     string user = category;
     vector <int> personal_ids = database_modifications.getNotificationTeamIdentifiers (username, user, selectedbible);
-    string icon = category;
-    if (category == changes_personal_category ()) icon = emoji_smiling_face_with_smiling_eyes ();
+    string user_and_icon = translate ("user") + " " + category;
+    if (category == changes_personal_category ()) {
+      user_and_icon = translate ("me") + " " + emoji_smiling_face_with_smiling_eyes ();
+    }
     if (!personal_ids.empty () && !bible_ids.empty ()) {
-      view.add_iteration ("matching", { make_pair ("user", user), make_pair ("icon", icon) } );
+      view.add_iteration ("matching", { make_pair ("user", user), make_pair ("icon", user_and_icon) } );
     }
   }
   

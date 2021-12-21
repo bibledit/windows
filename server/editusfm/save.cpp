@@ -55,7 +55,7 @@ bool editusfm_save_acl (void * webserver_request)
 
 string editusfm_save (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   
   string bible = request->post["bible"];
@@ -70,11 +70,15 @@ string editusfm_save (void * webserver_request)
     if (Checksum_Logic::get (usfm) == checksum) {
       usfm = filter_url_tag_to_plus (usfm);
       usfm = filter_string_trim (usfm);
+      // Collapse multiple spaces in the USFM into one space.
+      // https://github.com/bibledit/cloud/issues/711
+      usfm = filter_string_collapse_whitespace(usfm);
       if (!usfm.empty ()) {
         if (unicode_string_is_valid (usfm)) {
           string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
           vector <BookChapterData> book_chapter_text = usfm_import (usfm, stylesheet);
-          for (BookChapterData & data : book_chapter_text) {
+          if (!book_chapter_text.empty()) {
+            BookChapterData data = book_chapter_text[0];
             int book_number = data.book;
             int chapter_number = data.chapter;
             string chapter_data_to_save = data.data;
@@ -99,6 +103,7 @@ string editusfm_save (void * webserver_request)
               }
               
               // Check on the merge.
+              filter_merge_add_book_chapter (conflicts, book, chapter);
               bible_logic_merge_irregularity_mail ({username}, conflicts);
               
               // If the USFM on disk is different from the USFM that was sent to the editor,
@@ -119,7 +124,7 @@ string editusfm_save (void * webserver_request)
                 // Safely store the chapter.
                 string explanation;
                 string message = usfm_safely_store_chapter (request, bible, book, chapter, chapter_data_to_save, explanation);
-                bible_logic_unsafe_save_mail (message, explanation, username, chapter_data_to_save);
+                bible_logic_unsafe_save_mail (message, explanation, username, chapter_data_to_save, book, chapter);
                 if (message.empty()) {
 #ifndef HAVE_CLIENT
                   // Server configuration: Store details for the user's changes.

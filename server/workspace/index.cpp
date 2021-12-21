@@ -47,7 +47,7 @@ bool workspace_index_acl (void * webserver_request)
 
 string workspace_index (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   vector <string> workspaces = workspace_get_names (request);
 
   
@@ -90,7 +90,7 @@ string workspace_index (void * webserver_request)
     vector <Passage> passages = database_notes.get_passages (noteid);
     if (!passages.empty ()) {
       Ipc_Focus::set (webserver_request, passages[0].book, passages[0].chapter, convert_to_int (passages[0].verse));
-      Navigation_Passage::recordHistory (webserver_request, passages[0].book, passages[0].chapter, convert_to_int (passages[0].verse));
+      Navigation_Passage::record_history (webserver_request, passages[0].book, passages[0].chapter, convert_to_int (passages[0].verse));
     }
   }
   

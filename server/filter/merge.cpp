@@ -150,7 +150,7 @@ void filter_merge_detect_conflict (string base, string change, string prioritize
       irregularity = true;
     }
   }
-  
+
   if (irregularity) {
     Merge_Conflict conflict;
     conflict.base = base;
@@ -292,4 +292,13 @@ string filter_merge_run_clever (string base, string change, string prioritized_c
   
   // Done.
   return filter_string_implode (results, "\n");
+}
+
+
+void filter_merge_add_book_chapter (vector <Merge_Conflict> & conflicts, int book, int chapter)
+{
+  for (auto & conflict : conflicts) {
+    conflict.book = book;
+    conflict.chapter = chapter;
+  }
 }

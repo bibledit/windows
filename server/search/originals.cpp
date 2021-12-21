@@ -53,7 +53,7 @@ bool search_originals_acl (void * webserver_request)
 
 string search_originals (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
 
   Database_OsHb database_oshb = Database_OsHb ();
@@ -151,7 +151,7 @@ string search_originals (void * webserver_request)
       v_passages.push_back (passage);
       counts.push_back (count);
     }
-    quick_sort (counts, v_passages, 0, counts.size());
+    quick_sort (counts, v_passages, 0, static_cast<int>(counts.size()));
     reverse (v_passages.begin(), v_passages.end());
 
     

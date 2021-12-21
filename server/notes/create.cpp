@@ -52,7 +52,7 @@ bool notes_create_acl (void * webserver_request)
 
 string notes_create (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   Database_Notes database_notes (webserver_request);
   Notes_Logic notes_logic = Notes_Logic (webserver_request);
   
@@ -139,7 +139,7 @@ string notes_create (void * webserver_request)
     string stylesheet = styles_logic_standard_sheet ();
     Filter_Text filter_text = Filter_Text (bible);
     filter_text.text_text = new Text_Text ();
-    filter_text.addUsfmCode (verse_usfm);
+    filter_text.add_usfm_code (verse_usfm);
     filter_text.run (stylesheet);
     versetext = filter_text.text_text->get ();
     view.set_variable ("versetext", versetext);

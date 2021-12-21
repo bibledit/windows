@@ -38,6 +38,9 @@
 static MUTEX_TYPE *mutex_buf = NULL;
 
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+
 static void locking_function(int mode, int n, const char * file, int line)
 {
   if (mode & CRYPTO_LOCK)
@@ -53,11 +56,13 @@ static unsigned long id_function(void)
   return ((unsigned long)THREAD_ID);
 }
 
+#pragma clang diagnostic pop
+
 
 #endif
 
 
-void thread_setup ()
+void thread_setup (void)
 {
 #ifndef HAVE_CLIENT
   mutex_buf = malloc (CRYPTO_num_locks () * sizeof(MUTEX_TYPE));
@@ -71,7 +76,7 @@ void thread_setup ()
 }
 
 
-void thread_cleanup ()
+void thread_cleanup (void)
 {
 #ifndef HAVE_CLIENT
   if (!mutex_buf) return;

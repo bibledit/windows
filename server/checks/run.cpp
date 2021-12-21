@@ -173,7 +173,7 @@ void checks_run (string bible)
       
       Filter_Text filter_text = Filter_Text (bible);
       filter_text.initializeHeadingsAndTextPerVerse (false);
-      filter_text.addUsfmCode (chapterUsfm);
+      filter_text.add_usfm_code (chapterUsfm);
       filter_text.run (stylesheet);
       map <int, string>  verses_headings = filter_text.verses_headings;
       map <int, string> verses_text = filter_text.getVersesText ();
@@ -206,7 +206,7 @@ void checks_run (string bible)
         checks_usfm.initialize (book, chapter);
         checks_usfm.check (chapterUsfm);
         checks_usfm.finalize ();
-        vector <pair<int, string>>  results = checks_usfm.getResults ();
+        vector <pair<int, string>>  results = checks_usfm.get_results ();
         for (auto element : results) {
           int verse = element.first;
           string msg = element.second;

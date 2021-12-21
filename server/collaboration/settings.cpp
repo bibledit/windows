@@ -50,7 +50,7 @@ bool collaboration_settings_acl (void * webserver_request)
 
 string collaboration_settings (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   string page;
   Assets_Header header = Assets_Header (translate("Collaboration"), request);
@@ -70,9 +70,9 @@ string collaboration_settings (void * webserver_request)
       string readwrite = request->post["readwrite"];
       Database_Config_Bible::setReadFromGit (object, readwrite == "sendreceive");
       Database_Jobs database_jobs = Database_Jobs ();
-      int jobId = database_jobs.getNewId ();
-      database_jobs.setLevel (jobId, Filter_Roles::admin ());
-      database_jobs.setStart (jobId, collaboration_link_header ());
+      int jobId = database_jobs.get_new_id ();
+      database_jobs.set_level (jobId, Filter_Roles::admin ());
+      database_jobs.set_start (jobId, collaboration_link_header ());
       tasks_logic_queue (LINKGITREPOSITORY, {object, convert_to_string (jobId), source});
       redirect_browser (request, jobs_index_url () + "?id=" + convert_to_string (jobId));
       return "";

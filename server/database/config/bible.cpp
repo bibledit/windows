@@ -836,3 +836,30 @@ void Database_Config_Bible::setOdtSpaceAfterVerse (string bible, string value)
   setValue (bible, odt_space_after_verse_key (), value);
 }
 
+
+const char * daily_checks_enabled_key ()
+{
+  return "daily-checks-enabled";
+}
+bool Database_Config_Bible::getDailyChecksEnabled (string bible)
+{
+  return getBValue (bible, daily_checks_enabled_key (), true);
+}
+void Database_Config_Bible::setDailyChecksEnabled (string bible, bool value)
+{
+  setBValue (bible, daily_checks_enabled_key (), value);
+}
+
+
+const char * odt_poetry_verses_left_key ()
+{
+  return "odt-poetry-verses-left";
+}
+bool Database_Config_Bible::getOdtPoetryVersesLeft (string bible)
+{
+  return getBValue (bible, odt_poetry_verses_left_key(), false);
+}
+void Database_Config_Bible::setOdtPoetryVersesLeft (string bible, bool value)
+{
+  setBValue (bible, odt_poetry_verses_left_key(), value);
+}

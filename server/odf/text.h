@@ -35,14 +35,24 @@ class Odf_Text
 public:
   Odf_Text (string bible_in);
   ~Odf_Text ();
-  void newParagraph (string style = styles_logic_standard_sheet ());
-  void addText (string text);
-  void newHeading1 (string text, bool hide = false);
+  void new_paragraph (string style = styles_logic_standard_sheet ());
+  void add_text (string text);
+  void new_heading1 (string text, bool hide = false);
   void createPageBreakStyle ();
   void newPageBreak ();
-  void createParagraphStyle (string name, string fontname, float fontsize, int italic, int bold, int underline, int smallcaps, int alignment, float spacebefore, float spaceafter, float leftmargin, float rightmargin, float firstlineindent, bool keepWithNext, int dropcaps);
-  void updateCurrentParagraphStyle (string name);
-  void openTextStyle (Database_Styles_Item style, bool note, bool embed);
+  void create_paragraph_style (string name,
+                               string fontname,
+                               float fontsize,
+                               int italic, int bold, int underline,
+                               int smallcaps,
+                               int alignment,
+                               float spacebefore, float spaceafter,
+                               float leftmargin, float rightmargin,
+                               float firstlineindent,
+                               bool keepWithNext,
+                               int dropcaps);
+  void update_current_paragraph_style (string name);
+  void open_text_style (Database_Styles_Item style, bool note, bool embed);
   void closeTextStyle (bool note, bool embed);
   void placeTextInFrame (string text, string style, float fontsize, int italic, int bold);
   void createSuperscriptStyle ();
@@ -50,21 +60,23 @@ public:
   void addNoteText (string text);
   void closeCurrentNote ();
   void save (string name);
-  string currentParagraphStyle;
-  string currentParagraphContent;
+  string current_paragraph_style;
+  string current_paragraph_content;
   vector <string> currentTextStyle;
+  void add_image (string alt, string src, string caption);
+  void add_tab ();
 private:
   string bible;
   string unpackedOdtFolder;
   xml_document contentDom; // The content.xml DOMDocument.
-  xml_node officeTextDomNode; // The office:text DOMNode.
+  xml_node office_text_node; // The office:text DOMNode.
   xml_document stylesDom; // The styles.xml DOMDocument.
   vector <string> createdStyles; // An array with styles already created in the $stylesDom.
-  xml_node officeStylesDomNode; // The office:styles DOMNode.
+  xml_node office_styles_node; // The office:styles DOMNode.
   //xml_node officeAutomaticStylesDomNode; // The office:automatic-styles DOMNode.
-  xml_node currentTextPDomElement; // The current text:p DOMElement.
-  bool current_text_p_opened = false; // Whether the text:p element has been opened.
-  xml_attribute currentTextPDomElementNameNode; // The DOMAttr of the name of the style of the current text:p element.
+  xml_node current_text_p_node; // The current text:p DOMElement.
+  bool current_text_p_node_opened = false; // Whether the text:p element has been opened.
+  xml_attribute current_text_p_node_style_name; // The DOMAttr of the name of the style of the current text:p element.
   int frameCount;
   int noteCount;
   xml_node noteTextPDomElement; // The text:p DOMElement of the current footnote, if any.
@@ -73,7 +85,9 @@ private:
   void initialize_content_xml ();
   void initialize_styles_xml ();
   void newNamedHeading (string style, string text, bool hide = false);
-  string convertStyleName (string style);
+  string convert_style_name (string style);
+  int image_counter;
+  // string pictures_folder;
 };
 
 

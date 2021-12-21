@@ -45,7 +45,7 @@ bool edit_position_acl (void * webserver_request)
 
 string edit_position (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
  
   
   // Get Bible: If an empty Bible is given, bail out.
@@ -87,7 +87,7 @@ string edit_position (void * webserver_request)
   if (endingOffset) {
     endingOffset--;
   } else {
-    endingOffset = editor_usfm2html.textLength;
+    endingOffset = static_cast<int>(editor_usfm2html.textLength);
   }
   
   string data = convert_to_string (startingOffset);

@@ -25,6 +25,7 @@
 #include <database/logs.h>
 #include <database/config/bible.h>
 #include <database/state.h>
+#include <database/bibleimages.h>
 #include <filter/url.h>
 #include <filter/string.h>
 #include <filter/roles.h>
@@ -45,6 +46,7 @@ void export_web_book (string bible, int book, bool log)
   
   
   Database_Bibles database_bibles;
+  Database_BibleImages database_bibleimages;
   
   
   string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
@@ -96,11 +98,11 @@ void export_web_book (string bible, int book, bool log)
     // Get the USFM for the chapter.
     string usfm = database_bibles.getChapter (bible, book, chapter);
     // Clean the word level attributes out.
-    usfm = usfm_remove_word_level_attributes (usfm);
+    usfm = usfm_remove_w_attributes (usfm);
     // Trim it.
     usfm = filter_string_trim (usfm);
     // Use small chunks of USFM at a time for much better performance.
-    filter_text_chapter.addUsfmCode (usfm);
+    filter_text_chapter.add_usfm_code (usfm);
     
     // Interlinked web data for one chapter.
     filter_text_chapter.html_text_linked = new Html_Text (translate("Bible"));
@@ -135,6 +137,13 @@ void export_web_book (string bible, int book, bool log)
     
     html_text_rich_book_index.add_link (html_text_rich_book_index.current_p_node, filter_url_html_file_name_bible ("", book, chapter), "", convert_to_string (chapter), "", " " + convert_to_string (chapter) + " ");
     html_text_rich_book_index.add_text ("|");
+    
+    // Save any images that were included.
+    for (auto src : filter_text_chapter.image_sources) {
+      string contents = database_bibleimages.get(src);
+      string filename = filter_url_create_path (directory, src);
+      filter_url_file_put_contents(filename, contents);
+    }
   }
   
   

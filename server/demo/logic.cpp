@@ -289,7 +289,7 @@ void demo_prepare_sample_bible ()
       // Read the USFM and clean it up.
       file = filter_url_create_path (directory, file);
       string usfm = filter_url_file_get_contents (file);
-      usfm = filter_string_str_replace ("  ", " ", usfm);
+      usfm = filter_string_collapse_whitespace (usfm);
       // Import the USFM into the sample Bible.
       vector <BookChapterData> book_chapter_data = usfm_import (usfm, styles_logic_standard_sheet ());
       for (auto data : book_chapter_data) {
@@ -344,7 +344,7 @@ void demo_create_sample_notes (void * webserver_request)
   Database_Notes database_notes (webserver_request);
   vector <int> identifiers = database_notes.get_identifiers ();
   if (identifiers.size () < 10) {
-    for (size_t i = 1; i <= 10; i++) {
+    for (int i = 1; i <= 10; i++) {
       database_notes.store_new_note (demo_sample_bible_name (), i, i, i, "Sample Note " + convert_to_string (i), "Sample Contents for note " + convert_to_string (i), false);
     }
   }
@@ -359,7 +359,7 @@ string demo_workspace ()
 
 void demo_create_sample_workspaces (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   map <int, string> urls;
   map <int, string> widths;

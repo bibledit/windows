@@ -322,6 +322,7 @@
 /help/installandroid.html
 /help/installation.html
 /help/installchromeos.html
+/help/installcloudcentos.html
 /help/installcloudubuntu.html
 /help/installios.html
 /help/installlinux.html
@@ -348,6 +349,10 @@
 /html
 /i18n
 /i18n/i18n.sh
+/images
+/images/gitflag
+/images/index.html
+/images/view.html
 /index
 /index/index.html
 /index/listing.html
@@ -362,6 +367,8 @@
 /jquery/jquery-3.5.1.js
 /jquery/jquery-3.5.1.min.js
 /jquery/jquery.LICENSE.js
+/jquery/jquery.longpress.js
+/jquery/jquery.longpress.txt
 /jquery/jquery.stylesheet.js
 /jquery/jquery.touchSwipe.js
 /jquery/jquery.touchSwipe.LICENSE
@@ -5304,6 +5311,8 @@
 /sqlite
 /sqlite/readme.txt
 /statistics
+/stb
+/stb/LICENSE
 /styles
 /styles/indexm.html
 /styles/indext.html
@@ -5439,6 +5448,10 @@
 /unittests/tests/60-1Peter.usfm
 /unittests/tests/basic.css
 /unittests/tests/biblehub-john-1-1.html
+/unittests/tests/bibleimage1.jpeg
+/unittests/tests/bibleimage1.png
+/unittests/tests/bibleimage2.png
+/unittests/tests/bibleimage3.png
 /unittests/tests/cache_resource_test.sqlite
 /unittests/tests/changed_verses.html
 /unittests/tests/chapters_new.usfm

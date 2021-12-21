@@ -61,7 +61,7 @@ bool editone2_save_acl (void * webserver_request)
 
 string editone2_save (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
   
   // Check on information about where to save the verse.
@@ -140,7 +140,7 @@ string editone2_save (void * webserver_request)
   // Safely store the verse.
   string explanation;
   string message = usfm_safely_store_verse (request, bible, book, chapter, verse, verse_usfm, explanation, true);
-  bible_logic_unsafe_save_mail (message, explanation, username, verse_usfm);
+  bible_logic_unsafe_save_mail (message, explanation, username, verse_usfm, book, chapter);
   // If storing the verse worked out well, there's no message to display.
   if (message.empty ()) {
     // Get the chapter text now, that is, after the save operation completed.

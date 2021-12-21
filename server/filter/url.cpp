@@ -108,7 +108,7 @@ vector <string> filter_url_scandir_internal (string folder)
 // Gets the base URL of current Bibledit installation.
 string get_base_url (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   string scheme;
   string port;
   if (request->secure || config_globals_enforce_https_browser) {
@@ -127,7 +127,7 @@ string get_base_url (void * webserver_request)
 // "path" is an absolute value.
 void redirect_browser (void * webserver_request, string path)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
   // A location header should contain an absolute url, like http://localhost/some/path.
   // See 14.30 in the specification https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html.
@@ -421,7 +421,7 @@ void filter_url_set_write_permission (string path)
 // C++ rough equivalent for PHP's file_get_contents.
 string filter_url_file_get_contents(string filename)
 {
-  if (!file_or_dir_exists(filename)) return "";
+  if (!file_or_dir_exists(filename)) return string();
   try {
 #ifdef HAVE_WINDOWS
     wstring wfilename = string2wstring(filename);
@@ -430,14 +430,14 @@ string filter_url_file_get_contents(string filename)
     ifstream ifs(filename.c_str(), ios::in | ios::binary | ios::ate);
 #endif
     streamoff filesize = ifs.tellg();
-    if (filesize == 0) return "";
+    if (filesize == 0) return string();
     ifs.seekg(0, ios::beg);
     vector <char> bytes((int)filesize);
     ifs.read(&bytes[0], (int)filesize);
     return string(&bytes[0], (int)filesize);
   }
   catch (...) {
-    return "";
+    return string();
   }
 }
 
@@ -536,7 +536,7 @@ int filter_url_filesize (string filename)
   struct stat buf;
   int rc = stat (filename.c_str (), &buf);
 #endif
-  return rc == 0 ? buf.st_size : 0;
+  return rc == 0 ? (int)(buf.st_size) : 0;
 }
 
 
@@ -769,7 +769,7 @@ string filter_url_http_post (string url, map <string, string> values, string& er
       long http_code = 0;
       curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
       if (http_code != 200) {
-        error.append ("Server response " + filter_url_http_response_code_text (http_code));
+        error.append ("Server response " + filter_url_http_response_code_text (static_cast<int>(http_code)));
       }
     } else {
       error = curl_easy_strerror (res);
@@ -839,7 +839,7 @@ string filter_url_http_upload (string url, map <string, string> values, string f
       long http_code = 0;
       curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
       if (http_code != 200) {
-        error.append ("Server response " + filter_url_http_response_code_text (http_code));
+        error.append ("Server response " + filter_url_http_response_code_text (static_cast<int>(http_code)));
       }
     } else {
       error = curl_easy_strerror (res);
@@ -1439,9 +1439,9 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
         cur = buffer [0];
       } else {
 #ifdef HAVE_WINDOWS
-        ret = recv(sock, &cur, 1, 0);
+        ret = (int)recv(sock, &cur, 1, 0);
 #else
-        ret = read(sock, &cur, 1);
+        ret = (int)read(sock, &cur, 1);
 #endif
       }
       if (ret > 0) {
@@ -1725,3 +1725,59 @@ bool filter_url_port_can_connect (string hostname, int port)
   // Done.
   return connected;
 }
+
+
+bool filter_url_is_image (string extension)
+{
+  if (extension == "png") return true;
+  
+  if (extension == "gif") return true;
+
+  if (extension == "jpg") return true;
+  
+  if (extension == "svg") return true;
+  
+  // Default: It is not an image.
+  return false;
+}
+
+
+// Source:
+// https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
+// See also:
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+string filter_url_get_mime_type (string extension)
+{
+  static map <string, string> mime_types = {
+    {"jar", "application/java-archive"},
+    {"js", "application/javascript"},
+    {"json", "application/json"},
+    {"pdf", "application/pdf"},
+    {"odt", "application/vnd.oasis.opendocument.text"},
+    {"xml", "application/xml"},
+    {"zip", "application/zip"},
+    {"otf", "font/otf"},
+    {"ttf", "application/font-sfnt"},
+    {"woff", "application/font-woff"},
+    {"bmp", "image/bmp"}, // Windows OS/2 Bitmap Graphics
+    {"gif", "image/gif"}, // Graphics Interchange Format
+    {"jpe", "image/jpeg"}, // JPEG images
+    {"jpg", "image/jpeg"}, // JPEG images
+    {"jpeg", "image/jpeg"}, // JPEG images
+    {"png", "image/png"}, // Portable Network Graphics
+    {"svgz", "image/svg+xml"},
+    {"svg", "image/svg+xml"}, // Scalable Vector Graphics
+    {"tif", "image/tiff"}, // Tagged Image File Format
+    {"tiff", "image/tiff"}, // Tagged Image File Format
+    {"ico", "image/vnd.microsoft.icon"}, // Icon format
+    {"css", "text/css"},
+    {"csv", "text/csv"},
+    {"htm", "text/html"},
+    {"html", "text/html"},
+    {"txt", "text/plain"},
+    {"usfm", "text/plain"},
+    {"webp", "image/webp"}, // WEBP image
+  };
+  return mime_types [extension];
+}
+    

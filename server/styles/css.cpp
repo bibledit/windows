@@ -60,7 +60,7 @@ void Styles_Css::generate ()
   if (editor_enabled) {
     add_editor_styles ();
   }
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   vector <string> markers = request->database_styles ()->getMarkers (stylesheet);
   for (auto & marker : markers) {
     Database_Styles_Item style = request->database_styles ()->getMarkerData (stylesheet, marker);
@@ -72,7 +72,7 @@ void Styles_Css::generate ()
 // Evaluates the style so as to decide how it should look.
 void Styles_Css::evaluate (void * database_styles_item)
 {
-  Database_Styles_Item * style = (Database_Styles_Item *) database_styles_item;
+  Database_Styles_Item * style = static_cast<Database_Styles_Item *> (database_styles_item);
   
   switch (style->type)
   {
@@ -163,7 +163,7 @@ void Styles_Css::evaluate (void * database_styles_item)
 // $keepwithnext: Keep text in this style together with the next paragraph.
 void Styles_Css::add (void * database_styles_item, bool paragraph, bool keepwithnext)
 {
-  Database_Styles_Item * style = (Database_Styles_Item *) database_styles_item;
+  Database_Styles_Item * style = static_cast<Database_Styles_Item *> (database_styles_item);
 
   string class_ = style->marker;
 

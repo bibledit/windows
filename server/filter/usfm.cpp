@@ -30,6 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <bb/logic.h>
 #include <locale/translate.h>
 #include <developer/logic.h>
+#include <pugixml/pugixml.hpp>
+
+
+using namespace pugi;
 
 
 BookChapterData::BookChapterData (int book_in, int chapter_in, string data_in)
@@ -296,7 +300,7 @@ vector <int> usfm_offset_to_versenumber (string usfm, unsigned int offset)
   unsigned int totalOffset = 0;
   vector <string> lines = filter_string_explode (usfm, '\n');
   for (unsigned int i = 0; i < lines.size(); i++) {
-    int length = unicode_string_length (lines [i]);
+    size_t length = unicode_string_length (lines [i]);
     totalOffset += length;
     if (totalOffset >= offset) {
       return usfm_linenumber_to_versenumber (usfm, i);
@@ -325,7 +329,7 @@ int usfm_versenumber_to_offset (string usfm, int verse)
     // Add 1 for new line.
     totalOffset += 1;
   }
-  return unicode_string_length (usfm);
+  return static_cast<int>(unicode_string_length (usfm));
 }
 
 
@@ -623,9 +627,9 @@ string usfm_get_closing_usfm (string text, bool embedded)
 string usfm_save_is_safe (void * webserver_request, string oldtext, string newtext, bool chapter, string & explanation)
 {
   // Two texts are equal: safe.
-  if (newtext == oldtext) return "";
+  if (newtext == oldtext) return string();
 
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
   const char * explanation1 = "The text was not saved for safety reasons.";
   const char * explanation2 = "Make fewer changes at a time and wait till the editor has saved the text. Or relax the restriction in the editing settings. See menu Settings - Preferences.";
@@ -645,11 +649,11 @@ string usfm_save_is_safe (void * webserver_request, string oldtext, string newte
   } else {
     if (oldtext.length () < 10) allowed_percentage = 100;
   }
-  
+
   // When the new text is longer than the old text, it means the user is typing extra text in the verse.
   // Allow that in all cases.
   if (newtext.length() > oldtext.length()) allowed_percentage = 100;
-  
+
   // The length of the new text should not differ more than a set percentage from the old text.
   float existingLength = oldtext.length();
   float newLength = newtext.length ();
@@ -705,7 +709,7 @@ string usfm_save_is_safe (void * webserver_request, string oldtext, string newte
 string usfm_safely_store_chapter (void * webserver_request,
                                   string bible, int book, int chapter, string usfm, string & explanation)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   // Existing chapter contents.
   string existing = request->database_bibles()->getChapter (bible, book, chapter);
@@ -733,14 +737,14 @@ string usfm_safely_store_chapter (void * webserver_request,
 // On failure it returns a message that specifies the reason why it could not be saved.
 // This function proves useful in cases that the text in the Bible editor gets corrupted due to human error.
 // It also is useful in cases where the session is deleted from the server,
-// where the text in the editors would get corrupted.
+ // where the text in the editors would get corrupted.
 // It also is useful in view of an unstable connection between browser and server, to prevent data corruption.
 // It handles combined verses.
 string usfm_safely_store_verse (void * webserver_request,
                                 string bible, int book, int chapter, int verse, string usfm,
                                 string & explanation, bool quill)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   usfm = filter_string_trim (usfm);
 
@@ -927,17 +931,18 @@ const char * usfm_marker_vp ()
 //   attribute = "value".
 // Example:
 //   \w gracious|lemma="grace"\w*
-string usfm_remove_word_level_attributes (string usfm)
+string usfm_remove_w_attributes (string usfm)
 {
-  // Check there is a vertical bar at all in the input USFM.
-  // If it's not there, then the function is ready without much ado.
+  // Check for a vertical bar at all in the input USFM.
+  // If it's not there, then there won't be any word-level attributes.
   if (usfm.find ("|") != string::npos) {
 
     // Flag whether a replacement was made.
     bool keep_going = false;
     
-    // In USFM 3.0 there's two character markers that support word level attributes:
-    vector <string> supported_character_markers = { "w", "fig" };
+    // In USFM 3.0 there's two character markers that support word level attributes.
+    // But the \fig is already handled elsewhere.
+    vector <string> supported_character_markers = { "w" };
     for (auto & marker : supported_character_markers) {
 
       // Support multiple replacements.
@@ -976,4 +981,95 @@ string usfm_remove_word_level_attributes (string usfm)
   
   // Done.
   return usfm;
+}
+
+
+// This extracts the attributs for the "fig" markup.
+// It supports USFM 3.x.
+// https://ubsicap.github.io/usfm/characters/index.html#fig-fig
+// That means it is backwards compatible with USFM 1/2:
+// \fig DESC|FILE|SIZE|LOC|COPY|CAP|REF\fig*
+string usfm_extract_fig (string usfm, string & caption, string & alt, string& src, string& size, string& loc, string& copy, string& ref)
+{
+  // The resulting USFM where the \fig markup has been removed from.
+  string usfm_out;
+  
+  // The string passed in the $usfm variable may contain the \fig..\fig* markup.
+  // Or it may omit those.
+  // Handle both cases: Get the USFM fragment within the \fig...\fig* markup.
+  string marker = "fig";
+  
+  // If the opener is there, it means the \fig markup could be there.
+  string opener = usfm_get_opening_usfm (marker);
+  size_t pos1 = usfm.find (opener);
+  if (pos1 != string::npos) {
+    usfm_out.append(usfm.substr(0, pos1));
+    usfm.erase (0, pos1 + opener.length());
+    // Erase the \fig* closing markup.
+    string closer = usfm_get_closing_usfm(marker);
+    size_t pos2 = usfm.find(closer);
+    if (pos2 != string::npos) {
+      usfm_out.append(usfm.substr(pos2 + closer.length()));
+      usfm.erase(pos2);
+    }
+  } else {
+    usfm_out.assign(usfm);
+  }
+  
+  // Split the bit of USFM between the \fig...\fig* markup on the vertical bar.
+  vector<string> bits = filter_string_explode(usfm, '|');
+
+  // Clear the variables that will contain the extracted information.
+  caption.clear();
+  alt.clear();
+  src.clear();
+  size.clear();
+  loc.clear();
+  copy.clear();
+  ref.clear();
+  
+  // Handle a situation that there are 7 bits of information.
+  // That is the situation as used in USFM 1/2.x
+  // \fig DESC|FILE|SIZE|LOC|COPY|CAP|REF\fig*
+  if (bits.size() == 7) {
+    alt = bits[0];
+    src = bits[1];
+    size = bits[2];
+    loc = bits[3];
+    copy = bits[4];
+    caption = bits[5];
+    ref = bits[6];
+  }
+
+  // Handle the situation that there are two bits of information.
+  // This is when there is one vertical bar.
+  // This is the situation of USFM 3.x.
+  // https://ubsicap.github.io/usfm/characters/index.html#fig-fig
+  if (bits.size() == 2) {
+    caption = bits[0];
+    string xml = "<fig " + bits[1] + " ></fig>";
+    xml_document document;
+    document.load_string (xml.c_str(), parse_ws_pcdata_single);
+    xml_node node = document.first_child ();
+    alt = node.attribute ("alt").value ();
+    src = node.attribute ("src").value ();
+    size = node.attribute ("size").value ();
+    loc = node.attribute ("loc").value ();
+    copy = node.attribute ("copy").value ();
+    ref = node.attribute ("ref").value ();
+  }
+
+  // The resulting USFM with the figure markup removed.
+  return usfm_out;
+}
+
+
+// Returns true if the marker is a standard "q." marker.
+bool usfm_is_standard_q_poetry (const string & marker)
+{
+  if (marker == "q") return true;
+  if (marker == "q1") return true;
+  if (marker == "q2") return true;
+  if (marker == "q3") return true;
+  return false;
 }

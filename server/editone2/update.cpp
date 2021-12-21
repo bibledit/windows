@@ -38,7 +38,6 @@
 #include <bb/logic.h>
 #include <editone2/logic.h>
 #include <edit/logic.h>
-#include <developer/logic.h>
 #include <rss/logic.h>
 #include <sendreceive/logic.h>
 
@@ -63,14 +62,14 @@ bool editone2_update_acl (void * webserver_request)
 
 string editone2_update (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
 
   // Whether the update is good to go.
   bool good2go = true;
   
   
-  // The messages to return.
+  // The message(s) to return.
   vector <string> messages;
 
   
@@ -135,6 +134,7 @@ string editone2_update (void * webserver_request)
   edited_html = filter_url_tag_to_plus (edited_html);
   loaded_html = filter_string_trim (loaded_html);
   edited_html = filter_string_trim (edited_html);
+
   
   // Check on valid UTF-8.
   if (good2go) {
@@ -152,7 +152,9 @@ string editone2_update (void * webserver_request)
 
 
   string stylesheet;
-  if (good2go) stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
+  if (good2go) {
+    stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
+  }
 
   
   // Collect some data about the changes for this user.
@@ -174,6 +176,7 @@ string editone2_update (void * webserver_request)
   string edited_verse_usfm = editone_logic_html_to_usfm (stylesheet, edited_html);
   string existing_verse_usfm = usfm_get_verse_text_quill (old_chapter_usfm, verse);
   existing_verse_usfm = filter_string_trim (existing_verse_usfm);
+
   
   // Set a flag if there is a reason to save the editor text, since it was edited.
   // This is important because the same routine is used for saving editor text
@@ -193,6 +196,7 @@ string editone2_update (void * webserver_request)
       // Do a merge while giving priority to the USFM already in the chapter.
       string merged_verse_usfm = filter_merge_run (loaded_verse_usfm, edited_verse_usfm, existing_verse_usfm, true, conflicts);
       // Mail the user if there is a merge anomaly.
+      filter_merge_add_book_chapter (conflicts, book, chapter);
       bible_logic_optional_merge_irregularity_email (bible, book, chapter, username, loaded_verse_usfm, edited_verse_usfm, merged_verse_usfm);
       // Let the merged data now become the edited data (so it gets saved properly).
       edited_verse_usfm = merged_verse_usfm;
@@ -200,12 +204,21 @@ string editone2_update (void * webserver_request)
   }
   
   
+  // Collapse any double spaces in the USFM to save.
+  // https://github.com/bibledit/cloud/issues/711
+  // If there's double spaces removed here,
+  // then later in this code, the editor will load that text.
+  if (good2go && bible_write_access && text_was_edited) {
+    edited_verse_usfm = filter_string_collapse_whitespace(edited_verse_usfm);
+  }
+
+  
   // Safely store the verse.
   string explanation;
   string message;
   if (good2go && bible_write_access && text_was_edited) {
     message = usfm_safely_store_verse (request, bible, book, chapter, verse, edited_verse_usfm, explanation, true);
-    bible_logic_unsafe_save_mail (message, explanation, username, edited_verse_usfm);
+    bible_logic_unsafe_save_mail (message, explanation, username, edited_verse_usfm, book, chapter);
   }
 
   

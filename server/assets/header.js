@@ -15,6 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
+
+
 function topbarRemovalQueryAddition (elementsAttribute) {
   if (/topbar/.test(elementsAttribute) === false) {
     if (/\?/.test(elementsAttribute)) {
@@ -27,7 +29,8 @@ function topbarRemovalQueryAddition (elementsAttribute) {
     return elementsAttribute;
   }
 }
-let counterForBreadcrumbContainerDisplay = 0;
+
+
 $ (document).ready (function () {
   if (window.self === window.top) {
     // On main page: Enable menu on touch screen.
@@ -114,6 +117,7 @@ $ (document).ready (function () {
   }
   if (mainMenuAlwaysOn === "1") {
     var nodeListOfTopbarLinks = document.querySelectorAll('div#topbar > span >  a');
+		// For advanced mode.
     if (/workspace\/index/.test(window.location.pathname) === true) {
       activeTopbarButton ("workspace", nodeListOfTopbarLinks);
     } else if (/edit\/index/.test(window.location.pathname) || /editone2\/index/.test(window.location.pathname) ||
@@ -145,7 +149,19 @@ $ (document).ready (function () {
       activeTopbarButton ("settings", nodeListOfTopbarLinks);
     } else if (/help/.test(window.location.pathname)) {
       activeTopbarButton ("help", nodeListOfTopbarLinks);
-    }
+		}
+		// For basic mode.
+    if (/read\/index/.test(window.location.pathname)) {
+			activeTopbarButton ("read", nodeListOfTopbarLinks);
+    } else if (/resource\/index/.test(window.location.pathname)) {
+			activeTopbarButton ("resource", nodeListOfTopbarLinks);
+    } else if (/editone2\/index/.test(window.location.pathname)) {
+			activeTopbarButton ("editone2", nodeListOfTopbarLinks);
+    } else if (/notes\/index/.test(window.location.pathname)) {
+			activeTopbarButton ("notes", nodeListOfTopbarLinks);
+    } else if (/personalize\/index/.test(window.location.pathname)) {
+			activeTopbarButton ("personalize", nodeListOfTopbarLinks);
+		}
   }
 
   // If there are more than 9 tabs, a wrapping property in CSS will be activated.

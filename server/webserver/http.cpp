@@ -42,7 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // It returns true if a header was (or could have been) parsed.
 bool http_parse_header (string header, void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   // Clean the header line.
   header = filter_string_trim (header);
@@ -148,7 +148,7 @@ bool http_parse_header (string header, void * webserver_request)
 // Takes data POSTed from the browser, and parses it.
 void http_parse_post (string content, void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
   // Read and parse the POST data.
   try {
@@ -193,7 +193,7 @@ and creates the entire result to be sent back to the browser.
 */
 void http_assemble_response (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
   ostringstream length;
   if (request->stream_file.empty()) {
@@ -210,29 +210,14 @@ void http_assemble_response (void * webserver_request)
   // Assemble the Content-Type.
   string extension = filter_url_get_extension (request->get);
   extension = unicode_string_casefold (extension);
-  string content_type;
-       if (extension == "js")       content_type = "application/javascript";
-  else if (extension == "css")      content_type = "text/css";
-  else if (extension == "ico")      content_type = "image/vnd.microsoft.icon";
-  else if (extension == "gif")      content_type = "image/gif";
-  else if (extension == "jpe")      content_type = "image/jpeg";
-  else if (extension == "jpg")      content_type = "image/jpeg";
-  else if (extension == "jpeg")     content_type = "image/jpeg";
-  else if (extension == "png")      content_type = "image/png";
-  else if (extension == "svg")      content_type = "image/svg+xml";
-  else if (extension == "bmp")      content_type = "image/bmp";
-  else if (extension == "txt")      content_type = "text/plain";
-  else if (extension == "usfm")     content_type = "text/plain";
-  else if (extension == "otf")      content_type = "font/opentype";
-  else if (extension == "ttf")      content_type = "application/font-sfnt";
-  else if (extension == "woff")     content_type = "application/font-woff";
-  else if (extension == "sh")       content_type = "application/octet-stream";
-  else if (extension == "sqlite")   content_type = "application/octet-stream";
-  else if (extension == "htm")      content_type = "text/html";
-  else if (extension == "html")     content_type = "text/html";
-  else if (extension == "")         content_type = "text/html";
-  else if (extension == "download") content_type = "application/octet-stream";
-  else                              content_type = "application/octet-stream";
+  string content_type = filter_url_get_mime_type (extension);
+  if (extension == "usfm") content_type = "text/plain";
+  if (extension.empty()) content_type = "text/html";
+  if (extension == "sh") content_type = "application/octet-stream";
+  if (extension == "sqlite") content_type = "application/octet-stream";
+  if (extension == "download") content_type = "application/octet-stream";
+  // If still empty, take the default binary content type.
+  if (content_type.empty()) content_type = "application/octet-stream";
   // If already defined, take that.
   if (!request->response_content_type.empty ()) content_type = request->response_content_type;
 
@@ -308,7 +293,7 @@ void http_assemble_response (void * webserver_request)
 // $enable_cache: Whether to enable caching by the browser.
 void http_stream_file (void * webserver_request, bool enable_cache)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   // Full path to the file.
   string url = filter_url_urldecode (request->get);

@@ -58,7 +58,7 @@ bool edit_index_acl (void * webserver_request)
 
 string edit_index (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   
   bool touch = request->session_logic ()->touchEnabled ();
@@ -70,7 +70,7 @@ string edit_index (void * webserver_request)
     int switchverse = 1;
     if (request->query.count ("switchverse")) switchverse = convert_to_int (request->query ["switchverse"]);
     Ipc_Focus::set (request, switchbook, switchchapter, switchverse);
-    Navigation_Passage::recordHistory (request, switchbook, switchchapter, switchverse);
+    Navigation_Passage::record_history (request, switchbook, switchchapter, switchverse);
   }
 
   

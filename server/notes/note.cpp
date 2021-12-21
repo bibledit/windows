@@ -50,7 +50,7 @@ bool notes_note_acl (void * webserver_request)
 
 string notes_note (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   Database_Notes database_notes (webserver_request);
   
   
@@ -94,7 +94,7 @@ string notes_note (void * webserver_request)
       int desired_chapter = passages[0].chapter;
       int desired_verse = convert_to_int (passages[0].verse);
       Ipc_Focus::set (webserver_request, desired_book, desired_chapter, desired_verse);
-      Navigation_Passage::recordHistory (webserver_request, desired_book, desired_chapter, desired_verse);
+      Navigation_Passage::record_history (webserver_request, desired_book, desired_chapter, desired_verse);
     }
   }
   

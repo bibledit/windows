@@ -51,7 +51,7 @@ bool search_similar_acl (void * webserver_request)
 
 string search_similar (void * webserver_request)
 {
-  Webserver_Request * request = (Webserver_Request *) webserver_request;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
  
   int myIdentifier = filter_string_user_identifier (request);
@@ -125,7 +125,7 @@ string search_similar (void * webserver_request)
       ids.push_back (id);
       counts.push_back (count);
     }
-    quick_sort (counts, ids, 0, counts.size());
+    quick_sort (counts, ids, 0, static_cast<int>(counts.size()));
     reverse (ids.begin(), ids.end());
 
     // Output the passage identifiers to the browser.
