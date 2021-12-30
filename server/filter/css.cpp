@@ -310,6 +310,6 @@ string Filter_Css::theme_picker (int indexnumber, int itemstyleindex)
 
 string filter_css_grey_background ()
 {
-  return "style=\"background-color: #CCCCCC\"";
+  return R"(style="background-color: #CCCCCC")";
 }
 

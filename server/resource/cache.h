@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_RESOURCE_CACHE_H
-#define INCLUDED_RESOURCE_CACHE_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string resource_cache_url ();
 bool resource_cache_acl (void * webserver_request);
 string resource_cache (void * webserver_request);
-
-
-#endif

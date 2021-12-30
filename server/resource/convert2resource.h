@@ -17,14 +17,8 @@
  */
 
 
-#ifndef INCLUDED_RESOURCE_CONVERT2RESOURCE_H
-#define INCLUDED_RESOURCE_CONVERT2RESOURCE_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 void convert_bible_to_resource (string bible);
-
-
-#endif

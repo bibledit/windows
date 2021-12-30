@@ -17,12 +17,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#ifndef INCLUDED_DATABASE_BIBLES_H
-#define INCLUDED_DATABASE_BIBLES_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Database_Bibles
 {
@@ -48,6 +45,3 @@ private:
   string bookFolder (string bible, int book);
   string chapterFolder (string bible, int book, int chapter);
 };
-
-
-#endif

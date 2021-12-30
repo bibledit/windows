@@ -17,12 +17,9 @@
  */
 
 
-#ifndef INCLUDED_DIALOG_YES_H
-#define INCLUDED_DIALOG_YES_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Dialog_Yes
 {
@@ -35,6 +32,3 @@ private:
   void * assets_view = NULL;
   string base_url;
 };
-
-
-#endif

@@ -17,15 +17,9 @@
  */
 
 
-#ifndef INCLUDED_CHECKS_LOGIC_H
-#define INCLUDED_CHECKS_LOGIC_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 void checks_logic_start_all ();
 void checks_logic_start (string bible);
-
-
-#endif

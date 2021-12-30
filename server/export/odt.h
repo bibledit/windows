@@ -17,14 +17,8 @@
  */
 
 
-#ifndef INCLUDED_EXPORT_ODT_H
-#define INCLUDED_EXPORT_ODT_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 void export_odt_book (string bible, int book, bool log);
-
-
-#endif

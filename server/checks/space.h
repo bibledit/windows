@@ -17,12 +17,9 @@
  */
 
 
-#ifndef INCLUDED_CHECK_SPACE_H
-#define INCLUDED_CHECK_SPACE_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Checks_Space
 {
@@ -33,6 +30,3 @@ public:
   static bool transposeNoteSpace (string & usfm);
 private:
 };
-
-
-#endif

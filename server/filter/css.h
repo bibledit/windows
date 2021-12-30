@@ -17,12 +17,9 @@
  */
 
 
-#ifndef INCLUDED_FILTER_CUSTOMCSS_H
-#define INCLUDED_FILTER_CUSTOMCSS_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Filter_Css
 {
@@ -54,8 +51,4 @@ public:
   static string theme_picker (int themestyleindex, int itemstyleindex);
 };
 
-
 string filter_css_grey_background ();
-
-
-#endif

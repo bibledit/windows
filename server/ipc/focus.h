@@ -17,12 +17,9 @@
  */
 
 
-#ifndef INCLUDED_IPC_FOCUS_H
-#define INCLUDED_IPC_FOCUS_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Ipc_Focus
 {
@@ -33,6 +30,3 @@ public:
   static int getVerse (void * webserver_request);
 private:
 };
-
-
-#endif

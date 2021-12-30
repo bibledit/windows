@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_EDIT_INDEX_H
-#define INCLUDED_EDIT_INDEX_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string edit_index_url ();
 bool edit_index_acl (void * webserver_request);
 string edit_index (void * webserver_request);
-
-
-#endif

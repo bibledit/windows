@@ -17,12 +17,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#ifndef INCLUDED_DATABASE_IMAGERESOURCES_H
-#define INCLUDED_DATABASE_IMAGERESOURCES_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Database_ImageResources
 {
@@ -48,6 +45,3 @@ private:
   string databaseFile ();
   sqlite3 * connect (string name);
 };
-
-
-#endif

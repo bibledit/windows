@@ -788,7 +788,7 @@ string styles_view (void * webserver_request)
       if (userint2 == EndNotePositionAtMarker) {
         view.enable_zone ("userstring2_dumpendnotes");
         userstring2_question = translate("Please enter a marker at which the endnotes should be dumped");
-        userstring2_info = translate("The marker is to be given without the backslash, e.g. \"zendnotes\".");
+        userstring2_info = translate(R"(The marker is to be given without the backslash, e.g. "zendnotes".)");
       }
       break;
   }

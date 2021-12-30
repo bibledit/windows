@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_CHECKS_SUPPRESS_H
-#define INCLUDED_CHECKS_SUPPRESS_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string checks_suppress_url ();
 bool checks_suppress_acl (void * webserver_request);
 string checks_suppress (void * webserver_request);
-
-
-#endif

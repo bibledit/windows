@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_MENU_INDEX_H
-#define INCLUDED_MENU_INDEX_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string menu_index_url ();
 bool menu_index_acl (void * webserver_request);
 string menu_index (void * webserver_request);
-
-
-#endif

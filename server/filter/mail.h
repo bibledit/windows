@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_FILTER_MAIL_H
-#define INCLUDED_FILTER_MAIL_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 #ifdef HAVE_CLOUD
 void filter_mail_dissect (string message, string & from, string & subject, string & plaintext);
-#endif
-
-
 #endif

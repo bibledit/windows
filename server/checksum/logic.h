@@ -17,12 +17,9 @@
  */
 
 
-#ifndef INCLUDED_CHECKSUM_LOGIC_H
-#define INCLUDED_CHECKSUM_LOGIC_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Checksum_Logic
 {
@@ -36,6 +33,3 @@ public:
   static string getBibles (void * webserver_request, const vector <string> & bibles);
 private:
 };
-
-
-#endif

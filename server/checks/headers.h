@@ -17,12 +17,9 @@
  */
 
 
-#ifndef INCLUDED_CHECK_HEADERS_H
-#define INCLUDED_CHECK_HEADERS_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Checks_Headers
 {
@@ -32,6 +29,3 @@ public:
                                   string centermarks, string endmarks);
 private:
 };
-
-
-#endif

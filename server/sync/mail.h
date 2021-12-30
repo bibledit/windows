@@ -17,15 +17,9 @@
  */
 
 
-#ifndef INCLUDED_SYNC_MAIL_H
-#define INCLUDED_SYNC_MAIL_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 string sync_mail_url ();
 string sync_mail (void * webserver_request);
-
-
-#endif

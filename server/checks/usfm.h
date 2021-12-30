@@ -17,13 +17,10 @@
  */
 
 
-#ifndef INCLUDED_CHECK_USFM_H
-#define INCLUDED_CHECK_USFM_H
-
+#pragma once
 
 #include <config/libraries.h>
 #include <database/styles.h>
-
 
 class Checks_Usfm
 {
@@ -87,6 +84,3 @@ private:
   void empty_markup ();
   void note ();
 };
-
-
-#endif

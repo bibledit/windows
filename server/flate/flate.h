@@ -17,12 +17,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#ifndef INCLUDED_FLATE_FLATE_H
-#define INCLUDED_FLATE_FLATE_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Flate
 {
@@ -40,6 +37,3 @@ private:
   void process_variables (string& rendering);
   void process_translate (string& rendering);
 };
-
-
-#endif

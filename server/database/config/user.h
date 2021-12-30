@@ -17,13 +17,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#ifndef INCLUDED_DATABASE_CONFIG_USER_H
-#define INCLUDED_DATABASE_CONFIG_USER_H
-
+#pragma once
 
 #include <config/libraries.h>
 #include <filter/passage.h>
-
 
 class Database_Config_User
 {
@@ -265,6 +262,3 @@ private:
   const char * keySprintYear ();
   bool defaultBibleChecksNotification ();
 };
-
-
-#endif

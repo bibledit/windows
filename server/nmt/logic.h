@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_NMT_LOGIC_H
-#define INCLUDED_NMT_LOGIC_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 void nmt_logic_export (string referencebible, string translatingbible);
 void nmt_logic_split (string reference_text, string translating_text,
                       vector <string> & reference_bits, vector <string> & translating_bits);
-
-
-#endif

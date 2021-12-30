@@ -17,9 +17,7 @@
  */
 
 
-#ifndef INCLUDED_WEBSERVER_LOCKS_H
-#define INCLUDED_WEBSERVER_LOCKS_H
-
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,7 +28,4 @@ extern "C" {
   
 #ifdef __cplusplus
 }
-#endif
-
-
 #endif

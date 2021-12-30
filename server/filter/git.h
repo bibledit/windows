@@ -17,13 +17,10 @@
  */
 
 
-#ifndef INCLUDED_FILTER_GIT_H
-#define INCLUDED_FILTER_GIT_H
-
+#pragma once
 
 #include <config/libraries.h>
 #include <filter/passage.h>
-
 
 #ifdef HAVE_CLOUD
 string filter_git_directory (string object);
@@ -48,7 +45,4 @@ bool filter_git_resolve_conflicts (string repository, vector <string> & paths, s
 void filter_git_config (string repository);
 string filter_git_user (string user);
 string filter_git_email (string user);
-#endif
-
-
 #endif

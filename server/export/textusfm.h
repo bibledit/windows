@@ -17,14 +17,8 @@
  */
 
 
-#ifndef INCLUDED_EXPORT_TEXTUSFM_H
-#define INCLUDED_EXPORT_TEXTUSFM_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 void export_text_usfm_book (string bible, int book, bool log);
-
-
-#endif

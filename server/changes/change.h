@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_CHANGES_CHANGE_H
-#define INCLUDED_CHANGES_CHANGE_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string changes_change_url ();
 bool changes_change_acl (void * webserver_request);
 string changes_change (void * webserver_request);
-
-
-#endif

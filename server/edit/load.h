@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_EDIT_LOAD_H
-#define INCLUDED_EDIT_LOAD_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string edit_load_url ();
 bool edit_load_acl (void * webserver_request);
 string edit_load (void * webserver_request);
-
-
-#endif

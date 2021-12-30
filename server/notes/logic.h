@@ -17,13 +17,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#ifndef INCLUDED_NOTES_LOGIC_H
-#define INCLUDED_NOTES_LOGIC_H
-
+#pragma once
 
 #include <config/libraries.h>
 #include <filter/passage.h>
-
 
 class Notes_Logic
 {
@@ -64,8 +61,4 @@ private:
   void emailUsers (int identifier, const string& label, string bible, const vector <string> & users, bool postpone);
 };
 
-
 void notes_logic_maintain_note_assignees (bool force);
-
-
-#endif

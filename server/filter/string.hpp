@@ -17,9 +17,7 @@
  */
 
 
-#ifndef INCLUDED_FILTER_STRING_HPP
-#define INCLUDED_FILTER_STRING_HPP
-
+#pragma once
 
 #include <config/libraries.h>
 
@@ -53,5 +51,3 @@ T clip (const T& n, const T& lower, const T& upper) {
   return max (lower, min (n, upper));
 }
 
-
-#endif

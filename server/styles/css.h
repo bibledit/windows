@@ -17,12 +17,9 @@
  */
 
 
-#ifndef INCLUDED_STYLES_CSS_H
-#define INCLUDED_STYLES_CSS_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Styles_Css
 {
@@ -44,6 +41,3 @@ private:
   void add_exports_styles ();
   void add_editor_styles ();
 };
-
-
-#endif

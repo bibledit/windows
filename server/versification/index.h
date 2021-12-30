@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_VERSIFICATION_INDEX_H
-#define INCLUDED_VERSIFICATION_INDEX_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string versification_index_url ();
 bool versification_index_acl (void * webserver_request);
 string versification_index (void * webserver_request);
-
-
-#endif

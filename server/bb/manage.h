@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_BIBLE_MANAGE_H
-#define INCLUDED_BIBLE_MANAGE_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string bible_manage_url ();
 bool bible_manage_acl (void * webserver_request);
 string bible_manage (void * webserver_request);
-
-
-#endif

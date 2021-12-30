@@ -17,12 +17,9 @@
  */
 
 
-#ifndef INCLUDED_CLASSES_MERGE_H
-#define INCLUDED_CLASSES_MERGE_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Merge_Conflict
 {
@@ -36,6 +33,3 @@ public:
   int book = 0;
   int chapter = 0;
 };
-
-
-#endif

@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_RESOURCE_COMPARATIVE_EDIT_H
-#define INCLUDED_RESOURCE_COMPARATIVE_EDIT_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string resource_comparative9edit_url ();
 bool resource_comparative9edit_acl (void * webserver_request);
 string resource_comparative9edit (void * webserver_request);
-
-
-#endif

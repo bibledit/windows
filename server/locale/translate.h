@@ -17,17 +17,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#ifndef INCLUDED_LOCALE_TRANSLATE_H
-#define INCLUDED_LOCALE_TRANSLATE_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 extern vector <string> locale_translate_obfuscation_search;
 extern vector <string> locale_translate_obfuscation_replace;
 //void check_user_localization_preference (void * webserver_request);
 string translate (string english);
-
-
-#endif

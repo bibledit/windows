@@ -17,14 +17,8 @@
  */
 
 
-#ifndef INCLUDED_FILTER_HTML_H
-#define INCLUDED_FILTER_HTML_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 string filter_html_android_brs ();
-
-
-#endif

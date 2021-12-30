@@ -17,19 +17,13 @@
  */
 
 
-#ifndef INCLUDED_FILTER_MERGE_H
-#define INCLUDED_FILTER_MERGE_H
-
+#pragma once
 
 #include <config/libraries.h>
 #include <classes/merge.h>
-
 
 string filter_merge_run (string base, string change, string prioritized_change,
                          bool clever, vector <Merge_Conflict> & conflicts);
 string filter_merge_run_clever (string base, string change, string prioritized_change,
                                 vector <Merge_Conflict> & conflicts);
 void filter_merge_add_book_chapter (vector <Merge_Conflict> & conflicts, int book, int chapter);
-
-
-#endif

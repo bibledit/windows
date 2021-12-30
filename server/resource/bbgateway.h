@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_RESOURCE_BIBLEGATEWAY_H
-#define INCLUDED_RESOURCE_BIBLEGATEWAY_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string resource_biblegateway_url ();
 bool resource_biblegateway_acl (void * webserver_request);
 string resource_biblegateway (void * webserver_request);
-
-
-#endif

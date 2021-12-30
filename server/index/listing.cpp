@@ -76,7 +76,7 @@ string index_listing (void * webserver_request, string url)
       string line;
       line.append ("<tr>");
       line.append ("<td>");
-      line.append ("<a href=\"" + filter_url_create_path (url, file) + "\">");
+      line.append (R"(<a href=")" + filter_url_create_path (url, file) + R"(">)");
       line.append (file);
       line.append ("</a>");
       line.append ("</td>");

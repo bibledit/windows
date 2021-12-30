@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_NOTES_SEVERITY_N_H
-#define INCLUDED_NOTES_SEVERITY_N_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string notes_severity_n_url ();
 bool notes_severity_n_acl (void * webserver_request);
 string notes_severity_n (void * webserver_request);
-
-
-#endif

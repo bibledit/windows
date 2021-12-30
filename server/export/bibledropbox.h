@@ -17,14 +17,8 @@
  */
 
 
-#ifndef INCLUDED_EXPORT_BIBLEDROPBOX_H
-#define INCLUDED_EXPORT_BIBLEDROPBOX_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 void export_bibledropbox (string user, string bible);
-
-
-#endif

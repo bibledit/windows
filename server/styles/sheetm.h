@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_STYLES_SHEETM_H
-#define INCLUDED_STYLES_SHEETM_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string styles_sheetm_url ();
 bool styles_sheetm_acl (void * webserver_request);
 string styles_sheetm (void * webserver_request);
-
-
-#endif

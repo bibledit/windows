@@ -17,16 +17,12 @@
  */
 
 
-#ifndef INCLUDED_STYLES_SHEETS_H
-#define INCLUDED_STYLES_SHEETS_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 void styles_sheets_create_all ();
 void styles_sheets_create_all_run ();
-
 
 class Styles_Sheets
 {
@@ -36,6 +32,3 @@ public:
   string get_location (string sheet, bool editor);
 private:
 };
-
-
-#endif

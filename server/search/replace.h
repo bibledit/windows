@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_SEARCH_REPLACE_H
-#define INCLUDED_SEARCH_REPLACE_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string search_replace_url ();
 bool search_replace_acl (void * webserver_request);
 string search_replace (void * webserver_request);
-
-
-#endif

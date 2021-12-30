@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_SPRINT_INDEX_H
-#define INCLUDED_SPRINT_INDEX_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string sprint_index_url ();
 bool sprint_index_acl (void * webserver_request);
 string sprint_index (void * webserver_request);
-
-
-#endif

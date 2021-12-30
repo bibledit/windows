@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_EDITUSFM_FOCUS_H
-#define INCLUDED_EDITUSFM_FOCUS_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string editusfm_focus_url ();
 bool editusfm_focus_acl (void * webserver_request);
 string editusfm_focus (void * webserver_request);
-
-
-#endif

@@ -17,14 +17,8 @@
  */
 
 
-#ifndef INCLUDED_EXPORT_INFO_H
-#define INCLUDED_EXPORT_INFO_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 void export_info (string bible, bool log);
-
-
-#endif

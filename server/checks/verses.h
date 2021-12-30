@@ -17,12 +17,9 @@
  */
 
 
-#ifndef INCLUDED_CHECK_VERSES_H
-#define INCLUDED_CHECK_VERSES_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Checks_Verses
 {
@@ -32,6 +29,3 @@ public:
   static void patterns (string bible, int book, int chapter, map <int, string> verses, vector <string> patterns);
 private:
 };
-
-
-#endif

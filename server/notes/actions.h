@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_NOTES_ACTIONS_H
-#define INCLUDED_NOTES_ACTIONS_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string notes_actions_url ();
 bool notes_actions_acl (void * webserver_request);
 string notes_actions (void * webserver_request);
-
-
-#endif

@@ -17,8 +17,7 @@
  */
 
 
-#ifndef INCLUDED_EXPORT_LOGIC_H
-#define INCLUDED_EXPORT_LOGIC_H
+#pragma once
 
 
 #include <config/libraries.h>
@@ -60,4 +59,3 @@ private:
 };
 
 
-#endif

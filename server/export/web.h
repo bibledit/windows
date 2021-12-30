@@ -17,15 +17,9 @@
  */
 
 
-#ifndef INCLUDED_EXPORT_WEB_H
-#define INCLUDED_EXPORT_WEB_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 void export_web_book (string bible, int book, bool log);
 void export_web_index (string bible, bool log);
-
-
-#endif

@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_EDITUSFM_OFFSET_H
-#define INCLUDED_EDITUSFM_OFFSET_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string editusfm_offset_url ();
 bool editusfm_offset_acl (void * webserver_request);
 string editusfm_offset (void * webserver_request);
-
-
-#endif

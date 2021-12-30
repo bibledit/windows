@@ -17,12 +17,9 @@
  */
 
 
-#ifndef INCLUDED_EDITOR_STYLES_H
-#define INCLUDED_EDITOR_STYLES_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Editor_Styles
 {
@@ -38,7 +35,3 @@ private:
   static string mono ();
   static string note ();
 };
-
-
-#endif
-

@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_EDIT_STYLES_H
-#define INCLUDED_EDIT_STYLES_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string edit_styles_url ();
 bool edit_styles_acl (void * webserver_request);
 string edit_styles (void * webserver_request);
-
-
-#endif

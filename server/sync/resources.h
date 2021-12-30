@@ -17,15 +17,9 @@
  */
 
 
-#ifndef INCLUDED_SYNC_RESOURCES_H
-#define INCLUDED_SYNC_RESOURCES_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 string sync_resources_url ();
 string sync_resources (void * webserver_request);
-
-
-#endif

@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_SENDRECEIVE_INDEX_H
-#define INCLUDED_SENDRECEIVE_INDEX_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string sendreceive_index_url ();
 bool sendreceive_index_acl (void * webserver_request);
 string sendreceive_index (void * webserver_request);
-
-
-#endif

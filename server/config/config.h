@@ -17,8 +17,7 @@
  */
 
 
-#ifndef INCLUDED_CONFIG_CONFIG_H
-#define INCLUDED_CONFIG_CONFIG_H
+#pragma once
 
 
 // Whether file upload works in the browser on the platform.
@@ -50,7 +49,7 @@
 #define MAX_PARALLEL_TASKS 5
 #define HAVE_URLSETTINGS 1
 #undef DIRECTORY_SEPARATOR
-#define DIRECTORY_SEPARATOR "\\"
+#define DIRECTORY_SEPARATOR R"(\)"
 #undef RUN_SECURE_SERVER
 #endif
 
@@ -94,4 +93,3 @@
 #endif
 
 
-#endif

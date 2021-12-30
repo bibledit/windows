@@ -17,12 +17,9 @@
  */
 
 
-#ifndef INCLUDED_CHECK_SENTENCES_H
-#define INCLUDED_CHECK_SENTENCES_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Checks_Sentences
 {
@@ -82,6 +79,3 @@ private:
   void analyzeCharacters ();
   void checkCharacter ();
 };
-
-
-#endif

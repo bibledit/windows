@@ -17,12 +17,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#ifndef INCLUDED_DATABASE_BIBLEIMAGES_H
-#define INCLUDED_DATABASE_BIBLEIMAGES_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Database_BibleImages
 {
@@ -35,6 +32,3 @@ private:
   string folder ();
   string path (string image);
 };
-
-
-#endif

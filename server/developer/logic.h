@@ -17,12 +17,9 @@
  */
 
 
-#ifndef INCLUDED_DEBUG_LOGIC_H
-#define INCLUDED_DEBUG_LOGIC_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 void developer_logic_log_network_write ();
 
@@ -41,6 +38,3 @@ public:
 };
 
 void developer_logic_import_changes ();
-
-
-#endif

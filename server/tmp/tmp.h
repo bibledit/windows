@@ -17,14 +17,8 @@
  */
 
 
-#ifndef INCLUDED_TMP_TMP_H
-#define INCLUDED_TMP_TMP_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 void tmp_tmp ();
-
-
-#endif

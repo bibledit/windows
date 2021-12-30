@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_CHECKS_SETTINGS_PATTERNS_H
-#define INCLUDED_CHECKS_SETTINGS_PATTERNS_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string checks_settingspatterns_url ();
 bool checks_settingspatterns_acl (void * webserver_request);
 string checks_settingspatterns (void * webserver_request);
-
-
-#endif

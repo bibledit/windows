@@ -17,15 +17,9 @@
  */
 
 
-#ifndef INCLUDED_COLLABORATION_LINK_H
-#define INCLUDED_COLLABORATION_LINK_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 void collaboration_link (string object, int jobid, string direction);
 string collaboration_link_header ();
-
-
-#endif

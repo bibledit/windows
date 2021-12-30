@@ -4,8 +4,8 @@
 /* Define whether to compile for Android */
 /* #undef HAVE_ANDROID */
 
-/* define if the compiler supports basic C++14 syntax */
-#define HAVE_CXX14 1
+/* define if the compiler supports basic C++17 syntax */
+#define HAVE_CXX17 1
 
 /* Define whether execinfo.h is present */
 
@@ -30,9 +30,6 @@
 
 /* Define whether mach/mach.h is present */
 #define HAVE_MACH_MACH 1
-
-/* Define whether mimetic/mimetic.h is present */
-#define HAVE_MIMETIC 1
 
 /* Define whether pthread.h is present */
 #define HAVE_PTHREAD 1

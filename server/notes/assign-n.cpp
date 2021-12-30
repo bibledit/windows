@@ -64,12 +64,12 @@ string notes_assign_n (void * webserver_request)
  
   
   // Notes can be assigned to the assignees.
-  string userblock;
+  stringstream userblock;
   vector <string> assignees = database_noteassignment.assignees (user);
   for (auto & assignee : assignees) {
-    userblock.append ("<li><a href=\"bulk?assign=" + assignee + "\">" + assignee + "</a></li>\n");
+    userblock << "<li><a href=" << quoted ("bulk?assign=" + assignee) << ">" << assignee << "</a></li>" << endl;
   }
-  view.set_variable ("userblock", userblock);
+  view.set_variable ("userblock", userblock.str());
   
   
   page += view.render ("notes", "assign-n");

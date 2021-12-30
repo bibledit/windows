@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_BIBLE_BOOK_H
-#define INCLUDED_BIBLE_BOOK_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string bible_book_url ();
 bool bible_book_acl (void * webserver_request);
 string bible_book (void * webserver_request);
-
-
-#endif

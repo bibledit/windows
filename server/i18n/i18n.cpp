@@ -120,8 +120,8 @@ int main ()
     contents = str_replace ("translate (", "translate(", contents);
 
     // Gettext markup.
-    string gettextopen = "translate(\"";
-    string gettextclose = "\")";
+    string gettextopen = R"(translate(")";
+    string gettextclose = R"("))";
     
     // Limit gettext iterations.
     int iterations = 0;

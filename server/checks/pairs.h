@@ -17,12 +17,9 @@
  */
 
 
-#ifndef INCLUDED_CHECK_PAIRS_H
-#define INCLUDED_CHECK_PAIRS_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Checks_Pairs
 {
@@ -34,6 +31,3 @@ public:
 private:
   static string match (const string & character, const vector <pair <string, string> > & pairs);
 };
-
-
-#endif

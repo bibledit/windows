@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_RESOURCE_IMG_H
-#define INCLUDED_RESOURCE_IMG_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string resource_img_url ();
 bool resource_img_acl (void * webserver_request);
 string resource_img (void * webserver_request);
-
-
-#endif

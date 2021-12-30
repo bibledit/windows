@@ -17,14 +17,9 @@
  */
 
 
-#ifndef INCLUDED_SYNC_SETUP_H
-#define INCLUDED_SYNC_SETUP_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 string sync_setup_url ();
 string sync_setup (void * webserver_request);
-
-#endif

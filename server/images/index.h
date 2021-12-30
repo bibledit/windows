@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_IMAGES_INDEX_H
-#define INCLUDED_IMAGES_INDEX_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string images_index_url ();
 bool images_index_acl (void * webserver_request);
 string images_index (void * webserver_request);
-
-
-#endif

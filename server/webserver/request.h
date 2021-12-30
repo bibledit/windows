@@ -17,9 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#ifndef INCLUDED_WEBSERVER_REQUEST_H
-#define INCLUDED_WEBSERVER_REQUEST_H
-
+#pragma once
 
 #include <config/libraries.h>
 #include <session/logic.h>
@@ -29,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/bibles.h>
 #include <database/check.h>
 #include <database/ipc.h>
-
 
 class Webserver_Request
 {
@@ -93,6 +90,3 @@ private:
   Database_Check * database_check_instance = NULL;
   Database_Ipc * database_ipc_instance = NULL;
 };
-
-
-#endif

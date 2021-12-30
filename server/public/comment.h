@@ -17,16 +17,10 @@
  */
 
 
-#ifndef INCLUDED_PUBLIC_COMMENT_H
-#define INCLUDED_PUBLIC_COMMENT_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string public_comment_url ();
 bool public_comment_acl (void * webserver_request);
 string public_comment (void * webserver_request);
-
-
-#endif

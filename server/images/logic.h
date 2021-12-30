@@ -17,14 +17,8 @@
  */
 
 
-#ifndef INCLUDED_IMAGES_LOGIC_H
-#define INCLUDED_IMAGES_LOGIC_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 void images_logic_import_images (string path);
-
-
-#endif

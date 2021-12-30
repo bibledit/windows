@@ -17,15 +17,9 @@
  */
 
 
-#ifndef INCLUDED_SYNC_FILES_H
-#define INCLUDED_SYNC_FILES_H
-
+#pragma once
 
 #include <config/libraries.h>
 
-
 string sync_files_url ();
 string sync_files (void * webserver_request);
-
-
-#endif

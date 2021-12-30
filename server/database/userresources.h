@@ -17,12 +17,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#ifndef INCLUDED_DATABASE_USERRESOURCES_H
-#define INCLUDED_DATABASE_USERRESOURCES_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 class Database_UserResources
 {
@@ -40,6 +37,3 @@ private:
   static string load (const string & name, size_t offset);
   static void save (const string & name, size_t offset, const string & value);
 };
-
-
-#endif

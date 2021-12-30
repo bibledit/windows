@@ -17,12 +17,9 @@
  */
 
 
-#ifndef INCLUDED_SYSTEM_LOGIC_H
-#define INCLUDED_SYSTEM_LOGIC_H
-
+#pragma once
 
 #include <config/libraries.h>
-
 
 string system_logic_bibles_file_name ();
 void system_logic_produce_bibles_file (int jobid);
@@ -35,6 +32,3 @@ void system_logic_produce_resources_file (int jobid);
 void system_logic_import_resources_file (string tarball);
 void system_logic_indonesian_free_deletion (string username, string email);
 void system_logic_indonesian_free_expiration ();
-
-
-#endif
