@@ -17,6 +17,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING 1
+#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING 1
 #include <filter/string.h>
 #include <utf8/utf8.h>
 #include <filter/url.h>
