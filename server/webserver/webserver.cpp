@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2021 Teus Benschop.
+Copyright (©) 2003-2022 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -189,8 +189,7 @@ void webserver_process_request (int connfd, string clientaddress)
 #endif
               (filefd, buffer, 1024);
               if (bytecount > 0) {
-                int sendbytes = (int)send (connfd, (const char *)buffer, bytecount, 0);
-                (void) sendbytes;
+                [[maybe_unused]] auto sendbytes = (int)send (connfd, (const char *)buffer, bytecount, 0);
               }
             }
             while (bytecount > 0);

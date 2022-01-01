@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,14 +29,13 @@ string rss_feed_url ()
 }
 
 
-bool rss_feed_acl (void * webserver_request)
+bool rss_feed_acl ([[maybe_unused]] void * webserver_request)
 {
-  (void) webserver_request;
   return true;
 }
 
 
-string rss_feed (void * webserver_request)
+string rss_feed ([[maybe_unused]] void * webserver_request)
 {
   string xml;
 #ifdef HAVE_CLOUD
@@ -45,6 +44,5 @@ string rss_feed (void * webserver_request)
   string path = rss_logic_xml_path ();
   xml = filter_url_file_get_contents (path);
 #endif
-  (void) webserver_request;
   return xml;
 }

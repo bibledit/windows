@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -84,7 +84,7 @@ string resource_select (void * webserver_request)
     // The POST method is supposed to be immune to that.
     Dialog_List dialog_list = Dialog_List (caller, translate("Select a Bible"), "", "", true);
     dialog_list.add_query ("page", request->query["page"]);
-    vector <string> bibles = access_bible_bibles (webserver_request);
+    vector <string> bibles = AccessBible::Bibles (webserver_request);
     for (auto bible : bibles) {
       dialog_list.add_row (bible, "add", bible);
     }

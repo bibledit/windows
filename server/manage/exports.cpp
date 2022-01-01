@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ string manage_exports (void * webserver_request)
     string bible = request->query["bible"];
     if (bible == "") {
       Dialog_List dialog_list = Dialog_List ("exports", translate("Select a Bible"), "", "");
-      vector <string> bibles = access_bible_bibles (webserver_request);
+      vector <string> bibles = AccessBible::Bibles (webserver_request);
       for (auto bible : bibles) {
         dialog_list.add_row (bible, "bible", bible);
       }
@@ -89,7 +89,7 @@ string manage_exports (void * webserver_request)
   }
   
   
-  string bible = access_bible_clamp (webserver_request, request->database_config_user()->getBible ());
+  string bible = AccessBible::Clamp (webserver_request, request->database_config_user()->getBible ());
   view.set_variable ("bible", bible);
   
   
@@ -334,7 +334,7 @@ string manage_exports (void * webserver_request)
       cssclass = "active";
     }
     name = locale_logic_space_get_name (space, false);
-    view.add_iteration ("spaces", { make_pair ("space", href), make_pair ("class", cssclass), make_pair ("name", name) } );
+    view.add_iteration ("spaces", { pair ("space", href), pair ("class", cssclass), pair ("name", name) } );
   }
 
   

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -92,10 +92,10 @@ string sendreceive_index (void * webserver_request)
     bible = request->query["bible"];
     if (bible == "") {
       Dialog_List dialog_list = Dialog_List ("index", translate("Select a Bible"), "", "");
-      vector <string> bibles = access_bible_bibles (request);
+      vector <string> bibles = AccessBible::Bibles (request);
       for (auto & bible : bibles) {
         // Select Bibles the user has write access to.
-        if (access_bible_write (request, bible)) {
+        if (AccessBible::Write (request, bible)) {
           dialog_list.add_row (bible, "bible", bible);
         }
       }
@@ -107,7 +107,7 @@ string sendreceive_index (void * webserver_request)
   }
   
   
-  bible = access_bible_clamp (request, request->database_config_user()->getBible ());
+  bible = AccessBible::Clamp (request, request->database_config_user()->getBible ());
   view.set_variable ("bible", bible);
 
 

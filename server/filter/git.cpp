@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -346,10 +346,8 @@ bool filter_git_remote_read (string url, string & error)
 }
 
 
-bool filter_git_remote_clone (string url, string path, int jobid, string & error)
+bool filter_git_remote_clone (string url, string path, [[maybe_unused]] int jobid, string & error)
 {
-  (void) jobid;
-
   // Clear a possible existing git repository directory.
   filter_url_rmdir (path);
 

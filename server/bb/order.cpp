@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ string bible_order (void * webserver_request)
   Assets_View view;
   
   // The name of the Bible.
-  string bible = access_bible_clamp (request, request->query ["bible"]);
+  string bible = AccessBible::Clamp (request, request->query ["bible"]);
   view.set_variable ("bible", escape_special_xml_characters (bible));
 
   // The order the user wants for the Bibles.
@@ -204,7 +204,7 @@ string bible_order (void * webserver_request)
   for (size_t i = 0; i < books.size (); i++) {
     string bookname = Database_Books::getEnglishFromId (books[i]);
     bookname = translate (bookname);
-    view.add_iteration ("order", { make_pair ("offset", convert_to_string (i)), make_pair ("bookname", bookname) } );
+    view.add_iteration ("order", { pair ("offset", convert_to_string (i)), pair ("bookname", bookname) } );
   }
 
   view.set_variable ("uparrow", unicode_black_up_pointing_triangle ());

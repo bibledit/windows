@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2021 Teus Benschop.
+Copyright (©) 2003-2022 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -43,9 +43,8 @@ string system_indonesianfree_url ()
 }
 
 
-bool system_indonesianfree_acl (void * webserver_request)
+bool system_indonesianfree_acl ([[maybe_unused]] void * webserver_request)
 {
-  (void) webserver_request;
   if (config_logic_indonesian_cloud_free ()) {
     return true;
   }
@@ -124,8 +123,7 @@ string system_indonesianfree (void * webserver_request)
 
   // Get values for setting checkboxes.
   string checkbox = request->post ["checkbox"];
-  bool checked = convert_to_bool (request->post ["checked"]);
-  (void) checked;
+  [[maybe_unused]] bool checked = convert_to_bool (request->post ["checked"]);
 
   
   // Font size for everything.

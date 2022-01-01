@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -87,7 +87,7 @@ string bible_manage (void * webserver_request)
     } else {
       request->database_bibles ()->createBible (bible);
       // Check / grant access.
-      if (!access_bible_write (request, bible)) {
+      if (!AccessBible::Write (request, bible)) {
         string me = request->session_logic ()->currentUser ();
         Database_Privileges::setBible (me, bible, true);
       }
@@ -118,7 +118,7 @@ string bible_manage (void * webserver_request)
         error_message = translate("Cannot copy the Bible because the destination Bible already exists.");
       } else {
         // User needs read access to the original.
-        if (access_bible_read (request, origin)) {
+        if (AccessBible::Read (request, origin)) {
           // Copy the Bible data.
           string origin_folder = request->database_bibles ()->bibleFolder (origin);
           string destination_folder = request->database_bibles ()->bibleFolder (destination);
@@ -128,7 +128,7 @@ string bible_manage (void * webserver_request)
           // Feedback.
           success_message = translate("The Bible was copied.");
           // Check / grant access to destination Bible.
-          if (!access_bible_write (request, destination)) {
+          if (!AccessBible::Write (request, destination)) {
             string me = request->session_logic ()->currentUser ();
             Database_Privileges::setBible (me, destination, true);
           }
@@ -148,7 +148,7 @@ string bible_manage (void * webserver_request)
     string confirm = request->query ["confirm"];
     if (confirm == "yes") {
       // User needs write access for delete operation.
-      if (access_bible_write (request, bible)) {
+      if (AccessBible::Write (request, bible)) {
         bible_logic_delete_bible (bible);
       } else {
         page += Assets_Page::error ("Insufficient privileges to complete action");
@@ -164,7 +164,7 @@ string bible_manage (void * webserver_request)
 
   view.set_variable ("success_message", success_message);
   view.set_variable ("error_message", error_message);
-  vector <string> bibles = access_bible_bibles (request);
+  vector <string> bibles = AccessBible::Bibles (request);
   xml_document document;
   for (auto & bible : bibles) {
     xml_node li_node = document.append_child ("li");

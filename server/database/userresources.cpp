@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2021 Teus Benschop.
+Copyright (©) 2003-2022 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ void Database_UserResources::url (const string& name, const string & value)
 // Returns the text fragent for a Bible book with $id.
 string Database_UserResources::book (const string& name, int id)
 {
-  if (id < 1) return "";
+  if (id < 1) return string();
   return load (name, id);
 }
 
@@ -107,7 +107,7 @@ string Database_UserResources::load (const string & name, size_t offset)
   string path = file (name);
   string contents = filter_url_file_get_contents (path);
   vector <string> lines = filter_string_explode (contents, '\n');
-  if (offset >= lines.size ()) return "";
+  if (offset >= lines.size ()) return string();
   return lines [offset];
 }
 

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -45,10 +45,9 @@ string checks_settings_url ()
 }
 
 
-bool checks_settings_acl (void * webserver_request)
+bool checks_settings_acl ([[maybe_unused]] void * webserver_request)
 {
 #ifdef HAVE_CLIENT
-  (void) webserver_request;
   return true;
 #else
   return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
@@ -72,7 +71,7 @@ string checks_settings (void * webserver_request)
     string bible = request->query["bible"];
     if (bible == "") {
       Dialog_List dialog_list = Dialog_List ("settings", translate("Select which Bible to manage"), "", "");
-      vector <string> bibles = access_bible_bibles (webserver_request);
+      vector <string> bibles = AccessBible::Bibles (webserver_request);
       for (auto bible : bibles) {
         dialog_list.add_row (bible, "bible", bible);
       }
@@ -82,7 +81,7 @@ string checks_settings (void * webserver_request)
       request->database_config_user()->setBible (bible);
     }
   }
-  string bible = access_bible_clamp (webserver_request, request->database_config_user()->getBible ());
+  string bible = AccessBible::Clamp (webserver_request, request->database_config_user()->getBible ());
 
   
   if (request->query.count ("run")) {

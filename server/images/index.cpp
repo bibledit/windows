@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ string images_index (void * webserver_request)
   vector <string> images = database_bibleimages.get();
   for (auto image : images) {
     view.add_iteration ("images", {
-      make_pair ("image", image),
+      pair ("image", image),
     } );
   }
   

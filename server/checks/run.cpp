@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -104,7 +104,7 @@ void checks_run (string bible)
       if (length == 2) {
         string opener = unicode_string_substr (pair, 0, 1);
         string closer = unicode_string_substr (pair, 1, 1);
-        matching_pairs.push_back (make_pair (opener, closer));
+        matching_pairs.push_back ({opener, closer});
       }
     }
   }
@@ -275,7 +275,7 @@ void checks_run (string bible)
     vector <string> users = request.database_users ()->get_users ();
     for (auto user : users) {
       if (request.database_config_user()->getUserBibleChecksNotification (user)) {
-        if (access_bible_read (&request, bible, user)) {
+        if (AccessBible::Read (&request, bible, user)) {
           if (!client_logic_client_enabled ()) {
             email_schedule (user, subject, body);
           }

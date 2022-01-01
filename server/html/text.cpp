@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2021 Teus Benschop.
+Copyright (©) 2003-2022 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -163,10 +163,8 @@ void Html_Text::close_text_style (bool note, bool embed)
 // $citation: The text of the note citation.
 // $style: Style name for the paragraph in the note body.
 // $endnote: Whether this is a footnote and cross reference (false), or an endnote (true).
-void Html_Text::add_note (string citation, string style, bool endnote)
+void Html_Text::add_note (string citation, string style, [[maybe_unused]] bool endnote)
 {
-  (void) endnote;
-  
   // Ensure that a paragraph is open, so that the note can be added to it.
   if (!current_p_node_open) new_paragraph ();
   

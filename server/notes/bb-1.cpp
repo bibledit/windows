@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ string notes_bible_1 (void * webserver_request)
   
   
   stringstream bibleblock;
-  vector <string> bibles = access_bible_bibles (webserver_request);
+  vector <string> bibles = AccessBible::Bibles (webserver_request);
   bibles.push_back (notes_logic.generalBibleName ());
   for (auto & bible : bibles) {
     bibleblock << "<li><a href=" << quoted("bb-1?id=" + convert_to_string (id) + "&bible=" + bible) << ">" << bible << "</a></li>" << endl;

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2021 Teus Benschop.
+Copyright (©) 2003-2022 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,8 +17,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING 1
-#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING 1
 #include <filter/string.h>
 #include <utf8/utf8.h>
 #include <filter/url.h>
@@ -659,8 +657,7 @@ string unicode_string_transliterate (string s)
       utf8proc_ssize_t len = character.length ();
       uint8_t *dest;
       utf8proc_option_t options = (utf8proc_option_t) (UTF8PROC_DECOMPOSE | UTF8PROC_STRIPMARK);
-      utf8proc_ssize_t output = utf8proc_map (str, len, &dest, options);
-      (void) output;
+      [[maybe_unused]] auto output = utf8proc_map (str, len, &dest, options);
       stringstream ss;
       ss << dest;
       transliteration.append (ss.str ());
@@ -710,8 +707,7 @@ bool unicode_string_is_punctuation (string s)
     const utf8proc_uint8_t *str = (const unsigned char *) (s.c_str ());
     utf8proc_ssize_t len = s.length ();
     utf8proc_int32_t codepoint;
-    utf8proc_ssize_t output = utf8proc_iterate (str, len, &codepoint);
-    (void) output;
+    [[maybe_unused]] auto output = utf8proc_iterate (str, len, &codepoint);
     // Get category.
     utf8proc_category_t category = utf8proc_category	(codepoint);
     if ((category >= UTF8PROC_CATEGORY_PC) && (category <= UTF8PROC_CATEGORY_PO)) return true;
@@ -741,8 +737,7 @@ int unicode_string_convert_to_codepoint (string s)
       const utf8proc_uint8_t *str = (const unsigned char *) (s.c_str ());
       utf8proc_ssize_t len = s.length ();
       utf8proc_int32_t codepoint;
-      utf8proc_ssize_t output = utf8proc_iterate (str, len, &codepoint);
-      (void) output;
+      [[maybe_unused]] auto output = utf8proc_iterate (str, len, &codepoint);
       point = codepoint;
     } catch (...) {
     }

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -80,7 +80,7 @@ string checks_index (void * webserver_request)
   {
     vector <string> all_bibles = request->database_bibles()->getBibles ();
     for (auto bible : all_bibles) {
-      if (access_bible_write (webserver_request, bible)) {
+      if (AccessBible::Write (webserver_request, bible)) {
         bibles.push_back (bible);
       }
     }

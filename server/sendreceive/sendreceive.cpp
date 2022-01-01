@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -34,11 +34,8 @@ string sendreceive_tag ()
 }
 
 
-void sendreceive_sendreceive (string bible)
+void sendreceive_sendreceive ([[maybe_unused]] string bible)
 {
-#ifdef HAVE_CLIENT
-  (void) bible;
-#endif
 #ifdef HAVE_CLOUD
   // Check on Bible.
   if (bible.empty ()) {

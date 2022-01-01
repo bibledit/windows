@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2021 Teus Benschop.
+Copyright (©) 2003-2022 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -57,10 +57,8 @@ bool session_signup_acl (void * webserver_request)
 }
 
 
-string session_signup (void * webserver_request)
+string session_signup ([[maybe_unused]] void * webserver_request)
 {
-  (void) webserver_request;
-  
   string page;
 
 #ifdef HAVE_CLOUD

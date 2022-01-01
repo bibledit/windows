@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ string notes_bulk (void * webserver_request)
   string success, error;
 
   
-  vector <string> bibles = access_bible_bibles (webserver_request);
+  vector <string> bibles = AccessBible::Bibles (webserver_request);
   int book = Ipc_Focus::getBook (webserver_request);
   int chapter = Ipc_Focus::getChapter (webserver_request);
   int verse = Ipc_Focus::getVerse (webserver_request);

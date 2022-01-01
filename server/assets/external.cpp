@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2021 Teus Benschop.
+Copyright (©) 2003-2022 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ string assets_external (void * webserver_request)
   string href = request->post ["href"];
   if (!href.empty ()) {
     config_globals_external_url = request->post ["href"];
-    return "";
+    return string();
   }
 
   // Wait for some time till a URL is available.

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -82,12 +82,12 @@ string bible_settings (void * webserver_request)
   // The Bible.
   string bible = request->query["bible"];
   if (bible.empty()) bible = request->post ["val1"];
-  bible = access_bible_clamp (request, bible);
+  bible = AccessBible::Clamp (request, bible);
   view.set_variable ("bible", escape_special_xml_characters (bible));
 
   
   // Whether the user has write access to this Bible.
-  bool write_access = access_bible_write (request, bible);
+  bool write_access = AccessBible::Write (request, bible);
   if (write_access) view.enable_zone ("write_access");
 
   

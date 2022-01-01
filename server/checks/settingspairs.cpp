@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -43,10 +43,9 @@ string checks_settingspairs_url ()
 }
 
 
-bool checks_settingspairs_acl (void * webserver_request)
+bool checks_settingspairs_acl ([[maybe_unused]] void * webserver_request)
 {
 #ifdef HAVE_CLIENT
-  (void) webserver_request;
   return true;
 #else
   return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
@@ -67,7 +66,7 @@ string checks_settingspairs (void * webserver_request)
   Assets_View view;
   
   
-  string bible = access_bible_clamp (webserver_request, request->database_config_user()->getBible ());
+  string bible = AccessBible::Clamp (webserver_request, request->database_config_user()->getBible ());
   view.set_variable ("bible", bible);
   
   

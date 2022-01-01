@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2021 Teus Benschop.
+Copyright (©) 2003-2022 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -76,8 +76,7 @@ string manage_write (void * webserver_request)
   bible = Database_Volatile::getValue (userid, "manage_write_bible");
   view.set_variable ("bible", bible);
 
-  bool bible_read_access, bible_write_access;
-  Database_Privileges::getBible (user, bible, bible_read_access, bible_write_access);
+  auto [ bible_read_access, bible_write_access ] = Database_Privileges::getBible (user, bible);
 
   // Toggle write access to Bible book.
   if (!request->post.empty ()) {
@@ -131,7 +130,7 @@ string manage_write (void * webserver_request)
     bool read, write;
     Database_Privileges::getBibleBook (user, bible, book, read, write);
     string checked = get_checkbox_status (write);
-    view.add_iteration ("write", { make_pair ("bookname", bookname), make_pair ("checkboxname", checkboxname), make_pair ("checked", checked) } );
+    view.add_iteration ("write", { pair ("bookname", bookname), pair ("checkboxname", checkboxname), pair ("checked", checked) } );
   }
   
   page += view.render ("manage", "write");

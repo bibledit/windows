@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -25,8 +25,7 @@ string md5 (const string str)
 {
   unsigned char md5sum[16];
   const unsigned char *input = (const unsigned char *)str.c_str ();
-  int ret = mbedtls_md5_ret (input, str.size (), md5sum);
-  (void) ret;
+  [[maybe_unused]] int ret = mbedtls_md5_ret (input, str.size (), md5sum);
 
   // Space for 32 bytes of hexits and one terminating null byte.
   char hexits [32+1];

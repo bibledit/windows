@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -72,7 +72,7 @@ string resource_manage (void * webserver_request)
       page += dialog_yes.run ();
       return page;
     } if (confirm == "yes") {
-      if (access_bible_write (request, remove)) {
+      if (AccessBible::Write (request, remove)) {
         database_usfmresources.deleteResource (remove);
         // The Cloud updates the list of available USFM resources for the clients.
         tasks_logic_queue (LISTUSFMRESOURCES);
@@ -93,7 +93,7 @@ string resource_manage (void * webserver_request)
       page += dialog_yes.run ();
       return page;
     } if (confirm == "yes") {
-      if (access_bible_write (request, convert)) {
+      if (AccessBible::Write (request, convert)) {
         tasks_logic_queue (CONVERTRESOURCE2BIBLE, {convert});
         redirect_browser (request, journal_index_url ());
         return "";

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -33,13 +33,10 @@
 #include <database/jobs.h>
 
 
-void collaboration_link (string object, int jobid, string direction)
+void collaboration_link ([[maybe_unused]] string object,
+                         [[maybe_unused]] int jobid,
+                         [[maybe_unused]] string direction)
 {
-#ifdef HAVE_CLIENT
-  (void) object;
-  (void) jobid;
-  (void) direction;
-#endif
 #ifdef HAVE_CLOUD
   // Repository details for local and remote.
   string url = Database_Config_Bible::getRemoteRepositoryUrl (object);

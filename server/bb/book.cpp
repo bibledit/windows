@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ string bible_book (void * webserver_request)
   string error_message;
   
   // The name of the Bible.
-  string bible = access_bible_clamp (request, request->query["bible"]);
+  string bible = AccessBible::Clamp (request, request->query["bible"]);
   view.set_variable ("bible", escape_special_xml_characters (bible));
   
   // The book.
@@ -80,14 +80,14 @@ string bible_book (void * webserver_request)
   view.set_variable ("book_name", escape_special_xml_characters (book_name));
   
   // Whether the user has write access to this Bible book.
-  bool write_access = access_bible_book_write (request, "", bible, book);
+  bool write_access = AccessBible::BookWrite (request, string(), bible, book);
   if (write_access) view.enable_zone ("write_access");
   
   // Delete chapter.
   string deletechapter = request->query ["deletechapter"];
-  if (deletechapter != "") {
+  if (!deletechapter.empty()) {
     string confirm = request->query ["confirm"];
-    if (confirm == "") {
+    if (confirm.empty()) {
       Dialog_Yes dialog_yes = Dialog_Yes ("book", translate("Would you like to delete this chapter?"));
       dialog_yes.add_query ("bible", bible);
       dialog_yes.add_query ("book", convert_to_string (book));

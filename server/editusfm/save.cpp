@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -47,8 +47,7 @@ string editusfm_save_url ()
 bool editusfm_save_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  bool read, write;
-  access_a_bible (webserver_request, read, write);
+  auto [ read, write ] = AccessBible::Any (webserver_request);
   return read;
 }
 
@@ -87,7 +86,7 @@ string editusfm_save (void * webserver_request)
               string ancestor_usfm = getLoadedUsfm2 (webserver_request, bible, book, chapter, unique_id);
               // Collect some data about the changes for this user.
               string username = request->session_logic()->currentUser ();
-              int oldID = request->database_bibles()->getChapterId (bible, book, chapter);
+              [[maybe_unused]] int oldID = request->database_bibles()->getChapterId (bible, book, chapter);
               string oldText = ancestor_usfm;
               string newText = chapter_data_to_save;
               // Merge if the ancestor is there and differs from what's in the database.
@@ -120,7 +119,7 @@ string editusfm_save (void * webserver_request)
               
              
               // Check on write access.
-              if (access_bible_book_write (request, "", bible, book)) {
+              if (AccessBible::BookWrite (request, string(), bible, book)) {
                 // Safely store the chapter.
                 string explanation;
                 string message = usfm_safely_store_chapter (request, bible, book, chapter, chapter_data_to_save, explanation);
@@ -135,8 +134,6 @@ string editusfm_save (void * webserver_request)
                     Database_Git::store_chapter (username, bible, book, chapter, oldText, newText);
                   }
                   rss_logic_schedule_update (username, bible, book, chapter, oldText, newText);
-#else
-                  (void) oldID;
 #endif
                   // Store a copy of the USFM loaded in the editor for later reference.
                   storeLoadedUsfm2 (webserver_request, bible, book, chapter, unique_id);

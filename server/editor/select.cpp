@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -41,8 +41,7 @@ string editor_select_url ()
 bool editor_select_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  bool read, write;
-  access_a_bible (webserver_request, read, write);
+  auto [ read, write ] = AccessBible::Any (webserver_request);
   return write;
 }
 
@@ -62,7 +61,7 @@ string editor_select (void * webserver_request)
     if (menu_logic_editor_enabled (webserver_request, true, true)) {
       string label = menu_logic_editor_menu_text (true, true);
       string url = edit_index_url ();
-      view.add_iteration ("editor", { make_pair ("url", url), make_pair ("label", label) } );
+      view.add_iteration ("editor", { pair ("url", url), pair ("label", label) } );
       urls.push_back (url);
     }
   }
@@ -71,7 +70,7 @@ string editor_select (void * webserver_request)
     if (menu_logic_editor_enabled (webserver_request, true, false)) {
       string label = menu_logic_editor_menu_text (true, false);
       string url = editone2_index_url ();
-      view.add_iteration ("editor", { make_pair ("url", url), make_pair ("label", label) } );
+      view.add_iteration ("editor", { pair ("url", url), pair ("label", label) } );
       urls.push_back (url);
     }
   }
@@ -80,7 +79,7 @@ string editor_select (void * webserver_request)
     if (menu_logic_editor_enabled (webserver_request, false, true)) {
       string label = menu_logic_editor_menu_text (false, true);
       string url = editusfm_index_url ();
-      view.add_iteration ("editor", { make_pair ("url", url), make_pair ("label", label) } );
+      view.add_iteration ("editor", { pair ("url", url), pair ("label", label) } );
       urls.push_back (url);
     }
   }

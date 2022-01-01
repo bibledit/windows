@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2021 Teus Benschop.
+Copyright (©) 2003-2022 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,8 +39,7 @@ vector <string> access_user_assignees (void * webserver_request)
   sort (users.begin(), users.end());
   for (auto & user : users) {
     // Assignees should have a level less than or equal to mylevel.
-    int level = request->database_users ()->get_level (user);
-    if (level <= mylevel) {
+    if (int level = request->database_users ()->get_level (user); level <= mylevel) {
       assignees.push_back (user);
     }
   }

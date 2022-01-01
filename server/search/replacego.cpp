@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -43,8 +43,7 @@ string search_replacego_url ()
 bool search_replacego_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  bool read, write;
-  access_a_bible (webserver_request, read, write);
+  auto [ read, write ] = AccessBible::Any (webserver_request);
   return write;
 }
 
@@ -74,7 +73,7 @@ string search_replacego (void * webserver_request)
   
   // Check whether the user has write access to the book.
   string user = request->session_logic ()->currentUser ();
-  bool write = access_bible_book_write (webserver_request, user, bible, book);
+  bool write = AccessBible::BookWrite (webserver_request, user, bible, book);
 
   
   // Get the old chapter and verse USFM.

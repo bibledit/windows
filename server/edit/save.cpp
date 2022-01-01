@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -51,8 +51,7 @@ string edit_save_url ()
 bool edit_save_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  bool read, write;
-  access_a_bible (webserver_request, read, write);
+  auto [ read, write ] = AccessBible::Any (webserver_request);
   return read;
 }
 
@@ -91,7 +90,7 @@ string edit_save (void * webserver_request)
     return translate("Save failure");
   }
   
-  if (!access_bible_book_write (request, "", bible, book)) {
+  if (!AccessBible::BookWrite (request, string(), bible, book)) {
     return translate("No write access");
   }
 
@@ -122,7 +121,7 @@ string edit_save (void * webserver_request)
   // Collect some data about the changes for this user
   // and for a possible merge of the user's data with the server's data.
   string username = request->session_logic()->currentUser ();
-  int oldID = request->database_bibles()->getChapterId (bible, book, chapter);
+  [[maybe_unused]] int oldID = request->database_bibles()->getChapterId (bible, book, chapter);
   string server_usfm = request->database_bibles()->getChapter (bible, book, chapter);
   string newText = user_usfm;
   string oldText = ancestor_usfm;
@@ -173,8 +172,6 @@ string edit_save (void * webserver_request)
     Database_Git::store_chapter (username, bible, book, chapter, oldText, newText);
   }
   rss_logic_schedule_update (username, bible, book, chapter, oldText, newText);
-#else
-  (void) oldID;
 #endif
 
   // Store a copy of the USFM loaded in the editor for later reference.

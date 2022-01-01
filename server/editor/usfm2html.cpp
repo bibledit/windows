@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -119,7 +119,7 @@ void Editor_Usfm2Html::preprocess ()
   noteCount = 0;
   currentNoteTextStyles.clear();
   textLength = 0;
-  verseStartOffsets = { make_pair (0, 0) };
+  verseStartOffsets = { pair (0, 0) };
   current_p_open = false;
   note_p_open = false;
 
@@ -505,7 +505,7 @@ void Editor_Usfm2Html::addText (string text)
 // $citation: The text of the note citation.
 // $style: Style name for the paragraph in the note body.
 // $endnote: Whether this is a footnote and cross reference (false), or an endnote (true).
-void Editor_Usfm2Html::addNote (string citation, string style, bool endnote)
+void Editor_Usfm2Html::addNote (string citation, string style, [[maybe_unused]] bool endnote)
 {
   // Be sure the road ahead is clear.
   if (!roadIsClear ()) {
@@ -517,9 +517,6 @@ void Editor_Usfm2Html::addNote (string citation, string style, bool endnote)
   if (!current_p_open) {
     newParagraph ();
   }
-  
-  // Not used:
-  (void) endnote;
   
   noteCount++;
   noteOpened = true;

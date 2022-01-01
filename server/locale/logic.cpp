@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2021 Teus Benschop.
+Copyright (©) 2003-2022 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ map <string, string> locale_logic_localizations ()
 {
   string directory = filter_url_create_root_path ("locale");
   vector <string> files = filter_url_scandir (directory);
-  map <string, string> localizations = {make_pair ("", english ())};
+  map <string, string> localizations = {pair ("", english ())};
   for (auto file : files) {
     string suffix = filter_url_get_extension (file);
     if (suffix == "po") {
@@ -95,7 +95,7 @@ map <string, string> locale_logic_localizations ()
           language = line;
         }
       }
-      localizations.insert (make_pair (basename, language));
+      localizations.insert (pair (basename, language));
     }
   }
   return localizations;

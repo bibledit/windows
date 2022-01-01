@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ string Consistency_Logic::response ()
   
   // The resources to display in the Consistency tool.
   vector <string> resources = request->database_config_user()->getConsistencyResources ();
-  string bible = access_bible_clamp (webserver_request, request->database_config_user()->getBible ());
+  string bible = AccessBible::Clamp (webserver_request, request->database_config_user()->getBible ());
   resources.insert (resources.begin (), bible);
   
   // The passages entered in the Consistency tool.

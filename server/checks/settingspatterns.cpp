@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -36,10 +36,9 @@ string checks_settingspatterns_url ()
 }
 
 
-bool checks_settingspatterns_acl (void * webserver_request)
+bool checks_settingspatterns_acl ([[maybe_unused]] void * webserver_request)
 {
 #ifdef HAVE_CLIENT
-  (void) webserver_request;
   return true;
 #else
   return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
@@ -60,7 +59,7 @@ string checks_settingspatterns (void * webserver_request)
   Assets_View view;
   
   
-  string bible = access_bible_clamp (webserver_request, request->database_config_user()->getBible ());
+  string bible = AccessBible::Clamp (webserver_request, request->database_config_user()->getBible ());
   
   
   if (request->post.count ("patterns")) {

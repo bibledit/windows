@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2021 Teus Benschop.
+ Copyright (©) 2003-2022 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -57,10 +57,8 @@ vector <string> lexicon_logic_resource_names ()
 
 
 // Gets the HTMl for displaying the book/chapter/verse of the $lexicon.
-string lexicon_logic_get_html (void * webserver_request, string lexicon, int book, int chapter, int verse)
+string lexicon_logic_get_html ([[maybe_unused]] void * webserver_request, string lexicon, int book, int chapter, int verse)
 {
-  (void) webserver_request;
-
   string html;
   
   if (lexicon == HEBREW_ETCBC4_NAME) {

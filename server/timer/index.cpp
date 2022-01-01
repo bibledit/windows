@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2021 Teus Benschop.
+Copyright (©) 2003-2022 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ void timer_index ()
       int second = filter_date_numerical_second (local_seconds);
       int minute = filter_date_numerical_minute (local_seconds);
       int hour = filter_date_numerical_hour (local_seconds);
-      int weekday = filter_date_numerical_week_day (local_seconds);
+      [[maybe_unused]] int weekday = filter_date_numerical_week_day (local_seconds);
       
       // Run once per second.
       if (second == previous_second) continue;
@@ -263,9 +263,6 @@ void timer_index ()
         }
       }
 #endif
-
-      // Suppress compiler warning on client.
-      (void) weekday;
       
     } catch (exception & e) {
       Database_Logs::log (e.what ());
