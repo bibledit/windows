@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <styles/indexm.h>
 #include <assets/view.h>
 #include <assets/page.h>
@@ -37,6 +42,8 @@
 #include <styles/logic.h>
 #include <assets/header.h>
 #include <menu/logic.h>
+#include <sstream>
+#include <iomanip>
 
 
 string styles_indexm_url ()

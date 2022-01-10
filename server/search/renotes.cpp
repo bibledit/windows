@@ -17,6 +17,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <search/renotes.h>
 #include <filter/string.h>
 #include <filter/url.h>
@@ -27,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/notes.h>
 #include <database/state.h>
 #include <database/config/general.h>
+#include <thread>
 
 
 bool search_reindex_notes_running = false;

@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <setup/logic.h>
 #include <webserver/request.h>
 #include <database/config/general.h>
@@ -48,6 +53,9 @@
 #include <locale/logic.h>
 #include <tasks/logic.h>
 #include <database/logic.h>
+#include <config/logic.h>
+#include <iostream>
+#include <string.h>
 
 
 void setup_conditionally (const char * package)

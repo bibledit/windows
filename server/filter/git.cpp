@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <filter/git.h>
 #include <filter/url.h>
 #include <filter/string.h>
@@ -30,6 +35,9 @@
 #include <bb/logic.h>
 #include <locale/translate.h>
 #include <rss/logic.h>
+#include <sstream>
+#include <iomanip>
+#include <algorithm>
 
 
 #ifdef HAVE_CLOUD

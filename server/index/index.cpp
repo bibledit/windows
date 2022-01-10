@@ -17,7 +17,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#include <index/index.h>
+#include <index/index.h>// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
+
 #include <assets/view.h>
 #include <assets/header.h>
 #include <assets/page.h>
@@ -34,6 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <bb/logic.h>
 #include <filter/webview.h>
 #include <menu/logic.h>
+#include <webserver/request.h>
+#include <config/logic.h>
 
 
 const char * index_index_url ()

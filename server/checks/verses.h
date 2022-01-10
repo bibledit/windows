@@ -19,7 +19,10 @@
 
 #pragma once
 
-#include <config/libraries.h>
+#include <string>
+#include <map>
+#include <vector>
+using namespace std;
 
 class Checks_Verses
 {

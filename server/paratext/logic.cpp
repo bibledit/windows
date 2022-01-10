@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <paratext/logic.h>
 #include <filter/url.h>
 #include <filter/string.h>
@@ -36,6 +41,10 @@
 #include <locale/translate.h>
 #include <bb/logic.h>
 #include <client/logic.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <iostream>
+#include <fstream>
 
 
 string Paratext_Logic::searchProjectsFolder ()

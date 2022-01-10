@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <public/notes.h>
 #include <filter/roles.h>
 #include <filter/string.h>
@@ -25,6 +30,8 @@
 #include <filter/css.h>
 #include <webserver/request.h>
 #include <database/notes.h>
+#include <sstream>
+#include <iomanip>
 
 
 string public_notes_url ()

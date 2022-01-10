@@ -5715,6 +5715,7 @@
 /utf8proc
 /utf8proc/LICENSE
 /utf8proc/LICENSE.md
+/utf8/readme.txt
 /utf8/ReleaseNotes
 /utf8/utf8cpp.html
 /versification

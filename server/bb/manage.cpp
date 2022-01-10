@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <bb/manage.h>
 #include <assets/view.h>
 #include <assets/page.h>
@@ -39,6 +44,8 @@
 #include <demo/logic.h>
 #include <search/logic.h>
 #include <pugixml/pugixml.hpp>
+#include <config/logic.h>
+#include <sstream>
 
 
 using namespace pugi;

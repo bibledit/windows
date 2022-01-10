@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <filter/diff.h>
 #include <filter/string.h>
 #include <filter/text.h>
@@ -31,6 +36,9 @@
 #include <text/text.h>
 #include <locale/translate.h>
 #include <developer/logic.h>
+#include <sstream>
+#include <cmath>
+#include <mutex>
 
 
 using dtl::Diff;

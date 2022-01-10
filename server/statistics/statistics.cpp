@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <statistics/statistics.h>
 #include <filter/string.h>
 #include <filter/url.h>
@@ -31,6 +36,9 @@
 #include <client/logic.h>
 #include <changes/changes.h>
 #include <email/send.h>
+#include <config/logic.h>
+#include <sstream>
+#include <iomanip>
 
 
 void statistics_statistics ()

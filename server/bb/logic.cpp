@@ -17,6 +17,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
+#include <classes/merge.h>
 #include <bb/logic.h>
 #include <filter/string.h>
 #include <filter/url.h>
@@ -48,6 +54,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <locale/translate.h>
 #include <editor/html2format.h>
 #include <book/create.h>
+#include <thread>
+#include <sstream>
 
 
 void bible_logic_store_chapter (const string& bible, int book, int chapter, const string& usfm)

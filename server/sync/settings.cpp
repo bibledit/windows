@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <sync/settings.h>
 #include <filter/url.h>
 #include <filter/roles.h>
@@ -30,6 +35,7 @@
 #include <locale/translate.h>
 #include <webserver/request.h>
 #include <sync/logic.h>
+#include <thread>
 
 
 string sync_settings_url ()

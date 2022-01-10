@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <styles/sheetm.h>
 #include <assets/view.h>
 #include <assets/page.h>
@@ -37,6 +42,8 @@
 #include <menu/logic.h>
 #include <styles/indexm.h>
 #include <database/logic.h>
+#include <sstream>
+#include <iomanip>
 
 
 string styles_sheetm_url ()

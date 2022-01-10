@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <manage/exports.h>
 #include <assets/view.h>
 #include <assets/page.h>
@@ -39,6 +44,7 @@
 #include <assets/external.h>
 #include <locale/logic.h>
 #include <styles/logic.h>
+#include <webserver/request.h>
 
 
 const char * manage_exports_url ()

@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <read/index.h>
 #include <assets/view.h>
 #include <assets/page.h>
@@ -40,6 +45,7 @@
 #include <bb/logic.h>
 #include <config/globals.h>
 #include <workspace/logic.h>
+#include <config/logic.h>
 
 
 string read_index_url ()

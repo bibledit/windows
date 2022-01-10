@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <resource/external.h>
 #include <filter/string.h>
 #include <filter/url.h>
@@ -25,6 +30,7 @@
 #include "resource/logic.h"
 #include <jsonxx/jsonxx.h>
 #include <pugixml/pugixml.hpp>
+#include <string.h>
 
 
 using namespace jsonxx;

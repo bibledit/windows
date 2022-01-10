@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <checks/run.h>
 #include <webserver/request.h>
 #include <database/logs.h>
@@ -46,6 +51,9 @@
 #include <email/send.h>
 #include <sendreceive/logic.h>
 #include <rss/logic.h>
+#include <config/logic.h>
+#include <sstream>
+#include <iomanip>
 
 
 void checks_run (string bible)

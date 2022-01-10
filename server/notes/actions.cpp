@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <notes/actions.h>
 #include <assets/view.h>
 #include <assets/page.h>
@@ -36,6 +41,8 @@
 #include <database/logs.h>
 #include <styles/logic.h>
 #include <access/logic.h>
+#include <sstream>
+#include <iomanip>
 
 
 string notes_actions_url ()

@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <read/load.h>
 #include <filter/roles.h>
 #include <filter/string.h>
@@ -26,9 +31,10 @@
 #include <editor/usfm2html.h>
 #include <config/globals.h>
 #include <access/bible.h>
-#include <read/logic.h>
 #include <edit/logic.h>
 #include <database/config/bible.h>
+#include <config/logic.h>
+#include <editone2/logic.h>
 
 
 using namespace pugi;

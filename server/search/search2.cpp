@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <search/search2.h>
 #include <assets/view.h>
 #include <assets/page.h>
@@ -32,6 +37,7 @@
 #include <ipc/focus.h>
 #include <search/logic.h>
 #include <menu/logic.h>
+#include <config/logic.h>
 
 
 string search_search2_url ()

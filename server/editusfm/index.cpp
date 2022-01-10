@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <editusfm/index.h>
 #include <assets/view.h>
 #include <assets/page.h>
@@ -36,6 +41,9 @@
 #include <menu/logic.h>
 #include <bb/logic.h>
 #include <workspace/logic.h>
+#include <sstream>
+#include <iomanip>
+#include <config/logic.h>
 
 
 string editusfm_index_url ()

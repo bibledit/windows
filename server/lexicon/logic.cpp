@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <lexicon/logic.h>
 #include <filter/url.h>
 #include <filter/string.h>
@@ -29,6 +34,8 @@
 #include <database/abbottsmith.h>
 #include <pugixml/pugixml.hpp>
 #include <webserver/request.h>
+#include <sstream>
+#include <iomanip>
 
 
 using namespace pugi;

@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <demo/logic.h>
 #include <filter/md5.h>
 #include <filter/roles.h>
@@ -46,6 +51,8 @@
 #include <lexicon/logic.h>
 #include <search/logic.h>
 #include <book/create.h>
+#include <config/logic.h>
+#include <iostream>
 
 
 /*

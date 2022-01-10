@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <sprint/burndown.h>
 #include <filter/string.h>
 #include <filter/roles.h>
@@ -30,6 +35,7 @@
 #include <database/config/bible.h>
 #include <client/logic.h>
 #include <email/send.h>
+#include <cmath>
 
 
 // This function runs the sprint burndown history logger for $bible.

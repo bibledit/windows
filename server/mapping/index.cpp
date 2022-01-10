@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <mapping/index.h>
 #include <assets/view.h>
 #include <assets/page.h>
@@ -28,6 +33,9 @@
 #include <dialog/yes.h>
 #include <assets/header.h>
 #include <menu/logic.h>
+#include <sstream>
+#include <iomanip>
+#include <algorithm>
 
 
 string mapping_index_url ()

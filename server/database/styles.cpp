@@ -17,6 +17,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <database/styles.h>
 #include <database/stylesdata.h>
 #include <database/sqlite.h>
@@ -25,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <locale/translate.h>
 #include <styles/logic.h>
 #include <database/logic.h>
+#include <mutex>
 
 
 // This is the database for the styles.

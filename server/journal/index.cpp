@@ -17,6 +17,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <journal/index.h>
 #include <assets/view.h>
 #include <assets/page.h>
@@ -31,6 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <menu/logic.h>
 #include <client/logic.h>
 #include <locale/logic.h>
+#include <sstream>
+#include <iomanip>
 
 
 const char * journal_index_url ()

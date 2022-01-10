@@ -17,6 +17,11 @@
  */
 
 
+// System configuration.
+#include <config.h>
+// Bibledit configuration.
+#include <config/config.h>
+// Specific includes.
 #include <editor/select.h>
 #include <assets/view.h>
 #include <assets/page.h>
@@ -30,6 +35,7 @@
 #include <edit/index.h>
 #include <editone2/index.h>
 #include <editusfm/index.h>
+#include <webserver/request.h>
 
 
 string editor_select_url ()
