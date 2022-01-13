@@ -466,7 +466,6 @@
 		CADE46D824F174E0003165BB /* morphgnt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CADE444924F174BE003165BB /* morphgnt.cpp */; };
 		CADE46D924F174E0003165BB /* dev.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CADE444A24F174BE003165BB /* dev.cpp */; };
 		CADE46DA24F174E0003165BB /* login.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CADE444D24F174BE003165BB /* login.cpp */; };
-		CADE46DB24F174E0003165BB /* source.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CADE444E24F174BE003165BB /* source.cpp */; };
 		CADE46DC24F174E0003165BB /* paratext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CADE445124F174BE003165BB /* paratext.cpp */; };
 		CADE46DD24F174E0003165BB /* workspaces.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CADE445424F174BE003165BB /* workspaces.cpp */; };
 		CADE46DE24F174E0003165BB /* bibles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CADE445524F174BE003165BB /* bibles.cpp */; };
@@ -2621,6 +2620,7 @@
 		CADE475824F17BF4003165BB /* cloud-macos.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "cloud-macos.entitlements"; sourceTree = "<group>"; };
 		CADE475924F17CF0003165BB /* libmimetic.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmimetic.0.dylib; path = ../../../../opt/local/lib/libmimetic.0.dylib; sourceTree = "<group>"; };
 		CADE475B24F17D04003165BB /* libcurl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.dylib; path = ../../../../opt/local/lib/libcurl.dylib; sourceTree = "<group>"; };
+		CAEB953F27909FDD00F0F093 /* libraries.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libraries.h; sourceTree = "<group>"; };
 		CAECA4F925EED7B500650B41 /* index.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = index.h; sourceTree = "<group>"; };
 		CAECA4FA25EED7B500650B41 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		CAECA4FD25EED7B500650B41 /* load.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = load.h; sourceTree = "<group>"; };
@@ -3193,6 +3193,7 @@
 				CADE380124F173EB003165BB /* globals.cpp */,
 				CADE37FF24F173EB003165BB /* globals.h */,
 				CADE380524F173EB003165BB /* ldap.txt */,
+				CAEB953F27909FDD00F0F093 /* libraries.h */,
 				CADE380624F173EB003165BB /* local.cert.pem */,
 				CADE37FB24F173EB003165BB /* local.chain.pem */,
 				CADE37FE24F173EB003165BB /* local.privkey.pem */,
@@ -6453,7 +6454,6 @@
 				CADE46D824F174E0003165BB /* morphgnt.cpp in Sources */,
 				CADE46D924F174E0003165BB /* dev.cpp in Sources */,
 				CADE46DA24F174E0003165BB /* login.cpp in Sources */,
-				CADE46DB24F174E0003165BB /* source.cpp in Sources */,
 				CADE46DC24F174E0003165BB /* paratext.cpp in Sources */,
 				CADE46DD24F174E0003165BB /* workspaces.cpp in Sources */,
 				CADE46DE24F174E0003165BB /* bibles.cpp in Sources */,
