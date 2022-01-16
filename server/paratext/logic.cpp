@@ -63,7 +63,7 @@ string Paratext_Logic::searchProjectsFolder ()
   vector <string> files = filter_url_scandir (homedir);
   for (auto file : files) {
     if (file.find ("Paratext") != string::npos) {
-      string path = filter_url_create_path_cpp17 (homedir, file);
+      string path = filter_url_create_path_cpp17 ({homedir, file});
       path = filter_string_str_replace ("\\\\", "\\", path);
       return path;
     }
@@ -261,7 +261,7 @@ string Paratext_Logic::ancestor (string bible, int book)
 
 string Paratext_Logic::ancestorPath (string bible, int book)
 {
-  string path = filter_url_create_root_path ("paratext", "ancestors", bible);
+  string path = filter_url_create_root_path_cpp17_Todo ({"paratext", "ancestors", bible});
   if (!file_or_dir_exists (path)) filter_url_mkdir (path);
   if (book) path = filter_url_create_path_cpp17 ({path, convert_to_string (book)});
   return path;
