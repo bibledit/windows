@@ -263,7 +263,7 @@ string filter_url_create_path_cpp17 (const vector<string>& parts)
 {
   // Empty path.
   filesystem::path path;
-  for (int i = 0; i < parts.size(); i++) {
+  for (size_t i = 0; i < parts.size(); i++) {
     if (i == 0) path += parts[i]; // Append the part without directory separator.
     else path /= parts[i]; // Append the directory separator and then the part.
   }
@@ -292,11 +292,18 @@ string filter_url_create_root_path_cpp17 (const vector<string>& parts)
   // Construct path from the document root.
   filesystem::path path (config_globals_document_root);
   // Add the bits.
-  for (int i = 0; i < parts.size(); i++) {
-    path /= parts[i];
-  }
-  if (path.string() != filter_url_create_root_path_cpp17_Todo (parts)) {
-    cout << "old: " << filter_url_create_root_path_cpp17_Todo (parts) << " new: " << path.string() << endl; // Todo
+  for (size_t i = 0; i < parts.size(); i++) {
+    string part = parts[i];
+    // At times a path is created from a URL.
+    // The URL likely starts with a slash, like this: /css/mouse.css
+    // When creating a path out of that, the path will become this: /css/mouse.css
+    // Such a path does not exist.
+    // The path that is wanted is something like this:
+    // /home/foo/bar/bibledit/css/mouse.css
+    // So remove that starting slash.
+    if (!part.empty()) if (part[0] == '/') part = part.erase(0, 1);
+    // Add the part, with a preceding path separator.
+    path /= part;
   }
   // Done.
   return path.string();
@@ -636,7 +643,7 @@ string filter_url_tempfile (const char * directory)
   if (directory) {
     filename = filter_url_create_path_cpp17 ({directory, filename});
   } else {
-    filename = filter_url_create_root_path_cpp17_Todo ({filter_url_temp_dir (), filename});
+    filename = filter_url_create_root_path_cpp17 ({filter_url_temp_dir (), filename});
   }
   return filename;
 }
@@ -1558,7 +1565,7 @@ void filter_url_ssl_tls_initialize ()
   filter_url_display_mbed_tls_error (ret, NULL, false);
   // Wait until the trusted root certificates exist.
   // This is necessary as there's cases that the data is still being installed at this point.
-  string path = filter_url_create_root_path_cpp17_Todo ({"filter", "cas.crt"});
+  string path = filter_url_create_root_path_cpp17 ({"filter", "cas.crt"});
   while (!file_or_dir_exists (path)) this_thread::sleep_for (chrono::milliseconds (100));
   // Read the trusted root certificates.
   ret = mbedtls_x509_crt_parse_file (&filter_url_mbed_tls_cacert, path.c_str ());
