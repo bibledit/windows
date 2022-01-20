@@ -99,7 +99,7 @@ string Database_Config_User::getValueForUser (string user, const char * key, con
   // Read from file.
   string value;
   string filename = file (user, key);
-  if (file_or_dir_exists/*_cpp17*/ (filename)) value = filter_url_file_get_contents (filename);
+  if (file_or_dir_exists_cpp17 (filename)) value = filter_url_file_get_contents (filename);
   else value = default_value;
   // Cache it.
   database_config_user_cache [cachekey] = value;
@@ -149,7 +149,7 @@ void Database_Config_User::setValueForUser (string user, const char * key, strin
   // Store on disk.
   string filename = file (user, key);
   string directory = filter_url_dirname_cpp17 (filename);
-  if (!file_or_dir_exists/*_cpp17*/ (directory)) filter_url_mkdir (directory);
+  if (!file_or_dir_exists_cpp17 (directory)) filter_url_mkdir (directory);
   filter_url_file_put_contents (filename, value);
 }
 
@@ -178,7 +178,7 @@ vector <string> Database_Config_User::getListForUser (string user, const char * 
   }
   // Read setting from disk.
   string filename = file (user, key);
-  if (file_or_dir_exists/*_cpp17*/ (filename)) {
+  if (file_or_dir_exists_cpp17 (filename)) {
     string value = filter_url_file_get_contents (filename);
     // Cache it in memory.
     database_config_user_cache [cachekey] = value;
