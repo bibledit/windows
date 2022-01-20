@@ -305,7 +305,7 @@ string filter_url_get_extension_cpp17 (string url) // Todo
   string extension;
   if (path.has_extension()) {
     // Get the extension with the dot, e.g. ".txt".
-    extension = path.extension();
+    extension = path.extension().string();
     // Wanted is the extension without the dot, e.g. "txt".
     extension.erase (0, 1);
   }
