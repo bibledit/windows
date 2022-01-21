@@ -604,7 +604,6 @@
     <ClCompile Include="sync\setup.cpp" />
     <ClCompile Include="sync\usfmresources.cpp" />
     <ClCompile Include="system\index.cpp" />
-    <ClCompile Include="system\indonesianfree.cpp" />
     <ClCompile Include="system\logic.cpp" />
     <ClCompile Include="tasks\logic.cpp" />
     <ClCompile Include="tasks\run.cpp" />

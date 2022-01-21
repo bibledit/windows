@@ -1320,9 +1320,6 @@
     <ClCompile Include="database\abbottsmith.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="system\indonesianfree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="manage\accounts.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
