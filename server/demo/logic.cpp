@@ -179,19 +179,32 @@ void demo_clean_data ()
   
   
   // Create / update sample Bible.
-  demo_create_sample_bible ();
-  
+  if (config_logic_default_bibledit_configuration ()) {
+    demo_create_sample_bible ();
+  }
+
   
   // Create sample notes.
   demo_create_sample_notes (&request);
   
   
-  // Create samples for the workspaces.
-  demo_create_sample_workspaces (&request);
+  // Create samples for the workspaces, only for default configuration.
+  if (config_logic_default_bibledit_configuration ()) {
+    demo_create_sample_workspaces (&request);
+  }
   
   
   // Set navigator to John 3:16.
-  Ipc_Focus::set (&request, 43, 3, 16);
+  if (config_logic_default_bibledit_configuration ()) {
+    Ipc_Focus::set (&request, 43, 3, 16);
+  }
+
+
+  // Indonesian Cloud Free
+  // Set navigator to John 1:1.
+  if (config_logic_indonesian_cloud_free_simple ()) {
+    Ipc_Focus::set (&request, 43, 1, 1);
+  }
   
   
   // Set and/or trim resources to display.
@@ -253,12 +266,13 @@ void demo_create_sample_bible ()
     // * and the file needs an update.
     size_t pos = file.find(demo_sample_bible_name());
     if (pos == string::npos) {
-      file = filter_string_str_replace("Sample", demo_sample_bible_name(), file);
+      string filename = "Sample";
+      file = filter_string_str_replace(filename, demo_sample_bible_name(), file);
     }
     // Proceed with the path.
-    file = filter_url_create_root_path_cpp17 ({file});
-    string path = filter_url_dirname_cpp17 (file);
-    if (!file_or_dir_exists_cpp17 (path)) filter_url_mkdir_cpp17 (path);
+    file = filter_url_create_root_path ({file});
+    string path = filter_url_dirname (file);
+    if (!file_or_dir_exists (path)) filter_url_mkdir (path);
     filter_url_file_put_contents (file, data);
   }
   
@@ -280,14 +294,14 @@ void demo_prepare_sample_bible ()
   // Create a new sample Bible.
   database_bibles.createBible (demo_sample_bible_name ());
   // Location of the source USFM files for the sample Bible.
-  string directory = filter_url_create_root_path_cpp17 ({"demo"});
+  string directory = filter_url_create_root_path ({"demo"});
   vector <string> files = filter_url_scandir (directory);
   for (auto file : files) {
     // Process only USFM files, skipping others.
-    if (filter_url_get_extension_cpp17 (file) == "usfm") {
+    if (filter_url_get_extension (file) == "usfm") {
       cout << file << endl;
       // Read the USFM and clean it up.
-      file = filter_url_create_path_cpp17 ({directory, file});
+      file = filter_url_create_path ({directory, file});
       string usfm = filter_url_file_get_contents (file);
       usfm = filter_string_collapse_whitespace (usfm);
       // Import the USFM into the sample Bible.

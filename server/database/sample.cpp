@@ -25,11 +25,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 // Database resilience: It is only read from.
 
+// Indonesian Cloud Free
+// Has its own sqlite filename, alkitabkita (ourbible).
+
 
 void Database_Sample::create ()
 {
   string path = database_sqlite_file (name ());
-  filter_url_unlink_cpp17 (path);
+  filter_url_unlink (path);
   SqliteDatabase sql = SqliteDatabase (name ());
   sql.add ("CREATE TABLE IF NOT EXISTS sample (file text, data text);");
   sql.execute ();
