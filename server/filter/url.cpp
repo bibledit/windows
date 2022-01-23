@@ -374,7 +374,7 @@ void filter_url_set_write_permission (string path) // Todo
 }
 
 
-// C++ rough equivalent for PHP's file_get_contents.
+// Get and returns the contents of $filename.
 string filter_url_file_get_contents(string filename)
 {
   if (!file_or_dir_exists (filename)) return string();
@@ -398,7 +398,7 @@ string filter_url_file_get_contents(string filename)
 }
 
 
-// C++ rough equivalent for PHP's file_put_contents.
+// Puts the $contents into $filename.
 void filter_url_file_put_contents (string filename, string contents)
 {
   try {
@@ -482,17 +482,23 @@ void filter_url_dir_cp (const string & input, const string & output)
 
 
 // A C++ equivalent for PHP's filesize function.
-int filter_url_filesize (string filename)
+int filter_url_filesize (string filename) // Todo
 {
-#ifdef HAVE_WINDOWS
-  wstring wfilename = string2wstring (filename);
-  struct _stat buf;
-  int rc = _wstat (wfilename.c_str (), &buf);
-#else
-  struct stat buf;
-  int rc = stat (filename.c_str (), &buf);
-#endif
-  return rc == 0 ? (int)(buf.st_size) : 0;
+  uintmax_t filesize = 0;
+  try {
+    filesystem::path p (filename);
+    filesize = filesystem::file_size(p);
+  } catch (...) { }
+  return static_cast<int>(filesize);
+//#ifdef HAVE_WINDOWS
+//  wstring wfilename = string2wstring (filename);
+//  struct _stat buf;
+//  int rc = _wstat (wfilename.c_str (), &buf);
+//#else
+//  struct stat buf;
+//  int rc = stat (filename.c_str (), &buf);
+//#endif
+//  return rc == 0 ? (int)(buf.st_size) : 0;
 }
 
 
