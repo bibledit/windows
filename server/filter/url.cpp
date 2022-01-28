@@ -437,7 +437,7 @@ int filter_url_filesize (string filename)
 
 
 // Scans the directory for files it contains.
-vector <string> filter_url_scandir (string folder) // Todo
+vector <string> filter_url_scandir (string folder)
 {
   vector <string> files;
   try {
