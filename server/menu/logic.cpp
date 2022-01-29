@@ -249,15 +249,12 @@ string menu_logic_main_categories (void * webserver_request, string & tooltip)
     }
   }
 
-  // When a user is not logged in, or a guest, or if the Indonesian
-  // Cloud Free Simple version is enabled,
+#ifdef HAVE_CLOUD
+  // When a user is not logged in, or if a guest is logged in,
   // put the public feedback into the main menu, rather than in a sub menu.
-#ifndef HAVE_CLIENT
-  if (menu_logic_public_or_guest (webserver_request) || config_logic_indonesian_cloud_free_simple ()) {
+  if (menu_logic_public_or_guest (webserver_request)) {
     if (!public_logic_bibles (webserver_request).empty ()) {
-      string label = menu_logic_public_feedback_text ();
-      if (config_logic_indonesian_cloud_free_simple ()) label = "Masukan";
-      html.push_back (menu_logic_create_item (public_index_url (), label, true, "", ""));
+      html.push_back (menu_logic_create_item (public_index_url (), menu_logic_public_feedback_text (), true, "", ""));
       tooltipbits.push_back (menu_logic_public_feedback_text ());
     }
   }
