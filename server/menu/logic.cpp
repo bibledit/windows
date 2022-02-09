@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <consistency/index.h>
 #include <database/config/general.h>
 #include <database/userresources.h>
+#include <database/cache.h>
 #include <developer/index.h>
 #include <edit/index.h>
 #include <edit/index.h>
@@ -181,21 +182,31 @@ string menu_logic_main_categories (void * webserver_request, string & tooltip)
 
   // Deal with a situation the user has access to the workspaces.
   if (workspace_index_acl (webserver_request)) {
-    string label = translate ("Workspace");
-    if (config_logic_indonesian_cloud_free_simple ()) label = "Belajar";
-    string tooltip;
-    menu_logic_workspace_category (webserver_request, &tooltip);
-    html.push_back (menu_logic_create_item (workspace_index_url (), label, true, tooltip, ""));
-    tooltipbits.push_back (label);
+    if ((config_logic_default_bibledit_configuration () || config_logic_indonesian_cloud_free ()) && !(config_logic_indonesian_cloud_free_simple ())) {
+      string label = translate ("Workspace");
+      string tooltip;
+      menu_logic_workspace_category (webserver_request, &tooltip);
+      html.push_back (menu_logic_create_item (workspace_index_url (), label, true, tooltip, ""));
+      tooltipbits.push_back (label);
+    }
   }
 
   string menutooltip;
   int current_theme_index[2] = {convert_to_int (request->database_config_user ()->getCurrentTheme ()), 1};
+  string filename = current_theme_filebased_cache_filename (request->session_identifier);
+  if (config_logic_indonesian_cloud_free_simple ()) {
+    if (database_filebased_cache_exists (filename)) {
+      current_theme_index[0] = convert_to_int (database_filebased_cache_get (filename));
+    } else {
+      database_filebased_cache_put (filename, "1");
+      current_theme_index[0] = 1;
+    }
+  }
   string color = Filter_Css::theme_picker (current_theme_index[0], current_theme_index[1]);
 
   if (!menu_logic_translate_category (webserver_request, &menutooltip).empty ()) {
     if (config_logic_indonesian_cloud_free_simple ()) {
-      html.push_back("");
+      html.push_back (menu_logic_create_item (read_index_url (), "Baca", true, "", color));
     }
 
     if ((config_logic_default_bibledit_configuration () || config_logic_indonesian_cloud_free ()) && !(config_logic_indonesian_cloud_free_simple ())) {
@@ -206,7 +217,7 @@ string menu_logic_main_categories (void * webserver_request, string & tooltip)
   
   if (!menu_logic_search_category (webserver_request, &menutooltip).empty ()) {
     if (config_logic_indonesian_cloud_free_simple ()) {
-      html.push_back("");
+      html.push_back (menu_logic_create_item (resource_index_url (), "Teliti", true, "", color));
     }
 
     if ((config_logic_default_bibledit_configuration () || config_logic_indonesian_cloud_free ()) && !(config_logic_indonesian_cloud_free_simple ())) {
@@ -217,7 +228,8 @@ string menu_logic_main_categories (void * webserver_request, string & tooltip)
 
   if (!menu_logic_tools_category (webserver_request, &menutooltip).empty ()) {
     if (config_logic_indonesian_cloud_free_simple ()) {
-      html.push_back("");
+      menu_logic_workspace_category (webserver_request, &tooltip);
+      html.push_back (menu_logic_create_item (workspace_index_url (), "Baca dan Teliti", true, "", color));
     }
 
     if ((config_logic_default_bibledit_configuration () || config_logic_indonesian_cloud_free ()) && !(config_logic_indonesian_cloud_free_simple ())) {
@@ -228,7 +240,7 @@ string menu_logic_main_categories (void * webserver_request, string & tooltip)
 
   if (!menu_logic_settings_category (webserver_request, &menutooltip).empty ()) {
     if (config_logic_indonesian_cloud_free_simple ()) {
-      html.push_back (menu_logic_create_item (personalize_index_url (), "Pengaturan", true, "", color));
+      html.push_back (menu_logic_create_item (personalize_index_url (), "⋮", true, "", color));
     }
 
 
@@ -306,6 +318,15 @@ string menu_logic_basic_categories (void * webserver_request)
   vector <string> html;
 
   int current_theme_index[2] = {convert_to_int (request->database_config_user ()->getCurrentTheme ()), 1};
+  string filename = current_theme_filebased_cache_filename (request->session_identifier);
+  if (config_logic_indonesian_cloud_free_simple ()) {
+    if (database_filebased_cache_exists (filename)) {
+      current_theme_index[0] = convert_to_int (database_filebased_cache_get (filename));
+    } else {
+      database_filebased_cache_put (filename, "1");
+      current_theme_index[0] = 1;
+    }
+  }
   string color = Filter_Css::theme_picker (current_theme_index[0], current_theme_index[1]);
 
   if (read_index_acl (webserver_request)) {
@@ -387,7 +408,9 @@ string menu_logic_workspace_category (void * webserver_request, string * tooltip
   // The user's role should be sufficiently high.
   if (workspace_organize_acl (webserver_request)) {
     Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
+
     string activeWorkspace = request->database_config_user()->getActiveWorkspace ();
+
     vector <string> workspaces = workspace_get_names (webserver_request);
     for (size_t i = 0; i < workspaces.size(); i++) {
       string item = menu_logic_create_item (workspace_index_url () + "?bench=" + convert_to_string (i), workspaces[i], true, "", "");
@@ -402,6 +425,9 @@ string menu_logic_workspace_category (void * webserver_request, string * tooltip
   }
 
   if (tooltip) tooltip->assign (filter_string_implode (labels, " | "));
+  // Indonesian Cloud Free
+  // The default setting only has one workspace.
+  if (config_logic_indonesian_cloud_free_simple ()) return "";
   return filter_string_implode (html, "\n");
 }
 

@@ -310,6 +310,100 @@ void database_filebased_cache_remove (string schema)
 }
 
 
+// Create a file name based on the client's IPv4 and a unique data identifier.
+string database_filebased_cache_name_by_ip (string address, string id)
+{
+  id = "_" + id;
+  string ipv4_sp = "::ffff:";
+  const unsigned long pos = address.find (ipv4_sp);
+  if (address.find (ipv4_sp) != string::npos) address.erase (pos, ipv4_sp.length ());
+  if (address.find (id) == string::npos) address.append (id);
+  return address;
+}
+
+
+// Create a file name based on the client's session id and a unique
+// data identifier.
+string database_filebased_cache_name_by_session_id (string sid, string id)
+{
+  id = "_" + id;
+  if (sid.find (id) == string::npos) sid.append (id);
+  return sid;
+}
+
+
+// File name for focused book file based database cache by session id
+// plus abbreviation.
+string focused_book_filebased_cache_filename (string sid)
+{
+  return database_filebased_cache_name_by_session_id (sid, "focbo");
+}
+
+
+// File name for focused chapter file based database cache by session
+// id plus abbreviation.
+string focused_chapter_filebased_cache_filename (string sid)
+{
+  return database_filebased_cache_name_by_session_id (sid, "focch");
+}
+
+
+// File name for focused verse file based database cache by session id
+// plus abbreviation.
+string focused_verse_filebased_cache_filename (string sid)
+{
+  return database_filebased_cache_name_by_session_id (sid, "focve");
+}
+
+
+// File name for general font size file based database cache by
+// session id plus abbreviation.
+string general_font_size_filebased_cache_filename (string sid)
+{
+  return database_filebased_cache_name_by_session_id (sid, "genfs");
+}
+
+
+// File name for menu font size file based database cache by session
+// id plus abbreviation.
+string menu_font_size_filebased_cache_filename (string sid)
+{
+  return database_filebased_cache_name_by_session_id (sid, "menfs");
+}
+
+
+// File name for resource font size file based database cache by
+// session id plus abbreviation.
+string resource_font_size_filebased_cache_filename (string sid)
+{
+  return database_filebased_cache_name_by_session_id (sid, "resfs");
+}
+
+
+// File name for hebrew font size file based database cache by
+// session id plus abbreviation.
+string hebrew_font_size_filebased_cache_filename (string sid)
+{
+  return database_filebased_cache_name_by_session_id (sid, "hebfs");
+}
+
+
+// File name for greek font size file based database cache by session
+// id plus abbreviation.
+string greek_font_size_filebased_cache_filename (string sid)
+{
+  return database_filebased_cache_name_by_session_id (sid, "grefs");
+}
+
+
+// File name for current theme file based database cache by session
+// id plus abbreviation.
+string current_theme_filebased_cache_filename (string sid)
+{
+  return database_filebased_cache_name_by_session_id (sid, "curth");
+}
+
+
 // Deletes expired cached items.
 void database_cache_trim (bool clear)
 {

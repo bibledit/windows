@@ -283,6 +283,7 @@ struct null_node
   template<typename C1, typename N1>
   null_node(const codec_chain<C1, N1>& node)
   {
+    (void) node;
   }
   const char* name() const
   {
@@ -292,8 +293,9 @@ struct null_node
   {
     return *this;
   }
-  self_type& operator=([[maybe_unused]] char c)
+  self_type& operator=(char c)
   {
+    (void) c;
     return *this;
   }
   self_type& operator++()

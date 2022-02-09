@@ -27,6 +27,7 @@
 #include <locale/translate.h>
 #include <database/config/general.h>
 #include <database/notes.h>
+#include <database/cache.h>
 #include <workspace/logic.h>
 #include <menu/logic.h>
 #include <ipc/focus.h>
@@ -50,7 +51,6 @@ string workspace_index (void * webserver_request)
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   vector <string> workspaces = workspace_get_names (request);
 
-  
   // Set the requested workspace as the active one.
   if (request->query.count ("bench")) {
     unsigned int bench = convert_to_int (request->query ["bench"]);
