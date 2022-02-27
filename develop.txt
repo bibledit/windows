@@ -32,13 +32,6 @@ To create a package, use Inno Setup.
 It was installed from innosetup-5.5.9-unicode.exe.
 
 
-To create a clean package, do this:
-* Build server.sln and gui.sln from Visual Studio.
-* Remove the entire C:\bibledit-dev directory.
-* Run the copyall.bat script.
-* Run the package.bat script.
-
-
 Free legal Windows virtual images for testing are available from https://dev.modern.ie/tools/vms/windows/
 
 
