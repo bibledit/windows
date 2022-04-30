@@ -72,6 +72,7 @@ void checks_run (string bible)
   bool check_double_spaces_usfm = Database_Config_Bible::getCheckDoubleSpacesUsfm (bible);
   bool check_full_stop_in_headings = Database_Config_Bible::getCheckFullStopInHeadings (bible);
   bool check_space_before_punctuation = Database_Config_Bible::getCheckSpaceBeforePunctuation (bible);
+  bool check_space_before_final_note_marker = Database_Config_Bible::getCheckSpaceBeforeFinalNoteMarker (bible);
   bool check_sentence_structure = Database_Config_Bible::getCheckSentenceStructure (bible);
   bool check_paragraph_structure = Database_Config_Bible::getCheckParagraphStructure (bible);
   Checks_Sentences checks_sentences;
@@ -133,7 +134,7 @@ void checks_run (string bible)
       // Transpose and fix spacing around certain markers in footnotes and cross references.
       if (transpose_fix_space_in_notes) {
         string old_usfm (chapterUsfm);
-        bool transposed = Checks_Space::transposeNoteSpace (chapterUsfm);
+        bool transposed = checks::space::transpose_note_space (chapterUsfm);
         if (transposed) {
 #ifndef HAVE_CLIENT
           int oldID = request.database_bibles()->getChapterId (bible, book, chapter);
@@ -160,13 +161,16 @@ void checks_run (string bible)
       for (auto verse : verses) {
         string verseUsfm = usfm_get_verse_text (chapterUsfm, verse);
         if (check_double_spaces_usfm) {
-          Checks_Space::doubleSpaceUsfm (bible, book, chapter, verse, verseUsfm);
+          checks::space::double_space_usfm (bible, book, chapter, verse, verseUsfm);
         }
         if (check_valid_utf8_text) {
           if (!unicode_string_is_valid (verseUsfm)) {
             string msg = "Invalid UTF-8 Unicode in verse text";
             database_check.recordOutput (bible, book, chapter, verse, msg);
           }
+        }
+        if (check_space_before_final_note_marker) {
+          checks::space::space_before_final_note_markup(bible, book, chapter, verse, verseUsfm);
         }
       }
       
@@ -182,7 +186,7 @@ void checks_run (string bible)
         Checks_Headers::noPunctuationAtEnd (bible, book, chapter, verses_headings, center_marks, end_marks);
       }
       if (check_space_before_punctuation) {
-        Checks_Space::spaceBeforePunctuation (bible, book, chapter, verses_text);
+        checks::space::space_before_punctuation (bible, book, chapter, verses_text);
       }
       
       if (check_sentence_structure || check_paragraph_structure) {
@@ -227,7 +231,7 @@ void checks_run (string bible)
       }
       
       if (check_space_end_verse) {
-        Checks_Space::spaceEndVerse (bible, book, chapter, chapterUsfm);
+        checks::space::space_end_verse (bible, book, chapter, chapterUsfm);
       }
       
       if (check_french_punctuation) {

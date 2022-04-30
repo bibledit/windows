@@ -22,6 +22,7 @@
 #include <config/libraries.h>
 #include <database/styles.h>
 #include <pugixml/pugixml.hpp>
+#include <filter/text.h>
 
 using namespace pugi;
 
@@ -40,7 +41,8 @@ private:
   vector <string> markersAndText; // Strings alternating between USFM and text.
   unsigned int markersAndTextPointer = 0;
   
-  map <string, Database_Styles_Item> styles; // All the style information.
+  // All the style information.
+  map <string, Database_Styles_Item> styles;
   
   // XML nodes.
   xml_document document;
@@ -50,7 +52,7 @@ private:
   // Standard content markers for notes.
   string standardContentMarkerFootEndNote;
   string standardContentMarkerCrossReference;
-  
+
   xml_node current_p_node; // The current p node.
   bool current_p_open = false;
   vector <string> currentTextStyles;
@@ -60,6 +62,9 @@ private:
   bool note_p_open = false;
   vector <string> currentNoteTextStyles;
   
+  // The note citations.
+  filter::note::citations note_citations;
+
   // Whether note is open.
   bool noteOpened = false;
   
@@ -75,7 +80,7 @@ private:
   void openTextStyle (Database_Styles_Item & style, bool embed);
   void closeTextStyle (bool embed);
   void addText (string text);
-  void addNote (string citation, string style, bool endnote = false);
+  void add_note (string citation, string style, bool endnote = false);
   void addNoteText (string text);
   void closeCurrentNote ();
   void addNotelLink (xml_node domNode, int identifier, string style, string text);

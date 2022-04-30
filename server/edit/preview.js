@@ -45,7 +45,7 @@ function navigationNewPassage ()
   } else {
     return;
   }
-  
+
   if ((previewNavigationBook != previewLoadedBook) || (previewNavigationChapter != previewLoadedChapter)) {
     previewLoadChapter ();
   }
@@ -68,6 +68,10 @@ function previewLoadChapter ()
   previewChapterIdOnServer = 0;
   if (previewChapterInitialized) location.reload ();
   else previewChapterInitialized = true;
+  
+  
+
+  
 }
 
 
@@ -109,7 +113,7 @@ function previewScrollVerseIntoView ()
   $ ("#workspacewrapper").stop ();
   var verses = [0];
   var navigated = false;
-  $ (".v").each (function (index) {
+  $ (".i-v").each (function (index) {
     var element = $(this);
     verses = usfm_get_verse_numbers (element[0].textContent);
     if (verses.indexOf (parseInt (previewNavigationVerse)) >= 0) {
@@ -127,7 +131,7 @@ function previewScrollVerseIntoView ()
       }
     }
   });
-  if (editorNavigationVerse == 0) {
+  if (previewNavigationVerse == 0) {
     $ ("#workspacewrapper").animate ({ scrollTop: 0 }, 500);
   }
 }

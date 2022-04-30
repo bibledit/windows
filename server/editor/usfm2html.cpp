@@ -58,6 +58,7 @@ void Editor_Usfm2Html::stylesheet (string stylesheet)
         standardContentMarkerCrossReference = style.marker;
       }
     }
+    note_citations.evaluate_style(style);
   }
 }
 
@@ -246,8 +247,8 @@ void Editor_Usfm2Html::process ()
               {
                 closeTextStyle (false);
                 if (isOpeningMarker) {
-                  int caller = noteCount % 9 + 1;
-                  addNote (convert_to_string (caller), marker, false);
+                  string caller = note_citations.get (style.marker, "+");
+                  add_note (caller, marker, false);
                 } else {
                   closeCurrentNote ();
                 }
@@ -281,8 +282,8 @@ void Editor_Usfm2Html::process ()
               {
                 closeTextStyle (false);
                 if (isOpeningMarker) {
-                  int caller = (noteCount) % 9 + 1;
-                  addNote (convert_to_string (caller), marker, false);
+                  string caller = note_citations.get (style.marker, "+");
+                  add_note (caller, marker, false);
                 } else {
                   closeCurrentNote ();
                 }
@@ -505,7 +506,7 @@ void Editor_Usfm2Html::addText (string text)
 // $citation: The text of the note citation.
 // $style: Style name for the paragraph in the note body.
 // $endnote: Whether this is a footnote and cross reference (false), or an endnote (true).
-void Editor_Usfm2Html::addNote (string citation, string style, [[maybe_unused]] bool endnote)
+void Editor_Usfm2Html::add_note (string citation, string style, [[maybe_unused]] bool endnote)
 {
   // Be sure the road ahead is clear.
   if (!roadIsClear ()) {
@@ -550,7 +551,7 @@ void Editor_Usfm2Html::addNoteText (string text)
 {
   if (text.empty ()) return;
   if (!note_p_open) {
-    addNote ("?", "");
+    add_note ("?", "");
   }
   xml_node spanDomElement = notePnode.append_child ("span");
   spanDomElement.text ().set (text.c_str());
@@ -738,3 +739,4 @@ bool Editor_Usfm2Html::roadIsClear ()
   // No blockers found: The road is clear.
   return true;
 }
+

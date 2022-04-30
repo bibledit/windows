@@ -28,12 +28,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <text/text.h>
 #include <esword/text.h>
 #include <tbsx/text.h>
+#include <filter/note.h>
 
 
-class Filter_Text_Passage_Marker_Value
+namespace filter::text {
+
+class passage_marker_value
 {
 public:
-  Filter_Text_Passage_Marker_Value (int book_in, int chapter_in, string verse_in, string marker_in, string value_in);
+  passage_marker_value (int book_in, int chapter_in, string verse_in, string marker_in, string value_in);
   int book;
   int chapter;
   string verse;
@@ -41,16 +44,7 @@ public:
   string value;
 };
 
-
-class Filter_Text_Note_Citation
-{
-public:
-  Filter_Text_Note_Citation ();
-  Filter_Text_Note_Citation (vector <string> sequence_in, string restart_in);
-  vector <string> sequence;
-  string restart;
-  unsigned int pointer;
-};
+}
 
 
 class Filter_Text
@@ -103,44 +97,42 @@ private:
   void process_usfm ();
   void processNote ();
   // Opening a new paragraph.
-  void new_paragraph (Database_Styles_Item style, bool keepWithNext);
+  void new_paragraph (const Database_Styles_Item & style, bool keepWithNext);
   void applyDropCapsToCurrentParagraph (int dropCapsLength);
   void putChapterNumberInFrame (string chapterText);
-  void createNoteCitation (Database_Styles_Item style);
-  string getNoteCitation (Database_Styles_Item style);
-  void resetNoteCitations (string moment);
-  void ensureNoteParagraphStyle (string marker, Database_Styles_Item style);
+  string getNoteCitation (const Database_Styles_Item & style);
+  void ensureNoteParagraphStyle (string marker, const Database_Styles_Item & style);
 
 public:
   // Container with objects (book, chapter, verse, marker, header value).
-  vector <Filter_Text_Passage_Marker_Value> runningHeaders;
+  vector <filter::text::passage_marker_value> runningHeaders;
   // Container with objects (book, chapter, verse, marker, TOC value).
-  vector <Filter_Text_Passage_Marker_Value> longTOCs;
+  vector <filter::text::passage_marker_value> longTOCs;
   // Container with objects (book, chapter, verse, marker, TOC value).
-  vector <Filter_Text_Passage_Marker_Value> shortTOCs;
+  vector <filter::text::passage_marker_value> shortTOCs;
   // Container with objects (book, chapter, verse, marker, abbreviation value).
-  vector <Filter_Text_Passage_Marker_Value> bookAbbreviations;
+  vector <filter::text::passage_marker_value> bookAbbreviations;
 
 public:
   // Vector with objects (book, chapter, verse, marker, label value).
-  vector <Filter_Text_Passage_Marker_Value> chapterLabels;
+  vector <filter::text::passage_marker_value> chapterLabels;
   // Vector with object (book, chapter, verse, marker, marker value).
-  vector <Filter_Text_Passage_Marker_Value> publishedChapterMarkers;
+  vector <filter::text::passage_marker_value> publishedChapterMarkers;
   // Vector with object (book, chapter, verse, marker, marker value).
-  vector <Filter_Text_Passage_Marker_Value> publishedVerseMarkers;
+  vector <filter::text::passage_marker_value> publishedVerseMarkers;
 private:
   // String holding the chapter number or text to output at the first verse.
   string output_chapter_text_at_first_verse;
 
 public:
   // Object for creating OpenDocument with text in standard form.
-  Odf_Text * odf_text_standard;
+  odf_text * odf_text_standard;
   // Object for creating OpenDocument with text only.
-  Odf_Text * odf_text_text_only;
+  odf_text * odf_text_text_only;
   // Object for creating OpenDocument with text and note citations.
-  Odf_Text * odf_text_text_and_note_citations;
+  odf_text * odf_text_text_and_note_citations;
   // Object for creating OpenDocument with the notes only.
-  Odf_Text * odf_text_notes;
+  odf_text * odf_text_notes;
 
 public:
   void produceInfoDocument (string path);
@@ -150,14 +142,16 @@ public:
 private:
   void addToInfo (string text, bool next = false);
   void addToFallout (string text, bool next = false);
-  void addToWordList (vector <string>  & list);
+  void addToWordList (vector <string> & list);
   vector <string> wordListGlossaryDictionary;
   vector <string> hebrewWordList;
   vector <string> greekWordList;
   vector <string> subjectIndex;
 
 private:
-  map <string, Filter_Text_Note_Citation> notecitations; // Information for the citations for the notes.
+  // Information for the citations for the notes.
+  filter::note::citations note_citations;
+
   string standardContentMarkerFootEndNote;
   string standardContentMarkerCrossReference;
 

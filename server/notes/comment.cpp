@@ -86,11 +86,21 @@ string notes_comment (void * webserver_request)
   "var noteId = '" + convert_to_string (id) + "';\n";
   view.set_variable ("script", script);
 
+
+  vector <Passage> passages = database_notes.get_passages (id);
+  view.set_variable ("passage", filter_passage_display_inline (passages));
   
   
   string summary = database_notes.get_summary (id);
   view.set_variable ("summary", summary);
+
   
+  bool show_note_status = request->database_config_user ()->getShowNoteStatus ();
+  if (show_note_status) {
+    string status = database_notes.get_status (id);
+    view.set_variable ("status", status);
+  }
+
   
   string content = database_notes.get_contents (id);
   view.set_variable ("content", content);

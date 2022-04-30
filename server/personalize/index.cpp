@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/roles.h>
 #include <filter/string.h>
 #include <filter/url.h>
+#include <filter/date.h>
 #include <webserver/request.h>
 #include <database/config/general.h>
 #include <database/config/user.h>
@@ -110,7 +111,7 @@ string personalize_index (void * webserver_request)
     // Simple version uses filebased database as explained in ./ipc/focus.cpp
     // line 37 to 44. 
     if (config_logic_indonesian_cloud_free_simple ()) {
-      string filename = current_theme_filebased_cache_filename (request->session_identifier);
+      string filename = general_font_size_filebased_cache_filename (request->session_identifier);
       database_filebased_cache_put (filename, convert_to_string (fontsizegeneral));
     }
     if ((config_logic_default_bibledit_configuration () || config_logic_indonesian_cloud_free ()) && !(config_logic_indonesian_cloud_free_simple ())) {
@@ -122,7 +123,7 @@ string personalize_index (void * webserver_request)
     int fontsizemenu = convert_to_int (request->post["fontsizemenu"]);
     fontsizemenu = clip (fontsizemenu, 50, 300);
     if (config_logic_indonesian_cloud_free_simple ()) {
-      string filename = current_theme_filebased_cache_filename (request->session_identifier);
+      string filename = menu_font_size_filebased_cache_filename (request->session_identifier);
       database_filebased_cache_put (filename, convert_to_string (fontsizemenu));
     }
     if ((config_logic_default_bibledit_configuration () || config_logic_indonesian_cloud_free ()) && !(config_logic_indonesian_cloud_free_simple ())) {
@@ -468,6 +469,24 @@ string personalize_index (void * webserver_request)
     request->database_config_user ()->setReceiveFocusedReferenceFromAccordance (checked);
   }
   view.set_variable ("referencefromaccordance", get_checkbox_status(request->database_config_user ()->getReceiveFocusedReferenceFromAccordance ()));
+
+  
+  // The date format to be used in the Consultation Notes.
+  const char * dateformat = "dateformat";
+  if (request->post.count (dateformat)) {
+    int date_format_key = convert_to_int (request->post [dateformat]);
+    request->database_config_user ()->setNotesDateFormat(date_format_key);
+    return string();
+  }
+  string date_format_key = convert_to_string (request->database_config_user ()->getNotesDateFormat());
+  string date_format_html;
+  for (filter::date::date_format df = filter::date::dd_mm_yyyy;
+       df <= filter::date::yyyy_mn_dd;
+       df = static_cast<filter::date::date_format>(df + 1)) {
+    date_format_html = Options_To_Select::add_selection (filter::date::date_format_to_text (df), to_string(df), date_format_html);
+  }
+  view.set_variable ("dateformatoptags", Options_To_Select::mark_selected (date_format_key, date_format_html));
+  view.set_variable (dateformat, date_format_key);
 
   
   // Enable the sections with settings relevant to the user and device.

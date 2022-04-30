@@ -33,6 +33,8 @@ public:
   static void setCheckFullStopInHeadings (string bible, bool value);
   static bool getCheckSpaceBeforePunctuation (string bible);
   static void setCheckSpaceBeforePunctuation (string bible, bool value);
+  static bool getCheckSpaceBeforeFinalNoteMarker (string bible);
+  static void setCheckSpaceBeforeFinalNoteMarker (string bible, bool value);
   static bool getCheckSentenceStructure (string bible);
   static void setCheckSentenceStructure (string bible, bool value);
   static bool getCheckParagraphStructure (string bible);
@@ -163,6 +165,8 @@ public:
   static void setDailyChecksEnabled (string bible, bool value);
   static bool getOdtPoetryVersesLeft (string bible);
   static void setOdtPoetryVersesLeft (string bible, bool value);
+  static bool getOdtAutomaticNoteCaller (string bible);
+  static void setOdtAutomaticNoteCaller (string bible, bool value);
 private:
   static string file (string bible);
   static string file (string bible, const char * key);

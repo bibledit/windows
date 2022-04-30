@@ -169,6 +169,20 @@ void Database_Config_Bible::setCheckSpaceBeforePunctuation (string bible, bool v
 }
 
 
+const char * space_before_final_note_marker_key ()
+{
+  return "space-before-final-note-marker";
+}
+bool Database_Config_Bible::getCheckSpaceBeforeFinalNoteMarker (string bible)
+{
+  return getBValue (bible, space_before_final_note_marker_key (), false);
+}
+void Database_Config_Bible::setCheckSpaceBeforeFinalNoteMarker (string bible, bool value)
+{
+  setBValue (bible, space_before_final_note_marker_key (), value);
+}
+
+
 bool Database_Config_Bible::getCheckSentenceStructure (string bible)
 {
   return getBValue (bible, "sentence-structure", false);
@@ -862,4 +876,18 @@ bool Database_Config_Bible::getOdtPoetryVersesLeft (string bible)
 void Database_Config_Bible::setOdtPoetryVersesLeft (string bible, bool value)
 {
   setBValue (bible, odt_poetry_verses_left_key(), value);
+}
+
+
+const char * odt_automatic_note_caller_key ()
+{
+  return "odt-automatic-note-caller";
+}
+bool Database_Config_Bible::getOdtAutomaticNoteCaller (string bible)
+{
+  return getBValue (bible, odt_automatic_note_caller_key(), false);
+}
+void Database_Config_Bible::setOdtAutomaticNoteCaller (string bible, bool value)
+{
+  setBValue (bible, odt_automatic_note_caller_key(), value);
 }
