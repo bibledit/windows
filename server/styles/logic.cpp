@@ -127,6 +127,7 @@ string styles_logic_subtype_text (int type, int subtype)
     if (subtype == PeripheralSubtypeMapIndex       ) return translate ("starts map index");
     if (subtype == PeripheralSubtypeCover          ) return translate ("starts cover");
     if (subtype == PeripheralSubtypeSpine          ) return translate ("starts spine");
+    if (subtype == PeripheralSubtypeGeneral        ) return translate ("starts general peripheral content");
   }
   if (type == StyleTypePicture) {
   }
