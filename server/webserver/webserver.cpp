@@ -178,7 +178,7 @@ void webserver_process_request (int connfd, string clientaddress)
             open
 #endif
             (request.stream_file.c_str(), O_RDONLY);
-            unsigned char buffer [1024];
+            unsigned char streambuffer [1024];
             int bytecount;
             do {
               bytecount = (int)
@@ -187,9 +187,9 @@ void webserver_process_request (int connfd, string clientaddress)
 #else
               read
 #endif
-              (filefd, buffer, 1024);
+              (filefd, streambuffer, 1024);
               if (bytecount > 0) {
-                [[maybe_unused]] auto sendbytes = (int)send (connfd, (const char *)buffer, bytecount, 0);
+                [[maybe_unused]] auto sendbytes = send (connfd, (const char *)streambuffer, static_cast<size_t>(bytecount), 0);
               }
             }
             while (bytecount > 0);
@@ -280,7 +280,7 @@ void http_server ()
   serveraddr.sin6_flowinfo = 0;
   serveraddr.sin6_family = AF_INET6;
   serveraddr.sin6_addr = in6addr_any;
-  serveraddr.sin6_port = htons (convert_to_int (config_logic_http_network_port ()));
+  serveraddr.sin6_port = htons (static_cast<uint16_t>(convert_to_int (config_logic_http_network_port ())));
 #endif
   result = mybind (listenfd, (struct sockaddr *) &serveraddr, sizeof (serveraddr));
   if (result != 0) {
@@ -554,7 +554,7 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
         if (ret == 0) header_parsed = false; // 0: EOF
         if (ret < 0) connection_healthy = false;
         if (connection_healthy && header_parsed) {
-          char c = buffer [0];
+          char c = static_cast <char> (buffer [0]);
           // The request contains a carriage return (\r) and a new line feed (\n).
           // The traditional order of this is \r\n.
           // Therefore when a \r is encountered, just disregard it.
@@ -588,7 +588,7 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
           if (ret == 0) done_reading = true; // 0: EOF
           if (ret < 0) connection_healthy = false;
           if (connection_healthy && !done_reading) {
-            char c = buffer [0];
+            char c = static_cast <char> (buffer [0]);
             postdata += c;
             total_bytes_read ++;
           }
@@ -624,7 +624,7 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
         ret = mbedtls_ssl_write (&ssl, buf, len);
         if (ret > 0) {
           buf += ret;
-          len -= ret;
+          len -= static_cast <size_t> (ret);
         } else {
           // When it returns MBEDTLS_ERR_SSL_WANT_WRITE/READ,
           // it must be called later with the *same* arguments,
@@ -657,9 +657,9 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
           read
 #endif
           (filefd, buffer, 1024);
-          int len = bytecount;
-          const unsigned char * buf = (const unsigned char *) &buffer;
-          while (connection_healthy && (len > 0)) {
+          int remaining_length = bytecount;
+          const unsigned char * buffer_ptr = (const unsigned char *) &buffer;
+          while (connection_healthy && (remaining_length > 0)) {
             // Function
             // int ret = mbedtls_ssl_write (&ssl, buf, len)
             // will do partial writes in some cases.
@@ -667,10 +667,10 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
             // the function must be called again with updated arguments:
             // buf + ret, len - ret
             // until it returns a value equal to the last 'len' argument.
-            ret = mbedtls_ssl_write (&ssl, buf, len);
+            ret = mbedtls_ssl_write (&ssl, buffer_ptr, static_cast<size_t>(remaining_length));
             if (ret > 0) {
-              buf += ret;
-              len -= ret;
+              buffer_ptr += ret;
+              remaining_length -= ret;
             } else {
               // When it returns MBEDTLS_ERR_SSL_WANT_WRITE/READ,
               // it must be called later with the *same* arguments,
@@ -698,6 +698,7 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
           if (ret == MBEDTLS_ERR_SSL_WANT_WRITE) continue;
           filter_url_display_mbed_tls_error (ret, NULL, true);
           connection_healthy = false;
+          if (connection_healthy) {}; // Suppress static analyzer warning about unused code.
           break;
         }
       }

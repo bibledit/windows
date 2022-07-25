@@ -409,13 +409,17 @@ const char * bibledit_get_reference_for_accordance ()
   // The purpose is that the value remains live in memory for the caller,
   // even after the function has returned, and local variables will have been destroyed.
   static string reference;
+  
+  // Wait till all the data has been initialized.
+  // If the data is not yet initialized, return an empty reference instead.
+  if (!config_globals_data_initialized) return reference.c_str();
 
   // Get the username on this client device.
   string user = client_logic_get_username ();
 
   // Get the active Bible and its versification system.
   Webserver_Request request;
-  request.session_logic()->setUsername(user);
+  request.session_logic()->set_username(user);
   Database_Config_User database_config_user (&request);
   string bible = request.database_config_user ()->getBible ();
   string versification = Database_Config_Bible::getVersificationSystem (bible);
@@ -435,9 +439,9 @@ const char * bibledit_get_reference_for_accordance ()
   if (passages.empty()) return "";
 
   // Accordance expects for instance, 2 Corinthians 9:2, to be broadcast as "2CO 9:2".
-  book = passages[0].book;
-  chapter = passages[0].chapter;
-  string verse_s = passages[0].verse;
+  book = passages[0].m_book;
+  chapter = passages[0].m_chapter;
+  string verse_s = passages[0].m_verse;
   string usfm_id = Database_Books::getUsfmFromId (book);
   reference = usfm_id + " " + convert_to_string (chapter) + ":" + convert_to_string (verse_s);
 
@@ -455,7 +459,7 @@ void bibledit_put_reference_from_accordance (const char * reference)
   // Get and set the user name on this client device.
   string user = client_logic_get_username ();
   Webserver_Request request;
-  request.session_logic()->setUsername(user);
+  request.session_logic()->set_username(user);
 
   // Setting whether to enable receiving verse references from Accordance.
   bool enabled  = request.database_config_user ()->getReceiveFocusedReferenceFromAccordance ();
@@ -487,8 +491,8 @@ void bibledit_put_reference_from_accordance (const char * reference)
   if (passages.empty()) return;
 
   // Set the focused passage in Bibledit.
-  book = passages[0].book;
-  chapter = passages[0].chapter;
-  string verse_s = passages[0].verse;
+  book = passages[0].m_book;
+  chapter = passages[0].m_chapter;
+  string verse_s = passages[0].m_verse;
   Ipc_Focus::set (&request, book, chapter, verse);
 }

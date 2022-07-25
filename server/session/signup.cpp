@@ -29,7 +29,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/indonesian.h>
 #include <confirm/worker.h>
 #include <email/send.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
 #include <pugixml/pugixml.hpp>
+#pragma GCC diagnostic pop
 #include <tasks/logic.h>
 
 
@@ -180,7 +183,7 @@ string session_signup ([[maybe_unused]] void * webserver_request)
   verification.passage  = translate("I am Hosea son of Beeri.");
   verifications.push_back (verification);
 
-  int question_number = filter_string_rand (0, 20);
+  size_t question_number = static_cast<size_t>(filter_string_rand (0, 20));
   view.set_variable ("question", verifications[question_number].question);
   view.set_variable ("passage", verifications[question_number].passage);
   // The form has a hidden text entry. This text entry stores the right answer to the questions.
@@ -329,7 +332,7 @@ string session_signup ([[maybe_unused]] void * webserver_request)
       confirm_worker.setup (mail, user, initial_subject, initial_body, query, subsequent_subject, subsequent_body);
       if (config_logic_indonesian_cloud_free ()) {
         // In the Indonesian free Cloud, create the Bible for the user.
-        string bible = filter_indonesian_terjemahanku_mytranslation_name (user);
+        string bible = filter::indonesian::mytranslation (user);
         tasks_logic_queue (CREATEEMPTYBIBLE, {bible});
       }
       // Done signup.

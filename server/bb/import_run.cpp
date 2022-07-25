@@ -82,11 +82,11 @@ void bible_import_usfm (string data, string bible, int book, int chapter)
 {
   if (book && chapter) {}
   string stylesheet = styles_logic_standard_sheet ();
-  vector <BookChapterData> book_chapter_text = usfm_import (data, stylesheet);
-  for (auto & data : book_chapter_text) {
-    int book_number = data.book;
-    int chapter_number = data.chapter;
-    string chapter_data = data.data;
+  vector <filter::usfm::BookChapterData> book_chapter_text = filter::usfm::usfm_import (data, stylesheet);
+  for (auto & data2 : book_chapter_text) {
+    int book_number = data2.m_book;
+    int chapter_number = data2.m_chapter;
+    string chapter_data = data2.m_data;
     if (book_number > 0) {
       bible_logic_store_chapter (bible, book_number, chapter_number, chapter_data);
       string book_name = Database_Books::getUsfmFromId (book_number);

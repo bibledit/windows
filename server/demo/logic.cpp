@@ -140,7 +140,7 @@ void demo_clean_data ()
   
   
   // Set user to the demo credentials (admin) as this is the user who is always logged-in in a demo installation.
-  request.session_logic ()->setUsername (session_admin_credentials ());
+  request.session_logic ()->set_username (session_admin_credentials ());
   
   
   // Delete empty stylesheet that may have been there.
@@ -307,16 +307,16 @@ void demo_prepare_sample_bible ()
       string usfm = filter_url_file_get_contents (file);
       usfm = filter_string_collapse_whitespace (usfm);
       // Import the USFM into the sample Bible.
-      vector <BookChapterData> book_chapter_data = usfm_import (usfm, styles_logic_standard_sheet ());
+      vector <filter::usfm::BookChapterData> book_chapter_data = filter::usfm::usfm_import (usfm, styles_logic_standard_sheet ());
       for (auto data : book_chapter_data) {
-        int book = data.book;
+        int book = data.m_book;
         if (book) {
           // There is license information at the top of each USFM file.
           // This results in a book with number 0.
           // This book gets skipped here, so the license information is skipped as well.
-          int chapter = data.chapter;
-          string usfm = data.data;
-          bible_logic_store_chapter (demo_sample_bible_name (), book, chapter, usfm);
+          int chapter = data.m_chapter;
+          string usfm2 = data.m_data;
+          bible_logic_store_chapter (demo_sample_bible_name (), book, chapter, usfm2);
         }
       }
     }

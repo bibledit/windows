@@ -82,7 +82,7 @@ string read_index (void * webserver_request)
     // Specific configuration for the Indonesian free Cloud instance.
     // The name of the default Bible in the Read tab will be AlkitabKita
     // (That means Our/Everyone's Translation.
-    request->database_config_user()->setBible (filter_indonesian_alkitabkita_ourtranslation_name ());
+    request->database_config_user()->setBible (filter::indonesian::ourtranslation ());
   }
 
   // Set the user chosen Bible as the current Bible.
@@ -111,8 +111,8 @@ string read_index (void * webserver_request)
   if (request->query.count ("bible")) bible = AccessBible::Clamp (request, request->query ["bible"]);
   string bible_html;
   vector <string> bibles = AccessBible::Bibles (request);
-  for (auto bible : bibles) {
-    bible_html = Options_To_Select::add_selection (bible, bible, bible_html);
+  for (auto selectable_bible : bibles) {
+    bible_html = Options_To_Select::add_selection (selectable_bible, selectable_bible, bible_html);
   }
   view.set_variable ("bibleoptags", Options_To_Select::mark_selected (bible, bible_html));
   view.set_variable ("bible", bible);
@@ -146,7 +146,7 @@ string read_index (void * webserver_request)
 
   string cls = Filter_Css::getClass (bible);
   string font = Fonts_Logic::getTextFont (bible);
-  int current_theme_index = convert_to_int(request->database_config_user ()->getCurrentTheme ());
+  int current_theme_index = request->database_config_user ()->getCurrentTheme ();
   string filename = current_theme_filebased_cache_filename (request->session_identifier);
   if (config_logic_indonesian_cloud_free_simple ()) {
     if (database_filebased_cache_exists (filename)) {

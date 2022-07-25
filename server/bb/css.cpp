@@ -92,7 +92,7 @@ string bible_css (void * webserver_request)
     float letterspacing = convert_to_float (request->post["letterspacing"]);
     if (letterspacing < -3) letterspacing = -3;
     if (letterspacing > 3) letterspacing = 3;
-    Database_Config_Bible::setLetterSpacing (bible, 10 * letterspacing);
+    Database_Config_Bible::setLetterSpacing (bible, static_cast<int>(10 * letterspacing));
     
     page += Assets_Page::success ("The information was saved.");
     
@@ -120,7 +120,7 @@ string bible_css (void * webserver_request)
   int lineheight = Database_Config_Bible::getLineHeight (bible);
   view.set_variable ("lineheight", convert_to_string (lineheight));
 
-  float letterspacing = Database_Config_Bible::getLetterSpacing (bible);
+  float letterspacing = static_cast<float> (Database_Config_Bible::getLetterSpacing (bible));
   letterspacing /= 10;
   view.set_variable ("letterspacing", convert_to_string (letterspacing));
 

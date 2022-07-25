@@ -92,7 +92,7 @@ void developer_logic_import_changes_save (string bible, int book, int chapter, i
   
   Webserver_Request webserver_request;
   string explanation = "import changes";
-  string message = usfm_safely_store_verse (&webserver_request, bible, book, chapter, verse, text, explanation, false);
+  string message = filter::usfm::safely_store_verse (&webserver_request, bible, book, chapter, verse, text, explanation, false);
   if (!message.empty()) Database_Logs::log (message);
   text.clear ();
 }
@@ -160,7 +160,7 @@ void developer_logic_import_changes ()
     // 1. Save the accumulated text to the existing passage.
     // 2. Update the passage to point to the new one.
     if (passage_found) {
-      developer_logic_import_changes_save (passage.bible, passage.book, passage.chapter, convert_to_int (passage.verse), text);
+      developer_logic_import_changes_save (passage.m_bible, passage.m_book, passage.m_chapter, convert_to_int (passage.m_verse), text);
       passage = Passage(bible, book, chapter, convert_to_string(verse));
     }
     // Accumulate the text.
@@ -170,6 +170,6 @@ void developer_logic_import_changes ()
 
   }
   
-  developer_logic_import_changes_save (passage.bible, passage.book, passage.chapter, convert_to_int (passage.verse), text);
+  developer_logic_import_changes_save (passage.m_bible, passage.m_book, passage.m_chapter, convert_to_int (passage.m_verse), text);
 
 }

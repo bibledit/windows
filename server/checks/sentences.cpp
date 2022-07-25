@@ -114,8 +114,7 @@ void Checks_Sentences::check (map <int, string> texts)
   }
   
   // Go through the characters.
-  int characterCount = static_cast<int>(characters.size ());
-  for (int i = 0; i < characterCount; i++) {
+  for (size_t i = 0; i < characters.size (); i++) {
     // Store current verse number in the object.
     verseNumber = verse_numbers [i];
     // Get the current character.
@@ -196,13 +195,13 @@ void Checks_Sentences::paragraphs (vector <string> paragraph_start_markers,
 
     // Get the first character of the paragraph.
     int verse = verses_paragraph.begin()->first;
-    string character = verses_paragraph.begin()->second;
-    if (!character.empty ()) {
-      character = unicode_string_substr (character, 0, 1);
+    string character2 = verses_paragraph.begin()->second;
+    if (!character2.empty ()) {
+      character2 = unicode_string_substr (character2, 0, 1);
     }
     
     // Check that the paragraph starts with a capital.
-    isCapital = in_array (character, capitals);
+    isCapital = in_array (character2, capitals);
     if (!isCapital) {
       string paragraph_marker = paragraph_start_markers [p];
       if (!in_array (paragraph_marker, within_sentence_paragraph_markers)) {
@@ -214,14 +213,14 @@ void Checks_Sentences::paragraphs (vector <string> paragraph_start_markers,
     
     // Get the last two characters of the paragraph.
     verse = verses_paragraph.rbegin()->first;
-    character = verses_paragraph.rbegin()->second;
-    if (!character.empty ()) {
-      size_t length = unicode_string_length (character);
-      character = unicode_string_substr (character, length - 1, 1);
+    character2 = verses_paragraph.rbegin()->second;
+    if (!character2.empty ()) {
+      size_t length = unicode_string_length (character2);
+      character2 = unicode_string_substr (character2, length - 1, 1);
     }
     string previous_character = verses_paragraph.rbegin()->second;
     if (!previous_character.empty ()) {
-      size_t length = unicode_string_length (character);
+      size_t length = unicode_string_length (character2);
       if (length >= 2) {
         previous_character = unicode_string_substr (previous_character, length - 2, 1);
       } else {
@@ -230,7 +229,7 @@ void Checks_Sentences::paragraphs (vector <string> paragraph_start_markers,
     }
     
     // Check that the paragraph ends with correct punctuation.
-    isEndMark = in_array (character, this->end_marks) || in_array (previous_character, this->end_marks);
+    isEndMark = in_array (character2, this->end_marks) || in_array (previous_character, this->end_marks);
     if (!isEndMark) {
       // If the next paragraph starts with a marker that indicates it should not necessarily be capitalized,
       // then the current paragraph may have punctuation that would be incorrect otherwise.
@@ -241,7 +240,7 @@ void Checks_Sentences::paragraphs (vector <string> paragraph_start_markers,
       }
       if (next_paragraph_marker.empty () || (!in_array (next_paragraph_marker, within_sentence_paragraph_markers))) {
         string context = verses_paragraph.rbegin()->second;
-        size_t length = unicode_string_length (character);
+        size_t length = unicode_string_length (character2);
         if (length >= 15) {
           context = unicode_string_substr (context, length - 15, 15);
         }
@@ -264,7 +263,10 @@ void Checks_Sentences::addResult (string text, int modifier)
   // Get previous and next text fragment.
   int start = currentPosition - 25;
   if (start < 0) start = 0;
-  string previousFragment = unicode_string_substr (fullText, start, currentPosition - start - 1);
+  string previousFragment =
+    unicode_string_substr (fullText,
+                           static_cast <size_t> (start),
+                           static_cast <size_t> (currentPosition - start - 1));
   int iterations = 5;
   while (iterations) {
     size_t pos = previousFragment.find (" ");
@@ -275,7 +277,8 @@ void Checks_Sentences::addResult (string text, int modifier)
     }
     iterations--;
   }
-  string nextFragment = unicode_string_substr (fullText, currentPosition, 25);
+  string nextFragment = unicode_string_substr (fullText,
+                                               static_cast <size_t> (currentPosition), 25);
   while (nextFragment.length () > 10) {
     size_t pos = nextFragment.rfind (" ");
     if (pos == string::npos) nextFragment.erase (nextFragment.length () - 1, 1);

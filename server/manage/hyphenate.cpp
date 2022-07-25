@@ -140,7 +140,7 @@ string hyphenate_at_transition (vector <string>& firstset, vector <string>& seco
         // Check whether to insert the soft hyphen here.
         thisCharacterIsRelevant = in_array (character, secondset);
         if ((thisCharacterIsRelevant) && (previousCharacterWasRelevant)) {
-          if (!hyphenate_is_near_white_space (characters, i)) {
+          if (!hyphenate_is_near_white_space (characters, static_cast<int> (i))) {
             characters[i] = soft_hyphen_u00AD () + character;
           }
         }
@@ -174,11 +174,13 @@ string hyphenate_at_transition (vector <string>& firstset, vector <string>& seco
  */
 bool hyphenate_is_near_white_space (const vector <string> & characters, int offset)
 {
-  int start = offset - 2; // The constant for the nearness to the start of the word.
-  size_t end = offset + 2; // The constant for the nearness to the end of the word.
+  // The constant for the nearness to the start of the word.
+  int start = offset - 2;
+  // The constant for the nearness to the end of the word.
+  int end = offset + 2;
   if (start < 0) start = 0;
-  if (end > characters.size()) end = characters.size();
-  for (unsigned int i = start; i < end; i++) {
+  if (end > static_cast<int>(characters.size())) end = static_cast<int> (characters.size());
+  for (size_t i = static_cast<size_t>(start); i < static_cast<size_t>(end); i++) {
     if (characters[i] == " ") return true;
   }
   return false;

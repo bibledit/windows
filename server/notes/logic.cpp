@@ -516,10 +516,10 @@ void Notes_Logic::emailUsers (int identifier, const string& label, string bible,
   int timestamp = filter::date::seconds_since_epoch ();
   if (postpone) {
     int localseconds = filter::date::local_seconds (timestamp);
-    float localhour = filter::date::numerical_hour (localseconds) + (float) filter::date::numerical_minute (localseconds) / 60;
+    float localhour = static_cast<float>(filter::date::numerical_hour (localseconds)) + (float) filter::date::numerical_minute (localseconds) / 60;
     if (localhour < 21) {
       float difference = 21 - localhour;
-      timestamp += (3600 * difference) - 10;
+      timestamp += static_cast<int>(3600 * difference) - 10;
     }
   }
 
@@ -585,16 +585,16 @@ bool Notes_Logic::handleEmailComment (string from, string subject, string body)
   body = filter_string_str_replace ("\n", " ", body);
   // Make comment on the consultation note.
   string sessionuser = request->session_logic ()->currentUser ();
-  request->session_logic ()->setUsername (username);
+  request->session_logic ()->set_username (username);
   addComment (identifier, body);
-  request->session_logic ()->setUsername (sessionuser);
+  request->session_logic ()->set_username (sessionuser);
   // Mail confirmation to the username.
   if (request->database_config_user()->getUserNotifyMeOfMyPosts (username)) {
-    string subject = translate("Your comment was posted");
-    subject.append (" [CNID");
-    subject.append (convert_to_string (identifier));
-    subject.append ("]");
-    email_schedule (username, subject, body);
+    string confirm_subject = translate("Your comment was posted");
+    confirm_subject.append (" [CNID");
+    confirm_subject.append (convert_to_string (identifier));
+    confirm_subject.append ("]");
+    email_schedule (username, confirm_subject, body);
   }
   // Log operation.
   Database_Logs::log ("Comment posted: " + body);
@@ -670,12 +670,12 @@ bool Notes_Logic::handleEmailNew (string from, string subject, string body)
   body = filter_string_extract_body (body);
   // Post the note.
   string sessionuser = request->session_logic()->currentUser ();
-  request->session_logic()->setUsername (username);
+  request->session_logic()->set_username (username);
   Database_Notes database_notes = Database_Notes(webserver_request);
   string bible = request->database_config_user()->getBible ();
   int identifier = database_notes.store_new_note (bible, book, chapter, verse, summary, body, false);
   handlerNewNote (identifier);
-  request->session_logic()->setUsername (sessionuser);
+  request->session_logic()->set_username (sessionuser);
   // Mail confirmation to the username.
   if (request->database_config_user()->getUserNotifyMeOfMyPosts (username)) {
     subject = translate("Your new note was posted");

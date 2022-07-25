@@ -167,7 +167,7 @@ void Editor_Html2Usfm::openElementNode (xml_node node)
       mono = true;
     } else {
       // Start the USFM line with a marker with the class name.
-      currentLine += usfm_get_opening_usfm (className);
+      currentLine += filter::usfm::get_opening_usfm (className);
     }
   }
   
@@ -210,7 +210,7 @@ void Editor_Html2Usfm::closeElementNode (xml_node node)
     
     if (noteOpeners.find (className) != noteOpeners.end()) {
       // Deal with note closers.
-      currentLine += usfm_get_closing_usfm (className);
+      currentLine += filter::usfm::get_closing_usfm (className);
     } else {
       // Normally a p element closes the USFM line.
       flushLine ();
@@ -238,7 +238,7 @@ void Editor_Html2Usfm::closeElementNode (xml_node node)
     for (unsigned int offset = 0; offset < classes.size(); offset++) {
       bool embedded = (classes.size () > 1) && (offset == 0);
       if (!characterStyles.empty ()) embedded = true;
-      currentLine += usfm_get_closing_usfm (classes [offset], embedded);
+      currentLine += filter::usfm::get_closing_usfm (classes [offset], embedded);
       lastNoteStyle.clear();
     }
   }
@@ -272,7 +272,7 @@ void Editor_Html2Usfm::openInline (string className)
       lastNoteStyle.clear ();
     }
     if (add_opener)
-      currentLine += usfm_get_opening_usfm (marker, embedded);
+      currentLine += filter::usfm::get_opening_usfm (marker, embedded);
   }
   // Store active character styles in some cases.
   bool store = true;
@@ -315,17 +315,17 @@ void Editor_Html2Usfm::processNoteCitation (xml_node node)
     // So we remain with:
     // <p class="x"><span> </span><span>+ 2 Joh. 1.1</span></p>
     {
-      xml_node node = note_p_element.first_child();
-      string name = node.name ();
+      xml_node node2 = note_p_element.first_child();
+      string name = node2.name ();
       if (name != "span") {
         // Normally the <span> is the first child in the <p> that is a note.
         // But the user may have typed some text there.
         // If so, then the <span> is the second child of the <p>.
         // This code cares for that situation.
-        node = node.next_sibling();
-        name = node.name();
+        node2 = node2.next_sibling();
+        name = node2.name();
       }
-      note_p_element.remove_child (node);
+      note_p_element.remove_child (node2);
     }
 
     // Preserve active character styles in the main text, and reset them for the note.
@@ -354,7 +354,7 @@ string Editor_Html2Usfm::cleanUSFM (string usfm)
 {
   // Replace a double space after a note opener.
   for (string noteOpener : noteOpeners) {
-    string opener = usfm_get_opening_usfm (noteOpener);
+    string opener = filter::usfm::get_opening_usfm (noteOpener);
     usfm = filter_string_str_replace (opener + " ", opener, usfm);
   }
   

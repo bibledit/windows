@@ -65,7 +65,7 @@ string changes_changes (void * webserver_request)
     int identifier = convert_to_int (request->query["load"]);
     stringstream block;
     Passage passage = database_modifications.getNotificationPassage (identifier);
-    string link = filter_passage_link_for_opening_editor_at (passage.book, passage.chapter, passage.verse);
+    string link = filter_passage_link_for_opening_editor_at (passage.m_book, passage.m_chapter, passage.m_verse);
     string category = database_modifications.getNotificationCategory (identifier);
     if (category == changes_personal_category ()) category = emoji_smiling_face_with_smiling_eyes ();
     if (category == changes_bible_category ()) category = emoji_open_book ();
@@ -99,9 +99,9 @@ string changes_changes (void * webserver_request)
     string navigate = request->post["navigate"];
     int id = convert_to_int (navigate);
     Passage passage = database_modifications.getNotificationPassage (id);
-    if (passage.book) {
-      Ipc_Focus::set (request, passage.book, passage.chapter, convert_to_int (passage.verse));
-      Navigation_Passage::record_history (request, passage.book, passage.chapter, convert_to_int (passage.verse));
+    if (passage.m_book) {
+      Ipc_Focus::set (request, passage.m_book, passage.m_chapter, convert_to_int (passage.m_verse));
+      Navigation_Passage::record_history (request, passage.m_book, passage.m_chapter, convert_to_int (passage.m_verse));
     }
     // Set the correct default Bible for the user.
     string bible = database_modifications.getNotificationBible (id);
@@ -277,12 +277,12 @@ string changes_changes (void * webserver_request)
   for (auto & category : categories) {
     if (category == changes_bible_category ()) continue;
     string user = category;
-    vector <int> personal_ids = database_modifications.getNotificationTeamIdentifiers (username, user, selectedbible);
+    vector <int> personal_ids2 = database_modifications.getNotificationTeamIdentifiers (username, user, selectedbible);
     string user_and_icon = translate ("user") + " " + category;
     if (category == changes_personal_category ()) {
       user_and_icon = translate ("me") + " " + emoji_smiling_face_with_smiling_eyes ();
     }
-    if (!personal_ids.empty () && !bible_ids.empty ()) {
+    if (!personal_ids2.empty () && !bible_ids.empty ()) {
       view.add_iteration ("matching", { pair ("user", user), pair ("icon", user_and_icon) } );
     }
   }

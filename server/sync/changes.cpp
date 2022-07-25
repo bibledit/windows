@@ -91,12 +91,12 @@ string sync_changes (void * webserver_request)
     case Sync_Logic::changes_get_identifiers:
     {
       // The server responds with the identifiers of all the user's change notifications.
-      string any_bible = "";
-      vector <int> ids = database_modifications.getNotificationIdentifiers (user, any_bible);
+      string any_bible {};
+      vector <int> notification_ids = database_modifications.getNotificationIdentifiers (user, any_bible);
       string response;
-      for (auto & id : ids) {
+      for (auto & notif_id : notification_ids) {
         if (!response.empty ()) response.append ("\n");
-        response.append (convert_to_string (id));
+        response.append (convert_to_string (notif_id));
       }
       return response;
     }
@@ -112,9 +112,9 @@ string sync_changes (void * webserver_request)
       // chapter
       // verse
       Passage passage = database_modifications.getNotificationPassage (id);
-      lines.push_back (convert_to_string (passage.book));
-      lines.push_back (convert_to_string (passage.chapter));
-      lines.push_back (passage.verse);
+      lines.push_back (convert_to_string (passage.m_book));
+      lines.push_back (convert_to_string (passage.m_chapter));
+      lines.push_back (passage.m_verse);
       // oldtext (ensure it's one line for correct transfer to client)
       string oldtext = database_modifications.getNotificationOldText (id);
       oldtext = filter_string_str_replace ("\n", " ", oldtext);

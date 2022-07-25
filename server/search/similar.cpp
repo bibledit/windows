@@ -91,7 +91,7 @@ string search_similar (void * webserver_request)
     vector <string> vwords = filter_string_explode (words, ' ');
     
     // Include items if there are no more search hits than 30% of the total number of verses in the Bible.
-    size_t maxcount = round (0.3 * search_logic_get_verse_count (bible));
+    size_t maxcount = static_cast<size_t> (round (0.3 * search_logic_get_verse_count (bible)));
     
     // Store how often a verse occurs in an array.
     // The keys are the identifiers of the search results.
@@ -124,7 +124,7 @@ string search_similar (void * webserver_request)
       ids.push_back (id);
       counts.push_back (count);
     }
-    quick_sort (counts, ids, 0, static_cast<int>(counts.size()));
+    quick_sort (counts, ids, 0, static_cast<unsigned> (counts.size()));
     reverse (ids.begin(), ids.end());
 
     // Output the passage identifiers to the browser.
@@ -142,14 +142,14 @@ string search_similar (void * webserver_request)
     
     // Get the Bible and passage for this identifier.
     Passage passage = filter_integer_to_passage (id);
-    string bible = request->database_config_user()->getBible ();
+    string bible2 = request->database_config_user()->getBible ();
     // string bible = passage.bible;
-    int book = passage.book;
-    int chapter = passage.chapter;
-    string verse = passage.verse;
+    int book = passage.m_book;
+    int chapter = passage.m_chapter;
+    string verse = passage.m_verse;
     
     // Get the plain text.
-    string text = search_logic_get_bible_verse_text (bible, book, chapter, convert_to_int (verse));
+    string text = search_logic_get_bible_verse_text (bible2, book, chapter, convert_to_int (verse));
     
     // Get search words.
     vector <string> words = filter_string_explode (Database_Volatile::getValue (myIdentifier, "searchsimilar"), ' ');

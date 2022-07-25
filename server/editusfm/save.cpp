@@ -75,12 +75,12 @@ string editusfm_save (void * webserver_request)
       if (!usfm.empty ()) {
         if (unicode_string_is_valid (usfm)) {
           string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
-          vector <BookChapterData> book_chapter_text = usfm_import (usfm, stylesheet);
+          vector <filter::usfm::BookChapterData> book_chapter_text = filter::usfm::usfm_import (usfm, stylesheet);
           if (!book_chapter_text.empty()) {
-            BookChapterData data = book_chapter_text[0];
-            int book_number = data.book;
-            int chapter_number = data.chapter;
-            string chapter_data_to_save = data.data;
+            filter::usfm::BookChapterData data = book_chapter_text[0];
+            int book_number = data.m_book;
+            int chapter_number = data.m_chapter;
+            string chapter_data_to_save = data.m_data;
             if (((book_number == book) || (book_number == 0)) && (chapter_number == chapter)) {
               // The USFM loaded into the editor.
               string ancestor_usfm = getLoadedUsfm2 (webserver_request, bible, book, chapter, unique_id);
@@ -114,7 +114,7 @@ string editusfm_save (void * webserver_request)
               // Because the user's editor may not yet have loaded this updated Bible text.
               // https://github.com/bibledit/cloud/issues/340
               if (ancestor_usfm != server_usfm) {
-                bible_logic_recent_save_email (bible, book, chapter, 0, username, ancestor_usfm, server_usfm);
+                bible_logic_recent_save_email (bible, book, chapter, username, ancestor_usfm, server_usfm);
               }
               
              
@@ -122,7 +122,7 @@ string editusfm_save (void * webserver_request)
               if (AccessBible::BookWrite (request, string(), bible, book)) {
                 // Safely store the chapter.
                 string explanation;
-                string message = usfm_safely_store_chapter (request, bible, book, chapter, chapter_data_to_save, explanation);
+                string message = filter::usfm::safely_store_chapter (request, bible, book, chapter, chapter_data_to_save, explanation);
                 bible_logic_unsafe_save_mail (message, explanation, username, chapter_data_to_save, book, chapter);
                 if (message.empty()) {
 #ifndef HAVE_CLIENT

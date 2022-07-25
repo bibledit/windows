@@ -75,11 +75,11 @@ string manage_exports (void * webserver_request)
   
   if (request->query.count ("bible")) {
     string bible = request->query["bible"];
-    if (bible == "") {
+    if (bible.empty()) {
       Dialog_List dialog_list = Dialog_List ("exports", translate("Select a Bible"), "", "");
       vector <string> bibles = AccessBible::Bibles (webserver_request);
-      for (auto bible : bibles) {
-        dialog_list.add_row (bible, "bible", bible);
+      for (auto bible2 : bibles) {
+        dialog_list.add_row (bible2, "bible", bible2);
       }
       page += dialog_list.run ();
       return page;
@@ -348,7 +348,7 @@ string manage_exports (void * webserver_request)
     vector <string> markers = database_styles.getMarkers (styles_logic_standard_sheet ());
     vector <string> poetry_styles;
     for (auto & style : markers) {
-      if (usfm_is_standard_q_poetry (style)) poetry_styles.push_back(style);
+      if (filter::usfm::is_standard_q_poetry (style)) poetry_styles.push_back(style);
     }
     view.set_variable("poetrymarkers", filter_string_implode(poetry_styles, " "));
   }

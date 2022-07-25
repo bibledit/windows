@@ -23,7 +23,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING 1
 
 #include <filter/string.h>
+#pragma GCC diagnostic push
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wsign-conversion"
 #include <utf8/utf8.h>
+#pragma GCC diagnostic pop
 #include <filter/url.h>
 #include <filter/md5.h>
 #include <filter/date.h>
@@ -38,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #pragma clang diagnostic ignored "-Wdocumentation"
+#pragma clang diagnostic ignored "-Wsign-conversion"
 #include <unicode/ustdio.h>
 #include <unicode/normlzr.h>
 #include <unicode/utypes.h>
@@ -473,7 +478,7 @@ string narrow_non_breaking_space_u202F ()
 // Returns the length of string s in unicode points, not in bytes.
 size_t unicode_string_length (string s)
 {
-  size_t length = utf8::distance (s.begin(), s.end());
+  size_t length = static_cast<size_t> (utf8::distance (s.begin(), s.end()));
   return length;
 }
 
@@ -515,8 +520,8 @@ string unicode_string_substr (string s, size_t pos, size_t len)
     len--;
   }
   // Return substring.
-  size_t startpos = startiter - input;
-  size_t lenpos = enditer - startiter;
+  size_t startpos = static_cast <size_t> (startiter - input);
+  size_t lenpos = static_cast <size_t> (enditer - startiter);
   s = s.substr (startpos, lenpos);
   return s;
 }
@@ -528,8 +533,8 @@ size_t unicode_string_strpos (string haystack, string needle, size_t offset)
   int haystack_length = static_cast<int>(unicode_string_length (haystack));
   int needle_length = static_cast<int>(unicode_string_length (needle));
   for (int pos = static_cast<int>(offset); pos <= haystack_length - needle_length; pos++) {
-    string substring = unicode_string_substr (haystack, pos, needle_length);
-    if (substring == needle) return pos;
+    string substring = unicode_string_substr (haystack, static_cast <size_t> (pos), static_cast <size_t> (needle_length));
+    if (substring == needle) return static_cast <size_t> (pos);
   }
   return string::npos;
 }
@@ -544,8 +549,8 @@ size_t unicode_string_strpos_case_insensitive (string haystack, string needle, s
   int haystack_length = static_cast<int>(unicode_string_length (haystack));
   int needle_length = static_cast<int>(unicode_string_length (needle));
   for (int pos = static_cast<int>(offset); pos <= haystack_length - needle_length; pos++) {
-    string substring = unicode_string_substr (haystack, pos, needle_length);
-    if (substring == needle) return pos;
+    string substring = unicode_string_substr (haystack, static_cast<size_t> (pos), static_cast<size_t> (needle_length));
+    if (substring == needle) return static_cast<size_t>(pos);
   }
   return string::npos;
 }
@@ -575,9 +580,9 @@ string unicode_string_casefold (string s)
       string character = unicode_string_substr (s, pos, 1);
       // Convert it to a Unicode point.
       const utf8proc_uint8_t *str = (const unsigned char *) (character.c_str ());
-      utf8proc_ssize_t len = character.length ();
+      utf8proc_ssize_t len = static_cast<utf8proc_ssize_t> (character.length ());
       utf8proc_int32_t dst;
-      utf8proc_ssize_t output = utf8proc_iterate (str, len, &dst);
+      [[maybe_unused]] utf8proc_ssize_t output = utf8proc_iterate (str, len, &dst);
       // Convert the Unicode point to lower case.
       utf8proc_int32_t luc = utf8proc_tolower (dst);
       // Convert the Unicode point back to a UTF-8 string.
@@ -622,9 +627,9 @@ string unicode_string_uppercase (string s)
       string character = unicode_string_substr (s, pos, 1);
       // Convert it to a Unicode point.
       const utf8proc_uint8_t *str = (const unsigned char *) (character.c_str ());
-      utf8proc_ssize_t len = character.length ();
+      utf8proc_ssize_t len = static_cast<utf8proc_ssize_t> (character.length ());
       utf8proc_int32_t dst;
-      utf8proc_ssize_t output = utf8proc_iterate (str, len, &dst);
+      [[maybe_unused]] utf8proc_ssize_t output = utf8proc_iterate (str, len, &dst);
       // Convert the Unicode point to lower case.
       utf8proc_int32_t luc = utf8proc_toupper (dst);
       // Convert the Unicode point back to a UTF-8 string.
@@ -659,7 +664,7 @@ string unicode_string_transliterate (string s)
     for (unsigned int pos = 0; pos < string_length; pos++) {
       string character = unicode_string_substr (s, pos, 1);
       const utf8proc_uint8_t *str = (const unsigned char *) (character.c_str ());
-      utf8proc_ssize_t len = character.length ();
+      utf8proc_ssize_t len = static_cast<utf8proc_ssize_t> (character.length ());
       uint8_t *dest;
       utf8proc_option_t options = (utf8proc_option_t) (UTF8PROC_DECOMPOSE | UTF8PROC_STRIPMARK);
       [[maybe_unused]] auto output = utf8proc_map (str, len, &dest, options);
@@ -710,7 +715,7 @@ bool unicode_string_is_punctuation (string s)
     s = unicode_string_substr (s, 0, 1);
     // Convert the string to a Unicode point.
     const utf8proc_uint8_t *str = (const unsigned char *) (s.c_str ());
-    utf8proc_ssize_t len = s.length ();
+    utf8proc_ssize_t len = static_cast<utf8proc_ssize_t> (s.length ());
     utf8proc_int32_t codepoint;
     [[maybe_unused]] auto output = utf8proc_iterate (str, len, &codepoint);
     // Get category.
@@ -740,7 +745,7 @@ int unicode_string_convert_to_codepoint (string s)
       s = unicode_string_substr (s, 0, 1);
       // Convert the string to a Unicode point.
       const utf8proc_uint8_t *str = (const unsigned char *) (s.c_str ());
-      utf8proc_ssize_t len = s.length ();
+      utf8proc_ssize_t len = static_cast<utf8proc_ssize_t> (s.length ());
       utf8proc_int32_t codepoint;
       [[maybe_unused]] auto output = utf8proc_iterate (str, len, &codepoint);
       point = codepoint;
@@ -1436,7 +1441,7 @@ string hex2bin (string hex)
     for (string::const_iterator pos = hex.begin(); pos < hex.end(); pos += 2)
     {
       extract.assign (pos, pos+2);
-      out.push_back (my_stoi (extract, nullptr, 16));
+      out.push_back (static_cast<char> (my_stoi (extract, nullptr, 16)));
     }
   }
   return out;
@@ -1469,7 +1474,7 @@ string convert_xml_character_entities_to_characters (string data)
 {
   bool keep_going = true;
   int iterations = 0;
-  size_t pos1 = -1;
+  size_t pos1 = static_cast<size_t>(-1);
   do {
     iterations++;
     pos1 = data.find ("&#x", pos1 + 1);
@@ -1496,11 +1501,25 @@ string convert_xml_character_entities_to_characters (string data)
     int cp = codepoint;
     // Adapted from: http://www.zedwood.com/article/cpp-utf8-char-to-codepoint.
     char c[5]={ 0x00,0x00,0x00,0x00,0x00 };
-    if     (cp<=0x7F) { c[0] = cp;  }
-    else if(cp<=0x7FF) { c[0] = (cp>>6)+192; c[1] = (cp&63)+128; }
-    else if(0xd800<=cp && cp<=0xdfff) {} //invalid block of utf8
-    else if(cp<=0xFFFF) { c[0] = (cp>>12)+224; c[1]= ((cp>>6)&63)+128; c[2]=(cp&63)+128; }
-    else if(cp<=0x10FFFF) { c[0] = (cp>>18)+240; c[1] = ((cp>>12)&63)+128; c[2] = ((cp>>6)&63)+128; c[3]=(cp&63)+128; }
+    if (cp<=0x7F) {
+      c[0] = static_cast<char> (cp);
+    }
+    else if (cp<=0x7FF) {
+      c[0] = static_cast<char>((cp>>6)+192);
+      c[1] = static_cast<char>((cp&63)+128);
+    }
+    else if (0xd800<=cp && cp<=0xdfff) {} // Invalid block of utf8.
+    else if (cp<=0xFFFF) {
+      c[0] = static_cast<char>((cp>>12)+224);
+      c[1] = static_cast<char>(((cp>>6)&63)+128);
+      c[2] = static_cast<char>((cp&63)+128);
+    }
+    else if (cp<=0x10FFFF) {
+      c[0] = static_cast<char>((cp>>18)+240);
+      c[1] = static_cast<char>(((cp>>12)&63)+128);
+      c[2] = static_cast<char>(((cp>>6)&63)+128);
+      c[3] = static_cast<char>((cp&63)+128);
+    }
     string u8str = string (c);
     
     data.insert (pos1, u8str);
@@ -1633,7 +1652,7 @@ void array_move_from_to (vector <string> & container, size_t from, size_t to)
   // Put the data into a map where the keys are multiplied by two.
   map <int, string> mapped_container;
   for (unsigned int i = 0; i < container.size(); i++) {
-    mapped_container [i * 2] = container [i];
+    mapped_container [static_cast<int>(i * 2)] = container [i];
   }
 
   // Direction of moving.

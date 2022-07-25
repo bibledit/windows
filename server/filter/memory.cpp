@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #ifdef HAVE_MACH_MACH
 #include <mach/mach.h>
 #endif
+#ifdef HAVE_EXECINFO
+#include <execinfo.h>
+#endif
 
 
 // Returns the memory available as a percentage of the total system memory.
@@ -40,7 +43,7 @@ int filter_memory_percentage_available ()
   uint64_t speculative = stats.speculative_count;
   uint64_t free = stats.free_count;
   uint64_t total = active + inactive + wired + speculative + free;
-  return (int)(inactive + speculative + free) * 100 / total;
+  return static_cast<int>(inactive + speculative + free) * 100 / static_cast<int> (total);
 
 #else
 
@@ -92,4 +95,21 @@ uint64_t filter_memory_total_usage ()
   return resident_memory;
 #endif
   return 0;
+}
+
+
+void filter_memory_print_back_trace ()
+{
+#ifdef HAVE_EXECINFO
+  // https://stackoverflow.com/questions/3899870/print-call-stack-in-c-or-c
+  // To add linker flag -rdynamic is essential.
+  char **strings;
+  void *array[1024];
+  int size = backtrace(array, 1024);
+  strings = backtrace_symbols(array, size);
+  for (int i = 0; i < size; i++)
+    cout << strings[i] << endl;
+  puts("");
+  free(strings);
+#endif
 }

@@ -26,7 +26,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/config/bible.h>
 #include <locale/translate.h>
 #include <assets/view.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
 #include <pugixml/pugixml.hpp>
+#pragma GCC diagnostic pop
 
 
 using namespace pugi;
@@ -34,26 +37,26 @@ using namespace pugi;
 
 Passage::Passage ()
 {
-  book = 0;
-  chapter = 0;
+  m_book = 0;
+  m_chapter = 0;
 }
 
 
-Passage::Passage (string bible_in, int book_in, int chapter_in, string verse_in)
+Passage::Passage (string bible, int book, int chapter, string verse)
 {
-  bible = bible_in;
-  book = book_in;
-  chapter = chapter_in;
-  verse = verse_in;
+  m_bible = bible;
+  m_book = book;
+  m_chapter = chapter;
+  m_verse = verse;
 }
 
 
 bool Passage::equal (Passage & passage)
 {
-  if (bible != passage.bible) return false;
-  if (book != passage.book) return false;
-  if (chapter != passage.chapter) return false;
-  if (verse != passage.verse) return false;
+  if (m_bible != passage.m_bible) return false;
+  if (m_book != passage.m_book) return false;
+  if (m_chapter != passage.m_chapter) return false;
+  if (m_verse != passage.m_verse) return false;
   return true;
 }
 
@@ -66,14 +69,14 @@ string Passage::encode ()
   string text;
   // The encoded passage can be used as an attribute in the HTML DOM.
   // Therefore it will be encoded such that any Bible name will be acceptable as an attribute in the DOM.
-  text.append (bin2hex (bible));
+  text.append (bin2hex (m_bible));
   text.append ("_");
-  text.append (convert_to_string (book));
+  text.append (convert_to_string (m_book));
   text.append ("_");
-  text.append (convert_to_string (chapter));
+  text.append (convert_to_string (m_chapter));
   text.append ("_");
-  text.append (verse);
-  if (verse.empty()) text.append ("0");
+  text.append (m_verse);
+  if (m_verse.empty()) text.append ("0");
   return text;
 }
 
@@ -86,21 +89,21 @@ Passage Passage::decode (const string& encoded)
   vector <string> bits = filter_string_explode (encoded, '_');
   if (!bits.empty ()) {
     string verse = bits.back ();
-    if (!verse.empty ()) passage.verse = verse;
+    if (!verse.empty ()) passage.m_verse = verse;
     bits.pop_back ();
   }
   if (!bits.empty ()) {
     string chapter = bits.back ();
-    if (!chapter.empty()) passage.chapter = convert_to_int (chapter);
+    if (!chapter.empty()) passage.m_chapter = convert_to_int (chapter);
     bits.pop_back ();
   }
   if (!bits.empty ()) {
     string book = bits.back ();
-    if (!book.empty()) passage.book = convert_to_int (book);
+    if (!book.empty()) passage.m_book = convert_to_int (book);
     bits.pop_back ();
   }
   if (!bits.empty ()) {
-    passage.bible = hex2bin (bits.back ());
+    passage.m_bible = hex2bin (bits.back ());
     bits.pop_back ();
   }
   return passage;
@@ -124,7 +127,7 @@ string filter_passage_display_inline (vector <Passage> passages)
   string display;
   for (Passage & passage : passages) {
     if (!display.empty()) display.append (" | ");
-    display.append (filter_passage_display (passage.book, passage.chapter, passage.verse));
+    display.append (filter_passage_display (passage.m_book, passage.m_chapter, passage.m_verse));
   }
   return display;
 }
@@ -136,7 +139,7 @@ string filter_passage_display_multiline (vector <Passage> passages)
 {
   string display;
   for (Passage & passage : passages) {
-    display.append (filter_passage_display (passage.book, passage.chapter, passage.verse));
+    display.append (filter_passage_display (passage.m_book, passage.m_chapter, passage.m_verse));
     display.append ("\n");
   }
   return display;
@@ -146,16 +149,16 @@ string filter_passage_display_multiline (vector <Passage> passages)
 // This function converts $passage to an integer, so that passages can be compared or stored.
 int filter_passage_to_integer (Passage passage)
 {
-  return 1000000 * passage.book + 1000 * passage.chapter + convert_to_int (passage.verse);
+  return 1000000 * passage.m_book + 1000 * passage.m_chapter + convert_to_int (passage.m_verse);
 }
 
 
 // This converts the $integer, created above, to a passage.
 Passage filter_integer_to_passage (int integer)
 {
-  int book = round (integer / 1000000);
+  int book = static_cast<int> (round (integer / 1000000));
   integer -= book * 1000000;
-  int chapter = round (integer / 1000);
+  int chapter = static_cast<int> (round (integer / 1000));
   integer -= chapter * 1000;
   string verse = convert_to_string (integer);
   return Passage ("", book, chapter, verse);
@@ -168,7 +171,6 @@ Passage filter_integer_to_passage (int integer)
 int filter_passage_interpret_book (string book)
 {
   book = filter_string_trim (book);
-  int identifier = 0;
 
   // Recognize names like "I Peter", where the "I" can also be "II" or "III".
   // Do the longest ones first.
@@ -195,16 +197,23 @@ int filter_passage_interpret_book (string book)
     string english = Database_Books::getEnglishFromId(identifier);
     if (english.empty()) continue;
     if (book == unicode_string_casefold(english)) return identifier;
+    
     if (nospacebook == unicode_string_casefold(english)) return identifier;
+    
     string localized = translate(english);
     if (localized.empty()) continue;
+    
     if (book == unicode_string_casefold(localized)) return identifier;
+    
     if (nospacebook == unicode_string_casefold(localized)) return identifier;
   }
 
+  
   // Recognise the USFM book abbreviations.
-  identifier = Database_Books::getIdFromUsfm (book);
-  if (identifier) return identifier;
+  {
+    int identifier = Database_Books::getIdFromUsfm (book);
+    if (identifier) return identifier;
+  }
 
   // Try the OSIS abbreviations.
   for (auto identifier : bookids) {
@@ -253,8 +262,10 @@ int filter_passage_interpret_book (string book)
   }
 
   // Do a case-insensitive search in the books database for something like the book given.
-  identifier = Database_Books::getIdLikeText (book);
-  if (identifier) return identifier;
+  {
+    int identifier = Database_Books::getIdLikeText (book);
+    if (identifier) return identifier;
+  }
   
   // Sorry, no book found.
   return 0;
@@ -291,18 +302,18 @@ Passage filter_passage_explode_passage (string text)
   // Take the bits.
   if (!bits.empty ()) {
     string verse = bits.back ();
-    if (!verse.empty ()) passage.verse = verse;
+    if (!verse.empty ()) passage.m_verse = verse;
     bits.pop_back ();
   }
   if (!bits.empty ()) {
     string chapter = bits.back ();    
-    if (!chapter.empty()) passage.chapter = convert_to_int (chapter);
+    if (!chapter.empty()) passage.m_chapter = convert_to_int (chapter);
     bits.pop_back ();
   }
   string book = filter_string_implode (bits, " ");
   if (!book.empty()) {
     int bk = filter_passage_interpret_book (book);
-    passage.book = bk;
+    passage.m_book = bk;
   }
   // Return the result.
   return passage;
@@ -349,21 +360,21 @@ Passage filter_passage_interpret_passage (Passage currentPassage, string rawPass
 
   // Deal with: One number given, e.g. "10".
   else if ((book == "") && (numerals.size () == 1)) {
-    int bk = currentPassage.book;
-    int chapter = currentPassage.chapter;
+    int bk = currentPassage.m_book;
+    int chapter = currentPassage.m_chapter;
     string verse = convert_to_string (numerals [0]);
     Passage passage = filter_passage_explode_passage ("Unknown " + convert_to_string (chapter) + " " + verse);
-    passage.book = bk;
+    passage.m_book = bk;
     return passage;
   }
 
   // Deal with: Two numbers given, e.g. "1 2".
   else if ((book == "") && (numerals.size () == 2)) {
-    int bk = currentPassage.book;
+    int bk = currentPassage.m_book;
     int chapter = numerals [1];
     string verse = convert_to_string (numerals [0]);
     Passage passage = filter_passage_explode_passage ("Unknown " + convert_to_string (chapter) + " " + verse);
-    passage.book = bk;
+    passage.m_book = bk;
     return passage;
   }
 
@@ -417,8 +428,8 @@ vector <string> filter_passage_handle_sequences_ranges (const string& passage)
         start = convert_to_string (convert_to_int (start));
         start = string (start.rbegin(), start.rend());
       }
-      unsigned int end = convert_to_int (filter_string_trim (range [1]));
-      for (size_t i = convert_to_int (start) + 1; i <= end; i++) {
+      unsigned int end = static_cast <unsigned> (convert_to_int (filter_string_trim (range [1])));
+      for (size_t i = static_cast<size_t> (convert_to_int (start) + 1); i <= end; i++) {
         output.push_back (convert_to_string (i));
       }
     }

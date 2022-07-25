@@ -31,7 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/state.h>
 #include <trash/handler.h>
 #include <webserver/request.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
 #include <jsonxx/jsonxx.h>
+#pragma GCC diagnostic pop
 #include <database/logic.h>
 #include <time.h>
 
@@ -193,19 +196,19 @@ void Database_Notes::trim ()
   vector <string> bits1 = filter_url_scandir (main_folder);
   for (auto bit1 : bits1) {
     if (bit1.length () == 3) {
-      string folder = filter_url_create_path ({main_folder, bit1});
-      vector <string> bits2 = filter_url_scandir (folder);
+      string folder1 = filter_url_create_path ({main_folder, bit1});
+      vector <string> bits2 = filter_url_scandir (folder1);
       if (bits2.empty ()) {
-        Database_Logs::log (message + folder);
-        remove (folder.c_str ());
+        Database_Logs::log (message + folder1);
+        remove (folder1.c_str ());
       }
       for (auto bit2 : bits2) {
         if (bit2.length () == 3) {
-          string folder = filter_url_create_path ({main_folder, bit1, bit2});
-          vector <string> bits3 = filter_url_scandir (folder);
+          string folder2 = filter_url_create_path ({main_folder, bit1, bit2});
+          vector <string> bits3 = filter_url_scandir (folder2);
           if (bits3.empty ()) {
-            Database_Logs::log (message + folder);
-            remove (folder.c_str());
+            Database_Logs::log (message + folder2);
+            remove (folder2.c_str());
           }
         }
       }
@@ -1200,9 +1203,9 @@ Passage Database_Notes::decode_passage (string passage)
   passage = filter_string_trim (passage);
   Passage decodedpassage = Passage ();
   vector <string> lines = filter_string_explode (passage, '.');
-  if (lines.size() > 0) decodedpassage.book = convert_to_int (lines[0]);
-  if (lines.size() > 1) decodedpassage.chapter = convert_to_int (lines[1]);
-  if (lines.size() > 2) decodedpassage.verse = lines[2];
+  if (lines.size() > 0) decodedpassage.m_book = convert_to_int (lines[0]);
+  if (lines.size() > 1) decodedpassage.m_chapter = convert_to_int (lines[1]);
+  if (lines.size() > 2) decodedpassage.m_verse = lines[2];
   return decodedpassage;
 }
 
@@ -1247,7 +1250,7 @@ void Database_Notes::set_passages (int identifier, const vector <Passage>& passa
   string line;
   for (auto & passage : passages) {
     if (!line.empty ()) line.append ("\n");
-    line.append (encode_passage (passage.book, passage.chapter, convert_to_int (passage.verse)));
+    line.append (encode_passage (passage.m_book, passage.m_chapter, convert_to_int (passage.m_verse)));
   }
   // Store it.
   set_raw_passage (identifier, line);
@@ -1385,7 +1388,7 @@ string Database_Notes::get_severity (int identifier)
   int severity = get_raw_severity (identifier);
   vector <string> standard = standard_severities ();
   string severitystring;
-  if ((severity >= 0) && (severity < (int)standard.size())) severitystring = standard [severity];
+  if ((severity >= 0) && (severity < (int)standard.size())) severitystring = standard [static_cast<size_t> (severity)];
   if (severitystring.empty()) severitystring = "Normal";
   severitystring = translate (severitystring.c_str());
   return severitystring;
@@ -1878,17 +1881,17 @@ vector <string> Database_Notes::set_bulk (string json)
   for (size_t i = 0; i < bulk.size (); i++) {
     
     // Get all the different fields for this note.
-    Object note = bulk.get<Object>((int)i);
+    Object note = bulk.get<Object>(static_cast<unsigned>(i));
     string assigned = note.get<String> ("a");
     string bible = note.get<String> ("b");
     string contents = note.get<String> ("c");
-    int identifier = note.get<Number> ("i");
-    int modified = note.get<Number> ("m");
+    int identifier = static_cast<int>(note.get<Number> ("i"));
+    int modified = static_cast<int>(note.get<Number> ("m"));
     string passage = note.get<String> ("p");
     string subscriptions = note.get<String> ("sb");
     string summary = note.get<String> ("sm");
     string status = note.get<String> ("st");
-    int severity = note.get<Number> ("sv");
+    int severity = static_cast<int>(note.get<Number> ("sv"));
     
     // Feedback about which note it received in bulk.
     summaries.push_back (summary);
@@ -1907,8 +1910,8 @@ vector <string> Database_Notes::set_bulk (string json)
     note2 << summary_key () << summary;
     note2 << status_key () << status;
     note2 << severity_key () << convert_to_string (severity);
-    string json = note2.json ();
-    filter_url_file_put_contents (path, json);
+    string json2 = note2.json ();
+    filter_url_file_put_contents (path, json2);
     
     // Update the indexes.
     update_database (identifier);

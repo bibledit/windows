@@ -741,6 +741,7 @@
 		CA77114927524BFF003ADD67 /* libicudata.67.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicudata.67.1.dylib; path = ../../../../opt/local/lib/libicudata.67.1.dylib; sourceTree = "<group>"; };
 		CA772E29262F58580097D5C7 /* studylight.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = studylight.cpp; sourceTree = "<group>"; };
 		CA772E2A262F58580097D5C7 /* studylight.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = studylight.h; sourceTree = "<group>"; };
+		CA889AB3288310600071B46D /* warnings.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = warnings.sh; sourceTree = "<group>"; };
 		CAA001932569986E00BCA329 /* id.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = id.cpp; sourceTree = "<group>"; };
 		CAA001942569986E00BCA329 /* id.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = id.h; sourceTree = "<group>"; };
 		CAA0019525699DC300BCA329 /* style.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = style.h; sourceTree = "<group>"; };
@@ -1178,7 +1179,7 @@
 		CADE39F624F17423003165BB /* listing.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = listing.html; sourceTree = "<group>"; };
 		CADE39F724F17423003165BB /* listing.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = listing.cpp; sourceTree = "<group>"; };
 		CADE39F824F17423003165BB /* listing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = listing.h; sourceTree = "<group>"; };
-		CADE39FF24F17423003165BB /* index.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = index.cpp; sourceTree = "<group>"; };
+		CADE39FF24F17423003165BB /* index.cpp */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = index.cpp; sourceTree = "<group>"; tabWidth = 4; };
 		CADE3A0124F17423003165BB /* gitflag */ = {isa = PBXFileReference; lastKnownFileType = text; path = gitflag; sourceTree = "<group>"; };
 		CADE3A0324F17423003165BB /* select.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = select.html; sourceTree = "<group>"; };
 		CADE3A0424F17423003165BB /* select.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = select.cpp; sourceTree = "<group>"; };
@@ -1713,7 +1714,7 @@
 		CADE3EFA24F17472003165BB /* select.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = select.h; sourceTree = "<group>"; };
 		CADE3EFB24F17472003165BB /* Makefile.am */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		CADE3EFD24F17473003165BB /* index.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = index.h; sourceTree = "<group>"; };
-		CADE3EFE24F17473003165BB /* write.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = write.cpp; sourceTree = "<group>"; };
+		CADE3EFE24F17473003165BB /* write.cpp */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = write.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		CADE3F0124F17473003165BB /* hyphenate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hyphenate.h; sourceTree = "<group>"; };
 		CADE3F0224F17473003165BB /* privileges.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = privileges.h; sourceTree = "<group>"; };
 		CADE3F0424F17473003165BB /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
@@ -2789,7 +2790,9 @@
 				CADE451B24F174C0003165BB /* webserver */,
 				CADE452F24F174C1003165BB /* workspace */,
 			);
+			indentWidth = 2;
 			sourceTree = "<group>";
+			tabWidth = 2;
 		};
 		CA18ADC024F169DA00FF603C /* Products */ = {
 			isa = PBXGroup;
@@ -3645,6 +3648,7 @@
 				CADE3A4324F17423003165BB /* index.js */,
 				CADE3A4224F17423003165BB /* logic.cpp */,
 				CADE3A4424F17423003165BB /* logic.h */,
+				CA889AB3288310600071B46D /* warnings.sh */,
 			);
 			path = developer;
 			sourceTree = "<group>";
@@ -6561,7 +6565,10 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = macosx;
+				WARNING_CFLAGS = "";
 			};
 			name = Debug;
 		};
@@ -6613,18 +6620,50 @@
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = macosx;
+				WARNING_CFLAGS = "";
 			};
 			name = Release;
 		};
 		CA18ADC724F169DA00FF603C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ADDRESS_SANITIZER_CONTAINER_OVERFLOW = YES;
+				CLANG_STATIC_ANALYZER_MODE = shallow;
+				CLANG_STATIC_ANALYZER_MODE_ON_ANALYZE_ACTION = deep;
+				CLANG_WARN_ASSIGN_ENUM = YES;
+				CLANG_WARN_ATOMIC_IMPLICIT_SEQ_CST = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMPLETION_HANDLER_MISUSE = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_CXX0X_EXTENSIONS = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_FLOAT_CONVERSION = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
+				CLANG_WARN__EXIT_TIME_DESTRUCTORS = NO;
 				CODE_SIGN_ENTITLEMENTS = "cloud-macos.entitlements";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = L37WFUB5MH;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_PEDANTIC = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
 				"HEADER_SEARCH_PATHS[arch=*]" = (
 					.,
 					/opt/local/include,
@@ -6635,24 +6674,56 @@
 					/opt/local/lib,
 					/usr/local/lib,
 				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				"SYSTEM_HEADER_SEARCH_PATHS[arch=*]" = "";
+				WARNING_CFLAGS = "";
 			};
 			name = Debug;
 		};
 		CA18ADC824F169DA00FF603C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ADDRESS_SANITIZER_CONTAINER_OVERFLOW = YES;
+				CLANG_STATIC_ANALYZER_MODE = shallow;
+				CLANG_STATIC_ANALYZER_MODE_ON_ANALYZE_ACTION = deep;
+				CLANG_WARN_ASSIGN_ENUM = YES;
+				CLANG_WARN_ATOMIC_IMPLICIT_SEQ_CST = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMPLETION_HANDLER_MISUSE = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_CXX0X_EXTENSIONS = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_FLOAT_CONVERSION = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
+				CLANG_WARN__EXIT_TIME_DESTRUCTORS = NO;
 				CODE_SIGN_ENTITLEMENTS = "cloud-macos.entitlements";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = L37WFUB5MH;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_PEDANTIC = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/opt/local/lib,
 					/usr/local/lib,
 				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				"SYSTEM_HEADER_SEARCH_PATHS[arch=*]" = "";
 			};

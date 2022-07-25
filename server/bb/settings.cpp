@@ -45,7 +45,10 @@
 #include <tasks/logic.h>
 #include <system/index.h>
 #include <rss/logic.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
 #include <pugixml/pugixml.hpp>
+#pragma GCC diagnostic pop
 
 
 using namespace pugi;
@@ -253,8 +256,8 @@ string bible_settings (void * webserver_request)
   
   // Stylesheet for export.
   if (request->query.count ("stylesheetexport")) {
-    string stylesheet = request->query["stylesheetexport"];
-    if (stylesheet.empty()) {
+    string export_stylesheet = request->query["stylesheetexport"];
+    if (export_stylesheet.empty()) {
       Dialog_List dialog_list = Dialog_List ("settings", translate("Would you like to change the stylesheet for export?"), translate ("The stylesheet affects how the Bible text looks when exported.") + " " + translate ("Please make your choice below."), "");
       dialog_list.add_query ("bible", bible);
       Database_Styles database_styles = Database_Styles();
@@ -265,7 +268,7 @@ string bible_settings (void * webserver_request)
       page += dialog_list.run ();
       return page;
     } else {
-      if (write_access) Database_Config_Bible::setExportStylesheet (bible, stylesheet);
+      if (write_access) Database_Config_Bible::setExportStylesheet (bible, export_stylesheet);
     }
   }
   stylesheet = Database_Config_Bible::getExportStylesheet (bible);

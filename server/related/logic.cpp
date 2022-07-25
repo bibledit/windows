@@ -19,7 +19,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <related/logic.h>
 #include <database/books.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
 #include <pugixml/pugixml.hpp>
+#pragma GCC diagnostic pop
 #include <filter/url.h>
 #include <filter/string.h>
 #include <filter/usfm.h>
@@ -53,7 +56,7 @@ void related_logic_search_related (const string & bookname, int input_chapter, c
       if (match) {
         string verse = reference.attribute ("verse").value ();
         vector <int> verses;
-        if (usfm_handle_verse_range (verse, verses)) {
+        if (filter::usfm::handle_verse_range (verse, verses)) {
           match = in_array (convert_to_int (input_verse), verses);
         } else {
           match = (verse == input_verse);
@@ -62,17 +65,17 @@ void related_logic_search_related (const string & bookname, int input_chapter, c
       
       // Store all related passages.
       if (match) {
-        for (xml_node reference : set.children ()) {
-          string bookname = reference.attribute ("book").value ();
-          int book = Database_Books::getIdFromEnglish (bookname);
-          int chapter = convert_to_int (reference.attribute ("chapter").value ());
-          string verse = reference.attribute ("verse").value ();
+        for (xml_node passage_node : set.children ()) {
+          string related_bookname = passage_node.attribute ("book").value ();
+          int related_book = Database_Books::getIdFromEnglish (related_bookname);
+          int related_chapter = convert_to_int (passage_node.attribute ("chapter").value ());
+          string verse = passage_node.attribute ("verse").value ();
           vector <int> verses;
-          if (usfm_handle_verse_range (verse, verses));
+          if (filter::usfm::handle_verse_range (verse, verses));
           else verses.push_back (convert_to_int (verse));
-          for (auto verse : verses) {
-            if (book && chapter) {
-              Passage passage ("", book, chapter, convert_to_string (verse));
+          for (auto related_verse : verses) {
+            if (related_book && related_chapter) {
+              Passage passage ("", related_book, related_chapter, convert_to_string (related_verse));
               int i = filter_passage_to_integer (passage);
               // No duplicate passages to be included.
               if (!in_array (i, passages)) {
@@ -99,8 +102,8 @@ vector <Passage> related_logic_get_verses (const vector <Passage> & input)
 
     // Get details about the book in the passage.
     // It assumes all input passages refer to the same book.
-    string bookname = Database_Books::getEnglishFromId (input[0].book);
-    string booktype = Database_Books::getType (input[0].book);
+    string bookname = Database_Books::getEnglishFromId (input[0].m_book);
+    string booktype = Database_Books::getType (input[0].m_book);
     bool is_ot = (booktype == "ot");
     bool is_nt = (booktype == "nt");
     
@@ -121,12 +124,12 @@ vector <Passage> related_logic_get_verses (const vector <Passage> & input)
       // Search for parallel passages.
       for (xml_node passages : parallel_document.children ()) {
         for (xml_node section : passages.children ()) {
-          related_logic_search_related (bookname, input_passage.chapter, input_passage.verse, section, related_passages);
+          related_logic_search_related (bookname, input_passage.m_chapter, input_passage.m_verse, section, related_passages);
         }
       }
       // Search for quotes.
       for (xml_node passages : quotation_document.children ()) {
-        related_logic_search_related (bookname, input_passage.chapter, input_passage.verse, passages, related_passages);
+        related_logic_search_related (bookname, input_passage.m_chapter, input_passage.m_verse, passages, related_passages);
       }
     }
   }

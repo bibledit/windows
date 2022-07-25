@@ -38,6 +38,9 @@
 #ifndef DTL_DIFF_H
 #define DTL_DIFF_H
 
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Weffc++"
+
 namespace dtl {
     
     /**

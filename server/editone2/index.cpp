@@ -86,12 +86,12 @@ string editone2_index (void * webserver_request)
       vector <string> bibles = AccessBible::Bibles (request);
       string selected_bible;
       for (auto bible : bibles) {
-        if (bible != filter_indonesian_alkitabkita_ourtranslation_name ()) selected_bible = bible;
+        if (bible != filter::indonesian::ourtranslation ()) selected_bible = bible;
       }
       if (selected_bible.empty ()) {
         // No Bible selected yet: Create the Indonesian Sample Bible and take that.
         string user = request->session_logic ()->currentUser ();
-        selected_bible = filter_indonesian_terjemahanku_mytranslation_name (user);
+        selected_bible = filter::indonesian::mytranslation (user);
         bible_logic_create_empty_bible (selected_bible);
       }
       request->database_config_user()->setBible (selected_bible);
@@ -124,8 +124,8 @@ string editone2_index (void * webserver_request)
   if (request->query.count ("bible")) bible = AccessBible::Clamp (request, request->query ["bible"]);
   string bible_html;
   vector <string> bibles = AccessBible::Bibles (request);
-  for (auto bible : bibles) {
-    bible_html = Options_To_Select::add_selection (bible, bible, bible_html);
+  for (auto selectable_bible : bibles) {
+    bible_html = Options_To_Select::add_selection (selectable_bible, selectable_bible, bible_html);
   }
   view.set_variable ("bibleoptags", Options_To_Select::mark_selected (bible, bible_html));
   view.set_variable ("bible", bible);
@@ -150,7 +150,7 @@ string editone2_index (void * webserver_request)
 
   string cls = Filter_Css::getClass (bible);
   string font = Fonts_Logic::getTextFont (bible);
-  int current_theme_index = convert_to_int(request->database_config_user ()->getCurrentTheme ());
+  int current_theme_index = request->database_config_user ()->getCurrentTheme ();
   int direction = Database_Config_Bible::getTextDirection (bible);
   int lineheight = Database_Config_Bible::getLineHeight (bible);
   int letterspacing = Database_Config_Bible::getLetterSpacing (bible);

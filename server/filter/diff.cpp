@@ -22,7 +22,12 @@
 #include <filter/text.h>
 #include <filter/usfm.h>
 #include <filter/url.h>
+#pragma GCC diagnostic push
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Weffc++"
 #include <dtl/dtl.hpp>
+#pragma GCC diagnostic pop
 #include <webserver/request.h>
 #include <database/modifications.h>
 #include <database/books.h>
@@ -189,7 +194,7 @@ void filter_diff_diff_utf16 (const vector<string> & oldinput, const vector<strin
       content.push_back(line);
       // Something was inserted.
       // So increase the position to point to the next offset in the sequence from where to proceed.
-      position += size;
+      position += static_cast<int>(size);
       // Check on number of changes in paragraphs.
       if (line.substr(0, 1) == "\n") new_line_diff_count++;
     }
@@ -208,7 +213,7 @@ void filter_diff_diff_utf16 (const vector<string> & oldinput, const vector<strin
       // No difference.
       // Increase the position of the subsequent edit
       // with the amount of 16-bits code points of the current text bit in UTF-16.
-      position += size;
+      position += static_cast<int>(size);
     }
   }
 }
@@ -264,7 +269,7 @@ int filter_diff_character_similarity (string oldstring, string newstring)
     }
     
     // Calculate the percentage similarity.
-    int percentage = round (100 * ((float) similar_count / (float) element_count));
+    int percentage = static_cast<int> (round (100 * (static_cast<float>(similar_count) / static_cast<float>(element_count))));
     return percentage;
     
   } catch (...) {
@@ -320,7 +325,7 @@ int filter_diff_word_similarity (string oldstring, string newstring)
   }
   
   // Calculate the percentage similarity.
-  int percentage = round (100 * ((float) similar_count / (float) element_count));
+  int percentage = static_cast<int> (round (100 * ((float) similar_count / (float) element_count)));
   return percentage;
 }
 
@@ -356,15 +361,15 @@ void filter_diff_produce_verse_level (string bible, string directory)
       // Go through the combined verse numbers in the old and new chapter.
       string old_chapter_usfm = database_modifications.getTeamDiff (bible, book, chapter);
       string new_chapter_usfm = request.database_bibles()->getChapter (bible, book, chapter);
-      vector <int> old_verse_numbers = usfm_get_verse_numbers (old_chapter_usfm);
-      vector <int> new_verse_numbers = usfm_get_verse_numbers (new_chapter_usfm);
+      vector <int> old_verse_numbers = filter::usfm::get_verse_numbers (old_chapter_usfm);
+      vector <int> new_verse_numbers = filter::usfm::get_verse_numbers (new_chapter_usfm);
       vector <int> verses = old_verse_numbers;
       verses.insert (verses.end (), new_verse_numbers.begin (), new_verse_numbers.end ());
       verses = array_unique (verses);
       sort (verses.begin(), verses.end());
       for (auto verse : verses) {
-        string old_verse_text = usfm_get_verse_text (old_chapter_usfm, verse);
-        string new_verse_text = usfm_get_verse_text (new_chapter_usfm, verse);
+        string old_verse_text = filter::usfm::get_verse_text (old_chapter_usfm, verse);
+        string new_verse_text = filter::usfm::get_verse_text (new_chapter_usfm, verse);
         if (old_verse_text != new_verse_text) {
           string usfmCode = "\\p " + bookname + " " + convert_to_string (chapter) + "." + convert_to_string (verse) + ": " + old_verse_text;
           old_vs_usfm.push_back (usfmCode);

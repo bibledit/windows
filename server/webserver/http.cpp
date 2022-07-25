@@ -23,7 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <config/globals.h>
 #include <filter/string.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
 #include <parsewebdata/ParseWebData.h>
+#pragma GCC diagnostic pop
 #include <webserver/request.h>
 
 
@@ -49,13 +52,13 @@ bool http_parse_header (string header, void * webserver_request)
 
   // Deal with a header like this: GET /css/stylesheet.css?1.0.1 HTTP/1.1
   // Or like this: POST /session/login?request= HTTP/1.1
-  bool get = false;
-  if (header.substr (0, 3) == "GET") get = true;
+  bool is_get_request { false };
+  if (header.substr (0, 3) == "GET") is_get_request = true;
   if (header.substr (0, 4) == "POST") {
-    get = true;
+    is_get_request = true;
     request->is_post = true;
   }
-  if (get) {
+  if (is_get_request) {
     string query_data;
     vector <string> get = filter_string_explode (header, ' ');
     if (get.size () >= 2) {

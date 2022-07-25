@@ -193,14 +193,14 @@ string edit_update (void * webserver_request)
   // Check that the edited USFM contains no more than, and exactly the same as,
   // the book and chapter that was loaded in the editor.
   if (good2go && bible_write_access) {
-    vector <BookChapterData> book_chapter_text = usfm_import (edited_chapter_usfm, stylesheet);
+    vector <filter::usfm::BookChapterData> book_chapter_text = filter::usfm::usfm_import (edited_chapter_usfm, stylesheet);
     if (book_chapter_text.size () != 1) {
       Database_Logs::log (translate ("A user tried to save something different from exactly one chapter"));
       messages.push_back (translate("Incorrect chapter"));
     }
-    int book_number = book_chapter_text[0].book;
-    int chapter_number = book_chapter_text[0].chapter;
-    edited_chapter_usfm = book_chapter_text[0].data;
+    int book_number = book_chapter_text[0].m_book;
+    int chapter_number = book_chapter_text[0].m_chapter;
+    edited_chapter_usfm = book_chapter_text[0].m_data;
     bool chapter_ok = (((book_number == book) || (book_number == 0)) && (chapter_number == chapter));
     if (!chapter_ok) {
       messages.push_back (translate("Incorrect chapter") + " " + convert_to_string (chapter_number));
@@ -249,7 +249,7 @@ string edit_update (void * webserver_request)
   // It might cause confusion more than it clarifies.
   //if (good2go && bible_write_access && text_was_edited) {
     //if (loaded_chapter_usfm != existing_chapter_usfm) {
-      //bible_logic_recent_save_email (bible, book, chapter, 0, username, loaded_chapter_usfm, existing_chapter_usfm);
+      //bible_logic_recent_save_email (bible, book, chapter, username, loaded_chapter_usfm, existing_chapter_usfm);
     //}
   //}
 
@@ -266,7 +266,7 @@ string edit_update (void * webserver_request)
   string explanation;
   string message;
   if (good2go && bible_write_access && text_was_edited) {
-    message = usfm_safely_store_chapter (request, bible, book, chapter, edited_chapter_usfm, explanation);
+    message = filter::usfm::safely_store_chapter (request, bible, book, chapter, edited_chapter_usfm, explanation);
     bible_logic_unsafe_save_mail (message, explanation, username, edited_chapter_usfm, book, chapter);
     if (!message.empty ()) messages.push_back (message);
   }

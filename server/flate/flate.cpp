@@ -131,13 +131,13 @@ void Flate::process_iterations (string & rendering)
 void Flate::process_zones (string& rendering)
 {
   // Limit zone iterations.
-  int iterations = 0;
+  int zone_iteration_count = 0;
   // Start processing zones by locating the first one.
   string beginzone ("<!-- #BEGINZONE");
   size_t position = rendering.find (beginzone);
   // Iterate through the file contents till all zones have been dealt with.
-  while ((position != string::npos) && (iterations < 1000)) {
-    iterations++;
+  while ((position != string::npos) && (zone_iteration_count < 1000)) {
+    zone_iteration_count++;
     // Position where the starting zone ends.
     size_t pos = rendering.find ("-->", position);
     string zonestartline = rendering.substr (position, pos - position + 3);
@@ -167,12 +167,12 @@ void Flate::process_zones (string& rendering)
 void Flate::process_variables (string& rendering)
 {
   // Limit variable iterations.
-  int iterations = 0;
+  int variable_iteration_count = 0;
   // Start processing variables by locating the first one.
   size_t position = rendering.find ("##");
   // Iterate through the contents till all variables have been dealt with.
-  while ((position != string::npos) && (iterations < 1000)) {
-    iterations++;
+  while ((position != string::npos) && (variable_iteration_count < 1000)) {
+    variable_iteration_count++;
     bool correct = true;
     // Check that this is a correct position: It should not have hashes nearby.
     if (correct) if (position > 0) if (rendering.substr (position - 1, 1) == "#") {
@@ -208,12 +208,12 @@ void Flate::process_translate (string& rendering)
   string gettextopen = R"(translate(")";
   string gettextclose = R"("))";
   // Limit gettext iterations.
-  int iterations = 0;
+  int iteration_counter { 0 };
   // Start processing variables by locating the first one.
   size_t position = rendering.find (gettextopen);
   // Iterate through the contents till all gettext calls have been dealt with.
-  while ((position != string::npos) && (iterations < 1000)) {
-    iterations++;
+  while ((position != string::npos) && (iteration_counter < 1000)) {
+    iteration_counter++;
     // Remove the gettext opener.
     rendering.erase (position, gettextopen.length());
     // Position where the gettext call ends.

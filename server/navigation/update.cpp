@@ -82,8 +82,8 @@ string navigation_update (void * webserver_request)
   else if (request->query.count ("applybook")) {
     string msg = request->query ["applybook"];
     if (msg.find ("cancel") == string::npos) {
-      int book = convert_to_int (msg);
-      if (book) Navigation_Passage::set_book (request, book);
+      int apply_book = convert_to_int (msg);
+      if (apply_book) Navigation_Passage::set_book (request, apply_book);
     }
   }
   
@@ -104,15 +104,15 @@ string navigation_update (void * webserver_request)
     }
     else if (msg.find ("cancel") != string::npos) {
     } else {
-      int chapter = convert_to_int (msg);
-      Navigation_Passage::set_chapter (request, chapter);
+      int apply_chapter = convert_to_int (msg);
+      Navigation_Passage::set_chapter (request, apply_chapter);
     }
   }
   
   
   // Get the list of available verses in the current chapter.
   else if (request->query.count ("getverses")) {
-    return Navigation_Passage::get_verses_fragment (request, bible, convert_to_int (book), chapter, verse);
+    return Navigation_Passage::get_verses_fragment (request, bible, book, chapter, verse);
   }
 
   
@@ -126,8 +126,8 @@ string navigation_update (void * webserver_request)
     }
     else if (msg.find ("cancel") != string::npos) {
     } else {
-      int verse = convert_to_int (msg);
-      Navigation_Passage::set_verse (request, verse);
+      int apply_verse = convert_to_int (msg);
+      Navigation_Passage::set_verse (request, apply_verse);
     }
   }
   

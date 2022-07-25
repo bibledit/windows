@@ -48,31 +48,31 @@
 // $user: The user whose changes are being processed.
 // $recipients: The users who opted for receiving online notifications of any contributor.
 void changes_process_identifiers (Webserver_Request * request,
-                                  string user,
-                                  vector <string> recipients,
-                                  string bible,
+                                  const string & user,
+                                  const vector <string> & recipients,
+                                  const string & bible,
                                   int book, int chapter,
+                                  const map <string, vector<string>> & bibles_per_user,
                                   int oldId, int newId,
                                   string & email,
                                   int & change_count, float & time_total, int & time_count)
 {
   if (oldId != 0) {
-    recipients = filter_string_array_diff (recipients, {user});
     Database_Modifications database_modifications;
     string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
     Database_Modifications_Text old_chapter_text = database_modifications.getUserChapter (user, bible, book, chapter, oldId);
     string old_chapter_usfm = old_chapter_text.oldtext;
     Database_Modifications_Text new_chapter_text = database_modifications.getUserChapter (user, bible, book, chapter, newId);
     string new_chapter_usfm = new_chapter_text.newtext;
-    vector <int> old_verse_numbers = usfm_get_verse_numbers (old_chapter_usfm);
-    vector <int> new_verse_numbers = usfm_get_verse_numbers (new_chapter_usfm);
+    vector <int> old_verse_numbers = filter::usfm::get_verse_numbers (old_chapter_usfm);
+    vector <int> new_verse_numbers = filter::usfm::get_verse_numbers (new_chapter_usfm);
     vector <int> verses = old_verse_numbers;
     verses.insert (verses.end (), new_verse_numbers.begin (), new_verse_numbers.end ());
     verses = array_unique (verses);
     sort (verses.begin(), verses.end());
     for (auto verse : verses) {
-      string old_verse_usfm = usfm_get_verse_text (old_chapter_usfm, verse);
-      string new_verse_usfm = usfm_get_verse_text (new_chapter_usfm, verse);
+      string old_verse_usfm = filter::usfm::get_verse_text (old_chapter_usfm, verse);
+      string new_verse_usfm = filter::usfm::get_verse_text (new_chapter_usfm, verse);
       if (old_verse_usfm != new_verse_usfm) {
         Filter_Text filter_text_old = Filter_Text (bible);
         Filter_Text filter_text_new = Filter_Text (bible);
@@ -98,8 +98,20 @@ void changes_process_identifiers (Webserver_Request * request,
           if (request->database_config_user()->getUserUserChangesNotificationsOnline (user)) {
             database_modifications.recordNotification ({user}, changes_personal_category (), bible, book, chapter, verse, old_html, modification, new_html);
           }
+          // Go over all the receipients to record the change for them.
           for (auto recipient : recipients) {
+            // The author of this change does not get a notification for it.
             if (recipient == user) continue;
+            // The recipient may have set which Bibles to get the change notifications for.
+            // This is stored like this:
+            // container [user] = list of bibles.
+            bool receive {true};
+            try {
+              const vector <string> & bibles = bibles_per_user.at(recipient);
+              receive = in_array(bible, bibles);
+            } catch (...) {}
+            if (!receive) continue;
+            // Store the notification.
             database_modifications.recordNotification ({recipient}, user, bible, book, chapter, verse, old_html, modification, new_html);
           }
         }
@@ -119,7 +131,7 @@ void changes_modifications ()
   Database_Logs::log ("Change notifications: Generating", Filter_Roles::translator ());
 
   
-  // Notifications are not available to clients for the duration of processing them.
+  // Notifications are not available to clients to download while processing them.
   config_globals_change_notifications_available = false;
   
   
@@ -133,19 +145,13 @@ void changes_modifications ()
   database_modifications.create ();
   
   
-  // Create online change notifications for users who made changes in Bibles
-  // through the web editor or through a client.
-  // It runs before the team changes.
-  // This produces the desired order of the notifications in the GUI.
-  // At the same time, produce change statistics per user.
-  
-  // Get the users who will receive the changes entered by the contributors.
-  vector <string> recipients;
+  // Get the users who will receive the changes entered by the named contributors.
+  vector <string> recipients_named_contributors;
   {
     vector <string> users = request.database_users ()->get_users ();
-    for (auto & user : users) {
+    for (const auto & user : users) {
       if (request.database_config_user ()->getContributorChangesNotificationsOnline (user)) {
-        recipients.push_back (user);
+        recipients_named_contributors.push_back (user);
       }
     }
   }
@@ -154,7 +160,27 @@ void changes_modifications ()
   map <string, int> user_change_statistics;
   float modification_time_total = 0;
   int modification_time_count = 0;
+
+  // There is a setting per user indicating which Bible(s) a user
+  // will get the change notifications from.
+  // This setting affects the changes made by all users.
+  // Note: A user will always receive notificatons of changes made by that same user.
+  map <string, vector<string> > notification_bibles_per_user;
+  {
+    vector <string> users = request.database_users ()->get_users ();
+    for (const auto & user : users) {
+      vector <string> bibles = request.database_config_user ()->getChangeNotificationsBiblesForUser (user);
+      notification_bibles_per_user [user] = bibles;
+    }
+  }
   
+  
+  // Create online change notifications for users who made changes in Bibles.
+  // (The changes were made through the web editor or through a client).
+  // It runs before the team changes.
+  // This produces the desired order of the notifications in the GUI.
+  // At the same time, produce change statistics per user.
+
   vector <string> users = database_modifications.getUserUsernames ();
   if (!users.empty ()) Database_Logs::log ("Change notifications: Per user", Filter_Roles::translator ());
   for (auto user : users) {
@@ -180,34 +206,34 @@ void changes_modifications ()
           
           // Get the sets of identifiers for that chapter, and set some variables.
           vector <Database_Modifications_Id> IdSets = database_modifications.getUserIdentifiers (user, bible, book, chapter);
-          int referenceNewId = 0;
-          int newId = 0;
-          int lastNewId = 0;
+          int reference_new_id {0};
+          int new_id {0};
+          int last_new_id {0};
           bool restart = true;
           
           // Go through the sets of identifiers.
-          for (auto IdSet : IdSets) {
+          for (const auto & id_set : IdSets) {
             
-            int oldId = IdSet.oldid;
-            newId = IdSet.newid;
+            int oldId {id_set.oldid};
+            new_id = id_set.newid;
             
             if (restart) {
-              changes_process_identifiers (&request, user, recipients, bible, book, chapter, referenceNewId, newId, email, change_count, modification_time_total, modification_time_count);
-              referenceNewId = newId;
-              lastNewId = newId;
+              changes_process_identifiers (&request, user, recipients_named_contributors, bible, book, chapter, notification_bibles_per_user, reference_new_id, new_id, email, change_count, modification_time_total, modification_time_count);
+              reference_new_id = new_id;
+              last_new_id = new_id;
               restart = false;
               continue;
             }
             
-            if (oldId == lastNewId) {
-              lastNewId = newId;
+            if (oldId == last_new_id) {
+              last_new_id = new_id;
             } else {
               restart = true;
             }
           }
           
           // Process the last set of identifiers.
-          changes_process_identifiers (&request, user, recipients, bible, book, chapter, referenceNewId, newId, email, change_count, modification_time_total, modification_time_count);
+          changes_process_identifiers (&request, user, recipients_named_contributors, bible, book, chapter, notification_bibles_per_user, reference_new_id, new_id, email, change_count, modification_time_total, modification_time_count);
           
         }
       }
@@ -235,7 +261,8 @@ void changes_modifications ()
   
   
   // Generate the notifications, online and by email,
-  // for the changes in the Bibles entered by anyone since the previous notifications were generated.
+  // for the changes in the Bibles entered by anyone
+  // since the previous notifications were generated.
   vector <string> bibles = database_modifications.getTeamDiffBibles ();
   for (auto bible : bibles) {
     
@@ -244,15 +271,25 @@ void changes_modifications ()
     
     
     vector <string> changeNotificationUsers;
-    vector <string> users = request.database_users ()->get_users ();
-    for (auto user : users) {
+    vector <string> all_users = request.database_users ()->get_users ();
+    for (auto user : all_users) {
       if (AccessBible::Read (&request, bible, user)) {
         if (request.database_config_user()->getUserGenerateChangeNotifications (user)) {
-          changeNotificationUsers.push_back (user);
+          // The recipient may have set which Bibles to get the change notifications for.
+          // This is stored like this:
+          // container [user] = list of bibles.
+          bool receive {true};
+          try {
+            const vector <string> & user_bibles = notification_bibles_per_user.at(user);
+            receive = in_array(bible, user_bibles);
+          } catch (...) {}
+          if (receive) {
+            changeNotificationUsers.push_back (user);
+          }
         }
       }
     }
-    users.clear ();
+    all_users.clear ();
     
     
     // The number of changes processed so far for this Bible.
@@ -298,15 +335,15 @@ void changes_modifications ()
         Database_Logs::log ("Change notifications: " + bible + " " + filter_passage_display (book, chapter, ""), Filter_Roles::translator ());
         string old_chapter_usfm = database_modifications.getTeamDiff (bible, book, chapter);
         string new_chapter_usfm = request.database_bibles()->getChapter (bible, book, chapter);
-        vector <int> old_verse_numbers = usfm_get_verse_numbers (old_chapter_usfm);
-        vector <int> new_verse_numbers = usfm_get_verse_numbers (new_chapter_usfm);
+        vector <int> old_verse_numbers = filter::usfm::get_verse_numbers (old_chapter_usfm);
+        vector <int> new_verse_numbers = filter::usfm::get_verse_numbers (new_chapter_usfm);
         vector <int> verses = old_verse_numbers;
         verses.insert (verses.end (), new_verse_numbers.begin (), new_verse_numbers.end ());
         verses = array_unique (verses);
         sort (verses.begin (), verses.end());
         for (auto verse : verses) {
-          string old_verse_usfm = usfm_get_verse_text (old_chapter_usfm, verse);
-          string new_verse_usfm = usfm_get_verse_text (new_chapter_usfm, verse);
+          string old_verse_usfm = filter::usfm::get_verse_text (old_chapter_usfm, verse);
+          string new_verse_usfm = filter::usfm::get_verse_text (new_chapter_usfm, verse);
           if (old_verse_usfm != new_verse_usfm) {
             processedChangesCount++;
             // In case of too many change notifications, processing them would take too much time, so take a few shortcuts.
@@ -379,8 +416,8 @@ void changes_modifications ()
         if (bodies.size () > 1) {
           subject.append (" (" + convert_to_string (b + 1) + "/" + convert_to_string (bodies.size ()) + ")");
         }
-        vector <string> users = request.database_users ()->get_users ();
-        for (auto & user : users) {
+        vector <string> all_users_2 = request.database_users ()->get_users ();
+        for (auto & user : all_users_2) {
           if (request.database_config_user()->getUserBibleChangesNotification (user)) {
             if (AccessBible::Read (&request, bible, user)) {
               if (!client_logic_client_enabled ()) {
@@ -415,9 +452,9 @@ void changes_modifications ()
       vector <string> revisions = filter_url_scandir (folder);
       for (auto & revision : revisions) {
         string path = filter_url_create_path ({folder, revision});
-        int time = filter_url_file_modification_time (path);
-        int days = (now - time) / 86400;
-        if (days > 31) {
+        int time2 = filter_url_file_modification_time (path);
+        int days2 = (now - time2) / 86400;
+        if (days2 > 31) {
           filter_url_rmdir (path);
           Database_Logs::log ("Removing expired downloadable revision notification: " + bible + " " + revision, Filter_Roles::translator ());
         }
@@ -445,7 +482,7 @@ void changes_modifications ()
   // Store the statistics in the database.
   if (modification_time_count) {
     // Take average timestamp of all timestamps.
-    int timestamp = round (modification_time_total / modification_time_count);
+    int timestamp = static_cast <int> (round (modification_time_total / modification_time_count));
     for (auto & element : user_change_statistics) {
       // Store dated change statistics per user.
       string user = element.first;

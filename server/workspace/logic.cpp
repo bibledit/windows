@@ -185,7 +185,7 @@ void workspace_create_defaults (void * webserver_request)
   vector <string> names = workspace_get_default_names ();
   for (unsigned int i = 0; i < names.size (); i++) {
     request->database_config_user()->setActiveWorkspace (names [i]);
-    int bench = i + 1;
+    int bench = static_cast<int>(i + 1);
     workspace_set_urls (request, workspace_get_default_urls (bench));
     workspace_set_widths (request, workspace_get_default_widths (bench));
     workspace_set_heights (request, workspace_get_default_heights (bench));
@@ -215,10 +215,8 @@ string workspace_process_units (string length)
   // If a size factor is found, great, otherwise default to 1
   if (length == convert_to_string (convert_to_int (length))) {
     return length;
-  } else {
-    string length = "1";
-    return length;
   }
+  return "1";
 }
 
 
@@ -571,7 +569,7 @@ void workspace_send (void * webserver_request, string workspace, string user)
 
   // New webserver request object for the destination user.
   Webserver_Request destination_request;
-  destination_request.session_logic ()->setUsername (user);
+  destination_request.session_logic ()->set_username (user);
   
   // Save workspace for destination user.
   active_workspace = destination_request.database_config_user()->getActiveWorkspace ();

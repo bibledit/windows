@@ -30,12 +30,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // If no $user is given, it takes the currently logged-in user.
 bool AccessBible::Read (void * webserver_request, const string & bible, string user)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
   // Client: User has access to all Bibles.
 #ifdef HAVE_CLIENT
+  (void) webserver_request;
+  (void) bible;
+  (void) user;
   return true;
 #endif
+
+#ifdef HAVE_CLOUD
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
   // Get the level, that is the role, of the given user.
   int role_level { 0 };
@@ -54,9 +58,9 @@ bool AccessBible::Read (void * webserver_request, const string & bible, string u
     if (role_level == Filter_Roles::consultant()) {
       // This level/role has access to:
       // 1. AlkitabKita / Everyone's Translation.
-      if (bible == filter_indonesian_alkitabkita_ourtranslation_name ()) return true;
+      if (bible == filter::indonesian::ourtranslation ()) return true;
       // 2. Terjemahanku <user> (My Translation <user>).
-      else if (bible == filter_indonesian_terjemahanku_mytranslation_name (user)) return true;
+      else if (bible == filter::indonesian::mytranslation (user)) return true;
       // If the Bible is none of the above, the free guest account does not have access to it.
       else return false;
     }
@@ -79,7 +83,8 @@ bool AccessBible::Read (void * webserver_request, const string & bible, string u
       return true;
     }
   }
-
+#endif
+  
   // Default.
   return false;
 }
@@ -168,7 +173,7 @@ bool AccessBible::BookWrite (void * webserver_request, string user, const string
   // The consultant has read-access to the "AlkitabKita" Bible.
   if (config_logic_indonesian_cloud_free ()) {
     if (level == Filter_Roles::consultant()) {
-      if (bible == filter_indonesian_alkitabkita_ourtranslation_name()) {
+      if (bible == filter::indonesian::ourtranslation()) {
         return false;
       }
     }

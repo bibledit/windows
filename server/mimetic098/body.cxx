@@ -5,6 +5,10 @@
     $Id: body.cxx,v 1.3 2008-10-07 11:06:25 tat Exp $
  ***************************************************************************/
 
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+
 #include <mimetic098/mimeentity.h>
 #include <mimetic098/body.h>
 #include <mimetic098/os/file.h>

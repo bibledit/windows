@@ -132,13 +132,13 @@ string editone2_save (void * webserver_request)
   // https://github.com/bibledit/cloud/issues/340
   string loaded_usfm = getLoadedUsfm2 (webserver_request, bible, book, chapter, unique_id);
   if (loaded_usfm != old_chapter_usfm) {
-    bible_logic_recent_save_email (bible, book, chapter, verse, username, loaded_usfm, old_chapter_usfm);
+    bible_logic_recent_save_email (bible, book, chapter, username, loaded_usfm, old_chapter_usfm);
   }
 
   
   // Safely store the verse.
   string explanation;
-  string message = usfm_safely_store_verse (request, bible, book, chapter, verse, verse_usfm, explanation, true);
+  string message = filter::usfm::safely_store_verse (request, bible, book, chapter, verse, verse_usfm, explanation, true);
   bible_logic_unsafe_save_mail (message, explanation, username, verse_usfm, book, chapter);
   // If storing the verse worked out well, there's no message to display.
   if (message.empty ()) {

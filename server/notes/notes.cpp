@@ -94,12 +94,12 @@ string notes_notes (void * webserver_request)
         numeric_passages.push_back (filter_passage_to_integer (passage));
       }
       if (!numeric_passages.empty ()) {
-        double average = accumulate (numeric_passages.begin (), numeric_passages.end (), 0) / numeric_passages.size ();
-        passage_sort_key = round(average);
+        double average = static_cast<double>(accumulate (numeric_passages.begin (), numeric_passages.end (), 0)) / static_cast<double>(numeric_passages.size ());
+        passage_sort_key = static_cast<int> (round(average));
       }
       passage_sort_keys.push_back (passage_sort_key);
     }
-    quick_sort (passage_sort_keys, identifiers, 0, (int)identifiers.size ());
+    quick_sort (passage_sort_keys, identifiers, 0, static_cast <unsigned> (identifiers.size ()));
   }
 
 
@@ -134,8 +134,8 @@ string notes_notes (void * webserver_request)
       verses.insert (0, status_text + " ");
     }
     if (show_bible_in_notes_list) {
-      string bible = database_notes.get_bible (identifier);
-      verses.insert (0, bible + " ");
+      string note_bible = database_notes.get_bible (identifier);
+      verses.insert (0, note_bible + " ");
     }
     // A simple way to make it easier to see the individual notes in the list,
     // when the summaries of some notes are long, is to display the passage first.
@@ -143,10 +143,10 @@ string notes_notes (void * webserver_request)
 
     string verse_text;
     if (passage_inclusion_selector) {
-      vector <Passage> passages = database_notes.get_passages (identifier);
-      for (auto & passage : passages) {
-        string usfm = request->database_bibles()->getChapter (bible, passage.book, passage.chapter);
-        string text = usfm_get_verse_text (usfm, convert_to_int (passage.verse));
+      vector <Passage> include_passages = database_notes.get_passages (identifier);
+      for (auto & passage : include_passages) {
+        string usfm = request->database_bibles()->getChapter (bible, passage.m_book, passage.m_chapter);
+        string text = filter::usfm::get_verse_text (usfm, convert_to_int (passage.m_verse));
         if (!verse_text.empty ()) verse_text.append ("<br>");
         verse_text.append (text);
       }

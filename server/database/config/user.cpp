@@ -855,7 +855,7 @@ Passage Database_Config_User::getPrintPassageFromForUser (string user)
 }
 void Database_Config_User::setPrintPassageFrom (Passage value)
 {
-  string s = convert_to_string (value.book) + "." + convert_to_string (value.chapter) + "." + value.verse;
+  string s = convert_to_string (value.m_book) + "." + convert_to_string (value.m_chapter) + "." + value.m_verse;
   setValue ("print-passage-from", s);
 }
 
@@ -870,7 +870,7 @@ Passage Database_Config_User::getPrintPassageToForUser (string user)
 }
 void Database_Config_User::setPrintPassageTo (Passage value)
 {
-  string s = convert_to_string (value.book) + "." + convert_to_string (value.chapter) + "." + value.verse;
+  string s = convert_to_string (value.m_book) + "." + convert_to_string (value.m_chapter) + "." + value.m_verse;
   setValue ("print-passage-to", s);
 }
 
@@ -1478,4 +1478,22 @@ int Database_Config_User::getNotesDateFormat ()
 void Database_Config_User::setNotesDateFormat (int value)
 {
   setIValue (notes_date_format_key (), value);
+}
+
+
+const char * change_notifications_bibles_key ()
+{
+  return "change-notifications-bibles";
+}
+vector <string> Database_Config_User::getChangeNotificationsBibles ()
+{
+  return getList (change_notifications_bibles_key ());
+}
+vector <string> Database_Config_User::getChangeNotificationsBiblesForUser (const string & user)
+{
+  return getListForUser (user, change_notifications_bibles_key ());
+}
+void Database_Config_User::setChangeNotificationsBibles (const vector <string>& values)
+{
+  setList (change_notifications_bibles_key (), values);
 }

@@ -118,8 +118,8 @@ void email_send ()
       // rather than trying to send them all, and have them all cause a 'login denied' error.
       if (login_denied) {
         vector <int> ids = database_mail.getAllMails ();
-        for (auto id : ids) {
-          database_mail.postpone (id);
+        for (auto id2 : ids) {
+          database_mail.postpone (id2);
         }
         Database_Logs::log ("Postponing sending " + convert_to_string (ids.size()) + " emails", Filter_Roles::manager ());
         break;
@@ -137,7 +137,7 @@ static vector <string> payload_text;
 
 
 struct upload_status {
-  int lines_read;
+  size_t lines_read;
 };
 
 
@@ -152,7 +152,7 @@ static size_t payload_source (void *ptr, size_t size, size_t nmemb, void *userp)
     return 0;
   }
   
-  if (upload_ctx->lines_read >= (int)payload_text.size()) {
+  if (upload_ctx->lines_read >= payload_text.size()) {
     return 0;
   }
 
@@ -375,6 +375,10 @@ void email_schedule (string to, string subject, string body, int time)
 // If everything's OK, it returns nothing.
 string email_setup_information (bool require_send, bool require_receive)
 {
+#ifdef HAVE_CLIENT
+  (void) require_send;
+  (void) require_receive;
+#endif
 #ifdef HAVE_CLOUD
   bool incomplete = false;
   if (Database_Config_General::getSiteMailName ().empty ()) incomplete = true;

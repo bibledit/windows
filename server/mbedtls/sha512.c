@@ -1,3 +1,5 @@
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wsign-conversion"
 /*
  *  FIPS-180-2 compliant SHA-384/512 implementation
  *
@@ -527,8 +529,7 @@ void mbedtls_sha512( const unsigned char *input,
 static const unsigned char sha512_test_buf[3][113] =
 {
     { "abc" },
-    { "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmn"
-      "hijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu" },
+    { "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu" },
     { "" }
 };
 

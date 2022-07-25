@@ -202,7 +202,7 @@ string resource_logic_get_html (void * webserver_request,
   // If there's been a mapping, the resource should include the verse number for clarity.
   if (passages.size () != 1) add_verse_numbers = true;
   for (auto passage : passages) {
-    if (verse != convert_to_int (passage.verse)) {
+    if (verse != convert_to_int (passage.m_verse)) {
       add_verse_numbers = true;
     }
   }
@@ -227,7 +227,7 @@ string resource_logic_get_html (void * webserver_request,
         if (resource_versification != database_mappings.original ()) {
           passages.clear ();
           for (auto & related_passage : related_passages) {
-            vector <Passage> mapped_passages = database_mappings.translate (database_mappings.original (), resource_versification, related_passage.book, related_passage.chapter, convert_to_int (related_passage.verse));
+            vector <Passage> mapped_passages = database_mappings.translate (database_mappings.original (), resource_versification, related_passage.m_book, related_passage.m_chapter, convert_to_int (related_passage.m_verse));
             passages.insert (passages.end (), mapped_passages.begin (), mapped_passages.end ());
           }
         }
@@ -237,11 +237,11 @@ string resource_logic_get_html (void * webserver_request,
   
   for (auto passage : passages) {
     string possible_included_passage;
-    if (add_verse_numbers) possible_included_passage = passage.verse + " ";
-    if (add_passages_in_full) possible_included_passage = filter_passage_display (passage.book, passage.chapter, passage.verse) + " ";
+    if (add_verse_numbers) possible_included_passage = passage.m_verse + " ";
+    if (add_passages_in_full) possible_included_passage = filter_passage_display (passage.m_book, passage.m_chapter, passage.m_verse) + " ";
     if (isImage) possible_included_passage.clear ();
     html.append (possible_included_passage);
-    html.append (resource_logic_get_verse (webserver_request, resource, passage.book, passage.chapter, convert_to_int (passage.verse)));
+    html.append (resource_logic_get_verse (webserver_request, resource, passage.m_book, passage.m_chapter, convert_to_int (passage.m_verse)));
   }
   
   return html;
@@ -278,7 +278,7 @@ string resource_logic_get_verse (void * webserver_request, string resource, int 
     string chapter_usfm;
     if (isBible) chapter_usfm = request->database_bibles()->getChapter (resource, book, chapter);
     if (isLocalUsfm) chapter_usfm = database_usfmresources.getUsfm (resource, book, chapter);
-    string verse_usfm = usfm_get_verse_text (chapter_usfm, verse);
+    string verse_usfm = filter::usfm::get_verse_text (chapter_usfm, verse);
     string stylesheet = styles_logic_standard_sheet ();
     Filter_Text filter_text = Filter_Text (resource);
     filter_text.html_text_standard = new Html_Text ("");
@@ -383,11 +383,11 @@ string resource_logic_cloud_get_comparison (void * webserver_request,
     for (auto search_replace_set : search_replace_sets) {
       vector <string> search_replace = filter_string_explode(search_replace_set, '=');
       if (search_replace.size() == 2) {
-        string search = search_replace[0];
-        if (search.empty()) continue;
-        string replace = search_replace[1];
-        base = filter_string_str_replace(search, replace, base);
-        update = filter_string_str_replace(search, replace, update);
+        string search_item = search_replace[0];
+        if (search_item.empty()) continue;
+        string replace_item = search_replace[1];
+        base = filter_string_str_replace(search_item, replace_item, base);
+        update = filter_string_str_replace(search_item, replace_item, update);
       }
     }
   }
@@ -429,7 +429,7 @@ string resource_logic_get_contents_for_client (string resource, int book, int ch
     // Fetch from database and convert to html.
     Database_UsfmResources database_usfmresources;
     string chapter_usfm = database_usfmresources.getUsfm (resource, book, chapter);
-    string verse_usfm = usfm_get_verse_text (chapter_usfm, verse);
+    string verse_usfm = filter::usfm::get_verse_text (chapter_usfm, verse);
     string stylesheet = styles_logic_standard_sheet ();
     Filter_Text filter_text = Filter_Text (resource);
     filter_text.html_text_standard = new Html_Text ("");
@@ -1146,10 +1146,10 @@ string resource_logic_bible_gateway_get (string resource, int book, int chapter,
         // The location where the mismatch occurs indicates the end of the relevant verses content.
         {
           xml_document document;
-          xml_parse_result result = document.load_string (html.c_str(), parse_default | parse_fragment);
-          if (result.offset > 10) {
-            size_t pos = result.offset - 2;
-            html.erase (pos);
+          xml_parse_result parse_result = document.load_string (html.c_str(), parse_default | parse_fragment);
+          if (parse_result.offset > 10) {
+            size_t pos2 = static_cast<size_t>(parse_result.offset - 2);
+            html.erase (pos2);
           }
         }
         // Parse the html fragment into a DOM.
@@ -1186,8 +1186,8 @@ string resource_logic_bible_gateway_get (string resource, int book, int chapter,
           if (xpath) {
             stringstream ss;
             xpath.node().print (ss, "", format_raw);
-            string html = ss.str ();
-            string footnote_text = filter_string_html2text (html);
+            string selected_html = ss.str ();
+            string footnote_text = filter_string_html2text (selected_html);
             result.append ("<br>Note: ");
             result.append (footnote_text);
           }
@@ -1721,10 +1721,10 @@ bool resource_logic_easy_english_bible_handle_passage_heading (const string & pa
   int ending_chapter = starting_chapter;
   colon_pos = last_word.find(":");
   if (colon_pos != string::npos) {
-    string ch_fragment = last_word.substr(0, colon_pos);
-    ending_chapter = convert_to_int(ch_fragment);
-    string check = convert_to_string(ending_chapter);
-    if (ch_fragment != check) return false;
+    string chapter_fragment = last_word.substr(0, colon_pos);
+    ending_chapter = convert_to_int(chapter_fragment);
+    check = convert_to_string(ending_chapter);
+    if (chapter_fragment != check) return false;
     last_word.erase(0, colon_pos + 1);
   }
 

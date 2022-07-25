@@ -57,7 +57,7 @@ string edit_navigate (void * webserver_request)
   // not relative to the main editor element.
   // Therefore a pure Javascript implementation was Googled for and implemented.
   // This provides the offset of the caret relative to the <div id="editor">.
-  size_t offset = convert_to_int (request->query ["offset"]);
+  size_t offset = static_cast<size_t> (convert_to_int (request->query ["offset"]));
 
   
   string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
@@ -78,7 +78,7 @@ string edit_navigate (void * webserver_request)
   // Get the number of verses in the USFM.
   // This covers combined verses also.
   int last_offset = 0;
-  vector <int> verses = usfm_get_verse_numbers (usfm);
+  vector <int> verses = filter::usfm::get_verse_numbers (usfm);
   for (int i = 0; i < (int)verses.size (); i++) {
     if (editor_usfm2html.verseStartOffsets.count (i)) {
       last_offset = editor_usfm2html.verseStartOffsets [i];
@@ -90,8 +90,8 @@ string edit_navigate (void * webserver_request)
   
   // Get the starting offsets for each verse.
   vector <size_t> starting_offsets;
-  for (int i = 0; i < (int)verses.size (); i++) {
-    starting_offsets.push_back (editor_usfm2html.verseStartOffsets [i]);
+  for (int i = 0; i < static_cast<int> (verses.size ()); i++) {
+    starting_offsets.push_back (static_cast<size_t>(editor_usfm2html.verseStartOffsets [i]));
   }
   starting_offsets.push_back (editor_usfm2html.textLength);
 
@@ -99,14 +99,14 @@ string edit_navigate (void * webserver_request)
   // Get the ending offsets for each verse.
   vector <size_t> ending_offsets;
   for (size_t i = 0; i < verses.size (); i++) {
-    size_t offset = starting_offsets [i];
+    size_t offset2 = starting_offsets [i];
     for (size_t i2 = 0; i2 < starting_offsets.size (); i2++) {
-      if (starting_offsets [i2] > offset) {
-        offset = starting_offsets [i2];
+      if (starting_offsets [i2] > offset2) {
+        offset2 = starting_offsets [i2];
         break;
       }
     }
-    ending_offsets.push_back (offset - 1);
+    ending_offsets.push_back (offset2 - 1);
   }
   
   
@@ -127,7 +127,7 @@ string edit_navigate (void * webserver_request)
   verse = -1;
   for (auto & element : editor_usfm2html.verseStartOffsets) {
     int key = element.first;
-    size_t value = element.second;
+    size_t value = static_cast<size_t> (element.second);
     if (offset >= value) {
       // A verse number was found.
       verse = key;

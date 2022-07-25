@@ -22,7 +22,10 @@
 #include <changes/statistics.h>
 #include <changes/manage.h>
 #include <tasks/logic.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
 #include <pugixml/pugixml.hpp>
+#pragma GCC diagnostic pop
 #include <locale/translate.h>
 #include <index/listing.h>
 #include <database/logs.h>
@@ -143,7 +146,7 @@ void changes_clear_notifications_user (string jobid, string username)
     cleared_count_in_one_go = database_modifications.clearNotificationsUser (username);
     total_cleared += cleared_count_in_one_go;
     if (!identifiers.empty ()) {
-      database_jobs.set_percentage (convert_to_int (jobid), 100 * total_cleared / identifiers.size());
+      database_jobs.set_percentage (convert_to_int (jobid), 100 * total_cleared / static_cast<int> (identifiers.size()));
     }
   } while (cleared_count_in_one_go);
   

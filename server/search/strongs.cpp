@@ -92,7 +92,7 @@ string search_strongs (void * webserver_request)
     vector <string> words = filter_string_explode (s_words, ' ');
     
     // Include items if there are no more search hits than 30% of the total number of verses in the KJV.
-    size_t maxcount = round (0.3 * 31102);
+    size_t maxcount = static_cast<size_t> (round (0.3 * 31102));
     
     // Store how often a verse occurs in an array.
     // The keys are the passages of the search results.
@@ -129,7 +129,7 @@ string search_strongs (void * webserver_request)
       i_passages.push_back (i_passage);
       counts.push_back (count);
     }
-    quick_sort (counts, i_passages, 0, static_cast<int>(counts.size()));
+    quick_sort (counts, i_passages, 0, static_cast<unsigned int>(counts.size()));
     reverse (i_passages.begin(), i_passages.end());
 
     // Output the passage identifiers to the browser.
@@ -147,9 +147,9 @@ string search_strongs (void * webserver_request)
     
     // Get the and passage for this identifier.
     Passage passage = filter_integer_to_passage (id);
-    int book = passage.book;
-    int chapter = passage.chapter;
-    string verse = passage.verse;
+    int book = passage.m_book;
+    int chapter = passage.m_chapter;
+    string verse = passage.m_verse;
     
     // Get the plain text.
     string text = search_logic_get_bible_verse_text (bible, book, chapter, convert_to_int (verse));

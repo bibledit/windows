@@ -79,9 +79,9 @@ string resource_organize (void * webserver_request)
   
   
   if (request->query.count ("remove")) {
-    size_t remove = convert_to_int (request->query["remove"]);
+    int remove = convert_to_int (request->query["remove"]);
     vector <string> resources = request->database_config_user()->getActiveResources ();
-    if (remove < resources.size ()) {
+    if (remove < static_cast<int>(resources.size ())) {
       resources.erase (resources.begin () + remove);
     }
     request->database_config_user()->setActiveResources (resources);
@@ -93,8 +93,8 @@ string resource_organize (void * webserver_request)
   if (!movefrom.empty ()) {
     string moveto =  request->post ["moveto"];
     if (!moveto.empty ()) {
-      int from = convert_to_int (movefrom);
-      int to = convert_to_int (moveto);
+      size_t from = static_cast<size_t> (convert_to_int (movefrom));
+      size_t to = static_cast<size_t>(convert_to_int (moveto));
       vector <string> resources = request->database_config_user()->getActiveResources ();
       array_move_from_to (resources, from, to);
       request->database_config_user()->setActiveResources (resources);
@@ -165,8 +165,8 @@ string resource_organize (void * webserver_request)
   
   if (request->query.count ("install")) {
     vector <string> installing_resources = Database_Config_General::getResourcesToCache ();
-    vector <string> active_resources = request->database_config_user()->getActiveResources ();
-    for (auto & resource : active_resources) {
+    vector <string> active_resources_2 = request->database_config_user()->getActiveResources ();
+    for (auto & resource : active_resources_2) {
       if (resource_logic_can_cache (resource)) {
         if (!in_array (resource, installing_resources)) {
           installing_resources.push_back (resource);

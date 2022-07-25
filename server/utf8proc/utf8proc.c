@@ -1,3 +1,4 @@
+#pragma clang diagnostic ignored "-Wassign-enum"
 /* -*- mode: c; c-basic-offset: 2; tab-width: 2; indent-tabs-mode: nil -*- */
 /*
  *  Copyright (c) 2009 Public Software Group e. V., Berlin, Germany
@@ -39,6 +40,8 @@
  *  Implementation of libutf8proc.
  */
 
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wsign-conversion"
 
 #include "utf8proc.h"
 #include "utf8proc_data.c"

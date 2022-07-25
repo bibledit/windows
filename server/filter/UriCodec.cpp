@@ -20,6 +20,10 @@
 
 #include <string>
 
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wconversion"
+
 #ifdef OLDCODE
 const char HEX2DEC[256] =
 {

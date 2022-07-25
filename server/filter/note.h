@@ -30,12 +30,12 @@ public:
   citation ();
   void set_sequence (int numbering, const string & usersequence);
   void set_restart (int setting);
-  string get (string citation);
+  string get (string citation_in);
   void run_restart (const string & moment);
 private:
-  string restart;
-  unsigned int pointer;
-  vector <string> sequence;
+  string restart {};
+  unsigned int pointer {0};
+  vector <string> sequence {};
 };
 
 class citations
@@ -45,7 +45,7 @@ public:
   string get (const string & marker, const string & citation);
   void restart (const string & moment);
 private:
-  map <string, citation> cache;
+  map <string, citation> cache {};
 };
 
 
