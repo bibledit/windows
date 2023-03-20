@@ -74,6 +74,7 @@ sed -i.bak '/HAVE_LIBPROC/d' config.h
 sed -i.bak '/HAVE_EXECINFO/d' config.h
 sed -i.bak '/HAVE_ICU/d' config.h
 sed -i.bak '/HAVE_PUGIXML/d' config.h
+sed -i.bak '/HAVE_UTF8PROC/d' config.h
 
 
 # Disable threading in mbedTLS on Windows.

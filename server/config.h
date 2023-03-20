@@ -67,7 +67,6 @@
 #define HAVE_UNISTD_H 1
 
 /* Define whether utf8proc is available */
-#define HAVE_UTF8PROC 1
 
 /* Define whether to compile on Windows */
 #define HAVE_WINDOWS 1
