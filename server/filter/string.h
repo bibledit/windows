@@ -116,8 +116,8 @@ void array_move_up_down (std::vector <std::string> & container, size_t item, boo
 void array_move_from_to (std::vector <std::string> & container, size_t from, size_t to);
 const char * english ();
 #ifdef HAVE_WINDOWS
-std::string std::string2wstring (const std::string& str);
-std::string std::string2string (const std::string& wstr);
+std::wstring string2wstring (const std::string& str);
+std::string wstring2string (const std::wstring& wstr);
 #endif
 std::string lf2crlf (std::string str);
 std::string crlf2lf (std::string str);
