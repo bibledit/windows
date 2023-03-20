@@ -73,6 +73,7 @@ if [ $? != 0 ]; then exit; fi
 sed -i.bak '/HAVE_LIBPROC/d' config.h
 sed -i.bak '/HAVE_EXECINFO/d' config.h
 sed -i.bak '/HAVE_ICU/d' config.h
+sed -i.bak '/HAVE_PUGIXML/d' config.h
 
 
 # Disable threading in mbedTLS on Windows.

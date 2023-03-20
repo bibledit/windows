@@ -35,7 +35,6 @@
 #define HAVE_PTHREAD 1
 
 /* Define whether pugixml is available */
-#define HAVE_PUGIXML 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
