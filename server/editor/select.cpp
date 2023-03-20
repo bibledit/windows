@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 #include <edit/index.h>
 #include <editone2/index.h>
 #include <editusfm/index.h>
+using namespace std;
 
 
 string editor_select_url ()
@@ -41,7 +42,7 @@ string editor_select_url ()
 bool editor_select_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return write;
 }
 
@@ -102,6 +103,6 @@ string editor_select (void * webserver_request)
   }
   
   page += view.render ("editor", "select");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,29 +21,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <config/libraries.h>
 
+// Forward declaration.
+enum class book_id;
+
 class Passage
 {
 public:
   Passage ();
-  Passage (string bible, int book, int chapter, string verse);
-  string m_bible {};
+  Passage (std::string bible, int book, int chapter, std::string verse);
+  std::string m_bible {};
   int m_book {};
   int m_chapter {};
-  string m_verse {};
+  std::string m_verse {};
   bool equal (Passage & passage);
-  string encode ();
-  static Passage decode (const string& encoded);
+  std::string encode ();
+  static Passage decode (const std::string& encoded);
 };
 
-string filter_passage_display (int book, int chapter, string verse);
-string filter_passage_display_inline (vector <Passage> passages);
-string filter_passage_display_multiline (vector <Passage> passages);
+std::string filter_passage_display (int book, int chapter, std::string verse);
+std::string filter_passage_display_inline (std::vector <Passage> passages);
+std::string filter_passage_display_multiline (std::vector <Passage> passages);
 int filter_passage_to_integer (Passage passage);
 Passage filter_integer_to_passage (int integer);
-int filter_passage_interpret_book (string book);
-string filter_passage_clean_passage (string text);
-Passage filter_passage_explode_passage (string text);
-Passage filter_passage_interpret_passage (Passage currentPassage, string rawPassage);
-vector <string> filter_passage_handle_sequences_ranges (const string& passage);
-string filter_passage_link_for_opening_editor_at (int book, int chapter, string verse);
-vector <int> filter_passage_get_ordered_books (const string& bible);
+book_id filter_passage_interpret_book_v2 (std::string book);
+std::string filter_passage_clean_passage (std::string text);
+Passage filter_passage_explode_passage (std::string text);
+Passage filter_passage_interpret_passage (Passage currentPassage, std::string rawPassage);
+std::vector <std::string> filter_passage_handle_sequences_ranges (const std::string& passage);
+std::string filter_passage_link_for_opening_editor_at (int book, int chapter, std::string verse);
+std::vector <int> filter_passage_get_ordered_books (const std::string& bible);

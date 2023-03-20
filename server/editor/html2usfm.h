@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,14 @@
 #include <database/styles.h>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#ifndef HAVE_PUGIXML
 #include <pugixml/pugixml.hpp>
+#endif
+#ifdef HAVE_PUGIXML
+#include <pugixml.hpp>
+#endif
 #pragma GCC diagnostic pop
 
 using namespace pugi;
@@ -31,21 +38,21 @@ using namespace pugi;
 class Editor_Html2Usfm
 {
 public:
-  void load (string html);
-  void stylesheet (string stylesheet);
+  void load (std::string html);
+  void stylesheet (std::string stylesheet);
   void run ();
-  string get ();
+  std::string get ();
 private:
   xml_document document {}; // DOMDocument holding the html.
-  map <string, Database_Styles_Item> styles {}; // Style information.
-  vector <string> output {}; // Output USFM.
-  string currentLine {}; // Growing current USFM line.
+  std::map <std::string, Database_Styles_Item> styles {}; // Style information.
+  std::vector <std::string> output {}; // Output USFM.
+  std::string currentLine {}; // Growing current USFM line.
   bool mono {false}; // Monospace font.
-  set <string> suppressEndMarkers {}; // Markers which should not have endmarkers, e.g. \v does not have \v*
-  set <string> noteOpeners {};
-  vector <string> characterStyles {}; // Active character styles.
+  std::set <std::string> suppressEndMarkers {}; // Markers which should not have endmarkers, e.g. \v does not have \v*
+  std::set <std::string> noteOpeners {};
+  std::vector <std::string> characterStyles {}; // Active character styles.
   bool processingNote {false}; // Note processing flag.
-  string lastNoteStyle {}; // The most recent style opened inside a note.
+  std::string lastNoteStyle {}; // The most recent style opened inside a note.
   void preprocess ();
   void flushLine ();
   void postprocess ();
@@ -53,11 +60,11 @@ private:
   void processNode (xml_node node);
   void openElementNode (xml_node node);
   void closeElementNode (xml_node node);
-  void openInline (string className);
+  void openInline (std::string className);
   void processNoteCitation (xml_node node);
-  string cleanUSFM (string usfm);
-  xml_node get_note_pointer (xml_node body, string id);
-  string update_quill_class (string classname);
+  std::string cleanUSFM (std::string usfm);
+  xml_node get_note_pointer (xml_node body, std::string id);
+  std::string update_quill_class (std::string classname);
 };
 
-string editor_export_verse_quill (string stylesheet, string html);
+std::string editor_export_verse_quill (std::string stylesheet, std::string html);

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,5 +21,5 @@
 
 #include <config/libraries.h>
 
-void export_web_book (string bible, int book, bool log);
-void export_web_index (string bible, bool log);
+void export_web_book (std::string bible, int book, bool log);
+void export_web_index (std::string bible, bool log);

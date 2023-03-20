@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@
 #include <access/logic.h>
 #include <database/userresources.h>
 #include <database/books.h>
+using namespace std;
 
 
 string resource_user1view_url ()
@@ -43,7 +44,7 @@ string resource_user1view_url ()
 
 bool resource_user1view_acl (void * webserver_request)
 {
-  return access_logic_privilege_view_resources (webserver_request);
+  return access_logic::privilege_view_resources (webserver_request);
 }
 
 
@@ -52,36 +53,36 @@ string resource_user1view (void * webserver_request)
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   
-  string page;
+  string page {};
   Assets_Header header = Assets_Header (translate("Resources"), request);
-  header.setNavigator ();
-  header.addBreadCrumb (menu_logic_translate_menu (), menu_logic_translate_text ());
+  header.set_navigator ();
+  header.add_bread_crumb (menu_logic_translate_menu (), menu_logic_translate_text ());
   page = header.run ();
-  Assets_View view;
+  Assets_View view {};
   
 
   string name = request->query ["name"];
 
   
-  vector <string> code;
+  vector <string> code {};
   string url = Database_UserResources::url (name);
   code.push_back ("var userResourceUrl = \"" + url + "\";");
   code.push_back ("var userResourceBooks = [];");
-  vector <int> ids = Database_Books::getIDs ();
+  vector <book_id> ids = database::books::get_ids ();
   for (auto id : ids) {
-    string type = Database_Books::getType (id);
-    if ((type == "ot") || (type == "nt")) {
-      string book = Database_UserResources::book (name, id);
-      if (book.empty ()) book = convert_to_string (id);
-      code.push_back ("userResourceBooks [" + convert_to_string (id) + "] = \"" + book + "\";");
+    book_type type = database::books::get_type (id);
+    if ((type == book_type::old_testament) || (type == book_type::new_testament)) {
+      string book = Database_UserResources::book (name, static_cast<int> (id));
+      if (book.empty ()) book = convert_to_string (static_cast<int>(id));
+      code.push_back ("userResourceBooks [" + convert_to_string (static_cast<int>(id)) + "] = \"" + book + "\";");
     }
   }
   string script = filter_string_implode (code, "\n");
-  config_logic_swipe_enabled (webserver_request, script);
+  config::logic::swipe_enabled (webserver_request, script);
   view.set_variable ("script", script);
   
   
   page += view.render ("resource", "user1view");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

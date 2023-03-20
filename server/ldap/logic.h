@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -24,4 +24,4 @@
 void ldap_logic_initialize ();
 void ldap_logic_clear ();
 bool ldap_logic_is_on (bool log = false);
-bool ldap_logic_fetch (string user, string password, bool & access, string & email, int & role, bool log);
+bool ldap_logic_fetch (std::string user, std::string password, bool & access, std::string & email, int & role, bool log);

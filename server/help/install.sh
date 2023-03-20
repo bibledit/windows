@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (©) 2003-2022 Teus Benschop.
+# Copyright (©) 2003-2023 Teus Benschop.
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -103,8 +103,11 @@ apt --yes --assume-yes install libatspi2.0-dev
 apt --yes --assume-yes install libgtk-3-dev
 apt --yes --assume-yes install libwebkit2gtk-3.0-dev
 apt --yes --assume-yes install libwebkit2gtk-4.0-dev
+apt --yes --assume-yes install libwebkit2gtk-4.1-dev
 apt --yes --assume-yes install curl
 apt --yes --assume-yes install make
+apt --yes --assume-yes install libutf8proc-dev
+apt --yes --assume-yes install libpugixml-dev
 fi
 
 # Fedora.
@@ -126,6 +129,8 @@ dnf --assumeyes install gtk3-devel
 dnf --assumeyes install webkitgtk4-devel
 dnf --assumeyes install curl
 dnf --assumeyes install make
+dnf --assumeyes install utf8proc-devel
+dnf --assumeyes install pugixml-devel
 fi
 
 # CentOS
@@ -149,6 +154,8 @@ yum --assumeyes install libwebkit2gtk-devel
 yum --assumeyes install webkitgtk4-devel
 yum --assumeyes install curl
 yum --assumeyes install make
+yum --assumeyes install utf8proc-devel
+yum --assumeyes install pugixml-devel
 fi
 
 # openSUSE
@@ -170,6 +177,8 @@ zypper -n --non-interactive --no-gpg-checks install gtk3-devel
 zypper -n --non-interactive --no-gpg-checks install webkit2gtk3-devel
 zypper -n --non-interactive --no-gpg-checks install curl
 zypper -n --non-interactive --no-gpg-checks install make
+zypper -n --non-interactive --no-gpg-checks install utf8proc-devel
+zypper -n --non-interactive --no-gpg-checks install pugixml-devel
 fi
 
 

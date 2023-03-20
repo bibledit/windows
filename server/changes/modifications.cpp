@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -42,6 +42,19 @@
 #include <changes/logic.h>
 #include <styles/css.h>
 #include <email/send.h>
+using namespace std;
+
+
+// Internal function declarations.
+void changes_process_identifiers (Webserver_Request * request,
+                                  const string & user,
+                                  const vector <string> & recipients,
+                                  const string & bible,
+                                  int book, int chapter,
+                                  const map <string, vector<string>> & bibles_per_user,
+                                  int oldId, int newId,
+                                  string & email,
+                                  int & change_count, float & time_total, int & time_count);
 
 
 // Helper function.
@@ -58,7 +71,7 @@ void changes_process_identifiers (Webserver_Request * request,
                                   int & change_count, float & time_total, int & time_count)
 {
   if (oldId != 0) {
-    Database_Modifications database_modifications;
+    Database_Modifications database_modifications {};
     string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
     Database_Modifications_Text old_chapter_text = database_modifications.getUserChapter (user, bible, book, chapter, oldId);
     string old_chapter_usfm = old_chapter_text.oldtext;
@@ -118,7 +131,7 @@ void changes_process_identifiers (Webserver_Request * request,
         // Statistics: Count yet another change made by this hard-working user!
         change_count++;
         int timestamp = database_modifications.getUserTimestamp (user, bible, book, chapter, newId);
-        time_total += timestamp;
+        time_total += static_cast<float>(timestamp);
         time_count++;
       }
     }
@@ -136,8 +149,8 @@ void changes_modifications ()
   
   
   // Data objects.
-  Webserver_Request request;
-  Database_Modifications database_modifications;
+  Webserver_Request request {};
+  Database_Modifications database_modifications {};
 
 
   // Check on the health of the modifications database and (re)create it if needed.
@@ -157,15 +170,15 @@ void changes_modifications ()
   }
 
   // Storage for the statistics.
-  map <string, int> user_change_statistics;
-  float modification_time_total = 0;
-  int modification_time_count = 0;
+  map <string, int> user_change_statistics {};
+  float modification_time_total {0.0f};
+  int modification_time_count {0};
 
   // There is a setting per user indicating which Bible(s) a user
   // will get the change notifications from.
   // This setting affects the changes made by all users.
   // Note: A user will always receive notificatons of changes made by that same user.
-  map <string, vector<string> > notification_bibles_per_user;
+  map <string, vector<string> > notification_bibles_per_user {};
   {
     vector <string> users = request.database_users ()->get_users ();
     for (const auto & user : users) {
@@ -183,14 +196,14 @@ void changes_modifications ()
 
   vector <string> users = database_modifications.getUserUsernames ();
   if (!users.empty ()) Database_Logs::log ("Change notifications: Per user", Filter_Roles::translator ());
-  for (auto user : users) {
+  for (const auto & user : users) {
 
     // Total changes made by this user.
-    int change_count = 0;
+    int change_count {0};
     
     // Go through the Bibles changed by the current user.
     vector <string> bibles = database_modifications.getUserBibles (user);
-    for (auto bible : bibles) {
+    for (const auto & bible : bibles) {
       
       // Body of the email to be sent.
       string email = "<p>" + translate("You have entered the changes below in a Bible editor.") + " " + translate ("You may check if it made its way into the Bible text.") + "</p>";
@@ -264,7 +277,7 @@ void changes_modifications ()
   // for the changes in the Bibles entered by anyone
   // since the previous notifications were generated.
   vector <string> bibles = database_modifications.getTeamDiffBibles ();
-  for (auto bible : bibles) {
+  for (const auto & bible : bibles) {
     
     
     string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
@@ -272,8 +285,8 @@ void changes_modifications ()
     
     vector <string> changeNotificationUsers;
     vector <string> all_users = request.database_users ()->get_users ();
-    for (auto user : all_users) {
-      if (AccessBible::Read (&request, bible, user)) {
+    for (const auto & user : all_users) {
+      if (access_bible::read (&request, bible, user)) {
         if (request.database_config_user()->getUserGenerateChangeNotifications (user)) {
           // The recipient may have set which Bibles to get the change notifications for.
           // This is stored like this:
@@ -324,7 +337,7 @@ void changes_modifications ()
     
     
     // Storage for body of the email with the changes.
-    vector <string> email_changes;
+    vector <string> email_changes {};
     
     
     // Generate the online change notifications.
@@ -396,10 +409,10 @@ void changes_modifications ()
       // then each part should remain well below that maximum size.
       // The size was reduced even more later on:
       // https://github.com/bibledit/cloud/issues/727
-      vector <string> bodies;
-      int counter = 0;
-      string body;
-      for (auto & line : email_changes) {
+      vector <string> bodies {};
+      int counter {0};
+      string body {};
+      for (const auto & line : email_changes) {
         body.append ("<div>");
         body.append (line);
         body.append ("</div>\n");
@@ -419,7 +432,7 @@ void changes_modifications ()
         vector <string> all_users_2 = request.database_users ()->get_users ();
         for (auto & user : all_users_2) {
           if (request.database_config_user()->getUserBibleChangesNotification (user)) {
-            if (AccessBible::Read (&request, bible, user)) {
+            if (access_bible::read (&request, bible, user)) {
               if (!client_logic_client_enabled ()) {
                 email_schedule (user, subject, bodies[b]);
               }
@@ -428,8 +441,6 @@ void changes_modifications ()
         }
       }
     }
-    
-    
   }
 
   
@@ -442,7 +453,7 @@ void changes_modifications ()
   string directory = filter_url_create_root_path ({"revisions"});
   int now = filter::date::seconds_since_epoch ();
   bibles = filter_url_scandir (directory);
-  for (auto &bible : bibles) {
+  for (const auto & bible : bibles) {
     string folder = filter_url_create_path ({directory, bible});
     int time = filter_url_file_modification_time (folder);
     int days = (now - time) / 86400;
@@ -465,7 +476,7 @@ void changes_modifications ()
   
   // Clear checksum caches.
   users = request.database_users ()->get_users ();
-  for (auto user : users) {
+  for (const auto & user : users) {
     request.database_config_user ()->setUserChangeNotificationsChecksum (user, "");
   }
   
@@ -482,7 +493,7 @@ void changes_modifications ()
   // Store the statistics in the database.
   if (modification_time_count) {
     // Take average timestamp of all timestamps.
-    int timestamp = static_cast <int> (round (modification_time_total / modification_time_count));
+    int timestamp = static_cast <int> (round (modification_time_total / static_cast<float>(modification_time_count)));
     for (auto & element : user_change_statistics) {
       // Store dated change statistics per user.
       string user = element.first;

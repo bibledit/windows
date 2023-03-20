@@ -31,6 +31,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma clang diagnostic ignored "-Wstring-conversion"
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 
 #include "jsonxx.h"
 
@@ -40,6 +46,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <sstream>
 #include <vector>
 #include <limits>
+#include <exception>
 
 // Snippet that creates an assertion function that works both in DEBUG & RELEASE mode.
 // JSONXX_ASSERT(...) macro will redirect to this. assert() macro is kept untouched.
@@ -50,10 +57,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 #endif
 #include <stdio.h>
 #include <cassert>
-void jsonxx::assertion( const char *file, int line, const char *expression, bool result ) {
-    if( !result ) {
-        fprintf( stderr, "[JSONXX] expression '%s' failed at %s:%d -> ", expression, file, line );
-        assert( 0 );
+void jsonxx::assertion (const char *file, int line, const char *expression, bool result)
+{
+    if (!result) {
+//        fprintf( stderr, "[JSONXX] expression '%s' failed at %s:%d -> ", expression, file, line );
+//        assert( 0 );
+      (void) file;
+      (void) line;
+      throw std::runtime_error (expression);
     }
 }
 #if defined(JSONXX_REENABLE_NDEBUG)

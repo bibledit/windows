@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -26,6 +26,9 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wswitch-default"
 #include <dtl/dtl.hpp>
 #pragma GCC diagnostic pop
 #include <webserver/request.h>
@@ -36,8 +39,7 @@
 #include <text/text.h>
 #include <locale/translate.h>
 #include <developer/logic.h>
-
-
+using namespace std;
 using dtl::Diff;
 
 
@@ -189,7 +191,7 @@ void filter_diff_diff_utf16 (const vector<string> & oldinput, const vector<strin
     if (indicator == '+') {
       // Something to be inserted into the old sequence to get at the new sequence.
       positions.push_back(position);
-      sizes.push_back((int)size);
+      sizes.push_back(static_cast<int> (size));
       additions.push_back(true);
       content.push_back(line);
       // Something was inserted.
@@ -201,7 +203,7 @@ void filter_diff_diff_utf16 (const vector<string> & oldinput, const vector<strin
     else if (indicator == '-') {
       // Something to be deleted at the given position.
       positions.push_back(position);
-      sizes.push_back((int)size);
+      sizes.push_back(static_cast<int> (size));
       additions.push_back(false);
       content.push_back(line);
       // Something was deleted.
@@ -325,7 +327,7 @@ int filter_diff_word_similarity (string oldstring, string newstring)
   }
   
   // Calculate the percentage similarity.
-  int percentage = static_cast<int> (round (100 * ((float) similar_count / (float) element_count)));
+  int percentage = static_cast<int> (round (100 * (static_cast<float>(similar_count) / static_cast<float>(element_count))));
   return percentage;
 }
 
@@ -355,7 +357,7 @@ void filter_diff_produce_verse_level (string bible, string directory)
   
   vector <int> books = database_modifications.getTeamDiffBooks (bible);
   for (auto book : books) {
-    string bookname = Database_Books::getEnglishFromId (book);
+    string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
     vector <int> chapters = database_modifications.getTeamDiffChapters (bible, book);
     for (auto chapter : chapters) {
       // Go through the combined verse numbers in the old and new chapter.

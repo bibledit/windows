@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,6 @@
 
 #include <config/libraries.h>
 
-string lexicon_definition_url ();
+std::string lexicon_definition_url ();
 bool lexicon_definition_acl (void * webserver_request);
-string lexicon_definition (void * webserver_request);
+std::string lexicon_definition (void * webserver_request);

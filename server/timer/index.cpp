@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <developer/logic.h>
 #include <setup/logic.h>
 #include <journal/logic.h>
+using namespace std;
 
 
 // CPU-intensive actions run at night.
@@ -49,9 +50,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 void timer_index ()
 {
-  int previous_second = -1;
-  int previous_minute = -1;
-  int previous_fraction = -1;
+  int previous_second { -1 };
+  int previous_minute { -1 };
+  int previous_fraction { -1 };
+  [[maybe_unused]] int google_translate_authentication_token_age_minute { 0 };
+  
+#ifdef HAVE_CLOUD
+  // Right after startup, update the Google Translate access token.
+  tasks_logic_queue(GETGOOGLEACCESSTOKEN);
+#endif
+  
   while (config_globals_webserver_running) {
 
     try {
@@ -162,7 +170,7 @@ void timer_index ()
       // This may take an hour on a production machine.
       // This hour was in PHP. In C++ it is much faster.
       if ((hour == 1) && (minute == 10)) {
-        Export_Logic::scheduleAll ();
+        export_logic::schedule_all ();
       }
 #endif
       
@@ -183,7 +191,7 @@ void timer_index ()
       
       // Actions for a demo installation.
       if (minute == 10) {
-        if (config_logic_demo_enabled ()) {
+        if (config::logic::demo_enabled ()) {
           tasks_logic_queue (CLEANDEMO);
         }
       }
@@ -229,16 +237,6 @@ void timer_index ()
       }
 #endif
 
-      
-#ifdef HAVE_CLOUD
-      // In the free Indonesian Cloud configuration, expire free users after so many days.
-      if (config_logic_indonesian_cloud_free ()) {
-        if ((hour == 3) && (minute == 10)) {
-          tasks_logic_queue (EXPIREINDONESIANFREEUSERS);
-        }
-      }
-#endif
-
 	
 #ifdef HAVE_CLOUD
       // Update SWORD modules and other web resources once a week.
@@ -263,7 +261,18 @@ void timer_index ()
         }
       }
 #endif
-      
+
+#ifdef HAVE_CLOUD
+      // Keep the Google Translate access token current.
+      // From experiments it appears that the token is valid for one hour.
+      // So before the hour has expired, renew the token again.
+      google_translate_authentication_token_age_minute++;
+      if (google_translate_authentication_token_age_minute > 50) {
+        tasks_logic_queue(GETGOOGLEACCESSTOKEN);
+        google_translate_authentication_token_age_minute = 0;
+      }
+#endif
+
     } catch (exception & e) {
       Database_Logs::log (e.what ());
     } catch (exception * e) {

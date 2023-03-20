@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@
 #include <filter/roles.h>
 #include <filter/string.h>
 #include <filter/passage.h>
+#include <filter/google.h>
+#include <filter/url.h>
 #include <webserver/request.h>
 #include <locale/translate.h>
 #include <resource/logic.h>
@@ -33,6 +35,7 @@
 #include <access/bible.h>
 #include <client/logic.h>
 #include <dialog/list.h>
+#include <dialog/list2.h>
 #include <database/usfmresources.h>
 #include <database/imageresources.h>
 #include <database/config/general.h>
@@ -40,6 +43,7 @@
 #include <sword/logic.h>
 #include <access/logic.h>
 #include <config/globals.h>
+using namespace std;
 
 
 string resource_select_url ()
@@ -50,7 +54,7 @@ string resource_select_url ()
 
 bool resource_select_acl (void * webserver_request)
 {
-  return access_logic_privilege_view_resources (webserver_request);
+  return access_logic::privilege_view_resources (webserver_request);
 }
 
 
@@ -59,18 +63,21 @@ string resource_select (void * webserver_request)
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
   
-  string page;
+  string page {};
   Assets_Header header = Assets_Header (translate("Resources"), request);
   page = header.run ();
-  Assets_View view;
+  Assets_View view {};
 
   
   view.set_variable ("page", resource_logic_selector_page (webserver_request));
+  bool is_def = false;
+  if (request->query["type"] == "def") is_def = true;
+  if (is_def) view.set_variable ("type", "def");
   string caller = resource_logic_selector_caller (webserver_request);
   view.set_variable ("caller", caller);
   
 
-  string disconnected_info;
+  string disconnected_info {};
 #ifdef HAVE_CLIENT
   if (!client_logic_client_enabled ()) {
     disconnected_info = translate ("Connect to Bibledit Cloud to have access to the full range of available resources.");
@@ -84,8 +91,9 @@ string resource_select (void * webserver_request)
     // The POST method is supposed to be immune to that.
     Dialog_List dialog_list = Dialog_List (caller, translate("Select a Bible"), "", "", true);
     dialog_list.add_query ("page", request->query["page"]);
-    vector <string> bibles = AccessBible::Bibles (webserver_request);
-    for (auto bible : bibles) {
+    if (is_def) dialog_list.add_query ("type", request->query["type"]);
+    vector <string> bibles = access_bible::bibles (webserver_request);
+    for (const auto & bible : bibles) {
       dialog_list.add_row (bible, "add", bible);
     }
     page += dialog_list.run ();
@@ -96,6 +104,7 @@ string resource_select (void * webserver_request)
   if (request->query.count ("usfm")) {
     Dialog_List dialog_list = Dialog_List (caller, translate("Select a USFM resource"), "", "", true);
     dialog_list.add_query ("page", request->query["page"]);
+    if (is_def) dialog_list.add_query ("type", request->query["type"]);
     vector <string> resources;
 #ifdef HAVE_CLIENT
     // Client takes resources available from the Cloud.
@@ -105,7 +114,7 @@ string resource_select (void * webserver_request)
     Database_UsfmResources database_usfmresources;
     resources = database_usfmresources.getResources ();
 #endif
-    for (auto resource : resources) {
+    for (const auto & resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
     page += dialog_list.run ();
@@ -116,8 +125,9 @@ string resource_select (void * webserver_request)
   if (request->query.count ("web_orig")) {
     Dialog_List dialog_list = Dialog_List (caller, translate("Select an original language text"), disconnected_info, "", true);
     dialog_list.add_query ("page", request->query["page"]);
+    if (is_def) dialog_list.add_query ("type", request->query["type"]);
     vector <string> resources = resource_external_get_original_language_resources ();
-    for (auto resource : resources) {
+    for (const auto & resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
     page += dialog_list.run ();
@@ -128,8 +138,9 @@ string resource_select (void * webserver_request)
   if (request->query.count ("web_bibles")) {
     Dialog_List dialog_list = Dialog_List (caller, translate("Select a Bible translation"), disconnected_info, "", true);
     dialog_list.add_query ("page", request->query["page"]);
+    if (is_def) dialog_list.add_query ("type", request->query["type"]);
     vector <string> resources = resource_external_get_bibles ();
-    for (auto resource : resources) {
+    for (const auto & resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
     page += dialog_list.run ();
@@ -140,9 +151,10 @@ string resource_select (void * webserver_request)
   if (request->query.count ("image")) {
     Dialog_List dialog_list = Dialog_List (caller, translate("Select an image resource"), "", "", true);
     dialog_list.add_query ("page", request->query["page"]);
+    if (is_def) dialog_list.add_query ("type", request->query["type"]);
     Database_ImageResources database_imageresources;
     vector <string> resources = database_imageresources.names ();
-    for (auto resource : resources) {
+    for (const auto & resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
     page += dialog_list.run ();
@@ -153,8 +165,9 @@ string resource_select (void * webserver_request)
   if (request->query.count ("lexicon")) {
     Dialog_List dialog_list = Dialog_List (caller, translate("Select a lexicon resource"), "", "", true);
     dialog_list.add_query ("page", request->query["page"]);
+    if (is_def) dialog_list.add_query ("type", request->query["type"]);
     vector <string> resources = lexicon_logic_resource_names ();
-    for (auto resource : resources) {
+    for (const auto & resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
     page += dialog_list.run ();
@@ -165,8 +178,9 @@ string resource_select (void * webserver_request)
   if (request->query.count ("sword")) {
     Dialog_List dialog_list = Dialog_List (caller, translate("Select a SWORD resource"), disconnected_info, "", true);
     dialog_list.add_query ("page", request->query["page"]);
+    if (is_def) dialog_list.add_query ("type", request->query["type"]);
     vector <string> resources = sword_logic_get_available ();
-    for (auto resource : resources) {
+    for (const auto & resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
     page += dialog_list.run ();
@@ -177,6 +191,7 @@ string resource_select (void * webserver_request)
   if (request->query.count ("divider")) {
     Dialog_List dialog_list = Dialog_List (caller, translate("Select a divider"), "", "", true);
     dialog_list.add_query ("page", request->query["page"]);
+    if (is_def) dialog_list.add_query ("type", request->query["type"]);
     vector <string> resources = {
       resource_logic_yellow_divider (),
       resource_logic_green_divider (),
@@ -186,7 +201,7 @@ string resource_select (void * webserver_request)
       resource_logic_orange_divider (),
       resource_logic_rich_divider(),
     };
-    for (auto resource : resources) {
+    for (const auto & resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
     page += dialog_list.run ();
@@ -197,8 +212,9 @@ string resource_select (void * webserver_request)
   if (request->query.count ("biblegateway")) {
     Dialog_List dialog_list = Dialog_List (caller, translate("Select a BibleGateway resource"), disconnected_info, "", true);
     dialog_list.add_query ("page", request->query["page"]);
+    if (is_def) dialog_list.add_query ("type", request->query["type"]);
     vector <string> resources = resource_logic_bible_gateway_module_list_get ();
-    for (auto resource : resources) {
+    for (const auto & resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
     page += dialog_list.run ();
@@ -209,8 +225,9 @@ string resource_select (void * webserver_request)
   if (request->query.count ("studylight")) {
     Dialog_List dialog_list = Dialog_List (caller, translate("Select a StudyLight resource"), disconnected_info, "", true);
     dialog_list.add_query ("page", request->query["page"]);
+    if (is_def) dialog_list.add_query ("type", request->query["type"]);
     vector <string> resources = resource_logic_study_light_module_list_get ();
-    for (auto resource : resources) {
+    for (const auto & resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
     page += dialog_list.run ();
@@ -223,17 +240,52 @@ string resource_select (void * webserver_request)
   // One of those properties is the title.
   // This selection mechanism here shows that title only.
   if (request->query.count ("comparative")) {
-    Dialog_List dialog_list = Dialog_List (caller, translate("Select a Comparative resource"), disconnected_info, "", true);
+    Dialog_List dialog_list = Dialog_List (caller, translate("Select a Comparative resource"), disconnected_info, string(), true);
     dialog_list.add_query ("page", request->query["page"]);
+    if (is_def) dialog_list.add_query ("type", request->query["type"]);
     vector <string> resources;
-    vector<string> raw_resources = Database_Config_General::getComparativeResources ();
-    for (auto raw_resource : raw_resources) {
-      string title;
+    vector<string> raw_resources =
+#ifdef HAVE_CLOUD
+    Database_Config_General::getComparativeResources ();
+#else
+    resource_logic_comparative_resources_get_list_on_client ();
+#endif
+    for (const auto & raw_resource : raw_resources) {
+      string title {};
       if (resource_logic_parse_comparative_resource (raw_resource, &title)) {
         resources.push_back(title);
       }
     }
-    for (auto resource : resources) {
+    for (const auto & resource : resources) {
+      dialog_list.add_row (resource, "add", resource);
+    }
+    page += dialog_list.run ();
+    return page;
+  }
+
+  
+  // The translated resources are stored as one resource per line.
+  // The line contains multiple properties of the resource.
+  // One of those properties is the title.
+  // This selection mechanism here shows that title only.
+  if (request->query.count ("translated")) {
+    Dialog_List dialog_list = Dialog_List (caller, translate("Select a Translated resource"), disconnected_info, string(), true);
+    dialog_list.add_query ("page", request->query["page"]);
+    if (is_def) dialog_list.add_query ("type", request->query["type"]);
+    vector <string> resources;
+    vector<string> raw_resources =
+#ifdef HAVE_CLOUD
+    Database_Config_General::getTranslatedResources ();
+#else
+    resource_logic_translated_resources_get_list_on_client ();
+#endif
+    for (const auto & raw_resource : raw_resources) {
+      string title {};
+      if (resource_logic_parse_translated_resource (raw_resource, &title)) {
+        resources.push_back(title);
+      }
+    }
+    for (const auto & resource : resources) {
       dialog_list.add_row (resource, "add", resource);
     }
     page += dialog_list.run ();
@@ -247,8 +299,15 @@ string resource_select (void * webserver_request)
     view.enable_zone ("sensitive_bible_resource");
   }
 
+  // If Google Translate has not yet been set up, then enable a bit of information about that.
+  // Do this only in the Cloud.
+#ifdef HAVE_CLOUD
+  auto [ json_key, json_error ] = filter::google::get_json_key_value_error ();
+  if (json_key.empty()) view.enable_zone("setup_translated");
+#endif
+
   
   page += view.render ("resource", "select");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include <filter/url.h>
 #include <menu/logic.h>
 #include <workspace/organize.h>
+using namespace std;
 
 
 string workspace_settings_url ()
@@ -100,8 +101,8 @@ string workspace_settings (void * webserver_request)
   string page;
   
   Assets_Header header = Assets_Header (translate("Edit workspace"), request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.addBreadCrumb (workspace_organize_url (), menu_logic_workspace_organize_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (workspace_organize_url (), menu_logic_workspace_organize_text ());
   page = header.run ();
   
   Assets_View view;
@@ -144,7 +145,7 @@ string workspace_settings (void * webserver_request)
  
   page += view.render ("workspace", "settings");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,9 +27,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <menu/logic.h>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#ifndef HAVE_PUGIXML
 #include <pugixml/pugixml.hpp>
+#endif
+#ifdef HAVE_PUGIXML
+#include <pugixml.hpp>
+#endif
 #pragma GCC diagnostic pop
-
+using namespace std;
 using namespace pugi;
 
 
@@ -62,7 +69,7 @@ bool index_listing_acl (void * webserver_request, string url)
 string index_listing (void * webserver_request, string url)
 {
   string page;
-  page = Assets_Page::header (translate ("Bibledit"), webserver_request);
+  page = assets_page::header (translate ("Bibledit"), webserver_request);
   // No breadcrumbs because the user can arrive here from more than one place.
   Assets_View view;
   url = filter_url_urldecode (url);
@@ -120,6 +127,6 @@ string index_listing (void * webserver_request, string url)
     return filter_url_file_get_contents (filename);
   }
   page += view.render ("index", "listing");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

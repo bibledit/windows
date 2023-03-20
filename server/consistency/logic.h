@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -25,10 +25,10 @@ class Consistency_Logic
 {
 public:
   Consistency_Logic (void * webserver_request_in, int id_in);
-  string response ();
+  std::string response ();
 private:
-  void * webserver_request;
-  int id;
-  string verseText (string resource, int book, int chapter, int verse);
-  string omit_verse_text (string input);
+  void * webserver_request {nullptr};
+  int id {0};
+  std::string verseText (std::string resource, int book, int chapter, int verse);
+  std::string omit_verse_text (std::string input);
 };

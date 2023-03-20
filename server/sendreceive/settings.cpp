@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 #include <sync/logic.h>
 #include <sync/settings.h>
 #include <user/logic.h>
+using namespace std;
 
 
 int sendreceive_settings_watchdog = 0;
@@ -121,7 +122,7 @@ void sendreceive_settings ()
     // What to request for.
     post ["a"] = convert_to_string (id);
 
-    string value;
+    string value {};
     switch (id) {
       case Sync_Logic::settings_send_workspace_urls:
         value = request.database_config_user()->getWorkspaceURLs ();
@@ -133,9 +134,12 @@ void sendreceive_settings ()
         value = request.database_config_user()->getWorkspaceHeights ();
         break;
       case Sync_Logic::settings_send_resources_organization:
+      {
         vector <string> resources = request.database_config_user()->getActiveResources ();
         value = filter_string_implode (resources, "\n");
         break;
+      }
+      default: break;
     }
     post ["v"] = value;
     

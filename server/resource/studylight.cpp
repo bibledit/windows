@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -33,10 +33,16 @@
 #include <menu/logic.h>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#ifndef HAVE_PUGIXML
 #include <pugixml/pugixml.hpp>
+#endif
+#ifdef HAVE_PUGIXML
+#include <pugixml.hpp>
+#endif
 #pragma GCC diagnostic pop
-
-
+using namespace std;
 using namespace pugi;
 
 
@@ -59,7 +65,7 @@ string resource_studylight (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate("Resources"), request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
   Assets_View view;
 
@@ -86,6 +92,6 @@ string resource_studylight (void * webserver_request)
 
   
   page += view.render ("resource", "studylight");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

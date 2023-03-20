@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include <database/notes.h>
 #include <menu/logic.h>
 #include <access/logic.h>
+using namespace std;
 
 
 string notes_index_url ()
@@ -37,7 +38,7 @@ string notes_index_url ()
 
 bool notes_index_acl (void * webserver_request)
 {
-  return access_logic_privilege_view_notes (webserver_request);
+  return access_logic::privilege_view_notes (webserver_request);
 }
 
 
@@ -49,8 +50,8 @@ string notes_index (void * webserver_request)
   string page;
   
   Assets_Header header = Assets_Header (translate("Consultation Notes"), request);
-  header.setNavigator ();
-  header.addBreadCrumb (menu_logic_translate_menu (), menu_logic_translate_text ());
+  header.set_navigator ();
+  header.add_bread_crumb (menu_logic_translate_menu (), menu_logic_translate_text ());
   page = header.run();
   
   Assets_View view;
@@ -93,19 +94,19 @@ string notes_index (void * webserver_request)
   // Manager roles and higher can do mass updates on the notes.
   if (level >= Filter_Roles::manager ()) {
     // No mass updates in basic mode.
-    if (!config_logic_basic_mode (webserver_request)) {
+    if (!config::logic::basic_mode (webserver_request)) {
       view.enable_zone ("update");
     }
   }
   
   // Whether the user can create a new note.
-  if (access_logic_privilege_create_comment_notes (webserver_request)) {
+  if (access_logic::privilege_create_comment_notes (webserver_request)) {
     view.enable_zone ("create");
   }
   
   page += view.render ("notes", "index");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

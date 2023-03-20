@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -28,6 +28,11 @@
 #include <locale/translate.h>
 #include <locale/logic.h>
 #include <database/statistics.h>
+using namespace std;
+
+
+// Internal function declarations.
+void changes_statistics_add (Assets_View & view, const string & date, int count);
 
 
 string changes_statistics_url ()
@@ -64,10 +69,10 @@ string changes_statistics ([[maybe_unused]] void * webserver_request)
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
 
-  string page;
+  string page {};
   Assets_Header header = Assets_Header (translate("Change statistics"), request);
   page += header.run ();
-  Assets_View view;
+  Assets_View view {};
   
   
   string everyone = translate ("Everyone");
@@ -76,11 +81,11 @@ string changes_statistics ([[maybe_unused]] void * webserver_request)
 
   
   vector <pair <int, int>> changes = Database_Statistics::get_changes (user);
-  string last_date;
-  int last_count = 0;
-  for (auto & element : changes) {
-    string date = locale_logic_date (element.first);
-    int count = element.second;
+  string last_date {};
+  int last_count {0};
+  for (const auto & element : changes) {
+    const string date = locale_logic_date (element.first);
+    const int count = element.second;
     if (date == last_date) {
       last_count += count;
     } else {
@@ -111,7 +116,7 @@ string changes_statistics ([[maybe_unused]] void * webserver_request)
   page += view.render ("changes", "statistics");
   
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 #endif
 }

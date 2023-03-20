@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <sync/logic.h>
 #include <client/logic.h>
 #include <locale/translate.h>
+using namespace std;
 
 
 void email_send ()
@@ -145,7 +146,7 @@ struct upload_status {
 #else
 static size_t payload_source (void *ptr, size_t size, size_t nmemb, void *userp)
 {
-  struct upload_status *upload_ctx = (struct upload_status *)userp;
+  upload_status *upload_ctx = static_cast <upload_status *> (userp);
   const char *data;
 
   if((size == 0) || (nmemb == 0) || ((size*nmemb) < 1)) {
@@ -219,8 +220,8 @@ string email_send ([[maybe_unused]] string to_mail,
   
   CURL *curl;
   CURLcode res = CURLE_OK;
-  struct curl_slist *recipients = NULL;
-  struct upload_status upload_ctx;
+  curl_slist * recipients {nullptr};
+  upload_status upload_ctx;
 
   upload_ctx.lines_read = 0;
 
@@ -295,7 +296,7 @@ string email_send ([[maybe_unused]] string to_mail,
    * of using CURLUSESSL_TRY here, because if TLS upgrade fails, the transfer
    * will continue anyway - see the security discussion in the libcurl
    * tutorial for more details. */
-  if (port != "25") curl_easy_setopt(curl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
+  if (port != "25") curl_easy_setopt(curl, CURLOPT_USE_SSL, static_cast<long>(CURLUSESSL_ALL));
 
   /* If your server doesn't have a valid certificate, then you can disable
    * part of the Transport Layer Security protection by setting the
@@ -363,7 +364,7 @@ string email_send ([[maybe_unused]] string to_mail,
 void email_schedule (string to, string subject, string body, int time)
 {
   // Schedule the mail for sending.
-  Database_Mail database_mail (NULL);
+  Database_Mail database_mail (nullptr);
   database_mail.send (to, subject, body, time);
   // Schedule a task to send the scheduled mail right away.
   tasks_logic_queue (SENDEMAIL);

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -19,19 +19,26 @@
 
 #include <filter/md5.h>
 #include <mbedtls/md5.h>
+using namespace std;
 
 
 string md5 (const string str)
 {
   unsigned char md5sum[16];
-  const unsigned char *input = (const unsigned char *)str.c_str ();
+  const unsigned char *input = reinterpret_cast<const unsigned char *>(str.c_str ());
   [[maybe_unused]] int ret = mbedtls_md5_ret (input, str.size (), md5sum);
 
   // Space for 32 bytes of hexits and one terminating null byte.
   char hexits [32+1];
 
   memset (hexits, 0, sizeof (hexits));
-  for (int i = 0; i < 16; i++) sprintf (&hexits[i*2], "%02x", (unsigned int)md5sum[i]);
+  for (int i = 0; i < 16; i++) {
+    // sprintf (&hexits[i*2], "%02x", static_cast<unsigned int>(md5sum[i]));
+    // Function sprintf is marked as deprecated.
+    // Due to security concerns inherent in the design of sprintf(3),
+    // it now uses snprintf(3) instead.
+    snprintf (&hexits[i*2], 3, "%02x", static_cast<unsigned int>(md5sum[i]));
+  }
   
   // Resulting hexits.
   return string (hexits);

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -25,18 +25,23 @@
 #include <database/logs.h>
 #include <database/books.h>
 #include <filter/usfm.h>
+using namespace std;
 
 
-mutex log_network_mutex;
-vector <string> log_network_cache;
+// Internal function declarations.
+void developer_logic_import_changes_save (string bible, int book, int chapter, int verse, string & text);
+
+
+mutex log_network_mutex {};
+vector <string> log_network_cache {};
 
 
 void developer_logic_log_network_write ()
 {
   if (!log_network_cache.empty ()) {
     log_network_mutex.lock ();
-    string lines;
-    for (auto line : log_network_cache) {
+    string lines {};
+    for (const auto & line : log_network_cache) {
       lines.append (line);
       lines.append ("\n");
     }
@@ -59,7 +64,7 @@ Developer_Logic_Tracer::Developer_Logic_Tracer(void * webserver_request)
   rfc822 = filter::date::rfc822 (seconds1);
   remote_address = request->remote_address;
   request_get = request->get;
-  for (auto element : request->query) {
+  for (const auto & element : request->query) {
     request_query.append(" ");
     request_query.append(element.first);
     request_query.append("=");
@@ -90,7 +95,7 @@ void developer_logic_import_changes_save (string bible, int book, int chapter, i
     return;
   }
   
-  Webserver_Request webserver_request;
+  Webserver_Request webserver_request {};
   string explanation = "import changes";
   string message = filter::usfm::safely_store_verse (&webserver_request, bible, book, chapter, verse, text, explanation, false);
   if (!message.empty()) Database_Logs::log (message);
@@ -106,7 +111,7 @@ void developer_logic_import_changes ()
   string file_path = filter_url_create_path ({home_path, "Desktop", "changes.usfm"});
   string bible = "test";
   Database_Logs::log ("Import changes from " + file_path + " into Bible " + bible);
-  Database_Bibles database_bibles;
+  Database_Bibles database_bibles {};
   vector <string> bibles = database_bibles.getBibles ();
   if (!in_array(bible, bibles)) {
     Database_Logs::log ("Cannot locate Bible " + bible);
@@ -119,31 +124,31 @@ void developer_logic_import_changes ()
   string contents = filter_url_file_get_contents(file_path);
   vector<string> lines = filter_string_explode(contents, "\n");
 
-  vector <int> book_ids = Database_Books::getIDs ();
+  vector <book_id> book_ids = database::books::get_ids ();
 
-  Passage passage (bible, 0, 0, "");
-  string text;
+  Passage passage (bible, 0, 0, string());
+  string text {};
 
   for (auto line : lines) {
     if (line.empty()) continue;
     
-    int book = 0;
-    int chapter = -1;
-    int verse = -1;
+    book_id book {book_id::_unknown};
+    int chapter {-1};
+    int verse {-1};
 
     // Locate and extract the book identifier.
-    for (auto book_id : book_ids) {
-      string s = Database_Books::getEnglishFromId(book_id);
+    for (auto book_num : book_ids) {
+      string s = database::books::get_english_from_id(static_cast<book_id>(book_num));
       size_t pos = line.find(s);
       if (pos != 3) continue;
-      book = book_id;
+      book = book_num;
       line.erase (0, pos + s.length());
       break;
     }
     
     // Extract chapter and verse.
-    bool passage_found = false;
-    if (book) {
+    bool passage_found {false};
+    if (book != book_id::_unknown) {
       size_t pos = line.find (":");
       if (pos != string::npos) {
         vector <string> bits = filter_string_explode(line.substr (0, pos), ".");
@@ -151,7 +156,7 @@ void developer_logic_import_changes ()
           chapter = convert_to_int(filter_string_trim(bits[0]));
           verse = convert_to_int(filter_string_trim(bits[1]));
           line.erase (0, pos + 2);
-          passage_found = (book) && (chapter >= 0) && (verse >= 0);
+          passage_found = (book != book_id::_unknown) && (chapter >= 0) && (verse >= 0);
         }
       }
     }
@@ -161,7 +166,7 @@ void developer_logic_import_changes ()
     // 2. Update the passage to point to the new one.
     if (passage_found) {
       developer_logic_import_changes_save (passage.m_bible, passage.m_book, passage.m_chapter, convert_to_int (passage.m_verse), text);
-      passage = Passage(bible, book, chapter, convert_to_string(verse));
+      passage = Passage(bible, static_cast<int>(book), chapter, convert_to_string(verse));
     }
     // Accumulate the text.
     if (!text.empty()) text.append ("\n");

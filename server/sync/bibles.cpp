@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@
 #include <bb/logic.h>
 #include <rss/logic.h>
 #include <sendreceive/logic.h>
+using namespace std;
 
 
 string sync_bibles_url ()
@@ -58,15 +59,15 @@ string sync_bibles_receive_chapter (Webserver_Request * request, string & bible,
 
   
   string username = request->session_logic ()->currentUser ();
-  string bookname = Database_Books::getEnglishFromId (book);
+  string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
   
   
   // Check whether the user has write-access to the Bible book.
-  if (!AccessBible::BookWrite (request, username, bible, book)) {
+  if (!access_bible::book_write (request, username, bible, book)) {
     string message = "User " + username + " does not have write access to Bible " + bible;
     Database_Logs::log (message, Filter_Roles::manager ());
     // The Cloud will email the user with details about the issue.
-    bible_logic_client_no_write_access_mail (bible, book, chapter, username, oldusfm, newusfm);
+    bible_logic::client_no_write_access_mail (bible, book, chapter, username, oldusfm, newusfm);
     // The Cloud returns the checksum so the client things the chapter was send off correcly,
     // and will not re-schedule this as a failure.
     return checksum;
@@ -74,7 +75,7 @@ string sync_bibles_receive_chapter (Webserver_Request * request, string & bible,
   
   
   // Check checksum.
-  if (checksum != Checksum_Logic::get (oldusfm + newusfm)) {
+  if (checksum != checksum_logic::get (oldusfm + newusfm)) {
     string message = "The received data is corrupted";
     Database_Logs::log (message, Filter_Roles::manager ());
     return message;
@@ -102,23 +103,23 @@ string sync_bibles_receive_chapter (Webserver_Request * request, string & bible,
   
   
   // Server logs the change from the client.
-  bible_logic_log_change (bible, book, chapter, newusfm, username, translate ("Received from client"), false);
+  bible_logic::log_change (bible, book, chapter, newusfm, username, translate ("Received from client"), false);
 
   
   if (serverusfm == "") {
     // If the chapter on the server is still empty, then just store the client's version on the server, and that's it.
-    bible_logic_store_chapter (bible, book, chapter, newusfm);
+    bible_logic::store_chapter (bible, book, chapter, newusfm);
   } else if (newusfm != serverusfm) {
     // Do a merge in case the client sends USFM that differs from what's on the server.
     vector <Merge_Conflict> conflicts;
     string mergedusfm = filter_merge_run (oldusfm, newusfm, serverusfm, true, conflicts);
     // Update the server with the new chapter data.
-    bible_logic_store_chapter (bible, book, chapter, mergedusfm);
+    bible_logic::store_chapter (bible, book, chapter, mergedusfm);
     // Check on the merge.
     filter_merge_add_book_chapter (conflicts, book, chapter);
-    bible_logic_client_receive_merge_mail (bible, book, chapter, username, oldusfm, newusfm, mergedusfm);
+    bible_logic::client_receive_merge_mail (bible, book, chapter, username, oldusfm, newusfm, mergedusfm);
     // Log the merge in the journal, for possible trouble shooting.
-    bible_logic_log_merge (username, bible, book, chapter, oldusfm, newusfm, serverusfm, mergedusfm);
+    bible_logic::log_merge (username, bible, book, chapter, oldusfm, newusfm, serverusfm, mergedusfm);
   }
   
 
@@ -176,8 +177,8 @@ string sync_bibles (void * webserver_request)
       // calculate the checksum of all chapters in those Bibles,
       // and returns this checksum to the client.
       string username = request->session_logic ()->currentUser ();
-      vector <string> bibles = AccessBible::Bibles (request, username);
-      string server_checksum = Checksum_Logic::getBibles (request, bibles);
+      vector <string> bibles = access_bible::bibles (request, username);
+      string server_checksum = checksum_logic::get_bibles (request, bibles);
       return server_checksum;
     }
     case Sync_Logic::bibles_get_bibles:
@@ -185,15 +186,15 @@ string sync_bibles (void * webserver_request)
       // The server reads the credentials from the client's user,
       // and responds with a list of Bibles this user has access to.
       string username = request->session_logic ()->currentUser ();
-      vector <string> bibles = AccessBible::Bibles (request, username);
-      string checksum = Checksum_Logic::get (bibles);
+      vector <string> bibles = access_bible::bibles (request, username);
+      string checksum = checksum_logic::get (bibles);
       string s_bibles = filter_string_implode (bibles, "\n");
       return checksum + "\n" + s_bibles;
     }
     case Sync_Logic::bibles_get_bible_checksum:
     {
       // The server responds with the checksum for the whole Bible.
-      return Checksum_Logic::getBible (request, bible);
+      return checksum_logic::get_bible (request, bible);
     }
     case Sync_Logic::bibles_get_books:
     {
@@ -202,13 +203,13 @@ string sync_bibles (void * webserver_request)
       vector <string> v_server_books;
       for (auto server_book : server_books) v_server_books.push_back (convert_to_string (server_book));
       string s_server_books = filter_string_implode (v_server_books, "\n");
-      string checksum = Checksum_Logic::get (v_server_books);
+      string checksum = checksum_logic::get (v_server_books);
       return checksum + "\n" + s_server_books;
     }
     case Sync_Logic::bibles_get_book_checksum:
     {
       // The server responds with the checksum of the whole book.
-      return Checksum_Logic::getBook (request, bible, book);
+      return checksum_logic::get_book (request, bible, book);
     }
     case Sync_Logic::bibles_get_chapters:
     {
@@ -217,13 +218,13 @@ string sync_bibles (void * webserver_request)
       vector <string> v_server_chapters;
       for (auto & server_chapter : server_chapters) v_server_chapters.push_back (convert_to_string (server_chapter));
       string s_server_chapters = filter_string_implode (v_server_chapters, "\n");
-      string checksum = Checksum_Logic::get (v_server_chapters);
+      string checksum = checksum_logic::get (v_server_chapters);
       return checksum + "\n" + s_server_chapters;
     }
     case Sync_Logic::bibles_get_chapter_checksum:
     {
       // The server responds with the checksum of the whole chapter.
-      return Checksum_Logic::getChapter (request, bible, book, chapter);
+      return checksum_logic::get_chapter (request, bible, book, chapter);
     }
     case Sync_Logic::bibles_send_chapter:
     {
@@ -233,9 +234,10 @@ string sync_bibles (void * webserver_request)
     {
       // The server responds with the USFM of the chapter, prefixed by a checksum.
       string usfm = filter_string_trim (request->database_bibles()->getChapter (bible, book, chapter));
-      string checksum = Checksum_Logic::get (usfm);
+      string checksum = checksum_logic::get (usfm);
       return checksum + "\n" + usfm;
     }
+    default: {};
   }
   
   // Bad request.

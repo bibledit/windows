@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include <webserver/request.h>
 #include <access/logic.h>
 #include <config/globals.h>
+using namespace std;
 
 
 string resource_unload_url ()
@@ -33,7 +34,7 @@ string resource_unload_url ()
 
 bool resource_unload_acl (void * webserver_request)
 {
-  return access_logic_privilege_view_resources (webserver_request);
+  return access_logic::privilege_view_resources (webserver_request);
 }
 
 

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,12 +32,18 @@
 #include <database/config/general.h>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#ifndef HAVE_PUGIXML
 #include <pugixml/pugixml.hpp>
+#endif
+#ifdef HAVE_PUGIXML
+#include <pugixml.hpp>
+#endif
 #pragma GCC diagnostic pop
 #include <resource/comparative1edit.h>
 #include <client/logic.h>
-
-
+using namespace std;
 using namespace pugi;
 
 
@@ -60,7 +66,7 @@ string resource_comparative9edit (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate("Comparative resources"), request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
   Assets_View view;
   string error, success;
@@ -159,6 +165,6 @@ string resource_comparative9edit (void * webserver_request)
   view.set_variable ("success", success);
   view.set_variable ("error", error);
   page += view.render ("resource", "comparative9edit");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

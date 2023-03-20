@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,8 +29,7 @@
 #include <read/logic.h>
 #include <edit/logic.h>
 #include <database/config/bible.h>
-
-
+using namespace std;
 using namespace pugi;
 
 
@@ -42,11 +41,8 @@ string read_load_url ()
 
 bool read_load_acl (void * webserver_request)
 {
-  if (config_logic_indonesian_cloud_free ()) {
-    return true;
-  }
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return read;
 }
 
@@ -123,7 +119,7 @@ string read_load (void * webserver_request)
   
   string user = request->session_logic ()->currentUser ();
   bool write = false;
-  data = Checksum_Logic::send (data, write);
+  data = checksum_logic::send (data, write);
 
   return data;
 }

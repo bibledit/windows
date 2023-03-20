@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,11 +24,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/passage.h>
 
 
-class Database_Kjv_Item
+struct Database_Kjv_Item
 {
-public:
-  string strong;
-  string english;
+  std::string strong {};
+  std::string english {};
 };
 
 
@@ -37,16 +36,16 @@ class Database_Kjv
 public:
   void create ();
   void optimize ();
-  vector <Database_Kjv_Item> getVerse (int book, int chapter, int verse);
-  vector <Passage> searchStrong (string strong);
-  void store (int book, int chapter, int verse, string strong, string english);
-  vector <int> rowids (int book, int chapter, int verse);
-  string strong (int rowid);
-  string english (int rowid);
+  std::vector <Database_Kjv_Item> getVerse (int book, int chapter, int verse);
+  std::vector <Passage> searchStrong (std::string strong);
+  void store (int book, int chapter, int verse, std::string strong, std::string english);
+  std::vector <int> rowids (int book, int chapter, int verse);
+  std::string strong (int rowid);
+  std::string english (int rowid);
 private:
   const char * filename ();
-  int get_id (const char * table_row, string item);
-  string get_item (const char * item, int rowid);
+  int get_id (const char * table_row, std::string item);
+  std::string get_item (const char * item, int rowid);
 };
 
 

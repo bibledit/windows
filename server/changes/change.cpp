@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -37,10 +37,16 @@
 #include <locale/logic.h>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#ifndef HAVE_PUGIXML
 #include <pugixml/pugixml.hpp>
+#endif
+#ifdef HAVE_PUGIXML
+#include <pugixml.hpp>
+#endif
 #pragma GCC diagnostic pop
-
-
+using namespace std;
 using namespace pugi;
 
 
@@ -59,7 +65,7 @@ bool changes_change_acl (void * webserver_request)
 string changes_change (void * webserver_request)
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  Database_Modifications database_modifications;
+  Database_Modifications database_modifications {};
   Database_Notes database_notes = Database_Notes (request);
   Notes_Logic notes_logic = Notes_Logic (request);
 
@@ -69,7 +75,7 @@ string changes_change (void * webserver_request)
     string unsubscribe = request->post["unsubscribe"];
     unsubscribe.erase (0, 11);
     notes_logic.unsubscribe (convert_to_int (unsubscribe));
-    return "";
+    return string();
   }
   
   
@@ -78,7 +84,7 @@ string changes_change (void * webserver_request)
     string unassign = request->post["unassign"];
     unassign.erase (0, 8);
     notes_logic.unassignUser (convert_to_int (unassign), request->session_logic()->currentUser ());
-    return "";
+    return string();
   }
   
   
@@ -88,12 +94,12 @@ string changes_change (void * webserver_request)
     erase.erase (0, 6);
     int identifier = convert_to_int (erase);
     notes_logic.markForDeletion (identifier);
-    return "";
+    return string();
   }
   
   
   // From here on the script will produce output.
-  Assets_View view;
+  Assets_View view {};
   string username = request->session_logic()->currentUser ();
   int level = request->session_logic ()->currentLevel ();
   
@@ -116,27 +122,27 @@ string changes_change (void * webserver_request)
 
   // Bibles and passage.
   Passage passage = database_modifications.getNotificationPassage (id);
-  vector <string> bibles = AccessBible::Bibles (request);
+  vector <string> bibles = access_bible::bibles (request);
   
   
   // Get notes for the passage.
   vector <int> notes = database_notes.select_notes (bibles, // Bibles.
-                                                   passage.m_book, passage.m_chapter, convert_to_int (passage.m_verse),
-                                                   0,  // Passage selector.
-                                                   0,  // Edit selector.
-                                                   0,  // Non-edit selector.
-                                                   "", // Status selector.
-                                                   "", // Bible selector.
-                                                   "", // Assignment selector.
-                                                   0,  // Subscription selector.
-                                                   -1, // Severity selector.
-                                                   0,  // Text selector.
-                                                   "", // Search text.
-                                                   -1); // Limit.
+                                                    passage.m_book, passage.m_chapter, convert_to_int (passage.m_verse),
+                                                    0,  // Passage selector.
+                                                    0,  // Edit selector.
+                                                    0,  // Non-edit selector.
+                                                    "", // Status selector.
+                                                    "", // Bible selector.
+                                                    "", // Assignment selector.
+                                                    0,  // Subscription selector.
+                                                    -1, // Severity selector.
+                                                    0,  // Text selector.
+                                                    "", // Search text.
+                                                    -1); // Limit.
   
   // Remove the ones marked for deletion.
   vector <int> notes2;
-  for (auto note : notes) {
+  for (const auto note : notes) {
     if (!database_notes.is_marked_for_deletion (note)) {
       notes2.push_back (note);
     }
@@ -145,7 +151,7 @@ string changes_change (void * webserver_request)
   
   // Sort them, most recent notes first.
   vector <int> timestamps;
-  for (auto note : notes) {
+  for (const auto note : notes) {
     int timestap = database_notes.get_modified (note);
     timestamps.push_back (timestap);
   }
@@ -160,8 +166,8 @@ string changes_change (void * webserver_request)
 
 
   // Details for the notes.
-  xml_document notes_document;
-  for (auto & note : notes) {
+  xml_document notes_document {};
+  for (const auto note : notes) {
     string summary = database_notes.get_summary (note);
     summary = escape_special_xml_characters (summary);
     bool subscription = database_notes.is_subscribed (note, username);
@@ -169,7 +175,7 @@ string changes_change (void * webserver_request)
     xml_node tr_node = notes_document.append_child("tr");
     xml_node td_node = tr_node.append_child("td");
     xml_node a_node = td_node.append_child("a");
-    string href;
+    string href {};
     if (live_notes_editor) {
       a_node.append_attribute("class") = "opennote";
       href = convert_to_string (note);
@@ -181,23 +187,23 @@ string changes_change (void * webserver_request)
     td_node = tr_node.append_child("td");
     if (subscription) {
       xml_node a_node2 = td_node.append_child("a");
-      a_node2.append_attribute("href") = string("unsubscribe" + convert_to_string (note)).c_str();
-      a_node2.text().set(string("[" + translate("unsubscribe") + "]").c_str());
+      a_node2.append_attribute("href") = ("unsubscribe" + convert_to_string (note)).c_str();
+      a_node2.text().set(("[" + translate("unsubscribe") + "]").c_str());
     }
     td_node = tr_node.append_child("td");
     if (assignment) {
       xml_node a_node2 = td_node.append_child("a");
-      a_node2.append_attribute("href") = string("unassign" + convert_to_string (note)).c_str();
-      a_node2.text().set(string("[" + translate("I have done my part on it") + "]").c_str());
+      a_node2.append_attribute("href") = ("unassign" + convert_to_string (note)).c_str();
+      a_node2.text().set(("[" + translate("I have done my part on it") + "]").c_str());
     }
     td_node = tr_node.append_child("td");
     if (level >= Filter_Roles::manager ()) {
       xml_node a_node2 = td_node.append_child("a");
-      a_node2.append_attribute("href") = string("delete" + convert_to_string (note)).c_str();
-      a_node2.text().set(string("[" + translate("mark for deletion") + "]").c_str());
+      a_node2.append_attribute("href") = ("delete" + convert_to_string (note)).c_str();
+      a_node2.text().set(("[" + translate("mark for deletion") + "]").c_str());
     }
   }
-  stringstream notesblock;
+  stringstream notesblock {};
   notes_document.print(notesblock, "", format_raw);
   view.set_variable ("notesblock", notesblock.str());
 

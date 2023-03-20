@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/string.h>
 #include <database/sqlite.h>
 #include <database/books.h>
+using namespace std;
 
 
 // This is a database for the verse mapping systems.
@@ -145,7 +146,7 @@ void Database_Mappings::import (const string& name, const string& data)
     // Remove the last bit so it remains with the book, and get that book.
     bits.pop_back();
     string passage_book_string = filter_string_implode(bits, " ");
-    int passage_book = Database_Books::getIdFromEnglish(passage_book_string);
+    int passage_book = static_cast<int>(database::books::get_id_from_english(passage_book_string));
 
     // Split the original entry on the colon (:) to get the verse.
     bits = filter_string_explode(original_string, ':');
@@ -158,7 +159,7 @@ void Database_Mappings::import (const string& name, const string& data)
     // Remove the last bit so it remains with the book, and get that book.
     bits.pop_back();
     string original_book_string = filter_string_implode(bits, " ");
-    int original_book = Database_Books::getIdFromEnglish(original_book_string);
+    int original_book = static_cast<int>(database::books::get_id_from_english(original_book_string));
 
     // Store it in the database.
     SqliteSQL sql = SqliteSQL ();
@@ -207,11 +208,11 @@ string Database_Mappings::output (const string& name)
 
   for (unsigned int i = 0; i < books.size (); i++) {
     int book = convert_to_int (books [i]);
-    string bookname = Database_Books::getEnglishFromId (book);
+    string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
     string chapter = chapters [i];
     string verse = verses [i];
     int origbook = convert_to_int (origbooks[i]);
-    string origbookname = Database_Books::getEnglishFromId (origbook);
+    string origbookname = database::books::get_english_from_id (static_cast<book_id>(origbook));
     string origchapter = origchapters[i];
     string origverse = origverses [i];
     string item = bookname + " " + chapter + ":" + verse + " = " + origbookname + " " + origchapter + ":" + origverse;

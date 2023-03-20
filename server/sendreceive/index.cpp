@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@
 #include <menu/logic.h>
 #include <config/globals.h>
 #include <tasks/enums.h>
+using namespace std;
 
 
 string sendreceive_index_url ()
@@ -83,7 +84,7 @@ string sendreceive_index (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate("Send/Receive"), request);
-  header.addBreadCrumb (menu_logic_tools_menu (), menu_logic_tools_text ());
+  header.add_bread_crumb (menu_logic_tools_menu (), menu_logic_tools_text ());
   page = header.run ();
   Assets_View view;
   
@@ -93,10 +94,10 @@ string sendreceive_index (void * webserver_request)
     bible = request->query["bible"];
     if (bible.empty()) {
       Dialog_List dialog_list = Dialog_List ("index", translate("Select a Bible"), "", "");
-      vector <string> bibles = AccessBible::Bibles (request);
+      vector <string> bibles = access_bible::bibles (request);
       for (auto & selectable_bible : bibles) {
         // Select Bibles the user has write access to.
-        if (AccessBible::Write (request, selectable_bible)) {
+        if (access_bible::write (request, selectable_bible)) {
           dialog_list.add_row (selectable_bible, "bible", selectable_bible);
         }
       }
@@ -108,7 +109,7 @@ string sendreceive_index (void * webserver_request)
   }
   
   
-  bible = AccessBible::Clamp (request, request->database_config_user()->getBible ());
+  bible = access_bible::clamp (request, request->database_config_user()->getBible ());
   view.set_variable ("bible", bible);
 
 
@@ -219,8 +220,12 @@ string sendreceive_index (void * webserver_request)
   } else {
     view.enable_zone ("gitwrite");
   }
+
+  
+  bool basic_mode = config::logic::basic_mode (request);
+  if (basic_mode) view.enable_zone("basicmode");
   
   page += view.render ("sendreceive", "index");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include <journal/logic.h>
 #include <menu/logic.h>
 #include <database/bibleimages.h>
+using namespace std;
 
 
 string images_view_url ()
@@ -52,8 +53,8 @@ string images_view (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate("Bible image"), request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.addBreadCrumb (images_view_url (), menu_logic_images_index_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (images_view_url (), menu_logic_images_index_text ());
   page = header.run ();
   Assets_View view;
   string error, success;
@@ -64,6 +65,6 @@ string images_view (void * webserver_request)
   view.set_variable ("success", success);
   view.set_variable ("error", error);
   page += view.render ("images", "view");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

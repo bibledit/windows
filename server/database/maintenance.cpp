@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -146,7 +146,7 @@ void database_maintenance ()
   notes_logic_maintain_note_assignees (false);
   
   
-  access_logic_create_client_files ();
+  access_logic::create_client_files ();
   
   
 #ifdef HAVE_CLOUD

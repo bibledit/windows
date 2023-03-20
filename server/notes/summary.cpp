@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include <access/bible.h>
 #include <ipc/focus.h>
 #include <notes/note.h>
+using namespace std;
 
 
 string notes_summary_url ()
@@ -76,7 +77,7 @@ string notes_summary (void * webserver_request)
   
   page += view.render ("notes", "summary");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

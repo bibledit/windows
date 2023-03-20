@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@
 #include <quill/logic.h>
 #include <rss/logic.h>
 #include <sendreceive/logic.h>
+using namespace std;
 
 
 string edit_save_url ()
@@ -51,7 +52,7 @@ string edit_save_url ()
 bool edit_save_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return read;
 }
 
@@ -72,7 +73,7 @@ string edit_save (void * webserver_request)
   string checksum = request->post["checksum"];
   string unique_id = request->post ["id"];
 
-  if (Checksum_Logic::get (html) != checksum) {
+  if (checksum_logic::get (html) != checksum) {
     request->response_code = 409;
     return translate("Checksum error");
   }
@@ -90,7 +91,7 @@ string edit_save (void * webserver_request)
     return translate("Save failure");
   }
   
-  if (!AccessBible::BookWrite (request, string(), bible, book)) {
+  if (!access_bible::book_write (request, string(), bible, book)) {
     return translate("No write access");
   }
 
@@ -141,7 +142,7 @@ string edit_save (void * webserver_request)
   
   // Check on the merge.
   filter_merge_add_book_chapter (conflicts, book, chapter);
-  bible_logic_merge_irregularity_mail ({username}, conflicts);
+  bible_logic::merge_irregularity_mail ({username}, conflicts);
   
   // Check whether the USFM on disk has changed compared to the USFM that was loaded in the editor.
   // If there's a difference, email the user.
@@ -152,13 +153,13 @@ string edit_save (void * webserver_request)
   // Because the user's editor may not yet have loaded this updated Bible text.
   // https://github.com/bibledit/cloud/issues/340
   if (ancestor_usfm != server_usfm) {
-    bible_logic_recent_save_email (bible, book, chapter, username, ancestor_usfm, server_usfm);
+    bible_logic::recent_save_email (bible, book, chapter, username, ancestor_usfm, server_usfm);
   }
 
   // Safely store the chapter.
   string explanation;
   string message = filter::usfm::safely_store_chapter (request, bible, book, chapter, user_usfm, explanation);
-  bible_logic_unsafe_save_mail (message, explanation, username, user_usfm, book, chapter);
+  bible_logic::unsafe_save_mail (message, explanation, username, user_usfm, book, chapter);
 
   // If an error message was given, then return that message to the browser.
   if (!message.empty ()) return message;

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include <checksum/logic.h>
 #include <edit/logic.h>
 #include <access/bible.h>
+using namespace std;
 
 
 string editusfm_load_url ()
@@ -35,7 +36,7 @@ string editusfm_load_url ()
 bool editusfm_load_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return read;
 }
 
@@ -58,7 +59,7 @@ string editusfm_load (void * webserver_request)
   usfm = escape_special_xml_characters (usfm);
 
   string user = request->session_logic ()->currentUser ();
-  bool write = AccessBible::BookWrite (webserver_request, user, bible, book);
+  bool write = access_bible::book_write (webserver_request, user, bible, book);
 
-  return Checksum_Logic::send (usfm, write);
+  return checksum_logic::send (usfm, write);
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include <database/logs.h>
 #include <webserver/request.h>
 #include <locale/translate.h>
+using namespace std;
 
 
 string sendreceive_tag ()

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@
 #include <dialog/list.h>
 #include <resource/logic.h>
 #include <menu/logic.h>
+using namespace std;
 
 
 string consistency_index_url ()
@@ -56,7 +57,7 @@ string consistency_index (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate("Consistency"), webserver_request);
-  header.addBreadCrumb (menu_logic_tools_menu (), menu_logic_tools_text ());
+  header.add_bread_crumb (menu_logic_tools_menu (), menu_logic_tools_text ());
   page = header.run ();
   Assets_View view;
 
@@ -89,6 +90,6 @@ string consistency_index (void * webserver_request)
 
   
   page += view.render ("consistency", "index");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

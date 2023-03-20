@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/md5.h>
 #include <filter/roles.h>
 #include <filter/date.h>
+using namespace std;
 
 
 // This database is resilient.
@@ -52,12 +53,12 @@ void Database_Users::upgrade ()
   SqliteDatabase sql (filename ());
   sql.add ("PRAGMA table_info (users);");
   vector <string> columns = sql.query () ["name"];
-  if (!in_array ((string)"ldap", columns)) {
+  if (!in_array (static_cast<string> ("ldap"), columns)) {
     sql.clear ();
     sql.add ("ALTER TABLE users ADD COLUMN ldap boolean;");
     sql.execute ();
   }
-  if (!in_array ((string)"disabled", columns)) {
+  if (!in_array (static_cast<string> ("disabled"), columns)) {
     sql.clear ();
     sql.add ("ALTER TABLE users ADD COLUMN disabled boolean;");
     sql.execute ();

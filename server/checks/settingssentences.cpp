@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@
 #include <access/bible.h>
 #include <menu/logic.h>
 #include <checks/settings.h>
+using namespace std;
 
 
 string checks_settingssentences_url ()
@@ -58,15 +59,15 @@ string checks_settingssentences (void * webserver_request)
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   
-  string page;
+  string page {};
   Assets_Header header = Assets_Header (translate ("Sentence Structure"), webserver_request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.addBreadCrumb (checks_settings_url (), menu_logic_checks_settings_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (checks_settings_url (), menu_logic_checks_settings_text ());
   page = header.run ();
-  Assets_View view;
+  Assets_View view {};
   
   
-  string bible = AccessBible::Clamp (webserver_request, request->database_config_user()->getBible ());
+  string bible = access_bible::clamp (webserver_request, request->database_config_user()->getBible ());
   
   
   if (request->post.count ("capitals")) {
@@ -122,6 +123,6 @@ string checks_settingssentences (void * webserver_request)
   
   
   page += view.render ("checks", "settingssentences");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

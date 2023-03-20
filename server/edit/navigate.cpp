@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include <editor/usfm2html.h>
 #include <access/bible.h>
 #include <database/config/bible.h>
+using namespace std;
 
 
 string edit_navigate_url ()
@@ -37,7 +38,7 @@ string edit_navigate_url ()
 bool edit_navigate_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return write;
 }
 
@@ -79,7 +80,7 @@ string edit_navigate (void * webserver_request)
   // This covers combined verses also.
   int last_offset = 0;
   vector <int> verses = filter::usfm::get_verse_numbers (usfm);
-  for (int i = 0; i < (int)verses.size (); i++) {
+  for (int i = 0; i < static_cast<int>(verses.size ()); i++) {
     if (editor_usfm2html.verseStartOffsets.count (i)) {
       last_offset = editor_usfm2html.verseStartOffsets [i];
     } else {
@@ -114,9 +115,9 @@ string edit_navigate (void * webserver_request)
   int verse = Ipc_Focus::getVerse (request);
   for (size_t i = 0; i < verses.size (); i++) {
     if (verse == verses[i]) {
-      if ((size_t) offset >= starting_offsets [i]) {
-        if ((size_t) offset <= ending_offsets [i]) {
-          return "";
+      if (offset >= starting_offsets [i]) {
+        if (offset <= ending_offsets [i]) {
+          return string();
         }
       }
     }

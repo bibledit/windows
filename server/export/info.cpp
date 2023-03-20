@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -33,12 +33,13 @@
 #include <filter/shell.h>
 #include <locale/translate.h>
 #include <styles/sheets.h>
+using namespace std;
 
 
 void export_info (string bible, bool log)
 {
   // Create folders for the information.
-  string directory = filter_url_create_path ({Export_Logic::bibleDirectory (bible), "info"});
+  string directory = filter_url_create_path ({export_logic::bible_directory (bible), "info"});
   if (!file_or_dir_exists (directory)) filter_url_mkdir (directory);
   
   
@@ -78,7 +79,7 @@ void export_info (string bible, bool log)
   
   
   // Clear the flag for this export.
-  Database_State::clearExport (bible, 0, Export_Logic::export_info);
+  Database_State::clearExport (bible, 0, export_logic::export_info);
 
   
   if (log) Database_Logs::log (translate("Documents with information and fallout were created") + " " + bible, Filter_Roles::translator ());

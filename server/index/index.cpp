@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/webview.h>
 #include <menu/logic.h>
 #include <read/index.h>
+using namespace std;
 
 
 const char * index_index_url ()
@@ -57,19 +58,12 @@ string index_index (void * webserver_request)
   
   Assets_Header header = Assets_Header (translate ("Bibledit"), webserver_request);
   
-  if (config_logic_demo_enabled ()) {
+  if (config::logic::demo_enabled ()) {
     // The demo, when there's no active menu, forwards to the active workspace.
     // This is disabled see https://github.com/bibledit/cloud/issues/789
 //    if (request->query.empty ()) {
 //      header.refresh (5, "/" + workspace_index_url ());
 //    }
-    // Indonesian Cloud Free
-    // Forwards to read/index instead.
-    if (config_logic_indonesian_cloud_free_simple ()) {
-      if (request->query.empty ()) {
-        header.refresh (5, "/" + read_index_url ());
-      }
-    }
   }
   
   // Basic or advanced mode setting.
@@ -103,9 +97,9 @@ string index_index (void * webserver_request)
   
   Assets_View view;
 
-  view.set_variable ("warning", bible_logic_unsent_unreceived_data_warning ());
+  view.set_variable ("warning", bible_logic::unsent_unreceived_data_warning ());
   
   page += view.render ("index", "index");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

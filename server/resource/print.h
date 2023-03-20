@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@
 
 #include <config/libraries.h>
 
-string resource_print_url ();
+std::string resource_print_url ();
 bool resource_print_acl (void * webserver_request);
-string resource_print (void * webserver_request);
+std::string resource_print (void * webserver_request);
 
-void resource_print_job (string jobId, string user, string bible);
+void resource_print_job (std::string jobId, std::string user, std::string bible);

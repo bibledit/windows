@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -34,20 +34,21 @@
 #include <filter/usfm.h>
 #include <locale/translate.h>
 #include <styles/sheets.h>
+using namespace std;
 
 
 void export_text_usfm_book (string bible, int book, bool log)
 {
   // Create folders for the clear text and the basic USFM exports.
-  string usfmDirectory = Export_Logic::USFMdirectory (bible, 1);
+  string usfmDirectory = export_logic::usfm_directory (bible, 1);
   if (!file_or_dir_exists (usfmDirectory)) filter_url_mkdir (usfmDirectory);
-  string textDirectory = filter_url_create_path ({Export_Logic::bibleDirectory (bible), "text"});
+  string textDirectory = filter_url_create_path ({export_logic::bible_directory (bible), "text"});
   if (!file_or_dir_exists (textDirectory)) filter_url_mkdir (textDirectory);
   
   
   // Filenames for text and usfm.
-  string usfmFilename = filter_url_create_path ({usfmDirectory, Export_Logic::baseBookFileName (book) + ".usfm"});
-  string textFilename = filter_url_create_path ({textDirectory, Export_Logic::baseBookFileName (book) + ".txt"});
+  string usfmFilename = filter_url_create_path ({usfmDirectory, export_logic::base_book_filename (bible, book) + ".usfm"});
+  string textFilename = filter_url_create_path ({textDirectory, export_logic::base_book_filename (bible, book) + ".txt"});
   
   
   Database_Bibles database_bibles;
@@ -62,7 +63,7 @@ void export_text_usfm_book (string bible, int book, bool log)
   
   // Basic USFM.
   if (file_or_dir_exists (usfmFilename)) filter_url_unlink (usfmFilename);
-  string basicUsfm = "\\id " + Database_Books::getUsfmFromId (book) + "\n";
+  string basicUsfm = "\\id " + database::books::get_usfm_from_id (static_cast<book_id>(book)) + "\n";
   filter_url_file_put_contents_append (usfmFilename, basicUsfm);
   
   
@@ -119,8 +120,8 @@ void export_text_usfm_book (string bible, int book, bool log)
   
   
   // Clear the flag that indicated this export.
-  Database_State::clearExport (bible, book, Export_Logic::export_text_and_basic_usfm);
+  Database_State::clearExport (bible, book, export_logic::export_text_and_basic_usfm);
 
   
-  if (log) Database_Logs::log (translate("Exported to basic USFM and text") + ": " + bible + " " + Database_Books::getEnglishFromId (book), Filter_Roles::translator ());
+  if (log) Database_Logs::log (translate("Exported to basic USFM and text") + ": " + bible + " " + database::books::get_english_from_id (static_cast<book_id>(book)), Filter_Roles::translator ());
 }

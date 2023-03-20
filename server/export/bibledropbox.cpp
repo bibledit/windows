@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include <styles/sheets.h>
 #include <webserver/request.h>
 #include <email/send.h>
+using namespace std;
 
 
 void export_bibledropbox (string user, string bible)
@@ -72,7 +73,7 @@ void export_bibledropbox (string user, string bible)
     
     
     // The filename for the USFM for this book.
-    string filename = Export_Logic::baseBookFileName (book);
+    string filename = export_logic::base_book_filename (bible, book);
     string path = filter_url_create_path ({directory, filename + ".usfm"});
     
     
@@ -82,7 +83,7 @@ void export_bibledropbox (string user, string bible)
   
   
   // Compress USFM files into one zip file.
-  string zipfile = filter_url_create_path ({directory, Export_Logic::baseBookFileName (0) + ".zip"});
+  string zipfile = filter_url_create_path ({directory, export_logic::base_book_filename (bible, 0) + ".zip"});
   
   string archive = filter_archive_zip_folder (directory);
   filter_url_rename (archive, zipfile);

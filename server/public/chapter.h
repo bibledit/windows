@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,6 @@
 
 #include <config/libraries.h>
 
-string public_chapter_url ();
+std::string public_chapter_url ();
 bool public_chapter_acl (void * webserver_request);
-string public_chapter (void * webserver_request);
+std::string public_chapter (void * webserver_request);

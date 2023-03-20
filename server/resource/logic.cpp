@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
 #include <filter/shell.h>
 #include <filter/roles.h>
 #include <filter/diff.h>
+#include <filter/google.h>
 #include <resource/external.h>
 #include <locale/translate.h>
 #include <client/logic.h>
@@ -48,6 +49,7 @@
 #include <related/logic.h>
 #include <developer/logic.h>
 #include <database/logic.h>
+using namespace std;
 
 
 /*
@@ -93,14 +95,14 @@ Stages to retrieve resource content and serve it.
 
 vector <string> resource_logic_get_names (void * webserver_request, bool bibles_only)
 {
-  vector <string> names;
+  vector <string> names {};
   
   // Bibles the user has read access to.
-  vector <string> bibles = AccessBible::Bibles (webserver_request);
+  vector <string> bibles = access_bible::bibles (webserver_request);
   names.insert (names.end(), bibles.begin (), bibles.end());
   
   // USFM resources.
-  Database_UsfmResources database_usfmresources;
+  Database_UsfmResources database_usfmresources {};
   vector <string> usfm_resources = database_usfmresources.getResources ();
   names.insert (names.end(), usfm_resources.begin(), usfm_resources.end());
   
@@ -110,7 +112,7 @@ vector <string> resource_logic_get_names (void * webserver_request, bool bibles_
   
   // Image resources.
   if (!bibles_only) {
-    Database_ImageResources database_imageresources;
+    Database_ImageResources database_imageresources {};
     vector <string> image_resources = database_imageresources.names ();
     names.insert (names.end (), image_resources.begin(), image_resources.end());
   }
@@ -121,9 +123,13 @@ vector <string> resource_logic_get_names (void * webserver_request, bool bibles_
     names.insert (names.end (), lexicon_resources.begin(), lexicon_resources.end());
   }
   
-  // SWORD resources
+  // SWORD resources.
   vector <string> sword_resources = sword_logic_get_available ();
   names.insert (names.end (), sword_resources.begin(), sword_resources.end());
+  
+  // Bible Gateway resources.
+  vector <string> bible_gateway_resources = resource_logic_bible_gateway_module_list_get ();
+  names.insert (names.end (), bible_gateway_resources.begin(), bible_gateway_resources.end());
   
   sort (names.begin(), names.end());
   
@@ -137,33 +143,44 @@ string resource_logic_get_html (void * webserver_request,
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
-  string html;
-
   // Determine the type of the resource.
-  bool isBible = resource_logic_is_bible (resource);
-  bool isUsfm = resource_logic_is_usfm (resource);
-  bool isExternal = resource_logic_is_external (resource);
-  bool isImage = resource_logic_is_image (resource);
-  bool isLexicon = resource_logic_is_lexicon (resource);
-  bool isSword = resource_logic_is_sword (resource);
-  bool isBibleGateway = resource_logic_is_biblegateway (resource);
-  bool isStudyLight = resource_logic_is_studylight (resource);
-  bool isComparative = resource_logic_is_comparative (resource);
+  bool is_bible = resource_logic_is_bible (resource);
+  bool is_usfm = resource_logic_is_usfm (resource);
+  bool is_external = resource_logic_is_external (resource);
+  bool is_image = resource_logic_is_image (resource);
+  bool is_lexicon = resource_logic_is_lexicon (resource);
+  bool is_sword = resource_logic_is_sword (resource);
+  bool is_bible_gateway = resource_logic_is_biblegateway (resource);
+  bool is_study_light = resource_logic_is_studylight (resource);
+  bool is_comparative = resource_logic_is_comparative (resource);
+  bool is_translated = resource_logic_is_translated(resource);
 
   // Handle a comparative resource.
   // This type of resource is special.
   // It is not one resource, but made out of two resources.
   // It fetches data from two resources and combines that into one.
-  if (isComparative) {
+  if (is_comparative) {
 #ifdef HAVE_CLOUD
-    html = resource_logic_cloud_get_comparison (webserver_request, resource, book, chapter, verse, add_verse_numbers);
+    return resource_logic_cloud_get_comparison (webserver_request, resource, book, chapter, verse, add_verse_numbers);
 #endif
 #ifdef HAVE_CLIENT
-    html = resource_logic_client_fetch_cache_from_cloud (resource, book, chapter, verse);
+    return resource_logic_client_fetch_cache_from_cloud (resource, book, chapter, verse);
 #endif
-    return html;
   }
 
+  // Handle a translated resource.
+  // This type of resource is special.
+  // It consists of any of the other types of resources, as the base resource.
+  // It gets that data, and then has that translated.
+  if (is_translated) {
+#ifdef HAVE_CLOUD
+    return resource_logic_cloud_get_translation (webserver_request, resource, book, chapter, verse, add_verse_numbers);
+#endif
+#ifdef HAVE_CLIENT
+    return resource_logic_client_fetch_cache_from_cloud (resource, book, chapter, verse);
+#endif
+  }
+  
   Database_Mappings database_mappings;
 
   // Retrieve versification system of the active Bible.
@@ -172,19 +189,19 @@ string resource_logic_get_html (void * webserver_request,
 
   // Determine the versification system of the current resource.
   string resource_versification;
-  if (isBible || isUsfm) {
+  if (is_bible || is_usfm) {
     resource_versification = Database_Config_Bible::getVersificationSystem (bible);
-  } else if (isExternal) {
+  } else if (is_external) {
     resource_versification = resource_external_mapping (resource);
-  } else if (isImage) {
-  } else if (isLexicon) {
+  } else if (is_image) {
+  } else if (is_lexicon) {
     resource_versification = database_mappings.original ();
     if (resource == KJV_LEXICON_NAME) resource_versification = english ();
-  } else if (isSword) {
+  } else if (is_sword) {
     resource_versification = english ();
-  } else if (isBibleGateway) {
+  } else if (is_bible_gateway) {
     resource_versification = english ();
-  } else if (isStudyLight) {
+  } else if (is_study_light) {
     resource_versification = english ();
   } else {
   }
@@ -234,12 +251,14 @@ string resource_logic_get_html (void * webserver_request,
       }
     }
   }
-  
+
+  string html;
+
   for (auto passage : passages) {
     string possible_included_passage;
     if (add_verse_numbers) possible_included_passage = passage.m_verse + " ";
     if (add_passages_in_full) possible_included_passage = filter_passage_display (passage.m_book, passage.m_chapter, passage.m_verse) + " ";
-    if (isImage) possible_included_passage.clear ();
+    if (is_image) possible_included_passage.clear ();
     html.append (possible_included_passage);
     html.append (resource_logic_get_verse (webserver_request, resource, passage.m_book, passage.m_chapter, convert_to_int (passage.m_verse)));
   }
@@ -408,24 +427,57 @@ string resource_logic_cloud_get_comparison (void * webserver_request,
 }
 
 
+string resource_logic_cloud_get_translation (void * webserver_request,
+                                             const string & resource, int book, int chapter, int verse,
+                                             bool add_verse_numbers)
+{
+  // This function gets passed the resource title only.
+  // So get all defined translated resources and look for the one with this title.
+  // And then get the additional properties belonging to this resource.
+  string title, original_resource, source_language, target_language;
+  vector <string> resources = Database_Config_General::getTranslatedResources ();
+  for (const auto & input : resources) {
+    resource_logic_parse_translated_resource (input, &title, &original_resource, &source_language, &target_language);
+    if (title == resource) break;
+  }
+  
+  // Get the html of the resources to be translated.
+  string original_text = resource_logic_get_html (webserver_request, original_resource, book, chapter, verse, add_verse_numbers);
+  // Clean all html elements away from the text to get a better and cleaner translation.
+  original_text = filter_string_html2text (original_text);
+  
+  // If the original text is empty, do not even send it to Google Translate, for saving resources.
+  if (original_text.empty()) return string();
+
+  // Run it through Google Translate.
+  auto [ translation_success, translated_text, translation_error] = filter::google::translate (original_text, source_language.c_str(), target_language.c_str());
+
+  // Done.
+  if (translation_success) return translated_text;
+  Database_Logs::log (translation_error);
+  return "Failed to translate";
+}
+
+
 // This runs on the server.
 // It gets the html or text contents for a $resource for serving it to a client.
 string resource_logic_get_contents_for_client (string resource, int book, int chapter, int verse)
 {
   // Determine the type of the current resource.
-  bool isExternal = resource_logic_is_external (resource);
-  bool isUsfm = resource_logic_is_usfm (resource);
-  bool isSword = resource_logic_is_sword (resource);
-  bool isBibleGateway = resource_logic_is_biblegateway (resource);
-  bool isStudyLight = resource_logic_is_studylight (resource);
-  bool isComparative = resource_logic_is_comparative (resource);
+  bool is_external = resource_logic_is_external (resource);
+  bool is_usfm = resource_logic_is_usfm (resource);
+  bool is_sword = resource_logic_is_sword (resource);
+  bool is_bible_gateway = resource_logic_is_biblegateway (resource);
+  bool is_study_light = resource_logic_is_studylight (resource);
+  bool is_comparative = resource_logic_is_comparative (resource);
+  bool is_translated = resource_logic_is_translated(resource);
 
-  if (isExternal) {
+  if (is_external) {
     // The server fetches it from the web.
     return resource_external_cloud_fetch_cache_extract (resource, book, chapter, verse);
   }
   
-  if (isUsfm) {
+  if (is_usfm) {
     // Fetch from database and convert to html.
     Database_UsfmResources database_usfmresources;
     string chapter_usfm = database_usfmresources.getUsfm (resource, book, chapter);
@@ -438,24 +490,24 @@ string resource_logic_get_contents_for_client (string resource, int book, int ch
     return filter_text.html_text_standard->get_inner_html ();
   }
   
-  if (isSword) {
+  if (is_sword) {
     // Fetch it from a SWORD module.
     string sword_module = sword_logic_get_remote_module (resource);
     string sword_source = sword_logic_get_source (resource);
     return sword_logic_get_text (sword_source, sword_module, book, chapter, verse);
   }
 
-  if (isBibleGateway) {
+  if (is_bible_gateway) {
     // The server fetches it from the web.
     return resource_logic_bible_gateway_get (resource, book, chapter, verse);
   }
 
-  if (isStudyLight) {
+  if (is_study_light) {
     // The server fetches it from the web.
     return resource_logic_study_light_get (resource, book, chapter, verse);
   }
 
-  if (isComparative) {
+  if (is_comparative) {
     // Handle a comparative resource.
     // This type of resource is special.
     // It is not one resource, but made out of two resources.
@@ -464,8 +516,15 @@ string resource_logic_get_contents_for_client (string resource, int book, int ch
     return resource_logic_cloud_get_comparison (&request, resource, book, chapter, verse, false);
   }
   
+  if (is_translated) {
+    // Handle a translated resource.
+    // This passes the resource title only
+    Webserver_Request request;
+    return resource_logic_cloud_get_translation (&request, resource, book, chapter, verse, false);
+  }
+  
   // Nothing found.
-  return translate ("Bibledit Cloud could not localize this resource");
+  return translate ("Bibledit Cloud could not locate this resource");
 }
 
 
@@ -547,12 +606,12 @@ void resource_logic_import_images (string resource, string path)
       Database_Logs::log ("Processing PDF: " + basename);
       
       // Retrieve PDF information.
-      filter_shell_run ("", "pdfinfo", {path}, NULL, NULL);
+      filter_shell_run ("", "pdfinfo", {path}, nullptr, nullptr);
 
       // Convert the PDF file to separate images.
       string folder = filter_url_tempfile ();
       filter_url_mkdir (folder);
-      filter_shell_run (folder, "pdftocairo", {"-jpeg", path}, NULL, NULL);
+      filter_shell_run (folder, "pdftocairo", {"-jpeg", path}, nullptr, nullptr);
       // Add the images to the ones to be processed.
       filter_url_recursive_scandir (folder, paths);
       
@@ -750,18 +809,20 @@ void resource_logic_create_cache ()
   if (resource_logic_create_cache_running) return;
   resource_logic_create_cache_running = true;
   
-  // If there's nothing to cache, bail out.
+  // Get the signatures of the resources to cache.
   vector <string> signatures = Database_Config_General::getResourcesToCache ();
+  // If there's nothing to cache, bail out.
   if (signatures.empty ()) return;
 
-  // Resource and book to cache.
+  // A signature is the resource title, then a space, and then the book number.
+  // Remove this signature and store the remainder back into the configuration.
   string signature = signatures [0];
   signatures.erase (signatures.begin ());
   Database_Config_General::setResourcesToCache (signatures);
   size_t pos = signature.find_last_of (" ");
   string resource = signature.substr (0, pos);
   int book = convert_to_int (signature.substr (pos++));
-  string bookname = Database_Books::getEnglishFromId (book);
+  string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
   
   // Whether it's a SWORD module.
   string sword_module = sword_logic_get_remote_module (resource);
@@ -1070,10 +1131,10 @@ struct bible_gateway_walker: xml_tree_walker
 {
   bool skip_next_text = false;
   bool parsing = true;
-  string text;
-  vector <string> footnotes;
+  string text {};
+  vector <string> footnotes {};
 
-  virtual bool for_each (xml_node& node)
+  virtual bool for_each (xml_node& node) override
   {
     // Details of the current node.
     string classname = node.attribute ("class").value ();
@@ -1170,7 +1231,7 @@ string resource_logic_bible_gateway_get (string resource, int book, int chapter,
         xml_node passage_text_node = document.first_child ();
         xml_node passage_wrap_node = passage_text_node.first_child ();
         xml_node passage_content_node = passage_wrap_node.first_child ();
-        bible_gateway_walker walker;
+        bible_gateway_walker walker {};
         passage_content_node.traverse (walker);
         result.append (walker.text);
         // Adding text of the footnote(s) if any.
@@ -1273,16 +1334,16 @@ vector <string> resource_logic_study_light_module_list_get ()
 // Get the slightly formatted of a passage of a StudyLight resource.
 string resource_logic_study_light_get (string resource, int book, int chapter, int verse)
 {
-  string result;
+  string result {};
 
 #ifdef HAVE_CLOUD
   // Transform the full name to the abbreviation for the website, e.g.:
   // "Adam Clarke Commentary (acc)" becomes "acc".
   size_t pos = resource.find_last_of ("(");
-  if (pos == string::npos) return "";
+  if (pos == string::npos) return string();
   resource.erase (0, pos + 1);
   pos = resource.find (")");
-  if (pos == string::npos) return "";
+  if (pos == string::npos) return string();
   resource.erase (pos);
   
   // The resource abbreviation might look like this:
@@ -1291,24 +1352,39 @@ string resource_logic_study_light_get (string resource, int book, int chapter, i
   resource.erase (0, 11);
   
   // Example URL: https://www.studylight.org/commentaries/eng/acc/revelation-1.html
-  string url;
+  string url {};
   url.append ("http://www.studylight.org/commentaries/");
   url.append (resource + "/");
   url.append (resource_external_convert_book_studylight (book));
   url.append ("-" + convert_to_string (chapter) + ".html");
   
   // Get the html from the server.
-  string error;
+  string error {};
   string html = resource_logic_web_or_cache_get (url, error);
 
   // It appears that the html from this website is not well-formed.
   // It cannot be loaded as an XML document without errors and missing text.
   // Therefore the html is tidied first.
-  html = filter_string_tidy_invalid_html (html);
+  html = filter_string_fix_invalid_html_gumbo (html);
+  
+  string start_key = R"(<div class="ptb10">)";
+  vector <int> class_lightgrey_book {
+    23, // Isaiah
+    27, // Daniel
+    52, // 1 Thessalonians
+    53, // 2 Thessalonians
+    54, // 1 Timothy
+    58, // Hebrews
+  };
+  if (in_array(book, class_lightgrey_book)) {
+    start_key = R"(<div class="tl-lightgrey ptb10">)";
+  }
+  pos = html.find(start_key);
+  if (pos != string::npos) html.erase (0, pos);
 
   // Parse the html into a DOM.
-  string verse_s = convert_to_string (verse);
-  xml_document document;
+  string verse_s {convert_to_string (verse)};
+  xml_document document {};
   document.load_string (html.c_str());
 
   // Example verse indicator within the XML:
@@ -1461,6 +1537,7 @@ vector <string> resource_logic_easy_english_bible_pages (int book, int chapter)
     case 64: return { "3john-lbw" }; // 3 John.
     case 65: return { "jude-lbw", "jude-nh-lbw" }; // Jude.
     case 66: return { "revelation-lbw" }; // Revelation.
+    default: return {};
   }
   return {};
 }
@@ -1468,9 +1545,9 @@ vector <string> resource_logic_easy_english_bible_pages (int book, int chapter)
 
 struct easy_english_bible_walker: xml_tree_walker
 {
-  string text;
+  string text {};
 
-  virtual bool for_each (xml_node& node)
+  virtual bool for_each (xml_node& node) override
   {
     // Handle this node if it's a text node.
     if (node.type() == pugi::node_pcdata) {
@@ -1498,11 +1575,11 @@ string resource_logic_easy_english_bible_get (int book, int chapter, int verse)
 #ifdef HAVE_CLOUD
 
   // The combined text result taken from the commentary.
-  string result;
+  string result {};
 
   // This resource may have one or more commentaries per book.
   // This means that the URLs may be one or more.
-  vector <string> urls;
+  vector <string> urls {};
   {
     vector <string> pages = resource_logic_easy_english_bible_pages (book, chapter);
     for (auto page : pages) {
@@ -1520,24 +1597,38 @@ string resource_logic_easy_english_bible_get (int book, int chapter, int verse)
   for (auto url : urls) {
     
     // Flag for whether the current paragraph contains the desired passage.
-    bool near_passage = false;
+    bool near_passage {false};
     // Flag for whether the current paragraph is for the exact verse number.
-    bool at_passage = false;
+    bool at_passage {false};
     
     // Get the html from the server.
-    string error;
+    string error {};
     string html = resource_logic_web_or_cache_get (url, error);
 
     // It appears that the html from this website is not well-formed.
     // It cannot be loaded as an XML document without errors and missing text.
     // Therefore the html is tidied first.
-    html = filter_string_tidy_invalid_html (html);
+    html = filter_string_fix_invalid_html_gumbo (html);
 
+    // The html from this website requires further cleaning.
+    // One issue is that instead of  class="Section1"  it has  class=Section1
+    // Notice the missing quotes around the class name.
+    // Call libtidy to further tidy this heml up.
+    html = filter_string_fix_invalid_html_tidy (html);
+
+    // The document has one main div like this:
+    // <div class="Section1">
+    // Or: <div class="WordSection1"> like in Exodus.
+    size_t pos = html.find(R"(<div class="Section1">)");
+    if (pos == string::npos) {
+      pos = html.find(R"(<div class="WordSection1">)");
+    }
+    if (pos != string::npos) html.erase (0, pos);
+    
     // Parse the html into a DOM.
-    string verse_s = convert_to_string (verse);
-    xml_document document;
+    xml_document document {};
     document.load_string (html.c_str());
-
+    
     // The document has one main div like this:
     // <div class="Section1">
     // Or: <div class="WordSection1"> like in Exodus.
@@ -1550,7 +1641,7 @@ string resource_logic_easy_english_bible_get (int book, int chapter, int verse)
     for (auto paragraph_node : div_node.children()) {
 
       // Assemble the text by iterating over all child text nodes.
-      easy_english_bible_walker tree_walker;
+      easy_english_bible_walker tree_walker {};
       paragraph_node.traverse(tree_walker);
 
       // Clean the text and skip empty text.
@@ -1609,8 +1700,12 @@ string resource_logic_easy_english_bible_get (int book, int chapter, int verse)
           }
         }
 
-        // If still at the correct verse, add the paragraph text.
+        // If still at the correct verse, add the contents.
         if (at_passage) {
+          // The html from this website is encoded as charset=windows-1252.
+          // Convert that to UTF0-8.
+          paragraph = convert_windows1252_to_utf8 (paragraph);
+          // Add this paragraph to the resulting text.
           result.append ("<p>");
           result.append (paragraph);
           result.append ("</p>");
@@ -1909,7 +2004,7 @@ bool resource_logic_is_studylight (string resource)
 }
 
 
-bool resource_logic_is_comparative (string resource)
+bool resource_logic_is_comparative (const string & resource)
 {
   return resource_logic_parse_comparative_resource(resource);
 }
@@ -1921,7 +2016,7 @@ string resource_logic_comparative_resource ()
 }
 
 
-bool resource_logic_parse_comparative_resource (string input,
+bool resource_logic_parse_comparative_resource (const string & input,
                                                 string * title,
                                                 string * base,
                                                 string * update,
@@ -1976,4 +2071,92 @@ string resource_logic_assemble_comparative_resource (string title,
   // Ensure the "Comparative " flag is always included right at the start.
   vector <string> bits = {resource_logic_comparative_resource() + title, base, update, remove, replace, convert_to_true_false(diacritics), convert_to_true_false(casefold), convert_to_true_false(cache)};
   return filter_string_implode(bits, "|");
+}
+
+
+string resource_logic_comparative_resources_list_path ()
+{
+  return filter_url_create_root_path ({database_logic_databases (), "client", "comparative_resources.txt"});
+}
+
+
+// Get the list of comparative resources on a client device.
+vector <string> resource_logic_comparative_resources_get_list_on_client ()
+{
+  string path = resource_logic_comparative_resources_list_path ();
+  string contents = filter_url_file_get_contents (path);
+  return filter_string_explode (contents, '\n');
+}
+
+
+bool resource_logic_is_translated (const string & resource)
+{
+  return resource_logic_parse_translated_resource(resource);
+}
+
+
+string resource_logic_translated_resource ()
+{
+  return "Translated ";
+}
+
+
+bool resource_logic_parse_translated_resource (const string & input,
+                                               string * title,
+                                               string * original_resource,
+                                               string * source_language,
+                                               string * target_language,
+                                               bool * cache)
+{
+  // The definite check whether this is a translated resource
+  // is to check that "Translated " is the first part of the input.
+  if (input.find(resource_logic_translated_resource()) != 0) return false;
+  
+  // Do a forgiving parsing of the properties of this resource.
+  if (title) title->clear();
+  if (original_resource) original_resource->clear();
+  if (source_language) source_language->clear();
+  if (target_language) target_language->clear();
+  if (cache) * cache = false;
+  vector <string> bits = filter_string_explode(input, '|');
+  if (bits.size() > 0) if (title) title->assign (bits[0]);
+  if (bits.size() > 1) if (original_resource) original_resource->assign(bits[1]);
+  if (bits.size() > 2) if (source_language) source_language->assign(bits[2]);
+  if (bits.size() > 3) if (target_language) target_language->assign(bits[3]);
+  if (bits.size() > 4) if (cache) * cache = convert_to_bool(bits[4]);
+  
+  // Done.
+  return true;
+}
+
+
+string resource_logic_assemble_translated_resource (string title,
+                                                    string original_resource,
+                                                    string source_language,
+                                                    string target_language,
+                                                    bool cache)
+{
+  // Check whether the "Translated " flag already is included in the given $title.
+  size_t pos = title.find (resource_logic_translated_resource ());
+  if (pos != string::npos) {
+    title.erase (pos, resource_logic_translated_resource ().length());
+  }
+  // Ensure the "Translated " flag is always included right at the start.
+  vector <string> bits = {resource_logic_translated_resource() + title, original_resource, source_language, target_language, convert_to_true_false(cache)};
+  return filter_string_implode(bits, "|");
+}
+
+
+string resource_logic_translated_resources_list_path ()
+{
+  return filter_url_create_root_path ({database_logic_databases (), "client", "translated_resources.txt"});
+}
+
+
+// Get the list of translated resources on a client device.
+vector <string> resource_logic_translated_resources_get_list_on_client ()
+{
+  string path = resource_logic_translated_resources_list_path ();
+  string contents = filter_url_file_get_contents (path);
+  return filter_string_explode (contents, '\n');
 }

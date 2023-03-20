@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,6 +28,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <tlhelp32.h>
 #endif
 #include <developer/logic.h>
+using namespace std;
+
+
+// Internal declarations.
+string filter_shell_escape_argument (string argument);
 
 
 string filter_shell_escape_argument (string argument)
@@ -40,8 +45,8 @@ string filter_shell_escape_argument (string argument)
 
 
 // Runs shell $command in folder $directory, with $parameters.
-// If $output and $error are non-NULL, that is where the output of the shell command goes.
-// If they are NULL, the output of the shell command goes to the Journal.
+// If $output and $error are non-nullptr, that is where the output of the shell command goes.
+// If they are nullptr, the output of the shell command goes to the Journal.
 int filter_shell_run ([[maybe_unused]] string directory,
                       string command,
                       [[maybe_unused]] const vector <string> parameters,
@@ -108,7 +113,7 @@ int filter_shell_run (string command,
     // This runs in the child.
     dup2(fd, 1);
     close(fd);
-    execlp (command.c_str(), parameter, (char*)0);
+    execlp (command.c_str(), parameter, static_cast<char*> (0));
     // The above only returns in case of an error.
     Database_Logs::log (strerror (errno));
     // Use_exit instead of exit, so there's no flushing.
@@ -118,7 +123,7 @@ int filter_shell_run (string command,
   }
   
   // Wait till child is ready.
-  wait(0);
+  wait(nullptr);
   close(fd);
   
   // Read the child's output.
@@ -245,7 +250,7 @@ int filter_shell_vfork ([[maybe_unused]] string & output,
     if (!directory.empty ()) {
       [[maybe_unused]] int result = chdir (directory.c_str());
     }
-    execlp (command.c_str(), command.c_str(), p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12, p13, (char *) 0);
+    execlp (command.c_str(), command.c_str(), p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12, p13, static_cast<char*> (0));
     // The above only returns in case of an error.
     Database_Logs::log (command + ": " + strerror (errno));
     _exit (1);

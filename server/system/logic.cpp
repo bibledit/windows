@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@
 #include <email/send.h>
 #include <search/logic.h>
 #include <user/logic.h>
+using namespace std;
 
 
 string system_logic_bibles_file_name ()
@@ -167,7 +168,7 @@ void system_logic_import_bibles_file (string tarball)
         // Reason is that the Cloud is authoritative,
         // so importing outdated Bibles would not affect the authoritative copy in the Cloud.
         database_bibles.storeChapter (bible, book_chapter_data.m_book, book_chapter_data.m_chapter, book_chapter_data.m_data);
-        string bookname = Database_Books::getEnglishFromId (book_chapter_data.m_book);
+        string bookname = database::books::get_english_from_id (static_cast<book_id>(book_chapter_data.m_book));
         Database_Logs::log ("Imported " + bible + " " + bookname + " " + convert_to_string (book_chapter_data.m_chapter));
       } else {
         // Import error.
@@ -515,7 +516,7 @@ void system_logic_indonesian_free_deletion ([[maybe_unused]] string username,
       node = document.append_child ("h3");
       node.text ().set (heading.c_str());
       
-      string explanation = translate ("Inilah hasil terjemahan Saudara:");
+      string explanation = "Inilah hasil terjemahan Saudara:";
       node = document.append_child ("p");
       node.text ().set (explanation.c_str ());
 

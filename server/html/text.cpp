@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <filter/url.h>
 #include <database/books.h>
+using namespace std;
 
 
 // Class for creating Html text documents.
@@ -71,9 +72,9 @@ Html_Text::Html_Text (string title)
 void Html_Text::new_paragraph (string style)
 {
   current_p_node = body_node.append_child ("p");
-  if (style != "") {
+  if (!style.empty()) {
     string clss = style;
-    if (custom_class != "") {
+    if (!custom_class.empty()) {
       clss += " " + custom_class;
     }
     current_p_node.append_attribute ("class") = clss.c_str();
@@ -352,7 +353,7 @@ void Html_Text::have_popup_notes ()
 
 
 // Add an image to the html.
-void Html_Text::add_image (string alt, string src, string caption)
+void Html_Text::add_image (string style, string alt, string src, string caption)
 {
   xml_node img_node = body_node.append_child ("img");
   img_node.append_attribute("alt") = alt.c_str();
@@ -360,7 +361,7 @@ void Html_Text::add_image (string alt, string src, string caption)
   img_node.append_attribute ("width") = "100%";
   // Add the caption if it is given.
   if (!caption.empty()) {
-    new_paragraph();
+    new_paragraph(style);
     add_text(caption);
   }
   // Close the paragraph so that adding subsequent text creates a new paragraph.

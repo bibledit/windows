@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include <filter/string.hpp>
 #include <tasks/enums.h>
 
-void sendreceive_queue_bible (string bible);
+void sendreceive_queue_bible (std::string bible);
 
 void sendreceive_queue_sync (int minute, int second);
 void sendreceive_queue_paratext (tasks::enums::paratext_sync method);
@@ -35,4 +35,4 @@ void sendreceive_queue_startup ();
 
 bool sendreceive_logic_prioritized_task_is_active ();
 
-bool sendreceive_git_repository_linked (string bible);
+bool sendreceive_git_repository_linked (std::string bible);

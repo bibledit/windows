@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -30,10 +30,16 @@
 #include <ipc/focus.h>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#ifndef HAVE_PUGIXML
 #include <pugixml/pugixml.hpp>
+#endif
+#ifdef HAVE_PUGIXML
+#include <pugixml.hpp>
+#endif
 #pragma GCC diagnostic pop
-
-
+using namespace std;
 using namespace pugi;
 
 
@@ -59,7 +65,7 @@ string Navigation_Passage::get_mouse_navigator (void * webserver_request, string
   
   bool passage_clipped = false;
   
-  bool basic_mode = config_logic_basic_mode (webserver_request);
+  bool basic_mode = config::logic::basic_mode (webserver_request);
   
   xml_document document;
   
@@ -77,7 +83,8 @@ string Navigation_Passage::get_mouse_navigator (void * webserver_request, string
     if (database_navigation.previous_exists (user)) {
       xml_node span_node_back = span_node.append_child("span");
       span_node_back.append_attribute("id") = "navigateback";
-      span_node_back.append_attribute("title") = translate("Back").c_str();
+      string title = translate("Go back or long-press to show history");
+      span_node_back.append_attribute("title") = title.c_str();
       span_node_back.text() = "↶";
     }
   }
@@ -88,7 +95,8 @@ string Navigation_Passage::get_mouse_navigator (void * webserver_request, string
     if (database_navigation.next_exists (user)) {
       xml_node span_node_back = span_node.append_child("span");
       span_node_back.append_attribute("id") = "navigateforward";
-      span_node_back.append_attribute("title") = translate("Forward").c_str();
+      string title = translate("Go forward or long-press to show history");
+      span_node_back.append_attribute("title") = title.c_str();
       span_node_back.text() = "↷";
     }
   }
@@ -105,7 +113,7 @@ string Navigation_Passage::get_mouse_navigator (void * webserver_request, string
     }
   }
   
-  string bookName = Database_Books::getEnglishFromId (book);
+  string bookName = database::books::get_english_from_id (static_cast<book_id>(book));
   bookName = translate (bookName);
 
   {
@@ -181,7 +189,7 @@ string Navigation_Passage::get_mouse_navigator (void * webserver_request, string
     a_node.append_attribute("id") = "selectverse";
     a_node.append_attribute("href") = "selectverse";
     a_node.append_attribute("title") = translate("Select verse").c_str();
-    a_node.text() = string (" " + convert_to_string (verse) + " ").c_str();
+    a_node.text() = (" " + convert_to_string (verse) + " ").c_str();
   }
 
   if (next_verse_is_available) {
@@ -212,27 +220,26 @@ string Navigation_Passage::get_mouse_navigator (void * webserver_request, string
 string Navigation_Passage::get_books_fragment (void * webserver_request, string bible)
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  int activeBook = Ipc_Focus::getBook (request);
+  book_id active_book = static_cast<book_id>(Ipc_Focus::getBook (request));
   // Take standard books in case of no Bible.
-  vector <int> books;
-  if (bible == "") {
-    books = Database_Books::getIDs ();
+  vector <book_id> books;
+  if (bible.empty()) {
+    books = database::books::get_ids ();
   } else {
-    books = filter_passage_get_ordered_books (bible);
+    vector <int> book_numbers = filter_passage_get_ordered_books (bible);
+    for (auto book_number : book_numbers) books.push_back (static_cast<book_id>(book_number));
   }
-  string html;
+  string html {};
   for (auto book : books) {
-    string bookName = Database_Books::getEnglishFromId (book);
-    bookName = translate (bookName);
-    bool selected = (book == activeBook);
-    string bookType = Database_Books::getType (book);
-    add_selector_link (html, convert_to_string (book), "applybook", bookName, selected, bookType);
+    string book_name = database::books::get_english_from_id (book);
+    book_name = translate (book_name);
+    bool selected = (book == active_book);
+    string book_type = database::books::book_type_to_string (database::books::get_type (book));
+    add_selector_link (html, convert_to_string (static_cast<int>(book)), "applybook", book_name, selected, book_type);
   }
   add_selector_link (html, "cancel", "applybook", "[" + translate ("cancel") + "]", false, "");
-
   html.insert (0, "<span id='applybook'>" + translate ("Select book") + ": ");
   html.append ("</span>");
-
   return html;
 }
 
@@ -502,10 +509,10 @@ void Navigation_Passage::add_selector_link (string& html, string id, string href
   // No wrapping of a book name consisting of more than one word.
   xml_document document;
   xml_node span_node = document.append_child("span");
-  span_node.append_attribute("class") = string("selector" + class_expansion).c_str();
+  span_node.append_attribute("class") = ("selector" + class_expansion).c_str();
   {
     xml_node a_node = span_node.append_child("a");
-    a_node.append_attribute("id") = string (id + "apply").c_str();
+    a_node.append_attribute("id") = (id + "apply").c_str();
     a_node.append_attribute("href") = href.c_str();
     a_node.text() = text.c_str();
   }
@@ -641,16 +648,16 @@ string Navigation_Passage::get_history_back (void * webserver_request)
 {
   // Get the whole history from the database.
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  Database_Navigation database_navigation;
-  string user = request->session_logic()->currentUser ();
+  Database_Navigation database_navigation {};
+  string user {request->session_logic()->currentUser ()};
   vector<Passage> passages = database_navigation.get_history(user, -1);
   // Take the most recent nnn history items and render them.
-  string html;
+  string html {};
   for (size_t i = 0; i < passages.size(); i++) {
     if (i >= 10) continue;
     string rendering = filter_passage_display(passages[i].m_book, passages[i].m_chapter, passages[i].m_verse);
-    string bookType = Database_Books::getType (passages[i].m_book);
-    add_selector_link (html, "b" + convert_to_string (i), "applyhistory", rendering, false, bookType);
+    string book_type = database::books::book_type_to_string (database::books::get_type (static_cast <book_id> (passages[i].m_book)));
+    add_selector_link (html, "b" + convert_to_string (i), "applyhistory", rendering, false, book_type);
   }
   // Add a "cancel" link.
   add_selector_link (html, "cancel", "applyhistory", "[" + translate ("cancel") + "]", false, "");
@@ -667,15 +674,15 @@ string Navigation_Passage::get_history_forward (void * webserver_request)
   // Get the whole history from the database.
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   Database_Navigation database_navigation;
-  string user = request->session_logic()->currentUser ();
-  vector<Passage> passages = database_navigation.get_history(user, 1);
+  string user {request->session_logic()->currentUser ()};
+  vector<Passage> passages {database_navigation.get_history(user, 1)};
   // Take the most recent nnn history items and render them.
-  string html;
+  string html {};
   for (size_t i = 0; i < passages.size(); i++) {
     if (i >= 10) continue;
     string rendering = filter_passage_display(passages[i].m_book, passages[i].m_chapter, passages[i].m_verse);
-    string bookType = Database_Books::getType (passages[i].m_book);
-    add_selector_link (html, "f" + convert_to_string (i), "applyhistory", rendering, false, bookType);
+    string book_type = database::books::book_type_to_string (database::books::get_type (static_cast<book_id>(passages[i].m_book)));
+    add_selector_link (html, "f" + convert_to_string (i), "applyhistory", rendering, false, book_type);
   }
   // Add a "cancel" link.
   add_selector_link (html, "cancel", "applyhistory", "[" + translate ("cancel") + "]", false, "");

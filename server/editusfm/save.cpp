@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 #include <bb/logic.h>
 #include <rss/logic.h>
 #include <sendreceive/logic.h>
+using namespace std;
 
 
 string editusfm_save_url ()
@@ -47,7 +48,7 @@ string editusfm_save_url ()
 bool editusfm_save_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return read;
 }
 
@@ -66,7 +67,7 @@ string editusfm_save (void * webserver_request)
 
   
   if (request->post.count ("bible") && request->post.count ("book") && request->post.count ("chapter") && request->post.count ("usfm")) {
-    if (Checksum_Logic::get (usfm) == checksum) {
+    if (checksum_logic::get (usfm) == checksum) {
       usfm = filter_url_tag_to_plus (usfm);
       usfm = filter_string_trim (usfm);
       // Collapse multiple spaces in the USFM into one space.
@@ -103,7 +104,7 @@ string editusfm_save (void * webserver_request)
               
               // Check on the merge.
               filter_merge_add_book_chapter (conflicts, book, chapter);
-              bible_logic_merge_irregularity_mail ({username}, conflicts);
+              bible_logic::merge_irregularity_mail ({username}, conflicts);
               
               // If the USFM on disk is different from the USFM that was sent to the editor,
               // email the user,
@@ -114,16 +115,16 @@ string editusfm_save (void * webserver_request)
               // Because the user's editor may not yet have loaded this updated Bible text.
               // https://github.com/bibledit/cloud/issues/340
               if (ancestor_usfm != server_usfm) {
-                bible_logic_recent_save_email (bible, book, chapter, username, ancestor_usfm, server_usfm);
+                bible_logic::recent_save_email (bible, book, chapter, username, ancestor_usfm, server_usfm);
               }
               
              
               // Check on write access.
-              if (AccessBible::BookWrite (request, string(), bible, book)) {
+              if (access_bible::book_write (request, string(), bible, book)) {
                 // Safely store the chapter.
                 string explanation;
                 string message = filter::usfm::safely_store_chapter (request, bible, book, chapter, chapter_data_to_save, explanation);
-                bible_logic_unsafe_save_mail (message, explanation, username, chapter_data_to_save, book, chapter);
+                bible_logic::unsafe_save_mail (message, explanation, username, chapter_data_to_save, book, chapter);
                 if (message.empty()) {
 #ifndef HAVE_CLIENT
                   // Server configuration: Store details for the user's changes.

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@
 #include <developer/logic.h>
 #include <rss/logic.h>
 #include <sendreceive/logic.h>
+using namespace std;
 
 
 string edit_update_url ()
@@ -53,7 +54,7 @@ string edit_update_url ()
 bool edit_update_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return read;
 }
 
@@ -109,14 +110,14 @@ string edit_update (void * webserver_request)
 
   // Checksums of the loaded and edited html.
   if (good2go) {
-    if (Checksum_Logic::get (loaded_html) != checksum1) {
+    if (checksum_logic::get (loaded_html) != checksum1) {
       request->response_code = 409;
       messages.push_back (translate ("Checksum error"));
       good2go = false;
     }
   }
   if (good2go) {
-    if (Checksum_Logic::get (edited_html) != checksum2) {
+    if (checksum_logic::get (edited_html) != checksum2) {
       request->response_code = 409;
       messages.push_back (translate ("Checksum error"));
       good2go = false;
@@ -142,7 +143,7 @@ string edit_update (void * webserver_request)
 
   bool bible_write_access = false;
   if (good2go) {
-    bible_write_access = AccessBible::BookWrite (request, string(), bible, book);
+    bible_write_access = access_bible::book_write (request, string(), bible, book);
   }
 
 
@@ -226,9 +227,9 @@ string edit_update (void * webserver_request)
       // Do a merge while giving priority to the USFM already in the chapter.
       string merged_chapter_usfm = filter_merge_run (loaded_chapter_usfm, edited_chapter_usfm, existing_chapter_usfm, true, conflicts);
       // Mail the user if there is a merge anomaly.
-      bible_logic_optional_merge_irregularity_email (bible, book, chapter, username, loaded_chapter_usfm, edited_chapter_usfm, merged_chapter_usfm);
+      bible_logic::optional_merge_irregularity_email (bible, book, chapter, username, loaded_chapter_usfm, edited_chapter_usfm, merged_chapter_usfm);
       filter_merge_add_book_chapter (conflicts, book, chapter);
-      bible_logic_merge_irregularity_mail ({username}, conflicts);
+      bible_logic::merge_irregularity_mail ({username}, conflicts);
       // Let the merged data now become the edited data (so it gets saved properly).
       edited_chapter_usfm = merged_chapter_usfm;
     }
@@ -249,7 +250,7 @@ string edit_update (void * webserver_request)
   // It might cause confusion more than it clarifies.
   //if (good2go && bible_write_access && text_was_edited) {
     //if (loaded_chapter_usfm != existing_chapter_usfm) {
-      //bible_logic_recent_save_email (bible, book, chapter, username, loaded_chapter_usfm, existing_chapter_usfm);
+      //bible_logic::recent_save_email (bible, book, chapter, username, loaded_chapter_usfm, existing_chapter_usfm);
     //}
   //}
 
@@ -267,7 +268,7 @@ string edit_update (void * webserver_request)
   string message;
   if (good2go && bible_write_access && text_was_edited) {
     message = filter::usfm::safely_store_chapter (request, bible, book, chapter, edited_chapter_usfm, explanation);
-    bible_logic_unsafe_save_mail (message, explanation, username, edited_chapter_usfm, book, chapter);
+    bible_logic::unsafe_save_mail (message, explanation, username, edited_chapter_usfm, book, chapter);
     if (!message.empty ()) messages.push_back (message);
   }
 
@@ -341,7 +342,7 @@ string edit_update (void * webserver_request)
     vector <int> sizes;
     vector <string> operators;
     vector <string> content;
-    bible_logic_html_to_editor_updates (editor_html, server_html, positions, sizes, operators, content);
+    bible_logic::html_to_editor_updates (editor_html, server_html, positions, sizes, operators, content);
     // Encode the condensed differences for the response to the Javascript editor.
     for (size_t i = 0; i < positions.size(); i++) {
       response.append ("#_be_#");
@@ -349,7 +350,7 @@ string edit_update (void * webserver_request)
       response.append ("#_be_#");
       string operation = operators[i];
       response.append (operation);
-      if (operation == bible_logic_insert_operator ()) {
+      if (operation == bible_logic::insert_operator ()) {
         string text = content[i];
         string character = unicode_string_substr (text, 0, 1);
         response.append ("#_be_#");
@@ -362,18 +363,18 @@ string edit_update (void * webserver_request)
         response.append ("#_be_#");
         response.append (convert_to_string (sizes[i]));
       }
-      else if (operation == bible_logic_delete_operator ()) {
+      else if (operation == bible_logic::delete_operator ()) {
         // When deleting a UTF-16 character encoded in 4 bytes,
         // then the size in Quilljs is 2 instead of 1.
         // So always give the size when deleting a character.
         response.append ("#_be_#");
         response.append (convert_to_string (sizes[i]));
       }
-      else if (operation == bible_logic_format_paragraph_operator ()) {
+      else if (operation == bible_logic::format_paragraph_operator ()) {
         response.append ("#_be_#");
         response.append (content[i]);
       }
-      else if (operation == bible_logic_format_character_operator ()) {
+      else if (operation == bible_logic::format_character_operator ()) {
         response.append ("#_be_#");
         response.append (content[i]);
       }
@@ -401,8 +402,8 @@ string edit_update (void * webserver_request)
 
   // Test using the Cloud together with client devices with send and receive.
   
-  bool write = AccessBible::BookWrite (webserver_request, username, bible, book);
-  response = Checksum_Logic::send (response, write);
+  bool write = access_bible::book_write (webserver_request, username, bible, book);
+  response = checksum_logic::send (response, write);
 
   // Ready.
   //this_thread::sleep_for(chrono::seconds(5));

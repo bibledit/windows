@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <dialog/list.h>
 #include <journal/index.h>
 #include <tasks/logic.h>
+using namespace std;
 
 
 const char * nmt_index_url ()
@@ -105,6 +106,6 @@ string nmt_index (void * webserver_request)
 
   
   page += view.render ("nmt", "index");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 #include <database/modifications.h>
 #include <menu/logic.h>
 #include <access/logic.h>
+using namespace std;
 
 
 string notes_create_url ()
@@ -46,7 +47,7 @@ string notes_create_url ()
 
 bool notes_create_acl (void * webserver_request)
 {
-  return access_logic_privilege_create_comment_notes (webserver_request);
+  return access_logic::privilege_create_comment_notes (webserver_request);
 }
 
 
@@ -59,8 +60,8 @@ string notes_create (void * webserver_request)
   string page;
   
   Assets_Header header = Assets_Header (translate("Create note"), request);
-  header.addBreadCrumb (menu_logic_translate_menu (), menu_logic_translate_text ());
-  header.addBreadCrumb (notes_index_url (), menu_logic_consultation_notes_text ());
+  header.add_bread_crumb (menu_logic_translate_menu (), menu_logic_translate_text ());
+  header.add_bread_crumb (notes_index_url (), menu_logic_consultation_notes_text ());
   page = header.run();
   
   Assets_View view;
@@ -71,7 +72,7 @@ string notes_create (void * webserver_request)
   // If no Bible is passed, it takes the user's active Bible.
   string bible = request->post ["bible"];
   if (bible.empty ()) {
-    bible = AccessBible::Clamp (webserver_request, request->database_config_user()->getBible ());
+    bible = access_bible::clamp (webserver_request, request->database_config_user()->getBible ());
   }
   
   
@@ -91,12 +92,6 @@ string notes_create (void * webserver_request)
     summary = filter_url_tag_to_plus (summary);
     string body = filter_string_trim (request->post["body"]);
     body = filter_url_tag_to_plus (body);
-    // Normally the new note applies to the currently selected Bible.
-    if (config_logic_indonesian_cloud_free ()) {
-      // Indonesian free Cloud: A new note applies to all Bibles.
-      // https://github.com/bibledit/cloud/issues/519
-      bible.clear ();
-    }
     notes_logic.createNote (bible, book, chapter, verse, summary, body, false);
     return string();
   }
@@ -149,7 +144,7 @@ string notes_create (void * webserver_request)
   // page += view.render ("notes", "create");
   page += view.render ("notes", "create");
 
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

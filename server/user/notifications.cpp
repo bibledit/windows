@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <access/logic.h>
 #include <access/bible.h>
 #include <email/send.h>
+using namespace std;
 
 
 string user_notifications_url ()
@@ -47,9 +48,9 @@ bool user_notifications_acl (void * webserver_request)
   // Consultant has access.
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ())) return true;
   // Whoever can view notes has access.
-  if (access_logic_privilege_view_notes (webserver_request)) return true;
+  if (access_logic::privilege_view_notes (webserver_request)) return true;
   // Whoever has access to a Bible has access to this page.
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   if (read) return true;
   // No access.
   return false;
@@ -65,7 +66,7 @@ string user_notifications (void * webserver_request)
   string page;
   
   Assets_Header header = Assets_Header (translate("Notifications"), webserver_request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
   
   Assets_View view;
@@ -199,7 +200,7 @@ string user_notifications (void * webserver_request)
   // The set of Bibles the user can choose
   // is limited to those Bibles the user has read access to.
   {
-    vector <string> bibles = AccessBible::Bibles (webserver_request);
+    vector <string> bibles = access_bible::bibles (webserver_request);
     for (const auto & bible : bibles) {
       if (checkbox == "changenotificationbible" + bible) {
         vector <string> currentbibles = database_config_user.getChangeNotificationsBibles();
@@ -241,7 +242,7 @@ string user_notifications (void * webserver_request)
   view.set_variable ("url", client_logic_link_to_cloud (user_notifications_url (), translate("You can set the notifications in Bibledit Cloud.")));
 
   // The bits accessible to the user depends on the user's privileges.
-  auto [ read_bible, write_bible ] = AccessBible::Any (webserver_request);
+  auto [ read_bible, write_bible ] = access_bible::any (webserver_request);
   if (read_bible) view.enable_zone ("readbible");
   if (write_bible) view.enable_zone ("writebible");
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ()))
@@ -251,7 +252,7 @@ string user_notifications (void * webserver_request)
   
   page += view.render ("user", "notifications");
 
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
 
   return page;
 }

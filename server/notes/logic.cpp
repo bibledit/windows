@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/noteassignment.h>
 #include <database/logs.h>
 #include <database/config/general.h>
+#include <database/books.h>
 #include <trash/handler.h>
 #include <locale/translate.h>
 #include <client/logic.h>
@@ -34,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <workspace/index.h>
 #include <access/bible.h>
 #include <email/send.h>
+using namespace std;
 
 
 Notes_Logic::Notes_Logic (void * webserver_request_in)
@@ -391,7 +393,7 @@ void Notes_Logic::notifyUsers (int identifier, int notification)
     // Users to get subscribed to the note, or to whom the note is to be assigned.
     vector <string> users = request->database_users ()->get_users ();
     for (const string & user : users) {
-      if (AccessBible::Read (webserver_request, bible, user)) {
+      if (access_bible::read (webserver_request, bible, user)) {
         if (request->database_config_user ()->getNotifyUserOfAnyConsultationNotesEdits (user)) {
           database_notes.subscribe_user (identifier, user);
         }
@@ -432,7 +434,7 @@ void Notes_Logic::notifyUsers (int identifier, int notification)
     vector <string> users = request->database_users ()->get_users ();
     for (const auto & user : users) {
       if (request->database_config_user ()->getUserDeletedConsultationNoteNotification (user)) {
-        if (AccessBible::Read (webserver_request, bible, user)) {
+        if (access_bible::read (webserver_request, bible, user)) {
           recipients.push_back (user);
         }
       }
@@ -456,6 +458,7 @@ void Notes_Logic::notifyUsers (int identifier, int notification)
     case notifyNoteComment         : label = translate("Comment");             break;
     case notifyNoteDelete          : label = translate("Deleted");             break;
     case notifyMarkNoteForDeletion : label = translate("Marked for deletion"); break;
+    default: break;
   }
 
   // Optional postponing sending email.
@@ -492,7 +495,7 @@ void Notes_Logic::emailUsers (int identifier, const string& label, string bible,
   contents << "<br>" << endl;
   contents << "<p>";
   contents << "<a href=";
-  string notelink = config_logic_site_url (webserver_request) + notes_note_url () + "?id=" + convert_to_string (identifier);
+  string notelink = config::logic::site_url (webserver_request) + notes_note_url () + "?id=" + convert_to_string (identifier);
   contents << quoted (notelink);
   contents << ">";
   contents << translate ("View or respond online");
@@ -500,7 +503,7 @@ void Notes_Logic::emailUsers (int identifier, const string& label, string bible,
   contents << " " << translate ("or") << " ";
 
   contents << "<a href=";
-  string workspacelink = config_logic_site_url (webserver_request) + workspace_index_url () + "?note=" + convert_to_string (identifier);
+  string workspacelink = config::logic::site_url (webserver_request) + workspace_index_url () + "?note=" + convert_to_string (identifier);
   contents << quoted (workspacelink);
   contents << ">";
   contents << translate ("open the workspace online");
@@ -516,7 +519,7 @@ void Notes_Logic::emailUsers (int identifier, const string& label, string bible,
   int timestamp = filter::date::seconds_since_epoch ();
   if (postpone) {
     int localseconds = filter::date::local_seconds (timestamp);
-    float localhour = static_cast<float>(filter::date::numerical_hour (localseconds)) + (float) filter::date::numerical_minute (localseconds) / 60;
+    float localhour = static_cast<float>(filter::date::numerical_hour (localseconds)) + static_cast<float>(filter::date::numerical_minute (localseconds)) / 60;
     if (localhour < 21) {
       float difference = 21 - localhour;
       timestamp += static_cast<int>(3600 * difference) - 10;
@@ -627,13 +630,13 @@ bool Notes_Logic::handleEmailNew (string from, string subject, string body)
   if (!request->database_users()->emailExists (from)) return false;
   string username = request->database_users()->getEmailToUser (from);
   // Extract book, chapter, verse, and note summary from the subject
-  int book = -1;
-  int chapter = -1;
-  int verse = -1;
-  string summary;
+  book_id book {book_id::_unknown};
+  int chapter {-1};
+  int verse {-1};
+  string summary {};
   vector <string> subjectlines = filter_string_explode (subject, ' ');
   if (!subjectlines.empty()) {
-    book = filter_passage_interpret_book (subjectlines[0]);
+    book = filter_passage_interpret_book_v2 (subjectlines[0]);
     subjectlines.erase (subjectlines.begin());
   }
   if (!subjectlines.empty()) {
@@ -647,7 +650,7 @@ bool Notes_Logic::handleEmailNew (string from, string subject, string body)
   summary = filter_string_implode (subjectlines, " ");
   // Check book, chapter, verse, and summary. Give feedback if there's anything wrong.
   string noteCheck;
-  if (book <= 0) noteCheck.append (translate("Unknown book"));
+  if (book == book_id::_unknown) noteCheck.append (translate("Unknown book"));
   if (chapter < 0) {
     noteCheck.append (" ");
     noteCheck.append (translate("Unknown chapter"));
@@ -673,7 +676,7 @@ bool Notes_Logic::handleEmailNew (string from, string subject, string body)
   request->session_logic()->set_username (username);
   Database_Notes database_notes = Database_Notes(webserver_request);
   string bible = request->database_config_user()->getBible ();
-  int identifier = database_notes.store_new_note (bible, book, chapter, verse, summary, body, false);
+  int identifier = database_notes.store_new_note (bible, static_cast<int>(book), chapter, verse, summary, body, false);
   handlerNewNote (identifier);
   request->session_logic()->set_username (sessionuser);
   // Mail confirmation to the username.
@@ -722,10 +725,10 @@ void notes_logic_maintain_note_assignees (bool force)
     for (auto & bible : bibles) {
       
       // Continue with this Bible if the user has access to it.
-      if (AccessBible::Read (&webserver_request, bible, user)) {
+      if (access_bible::read (&webserver_request, bible, user)) {
 
         for (auto & assignee : users) {
-          if (AccessBible::Read (&webserver_request, bible, assignee)) {
+          if (access_bible::read (&webserver_request, bible, assignee)) {
             assignees.push_back (assignee);
           }
         }

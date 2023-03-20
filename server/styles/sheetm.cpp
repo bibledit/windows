@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
 #include <menu/logic.h>
 #include <styles/indexm.h>
 #include <database/logic.h>
+using namespace std;
 
 
 string styles_sheetm_url ()
@@ -58,8 +59,8 @@ string styles_sheetm (void * webserver_request)
   string page;
   
   Assets_Header header = Assets_Header (translate("Stylesheet"), webserver_request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.addBreadCrumb (styles_indexm_url (), menu_logic_styles_indexm_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (styles_indexm_url (), menu_logic_styles_indexm_text ());
   page = header.run ();
 
   Assets_View view;
@@ -78,11 +79,11 @@ string styles_sheetm (void * webserver_request)
     string newstyle = request->post["entry"];
     vector <string> existing_markers = database_styles.getMarkers (name);
     if (find (existing_markers.begin(), existing_markers.end(), newstyle) != existing_markers.end()) {
-      page += Assets_Page::error (translate("This style already exists"));
+      page += assets_page::error (translate("This style already exists"));
     } else {
       database_styles.addMarker (name, newstyle);
       styles_sheets_create_all ();
-      page += Assets_Page::success (translate("The style has been created"));
+      page += assets_page::success (translate("The style has been created"));
     }
   }
   if (request->query.count("new")) {
@@ -116,7 +117,7 @@ string styles_sheetm (void * webserver_request)
 
   page += view.render ("styles", "sheetm");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

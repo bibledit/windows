@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include <database/config/bible.h>
 #include <locale/translate.h>
 #include <tasks/logic.h>
+using namespace std;
 
 
 void convert_bible_to_resource (string bible)
@@ -42,7 +43,7 @@ void convert_bible_to_resource (string bible)
   
   vector <int> books = database_bibles.getBooks (bible);
   for (auto & book : books) {
-    string bookname = Database_Books::getEnglishFromId (book);
+    string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
     Database_Logs::log (bookname, Filter_Roles::manager ());
     vector <int> chapters = database_bibles.getChapters (bible, book);
     for (auto & chapter : chapters) {

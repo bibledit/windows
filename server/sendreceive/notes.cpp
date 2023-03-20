@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@
 #include <checksum/logic.h>
 #include <bb/logic.h>
 #include <notes/logic.h>
+using namespace std;
 
 
 int sendreceive_notes_watchdog = 0;
@@ -218,6 +219,7 @@ bool sendreceive_notes_upload ()
         case Sync_Logic::notes_put_mark_delete: break;
         case Sync_Logic::notes_put_unmark_delete: break;
         case Sync_Logic::notes_put_delete: break;
+        default: break;
       }
       post ["c"] = content;
       
@@ -275,6 +277,7 @@ bool sendreceive_notes_upload ()
         case Sync_Logic::notes_put_mark_delete: break;
         case Sync_Logic::notes_put_unmark_delete: break;
         case Sync_Logic::notes_put_delete: break;
+        default: break;
       }
     }
     
@@ -390,7 +393,7 @@ bool sendreceive_notes_download (int lowId, int highId)
   string server_checksum;
   if (vresponse.size () >= 2) server_checksum = vresponse [1];
   vector <int> identifiers = database_notes.get_notes_in_range_for_bibles (lowId, highId, {}, true);
-  int client_total = (int)identifiers.size ();
+  int client_total = static_cast<int>(identifiers.size());
   // Checksum cache to speed things up in case of thousands of notes.
   string client_checksum = Database_State::getNotesChecksum (lowId, highId);
   if (client_checksum.empty ()) {

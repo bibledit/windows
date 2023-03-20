@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <assets/header.h>
 #include <dialog/entry.h>
 #include <dialog/list.h>
+#include <dialog/list2.h>
 #include <filter/roles.h>
 #include <filter/url.h>
 #include <filter/string.h>
@@ -36,12 +37,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/login.h>
 #include <database/noteassignment.h>
 #include <access/user.h>
+#include <access/logic.h>
 #include <locale/translate.h>
 #include <notes/logic.h>
 #include <menu/logic.h>
 #include <session/switch.h>
 #include <ldap/logic.h>
 #include <user/logic.h>
+using namespace std;
 
 
 string manage_users_url ()
@@ -67,7 +70,7 @@ string manage_users (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate("Users"), webserver_request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
 
   
@@ -75,6 +78,23 @@ string manage_users (void * webserver_request)
 
 
   int myLevel = request->session_logic ()->currentLevel ();
+
+
+  // Set the default new user role.
+  if (request->post.count ("defaultacl")) {
+    int defaultacl = convert_to_int (request->post ["defaultacl"]);
+    Database_Config_General::setDefaultNewUserAccessLevel(defaultacl);
+    assets_page::success (translate("The default new user is changed."));
+  }
+
+
+  // Set the chosen default new user role on the option HTML tag.
+  string default_acl = convert_to_string (Database_Config_General::getDefaultNewUserAccessLevel ());
+  string default_acl_html;
+  default_acl_html = Options_To_Select::add_selection ("Guest", convert_to_string(Filter_Roles::guest()), default_acl_html);
+  default_acl_html = Options_To_Select::add_selection ("Member", convert_to_string(Filter_Roles::member()), default_acl_html);
+  view.set_variable ("defaultacloptags", Options_To_Select::mark_selected (default_acl, default_acl_html));
+  view.set_variable ("defaultacl", default_acl);
   
   
   // New user creation.
@@ -86,12 +106,27 @@ string manage_users (void * webserver_request)
   if (request->post.count ("new")) {
     string user = request->post["entry"];
     if (request->database_users ()->usernameExists (user)) {
-      page += Assets_Page::error (translate("User already exists"));
+      page += assets_page::error (translate("User already exists"));
     } else {
-      request->database_users ()->add_user(user, user, Filter_Roles::member (), "");
+
+      // Set the role of the new created user, it is set as member if no
+      // default has been set by an administrator.
+      int role = Database_Config_General::getDefaultNewUserAccessLevel ();
+      request->database_users ()->add_user(user, user, role, "");
+
+      // Set default privileges on new created user.
+      vector <string> defusers = {"defaultguest", "defaultmember", "defaulttranslator", "defaultconsultant", "defaultmanager"};
+      vector <int> privileges = {PRIVILEGE_VIEW_RESOURCES, PRIVILEGE_VIEW_NOTES, PRIVILEGE_CREATE_COMMENT_NOTES};
+      // Subtract one as guest is identified by 0 instead of 1 in the vector.
+      string default_username = defusers[(unsigned)(long)(unsigned)role - 1];
+      for (auto & privilege : privileges) {
+        bool state = Database_Privileges::getFeature (default_username, privilege);
+        Database_Privileges::setFeature (user, privilege, state);
+      }
+
       user_logic_store_account_creation (user);
       user_updated = true;
-      page += Assets_Page::success (translate("User created"));
+      page += assets_page::success (translate("User created"));
     }
   }
   
@@ -108,16 +143,16 @@ string manage_users (void * webserver_request)
     vector <string> users = request->database_users ()->get_users ();
     vector <string> administrators = request->database_users ()->getAdministrators ();
     if (users.size () == 1) {
-      page += Assets_Page::error (translate("Cannot remove the last user"));
+      page += assets_page::error (translate("Cannot remove the last user"));
     } else if ((objectUserLevel >= Filter_Roles::admin ()) && (administrators.size () == 1)) {
-      page += Assets_Page::error (translate("Cannot remove the last administrator"));
-    } else if (config_logic_demo_enabled () && (objectUsername ==  session_admin_credentials ())) {
-      page += Assets_Page::error (translate("Cannot remove the demo admin"));
+      page += assets_page::error (translate("Cannot remove the last administrator"));
+    } else if (config::logic::demo_enabled () && (objectUsername ==  session_admin_credentials ())) {
+      page += assets_page::error (translate("Cannot remove the demo admin"));
     } else {
       string message;
       user_logic_delete_account (objectUsername, role, email, message);
       user_updated = true;
-      page += Assets_Page::success (message);
+      page += assets_page::success (message);
     }
   }
   
@@ -157,11 +192,11 @@ string manage_users (void * webserver_request)
   if (request->post.count ("email")) {
     string email = request->post["entry"];
     if (filter_url_email_is_valid (email)) {
-      page += Assets_Page::success (translate("Email address was updated"));
+      page += assets_page::success (translate("Email address was updated"));
       request->database_users ()->updateUserEmail (objectUsername, email);
       user_updated = true;
     } else {
-      page += Assets_Page::error (translate("The email address is not valid"));
+      page += assets_page::error (translate("The email address is not valid"));
     }
   }
   
@@ -182,7 +217,7 @@ string manage_users (void * webserver_request)
       page += dialog_list.run ();
       return page;
     } else {
-      Assets_Page::success (translate("The user has been granted access to this Bible"));
+      assets_page::success (translate("The user has been granted access to this Bible"));
       // Write access depends on whether it's a translator role or higher.
       bool write = (objectUserLevel >= Filter_Roles::translator ());
       Database_Privileges::setBible (objectUsername, addbible, write);
@@ -198,14 +233,14 @@ string manage_users (void * webserver_request)
     Database_Privileges::removeBibleBook (objectUsername, removebible, 0);
     user_updated = true;
     privileges_updated = true;
-    Assets_Page::success (translate("The user no longer has access to this Bible"));
+    assets_page::success (translate("The user no longer has access to this Bible"));
   }
   
   
   // Enable or disable a user account.
   if (request->query.count ("enable")) {
     request->database_users ()->set_enabled (objectUsername, true);
-    Assets_Page::success (translate("The user account was enabled"));
+    assets_page::success (translate("The user account was enabled"));
   }
   if (request->query.count ("disable")) {
     // Disable the user in the database.
@@ -213,7 +248,7 @@ string manage_users (void * webserver_request)
     // Remove all login tokens (cookies) for this user, so the user no longer is logged in.
     Database_Login::removeTokens (objectUsername);
     // Feedback.
-    Assets_Page::success (translate("The user account was disabled"));
+    assets_page::success (translate("The user account was disabled"));
   }
   
   
@@ -229,7 +264,7 @@ string manage_users (void * webserver_request)
   stringstream tbody;
   bool ldap_on = ldap_logic_is_on ();
   // Retrieve assigned users.
-  vector <string> users = access_user_assignees (webserver_request);
+  vector <string> users = access_user::assignees (webserver_request);
   for (auto & username : users) {
     
     // Gather details for this user account.
@@ -360,13 +395,11 @@ string manage_users (void * webserver_request)
     view.enable_zone ("local");
   }
 
-  if (config_logic_indonesian_cloud_free ()) {
-    view.enable_zone("accounts");
-  }
+  if (request->session_logic()->currentLevel () == Filter_Roles::highest ()) view.enable_zone ("admin_settings");
 
   page += view.render ("manage", "users");
 
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   if (user_updated) notes_logic_maintain_note_assignees (true);
   if (privileges_updated) database_privileges_client_create (objectUsername, true);

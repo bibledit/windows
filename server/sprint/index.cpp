@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 #include <sprint/burndown.h>
 #include <menu/logic.h>
 #include <email/send.h>
+using namespace std;
 
 
 string sprint_index_url ()
@@ -64,7 +65,7 @@ string sprint_index ([[maybe_unused]] void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate("Sprint"), request);
-  header.addBreadCrumb (menu_logic_tools_menu (), menu_logic_tools_text ());
+  header.add_bread_crumb (menu_logic_tools_menu (), menu_logic_tools_text ());
   page = header.run ();
   Assets_View view;
   
@@ -93,7 +94,7 @@ string sprint_index ([[maybe_unused]] void * webserver_request)
   }
   
   
-  string bible = AccessBible::Clamp (webserver_request, request->database_config_user()->getBible ());
+  string bible = access_bible::clamp (webserver_request, request->database_config_user()->getBible ());
   int month = request->database_config_user()->getSprintMonth ();
   int year = request->database_config_user()->getSprintYear ();
   
@@ -116,11 +117,11 @@ string sprint_index ([[maybe_unused]] void * webserver_request)
         string categorytext = Database_Config_Bible::getSprintTaskCompletionCategories (bible);
         vector <string> categories = filter_string_explode (categorytext, '\n');
         size_t category_count = categories.size ();
-        float category_percentage = 100 / category_count;
-        int percentage;
+        float category_percentage = 100.0f / static_cast<float>(category_count);
+        int percentage {0};
         bool on = (checked == "true");
-        if (on) percentage = static_cast <int> (round ((box + 1) * category_percentage));
-        else percentage = static_cast <int> (round (box * category_percentage));
+        if (on) percentage = static_cast <int> (round (static_cast<float>(box + 1) * category_percentage));
+        else percentage = static_cast <int> (round (static_cast<float>(box) * category_percentage));
         database_sprint.updateComplete (identifier, percentage);
       }
     }
@@ -149,7 +150,7 @@ string sprint_index ([[maybe_unused]] void * webserver_request)
     bible = request->query ["bible"];
     if (bible.empty()) {
       Dialog_List dialog_list = Dialog_List ("index", translate("Select which Bible to display the Sprint for"), "", "");
-      vector <string> bibles = AccessBible::Bibles (request);
+      vector <string> bibles = access_bible::bibles (request);
       for (auto & selection_bible : bibles) {
         dialog_list.add_row (selection_bible, "bible", selection_bible);
       }
@@ -161,7 +162,7 @@ string sprint_index ([[maybe_unused]] void * webserver_request)
   }
   
   
-  bible = AccessBible::Clamp (webserver_request, request->database_config_user()->getBible ());
+  bible = access_bible::clamp (webserver_request, request->database_config_user()->getBible ());
   
   
   int id = convert_to_int (request->query ["id"]);
@@ -230,9 +231,9 @@ string sprint_index ([[maybe_unused]] void * webserver_request)
     tasks.append ("<td><a href=\"?id=" + convert_to_string (task_id) + "&moveback=\"> « </a></td>\n");
     tasks.append ("<td>" + title + "</td>\n");
     size_t category_count = vcategories.size();
-    float category_percentage = 100 / category_count;
+    float category_percentage = 100.0f / static_cast<float>(category_count);
     for (size_t i2 = 0; i2 < vcategories.size (); i2++) {
-      int high = static_cast <int> (round ((i2 + 1) * category_percentage));
+      int high = static_cast <int> (round (static_cast<float>(i2 + 1) * category_percentage));
       tasks.append ("<td>\n");
       tasks.append ("<input type=\"checkbox\" id=\"task");
       tasks.append (convert_to_string (task_id));
@@ -260,7 +261,7 @@ string sprint_index ([[maybe_unused]] void * webserver_request)
 
 
   page += view.render ("sprint", "index");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 #endif
 }

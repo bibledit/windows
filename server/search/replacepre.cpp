@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include <database/config/general.h>
 #include <search/logic.h>
 #include <access/bible.h>
+using namespace std;
 
 
 string search_replacepre_url ()
@@ -38,7 +39,7 @@ string search_replacepre_url ()
 bool search_replacepre_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return write;
 }
 
@@ -48,7 +49,7 @@ string search_replacepre (void * webserver_request)
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   
-  string siteUrl = config_logic_site_url (webserver_request);
+  string siteUrl = config::logic::site_url (webserver_request);
   
   
   // Get search variables from the query.
@@ -92,7 +93,7 @@ string search_replacepre (void * webserver_request)
   
   // Check whether the user has write access to the book.
   string user = request->session_logic ()->currentUser ();
-  bool write = AccessBible::BookWrite (webserver_request, user, bible, book);
+  bool write = access_bible::book_write (webserver_request, user, bible, book);
 
   
   // Create output.

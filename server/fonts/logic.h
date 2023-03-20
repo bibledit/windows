@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -24,12 +24,12 @@
 class Fonts_Logic
 {
 public:
-  static vector <string> getFonts ();
-  static bool fontExists (string font);
-  static string getFontPath (string font);
-  static void erase (string font);
-  static string getTextFont (string bible);
-  static bool isFont (string suffix);
+  static std::vector <std::string> getFonts ();
+  static bool font_exists (std::string font);
+  static std::string get_font_path (std::string font);
+  static void erase (std::string font);
+  static std::string get_text_font (std::string bible);
+  static bool is_font (std::string suffix);
 private:
-  static string folder ();
+  static std::string folder ();
 };

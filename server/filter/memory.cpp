@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #ifdef HAVE_EXECINFO
 #include <execinfo.h>
 #endif
+using namespace std;
 
 
 // Returns the memory available as a percentage of the total system memory.
@@ -81,7 +82,7 @@ int filter_memory_percentage_available ()
 
 
 // Returns how many bytes of memory the app currently uses.
-uint64_t filter_memory_total_usage ()
+uint64_t filter_memory_total_usage () 
 {
 #ifdef HAVE_MACH_MACH
   // macOS.

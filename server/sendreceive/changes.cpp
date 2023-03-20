@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -33,9 +33,10 @@
 #include <sync/logic.h>
 #include <sync/changes.h>
 #include <checksum/logic.h>
+using namespace std;
 
 
-int sendreceive_changes_watchdog = 0;
+int sendreceive_changes_watchdog {0};
 
 
 void send_receive_changes_done ()

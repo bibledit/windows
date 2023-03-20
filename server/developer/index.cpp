@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <config/globals.h>
 #include <library/bibledit.h>
 #include <developer/logic.h>
+using namespace std;
 
 
 const char * developer_index_url ()
@@ -55,18 +56,18 @@ string developer_index (void * webserver_request)
   if (request->query.count ("log")) {
     string message = request->query ["log"];
     cerr << message << endl;
-    return "";
+    return string();
   }
   
-  string page;
+  string page {};
 
   Assets_Header header = Assets_Header ("Development", webserver_request);
-  header.notifItOn ();
+  header.notify_it_on ();
   page = header.run ();
 
-  Assets_View view;
+  Assets_View view {};
 
-  string code;
+  string code {};
   
   string debug = request->query ["debug"];
   
@@ -116,7 +117,7 @@ string developer_index (void * webserver_request)
 
   if (debug == "ipv6") {
     view.set_variable ("success", "Fetching data via IPv6");
-    string error;
+    string error {};
     string response = filter_url_http_request_mbed ("http://ipv6.google.com", error, {}, "", true);
     page.append (response);
     view.set_variable ("error", error);
@@ -124,7 +125,7 @@ string developer_index (void * webserver_request)
   
   if (debug == "ipv6s") {
     view.set_variable ("success", "Securely fetching data via IPv6");
-    string error;
+    string error {};
     string response = filter_url_http_request_mbed ("https://ipv6.google.com", error, {}, "", true);
     page.append (response);
     view.set_variable ("error", error);
@@ -141,13 +142,6 @@ string developer_index (void * webserver_request)
     bibledit_put_reference_from_accordance("PSA 3:2");
   }
 
-  if (debug == "expirefreeindonesian") {
-    if (config_logic_indonesian_cloud_free ()) {
-      tasks_logic_queue (EXPIREINDONESIANFREEUSERS);
-      view.set_variable ("success", "Task was started");
-    } else view.set_variable ("error", "Not configured");
-  }
-  
   if (debug == "changes") {
     developer_logic_import_changes ();
     view.set_variable ("success", "Task was done see Journal");
@@ -156,7 +150,7 @@ string developer_index (void * webserver_request)
   view.set_variable ("code", code);
 
   page += view.render ("developer", "index");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
 
   return page;
 }

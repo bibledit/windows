@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,6 @@
 
 #include <config/libraries.h>
 
-void manage_hyphenate (string bible, string user);
-string hyphenate_at_transition (vector <string>& firstset, vector <string>& secondset, string text);
-bool hyphenate_is_near_white_space (const vector <string> & characters, int offset);
+void manage_hyphenate (std::string bible, std::string user);
+std::string hyphenate_at_transition (std::vector <std::string>& firstset, std::vector <std::string>& secondset, std::string text);
+bool hyphenate_is_near_white_space (const std::vector <std::string> & characters, int offset);

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/sqlite.h>
 #include <filter/date.h>
 #include <config/globals.h>
+using namespace std;
 
 
 // Handles email and web page confirmations.
@@ -62,7 +63,7 @@ void Database_Confirm::upgrade ()
   vector <string> columns = sql.query () ["name"];
 
   // Add the column for the username if it's not yet there.
-  if (!in_array ((string)"username", columns)) {
+  if (!in_array (static_cast<string> ("username"), columns)) {
     sql.clear ();
     sql.add ("ALTER TABLE confirm ADD COLUMN username text;");
     sql.execute ();

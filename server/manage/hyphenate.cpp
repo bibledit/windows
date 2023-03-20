@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 #include <database/privileges.h>
 #include <database/config/bible.h>
 #include <webserver/request.h>
+using namespace std;
 
 
 void manage_hyphenate (string bible, string user)
@@ -68,7 +69,7 @@ void manage_hyphenate (string bible, string user)
   Database_Config_Bible::remove (outputBible);
   database_bibles.createBible (outputBible);
   Webserver_Request webserver_request;
-  if (!AccessBible::Write (&webserver_request, outputBible, user)) {
+  if (!access_bible::write (&webserver_request, outputBible, user)) {
     // Only grant access if the user does not yet have it.
     // This avoid assigning the Bible to the user in case no Bible was assigned to anyone,
     // in which case assigning this Bible to the user would possible withdraw privileges from other users.
@@ -79,7 +80,7 @@ void manage_hyphenate (string bible, string user)
   // Go through the input Bible's books and chapters.
   vector <int> books = database_bibles.getBooks (inputBible);
   for (auto book : books) {
-    Database_Logs::log (Database_Books::getEnglishFromId (book));
+    Database_Logs::log (database::books::get_english_from_id (static_cast<book_id>(book)));
     vector <int> chapters = database_bibles.getChapters (inputBible, book);
     for (auto chapter : chapters) {
       string data = database_bibles.getChapter (inputBible, book, chapter);

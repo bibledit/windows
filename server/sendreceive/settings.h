@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 
 #include <config/libraries.h>
 
-string sendreceive_settings_sendreceive_text ();
-string sendreceive_settings_up_to_date_text ();
+std::string sendreceive_settings_sendreceive_text ();
+std::string sendreceive_settings_up_to_date_text ();
 void sendreceive_settings ();
 void sendreceive_settings_kick_watchdog ();

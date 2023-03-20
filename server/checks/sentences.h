@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -24,58 +24,58 @@
 class Checks_Sentences
 {
 public:
-  void enterCapitals (string capitals_in);
-  void enterSmallLetters (string small_letters_in);
-  void enterEndMarks (string end_marks_in);
-  void enterCenterMarks (string center_marks_in);
-  void enterDisregards (string disregards_in);
-  void enterNames (string names_in);
+  void enter_capitals (const std::string & capitals);
+  void enter_small_letters (const std::string & small_letters);
+  void enter_end_marks (const std::string & end_marks);
+  void enter_center_marks (const std::string & center_marks);
+  void enter_disregards (const std::string & disregards);
+  void enter_names (std::string names);
   void initialize ();
-  vector <pair<int, string>> getResults ();
-  void check (map <int, string> texts);
-  void paragraphs (vector <string> paragraph_start_markers,
-                   vector <string> within_sentence_paragraph_markers,
-                   vector <map <int, string>> verses_paragraphs);
+  std::vector <std::pair<int, std::string>> get_results ();
+  void check (const std::map <int, std::string> & texts);
+  void paragraphs (const std::vector <std::string> & paragraph_start_markers,
+                   const std::vector <std::string> & within_sentence_paragraph_markers,
+                   const std::vector <std::map <int, std::string>> & verses_paragraphs);
 
 private:
   // Sentence structure parameters.
-  vector <string> capitals {};
-  vector <string> small_letters {};
-  vector <string> end_marks {};
-  vector <string> center_marks {};
-  vector <string> disregards {};
-  vector <string> names {};
+  std::vector <std::string> m_capitals {};
+  std::vector <std::string> m_small_letters {};
+  std::vector <std::string> m_end_marks {};
+  std::vector <std::string> m_center_marks {};
+  std::vector <std::string> m_disregards {};
+  std::vector <std::string> m_names {};
   
   // State.
-  int verseNumber {0};
-  int currentPosition {0};
+  int verse_number {0};
+  int current_position {0};
   
   // Grapheme analysis.
-  string character {};
-  bool isSpace {false};
-  int spacePosition {0};
-  bool isCapital {false};
-  int capitalPosition {0};
-  bool isSmallLetter {false};
-  int smallLetterPosition {0};
-  bool isEndMark {false};
-  int endMarkPosition {0};
-  bool isCenterMark {false};
-  int centerMarkPosition {0};
-  int punctuationMarkPosition {0};
-  int previousMarkPosition {0};
+  std::string character {};
+  bool is_space {false};
+  int space_position {0};
+  bool is_capital {false};
+  int capital_position {0};
+  bool is_small_letter {false};
+  int small_letter_position {0};
+  bool is_end_mark {false};
+  int end_mark_position {0};
+  bool is_center_mark {false};
+  int center_mark_position {0};
+  int punctuation_mark_position {0};
+  int previous_mark_position {0};
   
   // Context.
-  string fullText {};
+  std::string full_text {};
   
   // Results of the checks.
-  vector <pair<int, string>> checkingResults {};
-  static constexpr int displayCharacterOnly {1};
-  static constexpr int displayContext {2};
-  static constexpr int skipNames {3};
+  std::vector <std::pair<int, std::string>> checking_results {};
+  static constexpr int display_character_only {1};
+  static constexpr int display_context {2};
+  static constexpr int skip_names {3};
   
-  void addResult (string text, int modifier);
-  void checkUnknownCharacter ();
-  void analyzeCharacters ();
-  void checkCharacter ();
+  void add_result (std::string text, int modifier);
+  void check_unknown_character ();
+  void analyze_characters ();
+  void check_character ();
 };

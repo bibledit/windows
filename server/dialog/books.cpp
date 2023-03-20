@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include <filter/url.h>
 #include <filter/string.h>
 #include <database/books.h>
+using namespace std;
 
 
 // Constructs a Bible books selection dialog
@@ -66,7 +67,11 @@ string Dialog_Books::run ()
   Assets_View * view = static_cast<Assets_View *>(assets_view);
   view->set_variable ("base_url", base_url);
 
-  vector <int> book_ids = Database_Books::getIDs ();
+  vector <int> book_ids {};
+  {
+    vector <book_id> book_enums = database::books::get_ids ();
+    for (auto book : book_enums) book_ids.push_back(static_cast<int>(book));
+  }
   if (!include.empty ()) {
     book_ids = include;
   }
@@ -84,11 +89,11 @@ string Dialog_Books::run ()
   for (auto & id : book_ids) {
     book_block << "<a href=";
     book_block << quoted(filter_url_build_http_query (base_url, selection_action, convert_to_string (id)));
-    book_block << ">" << Database_Books::getEnglishFromId (id) << "</a>\n";
+    book_block << ">" << database::books::get_english_from_id (static_cast<book_id>(id)) << "</a>\n";
   }
   view->set_variable ("book_block", book_block.str());
   
   string page = view->render ("dialog", "books");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

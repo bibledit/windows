@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include <locale/translate.h>
 #include <database/bibleimages.h>
 #include <database/logs.h>
+using namespace std;
 
 
 void images_logic_import_images (string path)

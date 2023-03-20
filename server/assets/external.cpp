@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <assets/external.h>
 #include <config/globals.h>
 #include <webserver/request.h>
+using namespace std;
 
 
 string assets_external_url ()
@@ -41,7 +42,7 @@ string assets_external (void * webserver_request)
   }
 
   // Wait for some time till a URL is available.
-  int timer = 100;
+  int timer {100};
   while (timer) {
     this_thread::sleep_for (chrono::milliseconds (100));
     timer--;
@@ -61,11 +62,11 @@ string assets_external_logic_link_addon ()
 {
   // Open an external link in an external browser on most clients.
   // Open an external link in a new tab in some situations.
-  bool newtab = false;
+  bool newtab {false};
 #ifdef HAVE_CLOUD
   newtab = true;
 #endif
-  string addon;
+  string addon {};
   if (newtab) addon = R"(target="_blank")";
   else addon = R"(class="external")";
   // Done.

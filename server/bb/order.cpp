@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 #include <access/bible.h>
 #include <menu/logic.h>
 #include <bb/manage.h>
+using namespace std;
 
 
 string bible_order_url ()
@@ -48,17 +49,17 @@ string bible_order (void * webserver_request)
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
-  string page;
+  string page {};
 
   Assets_Header header = Assets_Header (translate("Order"), request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.addBreadCrumb (bible_manage_url (), menu_logic_bible_manage_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (bible_manage_url (), menu_logic_bible_manage_text ());
   page = header.run ();
   
-  Assets_View view;
+  Assets_View view {};
   
   // The name of the Bible.
-  string bible = AccessBible::Clamp (request, request->query ["bible"]);
+  string bible = access_bible::clamp (request, request->query ["bible"]);
   view.set_variable ("bible", escape_special_xml_characters (bible));
 
   // The order the user wants for the Bibles.
@@ -66,58 +67,58 @@ string bible_order (void * webserver_request)
   
   // Deuterocanonicals or Apocrypha interspersed among the books of the Hebrew Bible.
   if (order == "interspersed") {
-    vector <int> interspersed = {
-      Database_Books::getIdFromEnglish ("Front Matter"),
-      Database_Books::getIdFromEnglish ("Introduction Matter"),
-      Database_Books::getIdFromEnglish ("Genesis"),
-      Database_Books::getIdFromEnglish ("Exodus"),
-      Database_Books::getIdFromEnglish ("Leviticus"),
-      Database_Books::getIdFromEnglish ("Numbers"),
-      Database_Books::getIdFromEnglish ("Deuteronomy"),
-      Database_Books::getIdFromEnglish ("Joshua"),
-      Database_Books::getIdFromEnglish ("Judges"),
-      Database_Books::getIdFromEnglish ("Ruth"),
-      Database_Books::getIdFromEnglish ("1 Samuel"),
-      Database_Books::getIdFromEnglish ("2 Samuel"),
-      Database_Books::getIdFromEnglish ("1 Kings"),
-      Database_Books::getIdFromEnglish ("2 Kings"),
-      Database_Books::getIdFromEnglish ("1 Chronicles"),
-      Database_Books::getIdFromEnglish ("2 Chronicles"),
-      Database_Books::getIdFromEnglish ("Ezra"),
-      Database_Books::getIdFromEnglish ("Nehemiah"),
-      Database_Books::getIdFromEnglish ("Tobit"),
-      Database_Books::getIdFromEnglish ("Judith"),
-      Database_Books::getIdFromEnglish ("Esther"),
-      Database_Books::getIdFromEnglish ("1 Maccabees"),
-      Database_Books::getIdFromEnglish ("2 Maccabees"),
-      Database_Books::getIdFromEnglish ("Job"),
-      Database_Books::getIdFromEnglish ("Psalms"),
-      Database_Books::getIdFromEnglish ("Proverbs"),
-      Database_Books::getIdFromEnglish ("Ecclesiastes"),
-      Database_Books::getIdFromEnglish ("Song of Solomon"),
-      Database_Books::getIdFromEnglish ("Wisdom of Solomon"),
-      Database_Books::getIdFromEnglish ("Sirach"),
-      Database_Books::getIdFromEnglish ("Isaiah"),
-      Database_Books::getIdFromEnglish ("Jeremiah"),
-      Database_Books::getIdFromEnglish ("Lamentations"),
-      Database_Books::getIdFromEnglish ("Baruch"),
-      Database_Books::getIdFromEnglish ("Ezekiel"),
-      Database_Books::getIdFromEnglish ("Daniel"),
-      Database_Books::getIdFromEnglish ("Hosea"),
-      Database_Books::getIdFromEnglish ("Joel"),
-      Database_Books::getIdFromEnglish ("Amos"),
-      Database_Books::getIdFromEnglish ("Obadiah"),
-      Database_Books::getIdFromEnglish ("Jonah"),
-      Database_Books::getIdFromEnglish ("Micah"),
-      Database_Books::getIdFromEnglish ("Nahum"),
-      Database_Books::getIdFromEnglish ("Habakkuk"),
-      Database_Books::getIdFromEnglish ("Zephaniah"),
-      Database_Books::getIdFromEnglish ("Haggai"),
-      Database_Books::getIdFromEnglish ("Zechariah"),
-      Database_Books::getIdFromEnglish ("Malachi"),
+    vector <book_id> interspersed = {
+      book_id::_front_matter,
+      book_id::_introduction_matter,
+      book_id::_genesis,
+      book_id::_exodus,
+      book_id::_leviticus,
+      book_id::_numbers,
+      book_id::_deuteronomy,
+      book_id::_joshua,
+      book_id::_judges,
+      book_id::_ruth,
+      book_id::_1_samuel,
+      book_id::_2_samuel,
+      book_id::_1_kings,
+      book_id::_2_kings,
+      book_id::_1_chronicles,
+      book_id::_2_chronicles,
+      book_id::_ezra,
+      book_id::_nehemiah,
+      book_id::_tobit,
+      book_id::_judith,
+      book_id::_esther,
+      book_id::_1_maccabees,
+      book_id::_2_maccabees,
+      book_id::_job,
+      book_id::_psalms,
+      book_id::_proverbs,
+      book_id::_ecclesiastes,
+      book_id::_song_of_solomon,
+      book_id::_wisdom_of_solomon,
+      book_id::_sirach,
+      book_id::_isaiah,
+      book_id::_jeremiah,
+      book_id::_lamentations,
+      book_id::_baruch,
+      book_id::_ezekiel,
+      book_id::_daniel,
+      book_id::_hosea,
+      book_id::_joel,
+      book_id::_amos,
+      book_id::_obadiah,
+      book_id::_jonah,
+      book_id::_micah,
+      book_id::_nahum,
+      book_id::_habakkuk,
+      book_id::_zephaniah,
+      book_id::_haggai,
+      book_id::_zechariah,
+      book_id::_malachi,
     };
-    vector <string> v_book_order;
-    for (auto & book : interspersed) v_book_order.push_back (convert_to_string (book));
+    vector <string> v_book_order {};
+    for (const auto book : interspersed) v_book_order.push_back (convert_to_string (static_cast<int>(book)));
     string s_book_order = filter_string_implode (v_book_order, " ");
     Database_Config_Bible::setBookOrder (bible, s_book_order);
   }
@@ -125,58 +126,58 @@ string bible_order (void * webserver_request)
   
   // Deuterocanonicals or Apocrypha between the Hebrew Bible and the New Testament.
   if (order == "between") {
-    vector <int> interspersed = {
-      Database_Books::getIdFromEnglish ("Front Matter"),
-      Database_Books::getIdFromEnglish ("Introduction Matter"),
-      Database_Books::getIdFromEnglish ("Genesis"),
-      Database_Books::getIdFromEnglish ("Exodus"),
-      Database_Books::getIdFromEnglish ("Leviticus"),
-      Database_Books::getIdFromEnglish ("Numbers"),
-      Database_Books::getIdFromEnglish ("Deuteronomy"),
-      Database_Books::getIdFromEnglish ("Joshua"),
-      Database_Books::getIdFromEnglish ("Judges"),
-      Database_Books::getIdFromEnglish ("Ruth"),
-      Database_Books::getIdFromEnglish ("1 Samuel"),
-      Database_Books::getIdFromEnglish ("2 Samuel"),
-      Database_Books::getIdFromEnglish ("1 Kings"),
-      Database_Books::getIdFromEnglish ("2 Kings"),
-      Database_Books::getIdFromEnglish ("1 Chronicles"),
-      Database_Books::getIdFromEnglish ("2 Chronicles"),
-      Database_Books::getIdFromEnglish ("Ezra"),
-      Database_Books::getIdFromEnglish ("Nehemiah"),
-      Database_Books::getIdFromEnglish ("Esther"),
-      Database_Books::getIdFromEnglish ("Job"),
-      Database_Books::getIdFromEnglish ("Psalms"),
-      Database_Books::getIdFromEnglish ("Proverbs"),
-      Database_Books::getIdFromEnglish ("Ecclesiastes"),
-      Database_Books::getIdFromEnglish ("Song of Solomon"),
-      Database_Books::getIdFromEnglish ("Isaiah"),
-      Database_Books::getIdFromEnglish ("Jeremiah"),
-      Database_Books::getIdFromEnglish ("Lamentations"),
-      Database_Books::getIdFromEnglish ("Ezekiel"),
-      Database_Books::getIdFromEnglish ("Daniel"),
-      Database_Books::getIdFromEnglish ("Hosea"),
-      Database_Books::getIdFromEnglish ("Joel"),
-      Database_Books::getIdFromEnglish ("Amos"),
-      Database_Books::getIdFromEnglish ("Obadiah"),
-      Database_Books::getIdFromEnglish ("Jonah"),
-      Database_Books::getIdFromEnglish ("Micah"),
-      Database_Books::getIdFromEnglish ("Nahum"),
-      Database_Books::getIdFromEnglish ("Habakkuk"),
-      Database_Books::getIdFromEnglish ("Zephaniah"),
-      Database_Books::getIdFromEnglish ("Haggai"),
-      Database_Books::getIdFromEnglish ("Zechariah"),
-      Database_Books::getIdFromEnglish ("Malachi"),
-      Database_Books::getIdFromEnglish ("Tobit"),
-      Database_Books::getIdFromEnglish ("Judith"),
-      Database_Books::getIdFromEnglish ("1 Maccabees"),
-      Database_Books::getIdFromEnglish ("2 Maccabees"),
-      Database_Books::getIdFromEnglish ("Wisdom of Solomon"),
-      Database_Books::getIdFromEnglish ("Sirach"),
-      Database_Books::getIdFromEnglish ("Baruch"),
+    vector <book_id> interspersed = {
+      book_id::_front_matter,
+      book_id::_introduction_matter,
+      book_id::_genesis,
+      book_id::_exodus,
+      book_id::_leviticus,
+      book_id::_numbers,
+      book_id::_deuteronomy,
+      book_id::_joshua,
+      book_id::_judges,
+      book_id::_ruth,
+      book_id::_1_samuel,
+      book_id::_2_samuel,
+      book_id::_1_kings,
+      book_id::_2_kings,
+      book_id::_1_chronicles,
+      book_id::_2_chronicles,
+      book_id::_ezra,
+      book_id::_nehemiah,
+      book_id::_esther,
+      book_id::_job,
+      book_id::_psalms,
+      book_id::_proverbs,
+      book_id::_ecclesiastes,
+      book_id::_song_of_solomon,
+      book_id::_isaiah,
+      book_id::_jeremiah,
+      book_id::_lamentations,
+      book_id::_ezekiel,
+      book_id::_daniel,
+      book_id::_hosea,
+      book_id::_joel,
+      book_id::_amos,
+      book_id::_obadiah,
+      book_id::_jonah,
+      book_id::_micah,
+      book_id::_nahum,
+      book_id::_habakkuk,
+      book_id::_zephaniah,
+      book_id::_haggai,
+      book_id::_zechariah,
+      book_id::_malachi,
+      book_id::_tobit,
+      book_id::_judith,
+      book_id::_1_maccabees,
+      book_id::_2_maccabees,
+      book_id::_wisdom_of_solomon,
+      book_id::_sirach,
+      book_id::_baruch,
     };
-    vector <string> v_book_order;
-    for (auto & book : interspersed) v_book_order.push_back (convert_to_string (book));
+    vector <string> v_book_order {};
+    for (const auto book : interspersed) v_book_order.push_back (convert_to_string (static_cast<int>(book)));
     string s_book_order = filter_string_implode (v_book_order, " ");
     Database_Config_Bible::setBookOrder (bible, s_book_order);
   }
@@ -184,7 +185,7 @@ string bible_order (void * webserver_request)
   
   // Deuterocanonicals or Apocrypha at the end of the entire Bible.
   if (order == "end") {
-    Database_Config_Bible::setBookOrder (bible, "");
+    Database_Config_Bible::setBookOrder (bible, string());
   }
 
   // Handle updates to the custom book order.
@@ -202,7 +203,7 @@ string bible_order (void * webserver_request)
   
   vector <int> books = filter_passage_get_ordered_books (bible);
   for (size_t i = 0; i < books.size (); i++) {
-    string bookname = Database_Books::getEnglishFromId (books[i]);
+    string bookname = database::books::get_english_from_id (static_cast<book_id>(books[i]));
     bookname = translate (bookname);
     view.add_iteration ("order", { pair ("offset", convert_to_string (i)), pair ("bookname", bookname) } );
   }
@@ -212,7 +213,7 @@ string bible_order (void * webserver_request)
 
   page += view.render ("bb", "order");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

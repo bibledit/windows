@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include <access/logic.h>
 #include <menu/logic.h>
 #include <manage/users.h>
+using namespace std;
 
 
 string manage_privileges_url ()
@@ -50,26 +51,30 @@ string manage_privileges (void * webserver_request)
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
   
-  string page;
+  string page {};
   Assets_Header header = Assets_Header (translate("Read/write"), webserver_request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.addBreadCrumb (manage_users_url (), menu_logic_manage_users_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (manage_users_url (), menu_logic_manage_users_text ());
   page = header.run ();
-  Assets_View view;
+  Assets_View view {};
 
   
   // Get the user and his/her level.
-  string user = request->query["user"];
+  string user {request->query["user"]};
   if (user.empty()) user = request->post["val1"];
   view.set_variable ("user", user);
-  int level;
-  access_logic_user_level (webserver_request, user, level);
+  int level {0};
+  access_logic::user_level (webserver_request, user, level);
+
+
+  // Usernames for setting default new user privilege.
+  set <string> defusers = {"defaultguest", "defaultmember", "defaulttranslator", "defaultconsultant", "defaultmanager"};
 
   
-  bool privileges_updated = false;
-  string checkbox = request->post ["checkbox"];
-  bool checked = convert_to_bool (request->post ["checked"]);
-  bool state;
+  bool privileges_updated {false};
+  string checkbox {request->post ["checkbox"]};
+  bool checked {convert_to_bool (request->post ["checked"])};
+  bool state {false};
   
   
   // The privilege to view the Resources.
@@ -78,7 +83,7 @@ string manage_privileges (void * webserver_request)
     privileges_updated = true;
   }
   state = Database_Privileges::getFeature (user, PRIVILEGE_VIEW_RESOURCES);
-  if (level >= access_logic_view_resources_role ()) {
+  if (level >= access_logic::view_resources_role () && defusers.find (user) == defusers.end ()) {
     state = true;
     view.set_variable ("viewresourcesdisabled", get_disabled (true));
   }
@@ -91,10 +96,10 @@ string manage_privileges (void * webserver_request)
     privileges_updated = true;
   }
   state = Database_Privileges::getFeature (user, PRIVILEGE_VIEW_NOTES);
-  if (level >= access_logic_view_resources_role ()) {
+  if (level >= access_logic::view_resources_role () && defusers.find (user) == defusers.end ()) {
     view.set_variable ("viewnotesdisabled", get_disabled (true));
   }
-  state = access_logic_privilege_view_notes (webserver_request, user);
+  state = access_logic::privilege_view_notes (webserver_request, user);
   view.set_variable ("viewnoteschecked", get_checkbox_status (state));
   
   
@@ -104,10 +109,10 @@ string manage_privileges (void * webserver_request)
     privileges_updated = true;
   }
   state = Database_Privileges::getFeature (user, PRIVILEGE_CREATE_COMMENT_NOTES);
-  if (level >= access_logic_view_resources_role ()) {
+  if (level >= access_logic::view_resources_role () && defusers.find (user) == defusers.end ()) {
     view.set_variable ("createcommentnotesdisabled", get_disabled (true));
   }
-  state = access_logic_privilege_create_comment_notes (webserver_request, user);
+  state = access_logic::privilege_create_comment_notes (webserver_request, user);
   view.set_variable ("createcommentnoteschecked", get_checkbox_status (state));
 
   
@@ -116,10 +121,10 @@ string manage_privileges (void * webserver_request)
     request->database_config_user ()->setPrivilegeDeleteConsultationNotesForUser (user, checked);
   }
   state = Database_Privileges::getFeature (user, PRIVILEGE_CREATE_COMMENT_NOTES);
-  if (level >= access_logic_delete_consultation_notes_role ()) {
+  if (level >= access_logic::delete_consultation_notes_role () && defusers.find (user) == defusers.end ()) {
     view.set_variable ("deletenotesdisabled", get_disabled (true));
   }
-  state = access_logic_privilege_delete_consultation_notes (webserver_request, user);
+  state = access_logic::privilege_delete_consultation_notes (webserver_request, user);
   view.set_variable ("deletenoteschecked", get_checkbox_status (state));
 
   
@@ -127,11 +132,22 @@ string manage_privileges (void * webserver_request)
   if (checkbox == "useadvancedmode") {
     request->database_config_user ()->setPrivilegeUseAdvancedModeForUser (user, checked);
   }
-  if (level >= access_logic_use_advanced_mode_role ()) {
+  if (level >= access_logic::use_advanced_mode_role () && defusers.find (user) == defusers.end ()) {
     view.set_variable ("useadvancedmodedisabled", get_disabled (true));
   }
-  state = access_logic_privilege_use_advanced_mode (webserver_request, user);
+  state = access_logic::privilege_use_advanced_mode (webserver_request, user);
   view.set_variable ("useadvancedmodechecked", get_checkbox_status (state));
+
+  
+  // Privilege to be able to edit and set stylesheets.
+  if (checkbox == "editstylesheets") {
+    request->database_config_user ()->setPrivilegeSetStylesheetsForUser (user, checked);
+  }
+  if (level >= access_logic::set_stylesheets_role () && defusers.find (user) == defusers.end ()) {
+    view.set_variable ("editstylesheetsdisabled", get_disabled (true));
+  }
+  state = access_logic::privilege_set_stylesheets (webserver_request, user);
+  view.set_variable ("editstylesheetschecked", get_checkbox_status (state));
 
   
   if (privileges_updated) database_privileges_client_create (user, true);
@@ -142,7 +158,7 @@ string manage_privileges (void * webserver_request)
 
   page += view.render ("manage", "privileges");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

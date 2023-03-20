@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -24,13 +24,13 @@
 class Dialog_Yes
 {
 public:
-  Dialog_Yes (string url, string question);
+  Dialog_Yes (std::string url, std::string question);
   ~Dialog_Yes ();
   Dialog_Yes(const Dialog_Yes&) = delete;
   Dialog_Yes operator=(const Dialog_Yes&) = delete;
-  void add_query (string parameter, string value);
-  string run ();
+  void add_query (std::string parameter, std::string value);
+  std::string run ();
 private:
   void * assets_view {nullptr};
-  string base_url {};
+  std::string base_url {};
 };

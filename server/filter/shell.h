@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,23 +21,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <config/libraries.h>
 
-int filter_shell_run (string directory, string command, const vector <string> parameters,
-                      string * output, string * error);
-int filter_shell_run (string command, const char * parameter, string & output);
-int filter_shell_run (string command, string & out_err);
-bool filter_shell_is_present (string program);
-vector <string> filter_shell_active_processes ();
-int filter_shell_vfork (string & output, string directory, string command,
-                        const char * p01 = NULL,
-                        const char * p02 = NULL,
-                        const char * p03 = NULL,
-                        const char * p04 = NULL,
-                        const char * p05 = NULL,
-                        const char * p06 = NULL,
-                        const char * p07 = NULL,
-                        const char * p08 = NULL,
-                        const char * p09 = NULL,
-                        const char * p10 = NULL,
-                        const char * p11 = NULL,
-                        const char * p12 = NULL,
-                        const char * p13 = NULL);
+int filter_shell_run (std::string directory, std::string command, const std::vector <std::string> parameters,
+                      std::string * output, std::string * error);
+int filter_shell_run (std::string command, const char * parameter, std::string & output);
+int filter_shell_run (std::string command, std::string & out_err);
+bool filter_shell_is_present (std::string program);
+std::vector <std::string> filter_shell_active_processes ();
+int filter_shell_vfork (std::string & output, std::string directory, std::string command,
+                        const char * p01 = nullptr,
+                        const char * p02 = nullptr,
+                        const char * p03 = nullptr,
+                        const char * p04 = nullptr,
+                        const char * p05 = nullptr,
+                        const char * p06 = nullptr,
+                        const char * p07 = nullptr,
+                        const char * p08 = nullptr,
+                        const char * p09 = nullptr,
+                        const char * p10 = nullptr,
+                        const char * p11 = nullptr,
+                        const char * p12 = nullptr,
+                        const char * p13 = nullptr);

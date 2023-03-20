@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <locale/translate.h>
 #include <assets/header.h>
 #include <assets/external.h>
+using namespace std;
 
 
 string help_index_html (const string& url)
@@ -55,18 +56,18 @@ bool help_index_acl (void * webserver_request)
 
 string help_index (void * webserver_request, const string& url)
 {
-  string page;
+  string page {};
 
   Assets_Header header = Assets_Header (translate("Help"), webserver_request);
   page = header.run ();
 
-  Assets_View view;
+  Assets_View view {};
 
-  view.set_variable ("version", config_logic_version ());
+  view.set_variable ("version", config::logic::version ());
 
   view.set_variable ("external", assets_external_logic_link_addon ());
 
-  view.set_variable ("config", filter_url_create_root_path ({config_logic_config_folder ()}));
+  view.set_variable ("config", filter_url_create_root_path ({config::logic::config_folder ()}));
   
   string filename (url);
   size_t pos = url.find ("/");
@@ -74,7 +75,7 @@ string help_index (void * webserver_request, const string& url)
  
   page += view.render ("help", filename);
 
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
 
   return page;
 }

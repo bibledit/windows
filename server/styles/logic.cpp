@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <styles/logic.h>
 #include <locale/translate.h>
 #include <filter/string.h>
+using namespace std;
 
 
 // The name of the "Standard" stylesheet.
@@ -74,7 +75,7 @@ string styles_logic_type_text (int type)
 }
 
 
-// subtypeText - Returns the $subtype as human readable text.
+// This returns the $subtype as human readable text.
 string styles_logic_subtype_text (int type, int subtype)
 {
   if (type == StyleTypeIdentifier) {
@@ -148,7 +149,7 @@ string styles_logic_subtype_text (int type, int subtype)
 }
 
 
-// Returns true if the fontsize is relevant for $type and $subtype
+// Returns true if the fontsize is relevant for $type and $subtype.
 bool styles_logic_fontsize_is_relevant (int type, int subtype)
 {
   switch (type) {
@@ -158,7 +159,8 @@ bool styles_logic_fontsize_is_relevant (int type, int subtype)
     {
       switch (subtype) {
         case FootEndNoteSubtypeStandardContent : return true;
-        case FootEndNoteSubtypeParagraph       : return true;
+        case FootEndNoteSubtypeParagraph : return true;
+        default: return false;
       }
       break;
     }
@@ -166,17 +168,24 @@ bool styles_logic_fontsize_is_relevant (int type, int subtype)
     {
       switch (subtype) {
         case CrossreferenceSubtypeStandardContent : return true;
+        default: return false;
       }
       break;
+    }
+    case StyleTypePicture :
+    {
+      return true;
     }
     case StyleTypeTableElement :
     {
       switch (subtype) {
         case TableElementSubtypeHeading : return true;
         case TableElementSubtypeCell    : return true;
+        default: return false;
       }
       break;
     }
+    default: return false;
   }
   return false;
 }
@@ -192,14 +201,17 @@ bool styles_logic_italic_bold_underline_smallcaps_are_relevant (int type, int su
     case StyleTypeVerseNumber     : return true;
     case StyleTypeFootEndNote     : return true;
     case StyleTypeCrossreference  : return true;
+    case StyleTypePicture         : return true;
     case StyleTypeTableElement :
     {
       switch (subtype) {
         case TableElementSubtypeHeading : return true;
         case TableElementSubtypeCell    : return true;
+        default: return false;
       }
       break;
     }
+    default: return false;
   }
   return false;
 }
@@ -209,27 +221,30 @@ bool styles_logic_italic_bold_underline_smallcaps_are_relevant (int type, int su
 bool styles_logic_italic_bold_underline_smallcaps_are_full (int type, int subtype)
 {
   switch (type) {
-    case StyleTypeInlineText  : return true;
-    case StyleTypeVerseNumber : return true;
-    case StyleTypeFootEndNote :
+    case StyleTypeInlineText: return true;
+    case StyleTypeVerseNumber: return true;
+    case StyleTypeFootEndNote:
     {
       switch (subtype) {
-        case FootEndNoteSubtypeFootnote             : return true;
-        case FootEndNoteSubtypeEndnote              : return true;
-        case FootEndNoteSubtypeContent              : return true;
-        case FootEndNoteSubtypeContentWithEndmarker : return true;
+        case FootEndNoteSubtypeFootnote: return true;
+        case FootEndNoteSubtypeEndnote: return true;
+        case FootEndNoteSubtypeContent: return true;
+        case FootEndNoteSubtypeContentWithEndmarker: return true;
+        default: return false;
       }
       break;
     }
-    case StyleTypeCrossreference :
+    case StyleTypeCrossreference:
     {
       switch (subtype) {
-        case CrossreferenceSubtypeCrossreference       : return true;
-        case CrossreferenceSubtypeContent              : return true;
-        case CrossreferenceSubtypeContentWithEndmarker : return true;
+        case CrossreferenceSubtypeCrossreference: return true;
+        case CrossreferenceSubtypeContent: return true;
+        case CrossreferenceSubtypeContentWithEndmarker: return true;
+        default: return false;
       }
       break;
     }
+    default: return false;
   }
   return false;
 }
@@ -259,6 +274,7 @@ bool styles_logic_superscript_is_relevant (int type, int subtype)
         case FootEndNoteSubtypeEndnote         : return true;
         case FootEndNoteSubtypeStandardContent : return true;
         case FootEndNoteSubtypeParagraph       : return true;
+        default: return false;
       }
       break;
     }
@@ -267,9 +283,11 @@ bool styles_logic_superscript_is_relevant (int type, int subtype)
       switch (subtype) {
         case CrossreferenceSubtypeCrossreference        : return true;
         case CrossreferenceSubtypeStandardContent       : return true;
+        default: return false;
       }
       break;
     }
+    default: return false;
   }
   return false;
 }
@@ -286,6 +304,7 @@ bool styles_logic_paragraph_treats_are_relevant (int type, int subtype)
       switch (subtype) {
         case FootEndNoteSubtypeStandardContent : return true;
         case FootEndNoteSubtypeParagraph       : return true;
+        default: return false;
       }
       break;
     }
@@ -293,17 +312,21 @@ bool styles_logic_paragraph_treats_are_relevant (int type, int subtype)
     {
       switch (subtype) {
         case CrossreferenceSubtypeStandardContent : return true;
+        default: return false;
       }
       break;
     }
+    case StyleTypePicture : return true;
     case StyleTypeTableElement :
     {
       switch (subtype) {
         case TableElementSubtypeHeading : return true;
         case TableElementSubtypeCell    : return true;
+        default: return false;
       }
       break;
     }
+    default: return false;
   }
   return false;
 }
@@ -327,6 +350,7 @@ bool styles_logic_columns_are_relevant (int type, int subtype)
   switch (type) {
     case StyleTypeStartsParagraph : return true;
     case StyleTypeChapterNumber   : return true;
+    default: return false;
   }
   return false;
 }
@@ -343,6 +367,7 @@ bool styles_logic_color_is_relevant (int type, int subtype)
       switch (subtype) {
         case FootEndNoteSubtypeContent              : return true;
         case FootEndNoteSubtypeContentWithEndmarker : return true;
+        default: return false;
       }
       break;
     }
@@ -351,9 +376,11 @@ bool styles_logic_color_is_relevant (int type, int subtype)
       switch (subtype) {
         case CrossreferenceSubtypeContent              : return true;
         case CrossreferenceSubtypeContentWithEndmarker : return true;
+        default: return false;
       }
       break;
     }
+    default: return false;
   }
   return false;
 }
@@ -369,6 +396,7 @@ bool styles_logic_print_is_relevant (int type, int subtype)
       switch (subtype) {
         case FootEndNoteSubtypeFootnote : return true;
         case FootEndNoteSubtypeEndnote  : return true;
+        default: return false;
       }
       break;
     }
@@ -376,9 +404,11 @@ bool styles_logic_print_is_relevant (int type, int subtype)
     {
       switch (subtype) {
         case CrossreferenceSubtypeCrossreference  : return true;
+        default: return false;
       }
       break;
     }
+    default: return false;
   }
   return false;
 }
@@ -413,12 +443,13 @@ int styles_logic_get_userbool1_function (int type, int subtype)
 string styles_logic_get_userbool1_text (int function)
 {
   switch (function) {
-    case UserBool1PrintChapterAtFirstVerse : return translate ("Print chapter number at first verse");
-    case UserBool1IdStartsNewPage          : return translate ("Start on a new page");
-    case UserBool1NoteAppliesToApocrypha   : return translate ("Refers to the Apocrypha");
-    case UserBool1VerseRestartsParagraph   : return translate ("Restart paragraph");
+    case UserBool1PrintChapterAtFirstVerse: return translate ("Print chapter number at first verse");
+    case UserBool1IdStartsNewPage: return translate ("Start on a new page");
+    case UserBool1NoteAppliesToApocrypha: return translate ("Refers to the Apocrypha");
+    case UserBool1VerseRestartsParagraph: return translate ("Restart paragraph");
+    default: return "--";
   }
-  return "--";
+  return string();
 }
 
 
@@ -440,11 +471,12 @@ int styles_logic_get_userbool2_function (int type, int subtype)
 string styles_logic_get_userbool2_text (int function)
 {
   switch (function) {
-    case UserBool2IdStartsOddPage            : return translate ("New page starts with an odd number (not implemented due to limitations in OpenDocument)");
-    case UserBool2ChapterInLeftRunningHeader : return translate ("Print chapter number in the running header of the left page");
-    case UserBool2RunningHeaderLeft          : return translate ("Print this in the running header of the left page");
+    case UserBool2IdStartsOddPage: return translate ("New page starts with an odd number (not implemented due to limitations in OpenDocument)");
+    case UserBool2ChapterInLeftRunningHeader: return translate ("Print chapter number in the running header of the left page");
+    case UserBool2RunningHeaderLeft: return translate ("Print this in the running header of the left page");
+    default: return string();
   }
-  return "";
+  return string();
 }
 
 
@@ -466,10 +498,11 @@ int styles_logic_get_userbool3_function (int type, int subtype)
 string styles_logic_get_userbool3_text (int function)
 {
   switch (function) {
-    case UserBool3ChapterInRightRunningHeader : return translate ("Print chapter number in the running header of the right page");
-    case UserBool3RunningHeaderRight          : return translate ("Print this in the running header of the right page");
+    case UserBool3ChapterInRightRunningHeader: return translate ("Print chapter number in the running header of the right page");
+    case UserBool3RunningHeaderRight: return translate ("Print this in the running header of the right page");
+    default: return string();
   }
-  return "";
+  return string();
 }
 
 
@@ -599,79 +632,64 @@ bool styles_logic_starts_new_line_in_usfm (int type, int subtype)
   switch (type) {
     case StyleTypeIdentifier :
     {
-      if (subtype == IdentifierSubtypePublishedVerseMarker) {
-        return false;
-      } else {
-        return true;
-      }
-      break;
+      if (subtype == IdentifierSubtypePublishedVerseMarker) return false;
+      return true;
     }
     case StyleTypeNotUsedComment :
     {
       return true;
-      break;
     }
     case StyleTypeNotUsedRunningHeader :
     {
       return true;
-      break;
     }
     case StyleTypeStartsParagraph :
     {
       return true;
-      break;
     }
     case StyleTypeInlineText :
     {
       return false;
-      break;
     }
     case StyleTypeChapterNumber :
     {
       return true;
-      break;
     }
     case StyleTypeVerseNumber :
     {
       return true;
-      break;
     }
     case StyleTypeFootEndNote :
     {
       return false;
-      break;
     }
     case StyleTypeCrossreference :
     {
       return false;
-      break;
     }
     case StyleTypePeripheral :
     {
       return true;
-      break;
     }
     case StyleTypePicture :
     {
       return true;
-      break;
     }
     case StyleTypePageBreak :
     {
       return true;
-      break;
     }
     case StyleTypeTableElement :
     {
       if (subtype == TableElementSubtypeRow) return true;
       return false;
-      break;
     }
     case StyleTypeWordlistElement :
     {
       return false;
-      break;
     }
+    default:
+      return false;
   }
   return true;
 }

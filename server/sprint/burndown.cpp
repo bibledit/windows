@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 #include <database/config/bible.h>
 #include <client/logic.h>
 #include <email/send.h>
+using namespace std;
 
 
 // This function runs the sprint burndown history logger for $bible.
@@ -121,7 +122,7 @@ void sprint_burndown ([[maybe_unused]] string bible,
     int complete = 0;
     if (task_count != 0) {
       for (auto percentage : percentages) complete += percentage;
-      complete = static_cast<int> (round ((float) complete / (float) task_count));
+      complete = static_cast<int> (round (static_cast<float>(complete) / static_cast<float>(task_count)));
     }
     database_sprint.logHistory (bible2, year, month, monthday, task_count, complete);
     
@@ -132,7 +133,7 @@ void sprint_burndown ([[maybe_unused]] string bible,
         // Only mail if the current sprint contains tasks.
         string scategories = Database_Config_Bible::getSprintTaskCompletionCategories (bible2);
         vector <string> categories = filter_string_explode (scategories, '\n');
-        size_t category_count = categories.size();
+        int category_count = static_cast<int>(categories.size());
         int category_percentage = static_cast<int>(round (100 / category_count));
         vector <string> users = request.database_users ()->get_users ();
         for (auto user : users) {

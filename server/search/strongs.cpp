@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include <search/logic.h>
 #include <menu/logic.h>
 #include <access/bible.h>
+using namespace std;
 
 
 string search_strongs_url ()
@@ -43,7 +44,7 @@ string search_strongs_url ()
 bool search_strongs_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ())) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return read;
 }
 
@@ -166,8 +167,8 @@ string search_strongs (void * webserver_request)
   string page;
   
   Assets_Header header = Assets_Header (translate("Search"), request);
-  header.setNavigator ();
-  header.addBreadCrumb (menu_logic_search_menu (), menu_logic_search_text ());
+  header.set_navigator ();
+  header.add_bread_crumb (menu_logic_search_menu (), menu_logic_search_text ());
   page = header.run ();
   
   Assets_View view;
@@ -179,7 +180,7 @@ string search_strongs (void * webserver_request)
 
   page += view.render ("search", "strongs");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

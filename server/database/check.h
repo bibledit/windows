@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,12 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 class Database_Check_Hit
 {
 public:
-  int rowid;
-  string bible;
-  int book;
-  int chapter;
-  int verse;
-  string data;
+  int rowid {0};
+  std::string bible {};
+  int book {0};
+  int chapter {0};
+  int verse {0};
+  std::string data {};
 };
 
 
@@ -40,13 +40,13 @@ class Database_Check
 public:
   void create ();
   void optimize ();
-  void truncateOutput (string bible);
-  void recordOutput (string bible, int book, int chapter, int verse, string data);
-  vector <Database_Check_Hit> getHits ();
+  void truncateOutput (std::string bible);
+  void recordOutput (std::string bible, int book, int chapter, int verse, std::string data);
+  std::vector <Database_Check_Hit> getHits ();
   void approve (int id);
   void erase (int id);
   Passage getPassage (int id);
-  vector <Database_Check_Hit> getSuppressions ();
+  std::vector <Database_Check_Hit> getSuppressions ();
   void release (int id);
 private:
   const char * filename ();

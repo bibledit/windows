@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,8 +33,8 @@ public:
   static int admin ();
   static int lowest ();
   static int highest ();
-  static string english (int role);
-  static string text (int role);
+  static std::string english (int role);
+  static std::string text (int role);
   static bool access_control (void * webserver_request, int role);
 private:
 };

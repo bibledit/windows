@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,8 +32,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <developer/logic.h>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#ifndef HAVE_PUGIXML
 #include <pugixml/pugixml.hpp>
+#endif
+#ifdef HAVE_PUGIXML
+#include <pugixml.hpp>
+#endif
 #pragma GCC diagnostic pop
+using namespace std;
 using namespace pugi;
 
 
@@ -168,9 +176,9 @@ vector <BookChapterData> usfm_import (string input, string stylesheet)
 {
   vector <BookChapterData> result;
 
-  int book_number = 0;
-  int chapter_number = 0;
-  string chapter_data = "";
+  book_id bookid {0};
+  int chapter_number {0};
+  string chapter_data {};
 
   input = one_string (input);
   vector <string> markers_and_text = get_markers_and_text (input);
@@ -179,7 +187,7 @@ vector <BookChapterData> usfm_import (string input, string stylesheet)
 
   for (string marker_or_text : markers_and_text) {
     if (retrieve_book_number_on_next_iteration) {
-      book_number = Database_Books::getIdFromUsfm (marker_or_text.substr (0, 3));
+      bookid = database::books::get_id_from_usfm (marker_or_text.substr (0, 3));
       chapter_number = 0;
       retrieve_book_number_on_next_iteration = false;
     }
@@ -202,7 +210,7 @@ vector <BookChapterData> usfm_import (string input, string stylesheet)
       }
       if (store_chapter_data) {
         chapter_data = filter_string_trim (chapter_data);
-        if (chapter_data != "") result.push_back ( { book_number, chapter_number, chapter_data } );
+        if (!chapter_data.empty()) result.push_back ( { static_cast<int>(bookid), chapter_number, chapter_data } );
         chapter_number = 0;
         chapter_data = "";
         store_chapter_data = false;
@@ -222,7 +230,7 @@ vector <BookChapterData> usfm_import (string input, string stylesheet)
     chapter_data += marker_or_text;
   }
   chapter_data = filter_string_trim (chapter_data);
-  if (chapter_data != "") result.push_back (BookChapterData (book_number, chapter_number, chapter_data));
+  if (!chapter_data.empty()) result.push_back (BookChapterData (static_cast<int>(bookid), chapter_number, chapter_data));
   return result;
 }
 
@@ -727,10 +735,10 @@ string safely_store_chapter (void * webserver_request,
 
   // Record the change in the journal.
   string user = request->session_logic ()->currentUser ();
-  bible_logic_log_change (bible, book, chapter, usfm, user, translate ("Saving chapter"), false);
+  bible_logic::log_change (bible, book, chapter, usfm, user, translate ("Saving chapter"), false);
   
   // Safety checks have passed: Save chapter.
-  bible_logic_store_chapter (bible, book, chapter, usfm);
+  bible_logic::store_chapter (bible, book, chapter, usfm);
   return "";
 }
 
@@ -822,10 +830,10 @@ string safely_store_verse (void * webserver_request,
 
   // Record the change in the journal.
   string user = request->session_logic ()->currentUser ();
-  bible_logic_log_change (bible, book, chapter, chapter_usfm, user, translate ("Saving verse"), false);
+  bible_logic::log_change (bible, book, chapter, chapter_usfm, user, translate ("Saving verse"), false);
   
   // Safety checks have passed: Save chapter.
-  bible_logic_store_chapter (bible, book, chapter, chapter_usfm);
+  bible_logic::store_chapter (bible, book, chapter, chapter_usfm);
 
   // Done: OK.
   return "";
@@ -933,7 +941,7 @@ const char * marker_vp ()
 // It will dispose of e.g. this: |strong="H3068"
 // It handles the default attribute: \w gracious|grace\w*
 void remove_word_level_attributes (const string & marker,
-                                   vector <string> & container, unsigned int & pointer) // Todo use this.
+                                   vector <string> & container, unsigned int & pointer)
 {
   // USFM 3.0 has four markers providing attributes.
   // https://ubsicap.github.io/usfm/attributes/index.html.

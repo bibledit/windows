@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include <database/cache.h>
 #include <database/config/general.h>
 #include <tasks/logic.h>
+using namespace std;
 
 
 string sync_resources_url ()
@@ -43,7 +44,7 @@ string sync_resources (void * webserver_request)
   if (!sync_logic.security_okay ()) {
     // When the Cloud enforces https, inform the client to upgrade.
     request->response_code = 426;
-    return "";
+    return string();
   }
 
   // If the client's IP address very recently made a prioritized server call,
@@ -101,12 +102,12 @@ string sync_resources (void * webserver_request)
         return Database_Cache::path (resource, book);
       }
       
-      default: break;
+      default: {};
     }
   }
     
   // Bad request. Delay flood of bad requests.
   this_thread::sleep_for (chrono::seconds (1));
   request->response_code = 400;
-  return "";
+  return string();
 }

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,13 +25,13 @@ class Assets_View
 {
 public:
   Assets_View ();
-  void set_variable (string key, string value);
-  void enable_zone (string zone);
-  void disable_zone (string zone);
-  void add_iteration (string key, map <string, string> value);
-  string render (string tpl1, string tpl2);
+  void set_variable (std::string key, std::string value);
+  void enable_zone (std::string zone);
+  void disable_zone (std::string zone);
+  void add_iteration (std::string key, std::map <std::string, std::string> value);
+  std::string render (std::string tpl1, std::string tpl2);
 private:
-  map <string, string> variables {};
-  map <string, bool> zones {};
-  map <string, vector < map <string, string> > > iterations {};
+  std::map <std::string, std::string> m_variables {};
+  std::map <std::string, bool> m_zones {};
+  std::map <std::string, std::vector <std::map <std::string, std::string> > > m_iterations {};
 };

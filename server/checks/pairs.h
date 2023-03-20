@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,13 +21,12 @@
 
 #include <config/libraries.h>
 
-class Checks_Pairs
-{
-public:
-  static void run (const string & bible, int book, int chapter,
-                   const map <int, string> & texts,
-                   const vector <pair <string, string> > & pairs,
-                   bool french_citation_style);
-private:
-  static string match (const string & character, const vector <pair <string, string> > & pairs);
-};
+namespace checks_pairs {
+
+void run (const std::string & bible, int book, int chapter,
+          const std::map <int, std::string> & texts,
+          const std::vector <std::pair <std::string, std::string> > & pairs,
+          bool french_citation_style);
+std::string match (const std::string & character, const std::vector <std::pair <std::string, std::string> > & pairs);
+
+}

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include <editor/usfm2html.h>
 #include <access/bible.h>
 #include <database/config/bible.h>
+using namespace std;
 
 
 string edit_position_url ()
@@ -37,7 +38,7 @@ string edit_position_url ()
 bool edit_position_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return write;
 }
 
@@ -81,7 +82,7 @@ string edit_position (void * webserver_request)
     }
   }
   if (verse) {
-    startingOffset += convert_to_string (verse).length () + 1;
+    startingOffset += static_cast<int> (convert_to_string (verse).length () + 1);
   }
   if (endingOffset) {
     endingOffset--;

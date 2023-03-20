@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -24,14 +24,14 @@
 class Editor_Styles
 {
 public:
-  static string getRecentlyUsed (void * webserver_request);
-  static string getAll (void * webserver_request);
-  static void recordUsage (void * webserver_request, string style);
-  static string getAction (void * webserver_request, string style);
+  static std::string getRecentlyUsed (void * webserver_request);
+  static std::string getAll (void * webserver_request);
+  static void recordUsage (void * webserver_request, std::string style);
+  static std::string getAction (void * webserver_request, std::string style);
 private:
-  static string unknown ();
-  static string paragraph ();
-  static string character ();
-  static string mono ();
-  static string note ();
+  static std::string unknown ();
+  static std::string paragraph ();
+  static std::string character ();
+  static std::string mono ();
+  static std::string note ();
 };

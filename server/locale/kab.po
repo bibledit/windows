@@ -13,7 +13,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Launchpad (build ddeaac87a34b6ea67d70ca539d5ee736a1205d45)\n"
+"X-Generator: Launchpad (build 26a6866b96cbe27080a0dd50a67efeae15dd1018)\n"
 
 msgid "Has been sending and receiving during the past hour"
 msgstr ""
@@ -647,13 +647,19 @@ msgstr ""
 msgid "The journal shows the progress."
 msgstr ""
 
-msgid "Would you like to change the stylesheet?"
+msgid "Would you like to change the stylesheet for editing?"
 msgstr ""
 
-msgid "A stylesheet affects how the Bible text in the editor looks."
+msgid "The stylesheet affects how the Bible text in the editor looks."
 msgstr ""
 
 msgid "Please make your choice below."
+msgstr ""
+
+msgid "Would you like to change the stylesheet for export?"
+msgstr ""
+
+msgid "The stylesheet affects how the Bible text looks when exported."
 msgstr ""
 
 msgid "More operations in the Cloud"
@@ -672,6 +678,21 @@ msgid "Nothing was imported."
 msgstr "Ulac ayen d-yettwaketren"
 
 msgid "Nothing was uploaded"
+msgstr ""
+
+msgid "Bible image"
+msgstr ""
+
+msgid "Bible images"
+msgstr ""
+
+msgid "The file was uploaded and is being processed."
+msgstr ""
+
+msgid "Would you like to delete this image?"
+msgstr ""
+
+msgid "The image was deleted."
 msgstr ""
 
 msgid "This book is absent from the Bible"
@@ -803,6 +824,22 @@ msgstr ""
 msgid "The following marker belongs in chapter 0:"
 msgstr ""
 
+msgid "Empty figure source:"
+msgstr ""
+
+msgid "Could not find Bible image:"
+msgstr ""
+
+msgid "Unusual quotation mark found:"
+msgstr ""
+
+msgid ""
+"Opening markup is followed by closing markup without intervening text:"
+msgstr ""
+
+msgid "This sequence in the note does not look right:"
+msgstr ""
+
 msgid "Sentence Structure"
 msgstr ""
 
@@ -898,6 +935,12 @@ msgstr ""
 msgid "Space at the end of the verse"
 msgstr ""
 
+msgid "Space before final note markup"
+msgstr ""
+
+msgid "Space before final cross reference markup"
+msgstr ""
+
 msgid "Checks"
 msgstr ""
 
@@ -913,7 +956,10 @@ msgstr ""
 msgid "All Bibles"
 msgstr ""
 
-msgid "all of them"
+msgid "user"
+msgstr ""
+
+msgid "me"
 msgstr ""
 
 msgid "Sort on verse"
@@ -1018,9 +1064,6 @@ msgstr ""
 msgid "Edit verse"
 msgstr ""
 
-msgid "Select which Bible to open in the editor"
-msgstr ""
-
 msgid "Editor and Resources"
 msgstr ""
 
@@ -1090,9 +1133,6 @@ msgstr ""
 msgid "Workspace"
 msgstr ""
 
-msgid "Select which Bible to read"
-msgstr ""
-
 msgid "Bibledit"
 msgstr ""
 
@@ -1114,19 +1154,37 @@ msgstr ""
 msgid "The following email was sent to this user:"
 msgstr ""
 
-msgid "Select chapter"
+msgid "Back"
 msgstr ""
 
-msgid "cancel"
+msgid "Forward"
 msgstr ""
 
 msgid "Select book"
 msgstr ""
 
+msgid "Select chapter"
+msgstr ""
+
+msgid "Go to previous verse"
+msgstr ""
+
 msgid "Select verse"
 msgstr ""
 
+msgid "Go to next verse"
+msgstr ""
+
+msgid "cancel"
+msgstr ""
+
 msgid "Enter passage to go to"
+msgstr ""
+
+msgid "History back"
+msgstr ""
+
+msgid "History forward"
 msgstr ""
 
 msgid "Copying Bible from Bibledit to a Paratext project."
@@ -1526,6 +1584,9 @@ msgstr ""
 msgid "starts spine"
 msgstr ""
 
+msgid "starts general peripheral content"
+msgstr ""
+
 msgid "starts a new row"
 msgstr ""
 
@@ -1706,9 +1767,6 @@ msgid ""
 "enter is just a number, e.g. 0."
 msgstr ""
 
-msgid "Please specify a new color"
-msgstr ""
-
 msgid "Would you like to change the numbering of the note?"
 msgstr ""
 
@@ -1747,7 +1805,7 @@ msgstr ""
 msgid "Please enter a marker at which the endnotes should be dumped"
 msgstr ""
 
-msgid "The marker is to be given without the backslash, e.g. \"zendnotes\"."
+msgid "(The marker is to be given without the backslash, e.g. "
 msgstr ""
 
 msgid "Styles"
@@ -1842,22 +1900,25 @@ msgstr ""
 msgid "Install some resources on the device, and try again."
 msgstr ""
 
-msgid "Inilah hasil terjemahan Saudara:"
-msgstr ""
-
 msgid ": "
 msgstr ""
 
-msgid "Set the language for Bibledit"
+msgid "Google Translate"
 msgstr ""
 
-msgid "Incorrect font size in percents"
+msgid "The connection to Google Translate looks good."
+msgstr ""
+
+msgid "An example translation was made."
+msgstr ""
+
+msgid "English"
+msgstr ""
+
+msgid "Greek"
 msgstr ""
 
 msgid "System"
-msgstr ""
-
-msgid "Please enter a font size between 50 and 300 percent"
 msgstr ""
 
 msgid "none"
@@ -2062,135 +2123,6 @@ msgid "Adding a comment to the note cancels the deletion."
 msgstr ""
 
 msgid "unassign"
-msgstr ""
-
-msgid "Login"
-msgstr ""
-
-msgid "Read"
-msgstr ""
-
-msgid "User resources"
-msgstr ""
-
-msgid "Advanced search"
-msgstr ""
-
-msgid "Advanced replace"
-msgstr ""
-
-msgid "Search all Bibles and notes"
-msgstr ""
-
-msgid "Search Bible for similar verses"
-msgstr ""
-
-msgid "Search Bible for similar Strong's numbers"
-msgstr ""
-
-msgid "Search Bible for Strong's number"
-msgstr ""
-
-msgid "Search Bible for similar Hebrew or Greek words"
-msgstr ""
-
-msgid "Print"
-msgstr ""
-
-msgid "Planning"
-msgstr ""
-
-msgid "Hyphenate"
-msgstr ""
-
-msgid "Develop"
-msgstr ""
-
-msgid "Export"
-msgstr ""
-
-msgid "Mail"
-msgstr ""
-
-msgid "Cloud"
-msgstr ""
-
-msgid "Basic mode"
-msgstr ""
-
-msgid "USFM"
-msgstr ""
-
-msgid "Images"
-msgstr ""
-
-msgid "SWORD"
-msgstr ""
-
-msgid "User-defined"
-msgstr ""
-
-msgid "Comparative"
-msgstr ""
-
-msgid "Help and About"
-msgstr ""
-
-msgid "Translate"
-msgstr ""
-
-msgid "Tools"
-msgstr ""
-
-msgid "Help"
-msgstr ""
-
-msgid "Logout"
-msgstr ""
-
-msgid "Image resources"
-msgstr ""
-
-msgid "Users"
-msgstr ""
-
-msgid "Versifications"
-msgstr ""
-
-msgid "Select stylesheet"
-msgstr ""
-
-msgid "Edit stylesheet"
-msgstr ""
-
-msgid "Menu"
-msgstr ""
-
-msgid "Both the visual chapter and visual verse editors"
-msgstr ""
-
-msgid "Only the visual chapter editor"
-msgstr ""
-
-msgid "Only the visual verse editor"
-msgstr ""
-
-msgid "Hide"
-msgstr ""
-
-msgid "Show"
-msgstr ""
-
-msgid "Chapter editor"
-msgstr ""
-
-msgid "Verse editor"
-msgstr ""
-
-msgid "USFM editor"
-msgstr ""
-
-msgid "dot"
 msgstr ""
 
 msgid "colon"
@@ -2436,6 +2368,9 @@ msgstr ""
 msgid "General font size for the interface"
 msgstr ""
 
+msgid "Please enter a font size between 50 and 300 percent"
+msgstr ""
+
 msgid "Size throughout the interface."
 msgstr ""
 
@@ -2580,10 +2515,7 @@ msgid ""
 "Once in advanced mode, return to basic mode via menu Settings / Basic mode."
 msgstr ""
 
-msgid "Show the changes."
-msgstr ""
-
-msgid "Whether to have a menu entry to go to the changes."
+msgid "Have a menu entry to show the changes."
 msgstr ""
 
 msgid "Logout."
@@ -2648,6 +2580,18 @@ msgstr ""
 msgid "Bibledit always sends the focused verse reference to Accordance."
 msgstr ""
 
+msgid "Visit alkitabkita.info for more information."
+msgstr ""
+
+msgid "Date format in consultation notes"
+msgstr ""
+
+msgid "The date format to use for consultation notes?"
+msgstr ""
+
+msgid "Go back"
+msgstr ""
+
 msgid "Send / Receive"
 msgstr ""
 
@@ -2679,16 +2623,23 @@ msgid "It receives updates from Bibledit Cloud."
 msgstr ""
 
 msgid ""
-"The Paratext bridge sends changes from Bibledit to Paratext on this computer."
+"The Paratext bridge can send changes from Bibledit to Paratext on this "
+"computer."
 msgstr ""
 
-msgid "Bibledit receives updates from Paratext."
+msgid "Bibledit can receive updates from Paratext."
 msgstr ""
 
 msgid "The following Bibles link to a Paratext project:"
 msgstr ""
 
-msgid "Synchronize with Paratext now."
+msgid "Merge the changes in Paratext and in Bibledit now."
+msgstr ""
+
+msgid "Copy the changes in Bibledit to Paratext now."
+msgstr ""
+
+msgid "Copy the changes in Paratext to Bibledit now."
 msgstr ""
 
 msgid "Do not synchronize with Paratext while Paratext is running."
@@ -2864,6 +2815,9 @@ msgstr ""
 msgid "This can be done in Bibledit Cloud."
 msgstr ""
 
+msgid "Help"
+msgstr ""
+
 msgid "This page helps with importing Bible text."
 msgstr ""
 
@@ -2960,6 +2914,24 @@ msgstr ""
 msgid "Import text from a resource"
 msgstr ""
 
+msgid "Stylesheet for editing"
+msgstr ""
+
+msgid "Stylesheet for export"
+msgstr ""
+
+msgid "Run an automatic daily check on the text"
+msgstr ""
+
+msgid "List of images available for use in Bible text."
+msgstr ""
+
+msgid "Upload an image or a compressed archive of them."
+msgstr ""
+
+msgid "Delete this image"
+msgstr ""
+
 msgid "help"
 msgstr ""
 
@@ -3012,9 +2984,6 @@ msgid ""
 "and other additions."
 msgstr ""
 
-msgid "Go back"
-msgstr ""
-
 msgid "Enter all possible matching pairs in the text of the Bible."
 msgstr ""
 
@@ -3044,6 +3013,9 @@ msgid ""
 "exclamation mark"
 msgstr ""
 
+msgid "a space before a final note or cross reference marker"
+msgstr ""
+
 msgid "sentence structure"
 msgstr ""
 
@@ -3058,7 +3030,7 @@ msgid ""
 "versification system"
 msgstr ""
 
-msgid "well formed USFM"
+msgid "well-formed USFM"
 msgstr ""
 
 msgid "missing punctuation at the end of a verse"
@@ -3156,13 +3128,16 @@ msgstr ""
 msgid "Change Notifications"
 msgstr ""
 
-msgid "Dismiss the notifications of the changes of the following categories:"
+msgid "Dismiss the notifications of the changes made by"
 msgstr ""
 
-msgid "(if their changes and verses match)"
+msgid "when they match with changes made by anyone else on the team"
 msgstr ""
 
-msgid "(all of them)"
+msgid "Dismiss the notifications of all changes made by me"
+msgstr ""
+
+msgid "Dismiss the notifications of all changes made by anyone"
 msgstr ""
 
 msgid "Select Bible:"
@@ -3221,28 +3196,35 @@ msgstr ""
 msgid "Your colleagues have their own lists."
 msgstr ""
 
+msgid "Every day it will detect changes in the Bibles."
+msgstr ""
+
 msgid ""
-"Changes in the text of the Bibles will be added to the list the next day."
+"It will then generate new change notifications based on those changes."
+msgstr ""
+
+msgid "It will add these new change notifications to the list."
 msgstr ""
 
 msgid "The change notifications fall into several categories:"
 msgstr ""
 
-msgid "Changes marked with a smiley face are changes made by you."
-msgstr ""
-
-msgid "user"
-msgstr ""
-
-msgid "Changes marked with the name of a user are changes made by this user."
-msgstr ""
-
-msgid "Changes marked with a book symbol are the changes in the Bible text."
+msgid ""
+"Those marked with a smiley face are notifications of changes made by you."
 msgstr ""
 
 msgid ""
-"They have been made either by yourself or by someone else working on this "
-"Bible."
+"Those marked with the name of a user are notifications of changes made by "
+"this user."
+msgstr ""
+
+msgid ""
+"Those marked with a book symbol are notifications of changes in the Bible "
+"text."
+msgstr ""
+
+msgid ""
+"They are the result of the combined edits of all users working on this Bible."
 msgstr ""
 
 msgid ""
@@ -3654,9 +3636,15 @@ msgid ""
 "for me online."
 msgstr ""
 
+msgid "They will be marked with a 📖 icon."
+msgstr ""
+
 msgid ""
 "Notifications about changes in the Bible made by me will be generated for me "
 "online."
+msgstr ""
+
+msgid "They will be marked with a 😊 icon."
 msgstr ""
 
 msgid ""
@@ -3664,9 +3652,15 @@ msgid ""
 "will be generated for me online."
 msgstr ""
 
+msgid "These notifications will be marked by the team member's name."
+msgstr ""
+
 msgid ""
 "Receive daily mail with the number of online change notifications awaiting "
 "my attention."
+msgstr ""
+
+msgid "Get notifications of changes made by anyone in these Bibles:"
 msgstr ""
 
 msgid "Text Checks"
@@ -3832,7 +3826,16 @@ msgid ""
 "Search for verses with most Strong's numbers similar to the focused verse in:"
 msgstr ""
 
-msgid "Current book"
+msgid "all books"
+msgstr ""
+
+msgid "current book"
+msgstr ""
+
+msgid "Old Testament"
+msgstr ""
+
+msgid "New Testament"
 msgstr ""
 
 msgid "What to do with the search results"
@@ -3932,6 +3935,9 @@ msgid "Color"
 msgstr ""
 
 msgid "Background color"
+msgstr ""
+
+msgid "Print"
 msgstr ""
 
 msgid "Note numbering"
@@ -4111,7 +4117,46 @@ msgstr ""
 msgid "Number of emails still to be sent:"
 msgstr ""
 
-msgid "Visit alkitabkita.info for more information."
+msgid "Set up automatic translations through Google Translate."
+msgstr ""
+
+msgid ""
+"Google Translate can help you translating your resources into another "
+"language."
+msgstr ""
+
+msgid ""
+"For example it can translate the Greek New Testament into your local "
+"language."
+msgstr ""
+
+msgid "Or it can translate another resource into that language."
+msgstr ""
+
+msgid ""
+"That gives the translators easier access to those resources in a language "
+"they can understand."
+msgstr ""
+
+msgid "To start using translated resources, follow these steps:"
+msgstr ""
+
+msgid ""
+"The admin who hosts Bibledit Cloud needs to set up access to Google "
+"Translate."
+msgstr ""
+
+msgid "Information about how to set it up is in this file:"
+msgstr ""
+
+msgid "Check whether access to Google Translate is now operational."
+msgstr ""
+
+msgid "Define a Google Translate Resource in Bibledit Cloud."
+msgstr ""
+
+msgid ""
+"Add the defined Google Translate Resource to your list of resources to view."
 msgstr ""
 
 msgid "Create new"
@@ -4360,6 +4405,9 @@ msgid "Select the user to unassign the notes from"
 msgstr ""
 
 msgid "Back to notes list"
+msgstr ""
+
+msgid "Passage"
 msgstr ""
 
 msgid "Edit the note content"
@@ -4627,7 +4675,21 @@ msgstr ""
 msgid "The type of space to insert after a verse number"
 msgstr ""
 
+msgid "Align the verse numbers in poetry to the left."
+msgstr ""
+
+msgid "This applies to the following markers:"
+msgstr ""
+
 msgid "Font:"
+msgstr ""
+
+msgid "Use automatic note callers instead of fixed ones."
+msgstr ""
+
+msgid ""
+"This enables the OpenDocument editor to restart the note callers on for "
+"example every page."
 msgstr ""
 
 msgid "Info document"
@@ -4654,9 +4716,6 @@ msgid ""
 "module."
 msgstr ""
 
-msgid "The exports use the following stylesheet:"
-msgstr ""
-
 msgid "Password to secure the exports:"
 msgstr ""
 
@@ -4670,6 +4729,9 @@ msgid "Visit the Bible Drop Box for more options."
 msgstr ""
 
 msgid "There are more export formats through the BibleMultiConverter."
+msgstr ""
+
+msgid "Users"
 msgstr ""
 
 msgid "Privileges"
@@ -4751,26 +4813,6 @@ msgstr ""
 msgid "Toggle the modification privileges for entire Testaments"
 msgstr ""
 
-msgid "Old Testament"
-msgstr ""
-
-msgid "New Testament"
-msgstr ""
-
-msgid "Neural Machine Translation"
-msgstr ""
-
-msgid "The reference Bible translation:"
-msgstr ""
-
-msgid "The Bible being translated:"
-msgstr ""
-
-msgid ""
-"Export both Bibles and generate data for training a neural machine "
-"translation model."
-msgstr ""
-
 msgid "Resource categories"
 msgstr ""
 
@@ -4786,7 +4828,10 @@ msgstr ""
 msgid "Original language texts"
 msgstr ""
 
-msgid "Bibles (translations)"
+msgid "Bibles and notes"
+msgstr ""
+
+msgid "Image resources"
 msgstr ""
 
 msgid "Lexicons"
@@ -4805,6 +4850,15 @@ msgid "StudyLight resources"
 msgstr ""
 
 msgid "Comparative resources"
+msgstr ""
+
+msgid "Translated resources"
+msgstr ""
+
+msgid "Google Translate has not yet been set up."
+msgstr ""
+
+msgid "Ask the administrator to set it up here."
 msgstr ""
 
 msgid "User-defined resources"
@@ -4871,6 +4925,58 @@ msgid "You can convert a USFM resource back to a Bible."
 msgstr ""
 
 msgid "Progress will be visible in the Journal."
+msgstr ""
+
+msgid "Translated resource"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "Original resource"
+msgstr ""
+
+msgid "Language of the original resource"
+msgstr ""
+
+msgid "Language to translate the resource into"
+msgstr ""
+
+msgid ""
+"This translated resource will take the original resource as a starting point."
+msgstr ""
+
+msgid ""
+"It will send the original resource to Google Translate for translation."
+msgstr ""
+
+msgid "It then displays the resource as translated by Google Translate."
+msgstr ""
+
+msgid "Note that this is a machine translation."
+msgstr ""
+
+msgid "It may not be accurate."
+msgstr ""
+
+msgid "Cache the resource on client devices."
+msgstr ""
+
+msgid "Caching makes the resource available offline."
+msgstr ""
+
+msgid "Caching makes a snapshot of the translated resource."
+msgstr ""
+
+msgid ""
+"If that resource changes after taking the snapshot, the client device does "
+"not display those changes."
+msgstr ""
+
+msgid "Resource is ready"
+msgstr ""
+
+msgid "Delete this resource"
 msgstr ""
 
 msgid "Refresh the list of resources from BibleGateway."
@@ -4941,9 +5047,6 @@ msgstr ""
 msgid "Comparative resource"
 msgstr ""
 
-msgid "Title"
-msgstr ""
-
 msgid "Base resource"
 msgstr ""
 
@@ -5004,24 +5107,12 @@ msgstr ""
 msgid "Do case folding of the resources before doing the comparison."
 msgstr ""
 
-msgid "Cache the resource on client devices."
-msgstr ""
-
-msgid "Caching makes the resource available offline."
-msgstr ""
-
 msgid "Caching makes a snapshot of the base and updated resources."
 msgstr ""
 
 msgid ""
 "If the base or updated resources change after the snapshot, the client "
 "device does not display those changes."
-msgstr ""
-
-msgid "Resource is ready"
-msgstr ""
-
-msgid "Delete this resource"
 msgstr ""
 
 msgid "Refresh the list of resources from StudyLight."
@@ -5183,6 +5274,24 @@ msgstr ""
 msgid "It is already installed locally."
 msgstr ""
 
+msgid "Create a new empty translated resource"
+msgstr ""
+
+msgid "A translated resource takes one existing resources as input."
+msgstr ""
+
+msgid "It defines the source language and the target language."
+msgstr ""
+
+msgid "It sends the original resource to Google Translation."
+msgstr ""
+
+msgid "It displays the resource as translated by Google Translate."
+msgstr ""
+
+msgid "Note that this is a machine translation and may not be accurate."
+msgstr ""
+
 msgid "Sprint"
 msgstr ""
 
@@ -5199,6 +5308,9 @@ msgid "Add"
 msgstr ""
 
 msgid "Enter task completion categories."
+msgstr ""
+
+msgid "Menu"
 msgstr ""
 
 msgid "chapters"
@@ -5257,6 +5369,9 @@ msgstr ""
 msgid "I understand it and want to disconnect from the Cloud."
 msgstr ""
 
+msgid "Mail"
+msgstr ""
+
 msgid "This page deals with setting up the email system."
 msgstr ""
 
@@ -5268,19 +5383,26 @@ msgstr ""
 msgid "It needs an external email account for sending and receiving email."
 msgstr ""
 
-msgid ""
-"The help information on this page assumes that we use a Google mail account. "
-"You will have your own email account dedicated to Bibledit."
+msgid "The help information on this page uses a sample Google mail account."
+msgstr ""
+
+msgid "You will have your own email account dedicated to Bibledit."
 msgstr ""
 
 msgid ""
-"The email address is bibletranslation@gmail.com, and the password is pazzwrd."
+"The sample email address is bibletranslation@gmail.com, and the password is "
+"pazzwrd."
 msgstr ""
 
-msgid "The Google mail account should let less secure apps use the account."
+msgid "Google now recommends two-factor authentication to be enabled."
 msgstr ""
 
-msgid "Bibledit email setup requires this."
+msgid ""
+"The password to log into the Google account will not work in Bibledit."
+msgstr ""
+
+msgid ""
+"Instead create an App Password on Google and use that as the password below."
 msgstr ""
 
 msgid ""
@@ -5291,12 +5413,6 @@ msgid "Site name and email address"
 msgstr ""
 
 msgid "Our own sample values are given below. Yours will be different."
-msgstr ""
-
-msgid "Name: Bibledit Cloud"
-msgstr ""
-
-msgid "Email address: bibletranslation@gmail.com"
 msgstr ""
 
 msgid "To switch the mailer off, leave the fields empty."
@@ -5314,19 +5430,19 @@ msgstr ""
 msgid "Sample values:"
 msgstr ""
 
-msgid "POP3 Host: pop.gmail.com"
+msgid "POP3 Host:"
 msgstr ""
 
-msgid "Username: bibletranslation@gmail.com"
+msgid "Username:"
 msgstr ""
 
-msgid "Password: pazzwrd"
+msgid "Password:"
 msgstr ""
 
-msgid "Protocol: POP3S"
+msgid "Protocol:"
 msgstr ""
 
-msgid "Port: 995"
+msgid "Port:"
 msgstr ""
 
 msgid "Enter the account details, and press Submit."
@@ -5349,10 +5465,7 @@ msgstr ""
 msgid "Sending mail"
 msgstr ""
 
-msgid "SMTP Host: smtp.gmail.com"
-msgstr ""
-
-msgid "Port: 587"
+msgid "SMTP Host:"
 msgstr ""
 
 msgid ""
@@ -5392,6 +5505,9 @@ msgid "To do that, edit the data below, and then submit it."
 msgstr ""
 
 msgid "It will overwrite whatever was there before."
+msgstr ""
+
+msgid "Versifications"
 msgstr ""
 
 msgid "This lists the currently available versification systems."
@@ -6714,7 +6830,7 @@ msgstr ""
 msgid "Bibledit software"
 msgstr ""
 
-msgid "Copyright (©) 2003-2021 Teus Benschop."
+msgid "Copyright (©) 2003-2022 Teus Benschop."
 msgstr ""
 
 msgid ""
@@ -6819,7 +6935,7 @@ msgstr ""
 msgid "Install Bibledit via the App Store."
 msgstr ""
 
-msgid "This works on an iPad or an iPhone running iOS 8 or higher."
+msgid "This works on an iPad or an iPhone running iOS 12 or higher."
 msgstr ""
 
 msgid "Hint."
@@ -7241,7 +7357,7 @@ msgstr ""
 msgid "Print."
 msgstr ""
 
-msgid "Go to the Bible editor selector."
+msgid "Cycle through the available Bible editors."
 msgstr ""
 
 msgid "Scrum-based Translation"
@@ -7897,6 +8013,12 @@ msgid "Bibledit has a hyphenater that could assist."
 msgstr ""
 
 msgid "In Bibledit, go to this menu:"
+msgstr ""
+
+msgid "Tools"
+msgstr ""
+
+msgid "Hyphenate"
 msgstr ""
 
 msgid "Enter the first set of characters, and the second set, and save it."
@@ -8664,6 +8786,84 @@ msgstr ""
 msgid "Untick display of non-breaking spaces."
 msgstr ""
 
+msgid "Install Bibledit Cloud on CentOS"
+msgstr ""
+
+msgid "Follow the steps below to install Bibledit Cloud on CentOS 7 and 8."
+msgstr ""
+
+msgid "It needs basic knowledge about working with CentOS Server."
+msgstr ""
+
+msgid "Update the software sources:"
+msgstr ""
+
+msgid "For CentOS 7 install and activate a newer compiler:"
+msgstr ""
+
+msgid "Install the software Bibledit relies on:"
+msgstr ""
+
+msgid "Download the most recent mimetic library from"
+msgstr ""
+
+msgid "Unpack the downloaded mimetic library:"
+msgstr ""
+
+msgid "Change to the directory:"
+msgstr ""
+
+msgid "Build and install the mimetic library:"
+msgstr ""
+
+msgid "This takes a while."
+msgstr ""
+
+msgid ""
+"There will be many technical messages and warnings, but there should be no "
+"errors."
+msgstr ""
+
+msgid "Go back to the home directory:"
+msgstr ""
+
+msgid "Download a recent version of Bibledit from"
+msgstr ""
+
+msgid "Unpack the downloaded Bibledit in folder bibledit:"
+msgstr ""
+
+msgid "Build Bibledit:"
+msgstr ""
+
+msgid "There will be many technical messages, but there should be no errors."
+msgstr ""
+
+msgid "For CentOS 7 deactivate the previously activated compiler:"
+msgstr ""
+
+msgid "Open port 8080 in the firewall:"
+msgstr ""
+
+msgid "Start Bibledit:"
+msgstr ""
+
+msgid ""
+"Open the web address in the browser, follow the instructions on the screen "
+"to configure Bibledit Cloud, and log in."
+msgstr ""
+
+msgid "Most of Bibledit Cloud will now be working."
+msgstr ""
+
+msgid ""
+"To get email services working, connect Bibledit to a gmail or other mail "
+"account."
+msgstr ""
+
+msgid "To get SWORD resources working, install the SWORD libraries."
+msgstr ""
+
 msgid "Install Bibledit on Android"
 msgstr ""
 
@@ -8743,6 +8943,9 @@ msgid "Bibledit on Chrome OS"
 msgstr ""
 
 msgid "Bibledit Cloud on Ubuntu"
+msgstr ""
+
+msgid "Bibledit Cloud on CentOS"
 msgstr ""
 
 msgid "Upgrading"
@@ -8897,9 +9100,6 @@ msgstr ""
 msgid "If you would like this assistance, post a message to:"
 msgstr ""
 
-msgid "Or use the contact form at the website:"
-msgstr ""
-
 msgid "OpenLDAP"
 msgstr ""
 
@@ -8941,7 +9141,19 @@ msgstr ""
 msgid "This assumes a standard installation of the operating system."
 msgstr ""
 
-msgid "Download Bibledit from the App Store."
+msgid "Install Bibledit from the App Store."
+msgstr ""
+
+msgid "Download Bibledit.zip from"
+msgstr ""
+
+msgid "Unpack it."
+msgstr ""
+
+msgid "But most likely macOS will already have done this for you."
+msgstr ""
+
+msgid "Drag Bibledit to the Applications folder."
 msgstr ""
 
 msgid "Start it from the Applications."
@@ -9136,36 +9348,8 @@ msgstr ""
 msgid "It needs basic knowledge about working with Linux servers."
 msgstr ""
 
-msgid "Update the software sources:"
-msgstr ""
-
-msgid "Install the software Bibledit relies on:"
-msgstr ""
-
-msgid "Download a recent version of Bibledit from"
-msgstr ""
-
-msgid "Unpack the downloaded Bibledit in folder bibledit:"
-msgstr ""
-
-msgid "Change to the directory:"
-msgstr ""
-
-msgid "Build Bibledit:"
-msgstr ""
-
-msgid "This takes a while."
-msgstr ""
-
-msgid "There will be many technical messages, but there should be no errors."
-msgstr ""
-
-msgid "Start Bibledit:"
-msgstr ""
-
 msgid ""
-"Open the web address in the browser, follow the instructions on the screen "
-"to configure Bibledit Cloud, and log in."
+"Change the 9xx above to the version number of Bibledit that was downloaded."
 msgstr ""
 
 msgid ""
@@ -9245,6 +9429,9 @@ msgstr ""
 msgid "The Navigator shows two arrows:"
 msgstr ""
 
+msgid "Clicking"
+msgstr ""
+
 msgid "goes back in the navigation history."
 msgstr ""
 
@@ -9252,6 +9439,9 @@ msgid "goes forward in the navigation history."
 msgstr ""
 
 msgid "There are also keyboard shortcuts for it."
+msgstr ""
+
+msgid "A long click on any of these two arrows brings up the history menu."
 msgstr ""
 
 msgid "Some pages display one or more clickable passages."
@@ -9263,10 +9453,7 @@ msgstr ""
 msgid "Username or email address:"
 msgstr ""
 
-msgid "Username:"
-msgstr ""
-
-msgid "Password:"
+msgid "Login"
 msgstr ""
 
 msgid "Forgot password?"
@@ -10599,8 +10786,14 @@ msgid "Target references added text"
 msgstr ""
 
 msgid ""
-"Used for marking text which should be ignored when identifying or linking to "
-"cross reference target references."
+"Used for marking text added to the target references. This text should be "
+"ignored when identifying or linking to cross reference target references."
+msgstr ""
+
+msgid "Peripheral"
+msgstr ""
+
+msgid "Divisions for peripheral content."
 msgstr ""
 
 msgid "Genesis"
@@ -11332,6 +11525,9 @@ msgstr ""
 msgid "User created"
 msgstr ""
 
+msgid "Cannot remove the demo admin"
+msgstr ""
+
 msgid "Select a role for"
 msgstr ""
 
@@ -11375,6 +11571,9 @@ msgid "No first set of characters given"
 msgstr ""
 
 msgid "No second set of characters given"
+msgstr ""
+
+msgid "Export"
 msgstr ""
 
 msgid "The export has been removed."
@@ -11440,9 +11639,6 @@ msgstr ""
 msgid "The Bible is being exported to Online Bible format."
 msgstr ""
 
-msgid "Would you like to use another stylesheet for the exports?"
-msgstr ""
-
 msgid "The password for securing exports was saved."
 msgstr ""
 
@@ -11453,16 +11649,6 @@ msgid "You will receive email with further details."
 msgstr ""
 
 msgid "Go to Bibledit Cloud to submit the Bible there."
-msgstr ""
-
-msgid ""
-"Which Bible would you like to use as a reference for producing the neural "
-"machine translation suggestions?"
-msgstr ""
-
-msgid ""
-"Which Bible would you like to use as the one now being translated for "
-"getting the neural machine translation suggestions?"
 msgstr ""
 
 msgid "Exporting invalid UTF-8."
@@ -11570,6 +11756,9 @@ msgstr ""
 msgid "Received from client"
 msgstr ""
 
+msgid "Mail generated by a Bibledit client at IP address"
+msgstr ""
+
 msgid "whole Bible"
 msgstr ""
 
@@ -11624,6 +11813,9 @@ msgstr ""
 msgid "The job is scheduled to start shortly."
 msgstr ""
 
+msgid "User resources"
+msgstr ""
+
 msgid "Please enter a name for the new user-defined resource"
 msgstr ""
 
@@ -11672,6 +11864,9 @@ msgstr ""
 msgid "Select a Comparative resource"
 msgstr ""
 
+msgid "Select a Translated resource"
+msgstr ""
+
 msgid "Converting Bible to USFM Resource"
 msgstr ""
 
@@ -11679,15 +11874,6 @@ msgid "Completed"
 msgstr ""
 
 msgid "The list was updated"
-msgstr ""
-
-msgid "The file was uploaded and is being processed."
-msgstr ""
-
-msgid "Would you like to delete this image?"
-msgstr ""
-
-msgid "The image was deleted."
 msgstr ""
 
 msgid "Number of defined books:"
@@ -11705,7 +11891,7 @@ msgstr ""
 msgid "The image resource was created"
 msgstr ""
 
-msgid "Bibledit Cloud could not localize this resource"
+msgid "Bibledit Cloud could not locate this resource"
 msgstr ""
 
 msgid "Please enter the number of verses"
@@ -11762,6 +11948,21 @@ msgstr ""
 msgid "Please enter the link for the divider"
 msgstr ""
 
+msgid "Please specify a new color"
+msgstr ""
+
+msgid "Please enter a name for the new translated resource"
+msgstr ""
+
+msgid "This translated resource already exists"
+msgstr ""
+
+msgid "Please give a name for the translated resource"
+msgstr ""
+
+msgid "The translated resource was created"
+msgstr ""
+
 msgid "Please enter a name for the new comparative resource"
 msgstr ""
 
@@ -11799,6 +12000,26 @@ msgid "Enter or edit the search and replace sets"
 msgstr ""
 
 msgid "Could not save"
+msgstr ""
+
+msgid "Select a resource to be used as the original resource"
+msgstr ""
+
+msgid ""
+"The original resource will be translated from the source language to the "
+"target language."
+msgstr ""
+
+msgid "Select the language of the original resource"
+msgstr ""
+
+msgid "The language the original resource is written in."
+msgstr ""
+
+msgid "Select the language to translate the resource into"
+msgstr ""
+
+msgid "The language the resource will be translated into."
 msgstr ""
 
 msgid "Unknown starting book."
@@ -11883,6 +12104,21 @@ msgid "You are not yet connected to Bibledit Cloud."
 msgstr ""
 
 msgid "Connect."
+msgstr ""
+
+msgid "Supply an internet address"
+msgstr ""
+
+msgid "Remove the port number from the internet address"
+msgstr ""
+
+msgid "Supply a port number"
+msgstr ""
+
+msgid "Supply a username"
+msgstr ""
+
+msgid "Supply a password"
 msgstr ""
 
 msgid "Connection is okay."

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -45,12 +45,19 @@
 #include <tasks/logic.h>
 #include <system/index.h>
 #include <rss/logic.h>
+#include <access/logic.h>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#ifndef HAVE_PUGIXML
 #include <pugixml/pugixml.hpp>
+#endif
+#ifdef HAVE_PUGIXML
+#include <pugixml.hpp>
+#endif
 #pragma GCC diagnostic pop
-
-
+using namespace std;
 using namespace pugi;
 
 
@@ -70,28 +77,34 @@ string bible_settings (void * webserver_request)
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
-  string page;
+  string page {};
   Assets_Header header = Assets_Header (translate("Bible"), webserver_request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.addBreadCrumb (bible_manage_url (), menu_logic_bible_manage_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (bible_manage_url (), menu_logic_bible_manage_text ());
   page = header.run ();
-  Assets_View view;
+  Assets_View view {};
 
   
-  string success_message;
-  string error_message;
+  string success_message {};
+  string error_message {};
 
   
   // The Bible.
   string bible = request->query["bible"];
   if (bible.empty()) bible = request->post ["val1"];
-  bible = AccessBible::Clamp (request, bible);
+  bible = access_bible::clamp (request, bible);
   view.set_variable ("bible", escape_special_xml_characters (bible));
 
   
   // Whether the user has write access to this Bible.
-  bool write_access = AccessBible::Write (request, bible);
+  bool write_access = access_bible::write (request, bible);
   if (write_access) view.enable_zone ("write_access");
+  
+  
+  // Whether the user has the privilege to change the stylesheet.
+  string current_user = request->session_logic()->currentUser ();
+  bool privilege_stylesheet = access_logic::privilege_set_stylesheets (webserver_request, current_user);
+  if (privilege_stylesheet) view.enable_zone ("privilege_stylesheet");
 
   
   // The state of the checkbox.
@@ -130,7 +143,7 @@ string bible_settings (void * webserver_request)
       return page;
     } else {
       vector <string> feedback;
-      if (write_access) book_create (bible, convert_to_int (createbook), -1, feedback);
+      if (write_access) book_create (bible, static_cast<book_id>(convert_to_int (createbook)), -1, feedback);
     }
     // User creates a book in this Bible: Set it as the default Bible.
     request->database_config_user()->setBible (bible);
@@ -139,10 +152,10 @@ string bible_settings (void * webserver_request)
   
   // Book deletion.
   string deletebook = request->query["deletebook"];
-  if (deletebook != "") {
+  if (!deletebook.empty()) {
     string confirm = request->query["confirm"];
     if (confirm == "yes") {
-      if (write_access) bible_logic_delete_book (bible, convert_to_int (deletebook));
+      if (write_access) bible_logic::delete_book (bible, convert_to_int (deletebook));
     } else if (confirm == "cancel") {
     } else {
       Dialog_Yes dialog_yes = Dialog_Yes ("settings", translate("Would you like to delete this book?"));
@@ -183,16 +196,16 @@ string bible_settings (void * webserver_request)
   }
 
   
-  int level = request->session_logic ()->currentLevel ();
-  bool manager_level = (level >= Filter_Roles::manager ());
+  const int level = request->session_logic ()->currentLevel ();
+  const bool manager_level = (level >= Filter_Roles::manager ());
   if (manager_level) view.enable_zone ("manager");
 
   
   // Available books.
-  xml_document book_document;
+  xml_document book_document {};
   vector <int> book_ids = filter_passage_get_ordered_books (bible);
-  for (auto & book: book_ids) {
-    string book_name = Database_Books::getEnglishFromId (book);
+  for (const auto book: book_ids) {
+    string book_name = database::books::get_english_from_id (static_cast<book_id>(book));
     book_name = translate(book_name);
     xml_node a_or_span_node;
     if (manager_level) {
@@ -207,10 +220,10 @@ string bible_settings (void * webserver_request)
     xml_node space_node = book_document.append_child("span");
     space_node.text().set(" ");
   }
-  stringstream bookblock2;
+  stringstream bookblock2 {};
   book_document.print (bookblock2, "", format_raw);
   view.set_variable ("bookblock", bookblock2.str());
-  view.set_variable ("book_count", convert_to_string ((int)book_ids.size()));
+  view.set_variable ("book_count", convert_to_string (static_cast<int>(book_ids.size())));
 
 
   // Public feedback.
@@ -307,6 +320,6 @@ string bible_settings (void * webserver_request)
 
   
   page += view.render ("bb", "settings");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

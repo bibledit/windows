@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@
 #include <developer/logic.h>
 #include <rss/logic.h>
 #include <sendreceive/logic.h>
+using namespace std;
 
 
 string editone2_save_url ()
@@ -49,11 +50,8 @@ string editone2_save_url ()
 
 bool editone2_save_acl (void * webserver_request)
 {
-  if (config_logic_indonesian_cloud_free ()) {
-    return true;
-  }
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return read;
 }
 
@@ -80,7 +78,7 @@ string editone2_save (void * webserver_request)
 
   
   // Checksum.
-  if (Checksum_Logic::get (html) != checksum) {
+  if (checksum_logic::get (html) != checksum) {
     request->response_code = 409;
     return translate ("Checksum error");
   }
@@ -103,7 +101,7 @@ string editone2_save (void * webserver_request)
   }
   
   
-  if (!AccessBible::BookWrite (request, string(), bible, book)) {
+  if (!access_bible::book_write (request, string(), bible, book)) {
     return translate ("No write access");
   }
 
@@ -132,14 +130,14 @@ string editone2_save (void * webserver_request)
   // https://github.com/bibledit/cloud/issues/340
   string loaded_usfm = getLoadedUsfm2 (webserver_request, bible, book, chapter, unique_id);
   if (loaded_usfm != old_chapter_usfm) {
-    bible_logic_recent_save_email (bible, book, chapter, username, loaded_usfm, old_chapter_usfm);
+    bible_logic::recent_save_email (bible, book, chapter, username, loaded_usfm, old_chapter_usfm);
   }
 
   
   // Safely store the verse.
   string explanation;
   string message = filter::usfm::safely_store_verse (request, bible, book, chapter, verse, verse_usfm, explanation, true);
-  bible_logic_unsafe_save_mail (message, explanation, username, verse_usfm, book, chapter);
+  bible_logic::unsafe_save_mail (message, explanation, username, verse_usfm, book, chapter);
   // If storing the verse worked out well, there's no message to display.
   if (message.empty ()) {
     // Get the chapter text now, that is, after the save operation completed.

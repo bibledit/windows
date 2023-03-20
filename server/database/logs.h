@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,11 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 class Database_Logs
 {
 public:
-  static void log (string description, int level = 5);
-  static void log (string subject, string body, int level = 5);
+  static void log (std::string description, int level = 5);
+  static void log (std::string subject, std::string body, int level = 5);
   static void rotate ();
-  static vector <string> get (string & lastfilename);
-  static string next (string &filename);
+  static std::vector <std::string> get (std::string & lastfilename);
+  static std::string next (std::string &filename);
   static void clear ();
-  static string folder ();
+  static std::string folder ();
 };

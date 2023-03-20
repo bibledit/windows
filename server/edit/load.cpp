@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 #include <database/logs.h>
 #include <quill/logic.h>
 #include <database/config/bible.h>
+using namespace std;
 
 
 string edit_load_url ()
@@ -41,7 +42,7 @@ string edit_load_url ()
 bool edit_load_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return write;
 }
 
@@ -77,7 +78,7 @@ string edit_load (void * webserver_request)
   }
   
   string user = request->session_logic ()->currentUser ();
-  bool write = AccessBible::BookWrite (webserver_request, user, bible, book);
+  bool write = access_bible::book_write (webserver_request, user, bible, book);
   
-  return Checksum_Logic::send (html, write);
+  return checksum_logic::send (html, write);
 }

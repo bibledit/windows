@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <locale/translate.h>
 #include <assets/header.h>
 #include <menu/logic.h>
+using namespace std;
 
 
 string email_index_url ()
@@ -51,7 +52,7 @@ string email_index (void * webserver_request)
   string page;
 
   Assets_Header header = Assets_Header (translate("Mail"), webserver_request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
 
   Assets_View view;
@@ -144,7 +145,7 @@ string email_index (void * webserver_request)
 
   page += view.render ("email", "index");
 
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
 
   return page;
 }

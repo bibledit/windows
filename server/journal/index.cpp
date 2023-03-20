@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <menu/logic.h>
 #include <client/logic.h>
 #include <locale/logic.h>
+using namespace std;
 
 
 const char * journal_index_url ()
@@ -153,7 +154,7 @@ string journal_index (void * webserver_request)
   
   
   Assets_Header header = Assets_Header (translate ("Journal"), webserver_request);
-  header.addBreadCrumb (menu_logic_tools_menu (), menu_logic_tools_text ());
+  header.add_bread_crumb (menu_logic_tools_menu (), menu_logic_tools_text ());
   string page = header.run ();
 
 
@@ -197,7 +198,7 @@ string journal_index (void * webserver_request)
 
   page += view.render ("journal", "index");
 
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
 
   return page;
 }

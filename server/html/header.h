@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,10 +26,12 @@ class Html_Header
 {
 public:
   Html_Header (void * html_text);
-  void search_back_link (string url, string text);
-  void create (const vector <pair <string, string> > & breadcrumbs);
+  Html_Header(const Html_Header&) = delete;
+  Html_Header operator=(const Html_Header&) = delete;
+  void search_back_link (std::string url, std::string text);
+  void create (const std::vector <std::pair <std::string, std::string> > & breadcrumbs);
 private:
   void * m_html_text {nullptr};
-  string m_search_back_link_url {};
-  string m_search_back_link_text {};
+  std::string m_search_back_link_url {};
+  std::string m_search_back_link_text {};
 };

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@
 #include <sendreceive/resources.h>
 #include <client/logic.h>
 #include <config/globals.h>
+using namespace std;
 
 
 string resource_cache_url ()
@@ -62,7 +63,7 @@ string resource_cache (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (menu_logic_resources_text (), request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
   Assets_View view;
 
@@ -186,6 +187,6 @@ string resource_cache (void * webserver_request)
 
   
   page += view.render ("resource", "cache");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

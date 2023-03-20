@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@
 #include <edit/logic.h>
 #include <rss/logic.h>
 #include <sendreceive/logic.h>
+using namespace std;
 
 
 string editone2_update_url ()
@@ -50,11 +51,8 @@ string editone2_update_url ()
 
 bool editone2_update_acl (void * webserver_request)
 {
-  if (config_logic_indonesian_cloud_free ()) {
-    return true;
-  }
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return read;
 }
 
@@ -113,14 +111,14 @@ string editone2_update (void * webserver_request)
   
   // Checksums of the loaded and edited html.
   if (good2go) {
-    if (Checksum_Logic::get (loaded_html) != checksum1) {
+    if (checksum_logic::get (loaded_html) != checksum1) {
       request->response_code = 409;
       messages.push_back (translate ("Checksum error"));
       good2go = false;
     }
   }
   if (good2go) {
-    if (Checksum_Logic::get (edited_html) != checksum2) {
+    if (checksum_logic::get (edited_html) != checksum2) {
       request->response_code = 409;
       messages.push_back (translate ("Checksum error"));
       good2go = false;
@@ -146,7 +144,7 @@ string editone2_update (void * webserver_request)
 
   bool bible_write_access = false;
   if (good2go) {
-    bible_write_access = AccessBible::BookWrite (request, string(), bible, book);
+    bible_write_access = access_bible::book_write (request, string(), bible, book);
   }
 
 
@@ -196,7 +194,7 @@ string editone2_update (void * webserver_request)
       string merged_verse_usfm = filter_merge_run (loaded_verse_usfm, edited_verse_usfm, existing_verse_usfm, true, conflicts);
       // Mail the user if there is a merge anomaly.
       filter_merge_add_book_chapter (conflicts, book, chapter);
-      bible_logic_optional_merge_irregularity_email (bible, book, chapter, username, loaded_verse_usfm, edited_verse_usfm, merged_verse_usfm);
+      bible_logic::optional_merge_irregularity_email (bible, book, chapter, username, loaded_verse_usfm, edited_verse_usfm, merged_verse_usfm);
       // Let the merged data now become the edited data (so it gets saved properly).
       edited_verse_usfm = merged_verse_usfm;
     }
@@ -217,7 +215,7 @@ string editone2_update (void * webserver_request)
   string message;
   if (good2go && bible_write_access && text_was_edited) {
     message = filter::usfm::safely_store_verse (request, bible, book, chapter, verse, edited_verse_usfm, explanation, true);
-    bible_logic_unsafe_save_mail (message, explanation, username, edited_verse_usfm, book, chapter);
+    bible_logic::unsafe_save_mail (message, explanation, username, edited_verse_usfm, book, chapter);
   }
 
   
@@ -287,7 +285,7 @@ string editone2_update (void * webserver_request)
     vector <int> sizes;
     vector <string> operators;
     vector <string> content;
-    bible_logic_html_to_editor_updates (editor_html, server_html, positions, sizes, operators, content);
+    bible_logic::html_to_editor_updates (editor_html, server_html, positions, sizes, operators, content);
     // Encode the condensed differences for the response to the Javascript editor.
     for (size_t i = 0; i < positions.size(); i++) {
       response.append ("#_be_#");
@@ -295,7 +293,7 @@ string editone2_update (void * webserver_request)
       response.append ("#_be_#");
       string operation = operators[i];
       response.append (operation);
-      if (operation == bible_logic_insert_operator ()) {
+      if (operation == bible_logic::insert_operator ()) {
         string text = content[i];
         string character = unicode_string_substr (text, 0, 1);
         response.append ("#_be_#");
@@ -308,18 +306,18 @@ string editone2_update (void * webserver_request)
         response.append ("#_be_#");
         response.append (convert_to_string (sizes[i]));
       }
-      else if (operation == bible_logic_delete_operator ()) {
+      else if (operation == bible_logic::delete_operator ()) {
         // When deleting a UTF-16 character encoded in 4 bytes,
         // then the size in Quilljs is 2 instead of 1.
         // So always give the size when deleting a character.
         response.append ("#_be_#");
         response.append (convert_to_string (sizes[i]));
       }
-      else if (operation == bible_logic_format_paragraph_operator ()) {
+      else if (operation == bible_logic::format_paragraph_operator ()) {
         response.append ("#_be_#");
         response.append (content[i]);
       }
-      else if (operation == bible_logic_format_character_operator ()) {
+      else if (operation == bible_logic::format_character_operator ()) {
         response.append ("#_be_#");
         response.append (content[i]);
       }
@@ -347,8 +345,8 @@ string editone2_update (void * webserver_request)
 
   // Test using the Cloud together with client devices with send and receive.
   
-  bool write = AccessBible::BookWrite (webserver_request, username, bible, book);
-  response = Checksum_Logic::send (response, write);
+  bool write = access_bible::book_write (webserver_request, username, bible, book);
+  response = checksum_logic::send (response, write);
 
   // Ready.
   //this_thread::sleep_for(chrono::seconds(60));

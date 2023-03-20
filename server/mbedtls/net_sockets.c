@@ -1,3 +1,14 @@
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+
+#pragma GCC diagnostic ignored "-Wconversion"
+
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+
+#pragma GCC diagnostic ignored "-Wconversion"
+
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 /*
@@ -472,8 +483,8 @@ int mbedtls_net_accept( mbedtls_net_context *bind_ctx,
         }
         else
         {
-            struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *) &client_addr;
-            *ip_len = sizeof( addr6->sin6_addr.s6_addr );
+          struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *) &client_addr;
+          *ip_len = sizeof( addr6->sin6_addr.s6_addr );
 
             if( buf_size < *ip_len )
                 return( MBEDTLS_ERR_NET_BUFFER_TOO_SMALL );

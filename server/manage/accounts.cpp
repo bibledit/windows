@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <menu/logic.h>
 #include <session/switch.h>
 #include <user/logic.h>
+using namespace std;
 
 
 string manage_accounts_url ()
@@ -64,7 +65,7 @@ string manage_accounts (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate("Accounts"), webserver_request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
   
   Assets_View view;
@@ -80,9 +81,9 @@ string manage_accounts (void * webserver_request)
     vector <string> users = request->database_users ()->get_users ();
     vector <string> administrators = request->database_users ()->getAdministrators ();
     if (users.size () == 1) {
-      page += Assets_Page::error (translate("Cannot remove the last user"));
+      page += assets_page::error (translate("Cannot remove the last user"));
     } else if ((user_level >= Filter_Roles::admin ()) && (administrators.size () == 1)) {
-      page += Assets_Page::error (translate("Cannot remove the last administrator"));
+      page += assets_page::error (translate("Cannot remove the last administrator"));
     } else {
       string message;
       user_logic_delete_account (objectUsername, role, email, message);
@@ -90,7 +91,7 @@ string manage_accounts (void * webserver_request)
       tasks_logic_queue (DELETEINDONESIANFREEUSER, {objectUsername, email});
       message.append (" ");
       message.append ("See the Journal for progress");
-      page += Assets_Page::success (message);
+      page += assets_page::success (message);
     }
   }
   
@@ -108,7 +109,7 @@ string manage_accounts (void * webserver_request)
   }
   
   // Retrieve assigned users.
-  vector <string> users = access_user_assignees (webserver_request);
+  vector <string> users = access_user::assignees (webserver_request);
   for (auto & username : users) {
     
     // Gather details for this user account.
@@ -118,14 +119,6 @@ string manage_accounts (void * webserver_request)
     int seconds = filter::date::seconds_since_epoch() - account_creation_times[username];
     string days = convert_to_string (seconds / (3600 * 24));
     
-    // In the Indonesian free Cloud,
-    // the free guest accounts have a role of Consultant.
-    // So only displays roles of Consultant or lower.
-    // Skip any higher roles.
-    if (config_logic_indonesian_cloud_free ()) {
-      if (user_level > Filter_Roles::consultant()) continue;
-    }
-
     // Pass information about this user to the flate engine for display.
     view.add_iteration ("tbody", {
       pair ("user", username),
@@ -137,7 +130,7 @@ string manage_accounts (void * webserver_request)
   
   page += view.render ("manage", "accounts");
 
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   if (user_updated) notes_logic_maintain_note_assignees (true);
   if (privileges_updated) database_privileges_client_create (objectUsername, true);

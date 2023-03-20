@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,24 +21,25 @@
 #include <filter/string.h>
 #include <database/check.h>
 #include <locale/translate.h>
+using namespace std;
 
 
-void Checks_Headers::noPunctuationAtEnd (string bible, int book, int chapter,
-                                         map <int, string> headings,
-                                         string centermarks, string endmarks)
+void checks_headers::no_punctuation_at_end (const string & bible, int book, int chapter,
+                                            const map <int, string> & headings,
+                                            const string & centermarks, const string & endmarks)
 {
-  Database_Check database_check;
-  for (auto element : headings) {
+  Database_Check database_check {};
+  for (const auto & element : headings) {
     int verse = element.first;
     string heading = element.second;
     // Full stops often occur in the inspired headings of many Psalms in verse 0.
     // Skip these.
     if ((book == 19) && (verse == 0)) continue;
-    string lastCharacter;
-    if (!heading.empty ()) lastCharacter = heading.substr (heading.size () - 1);
-    bool message = false;
-    if (centermarks.find (lastCharacter) != string::npos) message = true;
-    if (endmarks.find (lastCharacter) != string::npos) message = true;
+    string last_character {};
+    if (!heading.empty ()) last_character = heading.substr (heading.size () - 1);
+    bool message {false};
+    if (centermarks.find (last_character) != string::npos) message = true;
+    if (endmarks.find (last_character) != string::npos) message = true;
     if (message) {
       database_check.recordOutput (bible, book, chapter, verse, translate ("Punctuation at end of heading:") + " " + heading);
     }

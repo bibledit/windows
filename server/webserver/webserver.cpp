@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
+#include <webserver/webserver.h>
 #include <webserver/http.h>
 #include <bootstrap/bootstrap.h>
 #include <webserver/request.h>
@@ -26,6 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/string.h>
 #include <filter/url.h>
 #include <filter/date.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 #include <mbedtls/entropy.h>
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/certs.h>
@@ -36,9 +40,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <mbedtls/net_sockets.h>
 #include <mbedtls/error.h>
 #include <mbedtls/ssl_cache.h>
+#pragma GCC diagnostic pop
 #ifdef HAVE_WINDOWS
 #include <io.h>
 #endif
+using namespace std;
+
+
+// Internal function declarations.
+int get_line (int sock, char *buf, int size);
+void webserver_process_request (int connfd, string clientaddress);
+void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_context client_fd);
 
 
 // Gets a line from a socket.
@@ -58,7 +70,7 @@ int get_line (int sock, char *buf, int size)
   char character = '\0';
   int n = 0;
   while ((i < size - 1) && (character != '\n')) {
-    n = (int) recv (sock, &character, 1, 0);
+    n = static_cast<int> (recv (sock, &character, 1, 0));
     if (n > 0) {
       if (character == '\r') {
         /*
@@ -67,7 +79,7 @@ int get_line (int sock, char *buf, int size)
         // So it's safe to throw the \r away, as we're sure the \n follows.
         continue;
         */
-        n = (int) recv (sock, &character, 1, MSG_PEEK);
+        n = static_cast<int> (recv (sock, &character, 1, MSG_PEEK));
         if ((n > 0) && (character == '\n')) {
           recv (sock, &character, 1, 0);
         } else {
@@ -135,7 +147,7 @@ void webserver_process_request (int connfd, string clientaddress)
           bool done_reading = false;
           int total_bytes_read = 0;
           do {
-            bytes_read = (int)recv(connfd, buffer, BUFFERSIZE, 0);
+            bytes_read = static_cast<int> (recv(connfd, buffer, BUFFERSIZE, 0));
             for (int i = 0; i < bytes_read; i++) {
               postdata += buffer [i];
             }
@@ -181,15 +193,15 @@ void webserver_process_request (int connfd, string clientaddress)
             unsigned char streambuffer [1024];
             int bytecount;
             do {
-              bytecount = (int)
+              bytecount = static_cast<int> (
 #ifdef HAVE_WINDOWS
               _read
 #else
               read
 #endif
-              (filefd, streambuffer, 1024);
+              (filefd, streambuffer, 1024));
               if (bytecount > 0) {
-                [[maybe_unused]] auto sendbytes = send (connfd, (const char *)streambuffer, static_cast<size_t>(bytecount), 0);
+                [[maybe_unused]] auto sendbytes = send (connfd, reinterpret_cast<const char *> (streambuffer), static_cast<size_t>(bytecount), 0);
               }
             }
             while (bytecount > 0);
@@ -255,7 +267,7 @@ void http_server ()
   // The function is used to allow the local address to  be reused
   // when the server is restarted before the required wait time expires.
   int optval = 1;
-  int result = setsockopt (listenfd, SOL_SOCKET, SO_REUSEADDR, (const char *) &optval, sizeof (int));
+  int result = setsockopt (listenfd, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *> ( &optval), sizeof (int));
   if (result != 0) {
     string error = "Error setting socket option: ";
     error.append (strerror (errno));
@@ -271,18 +283,18 @@ void http_server ()
   memset (&serveraddr, 0, sizeof (serveraddr));
   serveraddr.sin_family = AF_INET;
   serveraddr.sin_addr.s_addr = htonl (INADDR_LOOPBACK);
-  serveraddr.sin_port = htons (convert_to_int (config_logic_http_network_port ()));
+  serveraddr.sin_port = htons (convert_to_int (config::logic::http_network_port ()));
 #endif
 #ifdef HAVE_CLOUD
   // When configured as a server it listens on any IPv6 address.
-  struct sockaddr_in6 serveraddr;
+  sockaddr_in6 serveraddr;
   memset (&serveraddr, 0, sizeof (serveraddr));
   serveraddr.sin6_flowinfo = 0;
   serveraddr.sin6_family = AF_INET6;
   serveraddr.sin6_addr = in6addr_any;
-  serveraddr.sin6_port = htons (static_cast<uint16_t>(convert_to_int (config_logic_http_network_port ())));
+  serveraddr.sin6_port = htons (static_cast<uint16_t>(convert_to_int (config::logic::http_network_port ())));
 #endif
-  result = mybind (listenfd, (struct sockaddr *) &serveraddr, sizeof (serveraddr));
+  result = mybind (listenfd, reinterpret_cast<sockaddr *>(&serveraddr), sizeof (serveraddr));
   if (result != 0) {
     string error = "Error binding server to socket: ";
     error.append (strerror (errno));
@@ -306,13 +318,13 @@ void http_server ()
   while (listener_healthy && config_globals_webserver_running) {
 
     // Socket and file descriptor for the client connection.
-    struct sockaddr_in6 clientaddr6;
+    sockaddr_in6 clientaddr6;
     socklen_t clientlen = sizeof (clientaddr6);
-    int connfd = accept (listenfd, (struct sockaddr *)&clientaddr6, &clientlen);
+    int connfd = accept (listenfd, reinterpret_cast<sockaddr *>(&clientaddr6), &clientlen);
     if (connfd > 0) {
 
       // Socket receive timeout, plain http.
-      struct timeval tv;
+      timeval tv;
       tv.tv_sec = 60;
       tv.tv_usec = 0;
       setsockopt (connfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
@@ -425,7 +437,7 @@ void http_server ()
   memset(&serveraddr, 0, sizeof(serveraddr));
   serveraddr.sin_family = AF_INET;
   serveraddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-  serveraddr.sin_port = htons(convert_to_int(config_logic_http_network_port()));
+  serveraddr.sin_port = htons(convert_to_int(config::logic::http_network_port()));
   result = mybind(listen_socket, (SA *)&serveraddr, sizeof(serveraddr));
   if (result == SOCKET_ERROR) {
 	  string error = "Error binding server to socket";
@@ -476,7 +488,7 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
 {
   // Socket receive timeout, secure https.
 #ifndef HAVE_WINDOWS
-  struct timeval tv;
+  timeval tv;
   tv.tv_sec = 60;
   tv.tv_usec = 0;
   setsockopt (client_fd.fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
@@ -499,9 +511,9 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
     if (config_globals_webserver_running) {
 
       // Get client's remote IPv4 address in dotted notation and put it in the webserver request object.
-      struct sockaddr_in addr;
-      socklen_t addr_size = sizeof(struct sockaddr_in);
-      getpeername (client_fd.fd, (struct sockaddr *)&addr, &addr_size);
+      sockaddr_in addr;
+      socklen_t addr_size = sizeof(sockaddr_in);
+      getpeername (client_fd.fd, reinterpret_cast<sockaddr *>(&addr), &addr_size);
       char remote_address [256];
       inet_ntop (AF_INET, &addr.sin_addr.s_addr, remote_address, sizeof (remote_address));
       request.remote_address = remote_address;
@@ -514,13 +526,13 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
       if (connection_healthy) {
         ret = mbedtls_ssl_setup (&ssl, conf);
         if (ret != 0) {
-          filter_url_display_mbed_tls_error (ret, NULL, true);
+          filter_url_display_mbed_tls_error (ret, nullptr, true);
           connection_healthy = false;
         }
       }
       
       if (connection_healthy) {
-        mbedtls_ssl_set_bio (&ssl, &client_fd, mbedtls_net_send, mbedtls_net_recv, NULL);
+        mbedtls_ssl_set_bio (&ssl, &client_fd, mbedtls_net_send, mbedtls_net_recv, nullptr);
       }
       
       // SSL / TLS handshake.
@@ -529,7 +541,7 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
           if (config_globals_webserver_running) {
             // In case the secure server runs, display the error.
             // And in case the server is interrupted by e.g. Ctrl-C, don't display this error.
-            filter_url_display_mbed_tls_error (ret, NULL, true);
+            filter_url_display_mbed_tls_error (ret, nullptr, true);
           }
           connection_healthy = false;
         }
@@ -610,7 +622,7 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
       
       // Write the response to the browser.
       const char * output = request.reply.c_str();
-      const unsigned char * buf = (const unsigned char *) output;
+      const unsigned char * buf = reinterpret_cast<const unsigned char *>(output);
       // The C function strlen () fails on null characters in the reply, so take string::size()
       size_t len = request.reply.size ();
       while (connection_healthy && (len > 0)) {
@@ -631,7 +643,7 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
           // until it returns a positive value.
           if (ret == MBEDTLS_ERR_SSL_WANT_READ) continue;
           if (ret == MBEDTLS_ERR_SSL_WANT_WRITE) continue;
-          filter_url_display_mbed_tls_error (ret, NULL, true);
+          filter_url_display_mbed_tls_error (ret, nullptr, true);
           connection_healthy = false;
         }
       }
@@ -650,15 +662,15 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
         unsigned char buffer [1024];
         int bytecount;
         do {
-          bytecount = (int)
+          bytecount = static_cast<int>(
 #ifdef HAVE_WINDOWS
           _read
 #else
           read
 #endif
-          (filefd, buffer, 1024);
+          (filefd, buffer, 1024));
           int remaining_length = bytecount;
-          const unsigned char * buffer_ptr = (const unsigned char *) &buffer;
+          const unsigned char * buffer_ptr = reinterpret_cast<const unsigned char *>(&buffer);
           while (connection_healthy && (remaining_length > 0)) {
             // Function
             // int ret = mbedtls_ssl_write (&ssl, buf, len)
@@ -677,7 +689,7 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
               // until it returns a positive value.
               if (ret == MBEDTLS_ERR_SSL_WANT_READ) continue;
               if (ret == MBEDTLS_ERR_SSL_WANT_WRITE) continue;
-              filter_url_display_mbed_tls_error (ret, NULL, true);
+              filter_url_display_mbed_tls_error (ret, nullptr, true);
               connection_healthy = false;
             }
           }
@@ -696,7 +708,7 @@ void secure_webserver_process_request (mbedtls_ssl_config * conf, mbedtls_net_co
         while ((ret = mbedtls_ssl_close_notify (&ssl)) < 0) {
           if (ret == MBEDTLS_ERR_SSL_WANT_READ) continue;
           if (ret == MBEDTLS_ERR_SSL_WANT_WRITE) continue;
-          filter_url_display_mbed_tls_error (ret, NULL, true);
+          filter_url_display_mbed_tls_error (ret, nullptr, true);
           connection_healthy = false;
           if (connection_healthy) {}; // Suppress static analyzer warning about unused code.
           break;
@@ -732,9 +744,45 @@ void https_server ()
 #ifdef RUN_SECURE_SERVER
 
   // The https network port to listen on.
-  // Port "0..9" means: Don't run the secure web server.
-  string network_port = config_logic_https_network_port ();
+  // Port 0..9 means this:: Don't run the secure web server.
+  string network_port = config::logic::https_network_port ();
   if (network_port.length() <= 1) return;
+  
+  // Check whether all the certificates are there and can be read.
+  // If not, log some feedback and don't run the secure web server.
+  string server_key_path {config::logic::server_key_path (false)};
+  string server_certificate_path {config::logic::server_certificate_path (false)};
+  string authorities_certificates_path {config::logic::authorities_certificates_path (false)};
+  if (!server_key_path.empty()) {
+    string contents {filter_url_file_get_contents (server_key_path)};
+    if (contents.empty()) {
+      Database_Logs::log("Cannot read " + server_key_path + " so not running secure server");
+      return;
+    }
+  } else {
+    Database_Logs::log("Cannot find server private key in " + config::logic::server_key_path (true) + " so not running secure server");
+    return;
+  }
+  if (!server_certificate_path.empty()) {
+    string contents {filter_url_file_get_contents (server_certificate_path)};
+    if (contents.empty()) {
+      Database_Logs::log("Cannot read " + server_certificate_path + " so not running secure server");
+      return;
+    }
+  } else {
+    Database_Logs::log("Cannot find server certificate in " + config::logic::server_certificate_path (true) + " so not running secure server");
+    return;
+  }
+  if (!authorities_certificates_path.empty()) {
+    string contents {filter_url_file_get_contents (authorities_certificates_path)};
+    if (contents.empty()) {
+      Database_Logs::log("Cannot read " + authorities_certificates_path + " so not running secure server");
+      return;
+    }
+  } else {
+    Database_Logs::log("Cannot find certificate authorities chain in " + config::logic::authorities_certificates_path (true) + " so not running secure server");
+    return;
+  }
   
   // File descriptor for the listener.
   mbedtls_net_context listen_fd;
@@ -755,59 +803,67 @@ void https_server ()
   mbedtls_ctr_drbg_context ctr_drbg;
   mbedtls_ctr_drbg_init (&ctr_drbg);
 
-  int ret;
-  string path;
-  
   // Load the private RSA server key.
   mbedtls_pk_context pkey;
   mbedtls_pk_init (&pkey);
-  path = config_logic_server_key_path ();
-  ret = mbedtls_pk_parse_keyfile (&pkey, path.c_str (), NULL);
-  if (ret != 0) filter_url_display_mbed_tls_error (ret, NULL, true);
+  int ret = mbedtls_pk_parse_keyfile (&pkey, server_key_path.c_str (), nullptr);
+  if (ret != 0) {
+    filter_url_display_mbed_tls_error (ret, nullptr, true);
+    Database_Logs::log("Invalid " + server_key_path + " so not running secure server");
+    return;
+  }
   
   // Server certificates store.
   mbedtls_x509_crt srvcert;
   mbedtls_x509_crt_init (&srvcert);
   
   // Load the server certificate.
-  path = config_logic_server_certificate_path ();
-  ret = mbedtls_x509_crt_parse_file (&srvcert, path.c_str ());
-  if (ret != 0) filter_url_display_mbed_tls_error (ret, NULL, true);
+  ret = mbedtls_x509_crt_parse_file (&srvcert, server_certificate_path.c_str ());
+  if (ret != 0) {
+    filter_url_display_mbed_tls_error (ret, nullptr, true);
+    Database_Logs::log("Invalid " + server_certificate_path + " so not running secure server");
+    return;
+  }
 
   // Load the chain of certificates of the certificate authorities.
-  path = config_logic_authorities_certificates_path ();
-  ret = mbedtls_x509_crt_parse_file (&srvcert, path.c_str ());
-  if (ret != 0) filter_url_display_mbed_tls_error (ret, NULL, true);
+  ret = mbedtls_x509_crt_parse_file (&srvcert, authorities_certificates_path.c_str ());
+  if (ret != 0) {
+    filter_url_display_mbed_tls_error (ret, nullptr, true);
+    Database_Logs::log("Invalid " + authorities_certificates_path + " so not running secure server");
+    return;
+  }
 
   // Seed the random number generator.
   const char *pers = "Cloud";
-  ret = mbedtls_ctr_drbg_seed( &ctr_drbg, mbedtls_entropy_func, &entropy, (const unsigned char *) pers, strlen (pers));
+  ret = mbedtls_ctr_drbg_seed( &ctr_drbg, mbedtls_entropy_func, &entropy, reinterpret_cast<const unsigned char *> (pers), strlen (pers));
   if (ret != 0) {
-    filter_url_display_mbed_tls_error (ret, NULL, true);
+    filter_url_display_mbed_tls_error (ret, nullptr, true);
     return;
   }
   
   // Setup the listening TCP socket.
-  ret = mbedtls_net_bind (&listen_fd, NULL, network_port.c_str (), MBEDTLS_NET_PROTO_TCP);
+  ret = mbedtls_net_bind (&listen_fd, nullptr, network_port.c_str (), MBEDTLS_NET_PROTO_TCP);
   if (ret != 0) {
-    filter_url_display_mbed_tls_error (ret, NULL, true);
+    filter_url_display_mbed_tls_error (ret, nullptr, true);
     return;
   }
   
   // Setup SSL/TLS default values for the lifetime of the https server.
   ret = mbedtls_ssl_config_defaults (&conf, MBEDTLS_SSL_IS_SERVER, MBEDTLS_SSL_TRANSPORT_STREAM, MBEDTLS_SSL_PRESET_DEFAULT);
   if (ret != 0) {
-    filter_url_display_mbed_tls_error (ret, NULL, true);
+    filter_url_display_mbed_tls_error (ret, nullptr, true);
     return;
   }
   mbedtls_ssl_conf_rng (&conf, mbedtls_ctr_drbg_random, &ctr_drbg);
   mbedtls_ssl_conf_session_cache (&conf, &cache, mbedtls_ssl_cache_get, mbedtls_ssl_cache_set);
-  mbedtls_ssl_conf_ca_chain (&conf, srvcert.next, NULL);
+  mbedtls_ssl_conf_ca_chain (&conf, srvcert.next, nullptr);
   ret = mbedtls_ssl_conf_own_cert (&conf, &srvcert, &pkey);
   if (ret != 0) {
-    filter_url_display_mbed_tls_error (ret, NULL, true);
+    filter_url_display_mbed_tls_error (ret, nullptr, true);
     return;
   }
+
+  cout << "Listening on https://localhost:" << network_port << endl;
   
   // Keep preparing for, accepting, and processing client connections.
   while (config_globals_webserver_running) {
@@ -817,9 +873,9 @@ void https_server ()
     mbedtls_net_init (&client_fd);
     
     // Wait until a client connects.
-    ret = mbedtls_net_accept (&listen_fd, &client_fd, NULL, 0, NULL);
+    ret = mbedtls_net_accept (&listen_fd, &client_fd, nullptr, 0, nullptr);
     if (ret != 0 ) {
-      filter_url_display_mbed_tls_error (ret, NULL, true);
+      filter_url_display_mbed_tls_error (ret, nullptr, true);
       continue;
     }
     

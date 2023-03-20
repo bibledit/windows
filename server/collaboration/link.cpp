@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include <database/config/bible.h>
 #include <database/config/general.h>
 #include <database/jobs.h>
+using namespace std;
 
 
 void collaboration_link ([[maybe_unused]] string object,
@@ -273,7 +274,7 @@ void collaboration_link ([[maybe_unused]] string object,
   view.set_variable ("success", filter_string_implode (success, "<br>\n"));
   view.set_variable ("error", error);
   page += view.render ("collaboration", "link");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   database_jobs.set_result (jobid, page);
 #endif
 }

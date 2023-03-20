@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <assets/page.h>
 #include <locale/translate.h>
 #include <filter/url.h>
+using namespace std;
 
 
 // Entry dialog constructor
@@ -85,6 +86,6 @@ string Dialog_List::run ()
   view->set_variable ("base_url", base_url);
   view->set_variable ("list_block", list_block);
   string page = view->render ("dialog", "list");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

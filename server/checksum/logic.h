@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,15 +21,14 @@
 
 #include <config/libraries.h>
 
-class Checksum_Logic
-{
-public:
-  static string send (string data, bool readwrite);
-  static string get (string data);
-  static string get (const vector <string>& data);
-  static string getChapter (void * webserver_request, string bible, int book, int chapter);
-  static string getBook (void * webserver_request, string bible, int book);
-  static string getBible (void * webserver_request, string bible);
-  static string getBibles (void * webserver_request, const vector <string> & bibles);
-private:
+namespace checksum_logic {
+
+std::string send (const std::string & data, bool readwrite);
+std::string get (const std::string & data);
+std::string get (const std::vector <std::string>& data);
+std::string get_chapter (void * webserver_request, const std::string & bible, int book, int chapter);
+std::string get_book (void * webserver_request, const std::string & bible, int book);
+std::string get_bible (void * webserver_request, const std::string & bible);
+std::string get_bibles (void * webserver_request, const std::vector <std::string> & bibles);
+
 };

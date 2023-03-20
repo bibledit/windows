@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,13 +31,13 @@ class Database_Git
 public:
   static void create ();
   static void optimize ();
-  static void store_chapter (string user, string bible, int book, int chapter,
-                             string oldusfm, string newusfm);
-  static vector <string> get_users (string bible);
-  static vector <int> get_rowids (string user, string bible);
+  static void store_chapter (std::string user, std::string bible, int book, int chapter,
+                             std::string oldusfm, std::string newusfm);
+  static std::vector <std::string> get_users (std::string bible);
+  static std::vector <int> get_rowids (std::string user, std::string bible);
   static bool get_chapter (int rowid,
-                           string & user, string & bible, int & book, int & chapter,
-                           string & oldusfm, string & newusfm);
+                           std::string & user, std::string & bible, int & book, int & chapter,
+                           std::string & oldusfm, std::string & newusfm);
   static void erase_rowid (int rowid);
   static void touch_timestamps (int timestamp);
 private:

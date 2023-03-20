@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -23,13 +23,21 @@
 #include <webserver/request.h>
 #include "assets/view.h"
 #include "resource/logic.h"
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 #include <jsonxx/jsonxx.h>
+#ifndef HAVE_PUGIXML
 #include <pugixml/pugixml.hpp>
+#endif
+#ifdef HAVE_PUGIXML
+#include <pugixml.hpp>
+#endif
 #pragma GCC diagnostic pop
-
-
+using namespace std;
 using namespace jsonxx;
 using namespace pugi;
 
@@ -92,10 +100,10 @@ resource_record resource_table [] =
 
 struct gbs_basic_walker: xml_tree_walker
 {
-  vector <string> texts;
-  bool canonical_text = true;
+  vector <string> texts {};
+  bool canonical_text {true};
 
-  virtual bool for_each (xml_node& node)
+  virtual bool for_each (xml_node& node) override
   {
     xml_node_type nodetype = node.type();
     if (nodetype == node_pcdata) {
@@ -128,17 +136,61 @@ struct gbs_basic_walker: xml_tree_walker
 // This function displays the canonical text from bijbel-statenvertaling.com.
 string gbs_basic_processor (string url, int verse)
 {
-  string text;
+  string text {};
   
   // Get the html from the server.
   string html = resource_logic_web_or_cache_get (url, text);
 
-  // Tidy the html so it can be loaded as xml.
-  html = filter_string_tidy_invalid_html (html);
+  // The GBS data does not load at all in XML.
+  // If it were tidied through gumbo it does not load well as XML, just a few bits load.
+  // So another approach is taken.
+  // * Split the html up into lines.
+  // * Look for the line with a starting signature depending on the verse number.
+  // * Starting from that line, add several more lines, enough to cover the whole verse.
+  // * Load the resulting block of text into pugixml.
 
+  vector <string> lines = filter_string_explode(html, '\n');
+  string html_fragment {};
+  
+  // Example verse container within the html:
+  // Verse 0:
+  // <p class="summary">...</>
+  // Other verses:
+  // <div class="verse verse-1 active size-change bold-change cursive-change align-change">...
+  string search1 {};
+  string search2 {};
+  if (verse != 0) {
+    search1 = R"(class="verse )";
+    search2 = " verse-" + convert_to_string (verse) + " ";
+  }
+  else {
+    search1 = R"(class="summary")";
+    search2 = search1;
+  }
+
+  int line_count {0};
+  for (const auto & line : lines) {
+    if (!line_count) {
+      size_t pos = line.find (search1);
+      if (pos == string::npos) continue;
+      pos = line.find (search2);
+      if (pos == string::npos) continue;
+      line_count++;
+    }
+    if (line_count) {
+      if (line_count < 100) {
+        line_count++;
+        html_fragment.append (line);
+        html_fragment.append ("\n");
+      } else {
+        line_count = 0;
+      }
+    }
+  }
+  
   // Parse the html into a DOM.
   xml_document document;
-  document.load_string (html.c_str());
+  document.load_string (html_fragment.c_str());
 
   // Example verse container within the XML:
   // Verse 0:
@@ -150,11 +202,11 @@ string gbs_basic_processor (string url, int verse)
   else selector = "//p[@class='summary']";
   xpath_node xpathnode = document.select_node(selector.c_str());
   xml_node div_node = xpathnode.node();
-
+  
   // Extract relevant information.
-  gbs_basic_walker walker;
+  gbs_basic_walker walker {};
   div_node.traverse (walker);
-  for (unsigned int i = 0; i < walker.texts.size(); i++) {
+  for (size_t i {0}; i < walker.texts.size(); i++) {
     if (i) text.append (" ");
     text.append (filter_string_trim(walker.texts[i]));
   }
@@ -166,12 +218,12 @@ string gbs_basic_processor (string url, int verse)
 
 struct gbs_plus_walker: xml_tree_walker
 {
-  vector <string> texts;
-  bool canonical_text = true;
-  bool verse_references = false;
-  string reference_number;
+  vector <string> texts {};
+  bool canonical_text {true};
+  bool verse_references {false};
+  string reference_number {};
 
-  virtual bool for_each (xml_node& node)
+  virtual bool for_each (xml_node& node) override
   {
     xml_node_type nodetype = node.type();
     if (nodetype == node_pcdata) {
@@ -220,10 +272,10 @@ struct gbs_plus_walker: xml_tree_walker
 
 struct gbs_annotation_walker: xml_tree_walker
 {
-  vector <string> texts;
-  bool within_annotations = false;
+  vector <string> texts {};
+  bool within_annotations {false};
 
-  virtual bool for_each (xml_node& node)
+  virtual bool for_each (xml_node& node) override
   {
     xml_node_type nodetype = node.type();
     if (nodetype == node_pcdata) {
@@ -251,24 +303,68 @@ struct gbs_annotation_walker: xml_tree_walker
 // This function displays the canonical text from bijbel-statenvertaling.com.
 string gbs_plus_processor (string url, int book, [[maybe_unused]] int chapter, int verse)
 {
-  string text;
+  string text {};
   
   // Get the html from the server.
-  string html = resource_logic_web_or_cache_get (url, text);
+  string html {resource_logic_web_or_cache_get (url, text)};
 
-  // Tidy the html so it can be loaded as xml.
-  html = filter_string_tidy_invalid_html (html);
+  // The GBS data does not load at all in XML.
+  // If it were tidied through gumbo it does not load well as XML, just a few bits load.
+  // So another approach is taken.
+  // * Split the html up into lines.
+  // * Look for the line with a starting signature depending on the verse number.
+  // * Starting from that line, add several more lines, enough to cover the whole verse.
+  // * Load the resulting block of text into pugixml.
+  
+  vector <string> lines {filter_string_explode(html, '\n')};
+  string html_fragment {};
+  
+  // Example verse container within the html:
+  // Verse 0:
+  // <p class="summary">...</>
+  // Other verses:
+  // <div class="verse verse-1 active size-change bold-change cursive-change align-change">...
+  string search1 {};
+  string search2 {};
+  if (verse != 0) {
+    search1 = R"(class="verse )";
+    search2 = " verse-" + convert_to_string (verse) + " ";
+  }
+  else {
+    search1 = R"(class="summary")";
+    search2 = search1;
+  }
 
-  // Parse the html into a DOM.
-  xml_document document;
-  document.load_string (html.c_str());
+  int line_count {0};
+  for (const auto & line : lines) {
+    if (!line_count) {
+      size_t pos = line.find (search1);
+      if (pos == string::npos) continue;
+      pos = line.find (search2);
+      if (pos == string::npos) continue;
+      line_count++;
+    }
+    if (line_count) {
+      if (line_count < 100) {
+        line_count++;
+        html_fragment.append (line);
+        html_fragment.append ("\n");
+      } else {
+        line_count = 0;
+      }
+    }
+  }
+  
+  // Parse the html fragment into a DOM.
+  xml_document document {};
+  document.load_string (html_fragment.c_str());
 
   // Example verse container within the XML:
   // Verse 0:
   // <p class="summary">...</>
   // Other verses:
   // <div class="verse verse-1 active size-change bold-change cursive-change align-change">...
-  string selector;
+  string selector {};
   if (verse != 0) selector = "//div[contains(@class,'verse-" + convert_to_string (verse) + " ')]";
   else selector = "//p[@class='summary']";
   xpath_node xpathnode = document.select_node(selector.c_str());
@@ -276,21 +372,21 @@ string gbs_plus_processor (string url, int book, [[maybe_unused]] int chapter, i
 
   // Example text:
   // <div class="verse verse-1 active size-change bold-change cursive-change align-change" id="1" onclick="i_toggle_annotation('sv','30217','Hebr.','10','1', '1201')"><span class="verse-number">  1</span><div class="verse-text "><p class="text">      WANT<span class="verwijzing"> a</span><span class="kanttekening">1</span>de wet, hebbende <span class="kanttekening"> 2</span>een schaduw <span class="kanttekening"> 3</span>der toekomende goederen, niet <span class="kanttekening"> 4</span>het beeld zelf der zaken, kan met <span class="kanttekening"> 5</span>dezelfde offeranden die zij alle jaar <span class="kanttekening"> 6</span>geduriglijk opofferen, nimmermeer <span class="kanttekening"> 7</span>heiligen degenen die <span class="kanttekening"> 8</span>daar toegaan.    </p><span class="verse-references"><div class="verse-reference"><span class="reference-number">a </span><a href="/statenvertaling/kolossenzen/2/#17" target="_blank" class="reference" data-title="Kol. 2:17" data-content="Welke zijn een schaduw der toekomende dingen, maar het lichaam is van Christus.">Kol. 2:17</a>. <a href="/statenvertaling/hebreeen/8/#5" target="_blank" class="reference" data-title="Hebr. 8:5" data-content="Welke het voorbeeld en de schaduw der hemelse dingen dienen, gelijk Mozes door Goddelijke aanspraak vermaand was, als hij den tabernakel volmaken zou. Want zie, zegt Hij, dat gij het alles maakt naar de afbeelding die u op den berg getoond is.">Hebr. 8:5</a>.        </div></span></div></div>
-
+  
   // Extract relevant information.
-  gbs_plus_walker walker;
+  gbs_plus_walker walker {};
   div_node.traverse (walker);
-  for (unsigned int i = 0; i < walker.texts.size(); i++) {
+  for (size_t i {0}; i < walker.texts.size(); i++) {
     if (i) text.append (" ");
     text.append (filter_string_trim(walker.texts[i]));
   }
   
   // Get the raw annotations html.
-  string annotation_info = div_node.attribute("onclick").value();
-  vector <string> bits = filter_string_explode(annotation_info, '\'');
+  string annotation_info {div_node.attribute("onclick").value()};
+  vector <string> bits {filter_string_explode(annotation_info, '\'')};
   if (bits.size() >= 13) {
-    string annotation_url = "https://bijbel-statenvertaling.com/includes/ajax/kanttekening.php";
-    map <string, string> post;
+    string annotation_url {"https://bijbel-statenvertaling.com/includes/ajax/kanttekening.php"};
+    map <string, string> post {};
     post ["prefix"] = bits[1];
     post ["verse_id"] = bits[3];
     post ["short_bookname"] = bits[5];
@@ -298,18 +394,18 @@ string gbs_plus_processor (string url, int book, [[maybe_unused]] int chapter, i
     post ["verse"] = bits[9];
     post ["slug_id"] = bits[11];
     post ["book_id"] = convert_to_string(book);
-    string error;
-    string annotation_html = filter_url_http_post (annotation_url, post, error, false, false);
+    string error {};
+    string annotation_html {filter_url_http_post (annotation_url, string(), post, error, false, false, {})};
     if (error.empty()) {
-      annotation_html = filter_string_tidy_invalid_html (annotation_html);
-      xml_document annotation_document;
+      annotation_html = filter_string_fix_invalid_html_gumbo (annotation_html);
+      xml_document annotation_document {};
       annotation_document.load_string (annotation_html.c_str());
-      string selector2 = "//body";
-      xpath_node xpathnode2 = annotation_document.select_node(selector2.c_str());
-      xml_node body_node = xpathnode2.node();
-      stringstream ss;
+      string selector2 {"//body"};
+      xpath_node xpathnode2 {annotation_document.select_node(selector2.c_str())};
+      xml_node body_node {xpathnode2.node()};
+      stringstream ss {};
       body_node.print (ss, "", format_raw);
-      gbs_annotation_walker annotation_walker;
+      gbs_annotation_walker annotation_walker {};
       body_node.traverse (annotation_walker);
       for (auto fragment : annotation_walker.texts) {
         text.append(" ");
@@ -906,18 +1002,18 @@ string resource_external_type (string name)
 // It fetches data either from the cache or from the web via http(s),
 // while optionally updating the cache with the raw web page content.
 // It extracts the relevant snipped from the larger http(s) content.
-string resource_external_cloud_fetch_cache_extract (string name, int book, int chapter, int verse)
+string resource_external_cloud_fetch_cache_extract (const string & name, int book, int chapter, int verse)
 {
-  string (* function_name) (int, int, int) = NULL;
+  string (* function_name) (int, int, int) {nullptr};
 
-  for (unsigned int i = 0; i < resource_external_count (); i++) {
-    string resource = resource_table [i].name;
+  for (unsigned int i {0}; i < resource_external_count (); i++) {
+    string resource {resource_table [i].name};
     if (name == resource) {
       function_name = resource_table [i].func;
     }
   }
   
-  if (function_name == NULL) return string();
+  if (function_name == nullptr) return string();
 
   string result = function_name (book, chapter, verse);
   

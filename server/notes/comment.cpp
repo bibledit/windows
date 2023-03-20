@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@
 #include <navigation/passage.h>
 #include <notes/note.h>
 #include <access/logic.h>
+using namespace std;
 
 
 string notes_comment_url ()
@@ -43,7 +44,7 @@ string notes_comment_url ()
 
 bool notes_comment_acl (void * webserver_request)
 {
-  return access_logic_privilege_create_comment_notes (webserver_request);
+  return access_logic::privilege_create_comment_notes (webserver_request);
 }
 
 
@@ -108,6 +109,6 @@ string notes_comment (void * webserver_request)
   
   view.set_variable ("success", success);
   page += view.render ("notes", "comment");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

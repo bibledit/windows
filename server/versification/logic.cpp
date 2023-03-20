@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #include <versification/logic.h>
 #include <filter/string.h>
 #include <filter/url.h>
+using namespace std;
 
 
 // Get the names of the available versification systems that come with Bibledit.

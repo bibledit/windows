@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -27,12 +27,13 @@
 #include <database/config/bible.h>
 #include <fonts/logic.h>
 #include <quill/logic.h>
+using namespace std;
 
 
-Styles_Css::Styles_Css (void * webserver_request_in, string stylesheet_in)
+Styles_Css::Styles_Css (void * webserver_request, const string & stylesheet)
 {
-  webserver_request = webserver_request_in;
-  stylesheet = stylesheet_in;
+  m_webserver_request = webserver_request;
+  m_stylesheet = stylesheet;
 }
 
 
@@ -53,17 +54,17 @@ void Styles_Css::exports ()
 // Generates the CSS.
 void Styles_Css::generate ()
 {
-  code.push_back (".superscript, [class^='i-note'] { font-size: x-small; vertical-align: super; }");
+  m_code.push_back (".superscript, [class^='i-note'] { font-size: x-small; vertical-align: super; }");
   if (exports_enabled) {
     add_exports_styles ();
   }
   if (editor_enabled) {
     add_editor_styles ();
   }
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  vector <string> markers = request->database_styles ()->getMarkers (stylesheet);
+  Webserver_Request * request = static_cast<Webserver_Request *>(m_webserver_request);
+  vector <string> markers = request->database_styles ()->getMarkers (m_stylesheet);
   for (auto & marker : markers) {
-    Database_Styles_Item style = request->database_styles ()->getMarkerData (stylesheet, marker);
+    Database_Styles_Item style = request->database_styles ()->getMarkerData (m_stylesheet, marker);
     evaluate (&style);
   }
 }
@@ -95,6 +96,7 @@ void Styles_Css::evaluate (void * database_styles_item)
           add (style, true, false);
           break;
         }
+        default: break;
       }
       break;
     }
@@ -131,6 +133,7 @@ void Styles_Css::evaluate (void * database_styles_item)
           add (style, false, false);
           break;
         }
+        default: break;
       }
       break;
     }
@@ -150,9 +153,16 @@ void Styles_Css::evaluate (void * database_styles_item)
           add (style, false, false);
           break;
         }
+        default: break;
       }
       break;
     }
+    case StyleTypePicture:
+    {
+      add (style, true, false);
+      break;
+    }
+    default: break;
   }
 }
 
@@ -165,10 +175,10 @@ void Styles_Css::add (void * database_styles_item, bool paragraph, bool keepwith
 {
   Database_Styles_Item * style = static_cast<Database_Styles_Item *> (database_styles_item);
 
-  string class_ = style->marker;
+  string class_ {style->marker};
 
   // The name of the class as used in a Quill-based editor.
-  string quill_class = ", .";
+  string quill_class {", ."};
   if (paragraph) {
     quill_class.append (quill_logic_class_prefix_block ());
   } else {
@@ -177,16 +187,16 @@ void Styles_Css::add (void * database_styles_item, bool paragraph, bool keepwith
   quill_class.append (class_);
   
   // Start with the class. Notice the dot.
-  code.push_back ("." + class_ + quill_class + " {");
+  m_code.push_back ("." + class_ + quill_class + " {");
   
   // Font size.
   // Since it is html and not pdf for paper, a font size of 12pt is considered to be equal to 100%.
   if (paragraph) {
-    float points = style->fontsize;
-    float percents = points * 100 / 12;
+    float points {style->fontsize};
+    float percents {points * 100 / 12};
     int fontsize = convert_to_int (percents);
     if (fontsize != 100) {
-      code.push_back ("font-size: " + convert_to_string (fontsize) + "%;");
+      m_code.push_back ("font-size: " + convert_to_string (fontsize) + "%;");
     }
   }
   
@@ -199,16 +209,16 @@ void Styles_Css::add (void * database_styles_item, bool paragraph, bool keepwith
   // Italics, bold, underline, small caps can be either ooitOff or ooitOn for a paragraph.
   if (paragraph) {
     if (italic != ooitOff) {
-      code.push_back ("font-style: italic;");
+      m_code.push_back ("font-style: italic;");
     }
     if (bold != ooitOff) {
-      code.push_back ("font-weight: bold;");
+      m_code.push_back ("font-weight: bold;");
     }
     if (underline != ooitOff) {
-      code.push_back ("text-decoration: underline;");
+      m_code.push_back ("text-decoration: underline;");
     }
     if (smallcaps != ooitOff) {
-      code.push_back ("font-variant: small-caps;");
+      m_code.push_back ("font-variant: small-caps;");
     }
   }
   
@@ -217,16 +227,16 @@ void Styles_Css::add (void * database_styles_item, bool paragraph, bool keepwith
   // Not all features have been implemented.
   if (!paragraph) {
     if ((italic == ooitOn) || (italic == ooitToggle)) {
-      code.push_back ("font-style: italic;");
+      m_code.push_back ("font-style: italic;");
     }
     if ((bold == ooitOn) || (bold == ooitToggle)) {
-      code.push_back ("font-weight: bold;");
+      m_code.push_back ("font-weight: bold;");
     }
     if ((underline == ooitOn) || (underline == ooitToggle)) {
-      code.push_back ("text-decoration: underline;");
+      m_code.push_back ("text-decoration: underline;");
     }
     if ((smallcaps == ooitOn) || (smallcaps == ooitToggle)) {
-      code.push_back ("font-variant: small-caps;");
+      m_code.push_back ("font-variant: small-caps;");
     }
   }
   
@@ -241,30 +251,31 @@ void Styles_Css::add (void * database_styles_item, bool paragraph, bool keepwith
     // Text alignment options.
     string alignment;
     switch (style->justification) {
-      case AlignmentLeft:    alignment = ""; break;
-      case AlignmentCenter:  alignment = "center"; break;
-      case AlignmentRight:   alignment = "right"; break;
+      case AlignmentLeft:    alignment = "";        break;
+      case AlignmentCenter:  alignment = "center";  break;
+      case AlignmentRight:   alignment = "right";   break;
       case AlignmentJustify: alignment = "justify"; break;
+      default: break;
     }
     if (alignment != "") {
-      code.push_back ("text-align: " + alignment + ";");
+      m_code.push_back ("text-align: " + alignment + ";");
     }
     
     // Paragraph measurements; given in mm.
     if (spacebefore != "0") {
-      code.push_back ("margin-top: " + spacebefore + "mm;");
+      m_code.push_back ("margin-top: " + spacebefore + "mm;");
     }
     if (spaceafter != "0") {
-      code.push_back ("margin-bottom: " + spaceafter + "mm;");
+      m_code.push_back ("margin-bottom: " + spaceafter + "mm;");
     }
     if (leftmargin != "0") {
-      code.push_back ("margin-left: " + leftmargin + "mm;");
+      m_code.push_back ("margin-left: " + leftmargin + "mm;");
     }
     if (rightmargin != "0") {
-      code.push_back ("margin-right: " + rightmargin + "mm;");
+      m_code.push_back ("margin-right: " + rightmargin + "mm;");
     }
     if (firstlineindent != "0") {
-      code.push_back ("text-indent: " + firstlineindent + "mm;");
+      m_code.push_back ("text-indent: " + firstlineindent + "mm;");
     }
     
     // Columns have not yet been implemented.
@@ -275,7 +286,7 @@ void Styles_Css::add (void * database_styles_item, bool paragraph, bool keepwith
     
     // Keeping text with the next paragraph.
     if (keepwithnext) {
-      code.push_back ("page-break-inside: avoid;");
+      m_code.push_back ("page-break-inside: avoid;");
     }
     
   }
@@ -285,24 +296,24 @@ void Styles_Css::add (void * database_styles_item, bool paragraph, bool keepwith
     
     bool superscript = style->superscript;
     if (superscript) {
-      code.push_back ("font-size: x-small;");
-      code.push_back ("vertical-align: super;");
+      m_code.push_back ("font-size: x-small;");
+      m_code.push_back ("vertical-align: super;");
     }
     
     string color = style->color;
     if (color != "#000000") {
-      code.push_back ("color: " + color + ";");
+      m_code.push_back ("color: " + color + ";");
     }
     
     string backgroundcolor = style->backgroundcolor;
     if (backgroundcolor != "#FFFFFF") {
-      code.push_back ("background-color: " + backgroundcolor + ";");
+      m_code.push_back ("background-color: " + backgroundcolor + ";");
     }
     
   }
   
   // Close style.
-  code.push_back ("}");
+  m_code.push_back ("}");
 }
 
 
@@ -311,7 +322,7 @@ void Styles_Css::add (void * database_styles_item, bool paragraph, bool keepwith
 // The function returns the CSS as a string.
 string Styles_Css::css (string path)
 {
-  string css = filter_string_implode (code, "\n");
+  string css = filter_string_implode (m_code, "\n");
   if (path != "") {
     filter_url_file_put_contents (path, css);
   }
@@ -322,18 +333,18 @@ string Styles_Css::css (string path)
 // This adds the styles for the exports.
 void Styles_Css::add_exports_styles ()
 {
-  code.push_back ("body { }");
-  code.push_back ("p { margin-top: 0; margin-bottom: 0; }");
-  code.push_back ("p.page { page-break-after: always; }");
-  code.push_back ("span.dropcaps { float: left; font-size: 300%; line-height: 0.85em; margin-right: 0.03em; margin-bottom:-0.25em; }");
-  code.push_back ("a { text-decoration: none; background: none; }");
-  code.push_back ("a:visited { color: #5a3696; }");
-  code.push_back ("a:active { color: #faa700; }");
-  code.push_back ("a:hover { text-decoration: underline; }");
-  code.push_back (".breadcrumbs { font-size: normal; }");
-  code.push_back (".navigationbar { font-size: normal; }");
-  code.push_back (".popup { position:absolute; display:none; background-color:lightyellow; border:.1em solid; width:15em; height:auto; padding:1em; font-size:1.5em; text-indent:0em; margin 0.5em 0.5em 0.5em 0.5em; }");
-  code.push_back ("a:hover .popup { display:block; }");
+  m_code.push_back ("body { }");
+  m_code.push_back ("p { margin-top: 0; margin-bottom: 0; }");
+  m_code.push_back ("p.page { page-break-after: always; }");
+  m_code.push_back ("span.dropcaps { float: left; font-size: 300%; line-height: 0.85em; margin-right: 0.03em; margin-bottom:-0.25em; }");
+  m_code.push_back ("a { text-decoration: none; background: none; }");
+  m_code.push_back ("a:visited { color: #5a3696; }");
+  m_code.push_back ("a:active { color: #faa700; }");
+  m_code.push_back ("a:hover { text-decoration: underline; }");
+  m_code.push_back (".breadcrumbs { font-size: normal; }");
+  m_code.push_back (".navigationbar { font-size: normal; }");
+  m_code.push_back (".popup { position:absolute; display:none; background-color:lightyellow; border:.1em solid; width:15em; height:auto; padding:1em; font-size:1.5em; text-indent:0em; margin 0.5em 0.5em 0.5em 0.5em; }");
+  m_code.push_back ("a:hover .popup { display:block; }");
 }
 
 
@@ -346,13 +357,13 @@ void Styles_Css::add_editor_styles ()
 void Styles_Css::customize (const string& bible)
 {
   string cls = Filter_Css::getClass (bible);
-  string font = Fonts_Logic::getTextFont (bible);
-  bool uploaded_font = Fonts_Logic::fontExists (font);
-  font = Fonts_Logic::getFontPath (font);
+  string font = Fonts_Logic::get_text_font (bible);
+  bool uploaded_font = Fonts_Logic::font_exists (font);
+  font = Fonts_Logic::get_font_path (font);
   int direction = Database_Config_Bible::getTextDirection (bible);
-  string css = Filter_Css::getCss (cls, font, direction);
+  string css = Filter_Css::get_css (cls, font, direction);
   if (uploaded_font) css = filter_string_str_replace ("../fonts/", "", css);
-  code.push_back (css);
+  m_code.push_back (css);
 }
 
 

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,13 +31,13 @@ public:
   void create2 ();
   void defaults ();
   void optimize ();
-  void import (const string& name, const string& data);
-  string output (const string& name);
-  void create (const string & name);
-  void erase (const string & name);
-  vector <string> names ();
-  string original ();
-  vector <Passage> translate (const string& input, const string& output, int book, int chapter, int verse);
+  void import (const std::string& name, const std::string& data);
+  std::string output (const std::string& name);
+  void create (const std::string & name);
+  void erase (const std::string & name);
+  std::vector <std::string> names ();
+  std::string original ();
+  std::vector <Passage> translate (const std::string& input, const std::string& output, int book, int chapter, int verse);
 private:
   sqlite3 * connect ();
 };

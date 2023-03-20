@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,9 +23,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <assets/header.h>
 #include <filter/url.h>
 #include <config/globals.h>
+using namespace std;
+
+namespace assets_page {
 
 
-string Assets_Page::header (string title, void * webserver_request)
+string header (const string & title, void * webserver_request)
 {
   Assets_Header header = Assets_Header (title, webserver_request);
   string page = header.run ();
@@ -33,37 +36,39 @@ string Assets_Page::header (string title, void * webserver_request)
 }
 
 
-string Assets_Page::success (string message)
+string success (const string & message)
 {
-  Assets_View view;
+  Assets_View view {};
   view.set_variable ("message", message);
   return view.render ("assets", "success");
 }
 
 
-string Assets_Page::error (string message)
+string error (const string & message)
 {
-  Assets_View view;
+  Assets_View view {};
   view.set_variable ("message", message);
   return view.render ("assets", "error");
 }
 
 
-string Assets_Page::message (string message)
+string message (const string & message)
 {
-  Assets_View view;
+  Assets_View view {};
   view.set_variable ("message", message);
   return view.render ("assets", "message");
 }
 
 
-string Assets_Page::footer ()
+string footer ()
 {
-  string page;
-  Assets_View view;
+  string page {};
+  Assets_View view {};
   page += view.render ("assets", "workspacewrapper_finish");
   page += view.render ("assets", "footer");
   page += view.render ("assets", "xhtml_finish");
   return page;
 }
 
+
+}

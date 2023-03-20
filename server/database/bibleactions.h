@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,12 +27,12 @@ public:
   void create ();
   void clear ();
   void optimize ();
-  void record (string bible, int book, int chapter, string usfm);
-  vector <string> getBibles ();
-  vector <int> getBooks (string bible);
-  vector <int> getChapters (string bible, int book);
-  string getUsfm (string bible, int book, int chapter);
-  void erase (string bible, int book, int chapter);
+  void record (std::string bible, int book, int chapter, std::string usfm);
+  std::vector <std::string> getBibles ();
+  std::vector <int> getBooks (std::string bible);
+  std::vector <int> getChapters (std::string bible, int book);
+  std::string getUsfm (std::string bible, int book, int chapter);
+  void erase (std::string bible, int book, int chapter);
 private:
   const char * filename ();
 };

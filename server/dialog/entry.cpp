@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <assets/view.h>
 #include <assets/page.h>
 #include <filter/url.h>
+using namespace std;
 
 
 // Entry dialog constructor
@@ -63,7 +64,7 @@ string Dialog_Entry::run ()
   Assets_View * view = static_cast<Assets_View *>(assets_view);
   view->set_variable ("base_url", base_url);
   string page = view->render ("dialog", "entry");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }
 

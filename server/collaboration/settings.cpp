@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 #include <collaboration/link.h>
 #include <tasks/logic.h>
 #include <jobs/index.h>
+using namespace std;
 
 
 string collaboration_settings_url ()
@@ -83,6 +84,6 @@ string collaboration_settings (void * webserver_request)
   
   
   page += view.render ("collaboration", "settings");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

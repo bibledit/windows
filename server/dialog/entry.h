@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,13 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 class Dialog_Entry
 {
 public:
-  Dialog_Entry (string url, string question, string value, string submit, string help);
+  Dialog_Entry (std::string url, std::string question, std::string value, std::string submit, std::string help);
   ~Dialog_Entry ();
   Dialog_Entry(const Dialog_Entry&) = delete;
   Dialog_Entry operator=(const Dialog_Entry&) = delete;
-  void add_query (string parameter, string value);
-  string run ();
+  void add_query (std::string parameter, std::string value);
+  std::string run ();
 private:
   void * assets_view {nullptr};
-  string base_url {};
+  std::string base_url {};
 };

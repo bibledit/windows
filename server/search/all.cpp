@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include <notes/note.h>
 #include <search/logic.h>
 #include <menu/logic.h>
+using namespace std;
 
 
 string search_all_url ()
@@ -43,7 +44,7 @@ string search_all_url ()
 bool search_all_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ())) return true;
-  auto [ read, write ] =  AccessBible::Any (webserver_request);
+  auto [ read, write ] =  access_bible::any (webserver_request);
   return read;
 }
 
@@ -55,7 +56,7 @@ string search_all (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate("Search"), request);
-  header.addBreadCrumb (menu_logic_search_menu (), menu_logic_search_text ());
+  header.add_bread_crumb (menu_logic_search_menu (), menu_logic_search_text ());
   page = header.run ();
 
   
@@ -84,10 +85,10 @@ string search_all (void * webserver_request)
   Database_Notes database_notes = Database_Notes (request);
 
   
-  string siteUrl = config_logic_site_url (webserver_request);
+  string siteUrl = config::logic::site_url (webserver_request);
 
   
-  vector <string> bibles = AccessBible::Bibles (request);
+  vector <string> bibles = access_bible::bibles (request);
 
 
   // Search the notes.
@@ -186,7 +187,7 @@ string search_all (void * webserver_request)
   page += view.render ("search", "all");
   
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   
   return page;

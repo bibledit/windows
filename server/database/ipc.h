@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,25 +23,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <config/libraries.h>
 
 
-class Database_Ipc_Item
+struct Database_Ipc_Item
 {
-public:
-  string file;
-  int rowid;
-  string user;
-  string channel;
-  string command;
+  std::string file {};
+  int rowid {0};
+  std::string user {};
+  std::string channel {};
+  std::string command {};
 };
 
 
-class Database_Ipc_Message
+struct Database_Ipc_Message
 {
-public:
-  Database_Ipc_Message ();
-  int id;
-  string channel;
-  string command;
-  string message;
+  int id {0};
+  std::string channel {};
+  std::string command {};
+  std::string message {};
 };
 
 
@@ -50,19 +47,19 @@ class Database_Ipc
 public:
   Database_Ipc (void * webserver_request_in);
   void trim ();
-  void storeMessage (string user, string channel, string command, string message);
-  Database_Ipc_Message retrieveMessage (int id, string user, string channel, string command);
+  void storeMessage (std::string user, std::string channel, std::string command, std::string message);
+  Database_Ipc_Message retrieveMessage (int id, std::string user, std::string channel, std::string command);
   void deleteMessage (int id);
-  string getFocus ();
+  std::string getFocus ();
   Database_Ipc_Message getNote ();
   bool getNotesAlive ();
 private:
-  void * webserver_request;
-  string folder ();
-  string file (string file);
-  vector <Database_Ipc_Item> readData ();
-  void writeRecord (int rowid, string user, string channel, string command, string message);
-  int getNextId (const vector <Database_Ipc_Item> & data);
+  void * webserver_request {nullptr};
+  std::string folder ();
+  std::string file (std::string file);
+  std::vector <Database_Ipc_Item> readData ();
+  void writeRecord (int rowid, std::string user, std::string channel, std::string command, std::string message);
+  int getNextId (const std::vector <Database_Ipc_Item> & data);
 };
 
 

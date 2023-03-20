@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,6 @@
 
 #include <config/libraries.h>
 
-string navigation_poll_url ();
+std::string navigation_poll_url ();
 bool navigation_poll_acl (void * webserver_request);
-string navigation_poll (void * webserver_request);
+std::string navigation_poll (void * webserver_request);

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,6 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <assets/view.h>
 #include <assets/page.h>
 #include <assets/header.h>
+#include <access/logic.h>
+#include <database/config/general.h>
+#include <database/privileges.h>
 #include <session/login.h>
 #include <locale/translate.h>
 #include <webserver/request.h>
@@ -31,20 +34,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <email/send.h>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#ifndef HAVE_PUGIXML
 #include <pugixml/pugixml.hpp>
+#endif
+#ifdef HAVE_PUGIXML
+#include <pugixml.hpp>
+#endif
 #pragma GCC diagnostic pop
 #include <tasks/logic.h>
-
-
+using namespace std;
 using namespace pugi;
 
 
-class Verification
+struct Verification
 {
-public:
-  string question;
-  string answer;
-  string passage;
+  string question {};
+  string answer {};
+  string passage {};
 };
 
 
@@ -69,7 +77,7 @@ string session_signup ([[maybe_unused]] void * webserver_request)
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   Assets_Header header = Assets_Header (translate ("Signup"), webserver_request);
-  header.touchCSSOn ();
+  header.touch_css_on ();
   page += header.run ();
   
   Assets_View view;
@@ -240,52 +248,41 @@ string session_signup ([[maybe_unused]] void * webserver_request)
       node = initial_document.append_child ("h3");
       node.text ().set (initial_subject.c_str());
       string information;
-      if (config_logic_default_bibledit_configuration ()) {
+      if (config::logic::default_bibledit_configuration ()) {
         node = initial_document.append_child ("p");
         information = translate("There is a request to open an account with this email address.");
         node.text ().set (information.c_str());
       }
-      if (config_logic_indonesian_cloud_free ()) {
-        node = initial_document.append_child ("p");
-        information = "Shalom " + user + "!";
-        node.text ().set (information.c_str());
-        node = initial_document.append_child ("p");
-        node.text ().set ("Senang sekali Saudara ingin mendaftar sebagai Tamu Bibledit. Sebelum meng-klik tautan untuk mulai menggunakannya, mohon Saudara membaca berita penting ini:");
-        node = initial_document.append_child ("p");
-        node.text ().set ("• Cara yang terbaik masuk dalam Bibledit Tamu adalah melalui tautan yang terdapat di halaman dasar alkitabkita.info. Dengan demikian Saudara mendapat kesempatan untuk membaca pengumuman di halaman dasar situs kami. Dalam formulir yang terdapat di bagian atas halaman dasar alkitabkita.info isilah:");
-        node = initial_document.append_child ("p");
-        information = "Nama pengguna: " + user;
-        node.text ().set (information.c_str());
-        node = initial_document.append_child ("p");
-        node.text ().set (R"(• Kalau Saudara lupa kata sandi, di halaman login kliklah tautan tentang “Aku lupa kata sandiku!””)");
-        node = initial_document.append_child ("p");
-        node.text ().set ("• Saudara diberi izin untuk menggunakan Bibledit sebagai Tamu selama satu bulan. Ketika bulan tersebut habis, tautan untuk mengunduh hasil terjemahanmu akan dikirim kepada Saudara di alamat email ini.");
-        node = initial_document.append_child ("p");
-        node.text ().set ("• Layanan Tamu Bibledit ini diberikan secara gratis dan Saudara dipersilahkan mendaftar ulang setiap bulan.");
-        node = initial_document.append_child ("p");
-        node.text ().set ("• Simpanlah email ini.");
-      }
-      string initial_body;
+      string initial_body {};
       {
-        stringstream output;
+        stringstream output {};
         initial_document.print (output, "", format_raw);
         initial_body = output.str ();
       }
-      string query;
-      if (config_logic_default_bibledit_configuration ()) {
-        query = database_users.add_userQuery (user, pass, Filter_Roles::member (), mail);
+
+      // Set the role of the new signing up user, it is set as member if no
+      // default has been set by an administrator.
+      int role = Database_Config_General::getDefaultNewUserAccessLevel ();
+
+      string query = database_users.add_userQuery (user, pass, role, mail);
+
+      // Set default privileges on new signing up user.
+      vector <string> defusers = {"defaultguest", "defaultmember", "defaulttranslator", "defaultconsultant", "defaultmanager"};
+      vector <int> privileges = {PRIVILEGE_VIEW_RESOURCES, PRIVILEGE_VIEW_NOTES, PRIVILEGE_CREATE_COMMENT_NOTES};
+      // Subtract one as guest is identified by 0 instead of 1 in the vector.
+      string default_username = defusers[(unsigned)(long)(unsigned)role - 1];
+      for (bool privilege : privileges) {
+        bool state = Database_Privileges::getFeature (default_username, privilege);
+        Database_Privileges::setFeature (user, privilege, state);
       }
-      if (config_logic_indonesian_cloud_free ()) {
-        // The Indonesian free Cloud new account should have the consultant role for things to work well.
-        query = database_users.add_userQuery (user, pass, Filter_Roles::consultant (), mail);
-      }
+
       // Create the contents for the confirmation email
       // that will be sent after the account has been verified.
       string subsequent_subject = translate("Account opened");
       xml_document subsequent_document;
       node = subsequent_document.append_child ("h3");
       node.text ().set (subsequent_subject.c_str());
-      if (config_logic_default_bibledit_configuration ()) {
+      if (config::logic::default_bibledit_configuration ()) {
         node = subsequent_document.append_child ("p");
         information = translate("Welcome!");
         node.text ().set (information.c_str());
@@ -293,7 +290,7 @@ string session_signup ([[maybe_unused]] void * webserver_request)
         information = translate("Your account is now active and you have logged in.");
         node.text ().set (information.c_str());
       }
-      if (config_logic_indonesian_cloud_free ()) {
+      if (config::logic::indonesian_cloud_free ()) {
         node = subsequent_document.append_child ("p");
         information = "Shalom " + user + ",";
         node.text ().set (information.c_str());
@@ -330,7 +327,7 @@ string session_signup ([[maybe_unused]] void * webserver_request)
       }
       // Store the confirmation information in the database.
       confirm_worker.setup (mail, user, initial_subject, initial_body, query, subsequent_subject, subsequent_body);
-      if (config_logic_indonesian_cloud_free ()) {
+      if (config::logic::indonesian_cloud_free ()) {
         // In the Indonesian free Cloud, create the Bible for the user.
         string bible = filter::indonesian::mytranslation (user);
         tasks_logic_queue (CREATEEMPTYBIBLE, {bible});
@@ -345,7 +342,7 @@ string session_signup ([[maybe_unused]] void * webserver_request)
   if (signed_up) page += view.render ("session", "signedup");
   else page += view.render ("session", "signup");
 
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
 
 #endif
 

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include <database/notes.h>
 #include <public/index.h>
 #include <read/index.h>
+using namespace std;
 
 
 string public_note_url ()
@@ -81,12 +82,8 @@ string public_note (void * webserver_request)
   string url_to_index = "index";
   view.set_variable ("url_to_index", url_to_index);
 
-  if (config_logic_indonesian_cloud_free_simple ()) {
-    view.set_variable ("url_to_index", get_base_url (request) + read_index_url ());
-  }
-
   
   page += view.render ("public", "note");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

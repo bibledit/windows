@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,11 +21,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // No longer needed since upgrading the UTF8 library?
 #define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING 1
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING 1
+#pragma GCC diagnostic ignored "-Wunused-macros"
 
 #include <filter/string.h>
 #pragma GCC diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wswitch-default"
 #include <utf8/utf8.h>
 #pragma GCC diagnostic pop
 #include <filter/url.h>
@@ -33,7 +35,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/date.h>
 #include <database/config/general.h>
 #include <database/logs.h>
+#ifdef HAVE_UTF8PROC
+#include <utf8proc.h>
+#else
 #include <utf8proc/utf8proc.h>
+#endif
 #include <config/globals.h>
 #ifdef HAVE_WINDOWS
 #include <codecvt>
@@ -54,8 +60,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <libxml/tree.h>
 #include <libxml/HTMLparser.h>
 #endif
-
-
+#ifdef HAVE_CLOUD
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation"
+#include <gumbo.h>
+#pragma clang diagnostic pop
+#endif
+#ifdef HAVE_CLOUD
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+//#include <tidy.h>
+//#include <tidybuffio.h>
+#include "tidy/tidy.h"
+#include "tidy/tidybuffio.h"
+#pragma clang diagnostic pop
+#endif
+#include <stdio.h>
+#include <errno.h>
+using namespace std;
 #ifdef HAVE_ICU
 using namespace icu;
 #endif
@@ -64,9 +86,9 @@ using namespace icu;
 // A C++ equivalent for PHP's explode function.
 // Split a string on a delimiter.
 // Return a vector of strings.
-vector <string> filter_string_explode (string value, char delimiter)
+std::vector <string> filter_string_explode (string value, char delimiter)
 {
-  vector <string> result;
+  std::vector <string> result;
   istringstream iss (value);
   for (string token; getline (iss, token, delimiter); )
   {
@@ -219,7 +241,7 @@ int convert_to_int (string s)
 
 int convert_to_int (float f)
 {
-  int i = (int)round(f);
+  int i = static_cast<int> (round(f));
   return i;
 }
 
@@ -353,6 +375,21 @@ string filter_string_ltrim (string s)
   // No non-spaces  
   if (pos == string::npos) return "";
   return s.substr (pos);
+}
+
+
+// Right trim string.
+string filter_string_rtrim (string s)
+{
+  if (s.length () == 0) return s;
+  // Strip spaces, tabs, new lines, carriage returns.
+  size_t pos = s.find_last_not_of(" \t\n\r");
+  // No non-spaces
+  if (pos == string::npos) return string();
+  // Erase it.
+  s.erase (pos + 1);
+  // Done.
+  return s;
 }
 
 
@@ -579,7 +616,7 @@ string unicode_string_casefold (string s)
       // Get one UTF-8 character.
       string character = unicode_string_substr (s, pos, 1);
       // Convert it to a Unicode point.
-      const utf8proc_uint8_t *str = (const unsigned char *) (character.c_str ());
+      const utf8proc_uint8_t *str = reinterpret_cast<const unsigned char *> (character.c_str ());
       utf8proc_ssize_t len = static_cast<utf8proc_ssize_t> (character.length ());
       utf8proc_int32_t dst;
       [[maybe_unused]] utf8proc_ssize_t output = utf8proc_iterate (str, len, &dst);
@@ -626,7 +663,7 @@ string unicode_string_uppercase (string s)
       // Get one UTF-8 character.
       string character = unicode_string_substr (s, pos, 1);
       // Convert it to a Unicode point.
-      const utf8proc_uint8_t *str = (const unsigned char *) (character.c_str ());
+      const utf8proc_uint8_t *str = reinterpret_cast<const unsigned char *> (character.c_str ());
       utf8proc_ssize_t len = static_cast<utf8proc_ssize_t> (character.length ());
       utf8proc_int32_t dst;
       [[maybe_unused]] utf8proc_ssize_t output = utf8proc_iterate (str, len, &dst);
@@ -663,10 +700,10 @@ string unicode_string_transliterate (string s)
     size_t string_length = unicode_string_length (s);
     for (unsigned int pos = 0; pos < string_length; pos++) {
       string character = unicode_string_substr (s, pos, 1);
-      const utf8proc_uint8_t *str = (const unsigned char *) (character.c_str ());
+      const utf8proc_uint8_t *str = reinterpret_cast<const unsigned char *> (character.c_str ());
       utf8proc_ssize_t len = static_cast<utf8proc_ssize_t> (character.length ());
       uint8_t *dest;
-      utf8proc_option_t options = (utf8proc_option_t) (UTF8PROC_DECOMPOSE | UTF8PROC_STRIPMARK);
+      utf8proc_option_t options = static_cast<utf8proc_option_t> (UTF8PROC_DECOMPOSE | UTF8PROC_STRIPMARK);
       [[maybe_unused]] auto output = utf8proc_map (str, len, &dest, options);
       stringstream ss;
       ss << dest;
@@ -714,7 +751,7 @@ bool unicode_string_is_punctuation (string s)
     // Be sure to take only one character.
     s = unicode_string_substr (s, 0, 1);
     // Convert the string to a Unicode point.
-    const utf8proc_uint8_t *str = (const unsigned char *) (s.c_str ());
+    const utf8proc_uint8_t *str = reinterpret_cast<const unsigned char *>(s.c_str ());
     utf8proc_ssize_t len = static_cast<utf8proc_ssize_t> (s.length ());
     utf8proc_int32_t codepoint;
     [[maybe_unused]] auto output = utf8proc_iterate (str, len, &codepoint);
@@ -744,7 +781,7 @@ int unicode_string_convert_to_codepoint (string s)
       // Be sure to take only one character.
       s = unicode_string_substr (s, 0, 1);
       // Convert the string to a Unicode point.
-      const utf8proc_uint8_t *str = (const unsigned char *) (s.c_str ());
+      const utf8proc_uint8_t *str = reinterpret_cast<const unsigned char *>(s.c_str ());
       utf8proc_ssize_t len = static_cast<utf8proc_ssize_t> (s.length ());
       utf8proc_int32_t codepoint;
       [[maybe_unused]] auto output = utf8proc_iterate (str, len, &codepoint);
@@ -926,21 +963,21 @@ int filter_string_rand (int floor, int ceiling)
 string filter_string_html2text (string html)
 {
   // Clean the html up.
-  html = filter_string_str_replace ("\n", "", html);
+  html = filter_string_str_replace ("\n", string(), html);
 
   // The output text.
-  string text;
+  string text {};
 
   // Keep going while the html contains the < character.
-  size_t pos = html.find ("<");
+  size_t pos {html.find ("<")};
   while (pos != string::npos) {
     // Add the text before the <.
     text.append (html.substr (0, pos));
     html = html.substr (pos + 1);
     // Certain tags start new lines.
-    string tag1 = unicode_string_casefold (html.substr (0, 1));
-    string tag2 = unicode_string_casefold (html.substr (0, 2));
-    string tag3 = unicode_string_casefold (html.substr (0, 3));
+    string tag1 {unicode_string_casefold (html.substr (0, 1))};
+    string tag2 {unicode_string_casefold (html.substr (0, 2))};
+    string tag3 {unicode_string_casefold (html.substr (0, 3))};
     if  ((tag1 == "p")
       || (tag3 == "div")
       || (tag2 == "li")
@@ -1411,7 +1448,7 @@ int filter_string_user_identifier (void * webserver_request)
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   string username = request->session_logic()->currentUser ();
   string hash = md5 (username).substr (0, 5);
-  int identifier = my_stoi (hash, NULL, 36);
+  int identifier = config::logic::my_stoi (hash, nullptr, 36);
   return identifier;
 }
 
@@ -1441,7 +1478,7 @@ string hex2bin (string hex)
     for (string::const_iterator pos = hex.begin(); pos < hex.end(); pos += 2)
     {
       extract.assign (pos, pos+2);
-      out.push_back (static_cast<char> (my_stoi (extract, nullptr, 16)));
+      out.push_back (static_cast<char> (config::logic::my_stoi (extract, nullptr, 16)));
     }
   }
   return out;
@@ -1663,11 +1700,11 @@ void array_move_from_to (vector <string> & container, size_t from, size_t to)
   to *= 2;
   
   // Remove the item, and insert it by a key that puts it at the desired position.
-  string moving_item = mapped_container [(int)from];
-  mapped_container.erase ((int)from);
+  string moving_item = mapped_container [static_cast<int> (from)];
+  mapped_container.erase (static_cast<int> (from));
   if (move_up) to++;
   else to--;
-  mapped_container [(int)to] = moving_item;
+  mapped_container [static_cast<int> (to)] = moving_item;
   
   // Since the map sorts by key,
   // transfer its data back to the original container.
@@ -1735,7 +1772,8 @@ string filter_text_html_get_element (string html, string element)
 }
 
 
-string filter_string_tidy_invalid_html (string html)
+/*
+string filter_string_tidy_invalid_html_leaking (string html)
 {
   // Everything in the <head> can be left out: It is not relevant.
   filter_string_replace_between (html, "<head>", "</head>", "");
@@ -1750,8 +1788,12 @@ string filter_string_tidy_invalid_html (string html)
   
 #ifdef HAVE_CLOUD
 
+  // This method works via libxml2 and there are many memory leaks each call to this.
+  // It cannot be used for production code.
+  // The leaks are fixable, see the laboratory/tiny code.
+  
   // Create a parser context.
-  htmlParserCtxtPtr parser = htmlCreatePushParserCtxt (NULL, NULL, NULL, 0, NULL, XML_CHAR_ENCODING_UTF8);
+  htmlParserCtxtPtr parser = htmlCreatePushParserCtxt (nullptr, nullptr, nullptr, 0, nullptr, XML_CHAR_ENCODING_UTF8);
   
   // Set relevant options on the parser context.
   htmlCtxtUseOptions(parser, HTML_PARSE_NOBLANKS | HTML_PARSE_NOERROR | HTML_PARSE_NOWARNING | HTML_PARSE_NONET);
@@ -1760,14 +1802,14 @@ string filter_string_tidy_invalid_html (string html)
   // char * data : buffer containing part of the web page
   // int len : number of bytes in data
   // Last argument is 0 if the web page isn't complete, and 1 for the final call.
-  htmlParseChunk(parser, html.c_str(), (int)html.size(), 1);
+  htmlParseChunk(parser, html.c_str(), static_cast<int> (html.size()), 1);
 
   // Extract the fixed html
   if (parser->myDoc) {
     xmlChar *s;
     int size;
     xmlDocDumpMemory(parser->myDoc, &s, &size);
-    html = (char *)s;
+    html = reinterpret_cast<char *> (s);
     xmlFree(s);
   }
   
@@ -1778,16 +1820,471 @@ string filter_string_tidy_invalid_html (string html)
 
   return html;
 }
+*/
+
+
+string nonbreaking_inline_tags {"|a|abbr|acronym|b|bdo|big|cite|code|dfn|em|font|i|img|kbd|nobr|s|small|span|strike|strong|sub|sup|tt|"};
+string empty_tags {"|area|base|basefont|bgsound|br|command|col|embed|event-source|frame|hr|image|img|input|keygen|link|menuitem|meta|param|source|spacer|track|wbr|"};
+string preserve_whitespace_tags {"|pre|textarea|script|style|"};
+string special_handling_tags {"|html|body|"};
+string no_entity_substitution_tags {"|script|style|"};
+string treat_like_inline_tags {"|p|"};
+
+
+static string substitute_xml_entities_into_text(const string &text)
+{
+  string result {text};
+  // Replacing & must come first.
+  result = filter_string_str_replace ("&", "&amp;", result);
+  result = filter_string_str_replace ("<", "&lt;", result);
+  result = filter_string_str_replace (">", "&gt;", result);
+  // Done.
+  return result;
+}
+
+
+static string substitute_xml_entities_into_attributes(char quote, const string &text)
+{
+  string result {substitute_xml_entities_into_text (text)};
+  if (quote == '"') {
+    result = filter_string_str_replace("\"","&quot;", result);
+  }
+  else if (quote == '\'') {
+    result = filter_string_str_replace("'","&apos;", result);
+  }
+  return result;
+}
+
+
+#ifdef HAVE_CLOUD
+static string handle_unknown_tag(GumboStringPiece *text)
+{
+  string tagname {};
+  if (text->data == NULL) {
+    return tagname;
+  }
+  // work with copy GumboStringPiece to prevent asserts
+  // if try to read same unknown tag name more than once
+  GumboStringPiece gsp = *text;
+  gumbo_tag_from_original_text(&gsp);
+  tagname = string(gsp.data, gsp.length);
+  return tagname;
+}
+#endif
+
+
+#ifdef HAVE_CLOUD
+static string get_tag_name(GumboNode *node)
+{
+  string tagname;
+  // work around lack of proper name for document node
+  if (node->type == GUMBO_NODE_DOCUMENT) {
+    tagname = "document";
+  } else {
+    tagname = gumbo_normalized_tagname(node->v.element.tag);
+  }
+  if (tagname.empty()) {
+    tagname = handle_unknown_tag(&node->v.element.original_tag);
+  }
+  return tagname;
+}
+#endif
+
+
+#ifdef HAVE_CLOUD
+static string build_doctype(GumboNode *node)
+{
+  string results {};
+  if (node->v.document.has_doctype) {
+    results.append("<!DOCTYPE ");
+    results.append(node->v.document.name);
+    string pi(node->v.document.public_identifier);
+    if ((node->v.document.public_identifier != NULL) && !pi.empty() ) {
+      results.append(" PUBLIC \"");
+      results.append(node->v.document.public_identifier);
+      results.append("\" \"");
+      results.append(node->v.document.system_identifier);
+      results.append("\"");
+    }
+    results.append(">\n");
+  }
+  return results;
+}
+#endif
+
+
+#ifdef HAVE_CLOUD
+static string build_attributes(GumboAttribute * at, bool no_entities)
+{
+  string atts {};
+  atts.append (" ");
+  atts.append (at->name);
+  
+  // how do we want to handle attributes with empty values
+  // <input type="checkbox" checked />  or <input type="checkbox" checked="" />
+  
+  if ( (!string(at->value).empty())   ||
+      (at->original_value.data[0] == '"') ||
+      (at->original_value.data[0] == '\'') ) {
+    
+    // determine original quote character used if it exists
+    char quote = at->original_value.data[0];
+    string qs = "";
+    if (quote == '\'') qs = string("'");
+    if (quote == '"') qs = string("\"");
+    
+    atts.append("=");
+    
+    atts.append(qs);
+    
+    if (no_entities) {
+      atts.append(at->value);
+    } else {
+      atts.append(substitute_xml_entities_into_attributes(quote, string(at->value)));
+    }
+    
+    atts.append(qs);
+  }
+  return atts;
+}
+#endif
+
+
+// Forward declaration
+#ifdef HAVE_CLOUD
+static string pretty_print (GumboNode*, int lvl, const string & indent_chars);
+#endif
+
+
+// Pretty-print children of a node. May be invoked recursively.
+#ifdef HAVE_CLOUD
+static string pretty_print_contents (GumboNode* node, int lvl, const string & indent_chars)
+{
+  string contents {};
+  string tagname {get_tag_name(node)};
+  string key {"|" + tagname + "|"};
+  bool no_entity_substitution {no_entity_substitution_tags.find(key) != string::npos};
+  bool keep_whitespace {preserve_whitespace_tags.find(key) != string::npos};
+  bool is_inline {nonbreaking_inline_tags.find(key) != string::npos};
+  bool pp_okay {!is_inline && !keep_whitespace};
+  
+  GumboVector* children {&node->v.element.children};
+  
+  for (unsigned int i {0}; i < children->length; ++i) {
+    GumboNode* child = static_cast<GumboNode*> (children->data[i]);
+    
+    if (child->type == GUMBO_NODE_TEXT) {
+      
+      string val {};
+      
+      if (no_entity_substitution) {
+        val = string(child->v.text.text);
+      } else {
+        val = substitute_xml_entities_into_text(string(child->v.text.text));
+      }
+      
+      if (pp_okay) {
+        val = filter_string_rtrim(val);
+      }
+      
+      if (pp_okay && (contents.length() == 0)) {
+        // Add the required indentation.
+        char c {indent_chars.at(0)};
+        size_t n {indent_chars.length()};
+        contents.append (string (static_cast<size_t>(lvl-1)*n,c));
+      }
+      
+      contents.append (val);
+      
+      
+    } else if ((child->type == GUMBO_NODE_ELEMENT) || (child->type == GUMBO_NODE_TEMPLATE)) {
+      
+      string val = pretty_print(child, lvl, indent_chars);
+      
+      // Remove any indentation if this child is inline and not a first child.
+      string childname = get_tag_name(child);
+      string childkey = "|" + childname + "|";
+      if ((nonbreaking_inline_tags.find(childkey) != string::npos) && (contents.length() > 0)) {
+        val = filter_string_ltrim(val);
+      }
+      
+      contents.append(val);
+      
+    } else if (child->type == GUMBO_NODE_WHITESPACE) {
+      
+      if (keep_whitespace || is_inline) {
+        contents.append(string(child->v.text.text));
+      }
+      
+    } else if (child->type != GUMBO_NODE_COMMENT) {
+      
+      // Does this actually exist: (child->type == GUMBO_NODE_CDATA)
+      fprintf(stderr, "unknown element of type: %d\n", child->type);
+      
+    }
+    
+  }
+  
+  return contents;
+}
+#endif
+
+
+// Pretty-print a GumboNode back to html/xhtml. May be invoked recursively
+#ifdef HAVE_CLOUD
+static string pretty_print(GumboNode* node, int lvl, const string & indent_chars)
+{
+  // Special case: The document node.
+  if (node->type == GUMBO_NODE_DOCUMENT) {
+    string results {build_doctype(node)};
+    results.append(pretty_print_contents (node, lvl + 1, indent_chars));
+    return results;
+  }
+  
+  string close {};
+  string closeTag {};
+  string attributes {};
+  string tagname {get_tag_name(node)};
+  string key {"|" + tagname + "|"};
+  //bool need_special_handling {special_handling.find(key) != string::npos};
+  bool is_empty_tag {empty_tags.find(key) != string::npos};
+  bool no_entity_substitution {no_entity_substitution_tags.find(key) != string::npos};
+  bool keep_whitespace {preserve_whitespace_tags.find(key) != string::npos};
+  bool is_inline {nonbreaking_inline_tags.find(key) != string::npos};
+  bool inline_like {treat_like_inline_tags.find(key) != string::npos};
+  bool pp_okay {!is_inline && !keep_whitespace};
+  char c {indent_chars.at(0)};
+  size_t n {indent_chars.length()};
+  
+  // Build the attr string.
+  const GumboVector * attribs {&node->v.element.attributes};
+  for (unsigned int i = 0; i < attribs->length; ++i) {
+    GumboAttribute * gumbo_attribute {static_cast<GumboAttribute*>(attribs->data[i])};
+    attributes.append (build_attributes (gumbo_attribute, no_entity_substitution));
+  }
+  
+  // Determine the closing tag type.
+  if (is_empty_tag) {
+    close = "/";
+  } else {
+    closeTag = "</" + tagname + ">";
+  }
+  
+  string indent_space {string (static_cast<size_t>(lvl-1)*n,c)};
+  
+  // Pretty print the contents.
+  string contents {pretty_print_contents(node, lvl+1, indent_chars)};
+  
+//  if (need_special_handling) {
+//    contents = filter_string_rtrim(contents);
+//  }
+  
+  char last_char = ' ';
+  if (!contents.empty()) {
+    last_char = contents.at (contents.length() - 1);
+  }
+  
+  // Build the results.
+  string results;
+  if (pp_okay) {
+    results.append(indent_space);
+  }
+  results.append("<"+tagname+attributes+close+">");
+  if (pp_okay && !inline_like) {
+    results.append("\n");
+  }
+//  if (inline_like) {
+//    contents = filter_string_ltrim(contents);
+//  }
+  results.append(contents);
+  if (pp_okay && !contents.empty() && (last_char != '\n') && (!inline_like)) {
+    results.append("\n");
+  }
+  if (pp_okay && !inline_like && !closeTag.empty()) {
+    results.append(indent_space);
+  }
+  results.append(closeTag);
+  if (pp_okay && !closeTag.empty()) {
+    results.append("\n");
+  }
+  
+  return results;
+}
+#endif
+
+
+string filter_string_fix_invalid_html_gumbo (string html)
+{
+  // Everything in the <head> can be left out: It is not relevant.
+  filter_string_replace_between (html, "<head>", "</head>", string());
+  
+  // Every <script...</script> can be left out: They are irrelevant.
+  int counter {0};
+  while (counter < 100) {
+    counter++;
+    bool replaced = filter_string_replace_between (html, "<script", "</script>", string());
+    if (!replaced) break;
+  }
+  
+#ifdef HAVE_CLOUD
+
+  // https://github.com/google/gumbo-parser
+  GumboOptions options {kGumboDefaultOptions};
+  GumboOutput* output = gumbo_parse_with_options(&options, html.data(), html.length());
+  string indent_chars {" "};
+  html = pretty_print (output->document, 0, indent_chars);
+  gumbo_destroy_output (&options, output);
+  
+#endif
+  
+  return html;
+}
+
+
+string filter_string_fix_invalid_html_tidy (string html)
+{
+#ifdef HAVE_CLOUD
+
+  // The buffers.
+  TidyBuffer output {};
+  memset (&output, 0, sizeof(TidyBuffer));
+  TidyBuffer errbuf {};
+  memset (&errbuf, 0, sizeof(TidyBuffer));
+  
+  // Initialize the document.
+  TidyDoc tdoc = tidyCreate();
+  
+  // Set a few options.
+  tidyOptSetBool (tdoc, TidyXmlOut, yes);
+  tidyOptSetBool (tdoc, TidyHideComments, yes);
+  tidyOptSetBool (tdoc, TidyJoinClasses, yes);
+  tidyOptSetBool (tdoc, TidyBodyOnly, yes);
+
+  // Capture diagnostics.
+  int rc = tidySetErrorBuffer (tdoc, &errbuf);
+
+  // Parse the input.
+  if (rc >= 0) rc = tidyParseString (tdoc, html.c_str());
+
+  // Tidy it up.
+  if (rc >= 0) rc = tidyCleanAndRepair (tdoc);
+
+  // Run the diagnostics.
+  if (rc >= 0) rc = tidyRunDiagnostics (tdoc);
+  // If error, force output.
+  if (rc > 1) rc = (tidyOptSetBool (tdoc, TidyForceOutput, yes) ? rc : -1);
+
+  // Pretty print.
+  if (rc >= 0) rc = tidySaveBuffer (tdoc, &output);
+  
+  if (rc >= 0) {
+    if (rc > 0) {
+//      cerr << "Html tidy diagnostics:" << endl;
+//      cerr << errbuf.bp << endl;
+    }
+//    cout << "Html tidy result:" << endl;
+//    cout << output.bp << endl;
+    html = string (reinterpret_cast<char const*>(output.bp));
+  }
+  else {
+    Database_Logs::log("A severe error occurred while tidying html - code " + to_string(rc) + " - html: " + html);
+  }
+  
+  // Release memory.
+  tidyBufFree (&output);
+  tidyBufFree (&errbuf);
+  tidyRelease (tdoc);
+
+#endif
+
+  // Done.
+  return html;
+}
 
 
 string filter_string_collapse_whitespace (string s)
 {
   int count;
-  int iterator = 0;
+  int iterator {0};
   do {
     count = 0;
     s = filter_string_str_replace ("  ", " ", s, &count);
     iterator++;
   } while ((count > 0) && iterator < 5);
   return s;
+}
+
+
+std::string convert_windows1252_to_utf8 (const std::string& input)
+{
+  // Convert the encoding.
+  string utf8 {};
+  utf8::utf16to8(input.begin(), input.end(), back_inserter(utf8));
+
+  // Handle weird conversions.
+  utf8 = filter_string_str_replace ("￯﾿ﾽ", "'", utf8);
+
+  // Pass it to the caller.
+  return utf8;
+
+  // It could be done through the iconv library.
+  // in the way that the iconv binary does it.
+  // 1, Remove the meta information from the html head.
+  // 2. iconv -f CP1252 -t UTF-8 ./john-ma-lbw2.htm > john-ma-lbw3.htm
+  // But libiconv-dev is not available as a Debian package.
+  // So eventually libiconv was not used.
+
+  // The conversion descriptor for converting WINDOWS-1252 -> UTF-8.
+  //iconv_t conversion_descriptor = iconv_open ("UTF-8", "CP1252");
+  //if (conversion_descriptor == (iconv_t)(-1)) {
+  //  throw std::runtime_error("Cannot open converter from Windows-1252 to UTF-8");
+  //}
+    
+  // The pointer to the input buffer.
+  //char* input_pointer = const_cast<char*>(input.c_str());
+    
+  // The output buffer.
+  //constexpr int outbuf_size {10000}; // make it dynamic.
+  //unsigned char outbuf[outbuf_size];
+  //memset(outbuf, 0, outbuf_size);
+  //char *outptr = (char*) outbuf;
+  
+  // The number of bytes left in the input and output buffers.
+  //size_t input_bytes_left {input.length()};
+  //size_t output_bytes_left {outbuf_size};
+
+  // Repeat converting and handling unconvertible characters.
+  //while (input_bytes_left > 0) {
+    // Do the conversion.
+    //size_t result = iconv(conversion_descriptor, &input_pointer, &input_bytes_left, &outptr, &output_bytes_left);
+    //if (result == (size_t)(-1)) {
+      // Handle situation that an invalid multibyte sequence is encountered in the input.
+      // In this case the input pointer is left pointing to
+      // the beginning of the invalid multibyte sequence.
+      //if (errno == EILSEQ) {
+      //  int one = 1;
+      //  iconvctl (conversion_descriptor, ICONV_SET_DISCARD_ILSEQ, &one);
+      //} else if (errno == EINVAL) {
+      //  int one = 1;
+      //  iconvctl (conversion_descriptor, ICONV_SET_DISCARD_ILSEQ, &one);
+      //} else if (errno == E2BIG) {
+      //  input_bytes_left = 0;
+      //} else {
+      //  input_bytes_left = 0;
+      //}
+    //}
+  //}
+  
+  // Close the conversion descriptor.
+  //iconv_close(conversion_descriptor);
+  
+  // Assemble the resulting UTF-8 text.
+  //std::string utf8 {};
+  //utf8.assign ((char*)outbuf, outbuf_size - output_bytes_left);
+  
+  // Handle weird conversions.
+  //utf8 = filter_string_str_replace ("ï¿½", "'", utf8);
+  
+  // Pass it to the caller.
+  //return utf8;
 }

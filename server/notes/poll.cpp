@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include <ipc/notes.h>
 #include <access/logic.h>
 #include <developer/logic.h>
+using namespace std;
 
 
 string notes_poll_url ()
@@ -39,7 +40,7 @@ string notes_poll_url ()
 
 bool notes_poll_acl (void * webserver_request)
 {
-  return access_logic_privilege_view_notes (webserver_request);
+  return access_logic::privilege_view_notes (webserver_request);
 }
 
 

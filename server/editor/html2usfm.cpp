@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include <database/logs.h>
 #include <pugixml/utils.h>
 #include <quill/logic.h>
+using namespace std;
 
 
 void Editor_Html2Usfm::load (string html)
@@ -141,10 +142,17 @@ void Editor_Html2Usfm::processNode (xml_node node)
       currentLine += text;
       break;
     }
+    case node_null:
+    case node_document:
+    case node_comment:
+    case node_pi:
+    case node_declaration:
+    case node_doctype:
+    case node_cdata:
     default:
     {
       string nodename = node.name ();
-      Database_Logs::log ("Unknown XML node " + nodename + " while saving editor text");
+      Database_Logs::log ("XML node " + nodename + " not handled while saving editor text");
       break;
     }
   }

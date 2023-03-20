@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/logs.h>
 #include <versification/logic.h>
 #include <locale/logic.h>
+using namespace std;
 
 
 // This is a database for the versification systems.
@@ -102,7 +103,7 @@ void Database_Versifications::input (const string& contents, const string& name)
     // Remove the last bit so it remains with the book, and get that book.
     bits.pop_back();
     string passage_book_string = filter_string_implode(bits, " ");
-    int book = Database_Books::getIdFromEnglish(passage_book_string);
+    int book = static_cast<int>(database::books::get_id_from_english(passage_book_string));
     // Check result.
     if ((book == 0) || (chapter == 0)) {
       Database_Logs::log ("Malformed versification entry: " + line);
@@ -133,7 +134,7 @@ string Database_Versifications::output (const string& name)
   vector <string> lines;
   vector <Passage> versification_data = getBooksChaptersVerses (name);
   for (Passage & passage : versification_data) {
-    string line = Database_Books::getEnglishFromId (passage.m_book);
+    string line = database::books::get_english_from_id (static_cast<book_id>(passage.m_book));
     line.append (" ");
     line.append (convert_to_string (passage.m_chapter));
     line.append (":");

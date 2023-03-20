@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <filter/date.h>
 #include <config/globals.h>
+using namespace std;
 
 
 // Takes a month from 1 to 12, and returns its localized name.
@@ -41,8 +42,9 @@ string locale_logic_month (int month)
     case 10: return translate ("October");
     case 11: return translate ("November");
     case 12: return translate ("December");
+    default: translate ("Month") + " " + convert_to_string (month);
   }
-  return translate ("Month") + " " + convert_to_string (month);
+  return string();
 }
 
 
@@ -102,9 +104,9 @@ map <string, string> locale_logic_localizations ()
 }
 
 
-map <string, string> locale_logic_read_po (string file)
+unordered_map <string, string> locale_logic_read_msgid_msgstr (string file)
 {
-  map <string, string> translations;
+  unordered_map <string, string> translations;
   string contents = filter_url_file_get_contents (file);
   vector <string> lines = filter_string_explode (contents, '\n');
   string msgid;

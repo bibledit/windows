@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include <menu/logic.h>
 #include <ipc/focus.h>
 #include <navigation/passage.h>
+using namespace std;
 
 
 string workspace_index_url ()
@@ -97,8 +98,8 @@ string workspace_index (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate("Workspace"), request);
-  header.setNavigator ();
-  header.setFadingMenu (menu_logic_workspace_category (webserver_request));
+  header.set_navigator ();
+  header.set_fading_menu (menu_logic_workspace_category (webserver_request));
   page = header.run ();
   Assets_View view;
 
@@ -143,7 +144,7 @@ string workspace_index (void * webserver_request)
   
   // The rendered template disables framekillers through the "sandbox" attribute on the iframe elements.
   page += view.render ("workspace", "index");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }
 

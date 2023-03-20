@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include <locale/translate.h>
 #include <assets/external.h>
 #include <database/logic.h>
+using namespace std;
 
 
 // Returns whether Client mode is enabled.
@@ -55,7 +56,7 @@ void client_logic_enable_client (bool enable)
 // $address is the website.
 // $port is the port number.
 // $path is the path after the website.
-string client_logic_url (string address, int port, string path)
+string client_logic_url (const string & address, int port, const string & path)
 {
   return address + ":" + convert_to_string (port) + "/" + path;
 }
@@ -67,11 +68,11 @@ string client_logic_url (string address, int port, string path)
 // It returns an empty string in case of failure or the response from the server.
 string client_logic_connection_setup (string user, string hash)
 {
-  Database_Users database_users;
+  Database_Users database_users {};
   
   if (user.empty ()) {
     vector <string> users = database_users.get_users ();
-    if (users.empty()) return "";
+    if (users.empty()) return string();
     user = users [0];
     hash = database_users.get_md5 (user);
   }
@@ -83,7 +84,7 @@ string client_logic_connection_setup (string user, string hash)
   
   string url = client_logic_url (address, port, sync_setup_url ()) + "?user=" + encoded_user + "&pass=" + hash;
   
-  string error;
+  string error {};
   string response = filter_url_http_get (url, error, true);
   int iresponse = convert_to_int (response);
   
@@ -96,6 +97,20 @@ string client_logic_connection_setup (string user, string hash)
     }
   } else {
     Database_Logs::log (error, Filter_Roles::translator ());
+    // In case Bibledit Cloud requires the client to connect through https,
+    // and the client connects through http,
+    // it will give a response code 426 plus text.
+    // So in such a case clarify the meaning of that to the user.
+    // https://github.com/bibledit/cloud/issues/829.
+    string upgrade_required = filter_url_http_response_code_text (426);
+    size_t pos = error.find (upgrade_required);
+    if (pos != string::npos) {
+      // Since the error code ends without a full stop, add a full stop to it first.
+      error.append (". ");
+      // Add a good explanation to the error code so the user knows what to do if this error occurs.
+      error.append ("Bibledit Cloud requires the client to connect via the secure https protocol. The client now tried to connect through the insecure http protocol. If connected, please disconnect from Bibledit Cloud and connect again via https. Use the secure port number instead of the insecure port number. Usually the secure port number is the insecure port number plus one.");
+      Database_Logs::log (error, Filter_Roles::translator ());
+    }
   }
   
   if (response.empty ()) response = error;
@@ -103,10 +118,10 @@ string client_logic_connection_setup (string user, string hash)
 }
 
 
-string client_logic_create_note_encode (string bible, int book, int chapter, int verse,
-                                        string summary, string contents, bool raw)
+string client_logic_create_note_encode (const string & bible, int book, int chapter, int verse,
+                                        const string & summary, const string & contents, bool raw)
 {
-  vector <string> data;
+  vector <string> data {};
   data.push_back (bible);
   data.push_back (convert_to_string (book));
   data.push_back (convert_to_string (chapter));
@@ -118,7 +133,7 @@ string client_logic_create_note_encode (string bible, int book, int chapter, int
 }
 
 
-void client_logic_create_note_decode (string data,
+void client_logic_create_note_decode (const string & data,
                                       string& bible, int& book, int& chapter, int& verse,
                                       string& summary, string& contents, bool& raw)
 {
@@ -155,8 +170,8 @@ void client_logic_create_note_decode (string data,
 // It displays the $linktext.
 string client_logic_link_to_cloud (string path, string linktext)
 {
-  string url;
-  string external;
+  string url {};
+  string external {};
   if (client_logic_client_enabled ()) {
     string address = Database_Config_General::getServerAddress ();
     int port = Database_Config_General::getServerPort ();
@@ -180,7 +195,7 @@ string client_logic_link_to_cloud (string path, string linktext)
     linktext = url;
   }
   
-  stringstream link;
+  stringstream link {};
   link << "<a href=" << quoted(url) << external << ">" << linktext << "</a>";
   return link.str();
 }
@@ -199,7 +214,7 @@ void client_logic_usfm_resources_update ()
   // It is stored in the client files area.
   // Clients can access it from there.
   string path = client_logic_usfm_resources_path ();
-  Database_UsfmResources database_usfmresources;
+  Database_UsfmResources database_usfmresources {};
   vector <string> resources = database_usfmresources.getResources ();
   filter_url_file_put_contents (path, filter_string_implode (resources, "\n"));
 }

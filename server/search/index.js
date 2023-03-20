@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,6 +29,15 @@ $(document).ready (function () {
   $ ("#searchbutton").on ("click", function (event) {
     startSearch ();
   });
+  
+  // Listens for bibleselect option tags value change to update the active Bible.
+  var bibleSelectionElement = document.querySelector ("#bibleselect");
+  bibleSelectionElement.addEventListener ('change', () => {
+    $.post ("index", { bibleselect: bibleSelectionElement.value })
+      .done (function() { window.location.reload () });
+    }
+  );
+  
 });
 
 

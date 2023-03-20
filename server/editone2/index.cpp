@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@
 #include <config/globals.h>
 #include <workspace/logic.h>
 #include <demo/logic.h>
+using namespace std;
 
 
 string editone2_index_url ()
@@ -54,11 +55,8 @@ bool editone2_index_acl (void * webserver_request)
 {
   // Default minimum role for getting access.
   int minimum_role = Filter_Roles::translator ();
-  if (config_logic_indonesian_cloud_free ()) {
-    minimum_role = Filter_Roles::consultant ();
-  }
   if (Filter_Roles::access_control (webserver_request, minimum_role)) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return read;
 }
 
@@ -76,42 +74,21 @@ string editone2_index (void * webserver_request)
     Navigation_Passage::record_history (request, switchbook, switchchapter, 1);
   }
 
-  if (config_logic_indonesian_cloud_free ()) {
-    // See issue https://github.com/bibledit/cloud/issues/503
-    // Specific configuration for the Indonesian free Cloud instance.
-    // The name of the default Bible in the Translate tab will be another Bible than AlkitabKita.
-    // Standard it will be Terjemahanku (My Translation).
-    // When the user changed that to another name, the editor will load that other name.
-    {
-      vector <string> bibles = AccessBible::Bibles (request);
-      string selected_bible;
-      for (auto bible : bibles) {
-        if (bible != filter::indonesian::ourtranslation ()) selected_bible = bible;
-      }
-      if (selected_bible.empty ()) {
-        // No Bible selected yet: Create the Indonesian Sample Bible and take that.
-        string user = request->session_logic ()->currentUser ();
-        selected_bible = filter::indonesian::mytranslation (user);
-        bible_logic_create_empty_bible (selected_bible);
-      }
-      request->database_config_user()->setBible (selected_bible);
-    }
-  }
-
   // Set the user chosen Bible as the current Bible.
   if (request->post.count ("bibleselect")) {
     string bibleselect = request->post ["bibleselect"];
     request->database_config_user ()->setBible (bibleselect);
+    return string();
   }
 
   string page;
   
   Assets_Header header = Assets_Header (translate("Edit verse"), request);
-  header.setNavigator ();
-  header.setEditorStylesheet ();
-  if (touch) header.jQueryTouchOn ();
-  header.notifItOn ();
-  header.addBreadCrumb (menu_logic_translate_menu (), menu_logic_translate_text ());
+  header.set_navigator ();
+  header.set_editor_stylesheet ();
+  if (touch) header.jquery_touch_on ();
+  header.notify_it_on ();
+  header.add_bread_crumb (menu_logic_translate_menu (), menu_logic_translate_text ());
   page = header.run ();
   
   Assets_View view;
@@ -120,10 +97,10 @@ string editone2_index (void * webserver_request)
   // Or if the user have used query to preset the active Bible, get the preset Bible.
   // If needed, change Bible to one it has read access to.
   // Set the chosen Bible on the option HTML tag.
-  string bible = AccessBible::Clamp (request, request->database_config_user()->getBible ());
-  if (request->query.count ("bible")) bible = AccessBible::Clamp (request, request->query ["bible"]);
+  string bible = access_bible::clamp (request, request->database_config_user()->getBible ());
+  if (request->query.count ("bible")) bible = access_bible::clamp (request, request->query ["bible"]);
   string bible_html;
-  vector <string> bibles = AccessBible::Bibles (request);
+  vector <string> bibles = access_bible::bibles (request);
   for (auto selectable_bible : bibles) {
     bible_html = Options_To_Select::add_selection (selectable_bible, selectable_bible, bible_html);
   }
@@ -145,29 +122,26 @@ string editone2_index (void * webserver_request)
   "var oneverseEditorVerseUpdatedLoaded = '" + locale_logic_text_reload () + "';\n"
   "var verticalCaretPosition = " + convert_to_string (verticalCaretPosition) + ";\n"
   "var verseSeparator = '" + Database_Config_General::getNotesVerseSeparator () + "';\n";
-  config_logic_swipe_enabled (webserver_request, script);
+  config::logic::swipe_enabled (webserver_request, script);
   view.set_variable ("script", script);
 
-  string cls = Filter_Css::getClass (bible);
-  string font = Fonts_Logic::getTextFont (bible);
+  string custom_class = Filter_Css::getClass (bible);
+  string font = Fonts_Logic::get_text_font (bible);
   int current_theme_index = request->database_config_user ()->getCurrentTheme ();
   int direction = Database_Config_Bible::getTextDirection (bible);
   int lineheight = Database_Config_Bible::getLineHeight (bible);
   int letterspacing = Database_Config_Bible::getLetterSpacing (bible);
   view.set_variable ("editor_theme_color", Filter_Css::theme_picker (current_theme_index, 2));
   view.set_variable ("active_editor_theme_color", Filter_Css::theme_picker (current_theme_index, 3));
-  view.set_variable ("custom_class", cls);
-  view.set_variable ("custom_css", Filter_Css::getCss (cls,
-                                                       Fonts_Logic::getFontPath (font),
-                                                       direction,
-                                                       lineheight,
-                                                       letterspacing));
+  view.set_variable ("custom_class", custom_class);
+  string custom_css = Filter_Css::get_css (custom_class,
+                                          Fonts_Logic::get_font_path (font),
+                                          direction, lineheight, letterspacing);
+  view.set_variable ("custom_css", custom_css);
+
   
   // Whether to enable fast Bible editor switching.
   if (request->database_config_user ()->getFastEditorSwitchingAvailable ()) {
-    view.enable_zone ("fastswitcheditor");
-  }
-  if (config_logic_indonesian_cloud_free ()) {
     view.enable_zone ("fastswitcheditor");
   }
 
@@ -178,7 +152,7 @@ string editone2_index (void * webserver_request)
   
   page += view.render ("editone2", "index");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

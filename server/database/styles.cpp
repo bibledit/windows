@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <locale/translate.h>
 #include <styles/logic.h>
 #include <database/logic.h>
+using namespace std;
 
 
 // This is the database for the styles.
@@ -670,34 +671,3 @@ void Database_Styles::cache_defaults ()
 }
 
 
-Database_Styles_Item::Database_Styles_Item ()
-{
-  // Defaults.
-  type = 0;
-  subtype = 0;
-  fontsize = 12;
-  italic = 0;
-  bold = 0;
-  underline = 0;
-  smallcaps = 0;
-  superscript = 0;
-  justification = 0;
-  spacebefore = 0;
-  spaceafter = 0;
-  leftmargin = 0;
-  rightmargin = 0;
-  firstlineindent = 0;
-  spancolumns = false;
-  color = "#000000";
-  print = false;
-  userbool1 = false;
-  userbool2 = false;
-  userbool3 = false;
-  userint1 = 0;
-  userint2 = 0;
-  userint3 = 0;
-  userstring1 = "";
-  userstring2 = "";
-  userstring3 = "";
-  backgroundcolor = "#FFFFFF";
-}

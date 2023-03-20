@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include <sync/logic.h>
 #include <checksum/logic.h>
 #include <config/globals.h>
+using namespace std;
 
 
 string sync_changes_url ()
@@ -130,6 +131,7 @@ string sync_changes (void * webserver_request)
       // Result.
       return filter_string_implode (lines, "\n");
     }
+    default: {};
   }
 
   

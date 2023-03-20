@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@
 #include <assets/header.h>
 #include <menu/logic.h>
 #include <bb/manage.h>
+using namespace std;
 
 
 string bible_book_url ()
@@ -57,30 +58,30 @@ string bible_book (void * webserver_request)
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
-  string page;
+  string page {};
   
   Assets_Header header = Assets_Header (translate("Book"), webserver_request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.addBreadCrumb (bible_manage_url (), menu_logic_bible_manage_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (bible_manage_url (), menu_logic_bible_manage_text ());
   page = header.run ();
   
-  Assets_View view;
+  Assets_View view {};
   
-  string success_message;
-  string error_message;
+  string success_message {};
+  string error_message {};
   
   // The name of the Bible.
-  string bible = AccessBible::Clamp (request, request->query["bible"]);
+  string bible = access_bible::clamp (request, request->query["bible"]);
   view.set_variable ("bible", escape_special_xml_characters (bible));
   
   // The book.
   int book = convert_to_int (request->query ["book"]);
   view.set_variable ("book", convert_to_string (book));
-  string book_name = Database_Books::getEnglishFromId (book);
+  string book_name = database::books::get_english_from_id (static_cast<book_id>(book));
   view.set_variable ("book_name", escape_special_xml_characters (book_name));
   
   // Whether the user has write access to this Bible book.
-  bool write_access = AccessBible::BookWrite (request, string(), bible, book);
+  bool write_access = access_bible::book_write (request, string(), bible, book);
   if (write_access) view.enable_zone ("write_access");
   
   // Delete chapter.
@@ -95,7 +96,7 @@ string bible_book (void * webserver_request)
       page += dialog_yes.run ();
       return page;
     } if (confirm == "yes") {
-      if (write_access) bible_logic_delete_chapter (bible, book, convert_to_int (deletechapter));
+      if (write_access) bible_logic::delete_chapter (bible, book, convert_to_int (deletechapter));
     }
   }
   
@@ -113,8 +114,8 @@ string bible_book (void * webserver_request)
     // Only create the chapters if it does not yet exist.
     if (find (chapters.begin(), chapters.end(), createchapter) == chapters.end()) {
       vector <string> feedback;
-      bool result = true;
-      if (write_access) result = book_create (bible, book, createchapter, feedback);
+      bool result {true};
+      if (write_access) result = book_create (bible, static_cast<book_id>(book), createchapter, feedback);
       string message = filter_string_implode (feedback, " ");
       if (result) success_message = message;
       else error_message = message;
@@ -125,7 +126,7 @@ string bible_book (void * webserver_request)
   
   // Available chapters.
   vector <int> chapters = request->database_bibles ()->getChapters (bible, book);
-  string chapterblock;
+  string chapterblock {};
   for (auto & chapter : chapters) {
     chapterblock.append (R"(<a href="chapter?bible=)");
     chapterblock.append (bible);
@@ -146,7 +147,7 @@ string bible_book (void * webserver_request)
 
   page += view.render ("bb", "book");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

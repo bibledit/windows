@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,8 +26,8 @@ class Database_AbbottSmith
 public:
   void create ();
   void optimize ();
-  void store (string lemma, string lemma_casefold, string strong, string contents);
-  string get (string lemma, string strong);
+  void store (std::string lemma, std::string lemma_casefold, std::string strong, std::string contents);
+  std::string get (std::string lemma, std::string strong);
 private:
   const char * filename ();
 };

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,69 +31,70 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/config/general.h>
 #include <database/config/bible.h>
 #include <database/cache.h>
+using namespace std;
 
 
 Assets_Header::Assets_Header (string title, void * webserver_request)
 {
   m_webserver_request = webserver_request;
-  view = new Assets_View ();
-  view->set_variable ("title", title);
+  m_view = new Assets_View ();
+  m_view->set_variable ("title", title);
 }
 
 
 Assets_Header::~Assets_Header ()
 {
-  delete view;
+  delete m_view;
 }
 
 
-void Assets_Header::jQueryTouchOn ()
+void Assets_Header::jquery_touch_on ()
 {
-  includeJQueryTouch = true;
+  m_jquery_touch_on = true;
 }
 
 
-void Assets_Header::touchCSSOn ()
+void Assets_Header::touch_css_on ()
 {
-  includeTouchCSS = true;
+  m_touch_css_on = true;
 }
 
 
-void Assets_Header::notifItOn ()
+void Assets_Header::notify_it_on ()
 {
-  includeNotifIt = true;
+  m_notify_it_on = true;
 }
 
 
 // Display the passage navigator.
-void Assets_Header::setNavigator ()
+void Assets_Header::set_navigator ()
 {
-  displayNavigator = true;
+  m_display_navigator = true;
 }
 
 
 // Display the user's basic stylesheet.css.
-void Assets_Header::setStylesheet ()
+void Assets_Header::set_stylesheet ()
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(m_webserver_request);
   string bible = request->database_config_user()->getBible ();
   string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
-  includedStylesheet = stylesheet;
+  m_included_stylesheet = stylesheet;
 }
 
 
 // Display the user's editor stylesheet.css.
-void Assets_Header::setEditorStylesheet ()
+void Assets_Header::set_editor_stylesheet ()
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(m_webserver_request);
   string bible = request->database_config_user()->getBible ();
   string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
-  includedEditorStylesheet = stylesheet;
+  m_included_editor_stylesheet = stylesheet;
 }
 
 
 // Whether to display the topbar.
-bool Assets_Header::displayTopbar ()
+bool Assets_Header::display_topbar ()
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(m_webserver_request);
   // If the topbar is in the query: Don't display the top bar.
@@ -112,21 +113,21 @@ void Assets_Header::refresh (int seconds, string url)
   if (!url.empty ()) content.append (";URL=" + url);
   stringstream ss;
   ss << "<META HTTP-EQUIV=" << quoted("refresh") << " CONTENT=" << quoted(content) << ">";
-  headLines.push_back (ss.str());
+  m_head_lines.push_back (ss.str());
 }
 
 
 // Adds a menu item to the fading menu.
-void Assets_Header::setFadingMenu (string html)
+void Assets_Header::set_fading_menu (string html)
 {
-  fadingmenu = html;
+  m_fading_menu = html;
 }
 
 
 // Add one breadcrumb $item with $text.
-void Assets_Header::addBreadCrumb (string item, string text)
+void Assets_Header::add_bread_crumb (string item, string text)
 {
-  breadcrumbs.push_back (pair (item, text));
+  m_bread_crumbs.push_back (pair (item, text));
 }
 
 
@@ -139,56 +140,56 @@ string Assets_Header::run ()
   
   // Include the software version number in the stylesheet and javascript URL
   // to refresh the browser's cache after a software upgrade.
-  view->set_variable("VERSION", config_logic_version ());
+  m_view->set_variable("VERSION", config::logic::version ());
 
-  if (includeJQueryTouch) {
-    view->enable_zone ("include_jquery_touch");
+  if (m_jquery_touch_on) {
+    m_view->enable_zone ("include_jquery_touch");
   }
 
   if (request->session_logic ()->touchEnabled ()) {
-    touchCSSOn();
+    touch_css_on();
   }
   if (!request->session_logic ()->loggedIn ()) {
-    touchCSSOn();
+    touch_css_on();
   }
-  if (includeTouchCSS) {
-    view->enable_zone ("include_touch_css");
+  if (m_touch_css_on) {
+    m_view->enable_zone ("include_touch_css");
   } else {
-    view->enable_zone ("include_mouse_css");
+    m_view->enable_zone ("include_mouse_css");
   }
   
-  if (includeNotifIt) {
-    view->enable_zone ("include_notif_it");
+  if (m_notify_it_on) {
+    m_view->enable_zone ("include_notif_it");
   }
   
   string headlines;
-  for (auto & headline : headLines) {
+  for (auto & headline : m_head_lines) {
     if (!headlines.empty ()) headlines.append ("\n");
     headlines.append (headline);
   }
-  view->set_variable ("head_lines", headlines);
+  m_view->set_variable ("head_lines", headlines);
 
-  if (!includedStylesheet.empty ()) {
-    view->enable_zone ("include_stylesheet");
-    view->set_variable ("included_stylesheet", includedStylesheet);
+  if (!m_included_stylesheet.empty ()) {
+    m_view->enable_zone ("include_stylesheet");
+    m_view->set_variable ("included_stylesheet", m_included_stylesheet);
   }
-  if (!includedEditorStylesheet.empty ()) {
-    view->enable_zone ("include_editor_stylesheet");
-    view->set_variable ("included_editor_stylesheet", includedEditorStylesheet);
+  if (!m_included_editor_stylesheet.empty ()) {
+    m_view->enable_zone ("include_editor_stylesheet");
+    m_view->set_variable ("included_editor_stylesheet", m_included_editor_stylesheet);
   }
 
-  bool basic_mode = config_logic_basic_mode (m_webserver_request);
+  bool basic_mode = config::logic::basic_mode (m_webserver_request);
   string basicadvanced;
   if (basic_mode) basicadvanced = "basic";
   else basicadvanced = "advanced";
-  view->set_variable ("basicadvanced", basicadvanced);
+  m_view->set_variable ("basicadvanced", basicadvanced);
 
-  if (displayTopbar ()) {
-    view->enable_zone ("display_topbar");
+  if (display_topbar ()) {
+    m_view->enable_zone ("display_topbar");
     
     // In basic mode there's no back button in a bare browser.
     if (basic_mode) {
-      view->disable_zone ("bare_browser");
+      m_view->disable_zone ("bare_browser");
     }
     
     // The start button to be displayed only when there's no menu.
@@ -200,15 +201,11 @@ string Assets_Header::run ()
     string menublock;
     string item = request->query ["item"];
     bool main_menu_always_on = false;
-    if (config_logic_indonesian_cloud_free_simple ()) {
-      main_menu_always_on = true;
-      view->set_variable ("mainmenualwayson", convert_to_string (main_menu_always_on));
-    }
     if (item.empty ())
       if (request->database_config_user ()->getMainMenuAlwaysVisible ()) {
         main_menu_always_on = true;
         // Add the main menu status as a Javascript variable.
-        view->set_variable ("mainmenualwayson", convert_to_string (main_menu_always_on));
+        m_view->set_variable ("mainmenualwayson", convert_to_string (main_menu_always_on));
 			}
     if ((item == "main") || main_menu_always_on) {
       if (basic_mode) {
@@ -234,65 +231,43 @@ string Assets_Header::run ()
     } else if (item == "help") {
       menublock = menu_logic_help_category (m_webserver_request);
     }
-    view->set_variable ("mainmenu", menublock);
+    m_view->set_variable ("mainmenu", menublock);
 
     // Not to display the "start button" in tabbed mode.
     // That would take up screen space unnecessarily.
     if (tabbed_mode_on) start_button = false;
 
     if (start_button) {
-      view->enable_zone ("start_button");
+      m_view->enable_zone ("start_button");
       string tooltip;
       menu_logic_main_categories (m_webserver_request, tooltip);
-      view->set_variable ("starttooltip", tooltip);
+      m_view->set_variable ("starttooltip", tooltip);
     }
     
-    if (!fadingmenu.empty ()) {
-      view->enable_zone ("fading_menu");
-      view->set_variable ("fadingmenu", fadingmenu);
+    if (!m_fading_menu.empty ()) {
+      m_view->enable_zone ("fading_menu");
+      m_view->set_variable ("fadingmenu", m_fading_menu);
       string delay = convert_to_string (request->database_config_user ()->getWorkspaceMenuFadeoutDelay ()) + "000";
-      if (config_logic_indonesian_cloud_free_simple ()) delay = "false";
-      view->set_variable ("fadingmenudelay", delay);
-      fadingmenu.clear ();
+      m_view->set_variable ("fadingmenudelay", delay);
+      m_fading_menu.clear ();
     }
 
-    if (displayNavigator) {
-      view->enable_zone ("display_navigator");
-      // string bible = AccessBible::Clamp (request, request->database_config_user()->getBible ());
+    if (m_display_navigator) {
+      m_view->enable_zone ("display_navigator");
+      // string bible = access_bible::clamp (request, request->database_config_user()->getBible ());
       // The clamping above does not work for public feedback as it would reset the Bible always.
       string bible = request->database_config_user()->getBible ();
-      view->set_variable ("navigation_code", Navigation_Passage::code (bible));
+      m_view->set_variable ("navigation_code", Navigation_Passage::code (bible));
     }
   }
 
   vector <string> embedded_css;
   int fontsize = request->database_config_user ()->getGeneralFontSize ();
-  // Indonesian Cloud Free
-  // All of the accessible user defined variable in Indonesian Cloud Free
-  // Simple version uses filebased database as explained in ./ipc/focus.cpp
-  // line 37 to 44. 
-  string filename = general_font_size_filebased_cache_filename (request->session_identifier);
-  if (config_logic_indonesian_cloud_free_simple ()) {
-    if (database_filebased_cache_exists (filename)) {
-      fontsize = convert_to_int (database_filebased_cache_get (filename));
-    } else {
-      database_filebased_cache_put (filename, "100");
-      fontsize = 100;
-    }
-  }
   if (fontsize != 100) {
     embedded_css.push_back ("body { font-size: " + convert_to_string (fontsize) + "%; }");
   }
   fontsize = request->database_config_user ()->getMenuFontSize ();
-  filename = menu_font_size_filebased_cache_filename (request->session_identifier);
-  if (config_logic_indonesian_cloud_free_simple ()) {
-    if (database_filebased_cache_exists (filename)) {
-      fontsize = convert_to_int (database_filebased_cache_get (filename));
-    } else {
-      database_filebased_cache_put (filename, "100");
-      fontsize = 100;
-    }
-  }
+  string filename = menu_font_size_filebased_cache_filename (request->session_identifier);
   if (fontsize != 100) {
     embedded_css.push_back (".menu-advanced, .menu-basic { font-size: " + convert_to_string (fontsize) + "%; }");
   }
@@ -302,72 +277,40 @@ string Assets_Header::run ()
   }
   fontsize = request->database_config_user ()->getResourcesFontSize ();
   filename = resource_font_size_filebased_cache_filename (request->session_identifier);
-  if (config_logic_indonesian_cloud_free_simple ()) {
-    if (database_filebased_cache_exists (filename)) {
-      fontsize = convert_to_int (database_filebased_cache_get (filename));
-    } else {
-      database_filebased_cache_put (filename, "100");
-      fontsize = 100;
-    }
-  }
   if (fontsize != 100) {
     embedded_css.push_back (".resource { font-size: " + convert_to_string (fontsize) + "% !important; }");
   }
   fontsize = request->database_config_user ()->getHebrewFontSize ();
-  if (config_logic_indonesian_cloud_free_simple ()) {
-    if (database_filebased_cache_exists (filename)) {
-      fontsize = convert_to_int (database_filebased_cache_get (filename));
-    } else {
-      database_filebased_cache_put (filename, "100");
-      fontsize = 100;
-    }
-  }
   if (fontsize != 100) {
     embedded_css.push_back (".hebrew { font-size: " + convert_to_string (fontsize) + "%!important; }");
   }
   fontsize = request->database_config_user ()->getGreekFontSize ();
   filename = greek_font_size_filebased_cache_filename (request->session_identifier);
-  if (config_logic_indonesian_cloud_free_simple ()) {
-    if (database_filebased_cache_exists (filename)) {
-      fontsize = convert_to_int (database_filebased_cache_get (filename));
-    } else {
-      database_filebased_cache_put (filename, "100");
-      fontsize = 100;
-    }
-  }
   if (fontsize != 100) {
     embedded_css.push_back (".greek { font-size: " + convert_to_string (fontsize) + "%!important; }");
   }
   if (!embedded_css.empty ()) {
-    view->set_variable ("embedded_css", filter_string_implode (embedded_css, "\n"));
+    m_view->set_variable ("embedded_css", filter_string_implode (embedded_css, "\n"));
   }
 
   int current_theme_index = request->database_config_user ()->getCurrentTheme ();
   filename = current_theme_filebased_cache_filename (request->session_identifier);
-  if (config_logic_indonesian_cloud_free_simple ()) {
-    if (database_filebased_cache_exists (filename)) {
-      current_theme_index = convert_to_int (database_filebased_cache_get (filename));
-    } else {
-      database_filebased_cache_put (filename, "1");
-      current_theme_index = 1;
-    }
-  }
   // Add the theme color css class selector name on the body element,..
-  view->set_variable ("body_theme_color", Filter_Css::theme_picker (current_theme_index, 0));
+  m_view->set_variable ("body_theme_color", Filter_Css::theme_picker (current_theme_index, 0));
   // ..workspacewrapper div element..
-  view->set_variable ("workspace_theme_color", Filter_Css::theme_picker (current_theme_index, 4));
+  m_view->set_variable ("workspace_theme_color", Filter_Css::theme_picker (current_theme_index, 4));
   // ..and as a variable for JavaScript.
-  view->set_variable ("themecolorfortabs", Filter_Css::theme_picker (current_theme_index, 1));
+  m_view->set_variable ("themecolorfortabs", Filter_Css::theme_picker (current_theme_index, 1));
 
   if (request->database_config_user ()->getDisplayBreadcrumbs ()) {
-    if (!breadcrumbs.empty ()) {
+    if (!m_bread_crumbs.empty ()) {
       // No bread crumbs in basic mode.
       // The crumbs would be incorrect anyway, because they show the trail of advanced mode.
-      if (!config_logic_basic_mode (m_webserver_request)) {
+      if (!config::logic::basic_mode (m_webserver_request)) {
         stringstream track;
         track << "<a href=" << quoted(index_index_url ()) << ">";
         track << menu_logic_menu_text ("") << "</a>";
-        for (auto & crumb : breadcrumbs) {
+        for (auto & crumb : m_bread_crumbs) {
           track << " » ";
           if (!crumb.first.empty ()) {
             track << "<a href=" << quoted("/" + menu_logic_menu_url (crumb.first)) << ">";
@@ -377,15 +320,15 @@ string Assets_Header::run ()
             track << "</a>";
           }
         }
-        view->enable_zone("breadcrumbs");
-        view->set_variable ("breadcrumbs", track.str());
+        m_view->enable_zone("breadcrumbs");
+        m_view->set_variable ("breadcrumbs", track.str());
       }
     }
   }
 
-  page += view->render("assets", "xhtml_start");
-  page += view->render("assets", "header");
-  page += view->render("assets", "workspacewrapper_start");
+  page += m_view->render("assets", "xhtml_start");
+  page += m_view->render("assets", "header");
+  page += m_view->render("assets", "workspacewrapper_start");
 
   return page;
 }

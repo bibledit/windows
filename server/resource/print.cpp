@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 #include <jobs/index.h>
 #include <dialog/list.h>
 #include <menu/logic.h>
+using namespace std;
 
 
 string resource_print_url ()
@@ -57,7 +58,7 @@ string resource_print (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate("Print"), request);
-  header.addBreadCrumb (menu_logic_tools_menu (), menu_logic_tools_text ());
+  header.add_bread_crumb (menu_logic_tools_menu (), menu_logic_tools_text ());
   page = header.run ();
   Assets_View view;
 
@@ -114,7 +115,7 @@ string resource_print (void * webserver_request)
       Dialog_List dialog_list = Dialog_List ("print", translate("Select a book"), "", "");
       vector <int> books = request->database_bibles()->getBooks (bible);
       for (auto & book : books) {
-        string bookname = Database_Books::getEnglishFromId (book);
+        string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
         dialog_list.add_row (bookname, "frombook", convert_to_string (book));
       }
       page += dialog_list.run ();
@@ -209,7 +210,7 @@ string resource_print (void * webserver_request)
       Dialog_List dialog_list = Dialog_List ("print", translate("Select a book"), "", "");
       vector <int> books = request->database_bibles()->getBooks (bible);
       for (auto & book : books) {
-        string bookname = Database_Books::getEnglishFromId (book);
+        string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
         dialog_list.add_row (bookname, "tobook", convert_to_string (book));
       }
       page += dialog_list.run ();
@@ -307,17 +308,17 @@ string resource_print (void * webserver_request)
 
 
   Passage passage = request->database_config_user()->getPrintPassageFrom ();
-  view.set_variable ("from_book", Database_Books::getEnglishFromId (passage.m_book));
+  view.set_variable ("from_book", database::books::get_english_from_id (static_cast<book_id>(passage.m_book)));
   view.set_variable ("from_chapter", convert_to_string (passage.m_chapter));
   view.set_variable ("from_verse", passage.m_verse);
   passage = request->database_config_user()->getPrintPassageTo ();
-  view.set_variable ("to_book", Database_Books::getEnglishFromId (passage.m_book));
+  view.set_variable ("to_book", database::books::get_english_from_id (static_cast<book_id>(passage.m_book)));
   view.set_variable ("to_chapter", convert_to_string (passage.m_chapter));
   view.set_variable ("to_verse", passage.m_verse);
 
 
   page += view.render ("resource", "print");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }
 

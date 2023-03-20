@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 typedef struct
 {
   const char * marker;
-  string name;
-  string info;
+  std::string name;
+  std::string info;
   const char * category;
   int type;
   int subtype;
@@ -825,12 +825,12 @@ style_record styles_table [] =
     /* type */ 10,
     /* subtype */ 0,
     /* fontsize */ 12,
-    /* italic */ 0,
+    /* italic */ 1,
     /* bold */ 0,
     /* underline */ 0,
     /* smallcaps */ 0,
     /* superscript */ 0,
-    /* justification */ 0,
+    /* justification */ 1,
     /* spacebefore */ 0,
     /* spaceafter */ 0,
     /* leftmargin */ 0,

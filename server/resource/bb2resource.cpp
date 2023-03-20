@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 #include <resource/external.h>
 #include <menu/logic.h>
 #include <bb/manage.h>
+using namespace std;
 
 
 string resource_bible2resource_url ()
@@ -56,8 +57,8 @@ string resource_bible2resource (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate("Convert"), request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.addBreadCrumb (bible_manage_url (), menu_logic_bible_manage_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (bible_manage_url (), menu_logic_bible_manage_text ());
   page = header.run ();
   Assets_View view;
 
@@ -77,17 +78,17 @@ string resource_bible2resource (void * webserver_request)
   
   
   if (request->query.count ("convert")) {
-    if (AccessBible::Write (request, bible)) {
+    if (access_bible::write (request, bible)) {
       tasks_logic_queue (CONVERTBIBLE2RESOURCE, {bible});
       redirect_browser (request, journal_index_url ());
       return "";
     } else {
-      Assets_Page::error (translate("Insufficient privileges to complete operation."));
+      assets_page::error (translate("Insufficient privileges to complete operation."));
     }
   }
 
   
   page += view.render ("resource", "bb2resource");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

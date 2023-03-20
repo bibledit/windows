@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,10 +27,7 @@ $ (document).ready (function ()
   // Listens for bibleselect option tags value change to update the loaded Bible.
   var bibleSelectionElement = document.querySelector ("#bibleselect");
   bibleSelectionElement.addEventListener ('change', () => {
-    var value = bibleSelectionElement.value;
-    var postData = '{"bibleselect":"'+value+'"}';
-    postData = JSON.parse(postData);
-    $.post ("index", postData)
+    $.post ("index", { bibleselect: bibleSelectionElement.value })
       .done (function() { window.location.reload () });
   });
 

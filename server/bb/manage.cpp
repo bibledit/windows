@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -40,9 +40,16 @@
 #include <search/logic.h>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#ifndef HAVE_PUGIXML
 #include <pugixml/pugixml.hpp>
+#endif
+#ifdef HAVE_PUGIXML
+#include <pugixml.hpp>
+#endif
 #pragma GCC diagnostic pop
-
+using namespace std;
 using namespace pugi;
 
 
@@ -62,16 +69,16 @@ string bible_manage (void * webserver_request)
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
-  string page;
+  string page {};
   
   Assets_Header header = Assets_Header (translate("Bibles"), webserver_request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
   
-  Assets_View view;
+  Assets_View view {};
   
-  string success_message;
-  string error_message;
+  string success_message {};
+  string error_message {};
   
   // New Bible handler.
   if (request->query.count ("new")) {
@@ -89,13 +96,13 @@ string bible_manage (void * webserver_request)
     } else {
       request->database_bibles ()->createBible (bible);
       // Check / grant access.
-      if (!AccessBible::Write (request, bible)) {
+      if (!access_bible::write (request, bible)) {
         string me = request->session_logic ()->currentUser ();
         Database_Privileges::setBible (me, bible, true);
       }
       success_message = translate("The Bible was created");
       // Creating a Bible removes any Sample Bible that might have been there.
-      if (!config_logic_demo_enabled ()) {
+      if (!config::logic::demo_enabled ()) {
         request->database_bibles ()->deleteBible (demo_sample_bible_name ());
         search_logic_delete_bible (demo_sample_bible_name ());
       }
@@ -120,7 +127,7 @@ string bible_manage (void * webserver_request)
         error_message = translate("Cannot copy the Bible because the destination Bible already exists.");
       } else {
         // User needs read access to the original.
-        if (AccessBible::Read (request, origin)) {
+        if (access_bible::read (request, origin)) {
           // Copy the Bible data.
           string origin_folder = request->database_bibles ()->bibleFolder (origin);
           string destination_folder = request->database_bibles ()->bibleFolder (destination);
@@ -130,12 +137,12 @@ string bible_manage (void * webserver_request)
           // Feedback.
           success_message = translate("The Bible was copied.");
           // Check / grant access to destination Bible.
-          if (!AccessBible::Write (request, destination)) {
+          if (!access_bible::write (request, destination)) {
             string me = request->session_logic ()->currentUser ();
             Database_Privileges::setBible (me, destination, true);
           }
           // Creating a Bible removes any Sample Bible that might have been there.
-          if (!config_logic_demo_enabled ()) {
+          if (!config::logic::demo_enabled ()) {
             request->database_bibles ()->deleteBible (demo_sample_bible_name ());
             search_logic_delete_bible (demo_sample_bible_name ());
           }
@@ -150,13 +157,13 @@ string bible_manage (void * webserver_request)
     string confirm = request->query ["confirm"];
     if (confirm == "yes") {
       // User needs write access for delete operation.
-      if (AccessBible::Write (request, bible)) {
-        bible_logic_delete_bible (bible);
+      if (access_bible::write (request, bible)) {
+        bible_logic::delete_bible (bible);
       } else {
-        page += Assets_Page::error ("Insufficient privileges to complete action");
+        page += assets_page::error ("Insufficient privileges to complete action");
       }
     }
-    if (confirm == "") {
+    if (confirm.empty()) {
       Dialog_Yes dialog_yes = Dialog_Yes ("manage", translate("Would you like to delete this Bible?") + " (" + bible + ")");
       dialog_yes.add_query ("delete", bible);
       page += dialog_yes.run ();
@@ -166,16 +173,16 @@ string bible_manage (void * webserver_request)
 
   view.set_variable ("success_message", success_message);
   view.set_variable ("error_message", error_message);
-  vector <string> bibles = AccessBible::Bibles (request);
+  vector <string> bibles = access_bible::bibles (request);
   xml_document document;
-  for (auto & bible : bibles) {
+  for (const auto & bible : bibles) {
     xml_node li_node = document.append_child ("li");
     xml_node a_node = li_node.append_child("a");
     string href = filter_url_build_http_query ("settings", "bible", bible);
     a_node.append_attribute("href") = href.c_str();
     a_node.text().set(bible.c_str());
   }
-  stringstream bibleblock;
+  stringstream bibleblock {};
   document.print(bibleblock, "", format_raw);
   view.set_variable ("bibleblock", bibleblock.str());
 
@@ -183,7 +190,7 @@ string bible_manage (void * webserver_request)
 
   page += view.render ("bb", "manage");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

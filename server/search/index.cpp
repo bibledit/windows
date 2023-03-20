@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,6 +29,8 @@
 #include <search/logic.h>
 #include <menu/logic.h>
 #include <access/bible.h>
+#include <dialog/list2.h>
+using namespace std;
 
 
 string search_index_url ()
@@ -40,7 +42,7 @@ string search_index_url ()
 bool search_index_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ())) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return read;
 }
 
@@ -94,16 +96,33 @@ string search_index (void * webserver_request)
     }
     return output;
   }
+  
+  
+  // Set the user chosen Bible as the current Bible.
+  if (request->post.count ("bibleselect")) {
+    string bibleselect = request->post ["bibleselect"];
+    request->database_config_user ()->setBible (bibleselect);
+    return string();
+  }
+
 
   
   string page;
 
   Assets_Header header = Assets_Header (translate("Search"), request);
-  header.addBreadCrumb (menu_logic_search_menu (), menu_logic_search_text ());
+  header.add_bread_crumb (menu_logic_search_menu (), menu_logic_search_text ());
   page = header.run ();
   
   Assets_View view;
   
+  {
+    string bible_html;
+    vector <string> accessible_bibles = access_bible::bibles (request);
+    for (auto selectable_bible : accessible_bibles) {
+      bible_html = Options_To_Select::add_selection (selectable_bible, selectable_bible, bible_html);
+    }
+    view.set_variable ("bibleoptags", Options_To_Select::mark_selected (bible, bible_html));
+  }
   view.set_variable ("bible", bible);
   
   string script = "var searchBible = \"" + bible + "\";";
@@ -111,7 +130,7 @@ string search_index (void * webserver_request)
   
   page += view.render ("search", "index");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

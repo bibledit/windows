@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include <assets/page.h>
 #include <locale/translate.h>
 #include <filter/url.h>
+using namespace std;
 
 
 Dialog_Color::Dialog_Color (string url, string question)
@@ -55,6 +56,6 @@ string Dialog_Color::run ()
   Assets_View * view = static_cast<Assets_View *>(assets_view);
   view->set_variable ("base_url", base_url);
   string page = view->render ("dialog", "color");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

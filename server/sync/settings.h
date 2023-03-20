@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -22,5 +22,5 @@
 #include <config/libraries.h>
 #include <filter/string.hpp>
 
-string sync_settings_url ();
-string sync_settings (void * webserver_request);
+std::string sync_settings_url ();
+std::string sync_settings (void * webserver_request);

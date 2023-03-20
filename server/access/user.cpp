@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,10 +21,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <webserver/request.h>
 #include <access/bible.h>
 #include <filter/roles.h>
+using namespace std;
 
 
 // This function returns users assigned to the logged-in user.
-vector <string> access_user_assignees (void * webserver_request)
+vector <string> access_user::assignees (void * webserver_request)
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
@@ -32,14 +33,14 @@ vector <string> access_user_assignees (void * webserver_request)
   int mylevel = request->session_logic ()->currentLevel ();
 
   // This holds the assignees.
-  vector <string> assignees;
+  vector <string> assignees {};
 
   // Process all users.
   vector <string> users = request->database_users ()->get_users ();
   sort (users.begin(), users.end());
-  for (auto & user : users) {
+  for (const auto & user : users) {
     // Assignees should have a level less than or equal to mylevel.
-    if (int level = request->database_users ()->get_level (user); level <= mylevel) {
+    if (request->database_users ()->get_level (user) <= mylevel) {
       assignees.push_back (user);
     }
   }

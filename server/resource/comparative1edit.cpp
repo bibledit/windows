@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@
 #include <menu/logic.h>
 #include <access/logic.h>
 #include <client/logic.h>
+using namespace std;
 
 
 string resource_comparative1edit_url ()
@@ -49,7 +50,7 @@ string resource_comparative1edit_url ()
 
 bool resource_comparative1edit_acl (void * webserver_request)
 {
-  return access_logic_privilege_view_resources (webserver_request);
+  return access_logic::privilege_view_resources (webserver_request);
 }
 
 
@@ -59,8 +60,8 @@ string resource_comparative1edit (void * webserver_request)
 
   
   string page;
-  Assets_Header header = Assets_Header (translate("User-defined resources"), request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  Assets_Header header = Assets_Header (translate("Comparative resource"), request);
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
   Assets_View view;
   string error, success;
@@ -174,8 +175,9 @@ string resource_comparative1edit (void * webserver_request)
   }
 
   
-  // Save the comparative resource if it was edited.
+  // If the resource was edited, then take a number of steps.
   if (resource_edited) {
+    // Save the comparative resource if it was edited.
     vector <string> resources = Database_Config_General::getComparativeResources ();
     error = translate ("Could not save");
     for (size_t i = 0; i < resources.size(); i++) {
@@ -189,8 +191,14 @@ string resource_comparative1edit (void * webserver_request)
       }
     }
     Database_Config_General::setComparativeResources (resources);
+    // Possibly update the list of resources not to be cached on the client devices.
     if (cache) client_logic_no_cache_resource_remove(title);
     else client_logic_no_cache_resource_add(title);
+    // Store the list of comparative resources for download by the client devices.
+    {
+      string path = resource_logic_comparative_resources_list_path ();
+      filter_url_file_put_contents (path, filter_string_implode (resources, "\n"));
+    }
   }
   
 
@@ -205,6 +213,6 @@ string resource_comparative1edit (void * webserver_request)
   view.set_variable ("casefold", get_checkbox_status (casefold));
   view.set_variable ("cache", get_checkbox_status (cache));
   page += view.render ("resource", "comparative1edit");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include <assets/view.h>
 #include <assets/page.h>
 #include <filter/url.h>
+using namespace std;
 
 
 // Dialog that enables the user to upload a file.
@@ -59,6 +60,6 @@ string Dialog_Upload::run ()
   view->set_variable ("import", import);
   view->set_variable ("cancel", base_url);
   string page = view->render ("dialog", "upload");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

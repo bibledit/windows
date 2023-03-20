@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@
 
 #include <config/libraries.h>
 
-string sendreceive_notes_sendreceive_text ();
-string sendreceive_notes_up_to_date_text ();
+std::string sendreceive_notes_sendreceive_text ();
+std::string sendreceive_notes_up_to_date_text ();
 void sendreceive_notes ();
 bool sendreceive_notes_upload ();
 bool sendreceive_notes_download (int lowId, int highId);

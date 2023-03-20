@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,11 +21,10 @@
 
 #include <config/libraries.h>
 
-class Checks_Versification
-{
-public:
-  static void books (string bible, vector <int> books);
-  static void chapters (string bible, int book, vector <int> chapters);
-  static void verses (string bible, int book, int chapter, vector <int> verses);
-private:
-};
+namespace checks_versification {
+
+void books (const std::string & bible, const std::vector <int> & books);
+void chapters (const std::string & bible, int book, const std::vector <int> & chapters);
+void verses (const std::string & bible, int book, int chapter, const std::vector <int> & verses);
+
+}

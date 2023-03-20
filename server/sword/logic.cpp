@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@
 #endif
 #include <developer/logic.h>
 #include <database/logic.h>
+using namespace std;
 
 
 mutex sword_logic_installer_mutex;
@@ -419,7 +420,7 @@ string sword_logic_get_text (string source, string module, int book, int chapter
   string module_text;
   bool module_available = false;
 
-  string osis = Database_Books::getOsisFromId (book);
+  string osis = database::books::get_osis_from_id (static_cast<book_id>(book));
   string chapter_verse = convert_to_string (chapter) + ":" + convert_to_string (verse);
 
   // See notes on function sword_logic_diatheke
@@ -490,7 +491,7 @@ map <int, string> sword_logic_get_bulk_text (const string & module, int book, in
   }
 
   // The name of the book to pass to diatheke.
-  string osis = Database_Books::getOsisFromId (book);
+  string osis = database::books::get_osis_from_id (static_cast<book_id>(book));
 
   // Cannot run more than one "diatheke" per user, so use a mutex for that.
   sword_logic_diatheke_run_mutex.lock ();

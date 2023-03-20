@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <menu/logic.h>
 #include <manage/users.h>
 #include <database/privileges.h>
+using namespace std;
 
 
 string manage_write_url ()
@@ -49,18 +50,18 @@ string manage_write (void * webserver_request)
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
-  string page;
+  string page {};
 
   Assets_Header header = Assets_Header (translate("Read/write"), webserver_request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.addBreadCrumb (manage_users_url (), menu_logic_manage_users_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (manage_users_url (), menu_logic_manage_users_text ());
   page = header.run ();
 
-  Assets_View view;
+  Assets_View view {};
 
   int userid = filter_string_user_identifier (webserver_request);
   
-  string user;
+  string user {};
   if (request->query.count ("user")) {
     user = request->query["user"];
     Database_Volatile::setValue (userid, "manage_write_user", user);
@@ -68,7 +69,7 @@ string manage_write (void * webserver_request)
   user = Database_Volatile::getValue (userid, "manage_write_user");
   view.set_variable ("user", user);
   
-  string bible;
+  string bible {};
   if (request->query.count ("bible")) {
     bible = request->query["bible"];
     Database_Volatile::setValue (userid, "manage_write_bible", bible);
@@ -101,7 +102,7 @@ string manage_write (void * webserver_request)
     int majority = 0;
     vector <int> books = request->database_bibles ()->getBooks (bible);
     for (auto & book : books) {
-      string type = Database_Books::getType (book);
+      string type = database::books::book_type_to_string (database::books::get_type (static_cast<book_id>(book)));
       if (type == testament) {
         bool read, write;
         Database_Privileges::getBibleBook (user, bible, book, read, write);
@@ -112,7 +113,7 @@ string manage_write (void * webserver_request)
     // Update the write access privileges for the books of the Testament,
     // by setting the write privileges to the opposite of the majority state.
     for (auto & book : books) {
-      string type = Database_Books::getType (book);
+      string type = database::books::book_type_to_string (database::books::get_type (static_cast<book_id>(book)));
       if (type == testament) {
         Database_Privileges::setBibleBook (user, bible, book, (majority < 0));
       }
@@ -125,7 +126,7 @@ string manage_write (void * webserver_request)
   vector <int> books = request->database_bibles ()->getBooks (bible);
   for (size_t i = 0; i < books.size (); i++) {
     int book = books[i];
-    string bookname = Database_Books::getEnglishFromId (book);
+    string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
     string checkboxname = "book" + convert_to_string (book);
     bool read, write;
     Database_Privileges::getBibleBook (user, bible, book, read, write);
@@ -135,7 +136,7 @@ string manage_write (void * webserver_request)
   
   page += view.render ("manage", "write");
 
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
 
   return page;
 }

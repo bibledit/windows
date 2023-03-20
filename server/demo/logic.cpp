@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -46,6 +46,8 @@
 #include <lexicon/logic.h>
 #include <search/logic.h>
 #include <book/create.h>
+#include <setup/logic.h>
+using namespace std;
 
 
 /*
@@ -73,7 +75,7 @@
 // Returns true if the credentials are correct for a demo installation.
 bool demo_acl (string user, string pass)
 {
-  if (config_logic_demo_enabled ()) {
+  if (config::logic::demo_enabled ()) {
     if (user == session_admin_credentials ()) {
       if ((pass == session_admin_credentials ()) || (pass == md5 (session_admin_credentials ()))) {
         return true;
@@ -84,35 +86,10 @@ bool demo_acl (string user, string pass)
 }
 
 
-// Returns the address of the current demo server.
-string demo_address ()
-{
-  return "http://bibledit.org";
-}
-
-
-string demo_address_secure ()
-{
-  return "https://bibledit.org";
-}
-
-
-int demo_port ()
-{
-  return 8090;
-}
-
-
-int demo_port_secure ()
-{
-  return 8091;
-}
-
-
 // Returns a warning in case the client is connected to the open demo server.
 string demo_client_warning ()
 {
-  string warning;
+  string warning {};
   if (client_logic_client_enabled ()) {
     string address = Database_Config_General::getServerAddress ();
     if (address == demo_address () || address == demo_address_secure ()) {
@@ -136,10 +113,11 @@ void demo_clean_data ()
   Database_Logs::log ("Cleaning up the demo data");
   
   
-  Webserver_Request request;
+  Webserver_Request request {};
   
   
-  // Set user to the demo credentials (admin) as this is the user who is always logged-in in a demo installation.
+  // Set user to the demo credentials (admin).
+  // This is the user who is always logged-in in a demo installation.
   request.session_logic ()->set_username (session_admin_credentials ());
   
   
@@ -151,14 +129,18 @@ void demo_clean_data ()
   
   // Set both stylesheets to "Standard" for all Bibles.
   vector <string> bibles = request.database_bibles()->getBibles ();
-  for (auto & bible : bibles) {
+  for (const auto & bible : bibles) {
     Database_Config_Bible::setExportStylesheet (bible, styles_logic_standard_sheet ());
     Database_Config_Bible::setEditorStylesheet (bible, styles_logic_standard_sheet ());
   }
   
   
+  // Regenerate versification databases.
+  setup_generate_versification_databases ();
+
+  
   // Set the site language to "Default"
-  Database_Config_General::setSiteLanguage ("");
+  Database_Config_General::setSiteLanguage (string());
 
 
   // Ensure the default users are there.
@@ -170,7 +152,7 @@ void demo_clean_data ()
     pair ("manager", Filter_Roles::manager ()),
     pair (session_admin_credentials (), Filter_Roles::admin ())
   };
-  for (auto & element : users) {
+  for (const auto & element : users) {
     if (!request.database_users ()->usernameExists (element.first)) {
       request.database_users ()->add_user(element.first, element.first, element.second, "");
     }
@@ -179,43 +161,38 @@ void demo_clean_data ()
   
   
   // Create / update sample Bible.
-  if (config_logic_default_bibledit_configuration ()) {
+  if (config::logic::default_bibledit_configuration ()) {
     demo_create_sample_bible ();
   }
 
 
   // Create sample notes.
-  if (config_logic_default_bibledit_configuration ()) {
+  if (config::logic::default_bibledit_configuration ()) {
     demo_create_sample_notes (&request);
   }
 
-  
+
   // Create samples for the workspaces.
-  if (config_logic_default_bibledit_configuration ()) {
+  if (config::logic::default_bibledit_configuration ()) {
     demo_create_sample_workspaces (&request);
   }
   
   
   // Set navigator to John 3:16.
-  if (config_logic_default_bibledit_configuration ()) {
+  if (config::logic::default_bibledit_configuration ()) {
     Ipc_Focus::set (&request, 43, 3, 16);
   }
 
 
-  // Indonesian Cloud Free
-  // Set navigator to John 1:1.
-  if (config_logic_indonesian_cloud_free_simple ()) {
-    Ipc_Focus::set (&request, 43, 1, 1);
-  }
-  
-  
   // Set and/or trim resources to display.
   // Too many resources crash the demo: Limit the amount.
   vector <string> resources = request.database_config_user()->getActiveResources ();
-  bool reset_resources = false;
-  if (resources.size () > 25) reset_resources = true;
+  bool reset_resources {false};
+  size_t max_resource {25};
+  if (resources.size () > max_resource) reset_resources = true;
+  // Check if all the current resource exists in the default.
   vector <string> defaults = demo_logic_default_resources ();
-  for (auto & name : defaults) {
+  for (const auto & name : defaults) {
     if (!in_array (name, resources)) reset_resources = true;
   }
   if (reset_resources) {
@@ -244,7 +221,7 @@ void demo_create_sample_bible ()
   Database_Logs::log ("Creating sample Bible");
   
   // Remove and create the sample Bible.
-  Database_Bibles database_bibles;
+  Database_Bibles database_bibles {};
   database_bibles.deleteBible (demo_sample_bible_name ());
   database_bibles.createBible (demo_sample_bible_name ());
   
@@ -254,7 +231,8 @@ void demo_create_sample_bible ()
   // Copy the sample Bible data and search index into place.
   vector <int> rowids = Database_Sample::get ();
   for (auto rowid : rowids) {
-    string file, data;
+    string file {};
+    string data {};
     Database_Sample::get (rowid, file, data);
     // Remove the "./" from the start.
     file.erase (0, 2);
@@ -288,7 +266,7 @@ void demo_create_sample_bible ()
 // This way it is fast even on low power devices.
 void demo_prepare_sample_bible ()
 {
-  Database_Bibles database_bibles;
+  Database_Bibles database_bibles {};
   Database_Sample::create ();
   // Remove the sample Bible plus all related data.
   database_bibles.deleteBible (demo_sample_bible_name ());
@@ -301,22 +279,21 @@ void demo_prepare_sample_bible ()
   for (auto file : files) {
     // Process only USFM files, skipping others.
     if (filter_url_get_extension (file) == "usfm") {
-      cout << file << endl;
       // Read the USFM and clean it up.
       file = filter_url_create_path ({directory, file});
       string usfm = filter_url_file_get_contents (file);
       usfm = filter_string_collapse_whitespace (usfm);
       // Import the USFM into the sample Bible.
       vector <filter::usfm::BookChapterData> book_chapter_data = filter::usfm::usfm_import (usfm, styles_logic_standard_sheet ());
-      for (auto data : book_chapter_data) {
+      for (const auto & data : book_chapter_data) {
         int book = data.m_book;
         if (book) {
           // There is license information at the top of each USFM file.
           // This results in a book with number 0.
           // This book gets skipped here, so the license information is skipped as well.
-          int chapter = data.m_chapter;
-          string usfm2 = data.m_data;
-          bible_logic_store_chapter (demo_sample_bible_name (), book, chapter, usfm2);
+          int chapter {data.m_chapter};
+          string usfm2 {data.m_data};
+          bible_logic::store_chapter (demo_sample_bible_name (), book, chapter, usfm2);
         }
       }
     }
@@ -325,7 +302,7 @@ void demo_prepare_sample_bible ()
   directory = database_bibles.bibleFolder (demo_sample_bible_name ());
   files.clear ();
   filter_url_recursive_scandir (directory, files);
-  for (auto file : files) {
+  for (const auto & file : files) {
     if (!filter_url_is_dir (file)) {
       string data = filter_url_file_get_contents (file);
       Database_Sample::store (file, data);
@@ -335,7 +312,7 @@ void demo_prepare_sample_bible ()
   directory = search_logic_index_folder ();
   files.clear ();
   filter_url_recursive_scandir (directory, files);
-  for (auto file : files) {
+  for (const auto & file : files) {
     if (file.find (demo_sample_bible_name ()) != string::npos) {
       string data = filter_url_file_get_contents (file);
       Database_Sample::store (file, data);
@@ -378,11 +355,11 @@ void demo_create_sample_workspaces (void * webserver_request)
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
-  map <int, string> urls;
-  map <int, string> widths;
+  map <int, string> urls {};
+  map <int, string> widths {};
   for (int i = 0; i < 15; i++) {
-    string url;
-    string width;
+    string url {};
+    string width {};
     if (i == 0) {
       url = editusfm_index_url ();
       width = "45%";
@@ -417,77 +394,19 @@ void demo_create_sample_workspaces (void * webserver_request)
 
 vector <string> demo_logic_default_resources ()
 {
-  vector <string> resources;
-  if (config_logic_default_bibledit_configuration ()) {
+  vector <string> resources {};
+  if (config::logic::default_bibledit_configuration ()) {
     // Add a few resources that are also safe in an obfuscated version.
     resources = {
       demo_sample_bible_name (),
       resource_logic_violet_divider ()
     };
     // For demo purposes, add some more resources to show-case some of the capabilities.
-    if (config_logic_demo_enabled ()) {
+    if (config::logic::demo_enabled ()) {
       resources.push_back (resource_external_biblehub_interlinear_name ());
       resources.push_back (resource_external_net_bible_name ());
       resources.push_back (SBLGNT_NAME);
     }
-  }
-  // Add specific resources for Indonesian Cloud Free Simple/Demo version.
-  if (config_logic_indonesian_cloud_free_simple ()) {
-    resources.clear ();
-    resources = {
-      // Original language resources.
-      resource_logic_assemble_rich_divider ("Sumber Penelitian Bahasa Asli", "https://alkitabkita.info/wiki/petunjuk-penggunaan-bibledit/sumber-sumber-penelitian/bahasa-sumber-alkitab/", "black", "orange"),
-      resource_external_biblehub_interlinear_name (),
-      HEBREW_ETCBC4_NAME,
-      OSHB_NAME,
-      "[CrossWire] *[LXX] (2.5) - Septuagint, Morphologically Tagged Rahlfs'",
-      "BYZ",
-      SBLGNT_NAME,
-      "Comparative Byz",
-      // Literal translations resources.
-      resource_logic_assemble_rich_divider ("Terjemahan Harfiah", "https://alkitabkita.info/wiki/petunjuk-penggunaan-bibledit/sumber-sumber-penelitian/terjemahan-secara-harfiah/", "black", "orange"),
-      "MILT",
-      "TB74",
-      "KSI",
-      "AYT",
-      resource_logic_assemble_rich_divider ("Terjemahan Harfiah (Bahasa Inggris)", "https://alkitabkita.info/wiki/petunjuk-penggunaan-bibledit/sumber-sumber-penelitian/terjemahan-secara-harfiah/", "black", "darkseagreen"),
-      "Majority TCENT",
-      "1599 Geneva Bible (GNV)",
-      KJV_LEXICON_NAME,
-      "ESV",
-      "HCSB 2003",
-      // Modified literal translations resources.
-      resource_logic_assemble_rich_divider ("Terjemahan Literal Dimodifikasi", "https://alkitabkita.info/wiki/petunjuk-penggunaan-bibledit/sumber-sumber-penelitian/terjemahan-modified-literal/", "black", "orange"),
-      "NET Bible",
-      "New International Version (NIV)",
-      "Expanded Bible (EXB)",
-      "International Standard Version (ISV)",
-      "FBV",
-      "Complete Jewish Bible (CJB)",
-      "GOD’S WORD Translation (GW)",
-      // Dynamic equivalence translations resources.
-      resource_logic_assemble_rich_divider ("Terjemahan Berdasarkan Arti", "https://alkitabkita.info/wiki/petunjuk-penggunaan-bibledit/sumber-sumber-penelitian/terjemahan-berdasarkan-arti/", "black", "orange"),
-      "AlkitabKita",
-      "BIS85",
-      "TMV87",
-      resource_logic_assemble_rich_divider ("Terjemahan Berdasarkan Arti (Bahasa Inggris)", "https://alkitabkita.info/wiki/petunjuk-penggunaan-bibledit/sumber-sumber-penelitian/terjemahan-berdasarkan-arti/", "black", "darkseagreen"),
-      "New Living Translation (NLT)",
-      "UDB",
-      "GNT",
-      "FBV-Feb2022",
-      // Parafrase translations resources.
-      resource_logic_assemble_rich_divider ("Terjemahan Parafrasa", "https://alkitabkita.info/wiki/petunjuk-penggunaan-bibledit/sumber-sumber-penelitian/terjemahan-parafrasa/", "black", "orange"),
-      "FAYH",
-      resource_logic_assemble_rich_divider ("Terjemahan Parafrasa (Bahasa Inggris)", "https://alkitabkita.info/wiki/petunjuk-penggunaan-bibledit/sumber-sumber-penelitian/terjemahan-parafrasa/", "black", "darkseagreen"),
-      "J.B. Phillips New Testament (PHILLIPS)",
-      "Living Bible (TLB)",
-      // Commentaries.
-      resource_logic_assemble_rich_divider ("Tafsiran", "https://alkitabkita.info/wiki/petunjuk-penggunaan-bibledit/sumber-sumber-penelitian/tafsiran/", "black", "orange"),
-      "T4T",
-      "Barnes' Notes on the Whole Bible (studylight-eng/bnb)",
-      "Dr. Constable's Expository Notes (studylight-eng/dcc)",
-      resource_logic_assemble_rich_divider ("Komentar Alkitab Gratis oleh Dr. Bob Utley", "https://www.freebiblecommentary.org/indonesian_bible_study.htm", "black", "darkseagreen"),
-    };
   }
   // Done.
   return resources;

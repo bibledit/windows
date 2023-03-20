@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include <dialog/yes.h>
 #include <assets/header.h>
 #include <menu/logic.h>
+using namespace std;
 
 
 string mapping_map_url ()
@@ -51,8 +52,8 @@ string mapping_map (void * webserver_request)
   string page;
   
   Assets_Header header = Assets_Header (translate("Verse mappings"), webserver_request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.addBreadCrumb (mapping_index_url (), menu_logic_mapping_index_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (mapping_index_url (), menu_logic_mapping_index_text ());
 
   page = header.run ();
 
@@ -75,7 +76,7 @@ string mapping_map (void * webserver_request)
   
   page += view.render ("mapping", "map");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

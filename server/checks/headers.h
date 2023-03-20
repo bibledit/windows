@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,11 +21,11 @@
 
 #include <config/libraries.h>
 
-class Checks_Headers
-{
-public:
-  static void noPunctuationAtEnd (string bible, int book, int chapter,
-                                  map <int, string> headings,
-                                  string centermarks, string endmarks);
-private:
-};
+
+namespace checks_headers {
+
+void no_punctuation_at_end (const std::string & bible, int book, int chapter,
+                            const std::map <int, std::string> & headings,
+                            const std::string & centermarks, const std::string & endmarks);
+
+}

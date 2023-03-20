@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 #include <locale/translate.h>
 #include <bb/logic.h>
 #include <client/logic.h>
+using namespace std;
 
 
 string Paratext_Logic::searchProjectsFolder ()
@@ -125,8 +126,8 @@ int Paratext_Logic::getBook (string filename)
   fragment.erase (0, 4);
   
   // Get book from the USFM id.
-  int id = Database_Books::getIdFromUsfm (fragment);
-  return id;
+  book_id id = database::books::get_id_from_usfm (fragment);
+  return static_cast<int>(id);
 }
 
 
@@ -164,7 +165,7 @@ void Paratext_Logic::copyBibledit2Paratext (string bible)
   vector <int> bibledit_books = database_bibles.getBooks (bible);
   for (int book : bibledit_books) {
 
-    string bookname = Database_Books::getEnglishFromId (book);
+    string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
 
     string paratext_book = paratext_books [book];
 
@@ -220,7 +221,7 @@ void Paratext_Logic::copyParatext2Bibledit (string bible)
   for (auto element : paratext_books) {
 
     int book = element.first;
-    string bookname = Database_Books::getEnglishFromId (book);
+    string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
 
     string paratext_book = element.second;
     string path = filter_url_create_path ({projectFolder (bible), paratext_book});
@@ -337,7 +338,7 @@ void Paratext_Logic::synchronize (tasks::enums::paratext_sync method)
       string paratext_book = paratext_books [book];
       if (paratext_book.empty ()) {
         Database_Logs::log (journalTag (bible, book, -1) + "The Paratext project does not have this book", Filter_Roles::translator ());
-        Database_Logs::log (journalTag (bible, book, -1) + "Looked for a file with " + filter::usfm::get_opening_usfm("id") + Database_Books::getUsfmFromId (book) + " on the first line", Filter_Roles::translator ());
+        Database_Logs::log (journalTag (bible, book, -1) + "Looked for a file with " + filter::usfm::get_opening_usfm("id") + database::books::get_usfm_from_id (static_cast<book_id>(book)) + " on the first line", Filter_Roles::translator ());
         continue;
       }
       
@@ -427,6 +428,8 @@ void Paratext_Logic::synchronize (tasks::enums::paratext_sync method)
             }
             break;
           }
+          default:
+            break;
         }
 
         // If there was a result of syncing or copying, set the ancestor and paratext data.
@@ -442,13 +445,13 @@ void Paratext_Logic::synchronize (tasks::enums::paratext_sync method)
 
         // Log the change due to a merge or copy.
         if (!updated_usfm.empty ()) {
-          bible_logic_log_change (bible, book, chapter, updated_usfm, "", "Paratext", true);
+          bible_logic::log_change (bible, book, chapter, updated_usfm, "", "Paratext", true);
         }
 
         // If there's any conflicts, email full details about the conflict to the user.
         // This may enable the user to resolve conflicts manually.
         filter_merge_add_book_chapter (conflicts, book, chapter);
-        bible_logic_merge_irregularity_mail ({ username }, conflicts);
+        bible_logic::merge_irregularity_mail ({ username }, conflicts);
         
         // Store the updated chapter in Bibledit.
         if (!updated_usfm.empty ()) {
@@ -457,7 +460,7 @@ void Paratext_Logic::synchronize (tasks::enums::paratext_sync method)
           // Store it only in case the Bibledit data was updated.
           // https://github.com/bibledit/cloud/issues/339
           if (updated_usfm != bibledit) {
-            bible_logic_store_chapter (bible, book, chapter, updated_usfm);
+            bible_logic::store_chapter (bible, book, chapter, updated_usfm);
           }
         }
 
@@ -568,7 +571,7 @@ string Paratext_Logic::synchronizeReadyText ()
 // If chapter is negative, it is left out from the tag.
 string Paratext_Logic::journalTag (string bible, int book, int chapter)
 {
-  string bookname = Database_Books::getEnglishFromId (book);
+  string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
   string project = Database_Config_Bible::getParatextProject (bible);
   string fragment = bible + " <> " + project + " " + bookname;
   if (chapter >= 0) fragment.append (" " + convert_to_string (chapter));

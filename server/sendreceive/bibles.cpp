@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -40,9 +40,10 @@
 #include <checksum/logic.h>
 #include <bb/logic.h>
 #include <demo/logic.h>
+using namespace std;
 
 
-int sendreceive_bibles_watchdog = 0;
+int sendreceive_bibles_watchdog {0};
 
 
 void send_receive_bibles_done ()
@@ -145,7 +146,7 @@ void sendreceive_bibles ()
         
         sendreceive_bibles_kick_watchdog ();
 
-        string bookname = Database_Books::getEnglishFromId (book);
+        string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
         Database_Logs::log (sendreceive_bibles_text () + translate("Sending to server") + ": " + bible + " " + bookname + " " + convert_to_string (chapter), Filter_Roles::translator ());
         
         // Get old and new USFM for this chapter.
@@ -162,7 +163,7 @@ void sendreceive_bibles ()
         // If old USFM and new USFM differ, and the new USFM is not empty, send it to the server.
         if ((newusfm != oldusfm) && (newusfm != "")) {
           
-          string checksum = Checksum_Logic::get (oldusfm + newusfm);
+          string checksum = checksum_logic::get (oldusfm + newusfm);
           
           // Generate a POST request.
           map <string, string> sendpost = post;
@@ -247,7 +248,7 @@ void sendreceive_bibles ()
   // The client compares the two checksums.
   // If they match, it means everything is in sync.
   bibles = request.database_bibles()->getBibles ();
-  string client_checksum = Checksum_Logic::getBibles (&request, bibles);
+  string client_checksum = checksum_logic::get_bibles (&request, bibles);
   post ["a"] = convert_to_string (Sync_Logic::bibles_get_total_checksum);
   string server_checksum = sync_logic.post (post, url, error);
   if (!error.empty ()) {
@@ -258,7 +259,7 @@ void sendreceive_bibles ()
   if (client_checksum == server_checksum) {
     Database_Logs::log (sendreceive_bibles_up_to_date_text (), Filter_Roles::translator ());
     send_receive_bibles_done ();
-    bible_logic_kick_unreceived_data_timer ();
+    bible_logic::kick_unreceived_data_timer ();
     return;
   }
   
@@ -280,11 +281,11 @@ void sendreceive_bibles ()
   // Checksumming prevents this behaviour.
   server_checksum = v_server_bibles [0];
   v_server_bibles.erase (v_server_bibles.begin());
-  string message_checksum = Checksum_Logic::get (v_server_bibles);
+  string message_checksum = checksum_logic::get (v_server_bibles);
   if (server_checksum != message_checksum) {
     Database_Logs::log (sendreceive_bibles_text () + translate("Checksum error while receiving list of Bibles"), Filter_Roles::translator ());
     send_receive_bibles_done ();
-    bible_logic_kick_unreceived_data_timer ();
+    bible_logic::kick_unreceived_data_timer ();
     return;
   }
   Database_Logs::log (sendreceive_bibles_text () + filter_string_implode (v_server_bibles, ", "), Filter_Roles::translator ());
@@ -327,7 +328,7 @@ void sendreceive_bibles ()
     
     // Compare the checksum of the whole Bible on client and server
     // to see if this Bible is in sync.
-    string client_checksum_bible = Checksum_Logic::getBible (&request, bible);
+    string client_checksum_bible = checksum_logic::get_bible (&request, bible);
     post ["a"] = convert_to_string (Sync_Logic::bibles_get_bible_checksum);
     post ["b"] = bible;
     string server_checksum_bible = sync_logic.post (post, url, error);
@@ -356,7 +357,7 @@ void sendreceive_bibles ()
     vector <string> v_server_books = filter_string_explode (server_books, '\n');
     server_checksum_bible = v_server_books [0];
     v_server_books.erase (v_server_books.begin());
-    string message_checksum_bible = Checksum_Logic::get (v_server_books);
+    string message_checksum_bible = checksum_logic::get (v_server_books);
     if (server_checksum_bible != message_checksum_bible) {
       Database_Logs::log (sendreceive_bibles_text () + translate("Checksum error while receiving list of books from server"), Filter_Roles::translator ());
       communication_errors = true;
@@ -384,7 +385,7 @@ void sendreceive_bibles ()
       if (!client_books.empty ()) {
         int book = client_books [0];
         request.database_bibles()->deleteBook (bible, book);
-        string book_name = Database_Books::getEnglishFromId (book);
+        string book_name = database::books::get_english_from_id (static_cast<book_id>(book));
         Database_Logs::log (sendreceive_bibles_text () + translate("Deleting book because the server does not have it") + ": " + bible + " " + book_name , Filter_Roles::translator ());
       }
     }
@@ -394,11 +395,11 @@ void sendreceive_bibles ()
     for (auto & book : i_server_books) {
       
   
-      string book_name = Database_Books::getEnglishFromId (book);
+      string book_name = database::books::get_english_from_id (static_cast<book_id>(book));
       
       
       // Compare the checksum for the whole book on the client with the same on the server to see if this book is in sync.
-      string client_checksum_book = Checksum_Logic::getBook (&request, bible, book);
+      string client_checksum_book = checksum_logic::get_book (&request, bible, book);
       post ["a"] = convert_to_string (Sync_Logic::bibles_get_book_checksum);
       post ["bk"] = convert_to_string (book);
       string server_checksum_book = sync_logic.post (post, url, error);
@@ -426,7 +427,7 @@ void sendreceive_bibles ()
       // Invalid data may cause chapters to be added or deleted on the client.
       server_checksum_book = v_server_chapters [0];
       v_server_chapters.erase (v_server_chapters.begin());
-      string message_checksum_book = Checksum_Logic::get (v_server_chapters);
+      string message_checksum_book = checksum_logic::get (v_server_chapters);
       if (server_checksum_book != message_checksum_book) {
         Database_Logs::log (sendreceive_bibles_text () + translate("Checksum error while receiving list of chapters"), Filter_Roles::translator ());
         communication_errors = true;
@@ -470,7 +471,7 @@ void sendreceive_bibles ()
         
         // Get checksum for the chapter on client and on server.
         // If both are the same, it means the USFM in both is the same, and we're done.
-        string client_checksum_chapter = Checksum_Logic::getChapter (&request, bible, book, chapter);
+        string client_checksum_chapter = checksum_logic::get_chapter (&request, bible, book, chapter);
         post ["a"] = convert_to_string (Sync_Logic::bibles_get_chapter_checksum);
         post ["c"] = convert_to_string (chapter);
         string server_checksum_chapter = sync_logic.post (post, url, error);
@@ -503,7 +504,7 @@ void sendreceive_bibles ()
         string checksum = v_server_usfm [0];
         v_server_usfm.erase (v_server_usfm.begin());
         server_usfm = filter_string_implode (v_server_usfm, "\n");
-        if (Checksum_Logic::get (server_usfm) != checksum) {
+        if (checksum_logic::get (server_usfm) != checksum) {
           Database_Logs::log (sendreceive_bibles_text () + translate("Checksum error while receiving chapter from server:") + " " + bible + " " + book_name + " " + convert_to_string (chapter), Filter_Roles::translator ());
           communication_errors = true;
           continue;
@@ -531,8 +532,8 @@ void sendreceive_bibles ()
         string client_usfm = request.database_bibles()->getChapter (bible, book, chapter);
         string merged_usfm = filter_merge_run (old_usfm, client_usfm, server_usfm, true, conflicts);
         filter_merge_add_book_chapter (conflicts, book, chapter);
-        bible_logic_merge_irregularity_mail ( { user }, conflicts);
-        bible_logic_store_chapter (bible, book, chapter, merged_usfm);
+        bible_logic::merge_irregularity_mail ( { user }, conflicts);
+        bible_logic::store_chapter (bible, book, chapter, merged_usfm);
       }
     }
   }
@@ -549,7 +550,7 @@ void sendreceive_bibles ()
   
   // Done.
   Database_Logs::log (sendreceive_bibles_text () + "Ready", Filter_Roles::translator ());
-  bible_logic_kick_unreceived_data_timer ();
+  bible_logic::kick_unreceived_data_timer ();
   send_receive_bibles_done ();
 }
 

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include <ipc/focus.h>
 #include <navigation/passage.h>
 #include <notes/actions.h>
+using namespace std;
 
 
 string notes_unassign_n_url ()
@@ -61,7 +62,7 @@ string notes_unassign_n (void * webserver_request)
   // Notes can be unassigned from users who have access to the Bibles
   // the currently logged-in user has access to, and who have notes assigned.
   stringstream userblock;
-  vector <string> bibles = AccessBible::Bibles (webserver_request);
+  vector <string> bibles = access_bible::bibles (webserver_request);
   vector <string> users = database_notes.get_all_assignees (bibles);
   for (auto & user : users) {
     userblock << "<li><a href=" << quoted ("bulk?unassign=" + user) << ">" << user << "</a></li>" << endl;
@@ -70,6 +71,6 @@ string notes_unassign_n (void * webserver_request)
   
   
   page += view.render ("notes", "unassign-n");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

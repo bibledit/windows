@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@ class Database_Sblgnt
 public:
   Database_Sblgnt ();
   ~Database_Sblgnt ();
-  vector <string> getVerse (int book, int chapter, int verse);
-  vector <Passage> searchGreek (string greek);
+  std::vector <std::string> getVerse (int book, int chapter, int verse);
+  std::vector <Passage> searchGreek (std::string greek);
 private:
   sqlite3 * connect ();
 };

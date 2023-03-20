@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,14 +22,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <config/libraries.h>
 #include <filter/passage.h>
 
-class Database_Note_Action
+struct Database_Note_Action
 {
-public:
-  int rowid;
-  string username;
-  int timestamp;
-  int action;
-  string content;
+  int rowid {0};
+  std::string username {};
+  int timestamp {0};
+  int action {0};
+  std::string content {};
 };
 
 class Database_NoteActions
@@ -38,9 +37,9 @@ public:
   void create ();
   void clear ();
   void optimize ();
-  void record (const string& username, int note, int action, const string& content);
-  vector <int> getNotes ();
-  vector <Database_Note_Action> getNoteData (int note);
+  void record (const std::string& username, int note, int action, const std::string& content);
+  std::vector <int> getNotes ();
+  std::vector <Database_Note_Action> getNoteData (int note);
   void updateNotes (int oldId, int newId);
   void erase (int rowid);
   bool exists (int note);

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <config/globals.h>
 #include <database/config/general.h>
 #include <setup/logic.h>
+using namespace std;
 
 
 // Returns a html page with a Bibledit splash screen.
@@ -160,7 +161,7 @@ string setup_index (void * webserver_request)
     view.set_variable ("readonly", "readonly");
     // If the admin's are already there, then the setup has completed.
     // The automatic page refresh will kick in, and navigate to the main screen.
-    Database_Config_General::setInstalledInterfaceVersion (config_logic_version ());
+    Database_Config_General::setInstalledInterfaceVersion (config::logic::version ());
   }
 
   return view.render ("setup", "index");

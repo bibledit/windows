@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -20,5 +20,6 @@
 #pragma once
 
 #include <config/libraries.h>
+enum class book_id;
 
-bool book_create (string bible, int book, int chapter, vector <string> & feedback);
+bool book_create (const std::string & bible, const book_id book, const int chapter, std::vector <std::string> & feedback);

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,12 +25,12 @@ class Database_State
 {
 public:
   static void create ();
-  static void putNotesChecksum (int first, int last, const string& checksum);
-  static string getNotesChecksum (int first, int last);
+  static void putNotesChecksum (int first, int last, const std::string& checksum);
+  static std::string getNotesChecksum (int first, int last);
   static void eraseNoteChecksum (int identifier);
-  static void setExport (const string & bible, int book, int format);
-  static bool getExport (const string & bible, int book, int format);
-  static void clearExport (const string & bible, int book, int format);
+  static void setExport (const std::string & bible, int book, int format);
+  static bool getExport (const std::string & bible, int book, int format);
+  static void clearExport (const std::string & bible, int book, int format);
 private:
   static sqlite3 * connect ();
   static const char * name ();

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,19 +24,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 class Esword_Text
 {
 public:
-  Esword_Text (string bible);
+  Esword_Text (std::string bible);
   void flushCache ();
   void newBook (int book);
   void newChapter (int chapter);
   void newVerse (int verse);
-  void addText (string text);
+  void addText (std::string text);
   void finalize ();
-  void createModule (string filename);
-  vector <string> get_sql ();
+  void createModule (std::string filename);
+  std::vector <std::string> get_sql ();
 private:
-  int currentBook;
-  int currentChapter;
-  int currentVerse;
-  string currentText;
-  vector <string> sql; // Contains the generated SQL.
+  int currentBook {0};
+  int currentChapter {0};
+  int currentVerse {0};
+  std::string currentText {};
+  std::vector <std::string> sql {}; // Contains the generated SQL.
 };

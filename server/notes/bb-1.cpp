@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include <ipc/focus.h>
 #include <navigation/passage.h>
 #include <notes/actions.h>
+using namespace std;
 
 
 string notes_bible_1_url ()
@@ -74,7 +75,7 @@ string notes_bible_1 (void * webserver_request)
   
   
   stringstream bibleblock;
-  vector <string> bibles = AccessBible::Bibles (webserver_request);
+  vector <string> bibles = access_bible::bibles (webserver_request);
   bibles.push_back (notes_logic.generalBibleName ());
   for (auto & bible : bibles) {
     bibleblock << "<li><a href=" << quoted("bb-1?id=" + convert_to_string (id) + "&bible=" + bible) << ">" << bible << "</a></li>" << endl;
@@ -85,6 +86,6 @@ string notes_bible_1 (void * webserver_request)
   view.set_variable ("success", success);
   view.set_variable ("error", error);
   page += view.render ("notes", "bb-1");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,13 +32,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <trash/handler.h>
 #include <webserver/request.h>
 #pragma GCC diagnostic push
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
 #pragma GCC diagnostic ignored "-Weffc++"
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <jsonxx/jsonxx.h>
 #pragma GCC diagnostic pop
 #include <database/logic.h>
 #include <time.h>
-
-
+using namespace std;
 using namespace jsonxx;
 
 
@@ -657,9 +659,10 @@ vector <int> Database_Notes::select_notes (vector <string> bibles, int book, int
     case 3:
       // Select notes that refer to any passage: No constraint to apply here.
       break;
+    default: break;
   }
   // Consider edit selector.
-  int time = 0;
+  int time { 0 };
   switch (edit_selector) {
     case 0:
       // Select notes that have been edited at any time. Apply no constraint.
@@ -681,6 +684,7 @@ vector <int> Database_Notes::select_notes (vector <string> bibles, int book, int
       // Select notes that have been edited today.
       time = filter::date::seconds_since_epoch () - filter::date::numerical_hour (filter::date::seconds_since_epoch ()) * 3600;
       break;
+    default: break;
   }
   if (time != 0) {
     query.append (" AND modified >= ");
@@ -688,7 +692,7 @@ vector <int> Database_Notes::select_notes (vector <string> bibles, int book, int
     query.append (" ");
   }
   // Consider non-edit selector.
-  int nonedit = 0;
+  int nonedit { 0 };
   switch (non_edit_selector) {
     case 0:
       // Select notes that have not been edited at any time. Apply no constraint.
@@ -714,6 +718,7 @@ vector <int> Database_Notes::select_notes (vector <string> bibles, int book, int
       // Select notes that have not been edited for a year.
       nonedit = filter::date::seconds_since_epoch () - 365 * 24 * 3600;
       break;
+    default: break;
   }
   if (nonedit != 0) {
     query.append (" AND modified <= ");
@@ -1388,7 +1393,7 @@ string Database_Notes::get_severity (int identifier)
   int severity = get_raw_severity (identifier);
   vector <string> standard = standard_severities ();
   string severitystring;
-  if ((severity >= 0) && (severity < (int)standard.size())) severitystring = standard [static_cast<size_t> (severity)];
+  if ((severity >= 0) && (severity < static_cast<int>(standard.size()))) severitystring = standard [static_cast<size_t> (severity)];
   if (severitystring.empty()) severitystring = "Normal";
   severitystring = translate (severitystring.c_str());
   return severitystring;

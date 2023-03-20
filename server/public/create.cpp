@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@
 #include <public/index.h>
 #include <database/config/bible.h>
 #include <read/index.h>
+using namespace std;
 
 
 string public_create_url ()
@@ -89,13 +90,8 @@ string public_create (void * webserver_request)
     // Subscribe the user to the note.
     // Then the user receives email about any updates made on this note.
     database_notes.subscribe (identifier);
-    // Indonesian Cloud Free
-    // Go to the main read Bible page.
-    if (config_logic_indonesian_cloud_free_simple ()) {
-      redirect_browser (request, read_index_url ());
-    }
     // Go to the main public notes page.
-    if (config_logic_default_bibledit_configuration ()) {
+    if (config::logic::default_bibledit_configuration ()) {
       redirect_browser (request, public_index_url ());
     }
     return "";
@@ -103,10 +99,7 @@ string public_create (void * webserver_request)
 
   
   if (request->post.count ("cancel")) {
-    if (config_logic_indonesian_cloud_free_simple ()) {
-      redirect_browser (request, read_index_url ());
-    }
-    if (config_logic_default_bibledit_configuration ()) {
+    if (config::logic::default_bibledit_configuration ()) {
       redirect_browser (request, public_index_url ());
     }
     return "";
@@ -118,6 +111,6 @@ string public_create (void * webserver_request)
                                                                                                       
   
   page += view.render ("public", "create");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

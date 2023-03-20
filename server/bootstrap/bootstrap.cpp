@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <manage/write.h>
 #include <manage/privileges.h>
 #include <system/index.h>
+#include <system/googletranslate.h>
 #include <collaboration/index.h>
 #include <collaboration/settings.h>
 #include <styles/indexm.h>
@@ -207,11 +208,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <session/confirm.h>
 #include <resource/comparative9edit.h>
 #include <resource/comparative1edit.h>
+#include <resource/translated9edit.h>
+#include <resource/translated1edit.h>
 #include <developer/logic.h>
 #include <developer/delay.h>
 #include <images/index.h>
 #include <images/view.h>
 #include <images/fetch.h>
+using namespace std;
 
 
 // Check whether a request coming from the browser is considered secure enough.
@@ -281,7 +285,7 @@ void bootstrap_index (void * webserver_request)
       || (filter_url_is_image (extension))
       || (extension == "css")
       || (extension == "js")
-      || (Fonts_Logic::isFont (extension))
+      || (Fonts_Logic::is_font (extension))
       || (extension == "sh")
       || (extension == "map")
       || (extension == "webmanifest")
@@ -304,13 +308,13 @@ void bootstrap_index (void * webserver_request)
   }
   
   // Serve initialization notice.
-  if (config_logic_version () != Database_Config_General::getInstalledDatabaseVersion ()) {
+  if (config::logic::version () != Database_Config_General::getInstalledDatabaseVersion ()) {
     request->reply = setup_initialization_notice ();
     return;
   }
   
   // Force setup.
-  if (config_logic_version () != Database_Config_General::getInstalledInterfaceVersion ()) {
+  if (config::logic::version () != Database_Config_General::getInstalledInterfaceVersion ()) {
     request->reply = setup_index (request);
     return;
   }
@@ -704,6 +708,10 @@ void bootstrap_index (void * webserver_request)
     return;
   }
 
+  if ((url == system_googletranslate_url ()) && browser_request_security_okay (request) && system_googletranslate_acl (request)) {
+    request->reply = system_googletranslate (request);
+    return;
+  }
 
   if ((url == email_index_url ()) && browser_request_security_okay (request) && email_index_acl (request)) {
     request->reply = email_index (request);
@@ -1245,6 +1253,16 @@ void bootstrap_index (void * webserver_request)
 
   if ((url == resource_comparative1edit_url ()) && browser_request_security_okay (request) && resource_comparative1edit_acl (request)) {
     request->reply = resource_comparative1edit (request);
+    return;
+  }
+
+  if ((url == resource_translated9edit_url ()) && browser_request_security_okay (request) && resource_translated9edit_acl (request)) {
+    request->reply = resource_translated9edit (request);
+    return;
+  }
+  
+  if ((url == resource_translated1edit_url ()) && browser_request_security_okay (request) && resource_translated1edit_acl (request)) {
+    request->reply = resource_translated1edit (request);
     return;
   }
 

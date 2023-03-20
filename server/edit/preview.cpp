@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 #include <menu/logic.h>
 #include <bb/logic.h>
 #include <editor/usfm2html.h>
+using namespace std;
 
 
 string edit_preview_url ()
@@ -47,7 +48,7 @@ string edit_preview_url ()
 bool edit_preview_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return read;
 }
 
@@ -63,10 +64,10 @@ string edit_preview (void * webserver_request)
   string page;
   
   Assets_Header header = Assets_Header (translate("Preview"), request);
-  header.setNavigator ();
-  header.setEditorStylesheet ();
-  if (touch) header.jQueryTouchOn ();
-  header.addBreadCrumb (menu_logic_translate_menu (), menu_logic_translate_text ());
+  header.set_navigator ();
+  header.set_editor_stylesheet ();
+  if (touch) header.jquery_touch_on ();
+  header.add_bread_crumb (menu_logic_translate_menu (), menu_logic_translate_text ());
   if (timeout) header.refresh (5, "../" + caller + "/index");
   page = header.run ();
   
@@ -74,16 +75,16 @@ string edit_preview (void * webserver_request)
   
   // Get active Bible, and check read access to it.
   // If needed, change Bible to one it has read access to.
-  string bible = AccessBible::Clamp (request, request->database_config_user()->getBible ());
+  string bible = access_bible::clamp (request, request->database_config_user()->getBible ());
   
   string cls = Filter_Css::getClass (bible);
-  string font = Fonts_Logic::getTextFont (bible);
+  string font = Fonts_Logic::get_text_font (bible);
   int direction = Database_Config_Bible::getTextDirection (bible);
   int lineheight = Database_Config_Bible::getLineHeight (bible);
   int letterspacing = Database_Config_Bible::getLetterSpacing (bible);
   view.set_variable ("custom_class", cls);
-  view.set_variable ("custom_css", Filter_Css::getCss (cls,
-                                                       Fonts_Logic::getFontPath (font),
+  view.set_variable ("custom_css", Filter_Css::get_css (cls,
+                                                       Fonts_Logic::get_font_path (font),
                                                        direction,
                                                        lineheight,
                                                        letterspacing));
@@ -98,6 +99,7 @@ string edit_preview (void * webserver_request)
   Editor_Usfm2Html editor_usfm2html;
   editor_usfm2html.load (usfm);
   editor_usfm2html.stylesheet (stylesheet);
+  editor_usfm2html.set_preview();
   editor_usfm2html.run ();
   
   string html = editor_usfm2html.get ();
@@ -113,7 +115,7 @@ string edit_preview (void * webserver_request)
   
   page += view.render ("edit", "preview");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

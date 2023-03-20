@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -34,11 +34,12 @@
 #include <filter/usfm.h>
 #include <locale/translate.h>
 #include <styles/sheets.h>
+using namespace std;
 
 
 void export_esword (string bible, bool log)
 {
-  string directory = filter_url_create_path ({Export_Logic::bibleDirectory (bible), "esword"});
+  string directory = filter_url_create_path ({export_logic::bible_directory (bible), "esword"});
   if (!file_or_dir_exists (directory)) filter_url_mkdir (directory);
   
   
@@ -69,7 +70,7 @@ void export_esword (string bible, bool log)
   filter_text_bible.esword_text->createModule (filename);
 
   
-  Database_State::clearExport (bible, 0, Export_Logic::export_esword);
+  Database_State::clearExport (bible, 0, export_logic::export_esword);
 
   
   if (log) Database_Logs::log (translate("Exported to e-Sword") + " " + bible, Filter_Roles::translator ());

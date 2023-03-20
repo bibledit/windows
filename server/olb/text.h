@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,13 +26,13 @@ class OnlineBible_Text
 public:
   OnlineBible_Text ();
   void newVerse (int bookIdentifier, int chapterNumber, int verseNumber);
-  void addText (string text);
+  void addText (std::string text);
   void addNote ();
   void closeCurrentNote ();
-  void save (string name);
+  void save (std::string name);
   void storeData ();
 private:
-  string currentLine;
-  bool lineLoaded = false;
-  vector <string> output;
+  std::string currentLine {};
+  bool lineLoaded {false};
+  std::vector <std::string> output {};
 };

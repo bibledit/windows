@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -37,11 +37,12 @@
 #include <html/header.h>
 #include <locale/translate.h>
 #include <styles/sheets.h>
+using namespace std;
 
 
 void export_web_book (string bible, int book, bool log)
 {
-  string directory = Export_Logic::webDirectory (bible);
+  string directory = export_logic::web_directory (bible);
   if (!file_or_dir_exists (directory)) filter_url_mkdir (directory);
   
   
@@ -56,10 +57,10 @@ void export_web_book (string bible, int book, bool log)
   
   
   // Copy font to the output directory.
-  string font = Fonts_Logic::getTextFont (bible);
+  string font = Fonts_Logic::get_text_font (bible);
   if (!font.empty ()) {
-    if (Fonts_Logic::fontExists (font)) {
-      string fontpath = Fonts_Logic::getFontPath (font);
+    if (Fonts_Logic::font_exists (font)) {
+      string fontpath = Fonts_Logic::get_font_path (font);
       string contents = filter_url_file_get_contents (fontpath);
       fontpath = filter_url_create_path ({directory, font});
       filter_url_file_put_contents (fontpath, contents);
@@ -67,10 +68,10 @@ void export_web_book (string bible, int book, bool log)
   }
   
   
-  string backLinkPath = Export_Logic::webBackLinkDirectory (bible);
+  string backLinkPath = export_logic::web_back_link_directory (bible);
   
   
-  string bibleBookText = bible + " " + Database_Books::getEnglishFromId (book);
+  string bibleBookText = bible + " " + database::books::get_english_from_id (static_cast<book_id>(book));
   
   
   // Web index file for the book.
@@ -79,7 +80,7 @@ void export_web_book (string bible, int book, bool log)
   htmlHeader.search_back_link (backLinkPath + filter_url_html_file_name_bible ("", book), translate("Go back to") + " " + bibleBookText);
   htmlHeader.create ({
     pair (bible, filter_url_html_file_name_bible ()),
-    pair (translate (Database_Books::getEnglishFromId (book)), filter_url_html_file_name_bible ())
+    pair (translate (database::books::get_english_from_id (static_cast<book_id>(book))), filter_url_html_file_name_bible ())
   });
   html_text_rich_book_index.new_paragraph ("navigationbar");
   html_text_rich_book_index.add_text ("|");
@@ -111,7 +112,7 @@ void export_web_book (string bible, int book, bool log)
     html_header.search_back_link (backLinkPath + filter_url_html_file_name_bible ("", book, chapter), translate("Go back to") + " " + bibleBookText + " " + convert_to_string (chapter));
     vector <pair <string, string> > breadcrumbs_navigator;
     breadcrumbs_navigator.push_back (pair (bible, filter_url_html_file_name_bible ()));
-    breadcrumbs_navigator.push_back (pair (translate (Database_Books::getEnglishFromId (book)), filter_url_html_file_name_bible ()));
+    breadcrumbs_navigator.push_back (pair (translate (database::books::get_english_from_id (static_cast<book_id>(book))), filter_url_html_file_name_bible ()));
     if (!is_first_chapter) {
       breadcrumbs_navigator.push_back (pair ("«", filter_url_html_file_name_bible ("", book, chapter - 1)));
     }
@@ -122,7 +123,7 @@ void export_web_book (string bible, int book, bool log)
     // Optionally add a link for giving feedback by email.
     if (!feedback_email.empty ()) {
       breadcrumbs_navigator.push_back (pair ("|", ""));
-      string subject = translate ("Comment on") + " " + bible + " " + Database_Books::getEnglishFromId (book) + " " + convert_to_string (chapter);
+      string subject = translate ("Comment on") + " " + bible + " " + database::books::get_english_from_id (static_cast<book_id>(book)) + " " + convert_to_string (chapter);
       subject = filter_string_str_replace (" ", "%20", subject);
       string link = "mailto:" + feedback_email + "?Subject=" + subject;
       breadcrumbs_navigator.push_back (pair (translate ("Feedback"), link));
@@ -150,17 +151,17 @@ void export_web_book (string bible, int book, bool log)
   
   
   // Clear the flag for this export.
-  Database_State::clearExport (bible, book, Export_Logic::export_web);
+  Database_State::clearExport (bible, book, export_logic::export_web);
   
   
-  if (log) Database_Logs::log (translate("Exported to web") + ": " + bible + " " + Database_Books::getEnglishFromId (book), Filter_Roles::translator ());
+  if (log) Database_Logs::log (translate("Exported to web") + ": " + bible + " " + database::books::get_english_from_id (static_cast<book_id>(book)), Filter_Roles::translator ());
 }
 
 
 void export_web_index (string bible, bool log)
 {
   // Create folders for the web export.
-  string directory = Export_Logic::webDirectory (bible);
+  string directory = export_logic::web_directory (bible);
   if (!file_or_dir_exists (directory)) filter_url_mkdir (directory);
   
   
@@ -181,7 +182,7 @@ void export_web_index (string bible, bool log)
   styles_sheets.create (stylesheet, filecss, false, bible);
   
   
-  string backLinkPath = Export_Logic::webBackLinkDirectory (bible);
+  string backLinkPath = export_logic::web_back_link_directory (bible);
   
   
   // Main index file.
@@ -201,7 +202,7 @@ void export_web_index (string bible, bool log)
   vector <int> books = database_bibles.getBooks (bible);
   for (auto book : books) {
     // Add this book to the main web index.
-    html_text_rich_bible_index.add_link (html_text_rich_bible_index.current_p_node,  filter_url_html_file_name_bible ("", book), "", translate (Database_Books::getEnglishFromId (book)), "", " " + translate (Database_Books::getEnglishFromId (book)) + " ");
+    html_text_rich_bible_index.add_link (html_text_rich_bible_index.current_p_node,  filter_url_html_file_name_bible ("", book), "", translate (database::books::get_english_from_id (static_cast<book_id>(book))), "", " " + translate (database::books::get_english_from_id (static_cast<book_id>(book))) + " ");
     html_text_rich_bible_index.add_text ("|");
   }
   
@@ -219,7 +220,7 @@ void export_web_index (string bible, bool log)
 
   
   // Clear the flag that indicated this export.
-  Database_State::clearExport (bible, 0, Export_Logic::export_web_index);
+  Database_State::clearExport (bible, 0, export_logic::export_web_index);
 
   
   if (log) Database_Logs::log (translate("Exported to web") + ": " + bible + " Index", Filter_Roles::translator ());

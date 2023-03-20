@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,14 +33,14 @@ public:
   void optimize ();
   unsigned int get_new_id ();
   bool id_exists (unsigned int id);
-  void store (unsigned int id, string query, string to, string subject, string body, string username);
-  unsigned int search_id (string subject);
-  vector <int> get_ids ();
-  string get_query (unsigned int id);
-  string get_mail_to (unsigned int id);
-  string get_subject (unsigned int id);
-  string get_body (unsigned int id);
-  string get_username (unsigned int id);
+  void store (unsigned int id, std::string query, std::string to, std::string subject, std::string body, std::string username);
+  unsigned int search_id (std::string subject);
+  std::vector <int> get_ids ();
+  std::string get_query (unsigned int id);
+  std::string get_mail_to (unsigned int id);
+  std::string get_subject (unsigned int id);
+  std::string get_body (unsigned int id);
+  std::string get_username (unsigned int id);
   void erase (unsigned int id);
   void trim ();
 private:

@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
 #include <dialog/list2.h>
+using namespace std;
 
 
 // Generate the option tags based on the inserted key and its value.

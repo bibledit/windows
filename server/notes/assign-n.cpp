@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@
 #include <ipc/focus.h>
 #include <navigation/passage.h>
 #include <notes/actions.h>
+using namespace std;
 
 
 string notes_assign_n_url ()
@@ -73,6 +74,6 @@ string notes_assign_n (void * webserver_request)
   
   
   page += view.render ("notes", "assign-n");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

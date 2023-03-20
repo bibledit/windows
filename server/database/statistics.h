@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,9 +28,9 @@ class Database_Statistics
 public:
   static void create ();
   static void optimize ();
-  static void store_changes (int timestamp, string user, int count);
-  static vector <string> get_users ();
-  static vector <pair <int, int>> get_changes (string user);
+  static void store_changes (int timestamp, std::string user, int count);
+  static std::vector <std::string> get_users ();
+  static std::vector <std::pair <int, int>> get_changes (std::string user);
 private:
   static const char * name ();
   static int year_ago ();

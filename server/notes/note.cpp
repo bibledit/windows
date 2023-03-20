@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 #include <navigation/passage.h>
 #include <notes/index.h>
 #include <access/logic.h>
+using namespace std;
 
 
 string notes_note_url ()
@@ -44,7 +45,7 @@ string notes_note_url ()
 
 bool notes_note_acl (void * webserver_request)
 {
-  return access_logic_privilege_view_notes (webserver_request);
+  return access_logic::privilege_view_notes (webserver_request);
 }
 
 
@@ -56,7 +57,7 @@ string notes_note (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate("Note"), request);
-  header.setNavigator ();
+  header.set_navigator ();
 
   
   // After adding a comment to a note, when doing nothing for several seconds,
@@ -140,12 +141,12 @@ string notes_note (void * webserver_request)
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ())) {
     view.enable_zone ("consultant");
   }
-  if (access_logic_privilege_create_comment_notes (webserver_request)) {
+  if (access_logic::privilege_create_comment_notes (webserver_request)) {
     view.enable_zone ("comment");
   }
   
   view.set_variable ("success", success);
   page += view.render ("notes", "note");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

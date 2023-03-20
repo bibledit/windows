@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 #include <menu/logic.h>
 #include <resource/cache.h>
 #include <client/logic.h>
+using namespace std;
 
 
 string resource_download_url ()
@@ -58,8 +59,8 @@ string resource_download (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate("Download resource"), request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.addBreadCrumb (resource_cache_url (), menu_logic_resources_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (resource_cache_url (), menu_logic_resources_text ());
   page = header.run ();
   Assets_View view;
 
@@ -94,7 +95,7 @@ string resource_download (void * webserver_request)
     for (auto book : books) {
       vector <int> chapters = database_usfmresources.getChapters (name, book);
       // Rough average of 20 verses per chapter.
-      count += (20 * chapters.size());
+      count += static_cast<int>(20 * chapters.size());
     }
   }
   if (count == 0) count = Database_Cache::count (name);
@@ -111,6 +112,6 @@ string resource_download (void * webserver_request)
   
   
   page += view.render ("resource", "download");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

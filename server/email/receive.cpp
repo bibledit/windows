@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <confirm/worker.h>
 #include <notes/logic.h>
 #include <filter/url.h>
+using namespace std;
 
 
 void email_receive ()
@@ -93,17 +94,17 @@ struct cstring {
 };
 
 
-void init_string (struct cstring *s) {
+void init_string (cstring *s) {
   s->len = 0;
-  s->ptr = (char *) malloc(s->len+1);
+  s->ptr = static_cast<char *>(malloc(s->len+1));
   s->ptr[0] = '\0';
 }
 
 
-size_t writefunc(void *ptr, size_t size, size_t nmemb, struct cstring *s)
+size_t writefunc(void *ptr, size_t size, size_t nmemb, cstring *s)
 {
   size_t new_len = s->len + size*nmemb;
-  s->ptr = (char *) realloc (s->ptr, new_len+1);
+  s->ptr = static_cast<char *>(realloc (s->ptr, new_len+1));
   memcpy(s->ptr+s->len, ptr, size*nmemb);
   s->ptr[new_len] = '\0';
   s->len = new_len;
@@ -138,7 +139,7 @@ int email_receive_count (string& error, bool verbose)
   CURL *curl;
   CURLcode res = CURLE_OK;
 
-  struct cstring s;
+  cstring s;
   init_string (&s);
 
   curl = curl_easy_init ();
@@ -148,7 +149,7 @@ int email_receive_count (string& error, bool verbose)
 
   curl_easy_setopt (curl, CURLOPT_URL, url ().c_str());
 
-  curl_easy_setopt (curl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
+  curl_easy_setopt (curl, CURLOPT_USE_SSL, static_cast<long>(CURLUSESSL_ALL));
   curl_easy_setopt (curl, CURLOPT_SSL_VERIFYPEER, 0); 
   curl_easy_setopt (curl, CURLOPT_SSL_VERIFYHOST, 0); 
 
@@ -171,9 +172,11 @@ int email_receive_count (string& error, bool verbose)
   int mailcount = 0;
   
   if (res == CURLE_OK) {
-    string response = (char *) s.ptr;
-    response = filter_string_trim (response);
-    mailcount = static_cast<int>(filter_string_explode (response, '\n').size());
+    if (s.ptr) {
+      string response = s.ptr;
+      response = filter_string_trim (response);
+      mailcount = static_cast<int>(filter_string_explode (response, '\n').size());
+    }
   } else {
     error = curl_easy_strerror (res);
   }
@@ -198,7 +201,7 @@ string email_receive_message (string& error)
   CURL *curl;
   CURLcode res = CURLE_OK;
 
-  struct cstring s;
+  cstring s;
   init_string (&s);
 
   curl = curl_easy_init ();
@@ -209,7 +212,7 @@ string email_receive_message (string& error)
   string message_url = url () + "/1";
   curl_easy_setopt (curl, CURLOPT_URL, message_url.c_str());
 
-  curl_easy_setopt (curl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
+  curl_easy_setopt (curl, CURLOPT_USE_SSL, static_cast<long>(CURLUSESSL_ALL));
   curl_easy_setopt (curl, CURLOPT_SSL_VERIFYPEER, 0); 
   curl_easy_setopt (curl, CURLOPT_SSL_VERIFYHOST, 0); 
 
@@ -224,10 +227,10 @@ string email_receive_message (string& error)
   
   res = curl_easy_perform (curl);
 
-  string body;
+  string body {};
   
   if (res == CURLE_OK) {
-    body = (char *) s.ptr;
+    if (s.ptr) body = s.ptr;
   } else {
     error = curl_easy_strerror (res);
   }

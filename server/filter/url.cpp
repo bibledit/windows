@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,14 +21,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <webserver/http.h>
 #include <webserver/request.h>
 #include <config/globals.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <filter/UriCodec.cpp>
+#pragma GCC diagnostic pop
 #include <filter/string.h>
 #include <filter/date.h>
 #include <database/books.h>
 #include <database/logs.h>
-#ifndef HAVE_CLIENT
+#ifdef HAVE_CLOUD
 #include <curl/curl.h>
 #endif
+#pragma GCC diagnostic push
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 #include <mbedtls/net_sockets.h>
 #include <mbedtls/debug.h>
 #include <mbedtls/ssl.h>
@@ -36,9 +43,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/error.h>
 #include <mbedtls/certs.h>
+#pragma GCC diagnostic pop
 #ifdef HAVE_WINDOWS
 #include <direct.h>
 #include <io.h>
+#endif
+using namespace std;
+
+
+// Internal function declarations.
+vector <string> filter_url_scandir_internal (string folder);
+string filter_url_dirname_internal (string url, const char * separator);
+string filter_url_basename_internal (string url, const char * separator);
+size_t filter_url_curl_write_function (void *ptr, size_t size, size_t count, void *stream);
+void filter_url_curl_debug_dump (const char *text, FILE *stream, unsigned char *ptr, size_t size);
+#ifdef HAVE_CLOUD
+int filter_url_curl_trace (CURL *handle, curl_infotype type, char *data, size_t size, void *userp);
 #endif
 
 
@@ -78,8 +98,8 @@ vector <string> filter_url_scandir_internal (string folder)
   
   DIR * dir = opendir (folder.c_str());
   if (dir) {
-    struct dirent * direntry;
-    while ((direntry = readdir (dir)) != NULL) {
+    dirent * direntry;
+    while ((direntry = readdir (dir)) != nullptr) {
       string name = direntry->d_name;
       // Exclude short-hand directory names.
       if (name == ".") continue;
@@ -113,10 +133,10 @@ string get_base_url (void * webserver_request)
   string port;
   if (request->secure || config_globals_enforce_https_browser) {
     scheme = "https";
-    port = config_logic_https_network_port ();
+    port = config::logic::https_network_port ();
   } else {
     scheme = "http";
-    port = config_logic_http_network_port ();
+    port = config::logic::http_network_port ();
   }
   string url = scheme + "://" + request->host + ":" + port + "/";
   return url;
@@ -135,15 +155,15 @@ void redirect_browser (void * webserver_request, string path)
   // The absolute location contains the user-facing URL, when the administrator entered it.
   // This is needed in case of a proxy server,
   // where Bibledit may not be able to obtain the user-facing URL of the website.
-  string location = config_logic_site_url (webserver_request);
+  string location = config::logic::site_url (webserver_request);
   
   // If the request was secure, or supposed to be secure,
   // ensure the location contains https rather than plain http,
   // plus the correct secure port.
   if (request->secure || config_globals_enforce_https_browser) {
     location = filter_string_str_replace ("http:", "https:", location);
-    string plainport = config_logic_http_network_port ();
-    string secureport = config_logic_https_network_port ();
+    string plainport = config::logic::http_network_port ();
+    string secureport = config::logic::https_network_port ();
     location = filter_string_str_replace (":" + plainport, ":" + secureport, location);
   }
   
@@ -635,9 +655,9 @@ string filter_url_file_get_contents(string filename)
     streamoff filesize = ifs.tellg();
     if (filesize == 0) return string();
     ifs.seekg(0, ios::beg);
-    vector <char> bytes((int)filesize);
-    ifs.read(&bytes[0], (int)filesize);
-    return string(&bytes[0], (int)filesize);
+    vector <char> bytes(static_cast<size_t> (filesize));
+    ifs.read(&bytes[0], static_cast<int> (filesize));
+    return string(&bytes[0], static_cast<size_t> (filesize));
   }
   catch (...) {
     return string();
@@ -739,7 +759,7 @@ int filter_url_filesize (string filename)
   struct stat buf;
   int rc = stat (filename.c_str (), &buf);
 #endif
-  return rc == 0 ? (int)(buf.st_size) : 0;
+  return rc == 0 ? static_cast<int> (buf.st_size) : 0;
 }
 
 
@@ -927,7 +947,7 @@ string filter_url_build_http_query (string url, const string& parameter, const s
 
 size_t filter_url_curl_write_function (void *ptr, size_t size, size_t count, void *stream)
 {
-  ((string *) stream)->append ((char *) ptr, 0, size * count);
+  static_cast<string *>(stream)->append (static_cast<char *>(ptr), 0, size * count);
   return size * count;
 }
 
@@ -957,7 +977,7 @@ string filter_url_http_get (string url, string& error, [[maybe_unused]] bool che
       long http_code = 0;
       curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
       if (http_code != 200) {
-        response.append ("http code " + convert_to_string ((int)http_code));
+        response.append ("http code " + convert_to_string (static_cast<int>(http_code)));
       }
     } else {
       response.clear ();
@@ -970,16 +990,90 @@ string filter_url_http_get (string url, string& error, [[maybe_unused]] bool che
 }
 
 
+// The debug function for libcurl, it dumps the data as specified.
+void filter_url_curl_debug_dump (const char *text, FILE *stream, unsigned char *ptr, size_t size)
+{
+  size_t i;
+  size_t c;
+  unsigned int width = 0x10;
+  
+  fprintf(stream, "%s, %10.10ld bytes (0x%8.8lx)\n", text, static_cast<long> (size), static_cast<long> (size));
+  
+  for (i = 0; i < size; i += width) {
+    fprintf(stream, "%4.4lx: ", static_cast<long> (i));
+    
+    // Show hex to the left.
+    for (c = 0; c < width; c++) {
+      if (i + c < size) fprintf (stream, "%02x ", ptr[i + c]);
+      else fputs("   ", stream);
+    }
+    
+    // Show data on the right.
+    for (c = 0; (c < width) && (i + c < size); c++) {
+      unsigned char x = (ptr[i + c] >= 0x20 && ptr[i + c] < 0x80) ? ptr[i + c] : '.';
+      fputc (x, stream);
+    }
+
+    // Newline.
+    fputc ('\n', stream);
+  }
+}
+
+
+// The trace function for libcurl.
+#ifdef HAVE_CLOUD
+int filter_url_curl_trace (CURL *handle, curl_infotype type, char *data, size_t size, void *userp)
+{
+  const char *text { nullptr };
+
+  // Prevent compiler warnings.
+  (void)handle;
+  (void)userp;
+  
+  switch (type) {
+    case CURLINFO_TEXT:
+      fprintf(stderr, "== Info: %s", data);
+      return 0;
+    case CURLINFO_HEADER_OUT:
+      text = "=> Send header";
+      break;
+    case CURLINFO_DATA_OUT:
+      text = "=> Send data";
+      break;
+    case CURLINFO_SSL_DATA_OUT:
+      text = "=> Send SSL data";
+      break;
+    case CURLINFO_HEADER_IN:
+      text = "<= Recv header";
+      break;
+    case CURLINFO_DATA_IN:
+      text = "<= Recv data";
+      break;
+    case CURLINFO_SSL_DATA_IN:
+      text = "<= Recv SSL data";
+      break;
+    case CURLINFO_END:
+    default: 
+      return 0;
+  }
+  
+  filter_url_curl_debug_dump(text, stderr, reinterpret_cast<unsigned char *> (data), size);
+  return 0;
+}
+#endif
+
+
 // Sends a http POST request to $url.
 // burst: Set connection timing for burst mode, where the response comes after a relatively long silence.
-// It posts the $values.
+// It posts the $post_data as-t.
+// It appends the $values to the post data.
 // It returns the response from the server.
 // It writes any error to $error.
-string filter_url_http_post (string url, map <string, string> values, string& error, [[maybe_unused]] bool burst, [[maybe_unused]] bool check_certificate)
+string filter_url_http_post (const string & url, [[maybe_unused]] string post_data, const map <string, string> & post_values, string& error, [[maybe_unused]] bool burst, [[maybe_unused]] bool check_certificate, [[maybe_unused]] const vector <pair <string, string> > & headers)
 {
   string response;
 #ifdef HAVE_CLIENT
-  response = filter_url_http_request_mbed (url, error, values, "", check_certificate);
+  response = filter_url_http_request_mbed (url, error, post_values, "", check_certificate);
 #else
   // Get a curl handle.
   CURL *curl = curl_easy_init ();
@@ -987,24 +1081,39 @@ string filter_url_http_post (string url, map <string, string> values, string& er
     // First set the URL that is about to receive the POST.
     // This can be http or https.
     curl_easy_setopt (curl, CURLOPT_URL, url.c_str());
-    // Generate the post data.
-    string postdata;
-    for (auto & element : values) {
-      if (!postdata.empty ()) postdata.append ("&");
-      postdata.append (element.first);
-      postdata.append ("=");
-      postdata.append (filter_url_urlencode (element.second));
+    // Generate the post data, add it to the plain post data.
+    for (auto & element : post_values) {
+      if (!post_data.empty ()) post_data.append ("&");
+      post_data.append (element.first);
+      post_data.append ("=");
+      post_data.append (filter_url_urlencode (element.second));
     }
     // Specify the POST data to curl, e.g.: "name=foo&project=bar"
-    curl_easy_setopt (curl, CURLOPT_POSTFIELDS, postdata.c_str());
+    curl_easy_setopt (curl, CURLOPT_POSTFIELDS, post_data.c_str());
     // Callback for the server response.
     curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, filter_url_curl_write_function);
     curl_easy_setopt (curl, CURLOPT_WRITEDATA, &response);
     // Further options.
     curl_easy_setopt (curl, CURLOPT_FOLLOWLOCATION, 1L);
+    // Enable the trace function.
+    // curl_easy_setopt(curl, CURLOPT_DEBUGFUNCTION, filter_url_curl_trace);
+    // The DEBUGFUNCTION has no effect until we enable VERBOSE.
     // curl_easy_setopt (curl, CURLOPT_VERBOSE, 1L);
     // Timeouts for very bad networks, see the GET routine above for an explanation.
     filter_url_curl_set_timeout (curl, burst);
+    // Whether to check the secure certificate.
+    // If the configuration of the site is not right, the certificate cannot be verified.
+    // That would result in resources not being fetched anymore.
+    if (!check_certificate) curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+    // Optional extra headers.
+    curl_slist *list {nullptr};
+    for (auto header : headers) {
+      string line = header.first + ": " + header.second;
+      list = curl_slist_append (list, line.c_str ());
+    }
+    if (list) {
+      curl_easy_setopt (curl, CURLOPT_HTTPHEADER, list);
+    }
     // Perform the request.
     CURLcode res = curl_easy_perform (curl);
     // Result check.
@@ -1019,6 +1128,7 @@ string filter_url_http_post (string url, map <string, string> values, string& er
       error = curl_easy_strerror (res);
     }
     // Always cleanup.
+    if (list) curl_slist_free_all (list);
     curl_easy_cleanup (curl);
   }
 #endif
@@ -1043,8 +1153,8 @@ string filter_url_http_upload ([[maybe_unused]] string url,
 #else
 
   // Coded while looking at http://curl.haxx.se/libcurl/c/postit2.html.
-  struct curl_httppost *formpost=NULL;
-  struct curl_httppost *lastptr=NULL;
+  curl_httppost * formpost {nullptr};
+  curl_httppost * lastptr {nullptr};
 
   // Fill in the text fields to submit.
   for (auto & element : values) {
@@ -1177,7 +1287,7 @@ void filter_url_download_file (string url, string filename, string& error,
       long http_code = 0;
       curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
       if (http_code != 200) {
-        error.append ("http code " + convert_to_string ((int)http_code));
+        error.append ("http code " + convert_to_string (static_cast<int>(http_code)));
       }
     } else {
       error = curl_easy_strerror (res);
@@ -1212,7 +1322,7 @@ string filter_url_html_file_name_bible (string path, int book, int chapter)
   
   // Add the name for the book. No spaces.
   filename += filter_string_fill (convert_to_string (book), 2, '0');
-  string sbook = Database_Books::getEnglishFromId (book);
+  string sbook = database::books::get_english_from_id (static_cast<book_id>(book));
   sbook = filter_string_str_replace (" ", "", sbook);
   filename += '-' + sbook;
   
@@ -1234,7 +1344,7 @@ int filter_url_curl_debug_callback (void *curl_handle, int curl_info_type, char 
 {
   if (curl_handle && userptr) {};
   bool log = true;
-  curl_infotype type = (curl_infotype) curl_info_type;
+  curl_infotype type = static_cast<curl_infotype>(curl_info_type);
   if (type == CURLINFO_SSL_DATA_OUT) log = false;
   if (type == CURLINFO_SSL_DATA_OUT) log = false;
   if (log) {
@@ -1254,7 +1364,7 @@ int filter_url_curl_debug_callback (void *curl_handle, int curl_info_type, char 
 #else
 void filter_url_curl_set_timeout (void *curl_handle, bool burst)
 {
-  CURL * handle = (CURL *) curl_handle;
+  CURL * handle = curl_handle;
   
   // There is a timeout on establishing a connection.
   curl_easy_setopt (handle, CURLOPT_CONNECTTIMEOUT, 10);
@@ -1388,11 +1498,11 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
   
   
   // Resolve the host.
-  struct addrinfo hints;
-  struct addrinfo * address_results = nullptr;
-  bool address_info_resolved = false;
+  addrinfo hints;
+  addrinfo * address_results {nullptr};
+  bool address_info_resolved {false};
   if (!secure) {
-    memset (&hints, 0, sizeof (struct addrinfo));
+    memset (&hints, 0, sizeof (addrinfo));
     // Allow IPv4 and IPv6.
     hints.ai_family = AF_UNSPEC;
     // TCP/IP socket.
@@ -1436,7 +1546,7 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
         connection_healthy = false;
       }
       mbedtls_ssl_conf_authmode (&conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
-      mbedtls_ssl_conf_ca_chain (&conf, &filter_url_mbed_tls_cacert, NULL);
+      mbedtls_ssl_conf_ca_chain (&conf, &filter_url_mbed_tls_cacert, nullptr);
       mbedtls_ssl_conf_rng (&conf, mbedtls_ctr_drbg_random, &filter_url_mbed_tls_ctr_drbg);
       ret = mbedtls_ssl_setup (&ssl, &conf);
       if (ret != 0) {
@@ -1449,7 +1559,7 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
         filter_url_display_mbed_tls_error (ret, &error, false);
         connection_healthy = false;
       }
-      mbedtls_ssl_set_bio (&ssl, &fd, mbedtls_net_send, mbedtls_net_recv, NULL);
+      mbedtls_ssl_set_bio (&ssl, &fd, mbedtls_net_send, mbedtls_net_recv, nullptr);
     }
     
     // Secure connect to host.
@@ -1473,9 +1583,9 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
     
     // Iterate over the list of address structures.
     vector <string> errors;
-    struct addrinfo * rp = NULL;
+    addrinfo * rp {nullptr};
     if (connection_healthy) {
-      for (rp = address_results; rp != NULL; rp = rp->ai_next) {
+      for (rp = address_results; rp != nullptr; rp = rp->ai_next) {
         // Try to get a socket for this address structure.
         sock = socket (rp->ai_family, rp->ai_socktype, rp->ai_protocol);
         // If it fails, try the next one.
@@ -1509,7 +1619,7 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
     
     // Check whether no address succeeded.
     if (connection_healthy) {
-      if (rp == NULL) {
+      if (rp == nullptr) {
         error = filter_string_implode (errors, " | ");
         connection_healthy = false;
       }
@@ -1532,7 +1642,7 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
     const char * tv = "600000";
 #else
     // Linux: Timeout value is a struct timeval, address passed to setsockopt() is const void *
-    struct timeval tv;
+    timeval tv;
     tv.tv_sec = 600;
     tv.tv_usec = 0;
 #endif
@@ -1543,13 +1653,13 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
 #ifdef HAVE_WINDOWS
     ret = setsockopt (comm_sock, SOL_SOCKET, SO_RCVTIMEO, tv, sizeof (tv));
 #else
-    ret = setsockopt (comm_sock, SOL_SOCKET, SO_RCVTIMEO, (struct timeval *)&tv, sizeof(struct timeval));
+    ret = setsockopt (comm_sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(timeval));
 #endif
     if (ret != 0) Database_Logs::log (strerror (errno));
 #ifdef HAVE_WINDOWS
     ret = setsockopt (comm_sock, SOL_SOCKET, SO_SNDTIMEO, tv, sizeof (tv));
 #else
-    ret = setsockopt (comm_sock, SOL_SOCKET, SO_SNDTIMEO, (struct timeval *)&tv, sizeof(struct timeval));
+    ret = setsockopt (comm_sock, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(timeval));
 #endif
     if (ret != 0) Database_Logs::log (strerror (errno));
   }
@@ -1616,7 +1726,7 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
       
       // Write the secure http request to the server.
       const char * output = request.c_str();
-      const unsigned char * buf = (const unsigned char *) output;
+      const unsigned char * buf = reinterpret_cast<const unsigned char *>(output);
       // The C function strlen () fails on null characters in the request, so take string::size()
       size_t len = request.size ();
       while (connection_healthy && (len > 0)) {
@@ -1630,7 +1740,7 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
         int ret = mbedtls_ssl_write (&ssl, buf, len);
         if (ret > 0) {
           buf += ret;
-          len -= ret;
+          len -= static_cast<size_t>(ret);
         } else {
           // When it returns MBEDTLS_ERR_SSL_WANT_WRITE/READ,
           // it must be called later with the *same* arguments,
@@ -1645,7 +1755,7 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
     } else {
 
       // Send plain http.
-      if (send (sock, request.c_str(), request.length(), 0) != (int) request.length ()) {
+      if (send (sock, request.c_str(), request.length(), 0) != static_cast<int>(request.length ())) {
         error = "Sending request: ";
         error.append (strerror (errno));
         connection_healthy = false;
@@ -1664,7 +1774,7 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
     bool reading_body = false;
     char prev = 0;
     char cur;
-    FILE * file = NULL;
+    FILE * file = nullptr;
     if (!filename.empty ()) {
 #ifdef HAVE_WINDOWS
       wstring wfilename = string2wstring (filename);
@@ -1680,12 +1790,12 @@ string filter_url_http_request_mbed (string url, string& error, const map <strin
         unsigned char buffer [1];
         memset (&buffer, 0, 1);
         ret = mbedtls_ssl_read (&ssl, buffer, 1);
-        cur = buffer [0];
+        cur = static_cast<char>(buffer [0]);
       } else {
 #ifdef HAVE_WINDOWS
         ret = (int)recv(sock, &cur, 1, 0);
 #else
-        ret = (int)read(sock, &cur, 1);
+        ret = static_cast<int>(read(sock, &cur, 1));
 #endif
       }
       if (ret > 0) {
@@ -1774,15 +1884,15 @@ void filter_url_ssl_tls_initialize ()
   mbedtls_ctr_drbg_init (&filter_url_mbed_tls_ctr_drbg);
   mbedtls_entropy_init (&filter_url_mbed_tls_entropy);
   const char *pers = "Client";
-  ret = mbedtls_ctr_drbg_seed (&filter_url_mbed_tls_ctr_drbg, mbedtls_entropy_func, &filter_url_mbed_tls_entropy, (const unsigned char *) pers, strlen (pers));
-  filter_url_display_mbed_tls_error (ret, NULL, false);
+  ret = mbedtls_ctr_drbg_seed (&filter_url_mbed_tls_ctr_drbg, mbedtls_entropy_func, &filter_url_mbed_tls_entropy, reinterpret_cast <const unsigned char *> (pers), strlen (pers));
+  filter_url_display_mbed_tls_error (ret, nullptr, false);
   // Wait until the trusted root certificates exist.
   // This is necessary as there's cases that the data is still being installed at this point.
   string path = filter_url_create_root_path ({"filter", "cas.crt"});
   while (!file_or_dir_exists (path)) this_thread::sleep_for (chrono::milliseconds (100));
   // Read the trusted root certificates.
   ret = mbedtls_x509_crt_parse_file (&filter_url_mbed_tls_cacert, path.c_str ());
-  filter_url_display_mbed_tls_error (ret, NULL, false);
+  filter_url_display_mbed_tls_error (ret, nullptr, false);
 }
 
 
@@ -1923,10 +2033,10 @@ string filter_url_update_directory_separator_if_windows (string filename)
 bool filter_url_port_can_connect (string hostname, int port)
 {
   // Resolve the host.
-  struct addrinfo hints;
-  struct addrinfo * address_results = nullptr;
-  bool address_info_resolved = false;
-  memset (&hints, 0, sizeof (struct addrinfo));
+  addrinfo hints;
+  addrinfo * address_results {nullptr};
+  bool address_info_resolved {false};
+  memset (&hints, 0, sizeof (addrinfo));
   // Allow IPv4 and IPv6.
   hints.ai_family = AF_UNSPEC;
   // TCP/IP socket.
@@ -1940,11 +2050,11 @@ bool filter_url_port_can_connect (string hostname, int port)
   int res = getaddrinfo (hostname.c_str(), service.c_str (), &hints, &address_results);
   if (res != 0) return false;
   // Result of the text.
-  bool connected = false;
+  bool connected {false};
   // Iterate over the list of address structures.
-  vector <string> errors;
-  struct addrinfo * rp = NULL;
-  for (rp = address_results; rp != NULL; rp = rp->ai_next) {
+  vector <string> errors {};
+  addrinfo * rp {nullptr};
+  for (rp = address_results; rp != nullptr; rp = rp->ai_next) {
     // Try to get a socket for this address structure.
     int sock = socket (rp->ai_family, rp->ai_socktype, rp->ai_protocol);
     // If it fails, try the next one.
@@ -2025,3 +2135,42 @@ string filter_url_get_mime_type (string extension)
   return mime_types [extension];
 }
     
+
+// Read the URL, and split it up in three parts: The scheme, the host, and the port.
+// For example: "https://bibledit.org:8080" will be split up into this:
+// - https
+// - bibledit.org
+// - 8080
+// If any of these three parts is not found, then the part is left empty, or the port remains 0.
+void filter_url_get_scheme_host_port (string url, string & scheme, string & host, int & port)
+{
+  // Clear the values that are going to be detected.
+  scheme.clear();
+  host.clear();
+  port = 0;
+
+  // Extract the scheme: http(s).
+  size_t pos = url.find ("://");
+  if (pos != string::npos) {
+    scheme = url.substr(0, pos);
+    url.erase (0, pos + 3);
+  }
+  
+  // Extract the host.
+  pos = url.find (":");
+  if (pos == string::npos) pos = url.find ("/");
+  if (pos == string::npos) pos = url.length () + 1;
+  host = url.substr (0, pos);
+  url.erase (0, host.length ());
+  
+  // Extract the port number if any.
+  pos = url.find (":");
+  if (pos != string::npos) {
+    url.erase (0, 1);
+    size_t pos2 = url.find ("/");
+    if (pos2 == string::npos) pos2 = url.length () + 1;
+    string p = url.substr (0, pos2);
+    port = convert_to_int (p);
+    url.erase (0, p.length ());
+  }
+}

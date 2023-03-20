@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@
 #include <access/bible.h>
 #include <menu/logic.h>
 #include <checks/settings.h>
+using namespace std;
 
 
 string checks_settingspairs_url ()
@@ -58,25 +59,25 @@ string checks_settingspairs (void * webserver_request)
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   
-  string page;
+  string page {};
   Assets_Header header = Assets_Header (translate ("Matching pairs"), webserver_request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.addBreadCrumb (checks_settings_url (), menu_logic_checks_settings_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (checks_settings_url (), menu_logic_checks_settings_text ());
   page = header.run ();
-  Assets_View view;
+  Assets_View view {};
   
   
-  string bible = AccessBible::Clamp (webserver_request, request->database_config_user()->getBible ());
+  string bible = access_bible::clamp (webserver_request, request->database_config_user()->getBible ());
   view.set_variable ("bible", bible);
   
   
   if (request->post.count ("pairs")) {
     string fragment = request->post["pairs"];
-    vector <string> errors;
+    vector <string> errors {};
     vector <string> pairs = filter_string_explode (fragment, ' ');
-    bool okay = true;
-    for (auto & pair : pairs) {
-      size_t length = unicode_string_length (pair);
+    bool okay {true};
+    for (const auto & pair : pairs) {
+      const size_t length = unicode_string_length (pair);
       if (length != 2) {
         errors.push_back (translate ("A pair should consist of two characters:") + " " + pair);
         okay = false;
@@ -93,6 +94,6 @@ string checks_settingspairs (void * webserver_request)
   
   
   page += view.render ("checks", "settingspairs");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

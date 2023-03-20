@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include <database/bibles.h>
 #include <database/config/bible.h>
 #include <database/logic.h>
+using namespace std;
 
 
 string search_logic_index_folder ()

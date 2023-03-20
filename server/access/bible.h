@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,12 +21,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <config/libraries.h>
 
-class AccessBible {
-public:
-  static bool Read (void * webserver_request, const string & bible, string user = string());
-  static bool Write (void * webserver_request, const string & bible, string user = string());
-  static bool BookWrite (void * webserver_request, string user, const string & bible, int book);
-  static vector <string> Bibles (void * webserver_request, string user = string());
-  static string Clamp (void * webserver_request, string bible);
-  static tuple<bool, bool> Any (void * webserver_request);
-};
+namespace access_bible {
+
+bool read (void * webserver_request, const std::string & bible, std::string user = std::string());
+bool write (void * webserver_request, const std::string & bible, std::string user = std::string());
+bool book_write (void * webserver_request, std::string user, const std::string & bible, int book);
+std::vector <std::string> bibles (void * webserver_request, std::string user = std::string());
+std::string clamp (void * webserver_request, std::string bible);
+std::tuple <bool, bool> any (void * webserver_request);
+
+}

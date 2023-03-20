@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -22,4 +22,4 @@
 #include <config/libraries.h>
 
 void checks_logic_start_all ();
-void checks_logic_start (string bible);
+void checks_logic_start (const std::string & bible);

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,28 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/config/general.h>
 #include <database/localization.h>
 #include <filter/string.h>
+using namespace std;
 
-
-//string localization;
-
-//void check_user_localization_preference (void * webserver_request)
-//{
-//  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-//
-//  string system_settings = Database_Config_General::getSiteLanguage ();
-//
-//  string user_preference = request->database_config_user ()->getSiteLanguage ();
-//
-//  bool is_logged_in = request->session_logic ()->loggedIn ();
-//
-//  if (user_preference.empty () && is_logged_in == true) {
-//    localization = "";
-//  } else if (system_settings != user_preference && !user_preference.empty ()) {
-//    localization = user_preference;
-//  } else {
-//    localization = system_settings;
-//  }
-//}
 
 // Storage for the user interface obfuscation strings.
 vector <string> locale_translate_obfuscation_search;

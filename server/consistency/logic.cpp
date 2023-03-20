@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include <webserver/request.h>
 #include <access/bible.h>
 #include <locale/translate.h>
+using namespace std;
 
 
 Consistency_Logic::Consistency_Logic (void * webserver_request_in, int id_in)
@@ -43,7 +44,7 @@ string Consistency_Logic::response ()
   
   // The resources to display in the Consistency tool.
   vector <string> resources = request->database_config_user()->getConsistencyResources ();
-  string bible = AccessBible::Clamp (webserver_request, request->database_config_user()->getBible ());
+  string bible = access_bible::clamp (webserver_request, request->database_config_user()->getBible ());
   resources.insert (resources.begin (), bible);
   
   // The passages entered in the Consistency tool.

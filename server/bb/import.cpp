@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 #include <bb/manage.h>
 #include <assets/external.h>
 #include <journal/logic.h>
+using namespace std;
 
 
 string bible_import_url ()
@@ -52,28 +53,28 @@ string bible_import (void * webserver_request)
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
-  string page;
+  string page {};
   
   Assets_Header header = Assets_Header (translate("Import"), webserver_request);
-  header.setNavigator ();
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.addBreadCrumb (bible_manage_url (), menu_logic_bible_manage_text ());
+  header.set_navigator ();
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (bible_manage_url (), menu_logic_bible_manage_text ());
   page = header.run ();
   
-  Assets_View view;
+  Assets_View view {};
   
-  string success_message;
-  string error_message;
+  string success_message {};
+  string error_message {};
   
   // The name of the Bible.
-  string bible = AccessBible::Clamp (request, request->query["bible"]);
+  string bible = access_bible::clamp (request, request->query["bible"]);
   view.set_variable ("bible", escape_special_xml_characters (bible));
   
   int book = Ipc_Focus::getBook (webserver_request);
   int chapter = Ipc_Focus::getChapter (webserver_request);
 
   // Whether the user has write access to this Bible.
-  if (bool write_access = AccessBible::Write (request, bible); write_access) {
+  if (bool write_access = access_bible::write (request, bible); write_access) {
     view.enable_zone ("write_access");
   }
 
@@ -129,7 +130,7 @@ string bible_import (void * webserver_request)
 
   page += view.render ("bb", "import");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -27,38 +27,39 @@
 #include <locale/translate.h>
 #include <bb/logic.h>
 #include <filter/string.h>
+using namespace std;
 
 
 // Creates book template with ID $book in Bible $bible.
 // If a $chapter is given instead of -1, it creates that chapter only.
 // If the $chapter is -1, it creates all chapters within that book.
-bool book_create (string bible, int book, int chapter, vector <string> & feedback)
+bool book_create (const string & bible, const book_id book, const int chapter, vector <string> & feedback)
 {
-  Database_Bibles database_bibles;
-  Database_Versifications database_versifications;
+  Database_Bibles database_bibles {};
+  Database_Versifications database_versifications {};
 
   vector <string> bibles = database_bibles.getBibles ();
   if (!in_array (bible, bibles)) {
     feedback.push_back (translate("Bible bible does not exist: Cannot create book"));
     return false;
   }
-  if (book == 0) {
+  if (book == book_id::_unknown) {
     feedback.push_back (translate("Invalid book while creating a book template"));
     return false;
   }
   
   // The chapters that have been created.
-  vector <int> chapters_created;
+  vector <int> chapters_created {};
   
   // The USFM created.
-  string data;
+  string data {};
   
   // Chapter 0.
   if (chapter <=  0) {
-    data  = "\\id "    + Database_Books::getUsfmFromId(book)     + "\n";
-    data += "\\h "     + Database_Books::getEnglishFromId (book) + "\n";
-    data += "\\toc2 "  + Database_Books::getEnglishFromId (book) + "\n";
-    bible_logic_store_chapter (bible, book, 0, data);
+    data  = "\\id "    + database::books::get_usfm_from_id(book)     + "\n";
+    data += "\\h "     + database::books::get_english_from_id (book) + "\n";
+    data += "\\toc2 "  + database::books::get_english_from_id (book) + "\n";
+    bible_logic::store_chapter (bible, static_cast<int>(book), 0, data);
     chapters_created.push_back (0);
   }
   
@@ -66,8 +67,8 @@ bool book_create (string bible, int book, int chapter, vector <string> & feedbac
   // Subsequent chapters.
   string versification = Database_Config_Bible::getVersificationSystem (bible);
   vector <Passage> versification_data = database_versifications.getBooksChaptersVerses (versification);
-  for (auto & row : versification_data) {
-    if (book == row.m_book) {
+  for (const auto & row : versification_data) {
+    if (book == static_cast<book_id>(row.m_book)) {
       int ch = row.m_chapter;
       int verse = convert_to_int (row.m_verse);
       if ((chapter < 0) || (chapter == ch)) {
@@ -76,7 +77,7 @@ bool book_create (string bible, int book, int chapter, vector <string> & feedbac
         for (int i = 1; i <= verse; i++) {
           data += "\\v " + convert_to_string (i) + "\n";
         }
-        bible_logic_store_chapter (bible, book, ch, data);
+        bible_logic::store_chapter (bible, static_cast<int>(book), ch, data);
         chapters_created.push_back (ch);
       }
     }

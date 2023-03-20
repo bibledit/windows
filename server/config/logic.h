@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,26 +21,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <config/libraries.h>
 
-const char * config_logic_config_folder ();
-const char * config_logic_version ();
-void config_logic_load_settings ();
-string config_logic_http_network_port ();
-string config_logic_https_network_port ();
-bool config_logic_demo_enabled ();
-string config_logic_admin_username ();
-string config_logic_admin_password ();
-string config_logic_admin_email ();
-int my_stoi (const string& str, void * idx = NULL, int base = 10);
-bool config_logic_basic_mode (void * webserver_request);
-string config_logic_site_url (void * webserver_request);
-string config_logic_manual_user_facing_url ();
-string config_logic_server_key_path ();
-string config_logic_server_certificate_path ();
-string config_logic_authorities_certificates_path ();
-bool config_logic_enforce_https_browser ();
-bool config_logic_enforce_https_client ();
-void config_logic_swipe_enabled (void * webserver_request, string & script);
-bool config_logic_indonesian_cloud_free ();
-bool config_logic_indonesian_cloud_free_simple ();
-bool config_logic_indonesian_cloud_free_individual ();
-bool config_logic_default_bibledit_configuration ();
+namespace config::logic {
+
+const char * config_folder ();
+const char * version ();
+void load_settings ();
+std::string http_network_port ();
+std::string https_network_port ();
+bool demo_enabled ();
+std::string admin_username ();
+std::string admin_password ();
+std::string admin_email ();
+int my_stoi (const std::string& str, void * idx = nullptr, int base = 10);
+bool basic_mode (void * webserver_request);
+std::string site_url (void * webserver_request);
+std::string manual_user_facing_url ();
+std::string server_key_path (const bool force);
+std::string server_certificate_path (const bool force);
+std::string authorities_certificates_path (const bool force);
+bool enforce_https_browser ();
+bool enforce_https_client ();
+void swipe_enabled (void * webserver_request, std::string & script);
+bool indonesian_cloud_free ();
+bool indonesian_cloud_free_simple ();
+bool indonesian_cloud_free_individual ();
+bool indonesian_member_cloud ();
+bool default_bibledit_configuration ();
+std::string google_translate_json_key_path ();
+
+} // End of namespace.

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include <demo/logic.h>
 #include <sendreceive/logic.h>
 #include <access/bible.h>
+using namespace std;
 
 
 string checks_suppress_url ()
@@ -48,12 +49,12 @@ bool checks_suppress_acl (void * webserver_request)
 string checks_suppress (void * webserver_request)
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  Database_Check database_check;
+  Database_Check database_check {};
   
   
-  string page;
-  page = Assets_Page::header (translate ("Suppressed checking results"), webserver_request);
-  Assets_View view;
+  string page {};
+  page = assets_page::header (translate ("Suppressed checking results"), webserver_request);
+  Assets_View view {};
   
   
   if (request->query.count ("release")) {
@@ -64,20 +65,20 @@ string checks_suppress (void * webserver_request)
   
                         
   // Get the Bibles the user has write-access to.
-  vector <string> bibles;
+  vector <string> bibles {};
   {
     vector <string> all_bibles = request->database_bibles()->getBibles ();
-    for (auto bible : all_bibles) {
-      if (AccessBible::Write (webserver_request, bible)) {
+    for (const auto & bible : all_bibles) {
+      if (access_bible::write (webserver_request, bible)) {
         bibles.push_back (bible);
       }
     }
   }
   
   
-  string block;
-  vector <Database_Check_Hit> suppressions = database_check.getSuppressions ();
-  for (auto suppression : suppressions) {
+  string block {};
+  const vector <Database_Check_Hit> suppressions = database_check.getSuppressions ();
+  for (const auto & suppression : suppressions) {
     string bible = suppression.bible;
     // Only display entries for Bibles the user has write access to.
     if (in_array (bible, bibles)) {
@@ -98,6 +99,6 @@ string checks_suppress (void * webserver_request)
   
   
   page += view.render ("checks", "suppress");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

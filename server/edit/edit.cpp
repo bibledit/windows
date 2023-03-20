@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 #include <locale/translate.h>
 #include <assets/view.h>
 #include <access/bible.h>
+using namespace std;
 
 
 string edit_edit_url ()
@@ -41,7 +42,7 @@ string edit_edit_url ()
 bool edit_edit_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  auto [read, write] = AccessBible::Any (webserver_request);
+  auto [read, write] = access_bible::any (webserver_request);
   return read;
 }
 

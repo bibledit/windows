@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@
 #include <access/bible.h>
 #include <book/create.h>
 #include <client/logic.h>
+using namespace std;
 
 
 string bible_chapter_url ()
@@ -53,23 +54,23 @@ string bible_chapter (void * webserver_request)
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
-  string page;
+  string page {};
   
-  page = Assets_Page::header (translate ("Chapter"), webserver_request);
+  page = assets_page::header (translate ("Chapter"), webserver_request);
   
-  Assets_View view;
+  Assets_View view {};
   
-  string success_message;
-  string error_message;
+  string success_message {};
+  string error_message {};
   
   // The name of the Bible.
-  string bible = AccessBible::Clamp (request, request->query["bible"]);
+  string bible = access_bible::clamp (request, request->query["bible"]);
   view.set_variable ("bible", escape_special_xml_characters (bible));
   
   // The book.
   int book = convert_to_int (request->query ["book"]);
   view.set_variable ("book", convert_to_string (book));
-  string book_name = Database_Books::getEnglishFromId (book);
+  string book_name = database::books::get_english_from_id (static_cast<book_id>(book));
   view.set_variable ("book_name", escape_special_xml_characters (book_name));
   
   // The chapter.
@@ -77,7 +78,7 @@ string bible_chapter (void * webserver_request)
   view.set_variable ("chapter", escape_special_xml_characters (chapter));
   
   // Whether the user has write access to this Bible book.
-  if (bool write_access = AccessBible::BookWrite (request, string(), bible, book); write_access) view.enable_zone ("write_access");
+  if (bool write_access = access_bible::book_write (request, string(), bible, book); write_access) view.enable_zone ("write_access");
   
   view.set_variable ("success_message", success_message);
   view.set_variable ("error_message", error_message);
@@ -86,7 +87,7 @@ string bible_chapter (void * webserver_request)
 
   page += view.render ("bb", "chapter");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

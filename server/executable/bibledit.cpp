@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,6 +32,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <windows.h>
 #endif
 #include <config/globals.h>
+using namespace std;
+
+
+// Declarations.
+void sigint_handler ([[maybe_unused]] int s);
+string backtrace_path ();
+[[ noreturn ]]
+void sigsegv_handler ([[maybe_unused]] int sig);
 
 
 void sigint_handler ([[maybe_unused]] int s)
@@ -54,6 +62,7 @@ string backtrace_path ()
 #ifdef HAVE_EXECINFO
 // http://stackoverflow.com/questions/77005/how-to-generate-a-stacktrace-when-my-gcc-c-app-crashes
 // To add linker flag -rdynamic is essential.
+[[ noreturn ]]
 void sigsegv_handler ([[maybe_unused]] int sig)
 {
   // Information.
@@ -113,7 +122,7 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 #ifndef HAVE_WINDOWS
   {
     // The following works on Linux but not on macOS:
-    char *linkname = (char *) malloc (256);
+    char *linkname = static_cast<char *> (malloc (256));
     memset (linkname, 0, 256); // valgrind uninitialized value(s)
     [[maybe_unused]] ssize_t result = readlink ("/proc/self/exe", linkname, 256);
     webroot = filter_url_dirname (linkname);
@@ -138,14 +147,14 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     // Getting the web root on Windows.
     // The following gets the path to the server.exe.
     // char buf[MAX_PATH] = { 0 };
-    // DWORD ret = GetModuleFileNameA(NULL, buf, MAX_PATH);
+    // DWORD ret = GetModuleFileNameA(nullptr, buf, MAX_PATH);
     // While developing, the .exe runs in folder Debug or Release, and not in the expected folder.
     // Therefore it's better to take the path of the current directory.
     wchar_t buffer[MAX_PATH];
     GetCurrentDirectory (MAX_PATH, buffer);
     char chars[MAX_PATH];
     char def_char = ' ';
-    WideCharToMultiByte (CP_ACP, 0, buffer, -1, chars, MAX_PATH, &def_char, NULL);
+    WideCharToMultiByte (CP_ACP, 0, buffer, -1, chars, MAX_PATH, &def_char, nullptr);
     webroot = chars;
   }
 #endif
@@ -153,12 +162,12 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
   // The following is for the Cloud configuration only:
   {
     // Get home folder and working directory.
-    string homefolder;
-    const char * homeptr = getenv ("HOME");
-    if (homeptr) homefolder = homeptr;
+    string home_folder;
+    const char * home_env_ptr = getenv ("HOME");
+    if (home_env_ptr) home_folder = home_env_ptr;
     string workingdirectory;
     char cwd [MAXPATHLEN];
-    if (getcwd(cwd, sizeof(cwd)) != NULL) workingdirectory = cwd;
+    if (getcwd(cwd, sizeof(cwd)) != nullptr) workingdirectory = cwd;
     // If the web root folder, derived from the binary, is the same as the current directory,
     // it means that the binary is started from a Cloud installation in user space.
     // The web root folder is okay as it is.
@@ -167,9 +176,9 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
       // because it is undesirable to have all the data in the home folder.
       // If the web root is the package prefix, it should be updated,
       // because it now runs the binary installed in /usr/bin.
-      if ((webroot == homefolder) || (webroot.find (PACKAGE_PREFIX_DIR) == 0)) {
+      if ((webroot == home_folder) || (webroot.find (PACKAGE_PREFIX_DIR) == 0)) {
         // Update web root to ~/bibledit or ~/bibledit-cloud.
-        webroot = filter_url_create_path ({homefolder, filter_url_basename (PACKAGE_DATA_DIR)});
+        webroot = filter_url_create_path ({home_folder, filter_url_basename (PACKAGE_DATA_DIR)});
       }
     }
   }
@@ -186,14 +195,7 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
   // Start the Bibledit library.
   bibledit_start_library ();
   bibledit_log ("The server started");
-  cout << "Listening on http://localhost:" << config_logic_http_network_port ();
-#ifdef HAVE_CLOUD
-  string https_port = config_logic_https_network_port ();
-  if (https_port.length() > 1) {
-    cout << " and https://localhost:" << https_port;
-  }
-#endif
-  cout << endl;
+  cout << "Listening on http://localhost:" << config::logic::http_network_port () << endl;
   cout << "Press Ctrl-C to quit" << endl;
 
   

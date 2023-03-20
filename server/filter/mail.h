@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -22,5 +22,5 @@
 #include <config/libraries.h>
 
 #ifdef HAVE_CLOUD
-void filter_mail_dissect (string message, string & from, string & subject, string & plaintext);
+void filter_mail_dissect (std::string message, std::string & from, std::string & subject, std::string & plaintext);
 #endif

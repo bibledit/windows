@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,12 +21,13 @@
 
 #include <config/libraries.h>
 
-vector <string> resource_external_names ();
-vector <string> resource_external_get_original_language_resources ();
-vector <string> resource_external_get_bibles ();
-string resource_external_versification (string name);
-string resource_external_mapping (string name);
-string resource_external_type (string name);
-string resource_external_cloud_fetch_cache_extract (string name, int book, int chapter, int verse);
+std::vector <std::string> resource_external_names ();
+std::vector <std::string> resource_external_get_original_language_resources ();
+std::vector <std::string> resource_external_get_bibles ();
+std::string resource_external_versification (std::string name);
+std::string resource_external_mapping (std::string name);
+std::string resource_external_type (std::string name);
+std::string resource_external_cloud_fetch_cache_extract (const std::string & name, int book, int chapter, int verse);
 const char * resource_external_net_bible_name ();
 const char * resource_external_biblehub_interlinear_name ();
+

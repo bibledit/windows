@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <config/globals.h>
 #include <trash/handler.h>
 #include <user/logic.h>
+using namespace std;
 
 
 mutex sync_logic_mutex;
@@ -146,7 +147,7 @@ vector <Sync_Logic_Range> Sync_Logic::create_range (int start, int end)
 string Sync_Logic::post (map <string, string> & post, const string& url, string & error, bool burst)
 {
   error.clear ();
-  string response = filter_url_http_post (url, post, error, burst, true);
+  string response = filter_url_http_post (url, string(), post, error, burst, true, {});
   if (error.empty ()) {
     // Success: Return response.
     return response;

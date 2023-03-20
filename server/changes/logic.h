@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -24,5 +24,5 @@
 void changes_logic_start ();
 const char * changes_personal_category ();
 const char * changes_bible_category ();
-string changes_interlinks (void * webserver_request, string my_url);
-void changes_clear_notifications_user (string jobid, string username);
+std::string changes_interlinks (void * webserver_request, std::string my_url);
+void changes_clear_notifications_user (std::string jobid, std::string username);

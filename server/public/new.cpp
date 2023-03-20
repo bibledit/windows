@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include <assets/page.h>
 #include <locale/translate.h>
 #include <read/index.h>
+using namespace std;
 
 
 string public_new_url ()
@@ -69,22 +70,18 @@ string public_new (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate ("New feedback"), request);
-  header.setNavigator ();
-  header.setStylesheet ();
+  header.set_navigator ();
+  header.set_stylesheet ();
   page = header.run ();
   Assets_View view;
 
 
   string cancellation_url = "index";
 
-  if (config_logic_indonesian_cloud_free_simple ()) {
-    cancellation_url = get_base_url (request) + read_index_url ();
-  }
-
   view.set_variable ("cancellation_url", cancellation_url);
 
 
   page += view.render ("public", "new");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

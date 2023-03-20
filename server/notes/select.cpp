@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@
 #include <notes/index.h>
 #include <menu/logic.h>
 #include <access/logic.h>
+using namespace std;
 
 
 string notes_select_url ()
@@ -43,7 +44,7 @@ string notes_select_url ()
 
 bool notes_select_acl (void * webserver_request)
 {
-  return access_logic_privilege_view_notes (webserver_request);
+  return access_logic::privilege_view_notes (webserver_request);
 }
 
 
@@ -55,8 +56,8 @@ string notes_select (void * webserver_request)
   string page;
   
   Assets_Header header = Assets_Header (translate("Select notes"), request);
-  header.addBreadCrumb (menu_logic_translate_menu (), menu_logic_translate_text ());
-  header.addBreadCrumb (notes_index_url (), menu_logic_consultation_notes_text ());
+  header.add_bread_crumb (menu_logic_translate_menu (), menu_logic_translate_text ());
+  header.add_bread_crumb (notes_index_url (), menu_logic_consultation_notes_text ());
   page = header.run();
   
   Assets_View view;
@@ -177,7 +178,7 @@ string notes_select (void * webserver_request)
   string bible_selector = request->database_config_user()->getConsultationNotesBibleSelector();
   if (bible_selector.empty ()) view.set_variable ("anybible", active_class);
   stringstream bibleblock;
-  vector <string> bibles = AccessBible::Bibles (webserver_request);
+  vector <string> bibles = access_bible::bibles (webserver_request);
   // The administrator can select from all Bibles in the notes, even Bibles that do not exist.
   if (request->session_logic ()->currentLevel () == Filter_Roles::admin ()) {
     vector <string> notesbibles = database_notes.get_all_bibles ();
@@ -261,7 +262,7 @@ string notes_select (void * webserver_request)
                                                          status_selector,
                                                          bible_selector,
                                                          assignment_selector,
-                                                         bool (subscription_selector),
+                                                         subscription_selector,
                                                          severity_selector,
                                                          text_selector,
                                                          search_text,
@@ -274,7 +275,7 @@ string notes_select (void * webserver_request)
   
   page += view.render ("notes", "select");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

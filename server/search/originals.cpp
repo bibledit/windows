@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 #include <search/logic.h>
 #include <menu/logic.h>
 #include <access/bible.h>
+using namespace std;
 
 
 string search_originals_url ()
@@ -45,7 +46,7 @@ string search_originals_url ()
 bool search_originals_acl (void * webserver_request)
 {
   if (Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ())) return true;
-  auto [ read, write ] = AccessBible::Any (webserver_request);
+  auto [ read, write ] = access_bible::any (webserver_request);
   return read;
 }
 
@@ -67,23 +68,23 @@ string search_originals (void * webserver_request)
 
   if (request->query.count ("load")) {
     
-    int book = Ipc_Focus::getBook (request);
+    book_id book = static_cast<book_id>(Ipc_Focus::getBook (request));
     int chapter = Ipc_Focus::getChapter (request);
     int verse = Ipc_Focus::getVerse (request);
     
-    string type = Database_Books::getType (book);
+    book_type type = database::books::get_type (book);
     
-    string classs;
+    string classs{};
     
     // Get Hebrew or Greek words.
     string searchtext;
     vector <string> details;
-    if (type == "ot") {
-      details = database_oshb.getVerse (book, chapter, verse);
+    if (type == book_type::old_testament) {
+      details = database_oshb.getVerse (static_cast<int>(book), chapter, verse);
       classs = "hebrew";
     }
-    if (type == "nt") {
-      details = database_sblgnt.getVerse (book, chapter, verse);
+    if (type == book_type::new_testament) {
+      details = database_sblgnt.getVerse (static_cast<int>(book), chapter, verse);
       classs = "greek";
     }
     searchtext = filter_string_implode (details, " ");
@@ -99,15 +100,16 @@ string search_originals (void * webserver_request)
     words = filter_string_trim (words);
     vector <string> v_words = filter_string_explode (words, ' ');
     
-    int book = Ipc_Focus::getBook (request);
-    string type = Database_Books::getType (book);
+    book_id book = static_cast<book_id>(Ipc_Focus::getBook (request));
+    book_type type = database::books::get_type (book);
     
-    // Include items if there are no more search hits than 30% of the total number of verses in the Hebrew or Greek.
-    size_t maxcount = 0;
-    if (type == "ot") {
+    // Include items if there are no more search hits
+    // than 30% of the total number of verses in the Hebrew or Greek.
+    size_t maxcount {0};
+    if (type == book_type::old_testament) {
       maxcount = static_cast<size_t> (round (0.3 * 23145));
     }
-    if (type == "nt") {
+    if (type == book_type::new_testament) {
       maxcount = static_cast<size_t> (round (0.3 * 7957));
     }
     
@@ -115,16 +117,16 @@ string search_originals (void * webserver_request)
     // Store how often a verse occurs in an array.
     // The keys are the passages of the search results.
     // The values are how often the passages occur in the search results.
-    map <int, int> passages;
+    map <int, int> passages {};
     
-    for (auto & word : v_words) {
+    for (const auto & word : v_words) {
       
       // Find out how often this word occurs in the Hebrew or Greek Bible. Skip if too often.
-      vector <Passage> details;
-      if (type == "ot") {
+      vector <Passage> details {};
+      if (type == book_type::old_testament) {
         details = database_oshb.searchHebrew (word);
       }
-      if (type == "nt") {
+      if (type == book_type::new_testament) {
         details = database_sblgnt.searchGreek (word);
       }
       if (details.size() < 1) continue;
@@ -188,8 +190,8 @@ string search_originals (void * webserver_request)
   string page;
   
   Assets_Header header = Assets_Header (translate("Search"), request);
-  header.setNavigator ();
-  header.addBreadCrumb (menu_logic_search_menu (), menu_logic_search_text ());
+  header.set_navigator ();
+  header.add_bread_crumb (menu_logic_search_menu (), menu_logic_search_text ());
   page = header.run ();
   
   Assets_View view;
@@ -201,7 +203,7 @@ string search_originals (void * webserver_request)
 
   page += view.render ("search", "originals");
   
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   
   return page;
 }

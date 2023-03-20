@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include <filter/string.h>
 #include <database/config/general.h>
 #include <webserver/request.h>
+using namespace std;
 
 
 namespace filter::date {
@@ -115,7 +116,7 @@ int seconds_since_epoch ()
 {
   auto now = chrono::system_clock::now ();
   auto duration = now.time_since_epoch ();
-  int seconds = (int) chrono::duration_cast<std::chrono::seconds>(duration).count();
+  int seconds = static_cast<int>(chrono::duration_cast<std::chrono::seconds>(duration).count());
   return seconds;
 }
 
@@ -308,9 +309,12 @@ string localized_date_format ()
 {
   time_t tt;
   time (&tt);
-  struct tm * localtm = localtime (&tt);
+  tm * localtm = localtime (&tt);
   char buffer[20];
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-y2k"
   strftime(buffer, sizeof(buffer), "%x", localtm);
+#pragma GCC diagnostic pop
   return string (buffer);
 }
 
@@ -321,6 +325,7 @@ string date_format_to_text (date_format format)
     case dd_mm_yyyy: return "dd/mm/yyyy";
     case mm_dd_yyyy: return "mm/dd/yyyy";
     case yyyy_mn_dd: return "yyyy-mm-dd";
+    default: return string();
   }
   return string();
 }

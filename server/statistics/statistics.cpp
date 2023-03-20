@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include <client/logic.h>
 #include <changes/changes.h>
 #include <email/send.h>
+using namespace std;
 
 
 void statistics_statistics ()
@@ -43,7 +44,7 @@ void statistics_statistics ()
   Database_Logs::log (translate("Sending statistics"), Filter_Roles::manager ());
 
   
-  string siteUrl = config_logic_site_url (NULL);
+  string siteUrl = config::logic::site_url (nullptr);
   
   
   vector <string> bibles = request.database_bibles()->getBibles ();

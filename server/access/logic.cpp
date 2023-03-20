@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,91 +22,106 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <filter/roles.h>
 #include <database/privileges.h>
+using namespace std;
 
 
-int access_logic_view_resources_role ()
+namespace access_logic {
+
+
+int view_resources_role ()
 {
   return Filter_Roles::consultant ();
 }
 
 
-bool access_logic_privilege_view_resources (void * webserver_request, string user)
+bool privilege_view_resources (void * webserver_request, string user)
 {
-  int level = 0;
-  access_logic_user_level (webserver_request, user, level);
-  if (level >= access_logic_view_resources_role ()) return true;
+  int level {0};
+  user_level (webserver_request, user, level);
+  if (level >= view_resources_role ()) return true;
   return Database_Privileges::getFeature (user, PRIVILEGE_VIEW_RESOURCES);
 }
 
 
-int access_logic_view_notes_role ()
+int view_notes_role ()
 {
-  // Indonesian Cloud Free
-  // The normal user of the Individual version doesn't have access to notes.
-  if (config_logic_indonesian_cloud_free_individual ()) {
-    return Filter_Roles::translator ();
-  }
   return Filter_Roles::consultant ();
 }
 
 
-bool access_logic_privilege_view_notes (void * webserver_request, string user)
+bool privilege_view_notes (void * webserver_request, string user)
 {
-  int level = 0;
-  access_logic_user_level (webserver_request, user, level);
-  if (level >= access_logic_view_notes_role ()) return true;
+  int level {0};
+  user_level (webserver_request, user, level);
+  if (level >= view_notes_role ()) return true;
   return Database_Privileges::getFeature (user, PRIVILEGE_VIEW_NOTES);
 }
 
 
-int access_logic_create_comment_notes_role ()
+int create_comment_notes_role ()
 {
   return Filter_Roles::consultant ();
 }
 
 
-bool access_logic_privilege_create_comment_notes (void * webserver_request, string user)
+bool privilege_create_comment_notes (void * webserver_request, string user)
 {
-  int level = 0;
-  access_logic_user_level (webserver_request, user, level);
-  if (level >= access_logic_create_comment_notes_role ()) return true;
+  int level {0};
+  user_level (webserver_request, user, level);
+  if (level >= create_comment_notes_role ()) return true;
   return Database_Privileges::getFeature (user, PRIVILEGE_CREATE_COMMENT_NOTES);
 }
 
 
-int access_logic_delete_consultation_notes_role ()
+int delete_consultation_notes_role ()
 {
   return Filter_Roles::manager ();
 }
 
 
-bool access_logic_privilege_delete_consultation_notes (void * webserver_request, string user)
+bool privilege_delete_consultation_notes (void * webserver_request, string user)
 {
-  int level = 0;
-  access_logic_user_level (webserver_request, user, level);
-  if (level >= access_logic_delete_consultation_notes_role ()) return true;
+  int level {0};
+  user_level (webserver_request, user, level);
+  if (level >= delete_consultation_notes_role ()) return true;
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   return request->database_config_user ()->getPrivilegeDeleteConsultationNotesForUser (user);
 }
 
 
-int access_logic_use_advanced_mode_role ()
+int use_advanced_mode_role ()
 {
   return Filter_Roles::manager ();
 }
 
 
-bool access_logic_privilege_use_advanced_mode (void * webserver_request, string user)
+bool privilege_use_advanced_mode (void * webserver_request, string user)
 {
-  int level = 0;
-  access_logic_user_level (webserver_request, user, level);
-  if (level >= access_logic_use_advanced_mode_role ()) return true;
+  int level {0};
+  user_level (webserver_request, user, level);
+  if (level >= use_advanced_mode_role ()) return true;
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   return request->database_config_user ()->getPrivilegeUseAdvancedModeForUser (user);
 }
 
 
-void access_logic_user_level (void * webserver_request, string & user, int & level)
+int set_stylesheets_role ()
+{
+  return Filter_Roles::manager ();
+}
+
+
+bool privilege_set_stylesheets (void * webserver_request, string user)
+{
+  int level {0};
+  user_level (webserver_request, user, level);
+  if (level >= set_stylesheets_role ()) return true;
+  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
+  return request->database_config_user ()->getPrivilegeSetStylesheetsForUser (user);
+}
+
+
+void user_level (void * webserver_request, string & user, int & level)
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   if (user.empty ()) {
@@ -120,7 +135,7 @@ void access_logic_user_level (void * webserver_request, string & user, int & lev
 }
 
 
-void access_logic_create_client_files ()
+void create_client_files ()
 {
   Database_Users database_users;
   vector <string> users = database_users.get_users ();
@@ -129,4 +144,7 @@ void access_logic_create_client_files ()
     // to avoid unnecessary downloads by the clients.
     database_privileges_client_create (user, false);
   }
+}
+
+
 }

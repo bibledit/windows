@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,6 @@
 
 #include <config/libraries.h>
 
-string styles_indexm_url ();
+std::string styles_indexm_url ();
 bool styles_indexm_acl (void * webserver_request);
-string styles_indexm (void * webserver_request);
+std::string styles_indexm (void * webserver_request);

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
 #include <assets/header.h>
 #include <menu/logic.h>
 #include <journal/logic.h>
+using namespace std;
 
 
 string checks_settings_url ()
@@ -60,19 +61,19 @@ string checks_settings (void * webserver_request)
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   
-  string page;
+  string page {};
   Assets_Header header = Assets_Header (translate("Manage Checks"), webserver_request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
-  Assets_View view;
+  Assets_View view {};
   
   
   if (request->query.count ("bible")) {
     string bible = request->query["bible"];
     if (bible.empty()) {
       Dialog_List dialog_list = Dialog_List ("settings", translate("Select which Bible to manage"), string(), string());
-      vector <string> bibles = AccessBible::Bibles (webserver_request);
-      for (auto selectable_bible : bibles) {
+      vector <string> bibles = access_bible::bibles (webserver_request);
+      for (const auto & selectable_bible : bibles) {
         dialog_list.add_row (selectable_bible, "bible", selectable_bible);
       }
       page += dialog_list.run ();
@@ -81,7 +82,7 @@ string checks_settings (void * webserver_request)
       request->database_config_user()->setBible (bible);
     }
   }
-  string bible = AccessBible::Clamp (webserver_request, request->database_config_user()->getBible ());
+  string bible = access_bible::clamp (webserver_request, request->database_config_user()->getBible ());
 
   
   if (request->query.count ("run")) {
@@ -208,6 +209,6 @@ string checks_settings (void * webserver_request)
 
   
   page += view.render ("checks", "settings");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

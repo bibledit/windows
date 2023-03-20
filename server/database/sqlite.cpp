@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/string.h>
 #include <database/logs.h>
 #include <database/logic.h>
+using namespace std;
 
 
 /*
@@ -139,10 +140,10 @@ string database_sqlite_no_sql_injection (string sql)
 
 void database_sqlite_exec (sqlite3 * db, string sql)
 {
-  char *error = NULL;
+  char *error = nullptr;
   if (db) {
     sqlite_execute_mutex.lock ();
-    int rc = sqlite3_exec (db, sql.c_str(), NULL, NULL, &error);
+    int rc = sqlite3_exec (db, sql.c_str(), nullptr, nullptr, &error);
     sqlite_execute_mutex.unlock ();
     if (rc != SQLITE_OK) database_sqlite_error (db, sql, error);
   } else {
@@ -154,7 +155,7 @@ void database_sqlite_exec (sqlite3 * db, string sql)
 
 map <string, vector <string> > database_sqlite_query (sqlite3 * db, string sql)
 {
-  char * error = NULL;
+  char * error = nullptr;
   SqliteReader reader (0);
   if (db) {
     sqlite_execute_mutex.lock ();
@@ -280,8 +281,8 @@ int SqliteReader::callback (void *userdata, int argc, char **argv, char **column
 {
   SqliteReader * sqlite_reader = static_cast<SqliteReader *> (userdata);
   for (int i = 0; i < argc; i++) {
-    // Handle NULL field.
-    if (argv [i] == NULL) sqlite_reader->result [column_names [i]].push_back ("");
+    // Handle nullptr field.
+    if (argv [i] == nullptr) sqlite_reader->result [column_names [i]].push_back ("");
     else sqlite_reader->result [column_names [i]].push_back (argv[i]);
   }
   return 0;

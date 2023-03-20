@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 #include <database/versifications.h>
 #include <database/config/bible.h>
 #include <database/mappings.h>
+using namespace std;
 
 
 void nmt_logic_export (string referencebible, string translatingbible)
@@ -49,10 +50,10 @@ void nmt_logic_export (string referencebible, string translatingbible)
   for (auto book : books) {
   
     // Take books that contain text, leave others, like front matter, out.
-    string type = Database_Books::getType (book);
-    if ((type != "ot") && (type != "nt") && (type != "ap")) continue;
+    book_type type = database::books::get_type (static_cast<book_id>(book));
+    if ((type != book_type::old_testament) && (type != book_type::new_testament) && (type != book_type::apocryphal)) continue;
     
-    string bookname = Database_Books::getEnglishFromId (book);
+    string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
     Database_Logs::log ("Exporting " + bookname);
     
     vector <int> chapters = database_bibles.getChapters (referencebible, book);

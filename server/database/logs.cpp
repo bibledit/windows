@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/sqlite.h>
 #include <filter/date.h>
 #include <journal/logic.h>
+using namespace std;
 
 
 // Bibledit no longer uses a database for storing the journal.
@@ -111,7 +112,7 @@ void Database_Logs::rotate ()
     string path = filter_url_create_path ({directory, files [i]});
 
     // Limit the number of journal entries.
-    if ((int)i < limitfilecount) {
+    if (static_cast<int> (i) < limitfilecount) {
       filter_url_unlink (path);
       continue;
     }

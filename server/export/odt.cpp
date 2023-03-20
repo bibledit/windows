@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -35,17 +35,18 @@
 #include <filter/usfm.h>
 #include <locale/translate.h>
 #include <styles/sheets.h>
+using namespace std;
 
 
 void export_odt_book (string bible, int book, bool log)
 {
   // Create folders for the OpenDocument export.
-  string directory = filter_url_create_path ({Export_Logic::bibleDirectory (bible), "opendocument"});
+  string directory = filter_url_create_path ({export_logic::bible_directory (bible), "opendocument"});
   if (!file_or_dir_exists (directory)) filter_url_mkdir (directory);
   
   
   // Filenames for the various types of OpenDocument files.
-  string basename = Export_Logic::baseBookFileName (book);
+  string basename = export_logic::base_book_filename (bible, book);
   string standardFilename = filter_url_create_path ({directory, basename + "_standard.odt"});
   string textOnlyFilename = filter_url_create_path ({directory, basename + "_text_only.odt"});
   string textAndCitationsFilename = filter_url_create_path ({directory, basename + "_text_and_note_citations.odt"});
@@ -113,36 +114,36 @@ void export_odt_book (string bible, int book, bool log)
   string basefile = filter_url_basename (standardFilename);
   filter_url_unlink (standardFilename + ".zip");
   if (secure) {
-    filter_shell_run (directory, "zip", {"-P", password, basefile + ".zip", basefile}, NULL, NULL);
+    filter_shell_run (directory, "zip", {"-P", password, basefile + ".zip", basefile}, nullptr, nullptr);
     filter_url_unlink (standardFilename);
   }
   basefile = filter_url_basename (textOnlyFilename);
   filter_url_unlink (textOnlyFilename + ".zip");
   if (secure) {
-    filter_shell_run (directory, "zip", {"-P", password, basefile + ".zip", basefile}, NULL, NULL);
+    filter_shell_run (directory, "zip", {"-P", password, basefile + ".zip", basefile}, nullptr, nullptr);
     filter_url_unlink (textOnlyFilename);
   }
   basefile = filter_url_basename (textAndCitationsFilename);
   filter_url_unlink (textAndCitationsFilename + ".zip");
   if (secure) {
-    filter_shell_run (directory, "zip", {"-P", password, basefile + ".zip", basefile}, NULL, NULL);
+    filter_shell_run (directory, "zip", {"-P", password, basefile + ".zip", basefile}, nullptr, nullptr);
     filter_url_unlink (textAndCitationsFilename);
   }
   basefile = filter_url_basename (notesFilename);
   filter_url_unlink (notesFilename + ".zip");
   if (secure) {
-    filter_shell_run (directory, "zip", {"-P", password, basefile + ".zip", basefile}, NULL, NULL);
+    filter_shell_run (directory, "zip", {"-P", password, basefile + ".zip", basefile}, nullptr, nullptr);
     filter_url_unlink (notesFilename);
   }
   
   
   // Clear the flag that indicated this export.
-  Database_State::clearExport (bible, book, Export_Logic::export_opendocument);
+  Database_State::clearExport (bible, book, export_logic::export_opendocument);
 
   
   if (log) {
     string bookname;
-    if (book) bookname = Database_Books::getEnglishFromId (book);
+    if (book) bookname = database::books::get_english_from_id (static_cast<book_id>(book));
     else bookname = translate ("whole Bible");
     Database_Logs::log (translate("Exported to OpenDocument files") + " " + bible + " " + bookname, Filter_Roles::translator ());
   }

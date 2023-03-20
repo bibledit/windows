@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <index/index.h>
 #include <ldap/logic.h>
 #include <user/logic.h>
+using namespace std;
 
 
 const char * session_login_url ()
@@ -109,7 +110,7 @@ string session_login (void * webserver_request)
     }
   }
   
-  view.set_variable ("VERSION", config_logic_version ());
+  view.set_variable ("VERSION", config::logic::version ());
   
   if (ldap_logic_is_on ()) {
     view.enable_zone ("ldap");
@@ -136,7 +137,7 @@ string session_login (void * webserver_request)
     page += view.render ("session", "login");
   }
 
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
 
   return page;
 }
@@ -152,6 +153,6 @@ string session_login_display_header (void * webserver_request)
      Therefore no output should be sent so the forward headers work.
   */
   Assets_Header header = Assets_Header (translate ("Login"), webserver_request);
-  header.touchCSSOn ();
+  header.touch_css_on ();
   return header.run ();
 }

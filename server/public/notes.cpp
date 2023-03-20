@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include <filter/css.h>
 #include <webserver/request.h>
 #include <database/notes.h>
+using namespace std;
 
 
 string public_notes_url ()
@@ -59,7 +60,6 @@ string public_notes (void * webserver_request)
     if (database_notes.get_public (identifier)) {
       notesblock << "<p class=" << quoted ("nowrap") << ">";
       string url_to_note = "note?id=" + convert_to_string (identifier);
-      if (config_logic_indonesian_cloud_free_simple ()) url_to_note = "../public/" + url_to_note;
       notesblock << "<a href=" << quoted (url_to_note) << ">";
       vector <Passage> passages = database_notes.get_passages (identifier);
       string verses;

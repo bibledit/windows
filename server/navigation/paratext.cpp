@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/string.h>
 #include <ipc/focus.h>
 #include <client/logic.h>
+using namespace std;
 
 
 string navigation_paratext_url ()
@@ -50,7 +51,7 @@ string navigation_paratext (void * webserver_request)
       // Parse the reference from Paratext.
       vector<string> book_rest = filter_string_explode (from, ' ');
       if (book_rest.size() == 2) {
-        int book = Database_Books::getIdFromUsfm (book_rest[0]);
+        int book = static_cast<int>(database::books::get_id_from_usfm (book_rest[0]));
         vector <string> chapter_verse = filter_string_explode(book_rest[1], ':');
         if (chapter_verse.size() == 2) {
           int chapter = convert_to_int(chapter_verse[0]);

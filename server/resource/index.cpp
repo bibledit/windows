@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,6 +32,8 @@
 #include <menu/logic.h>
 #include <access/logic.h>
 #include <config/globals.h>
+#include <database/config/general.h>
+using namespace std;
 
 
 string resource_index_url ()
@@ -42,7 +44,7 @@ string resource_index_url ()
 
 bool resource_index_acl (void * webserver_request)
 {
-  return access_logic_privilege_view_resources (webserver_request);
+  return access_logic::privilege_view_resources (webserver_request);
 }
 
 
@@ -56,10 +58,10 @@ string resource_index (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate("Resources"), request);
-  header.setNavigator ();
-  header.setStylesheet ();
-  if (touch) header.jQueryTouchOn ();
-  header.addBreadCrumb (menu_logic_translate_menu (), menu_logic_translate_text ());
+  header.set_navigator ();
+  header.set_stylesheet ();
+  if (touch) header.jquery_touch_on ();
+  header.add_bread_crumb (menu_logic_translate_menu (), menu_logic_translate_text ());
   page = header.run ();
   Assets_View view;
   
@@ -67,17 +69,16 @@ string resource_index (void * webserver_request)
   vector <string> resources = request->database_config_user()->getActiveResources ();
 
 
-  // Indonesian Cloud Free
-  // Always set the default selection of resources for Indonesian Cloud Free
-  // Simple/Demo version.
-  if (config_logic_indonesian_cloud_free_simple ()) {
-    resources = demo_logic_default_resources ();
-  }
-  
-  
   // If no resources are displayed, set a default selection of them.
+  // If a default selection hasn't been set by an administrator, use the
+  // default set from demo.
   if (resources.empty ()) {
-    resources = demo_logic_default_resources ();
+    vector <string> default_resources = Database_Config_General::getDefaultActiveResources ();
+    if (default_resources.empty ()) {
+      resources = demo_logic_default_resources ();
+      Database_Config_General::setDefaultActiveResources (resources);
+    }
+    else resources = default_resources;
     request->database_config_user()->setActiveResources (resources);
   }
 
@@ -104,26 +105,16 @@ string resource_index (void * webserver_request)
   int window_position = config_globals_resource_window_positions [username];
   string script = "var resourceCount = " + convert_to_string (resource_count) + ";\n"
                   "var resourceWindowPosition = " + convert_to_string (window_position) + ";";
-  config_logic_swipe_enabled (webserver_request, script);
+  config::logic::swipe_enabled (webserver_request, script);
   view.set_variable ("script", script);
   
   
   bool can_organize_active_resources = true;
-  if (config_logic_indonesian_cloud_free ()) {
-    // In the Indonesian free Cloud, only Managers and higher roles can organize the resources.
-    // In that type of Cloud, all resources for all users are one and the same setting.
-    int level = request->session_logic()->currentLevel();
-    can_organize_active_resources = (level >= Filter_Roles::manager());
-  }
-  if (config_logic_indonesian_cloud_free_simple ()) {
-    // In the Indonesian Cloud Free Simple version, the organize zone is not enabled.
-    can_organize_active_resources = false;
-  }
   if (can_organize_active_resources) view.enable_zone("organize");
   
   
   page += view.render ("resource", "index");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }
 

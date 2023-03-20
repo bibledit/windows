@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -25,62 +25,62 @@
 class Checks_Usfm
 {
 public:
-  Checks_Usfm (string bible);
+  Checks_Usfm (const std::string & bible);
   void initialize (int book, int chapter);
   void finalize ();
-  void check (string usfm);
-  vector <pair<int, string>> get_results ();
+  void check (const std::string & usfm);
+  std::vector <std::pair<int, std::string>> get_results ();
 private:
   // USFM and text.
-  vector <string> usfm_markers_and_text;
-  unsigned int usfm_markers_and_text_pointer;
-  string usfm_item;
-  int book_number;
-  int chapter_number;
-  int verse_number;
+  std::vector <std::string> usfm_markers_and_text {};
+  unsigned int usfm_markers_and_text_pointer {0};
+  std::string usfm_item {};
+  int book_number {0};
+  int chapter_number {0};
+  int verse_number {0};
   
   // Results of the checks.
-  vector <pair<int, string>> checking_results;
-  static const int display_nothing = 0;
-  static const int display_current = 1;
-  static const int display_next = 2;
-  static const int display_full = 3;
+  std::vector <std::pair<int, std::string>> checking_results {};
+  static constexpr int display_nothing {0};
+  static constexpr int display_current {1};
+  static constexpr int display_next {2};
+  static constexpr int display_full {3};
   
   // Stylesheet.
-  vector <string> markers_stylesheet;
-  map <string, Database_Styles_Item> style_items;
+  std::vector <std::string> markers_stylesheet {};
+  std::map <std::string, Database_Styles_Item> style_items {};
   
   // Matching markers.
-  vector <string> markers_requiring_endmarkers;
-  vector <string> open_matching_markers;
+  std::vector <std::string> markers_requiring_endmarkers {};
+  std::vector <std::string> open_matching_markers {};
   
   // Embedded markers.
-  vector <string> embeddable_markers;
-  vector <string> open_embeddable_markers;
+  std::vector <std::string> embeddable_markers {};
+  std::vector <std::string> open_embeddable_markers {};
 
   // Table of contents markers and flags.
-  string long_toc1_marker;
-  string short_toc2_marker;
-  string abbrev_toc3_marker;
+  std::string long_toc1_marker {};
+  std::string short_toc2_marker {};
+  std::string abbrev_toc3_marker {};
 
   // Empty markup checking.
-  string empty_markup_previous_item;
+  std::string empty_markup_previous_item {};
   
   // Empty note checking.
-  bool within_note = false;
+  bool within_note {false};
   
   // Methods.
   void malformed_verse_number ();
-  void new_line_in_usfm (string usfm);
+  void new_line_in_usfm (const std::string & usfm);
   void marker_in_stylesheet ();
   void malformed_id ();
-  void forward_slash (string usfm);
+  void forward_slash (const std::string & usfm);
   void widow_back_slash ();
   void matching_endmarker ();
   void embedded_marker ();
-  void toc (string usfm);
+  void toc (std::string usfm);
   void figure ();
-  void add_result (string text, int modifier);
+  void add_result (std::string text, int modifier);
   void empty_markup ();
   void note ();
 };

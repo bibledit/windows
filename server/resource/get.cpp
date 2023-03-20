@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include <database/config/bible.h>
 #include <database/versifications.h>
 #include <access/logic.h>
+using namespace std;
 
 
 string resource_get_url ()
@@ -35,7 +36,7 @@ string resource_get_url ()
 
 bool resource_get_acl (void * webserver_request)
 {
-  return access_logic_privilege_view_resources (webserver_request);
+  return access_logic::privilege_view_resources (webserver_request);
 }
 
 
@@ -109,7 +110,7 @@ string resource_get (void * webserver_request)
             }
           }
         }
-        while ((int)chapters_before.size () > context_before) {
+        while (static_cast<int>(chapters_before.size()) > context_before) {
           chapters_before.erase (chapters_before.begin ());
           verses_before.erase (verses_before.begin ());
         }
@@ -141,7 +142,7 @@ string resource_get (void * webserver_request)
             }
           }
         }
-        while ((int)chapters_after.size () > context_after) {
+        while (static_cast<int>(chapters_after.size()) > context_after) {
           chapters_after.pop_back ();
           verses_after.pop_back ();
         }

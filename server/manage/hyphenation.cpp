@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include <database/config/bible.h>
 #include <menu/logic.h>
 #include <journal/index.h>
+using namespace std;
 
 
 const char * manage_hyphenation_url ()
@@ -52,12 +53,12 @@ string manage_hyphenation (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate ("Hyphenation"), webserver_request);
-  header.addBreadCrumb (menu_logic_tools_menu (), menu_logic_tools_text ());
+  header.add_bread_crumb (menu_logic_tools_menu (), menu_logic_tools_text ());
   page = header.run ();
   Assets_View view;
   
   
-  string bible = AccessBible::Clamp (webserver_request, request->database_config_user()->getBible ());
+  string bible = access_bible::clamp (webserver_request, request->database_config_user()->getBible ());
   
   
   string success;
@@ -78,7 +79,7 @@ string manage_hyphenation (void * webserver_request)
     string bible2 = request->query ["bible"];
     if (bible2.empty()) {
       Dialog_List dialog_list = Dialog_List ("", translate("Which Bible would you like to take the data from?"), "", "");
-      vector <string> bibles = AccessBible::Bibles (webserver_request);
+      vector <string> bibles = access_bible::bibles (webserver_request);
       for (auto list_bible : bibles) {
         dialog_list.add_row (list_bible, "bible", list_bible);
       }
@@ -88,7 +89,7 @@ string manage_hyphenation (void * webserver_request)
       request->database_config_user()->setBible (bible2);
     }
   }
-  bible = AccessBible::Clamp (webserver_request, request->database_config_user()->getBible ());
+  bible = access_bible::clamp (webserver_request, request->database_config_user()->getBible ());
   
   
   string firstset = Database_Config_Bible::getHyphenationFirstSet (bible);
@@ -116,6 +117,6 @@ string manage_hyphenation (void * webserver_request)
   
   
   page += view.render ("manage", "hyphenation");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,9 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/config/general.h>
 #include <filter/url.h>
 #include <filter/string.h>
+#include <filter/roles.h>
 #include <config/globals.h>
 #include <system/index.h>
 #include <database/logic.h>
+using namespace std;
 
 
 // Cache values in memory for better speed.
@@ -258,7 +260,7 @@ string Database_Config_General::getSiteURL ()
 #ifdef HAVE_CLIENT
   // In case of a client, return a predefined URL.
   string url = "http://localhost:";
-  url.append (config_logic_http_network_port ());
+  url.append (config::logic::http_network_port ());
   url.append ("/");
   return url;
 #else
@@ -278,11 +280,6 @@ const char * general_site_language_key ()
 }
 string Database_Config_General::getSiteLanguage ()
 {
-  // Indonesian Cloud Free
-  // The default language for the interface will be Indonesian.
-  if (config_logic_indonesian_cloud_free ()) {
-    return getValue (general_site_language_key (), "id");
-  }
   // The default site language is an empty string.
   // It means not to localize the interface.
   // Since the default messages are all in English,
@@ -406,6 +403,9 @@ void Database_Config_General::setLastMenuClick (string url)
 }
 
 
+// Store the resources to be cached.
+// The format is this:
+// <resource title><space><book number>
 vector <string> Database_Config_General::getResourcesToCache ()
 {
   return getList ("resources-to-cache");
@@ -549,17 +549,31 @@ void Database_Config_General::setComparativeResources (vector <string> values)
 }
 
 
-const char * active_resources_key ()
+const char * translated_resources_key ()
 {
-  return "active-resources";
+  return "translated-resources";
 }
-vector <string> Database_Config_General::getActiveResources ()
+vector <string> Database_Config_General::getTranslatedResources ()
 {
-  return getList (active_resources_key ());
+  return getList (translated_resources_key ());
 }
-void Database_Config_General::setActiveResources (vector <string> values)
+void Database_Config_General::setTranslatedResources (vector <string> values)
 {
-  setList (active_resources_key (), values);
+  setList (translated_resources_key (), values);
+}
+
+
+const char * default_active_resources_key ()
+{
+  return "default-active-resources";
+}
+vector <string> Database_Config_General::getDefaultActiveResources ()
+{
+  return getList (default_active_resources_key ());
+}
+void Database_Config_General::setDefaultActiveResources (vector <string> values)
+{
+  setList (default_active_resources_key (), values);
 }
 
 
@@ -590,3 +604,16 @@ void Database_Config_General::setKeepResourcesCacheForLong (bool value)
   setBValue (keep_resources_cache_for_long_key (), value);
 }
 
+
+const char * default_new_user_access_level_key ()
+{
+  return "default-new-user-access-level";
+}
+int Database_Config_General::getDefaultNewUserAccessLevel ()
+{
+  return getIValue (default_new_user_access_level_key (), Filter_Roles::member ());
+}
+void Database_Config_General::setDefaultNewUserAccessLevel (int value)
+{
+  setIValue (default_new_user_access_level_key (), value);
+}

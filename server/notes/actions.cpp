@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 #include <database/logs.h>
 #include <styles/logic.h>
 #include <access/logic.h>
+using namespace std;
 
 
 string notes_actions_url ()
@@ -59,7 +60,7 @@ string notes_actions (void * webserver_request)
   
   string page;
   Assets_Header header = Assets_Header (translate("Actions"), request);
-  header.setNavigator ();
+  header.set_navigator ();
   page += header.run ();
   Assets_View view;
   string success, error;
@@ -173,7 +174,7 @@ string notes_actions (void * webserver_request)
   if (level >= Filter_Roles::manager ()) view.enable_zone ("rawedit");
   
 
-  if (access_logic_privilege_delete_consultation_notes (webserver_request))
+  if (access_logic::privilege_delete_consultation_notes (webserver_request))
     view.enable_zone ("deletenote");
   bool marked = database_notes.is_marked_for_deletion (id);
   if (marked) view.enable_zone ("marked");
@@ -191,6 +192,6 @@ string notes_actions (void * webserver_request)
   view.set_variable ("success", success);
   view.set_variable ("error", error);
   page += view.render ("notes", "actions");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

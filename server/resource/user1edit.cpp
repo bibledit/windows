@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 #include <dialog/entry.h>
 #include <tasks/logic.h>
 #include <menu/logic.h>
+using namespace std;
 
 
 string resource_user1edit_url ()
@@ -55,11 +56,11 @@ string resource_user1edit (void * webserver_request)
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
   
-  string page;
+  string page {};
   Assets_Header header = Assets_Header (translate("User-defined resources"), request);
-  header.addBreadCrumb (menu_logic_settings_menu (), menu_logic_settings_text ());
+  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
-  Assets_View view;
+  Assets_View view {};
   string error, success;
   
   
@@ -81,10 +82,10 @@ string resource_user1edit (void * webserver_request)
         vector <string> bits = filter_string_explode (line, '=');
         if (bits.size () == 2) {
           string english = filter_string_trim (bits [0]);
-          int id = Database_Books::getIdFromEnglish (english);
-          if (id) {
+          book_id id = database::books::get_id_from_english (english);
+          if (id != book_id::_unknown) {
             string fragment = filter_string_trim (bits [1]);
-            Database_UserResources::book (name, id, fragment);
+            Database_UserResources::book (name, static_cast<int>(id), fragment);
             bookcount++;
           } else {
             error.append (" ");
@@ -100,23 +101,22 @@ string resource_user1edit (void * webserver_request)
   
   vector <string> lines;
   lines.push_back (Database_UserResources::url (name));
-  vector <int> ids = Database_Books::getIDs ();
+  vector <book_id> ids = database::books::get_ids ();
   for (auto id : ids) {
-    string type = Database_Books::getType (id);
-    if ((type == "ot") || (type == "nt")) {
-      string english = Database_Books::getEnglishFromId (id);
-      string book = Database_UserResources::book (name, id);
+    book_type type = database::books::get_type (id);
+    if ((type == book_type::old_testament) || (type == book_type::new_testament)) {
+      string english = database::books::get_english_from_id (id);
+      string book = Database_UserResources::book (name, static_cast<int>(id));
       lines.push_back (english + " = " + book);
     }
   }
   view.set_variable ("data", filter_string_implode (lines, "\n"));
-                   
   
 
   view.set_variable ("success", success);
   view.set_variable ("error", error);
   view.set_variable ("url", resource_logic_default_user_url ());
   page += view.render ("resource", "user1edit");
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
   return page;
 }

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,11 +28,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <sources/oshb.h>
 #include <sources/styles.h>
 #include <sources/abbott-smith.h>
+#include <i18n/logic.h>
+using namespace std;
 
 
 int main (int argc, char **argv)
 {
-  cout << "Data Generator " << config_logic_version () << endl;
+  cout << "Data Generator " << config::logic::version () << endl;
   
   if (argc < 2) {
     cerr << "Please pass the document root folder as the first argument" << endl;
@@ -50,17 +52,23 @@ int main (int argc, char **argv)
     return EXIT_FAILURE;
   }
   string command = argv [2];
-  
-  string locale_command = "locale";
-  string sample_bible_command = "samplebible";
-  string mappings_command = "mappings";
-  string versifications_command = "versifications";
-  string morphhb_command = "morphhb";
-  string oshb_command = "oshb";
-  string stylesheet_command = "styles";
-  string abbott_smith_command = "abbott-smith";
-  
-  if (command == locale_command) {
+
+  string i18n_command {"i18n"};
+  string locale_command {"locale"};
+  string sample_bible_command {"samplebible"};
+  string mappings_command {"mappings"};
+  string versifications_command {"versifications"};
+  string morphhb_command {"morphhb"};
+  string oshb_command {"oshb"};
+  string stylesheet_command {"styles"};
+  string abbott_smith_command {"abbott-smith"};
+
+  if (command == i18n_command) {
+
+    cout << "Translating untranslated GUI texts through Google Translate" << endl;
+    i18n_logic_augment_via_google_translate ();
+
+  } else if (command == locale_command) {
   
     cout << "Generating locale databases from the *.po files in folder locale" << endl;
     setup_generate_locale_databases (true);
@@ -104,6 +112,7 @@ int main (int argc, char **argv)
     
     cerr << "This command is unknown" << endl;
     cerr << "The following commands are supported:" << endl;
+    cerr << i18n_command << ": Translate untranslated GUI texts through Google Translate" << endl;
     cerr << locale_command << ": Generate locale databases from the *.po files in folder locale" << endl;
     cerr << sample_bible_command << ": Generate the sample Bible" << endl;
     cerr << mappings_command << ": Generate the default verse mappings database" << endl;

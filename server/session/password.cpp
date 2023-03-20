@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/string.h>
 #include <filter/md5.h>
 #include <email/send.h>
+using namespace std;
 
 
 const char * session_password_url ()
@@ -48,7 +49,7 @@ string session_password (void * webserver_request)
   string page;
 
   Assets_Header header = Assets_Header (translate ("Password"), webserver_request);
-  header.touchCSSOn ();
+  header.touch_css_on ();
   page += header.run ();
 
   Assets_View view;
@@ -102,7 +103,7 @@ string session_password (void * webserver_request)
 
   page += view.render ("session", "password");
 
-  page += Assets_Page::footer ();
+  page += assets_page::footer ();
 
   return page;
 }

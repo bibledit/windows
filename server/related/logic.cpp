@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,13 +21,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/books.h>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#ifndef HAVE_PUGIXML
 #include <pugixml/pugixml.hpp>
+#endif
+#ifdef HAVE_PUGIXML
+#include <pugixml.hpp>
+#endif
 #pragma GCC diagnostic pop
 #include <filter/url.h>
 #include <filter/string.h>
 #include <filter/usfm.h>
-
-
+using namespace std;
 using namespace pugi;
 
 
@@ -67,15 +73,15 @@ void related_logic_search_related (const string & bookname, int input_chapter, c
       if (match) {
         for (xml_node passage_node : set.children ()) {
           string related_bookname = passage_node.attribute ("book").value ();
-          int related_book = Database_Books::getIdFromEnglish (related_bookname);
+          book_id related_book = database::books::get_id_from_english (related_bookname);
           int related_chapter = convert_to_int (passage_node.attribute ("chapter").value ());
           string verse = passage_node.attribute ("verse").value ();
-          vector <int> verses;
+          vector <int> verses {};
           if (filter::usfm::handle_verse_range (verse, verses));
           else verses.push_back (convert_to_int (verse));
           for (auto related_verse : verses) {
-            if (related_book && related_chapter) {
-              Passage passage ("", related_book, related_chapter, convert_to_string (related_verse));
+            if ((related_book != book_id::_unknown) && related_chapter) {
+              Passage passage (string(), static_cast<int>(related_book), related_chapter, convert_to_string (related_verse));
               int i = filter_passage_to_integer (passage);
               // No duplicate passages to be included.
               if (!in_array (i, passages)) {
@@ -102,17 +108,18 @@ vector <Passage> related_logic_get_verses (const vector <Passage> & input)
 
     // Get details about the book in the passage.
     // It assumes all input passages refer to the same book.
-    string bookname = Database_Books::getEnglishFromId (input[0].m_book);
-    string booktype = Database_Books::getType (input[0].m_book);
-    bool is_ot = (booktype == "ot");
-    bool is_nt = (booktype == "nt");
+    string bookname = database::books::get_english_from_id (static_cast<book_id>(input[0].m_book));
+    book_type booktype = database::books::get_type (static_cast<book_id>(input[0].m_book));
+    bool is_ot = (booktype == book_type::old_testament);
+    bool is_nt = (booktype == book_type::new_testament);
     
     
     // Load the parallel passages and the quotations.
     xml_document parallel_document;
     xml_document quotation_document;
     if (is_ot || is_nt) {
-      string path = filter_url_create_root_path ({"related", "parallel-passages-" + booktype + ".xml"});
+      string book_type_name = database::books::book_type_to_string(booktype);
+      string path = filter_url_create_root_path ({"related", "parallel-passages-" + book_type_name + ".xml"});
       parallel_document.load_file (path.c_str());
       path = filter_url_create_root_path ({"related", "ot-quotations-in-nt.xml"});
       quotation_document.load_file (path.c_str());

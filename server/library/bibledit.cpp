@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -43,15 +43,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <locale/logic.h>
 #include <ipc/focus.h>
 #include <client/logic.h>
+using namespace std;
 
 
-bool bibledit_started = false;
+bool bibledit_started {false};
 
 
 // Get Bibledit's version number.
 const char * bibledit_get_version_number ()
 {
-  return config_logic_version ();
+  return config::logic::version ();
 }
 
 
@@ -75,7 +76,7 @@ const char * bibledit_get_network_port ()
 #endif
 
   // Set the port number.
-  config_logic_http_network_port ();
+  config::logic::http_network_port ();
 
   // Give the port number to the caller.
   return config_globals_negotiated_port_number.c_str ();
@@ -131,10 +132,10 @@ void bibledit_initialize_library (const char * package, const char * webroot)
   hours = 0 - (tzi.Bias / 60);
 #else
   // Set local timezone offset in the library on Linux.
-  time_t t = time (NULL);
+  time_t t = time (nullptr);
   struct tm lt = {};
   localtime_r (&t, &lt);
-  hours = round (lt.tm_gmtoff / 3600);
+  hours = static_cast<int>(round (lt.tm_gmtoff / 3600));
 #endif
   config_globals_timezone_offset_utc = hours;
   Database_Logs::log ("Timezone offset in hours: " + convert_to_string (hours));
@@ -144,7 +145,7 @@ void bibledit_initialize_library (const char * package, const char * webroot)
   locale_logic_obfuscate_initialize ();
   
   // Read some configuration settings into memory for faster access.
-  config_logic_load_settings ();
+  config::logic::load_settings ();
   
   // Initialize data in a thread.
   thread setup_thread = thread (setup_conditionally, package);
@@ -188,7 +189,7 @@ void bibledit_start_library ()
 #else
   config_globals_client_prepared = false;
 #endif
-  if (config_logic_demo_enabled ()) {
+  if (config::logic::demo_enabled ()) {
     config_globals_open_installation = true;
   }
 
@@ -209,8 +210,8 @@ void bibledit_start_library ()
   config_globals_webserver_running = true;
   
   // Whether the plain http server redirects to secure http.
-  config_globals_enforce_https_browser = config_logic_enforce_https_browser ();
-  config_globals_enforce_https_client = config_logic_enforce_https_client ();
+  config_globals_enforce_https_browser = config::logic::enforce_https_browser ();
+  config_globals_enforce_https_client = config::logic::enforce_https_client ();
   
   // Run the plain web server in a thread.
   config_globals_http_worker = new thread (http_server);
@@ -298,6 +299,7 @@ const char * bibledit_get_pages_to_open ()
 // the normal shutdown fails to work.
 // This last-ditch function waits a few seconds, and if the app is still running then,
 // it exits the app, regardless of the state of the internal webservers.
+[[noreturn]]
 void bibledit_last_ditch_forced_exit ()
 {
   this_thread::sleep_for (chrono::seconds (2));
@@ -320,12 +322,12 @@ void bibledit_stop_library ()
   
   // Connect to the plain webserver to initiate its shutdown mechanism.
   url = "http://localhost:";
-  url.append (config_logic_http_network_port ());
+  url.append (config::logic::http_network_port ());
   filter_url_http_get (url, error, false);
 
 #ifdef RUN_SECURE_SERVER
   // If the secure server runs, connect to it to initiate its shutdown mechanism.
-  string https_port = config_logic_https_network_port ();
+  string https_port = config::logic::https_network_port ();
   if (https_port.length() > 1) {
     url = "https://localhost:";
     url.append (https_port);
@@ -442,7 +444,7 @@ const char * bibledit_get_reference_for_accordance ()
   book = passages[0].m_book;
   chapter = passages[0].m_chapter;
   string verse_s = passages[0].m_verse;
-  string usfm_id = Database_Books::getUsfmFromId (book);
+  string usfm_id = database::books::get_usfm_from_id (static_cast<book_id>(book));
   reference = usfm_id + " " + convert_to_string (chapter) + ":" + convert_to_string (verse_s);
 
   // Return the reference.
@@ -469,7 +471,7 @@ void bibledit_put_reference_from_accordance (const char * reference)
   // Accordance broadcasts for instance, 2 Corinthians 9:2, as "2CO 9:2".
   vector<string> book_rest = filter_string_explode (reference, ' ');
   if (book_rest.size() != 2) return;
-  int book = Database_Books::getIdFromUsfm (book_rest[0]);
+  int book = static_cast<int>(database::books::get_id_from_usfm (book_rest[0]));
   vector <string> chapter_verse = filter_string_explode(book_rest[1], ':');
   if (chapter_verse.size() != 2) return;
   int chapter = convert_to_int(chapter_verse[0]);

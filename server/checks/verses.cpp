@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -26,26 +26,28 @@
 #include <database/config/bible.h>
 #include <styles/logic.h>
 #include <locale/translate.h>
+using namespace std;
 
 
-void Checks_Verses::missingPunctuationAtEnd (string bible, int book, int chapter,
-                                             map <int, string> verses,
-                                             string center_marks, string end_marks, string disregards)
+void checks_verses::missing_punctuation_at_end (const string & bible, int book, int chapter,
+                                                const map <int, string> & verses,
+                                                const string & center_marks, const string & end_marks,
+                                                const string & disregards)
 {
-  vector <string> centermarks = filter_string_explode (center_marks, ' ');
-  vector <string> endmarks = filter_string_explode (end_marks, ' ');
-  vector <string> ignores = filter_string_explode (disregards, ' ');
-  Database_Check database_check;
-  for (auto element : verses) {
+  const vector <string> centermarks = filter_string_explode (center_marks, ' ');
+  const vector <string> endmarks = filter_string_explode (end_marks, ' ');
+  const vector <string> ignores = filter_string_explode (disregards, ' ');
+  Database_Check database_check {};
+  for (const auto & element : verses) {
     int verse = element.first;
     string text = element.second;
     if (verse == 0) continue;
     if (text.empty ()) continue;
-    for (auto ignore_text : ignores) {
+    for (const auto & ignore_text : ignores) {
       text = filter_string_str_replace (ignore_text, string(), text);
     }
-    size_t text_length = unicode_string_length (text);
-    string lastCharacter = unicode_string_substr (text, text_length - 1, 1);
+    const size_t text_length = unicode_string_length (text);
+    const string lastCharacter = unicode_string_substr (text, text_length - 1, 1);
     if (in_array (lastCharacter, centermarks)) continue;
     if (in_array (lastCharacter, endmarks)) continue;
     database_check.recordOutput (bible, book, chapter, verse, translate ("No punctuation at end of verse:") + " " + lastCharacter);
@@ -53,13 +55,14 @@ void Checks_Verses::missingPunctuationAtEnd (string bible, int book, int chapter
 }
 
 
-void Checks_Verses::patterns (string bible, int book, int chapter, map <int, string> verses, vector <string> patterns)
+void checks_verses::patterns (const string & bible, int book, int chapter,
+                              const map <int, string> & verses, const vector <string> & patterns)
 {
-  Database_Check database_check;
-  for (auto element : verses) {
-    int verse = element.first;
-    string text = element.second;
-    for (auto pattern : patterns) {
+  Database_Check database_check {};
+  for (const auto & element : verses) {
+    const int verse = element.first;
+    const string text = element.second;
+    for (const auto & pattern : patterns) {
       if (pattern.empty ()) continue;
       if (text.find (pattern) != string::npos) {
         database_check.recordOutput (bible, book, chapter, verse, translate ("Pattern found in text:") + " " + pattern);

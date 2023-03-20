@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/logs.h>
 #include <microtar/microtar.h>
 #include <miniz/miniz.h>
+using namespace std;
 
 
 // Work around old Microsoft macro definitions.
@@ -90,7 +91,7 @@ string filter_archive_zip_folder_miniz_internal (string folder)
     mz_bool status;
     if (is_dir) {
       file.append ("/");
-      status = mz_zip_add_mem_to_archive_file_in_place(zippedfile.c_str(), file.c_str(), NULL, 0, "", 0, MZ_DEFAULT_LEVEL);
+      status = mz_zip_add_mem_to_archive_file_in_place(zippedfile.c_str(), file.c_str(), nullptr, 0, "", 0, MZ_DEFAULT_LEVEL);
     } else {
       string contents = filter_url_file_get_contents (path);
       status = mz_zip_add_mem_to_archive_file_in_place (zippedfile.c_str(), file.c_str(), contents.c_str(), contents.size(), "", 0, MZ_DEFAULT_LEVEL);
@@ -376,10 +377,10 @@ string filter_archive_microtar_pack (string tarpath, string directory, vector <s
     // Read the file's data.
     string data = filter_url_file_get_contents (path);
     // Write the file's name to the tarball.
-    res = mtar_write_file_header(&tar, file.c_str(), (unsigned)data.length ());
+    res = mtar_write_file_header(&tar, file.c_str(), static_cast<unsigned> (data.length ()));
     if (res != MTAR_ESUCCESS) return mtar_strerror (res);
     // Write the file's data to the tarball.
-    res = mtar_write_data(&tar, data.c_str(), (unsigned)data.length ());
+    res = mtar_write_data(&tar, data.c_str(), static_cast<unsigned> (data.length ()));
     if (res != MTAR_ESUCCESS) return mtar_strerror (res);
   }
   
@@ -423,7 +424,7 @@ string filter_archive_microtar_unpack (string tarball, string directory)
     res = mtar_find (&tar, file.c_str(), &h);
     if (res != MTAR_ESUCCESS) return mtar_strerror (res);
     // Read the file's data.
-    char *p = (char *)calloc(1, h.size + 1);
+    char *p = static_cast<char *> (calloc(1, h.size + 1));
     res = mtar_read_data(&tar, p, h.size);
     if (res != MTAR_ESUCCESS) return mtar_strerror (res);
     string data (p, h.size);

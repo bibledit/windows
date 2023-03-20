@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,11 +29,17 @@
 #include <database/abbottsmith.h>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#ifndef HAVE_PUGIXML
 #include <pugixml/pugixml.hpp>
+#endif
+#ifdef HAVE_PUGIXML
+#include <pugixml.hpp>
+#endif
 #pragma GCC diagnostic pop
 #include <webserver/request.h>
-
-
+using namespace std;
 using namespace pugi;
 
 
@@ -45,6 +51,10 @@ using namespace pugi;
 #define LAMED_STRONG 10005
 #define MEM_STRONG 10006
 #define SHIN_STRONG 10007
+
+
+// Internal function declarations.
+string lexicon_logic_render_part_of_speech_pop_front (vector <string> & parts);
 
 
 // The names of the available lexicon resources.
@@ -1472,12 +1482,12 @@ string lexicon_logic_hebrew_morphology_render_state (string & value)
 
 struct abbott_smith_walker: xml_tree_walker
 {
-  string text;
+  string text {};
 
-  bool text_element_already_handled = false;
-  string previous_element_name;
+  bool text_element_already_handled {false};
+  string previous_element_name {};
 
-  virtual bool for_each (xml_node& node)
+  virtual bool for_each (xml_node& node) override
   {
     // Details of the current node.
     string clas = node.attribute ("class").value ();
@@ -1531,7 +1541,7 @@ string lexicon_logic_render_abbott_smiths_definition (string lemma, string stron
   
   xml_document document;
   document.load_string (definition.c_str());
-  abbott_smith_walker tree_walker;
+  abbott_smith_walker tree_walker {};
   document.traverse (tree_walker);
   renderings.push_back (tree_walker.text);
 

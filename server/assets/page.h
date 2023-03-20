@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,13 +21,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <config/libraries.h>
 
-class Assets_Page
-{
-public:
-  static string header (string title, void * webserver_request);
-  static string success (string message);
-  static string error (string message);
-  static string message (string message);
-  static string footer ();
-private:
-};
+namespace assets_page {
+
+std::string header (const std::string & title, void * webserver_request);
+std::string success (const std::string & message);
+std::string error (const std::string & message);
+std::string message (const std::string & message);
+std::string footer ();
+
+}

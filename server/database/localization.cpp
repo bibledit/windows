@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <config/globals.h>
 #include <database/sqlite.h>
 #include <locale/logic.h>
+using namespace std;
 
 
 // Database resilience.
@@ -34,11 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 Database_Localization::Database_Localization (const string& language_in)
 {
   language = language_in;
-}
-
-
-Database_Localization::~Database_Localization ()
-{
 }
 
 
@@ -57,7 +53,7 @@ void Database_Localization::create (string po)
   database_sqlite_exec (db, "DROP TABLE IF EXISTS localization;");
   database_sqlite_exec (db, "VACUUM;");
   database_sqlite_exec (db, "CREATE TABLE IF NOT EXISTS localization (msgid text, msgstr text);");
-  map <string, string> translations = locale_logic_read_po (po);
+  unordered_map <string, string> translations = locale_logic_read_msgid_msgstr (po);
   for (auto & element : translations) {
     SqliteSQL sql = SqliteSQL ();
     sql.add ("INSERT INTO localization VALUES (");

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2022 Teus Benschop.
+Copyright (©) 2003-2023 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/logic.h>
 #include <database/config/general.h>
 #include <locale/logic.h>
+using namespace std;
 
 
 Database_Config_User::Database_Config_User (void * webserver_request_in)
@@ -654,21 +655,12 @@ void Database_Config_User::setSuppressMailFromYourUpdatesNotes (bool value)
 
 vector <string> Database_Config_User::getActiveResources ()
 {
-  if (config_logic_indonesian_cloud_free ()) {
-    // In the Indonesian Cloud free, there's one central location for storing the active resources.
-    return Database_Config_General::getActiveResources ();
-  }
   // Default values.
   return getList ("active-resources");
 }
 void Database_Config_User::setActiveResources (vector <string> values)
 {
-  if (config_logic_default_bibledit_configuration ()) {
-    setList ("active-resources", values);
-  }
-  if (config_logic_indonesian_cloud_free ()) {
-    Database_Config_General::setActiveResources (values);
-  }
+  setList ("active-resources", values);
 }
 
 
@@ -1118,9 +1110,6 @@ const char * current_theme_style_key ()
 }
 int Database_Config_User::getCurrentTheme ()
 {
-  // Indonesian Cloud Free
-  // Set the "Light" theme as the default theme.
-  if (config_logic_indonesian_cloud_free ()) return getIValue (current_theme_style_key (), 1);
   return getIValue (current_theme_style_key (), 0);
 }
 void Database_Config_User::setCurrentTheme (int index)
@@ -1328,6 +1317,24 @@ bool Database_Config_User::getPrivilegeDeleteConsultationNotesForUser (string us
 void Database_Config_User::setPrivilegeDeleteConsultationNotesForUser (string username, bool value)
 {
   setBValueForUser (username, privilege_delete_consultation_notes_key (), value);
+}
+
+
+const char * privilege_set_stylesheets_key ()
+{
+  return "privilege-set-stylesheets";
+}
+bool Database_Config_User::getPrivilegeSetStylesheets ()
+{
+  return getBValue (privilege_set_stylesheets_key (), false);
+}
+bool Database_Config_User::getPrivilegeSetStylesheetsForUser (string username)
+{
+  return getBValueForUser (username, privilege_set_stylesheets_key (), false);
+}
+void Database_Config_User::setPrivilegeSetStylesheetsForUser (string username, bool value)
+{
+  setBValueForUser (username, privilege_set_stylesheets_key (), value);
 }
 
 

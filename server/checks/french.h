@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,14 +21,13 @@
 
 #include <config/libraries.h>
 
-class Checks_French
-{
-public:
-  static void spaceBeforeAfterPunctuation (string bible, int book, int chapter,
-                                           map <int, string> texts);
-  static void citationStyle  (string bible, int book, int chapter,
-                              vector <map <int, string>> verses_paragraphs);
-  static string left_guillemet ();
-  static string right_guillemet ();
-private:
-};
+namespace checks_french {
+
+void space_before_after_punctuation (const std::string & bible, int book, int chapter,
+                                     const std::map <int, std::string> & texts);
+void citation_style  (const std::string & bible, int book, int chapter,
+                      const std::vector <std::map <int, std::string>> & verses_paragraphs);
+std::string left_guillemet ();
+std::string right_guillemet ();
+
+}

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2022 Teus Benschop.
+ Copyright (©) 2003-2023 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,11 +21,13 @@
 
 #include <config/libraries.h>
 
-class Checks_Verses
-{
-public:
-  static void missingPunctuationAtEnd (string bible, int book, int chapter, map <int, string> verses,
-                                       string center_marks, string end_marks, string disregards);
-  static void patterns (string bible, int book, int chapter, map <int, string> verses, vector <string> patterns);
-private:
-};
+namespace checks_verses {
+
+void missing_punctuation_at_end (const std::string & bible, int book, int chapter,
+                                 const std::map <int, std::string> & verses,
+                                 const std::string & center_marks, const std::string & end_marks,
+                                 const std::string & disregards);
+void patterns (const std::string & bible, int book, int chapter,
+               const std::map <int, std::string> & verses, const std::vector <std::string> & patterns);
+
+}
