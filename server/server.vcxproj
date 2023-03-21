@@ -337,6 +337,7 @@
     <ClCompile Include="filter\date.cpp" />
     <ClCompile Include="filter\diff.cpp" />
     <ClCompile Include="filter\git.cpp" />
+    <ClCompile Include="filter\google.cpp" />
     <ClCompile Include="filter\html.cpp" />
     <ClCompile Include="filter\image.cpp" />
     <ClCompile Include="filter\indonesian.cpp" />
@@ -540,6 +541,8 @@
     <ClCompile Include="resource\select.cpp" />
     <ClCompile Include="resource\studylight.cpp" />
     <ClCompile Include="resource\sword.cpp" />
+    <ClCompile Include="resource\translated1edit.cpp" />
+    <ClCompile Include="resource\translated9edit.cpp" />
     <ClCompile Include="resource\unload.cpp" />
     <ClCompile Include="resource\user1edit.cpp" />
     <ClCompile Include="resource\user1view.cpp" />
@@ -604,6 +607,7 @@
     <ClCompile Include="sync\settings.cpp" />
     <ClCompile Include="sync\setup.cpp" />
     <ClCompile Include="sync\usfmresources.cpp" />
+    <ClCompile Include="system\googletranslate.cpp" />
     <ClCompile Include="system\index.cpp" />
     <ClCompile Include="system\logic.cpp" />
     <ClCompile Include="tasks\logic.cpp" />
