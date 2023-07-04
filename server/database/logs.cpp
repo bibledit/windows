@@ -37,18 +37,18 @@ using namespace std;
 void Database_Logs::log (string description, int level)
 {
   // Trim spaces.
-  description = filter_string_trim (description);
+  description = filter::strings::trim (description);
   // Discard empty line.
   if (description.empty()) return;
   // Truncate very long entry.
   size_t length = description.length ();
   if (length > 50000) {
     description.erase (50000);
-    description.append ("... This entry was too large and has been truncated: " + convert_to_string (length) + " bytes");
+    description.append ("... This entry was too large and has been truncated: " + filter::strings::convert_to_string (length) + " bytes");
   }
   // Save this logbook entry to a filename with seconds and microseconds.
-  string seconds = convert_to_string (filter::date::seconds_since_epoch ());
-  string time = seconds + filter_string_fill (convert_to_string (filter::date::numerical_microseconds ()), 8, '0');
+  string seconds = filter::strings::convert_to_string (filter::date::seconds_since_epoch ());
+  string time = seconds + filter::strings::fill (filter::strings::convert_to_string (filter::date::numerical_microseconds ()), 8, '0');
   string file = filter_url_create_path ({folder (), time});
   // The microseconds granularity depends on the platform.
   // On Windows it is lower than on Linux.
@@ -57,7 +57,7 @@ void Database_Logs::log (string description, int level)
   if (file_or_dir_exists (file)) {
     description.insert (0, " | ");
   } else {
-    description.insert (0, convert_to_string (level) + " ");
+    description.insert (0, filter::strings::convert_to_string (level) + " ");
   }
   filter_url_file_put_contents_append (file, description);
 #ifdef HAVE_WINDOWS
@@ -101,9 +101,9 @@ void Database_Logs::rotate ()
   // that led to an infinite loop, as had been noticed at times,
   // and this quickly exhausted the available inodes on the filesystem.
 #ifdef HAVE_TINY_JOURNAL
-  int limitfilecount = files.size () - 200;
+  const int limitfilecount = static_cast<int>(files.size () - 200);
 #else
-  int limitfilecount = static_cast<int>(files.size () - 2000);
+  const int limitfilecount = static_cast<int>(files.size () - 2000);
 #endif
 
   
@@ -118,7 +118,7 @@ void Database_Logs::rotate ()
     }
     
     // Remove expired entries.
-    int timestamp = convert_to_int (files [i].substr (0, 10));
+    int timestamp = filter::strings::convert_to_int (files [i].substr (0, 10));
     if (timestamp < oldtimestamp) {
       filter_url_unlink (path);
       continue;

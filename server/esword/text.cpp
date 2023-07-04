@@ -45,19 +45,19 @@ Esword_Text::Esword_Text (string bible)
 
 void Esword_Text::flushCache ()
 {
-  string text = filter_string_trim (currentText);
+  string text = filter::strings::trim (currentText);
   if (!text.empty ()) {
     string unicode;
-    size_t length = unicode_string_length (text);
+    size_t length = filter::strings::unicode_string_length (text);
     for (size_t pos = 0; pos < length; pos++) {
-      string s = unicode_string_substr (text, pos, 1);
-      int codepoint = unicode_string_convert_to_codepoint (s);
-      unicode.append ("\\u" + convert_to_string (codepoint) + "?");
+      string s = filter::strings::unicode_string_substr (text, pos, 1);
+      int codepoint = filter::strings::unicode_string_convert_to_codepoint (s);
+      unicode.append ("\\u" + filter::strings::convert_to_string (codepoint) + "?");
     }
     int book = currentBook;
     int chapter = currentChapter;
     int verse = currentVerse;
-    string statement = "INSERT INTO Bible VALUES (" + convert_to_string (book) + ", " + convert_to_string (chapter) + ", " + convert_to_string (verse) + ", '" + unicode + "');";
+    string statement = "INSERT INTO Bible VALUES (" + filter::strings::convert_to_string (book) + ", " + filter::strings::convert_to_string (chapter) + ", " + filter::strings::convert_to_string (verse) + ", '" + unicode + "');";
     sql.push_back (statement);
   }
   currentText.clear ();

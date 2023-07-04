@@ -63,7 +63,7 @@ string http_network_port ()
   string path = filter_url_create_root_path ({config::logic::config_folder (), "network-port"});
   config_globals_negotiated_port_number = filter_url_file_get_contents (path);
   // Remove white-space, e.g. a new line, that easily makes its way into the configuration file.
-  config_globals_negotiated_port_number = filter_string_trim (config_globals_negotiated_port_number);
+  config_globals_negotiated_port_number = filter::strings::trim (config_globals_negotiated_port_number);
   // Default port number.
   if (config_globals_negotiated_port_number.empty ()) config_globals_negotiated_port_number = "8080";
   // Done.
@@ -78,13 +78,13 @@ string https_network_port ()
   string path = filter_url_create_root_path ({config::logic::config_folder (), "network-port-secure"});
   string port = filter_url_file_get_contents (path);
   // Remove white-space, e.g. a new line, that easily makes its way into the configuration file.
-  port = filter_string_trim (port);
+  port = filter::strings::trim (port);
   // Default value.
   if (port.empty ()) {
     // The secure port is the plain http port plus one.
-    int iport = convert_to_int (config::logic::http_network_port ());
+    int iport = filter::strings::convert_to_int (config::logic::http_network_port ());
     iport++;
-    port = convert_to_string (iport);
+    port = filter::strings::convert_to_string (iport);
   }
   return port;
 }
@@ -102,7 +102,7 @@ bool demo_enabled ()
 string admin_username ()
 {
   string path = filter_url_create_root_path ({config::logic::config_folder (), "admin-username"});
-  return filter_string_trim (filter_url_file_get_contents (path));
+  return filter::strings::trim (filter_url_file_get_contents (path));
 }
 
 
@@ -110,7 +110,7 @@ string admin_username ()
 string admin_password ()
 {
   string path = filter_url_create_root_path ({config::logic::config_folder (), "admin-password"});
-  return filter_string_trim (filter_url_file_get_contents (path));
+  return filter::strings::trim (filter_url_file_get_contents (path));
 }
 
 
@@ -118,11 +118,11 @@ string admin_password ()
 string admin_email ()
 {
   string path = filter_url_create_root_path ({config::logic::config_folder (), "admin-email"});
-  return filter_string_trim (filter_url_file_get_contents (path));
+  return filter::strings::trim (filter_url_file_get_contents (path));
 }
 
 
-// Replacement function for missing "stoi" on platform like Android.
+// Replacement function for missing "stoi" on platforms like Android.
 int my_stoi (const string& str, void * idx, int base)
 {
 #ifdef HAVE_STOI
@@ -185,7 +185,7 @@ string manual_user_facing_url ()
   string path = filter_url_create_root_path ({config::logic::config_folder (), "userfacingurl.conf"});
   string url = filter_url_file_get_contents (path);
   // Remove white space.
-  url = filter_string_trim (url);
+  url = filter::strings::trim (url);
   // The previous file contained dummy text by default. Remove that.
   if (url.length () <= 6) url.clear ();
   // Ensure it ends with a slash.
@@ -251,7 +251,7 @@ void swipe_enabled (void * webserver_request, string & script)
 {
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
-  string true_false = "false";
+  string true_false {"false"};
   if (request->session_logic ()->touchEnabled ()) {
     if (request->database_config_user ()->getSwipeActionsAvailable ()) {
       true_false = "true";
@@ -262,27 +262,6 @@ void swipe_enabled (void * webserver_request, string & script)
   script.append ("var swipe_operations = ");
   script.append (true_false);
   script.append (";");
-}
-
-
-// Whether the free Indonesian Cloud is enabled. To be removed.
-bool indonesian_cloud_free ()
-{
-  return false;
-}
-
-
-// Whether the free Indonesian Cloud Free Simple is enabled. To be removed.
-bool indonesian_cloud_free_simple ()
-{
-  return false;
-}
-
-
-// Whether the free Indonesian Cloud Free Individual is enabled. To be removed.
-bool indonesian_cloud_free_individual ()
-{
-  return false;
 }
 
 

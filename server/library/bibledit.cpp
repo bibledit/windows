@@ -69,7 +69,7 @@ const char * bibledit_get_network_port ()
   vector <int> ports = { 9876, 9987, 9998 };
   for (auto port : ports) {
     if (!filter_url_port_can_connect ("localhost", port)) {
-      config_globals_negotiated_port_number = convert_to_string(port);
+      config_globals_negotiated_port_number = filter::strings::convert_to_string(port);
       break;
     }
   }
@@ -138,7 +138,7 @@ void bibledit_initialize_library (const char * package, const char * webroot)
   hours = static_cast<int>(round (lt.tm_gmtoff / 3600));
 #endif
   config_globals_timezone_offset_utc = hours;
-  Database_Logs::log ("Timezone offset in hours: " + convert_to_string (hours));
+  Database_Logs::log ("Timezone offset in hours: " + filter::strings::convert_to_string (hours));
 #endif
 
   // Initialize obfuscation data.
@@ -208,10 +208,6 @@ void bibledit_start_library ()
   
   // Set running flag.
   config_globals_webserver_running = true;
-  
-  // Whether the plain http server redirects to secure http.
-  config_globals_enforce_https_browser = config::logic::enforce_https_browser ();
-  config_globals_enforce_https_client = config::logic::enforce_https_client ();
   
   // Run the plain web server in a thread.
   config_globals_http_worker = new thread (http_server);
@@ -433,10 +429,10 @@ const char * bibledit_get_reference_for_accordance ()
   // Accordance expects a verse reference in the English versification system.
   vector <Passage> passages;
   Database_Mappings database_mappings;
-  if ((versification != english()) && !versification.empty ()) {
-    passages = database_mappings.translate (versification, english (), book, chapter, verse);
+  if ((versification != filter::strings::english()) && !versification.empty ()) {
+    passages = database_mappings.translate (versification, filter::strings::english (), book, chapter, verse);
   } else {
-    passages.push_back (Passage ("", book, chapter, convert_to_string (verse)));
+    passages.push_back (Passage ("", book, chapter, filter::strings::convert_to_string (verse)));
   }
   if (passages.empty()) return "";
 
@@ -445,7 +441,7 @@ const char * bibledit_get_reference_for_accordance ()
   chapter = passages[0].m_chapter;
   string verse_s = passages[0].m_verse;
   string usfm_id = database::books::get_usfm_from_id (static_cast<book_id>(book));
-  reference = usfm_id + " " + convert_to_string (chapter) + ":" + convert_to_string (verse_s);
+  reference = usfm_id + " " + filter::strings::convert_to_string (chapter) + ":" + filter::strings::convert_to_string (verse_s);
 
   // Return the reference.
   return reference.c_str ();
@@ -469,13 +465,13 @@ void bibledit_put_reference_from_accordance (const char * reference)
   
   // Interpret the passage from Accordance, e.g. MAT 1:1.
   // Accordance broadcasts for instance, 2 Corinthians 9:2, as "2CO 9:2".
-  vector<string> book_rest = filter_string_explode (reference, ' ');
+  vector<string> book_rest = filter::strings::explode (reference, ' ');
   if (book_rest.size() != 2) return;
   int book = static_cast<int>(database::books::get_id_from_usfm (book_rest[0]));
-  vector <string> chapter_verse = filter_string_explode(book_rest[1], ':');
+  vector <string> chapter_verse = filter::strings::explode(book_rest[1], ':');
   if (chapter_verse.size() != 2) return;
-  int chapter = convert_to_int(chapter_verse[0]);
-  int verse = convert_to_int(chapter_verse[1]);
+  int chapter = filter::strings::convert_to_int(chapter_verse[0]);
+  int verse = filter::strings::convert_to_int(chapter_verse[1]);
 
   // Get the active Bible and its versification system.
   Database_Config_User database_config_user (&request);
@@ -485,10 +481,10 @@ void bibledit_put_reference_from_accordance (const char * reference)
   // Accordance expects a verse reference in the English versification system.
   vector <Passage> passages;
   Database_Mappings database_mappings;
-  if ((versification != english()) && !versification.empty ()) {
-    passages = database_mappings.translate (english (), versification, book, chapter, verse);
+  if ((versification != filter::strings::english()) && !versification.empty ()) {
+    passages = database_mappings.translate (filter::strings::english (), versification, book, chapter, verse);
   } else {
-    passages.push_back (Passage ("", book, chapter, convert_to_string (verse)));
+    passages.push_back (Passage ("", book, chapter, filter::strings::convert_to_string (verse)));
   }
   if (passages.empty()) return;
 

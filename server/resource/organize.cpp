@@ -58,13 +58,14 @@ string resource_organize (void * webserver_request)
 
   
   string checkbox = request->post ["checkbox"];
-  bool checked = convert_to_bool (request->post ["checked"]);
+  bool checked = filter::strings::convert_to_bool (request->post ["checked"]);
 
 
   // For administrator level default resource management purposes.
   int level = request->session_logic()->currentLevel ();
   bool is_def = false;
   if (request->query["type"] == "def" | request->post["type"] == "def") is_def = true;
+  vector <string> default_active_resources = Database_Config_General::getDefaultActiveResources ();
 
   
   // Deal with a new added resources.
@@ -77,27 +78,29 @@ string resource_organize (void * webserver_request)
       else redirect_browser (webserver_request, resource_divider_url ());
       return "";
     } else {
-      // Add the new resource to the existing list of resources for the current user.
+      // Add the new resource to the existing selection of resources for the current user.
       vector <string> resources = request->database_config_user()->getActiveResources ();
-      if (is_def) resources = Database_Config_General::getDefaultActiveResources ();
+      if (is_def) resources = default_active_resources;
       resources.push_back (add);
       if (is_def) Database_Config_General::setDefaultActiveResources (resources);
       else request->database_config_user()->setActiveResources (resources);
       if (!is_def) request->database_config_user()->addUpdatedSetting (Sync_Logic::settings_send_resources_organization);
+      else redirect_browser (webserver_request, resource_organize_url());
     }
   }
   
   
   if (request->query.count ("remove")) {
-    int remove = convert_to_int (request->query["remove"]);
+    int remove = filter::strings::convert_to_int (request->query["remove"]);
     vector <string> resources = request->database_config_user()->getActiveResources ();
-    if (is_def) resources = Database_Config_General::getDefaultActiveResources ();
+    if (is_def) resources = default_active_resources;
     if (remove < static_cast<int>(resources.size ())) {
       resources.erase (resources.begin () + remove);
     }
     if (is_def) Database_Config_General::setDefaultActiveResources (resources);
     else request->database_config_user()->setActiveResources (resources);
     if (!is_def) request->database_config_user()->addUpdatedSetting (Sync_Logic::settings_send_resources_organization);
+    else redirect_browser (webserver_request, resource_organize_url());
   }
 
   
@@ -105,14 +108,15 @@ string resource_organize (void * webserver_request)
   if (!movefrom.empty ()) {
     string moveto =  request->post ["moveto"];
     if (!moveto.empty ()) {
-      size_t from = static_cast<size_t> (convert_to_int (movefrom));
-      size_t to = static_cast<size_t>(convert_to_int (moveto));
+      size_t from = static_cast<size_t> (filter::strings::convert_to_int (movefrom));
+      size_t to = static_cast<size_t>(filter::strings::convert_to_int (moveto));
       vector <string> resources = request->database_config_user()->getActiveResources ();
-      if (is_def) resources = Database_Config_General::getDefaultActiveResources ();
-      array_move_from_to (resources, from, to);
+      if (is_def) resources = default_active_resources;
+      filter::strings::array_move_from_to (resources, from, to);
       if (is_def) Database_Config_General::setDefaultActiveResources (resources);
       else request->database_config_user()->setActiveResources (resources);
       if (!is_def) request->database_config_user()->addUpdatedSetting (Sync_Logic::settings_send_resources_organization);
+      else redirect_browser (webserver_request, resource_organize_url());
     }
     return "";
   }
@@ -128,21 +132,18 @@ string resource_organize (void * webserver_request)
   // resources for the users with lower access levels.
   if (level == 6) view.enable_zone ("defaultresourceorganizer");
 
-
   // If the user is with less than an administrator access level and an
   // administrator has compiled a default selection of resources, the user can
   // apply that compiled selection of resources.
-  if (level < 6 && !Database_Config_General::getDefaultActiveResources ().empty ()) view.enable_zone ("defaultresources");
-
+  if (level < 6 && !default_active_resources.empty ()) view.enable_zone ("defaultresources");
 
   // Default active resources.
   if (level == 6) {
-    vector <string> default_active_resources = Database_Config_General::getDefaultActiveResources ();
     string defactivesblock;
     for (size_t i = 0; i < default_active_resources.size (); i++) {
       defactivesblock.append ("<p>&#183; ");
-      defactivesblock.append ("<a href=\"?remove=" + convert_to_string (i) + "&type=def\">");
-      defactivesblock.append (emoji_wastebasket ());
+      defactivesblock.append ("<a href=\"?remove=" + filter::strings::convert_to_string (i) + "&type=def\">");
+      defactivesblock.append (filter::strings::emoji_wastebasket ());
       defactivesblock.append ("</a>");
       defactivesblock.append (" ");
       defactivesblock.append (default_active_resources [i]);
@@ -158,8 +159,8 @@ string resource_organize (void * webserver_request)
   string activesblock;
   for (size_t i = 0; i < active_resources.size (); i++) {
     activesblock.append ("<p>&#183; ");
-    activesblock.append ("<a href=\"?remove=" + convert_to_string (i) + "\">");
-    activesblock.append (emoji_wastebasket ());
+    activesblock.append ("<a href=\"?remove=" + filter::strings::convert_to_string (i) + "\">");
+    activesblock.append (filter::strings::emoji_wastebasket ());
     activesblock.append ("</a>");
     activesblock.append (" ");
     activesblock.append (active_resources [i]);
@@ -171,47 +172,47 @@ string resource_organize (void * webserver_request)
   
   // Context before.
   if (request->query.count ("before")) {
-    Dialog_Entry dialog_entry = Dialog_Entry ("organize", translate("Please enter the number of verses"), convert_to_string (request->database_config_user ()->getResourceVersesBefore ()), "before", translate ("How many verses of context to display before the focused verse."));
+    Dialog_Entry dialog_entry = Dialog_Entry ("organize", translate("Please enter the number of verses"), filter::strings::convert_to_string (request->database_config_user ()->getResourceVersesBefore ()), "before", translate ("How many verses of context to display before the focused verse."));
     page += dialog_entry.run ();
     return page;
   }
   if (request->post.count ("before")) {
-    int value = convert_to_int (request->post["entry"]);
+    int value = filter::strings::convert_to_int (request->post["entry"]);
     if ((value >= 0) && (value <= 100)) {
       request->database_config_user ()->setResourceVersesBefore (value);
     }
   }
-  view.set_variable ("before", convert_to_string (request->database_config_user ()->getResourceVersesBefore ()));
+  view.set_variable ("before", filter::strings::convert_to_string (request->database_config_user ()->getResourceVersesBefore ()));
 
   
   // Context after.
   if (request->query.count ("after")) {
-    Dialog_Entry dialog_entry = Dialog_Entry ("organize", translate("Please enter the number of verses"), convert_to_string (request->database_config_user ()->getResourceVersesAfter ()), "after", translate ("How many verses of context to display after the focused verse."));
+    Dialog_Entry dialog_entry = Dialog_Entry ("organize", translate("Please enter the number of verses"), filter::strings::convert_to_string (request->database_config_user ()->getResourceVersesAfter ()), "after", translate ("How many verses of context to display after the focused verse."));
     page += dialog_entry.run ();
     return page;
   }
   if (request->post.count ("after")) {
-    int value = convert_to_int (request->post["entry"]);
+    int value = filter::strings::convert_to_int (request->post["entry"]);
     if ((value >= 0) && (value <= 100)) {
       request->database_config_user ()->setResourceVersesAfter (value);
     }
   }
-  view.set_variable ("after", convert_to_string (request->database_config_user ()->getResourceVersesAfter ()));
+  view.set_variable ("after", filter::strings::convert_to_string (request->database_config_user ()->getResourceVersesAfter ()));
 
   
   if (checkbox == "related") {
     request->database_config_user ()->setIncludeRelatedPassages (checked);
     return "";
   }
-  view.set_variable ("related", get_checkbox_status (request->database_config_user ()->getIncludeRelatedPassages ()));
+  view.set_variable ("related", filter::strings::get_checkbox_status (request->database_config_user ()->getIncludeRelatedPassages ()));
 
 
   // For users with lower than administrator access levels, they can replace
   // their resource list with the recommended resources list that has been set
   // by the administrator.
   if (request->query.count ("applydefaultresources")) {
-    request->database_config_user ()->setActiveResources (Database_Config_General::getDefaultActiveResources ());
-    view.set_variable ("success", translate ("Your resource list has been replaced by the default selection of resources. You may need to reload the page to see changes."));
+    request->database_config_user ()->setActiveResources (default_active_resources);
+    redirect_browser (webserver_request, resource_organize_url ());
   }
 
 
@@ -219,11 +220,10 @@ string resource_organize (void * webserver_request)
   // list instead of replacing it.
   if (request->query.count ("adddefaultresources")) {
     vector <string> joined_resources = request->database_config_user ()->getActiveResources ();
-    vector <string> default_resources = Database_Config_General::getDefaultActiveResources ();
-    joined_resources.insert(joined_resources.end(), default_resources.begin(), default_resources.end());
+    joined_resources.insert(joined_resources.end(), default_active_resources.begin(), default_active_resources.end());
 
     request->database_config_user ()->setActiveResources (joined_resources);
-    view.set_variable ("success", translate ("Default selection of resources has been added to your resource list. You may need to reload the page to see changes."));
+    redirect_browser (webserver_request, resource_organize_url ());
   }
 
   
@@ -245,6 +245,11 @@ string resource_organize (void * webserver_request)
   
 #ifdef HAVE_CLIENT
   view.enable_zone ("client");
+#endif
+
+
+#ifdef HAVE_CLOUD
+  view.enable_zone ("cloud");
 #endif
 
   

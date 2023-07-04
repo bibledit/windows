@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/roles.h>
 #include <filter/string.h>
 #include <filter/url.h>
-#include <filter/indonesian.h>
 #include <confirm/worker.h>
 #include <email/send.h>
 #pragma GCC diagnostic push
@@ -166,19 +165,19 @@ string session_signup ([[maybe_unused]] void * webserver_request)
   verification.passage  = translate("The priest Joshua son of Jozadak.");
   verifications.push_back (verification);
 
-  verification.question = translate("Who's Nebuchadnezzar?");
-  verification.answer   = translate("The king of Babylonia");
+  verification.question = translate("Who's the king of Babylonia, that captures Israel?");
+  verification.answer   = translate("Nebuchadnezzar");
   verification.passage  = translate("We were told that their people had made God angry, and he let them be captured by Nebuchadnezzar, the king of Babylonia.");
   verifications.push_back (verification);
 
-  verification.question = translate("Who's Cyrus?");
-  verification.answer   = translate("King of Babylonia");
-  verification.passage  = translate("They also said that during the first year Cyrus was king of Babylonia.");
+  verification.question = translate("Who prospered in the reign of Darius, and in the reign of Cyrus the Persian?");
+  verification.answer   = translate("Daniel");
+  verification.passage  = translate("So this Daniel prospered in the reign of Darius, and in the reign of Cyrus the Persian.");
   verifications.push_back (verification);
 
-  verification.question = translate("For how many days does Jesus appeared to the disciples after he rose from the dead?");
-  verification.answer   = translate("40");
-  verification.passage  = translate("For 40 days after Jesus had suffered and died, he proved in many ways that he had been raised from death.");
+  verification.question = translate("Who's Abram's brother's son?");
+  verification.answer   = translate("Lot");
+  verification.passage  = translate("And they took Lot, Abram's brother's son, who dwelt in Sodom, and his goods, and departed.");
   verifications.push_back (verification);
 
   verification.question = translate("Who wrote Song of Songs?");
@@ -191,7 +190,7 @@ string session_signup ([[maybe_unused]] void * webserver_request)
   verification.passage  = translate("I am Hosea son of Beeri.");
   verifications.push_back (verification);
 
-  size_t question_number = static_cast<size_t>(filter_string_rand (0, 20));
+  size_t question_number = static_cast<size_t>(filter::strings::rand (0, 20));
   view.set_variable ("question", verifications[question_number].question);
   view.set_variable ("passage", verifications[question_number].passage);
   // The form has a hidden text entry. This text entry stores the right answer to the questions.
@@ -267,59 +266,39 @@ string session_signup ([[maybe_unused]] void * webserver_request)
       string query = database_users.add_userQuery (user, pass, role, mail);
 
       // Set default privileges on new signing up user.
-      vector <string> defusers = {"defaultguest", "defaultmember", "defaulttranslator", "defaultconsultant", "defaultmanager"};
+      set <string> defusers = access_logic::default_privilege_usernames ();
       vector <int> privileges = {PRIVILEGE_VIEW_RESOURCES, PRIVILEGE_VIEW_NOTES, PRIVILEGE_CREATE_COMMENT_NOTES};
-      // Subtract one as guest is identified by 0 instead of 1 in the vector.
-      string default_username = defusers[(unsigned)(long)(unsigned)role - 1];
-      for (bool privilege : privileges) {
-        bool state = Database_Privileges::getFeature (default_username, privilege);
-        Database_Privileges::setFeature (user, privilege, state);
+      auto default_username = next(defusers.begin(), (unsigned)(long)(unsigned)role + 1);
+      for (auto & privilege : privileges) {
+        bool state = DatabasePrivileges::get_feature (*default_username, privilege);
+        DatabasePrivileges::set_feature (user, privilege, state);
       }
+
+      bool deletenotes = request->database_config_user ()->getPrivilegeDeleteConsultationNotesForUser (*default_username);
+      bool useadvancedmode = request->database_config_user ()->getPrivilegeUseAdvancedModeForUser (*default_username);
+      bool editstylesheets = request->database_config_user ()->getPrivilegeSetStylesheetsForUser (*default_username);
+
+      if (deletenotes) request->database_config_user ()->setPrivilegeDeleteConsultationNotesForUser (user, 1);
+      if (useadvancedmode) request->database_config_user ()->setPrivilegeUseAdvancedModeForUser (user, 1);
+      if (editstylesheets) request->database_config_user ()->setPrivilegeSetStylesheetsForUser (user, 1);
+
+      if (request->database_config_user ()->getPrivilegeDeleteConsultationNotesForUser (*default_username)) request->database_config_user ()->setPrivilegeDeleteConsultationNotesForUser (user, 1);
+      if (request->database_config_user ()->getPrivilegeUseAdvancedModeForUser (*default_username)) request->database_config_user ()->setPrivilegeUseAdvancedModeForUser (user, 1);
+      if (request->database_config_user ()->getPrivilegeSetStylesheetsForUser (*default_username)) request->database_config_user ()->setPrivilegeSetStylesheetsForUser (user, 1);
 
       // Create the contents for the confirmation email
       // that will be sent after the account has been verified.
-      string subsequent_subject = translate("Account opened");
-      xml_document subsequent_document;
+      string subsequent_subject {translate("Account opened")};
+      xml_document subsequent_document {};
       node = subsequent_document.append_child ("h3");
       node.text ().set (subsequent_subject.c_str());
-      if (config::logic::default_bibledit_configuration ()) {
-        node = subsequent_document.append_child ("p");
-        information = translate("Welcome!");
-        node.text ().set (information.c_str());
-        node = subsequent_document.append_child ("p");
-        information = translate("Your account is now active and you have logged in.");
-        node.text ().set (information.c_str());
-      }
-      if (config::logic::indonesian_cloud_free ()) {
-        node = subsequent_document.append_child ("p");
-        information = "Shalom " + user + ",";
-        node.text ().set (information.c_str());
-        node = subsequent_document.append_child ("p");
-        information = "Puji TUHAN, Saudara sudah menjadi Tamu Bibledit!";
-        node.text ().set (information.c_str());
-        node = subsequent_document.append_child ("p");
-        information = "Kami mengajak Saudara supaya sesering mungkin mengunjungi situs alkitabkita.info untuk melihat pengumuman tentang kesempatan mengikuti pelatihan dan seminar zoom. Segeralah menonton semua video petunjuk yang terdapat pada halaman dasar.";
-        node.text ().set (information.c_str());
-        node = subsequent_document.append_child ("p");
-        information = "Di tingkat Bibledit Tamu, Saudara dapat menggunakan Antarmuka Sederhana. Kami sarankan menggunakan Antarmuka Sederhana selama kurang lebih sebulan. Saat Saudara ingin menggunakan Antarmuka Lengkap yang lebih canggih dan powerful, silakan mendaftar untuk tingkat Bibledit Anggota.";
-        node.text ().set (information.c_str());
-        node = subsequent_document.append_child ("p");
-        information = "Harga pendaftaran sebagai anggota adalah Rp 100.000,- setahun. Para anggota diberi izin menginstal program Bibledit dan sumber penelitiannya di komputer dan tablet. Dengan demikian Saudara dapat bekerja dengan Bibledit tanpa menggunakan pulsa data Internet. Lihat informasi lebih lanjut mengenai tingkat anggota di situs alkitabkita.info.";
-        node.text ().set (information.c_str());
-        node = subsequent_document.append_child ("p");
-        information = "Kami tim situs alkitabkita.info sangat berharap dengan menggunakan Bibledit ini Saudara akan dimampukan meneliti Firman Tuhan secara lebih mendalam. Mohon jangan menggunakan kemampuan itu untuk membanggakan dirimu sendiri, tetapi gunakanlah untuk memuliakan TUHAN, untuk mengajar, dan menerjemahkan Firman TUHAN dengan lebih wajar, jelas, dan tepat.";
-        node.text ().set (information.c_str());
-        node = subsequent_document.append_child ("p");
-        information = "Tuhan memberkati!";
-        node.text ().set (information.c_str());
-        node = subsequent_document.append_child ("p");
-        information = "Balazi Gulo";
-        node.text ().set (information.c_str());
-        node = subsequent_document.append_child ("p");
-        information = "Ketua Yayasan Albata";
-        node.text ().set (information.c_str());
-      }
-      string subsequent_body;
+      node = subsequent_document.append_child ("p");
+      information = translate("Welcome!");
+      node.text ().set (information.c_str());
+      node = subsequent_document.append_child ("p");
+      information = translate("Your account is now active and you have logged in.");
+      node.text ().set (information.c_str());
+      string subsequent_body {};
       {
         stringstream output;
         subsequent_document.print (output, "", format_raw);
@@ -327,11 +306,6 @@ string session_signup ([[maybe_unused]] void * webserver_request)
       }
       // Store the confirmation information in the database.
       confirm_worker.setup (mail, user, initial_subject, initial_body, query, subsequent_subject, subsequent_body);
-      if (config::logic::indonesian_cloud_free ()) {
-        // In the Indonesian free Cloud, create the Bible for the user.
-        string bible = filter::indonesian::mytranslation (user);
-        tasks_logic_queue (CREATEEMPTYBIBLE, {bible});
-      }
       // Done signup.
       signed_up = true;
     }

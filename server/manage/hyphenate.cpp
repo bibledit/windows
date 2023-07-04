@@ -47,17 +47,17 @@ void manage_hyphenate (string bible, string user)
   // The /u switch treats the text as UTF8 Unicode.
   vector <string> firstset;
   string s_firstset = Database_Config_Bible::getHyphenationFirstSet (inputBible);
-  size_t length = unicode_string_length (s_firstset);
+  size_t length = filter::strings::unicode_string_length (s_firstset);
   for (size_t i = 0; i < length; i++) {
-    string s = unicode_string_substr (s_firstset, i, 1);
+    string s = filter::strings::unicode_string_substr (s_firstset, i, 1);
     if (s == " ") continue;
     firstset.push_back (s);
   }
   vector <string> secondset;
   string s_secondset = Database_Config_Bible::getHyphenationSecondSet (inputBible);
-  length = unicode_string_length (s_secondset);
+  length = filter::strings::unicode_string_length (s_secondset);
   for (size_t i = 0; i < length; i++) {
-    string s = unicode_string_substr (s_secondset, i, 1);
+    string s = filter::strings::unicode_string_substr (s_secondset, i, 1);
     if (s == " ") continue;
     secondset.push_back (s);
   }
@@ -65,7 +65,7 @@ void manage_hyphenate (string bible, string user)
   
   // Delete and (re)create the hyphenated Bible.
   database_bibles.deleteBible (outputBible);
-  Database_Privileges::removeBible (outputBible);
+  DatabasePrivileges::remove_bible (outputBible);
   Database_Config_Bible::remove (outputBible);
   database_bibles.createBible (outputBible);
   Webserver_Request webserver_request;
@@ -73,7 +73,7 @@ void manage_hyphenate (string bible, string user)
     // Only grant access if the user does not yet have it.
     // This avoid assigning the Bible to the user in case no Bible was assigned to anyone,
     // in which case assigning this Bible to the user would possible withdraw privileges from other users.
-    Database_Privileges::setBible (user, outputBible, true);
+    DatabasePrivileges::set_bible (user, outputBible, true);
   }
   
   
@@ -112,14 +112,14 @@ string hyphenate_at_transition (vector <string>& firstset, vector <string>& seco
   if (text.empty ()) return text;
   
   // Split the text up into lines and go through each one.
-  vector <string> lines = filter_string_explode (text, '\n');
+  vector <string> lines = filter::strings::explode (text, '\n');
   for (string & line : lines) {
     
     // Split the line up into an array of UTF8 Unicode characters.
     vector <string> characters;
-    size_t length = unicode_string_length (line);
+    size_t length = filter::strings::unicode_string_length (line);
     for (size_t i = 0; i < length; i++) {
-      string s = unicode_string_substr (line, i, 1);
+      string s = filter::strings::unicode_string_substr (line, i, 1);
       characters.push_back (s);
     }
     
@@ -142,7 +142,7 @@ string hyphenate_at_transition (vector <string>& firstset, vector <string>& seco
         thisCharacterIsRelevant = in_array (character, secondset);
         if ((thisCharacterIsRelevant) && (previousCharacterWasRelevant)) {
           if (!hyphenate_is_near_white_space (characters, static_cast<int> (i))) {
-            characters[i] = soft_hyphen_u00AD () + character;
+            characters[i] = filter::strings::soft_hyphen_u00AD () + character;
           }
         }
         
@@ -158,12 +158,12 @@ string hyphenate_at_transition (vector <string>& firstset, vector <string>& seco
     }
     
     // Re-assemble the line from the separate (updated) characters.
-    line = filter_string_implode (characters, "");
+    line = filter::strings::implode (characters, "");
     
   }
   
   // Assemble the hyphenated text from the separate lines.
-  text = filter_string_implode (lines, "\n");
+  text = filter::strings::implode (lines, "\n");
   return text;
 }
 

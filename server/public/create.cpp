@@ -73,7 +73,7 @@ string public_create (void * webserver_request)
   string verse_usfm = filter::usfm::get_verse_text (chapter_usfm, verse);
   string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
   Filter_Text filter_text = Filter_Text (bible);
-  filter_text.html_text_standard = new Html_Text (bible);
+  filter_text.html_text_standard = new HtmlText (bible);
   filter_text.add_usfm_code (verse_usfm);
   filter_text.run (stylesheet);
   string versetext = filter_text.html_text_standard->get_inner_html ();
@@ -81,9 +81,9 @@ string public_create (void * webserver_request)
 
  
   if (request->post.count ("submit")) {
-    string summary = filter_string_trim (request->post["summary"]);
+    string summary = filter::strings::trim (request->post["summary"]);
     if (summary.empty ()) summary = translate ("Feedback");
-    string contents = "<p>" + versetext + "</p>" + filter_string_trim (request->post["contents"]);
+    string contents = "<p>" + versetext + "</p>" + filter::strings::trim (request->post["contents"]);
     int identifier = notes_logic.createNote (bible, book, chapter, verse, summary, contents, false);
     // A note created by a public user is made public to all.
     database_notes.set_public (identifier, true);
@@ -106,7 +106,7 @@ string public_create (void * webserver_request)
   }
   
   
-  string passage = filter_passage_display (book, chapter, convert_to_string (verse));
+  string passage = filter_passage_display (book, chapter, filter::strings::convert_to_string (verse));
   view.set_variable ("passage", passage);
                                                                                                       
   

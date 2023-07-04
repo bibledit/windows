@@ -59,20 +59,20 @@ string notes_summary (void * webserver_request)
   Assets_View view;
 
 
-  int id = convert_to_int (request->query ["id"]);
-  view.set_variable ("id", convert_to_string (id));
+  int id = filter::strings::convert_to_int (request->query ["id"]);
+  view.set_variable ("id", filter::strings::convert_to_string (id));
   
   
   if (request->post.count ("submit")) {
     string summary = request->post["entry"];
     notes_logic.set_summary (id, summary);
-    redirect_browser (request, notes_note_url () + "?id=" + convert_to_string (id));
+    redirect_browser (request, notes_note_url () + "?id=" + filter::strings::convert_to_string (id));
     return "";
   }
   
   
   string summary = database_notes.get_summary (id);
-  view.set_variable ("summary", escape_special_xml_characters (summary));
+  view.set_variable ("summary", filter::strings::escape_special_xml_characters (summary));
 
   
   page += view.render ("notes", "summary");

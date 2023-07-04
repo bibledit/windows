@@ -54,7 +54,7 @@ string search_similar (void * webserver_request)
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
  
-  int myIdentifier = filter_string_user_identifier (request);
+  int myIdentifier = filter::strings::user_identifier (request);
   
   
   string bible = request->database_config_user()->getBible ();
@@ -70,15 +70,15 @@ string search_similar (void * webserver_request)
     // Text of the focused verse in the active Bible.
     // Remove all punctuation from it.
     string versetext = search_logic_get_bible_verse_text (bible, book, chapter, verse);
-    vector <string> punctuation = filter_string_explode (Database_Config_Bible::getSentenceStructureEndPunctuation (bible), ' ');
+    vector <string> punctuation = filter::strings::explode (Database_Config_Bible::getSentenceStructureEndPunctuation (bible), ' ');
     for (auto & sign : punctuation) {
-      versetext = filter_string_str_replace (sign, "", versetext);
+      versetext = filter::strings::replace (sign, "", versetext);
     }
-    punctuation = filter_string_explode (Database_Config_Bible::getSentenceStructureMiddlePunctuation (bible), ' ');
+    punctuation = filter::strings::explode (Database_Config_Bible::getSentenceStructureMiddlePunctuation (bible), ' ');
     for (auto & sign : punctuation) {
-      versetext = filter_string_str_replace (sign, "", versetext);
+      versetext = filter::strings::replace (sign, "", versetext);
     }
-    versetext = filter_string_trim (versetext);
+    versetext = filter::strings::trim (versetext);
     Database_Volatile::setValue (myIdentifier, "searchsimilar", versetext);
     return versetext;
   }
@@ -87,9 +87,9 @@ string search_similar (void * webserver_request)
   if (request->query.count ("words")) {
     
     string words = request->query ["words"];
-    words = filter_string_trim (words);
+    words = filter::strings::trim (words);
     Database_Volatile::setValue (myIdentifier, "searchsimilar", words);
-    vector <string> vwords = filter_string_explode (words, ' ');
+    vector <string> vwords = filter::strings::explode (words, ' ');
     
     // Include items if there are no more search hits than 30% of the total number of verses in the Bible.
     size_t maxcount = static_cast<size_t> (round (0.3 * search_logic_get_verse_count (bible)));
@@ -125,21 +125,21 @@ string search_similar (void * webserver_request)
       ids.push_back (id);
       counts.push_back (count);
     }
-    quick_sort (counts, ids, 0, static_cast<unsigned> (counts.size()));
+    filter::strings::quick_sort (counts, ids, 0, static_cast<unsigned> (counts.size()));
     reverse (ids.begin(), ids.end());
 
     // Output the passage identifiers to the browser.
     string output;
     for (auto & id : ids) {
       if (!output.empty ()) output.append ("\n");
-      output.append (convert_to_string (id));
+      output.append (filter::strings::convert_to_string (id));
     }
     return output;
   }
   
   
   if (request->query.count ("id")) {
-    int id = convert_to_int (request->query ["id"]);
+    int id = filter::strings::convert_to_int (request->query ["id"]);
     
     // Get the Bible and passage for this identifier.
     Passage passage = filter_integer_to_passage (id);
@@ -150,14 +150,14 @@ string search_similar (void * webserver_request)
     string verse = passage.m_verse;
     
     // Get the plain text.
-    string text = search_logic_get_bible_verse_text (bible2, book, chapter, convert_to_int (verse));
+    string text = search_logic_get_bible_verse_text (bible2, book, chapter, filter::strings::convert_to_int (verse));
     
     // Get search words.
-    vector <string> words = filter_string_explode (Database_Volatile::getValue (myIdentifier, "searchsimilar"), ' ');
+    vector <string> words = filter::strings::explode (Database_Volatile::getValue (myIdentifier, "searchsimilar"), ' ');
     
     // Format it.
     string link = filter_passage_link_for_opening_editor_at (book, chapter, verse);
-    text = filter_string_markup_words (words, text);
+    text = filter::strings::markup_words (words, text);
     string output = "<div>" + link + " " + text + "</div>";
     
     // Output to browser.
@@ -176,8 +176,9 @@ string search_similar (void * webserver_request)
   
   view.set_variable ("bible", bible);
   
-  string script = "var searchBible = \"" + bible + "\";";
-  view.set_variable ("script", script);
+  stringstream script {};
+  script << "var searchBible = " << quoted(bible) << ";";
+  view.set_variable ("script", script.str());
 
   page += view.render ("search", "similar");
   

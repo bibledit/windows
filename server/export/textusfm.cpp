@@ -81,7 +81,7 @@ void export_text_usfm_book (string bible, int book, bool log)
     
     // Get the USFM code for the current chapter.
     string chapter_data = database_bibles.getChapter (bible, book, chapter);
-    chapter_data = filter_string_trim (chapter_data);
+    chapter_data = filter::strings::trim (chapter_data);
     
     
     // Add the chapter's USFM code to the Text_* filter for the book, and for the chapter.
@@ -97,12 +97,12 @@ void export_text_usfm_book (string bible, int book, bool log)
     // Deal with basic USFM.
     if (chapter > 0) {
       map <int, string> verses_text = filter_text_chapter.getVersesText ();
-      basicUsfm = "\\c " + convert_to_string (chapter) + "\n";
+      basicUsfm = "\\c " + filter::strings::convert_to_string (chapter) + "\n";
       basicUsfm += "\\p\n";
       for (auto element : verses_text) {
         int verse = element.first;
         string text = element.second;
-        basicUsfm += "\\v " + convert_to_string (verse) + " " + text + "\n";
+        basicUsfm += "\\v " + filter::strings::convert_to_string (verse) + " " + text + "\n";
       }
       filter_url_file_put_contents_append (usfmFilename, basicUsfm);
     }

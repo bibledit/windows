@@ -39,7 +39,7 @@ bool privilege_view_resources (void * webserver_request, string user)
   int level {0};
   user_level (webserver_request, user, level);
   if (level >= view_resources_role ()) return true;
-  return Database_Privileges::getFeature (user, PRIVILEGE_VIEW_RESOURCES);
+  return DatabasePrivileges::get_feature (user, PRIVILEGE_VIEW_RESOURCES);
 }
 
 
@@ -54,7 +54,7 @@ bool privilege_view_notes (void * webserver_request, string user)
   int level {0};
   user_level (webserver_request, user, level);
   if (level >= view_notes_role ()) return true;
-  return Database_Privileges::getFeature (user, PRIVILEGE_VIEW_NOTES);
+  return DatabasePrivileges::get_feature (user, PRIVILEGE_VIEW_NOTES);
 }
 
 
@@ -69,7 +69,7 @@ bool privilege_create_comment_notes (void * webserver_request, string user)
   int level {0};
   user_level (webserver_request, user, level);
   if (level >= create_comment_notes_role ()) return true;
-  return Database_Privileges::getFeature (user, PRIVILEGE_CREATE_COMMENT_NOTES);
+  return DatabasePrivileges::get_feature (user, PRIVILEGE_CREATE_COMMENT_NOTES);
 }
 
 
@@ -144,6 +144,12 @@ void create_client_files ()
     // to avoid unnecessary downloads by the clients.
     database_privileges_client_create (user, false);
   }
+}
+
+
+set <string> default_privilege_usernames ()
+{
+  return {"defaultguest", "defaultmember", "defaultconsultant", "defaulttranslator", "defaultmanager"};
 }
 
 

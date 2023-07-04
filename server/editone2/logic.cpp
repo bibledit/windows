@@ -34,7 +34,7 @@ void editone_logic_prefix_html (string usfm, string stylesheet, string & html, s
     editor_usfm2html.run ();
     html = editor_usfm2html.get ();
     // No identical id's in the same DOM.
-    html = filter_string_str_replace (R"( id="notes")", R"( id="prefixnotes")", html);
+    html = filter::strings::replace (R"( id="notes")", R"( id="prefixnotes")", html);
     // The last paragraph style in this USFM fragment, the prefix to the editable fragment.
     // If the last paragraph has any content in it,
     // for correct visual representation of the editable fragment, that follows this,
@@ -66,7 +66,7 @@ void editone_logic_suffix_html (string editable_last_p_style, string usfm, strin
     editor_usfm2html.run ();
     html = editor_usfm2html.get ();
     // No identical id in the same DOM.
-    html = filter_string_str_replace (R"( id="notes")", R"( id="suffixnotes")", html);
+    html = filter::strings::replace (R"( id="notes")", R"( id="suffixnotes")", html);
   }
   
   // If the first paragraph of the suffix does not have a paragraph style applied,
@@ -78,7 +78,7 @@ void editone_logic_suffix_html (string editable_last_p_style, string usfm, strin
   if (!html.empty ()) {
     if (!editable_last_p_style.empty ()) {
       xml_document document;
-      html = html2xml (html);
+      html = filter::strings::html2xml (html);
       document.load_string (html.c_str(), parse_ws_pcdata_single);
       xml_node p_node = document.first_child ();
       string p_style = p_node.attribute ("class").value ();
@@ -105,7 +105,7 @@ string editone_logic_html_to_usfm (string stylesheet, string html)
   // It does it much later now, before saving the USFM that the converter produces.
   
   // Convert special spaces to normal ones.
-  html = any_space_to_standard_space (html);
+  html = filter::strings::any_space_to_standard_space (html);
 
   // Convert the html back to USFM in the special way for editing one verse.
   string usfm = editor_export_verse_quill (stylesheet, html);
@@ -122,7 +122,7 @@ void editone_logic_move_notes_v2 (string & prefix, string & suffix)
   if (prefix.empty ()) return;
   
   // Do a html to xml conversion to avoid a mismatched tag error.
-  prefix = html2xml (prefix);
+  prefix = filter::strings::html2xml (prefix);
 
   // Load the prefix.
   xml_document document;
@@ -172,7 +172,7 @@ void editone_logic_move_notes_v2 (string & prefix, string & suffix)
   }
 
   // Do a html to xml conversion in the suffix to avoid a mismatched tag error.
-  suffix = html2xml (suffix);
+  suffix = filter::strings::html2xml (suffix);
 
   // Load the suffix.
   document.load_string (suffix.c_str(), parse_ws_pcdata_single);

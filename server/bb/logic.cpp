@@ -193,7 +193,7 @@ void bible_logic::delete_bible (const string& bible)
   search_logic_delete_bible (bible);
   
   // Delete associated settings and privileges.
-  Database_Privileges::removeBible (bible);
+  DatabasePrivileges::remove_bible (bible);
   Database_Config_Bible::remove (bible);
 }
 
@@ -213,7 +213,7 @@ void bible_logic::import_resource (string bible, string resource)
     vector <int> chapters = database_versifications.getMaximumChapters (book);
     for (const auto chapter : chapters) {
 
-      string message = "Importing " + resource + " " + bookName + " chapter " + convert_to_string (chapter);
+      string message = "Importing " + resource + " " + bookName + " chapter " + filter::strings::convert_to_string (chapter);
       Database_Logs::log (message, Filter_Roles::translator ());
       
       vector <string> usfm {};
@@ -221,7 +221,7 @@ void bible_logic::import_resource (string bible, string resource)
       if (chapter == 0) usfm.push_back ("\\id " + database::books::get_usfm_from_id (static_cast<book_id>(book)));
       
       if (chapter) {
-        usfm.push_back ("\\c " + convert_to_string (chapter));
+        usfm.push_back ("\\c " + filter::strings::convert_to_string (chapter));
         usfm.push_back ("\\p");
       }
 
@@ -246,13 +246,13 @@ void bible_logic::import_resource (string bible, string resource)
         } while (server_is_installing_module && (wait_iterations < 5));
         
         // Remove all html markup.
-        html = filter_string_html2text (html);
-        html = filter_string_str_replace ("\n", " ", html);
+        html = filter::strings::html2text (html);
+        html = filter::strings::replace ("\n", " ", html);
 
         // Add the verse to the USFM.
-        usfm.push_back ("\\v " + convert_to_string (verse) + " " + filter_string_trim (html));
+        usfm.push_back ("\\v " + filter::strings::convert_to_string (verse) + " " + filter::strings::trim (html));
       }
-      bible_logic::store_chapter (bible, book, chapter, filter_string_implode (usfm, "\n"));
+      bible_logic::store_chapter (bible, book, chapter, filter::strings::implode (usfm, "\n"));
     }
   }
   
@@ -280,7 +280,7 @@ void bible_logic::log_change (const string& bible,
   // In particular on low-power devices and on Windows, the time it took was excessive.
 
   string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
-  string passage = bible + " " + bookname + " " + convert_to_string (chapter);
+  string passage = bible + " " + bookname + " " + filter::strings::convert_to_string (chapter);
   
   string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
 
@@ -288,7 +288,7 @@ void bible_logic::log_change (const string& bible,
   vector <int> verse_numbers = filter::usfm::get_verse_numbers (usfm);
   vector <int> verses = existing_verse_numbers;
   verses.insert (verses.end (), verse_numbers.begin (), verse_numbers.end ());
-  verses = array_unique (verses);
+  verses = filter::strings::array_unique (verses);
   sort (verses.begin (), verses.end ());
 
   vector <string> body;
@@ -311,7 +311,7 @@ void bible_logic::log_change (const string& bible,
       string new_text = filter_text_new.text_text->get ();
       if (old_text != new_text) {
         body.push_back (string());
-        body.push_back (filter_passage_display (book, chapter, convert_to_string (verse)));
+        body.push_back (filter_passage_display (book, chapter, filter::strings::convert_to_string (verse)));
         body.push_back ("Old: " + old_text);
         body.push_back ("New: " + new_text);
       }
@@ -327,7 +327,7 @@ void bible_logic::log_change (const string& bible,
   body.push_back (usfm);
   
   if (!user.empty ()) user.append (" - ");
-  Database_Logs::log (user + summary + " - " + passage, filter_string_implode (body, "\n"));
+  Database_Logs::log (user + summary + " - " + passage, filter::strings::implode (body, "\n"));
 }
 
 
@@ -337,7 +337,7 @@ void bible_logic::log_merge (string user, string bible, int book, int chapter,
                              string base, string change, string prioritized_change, string result)
 {
   string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
-  string passage = bible + " " + bookname + " " + convert_to_string (chapter);
+  string passage = bible + " " + bookname + " " + filter::strings::convert_to_string (chapter);
   
   vector <string> body {};
 
@@ -358,7 +358,7 @@ void bible_logic::log_merge (string user, string bible, int book, int chapter,
   body.push_back ("Result:");
   body.push_back (result);
   
-  Database_Logs::log (user + " - merge record - " + passage, filter_string_implode (body, "\n"));
+  Database_Logs::log (user + " - merge record - " + passage, filter::strings::implode (body, "\n"));
 }
 
 
@@ -852,8 +852,8 @@ void bible_logic::recent_save_email (const string & bible,
   for (unsigned int i = 0; i < new_verses.size(); i++) {
     Filter_Text filter_text_old = Filter_Text (bible);
     Filter_Text filter_text_new = Filter_Text (bible);
-    filter_text_old.html_text_standard = new Html_Text (translate("Bible"));
-    filter_text_new.html_text_standard = new Html_Text (translate("Bible"));
+    filter_text_old.html_text_standard = new HtmlText (translate("Bible"));
+    filter_text_new.html_text_standard = new HtmlText (translate("Bible"));
     filter_text_old.text_text = new Text_Text ();
     filter_text_new.text_text = new Text_Text ();
     filter_text_old.add_usfm_code (old_verses[i]);
@@ -865,7 +865,7 @@ void bible_logic::recent_save_email (const string & bible,
     if (old_text != new_text) {
       node = document.append_child ("p");
       string modification = filter_diff_diff (old_text, new_text);
-      string fragment = /* convert_to_string (verse) + " " + */ modification;
+      string fragment = /* filter::strings::convert_to_string (verse) + " " + */ modification;
       node.append_buffer (fragment.c_str (), fragment.size ());
       differences_found = true;
     }
@@ -952,9 +952,9 @@ void bible_logic::optional_merge_irregularity_email (const string & bible, int b
     Filter_Text filter_text_ancestor = Filter_Text (bible);
     Filter_Text filter_text_edited = Filter_Text (bible);
     Filter_Text filter_text_merged = Filter_Text (bible);
-    filter_text_ancestor.html_text_standard = new Html_Text (translate("Bible"));
-    filter_text_edited.html_text_standard = new Html_Text (translate("Bible"));
-    filter_text_merged.html_text_standard = new Html_Text (translate("Bible"));
+    filter_text_ancestor.html_text_standard = new HtmlText (translate("Bible"));
+    filter_text_edited.html_text_standard = new HtmlText (translate("Bible"));
+    filter_text_merged.html_text_standard = new HtmlText (translate("Bible"));
     filter_text_ancestor.text_text = new Text_Text ();
     filter_text_edited.text_text = new Text_Text ();
     filter_text_merged.text_text = new Text_Text ();
@@ -1112,9 +1112,9 @@ void bible_logic::html_to_editor_updates (const string & editor_html,
   for (size_t i = 0; i < editor_format.texts.size(); i++) {
     const string & text = editor_format.texts[i];
     const string & format = editor_format.formats[i];
-    const size_t length = unicode_string_length (text);
+    const size_t length = filter::strings::unicode_string_length (text);
     for (size_t pos = 0; pos < length; pos++) {
-      const string utf8_character = unicode_string_substr (text, pos, 1);
+      const string utf8_character = filter::strings::unicode_string_substr (text, pos, 1);
       editor_formatted_character_content.push_back (utf8_character + format);
     }
   }
@@ -1123,9 +1123,9 @@ void bible_logic::html_to_editor_updates (const string & editor_html,
   for (size_t i = 0; i < server_format.texts.size(); i++) {
     const string & text = server_format.texts[i];
     const string & format = server_format.formats[i];
-    const size_t length = unicode_string_length (text);
+    const size_t length = filter::strings::unicode_string_length (text);
     for (size_t pos = 0; pos < length; pos++) {
-      const string utf8_character = unicode_string_substr (text, pos, 1);
+      const string utf8_character = filter::strings::unicode_string_substr (text, pos, 1);
       server_formatted_character_content.push_back (utf8_character + format);
       server_utf8_characters.push_back(utf8_character);
     }
@@ -1153,7 +1153,7 @@ void bible_logic::html_to_editor_updates (const string & editor_html,
   if (new_line_diff_count) {
     int position {0};
     for (size_t i = 0; i < server_utf8_characters.size(); i++) {
-      const int size = static_cast<int>(convert_to_u16string (server_utf8_characters[i]).length());
+      const int size = static_cast<int>(filter::strings::convert_to_u16string (server_utf8_characters[i]).length());
       if (server_utf8_characters[i] == "\n") {
         positions.push_back(position);
         sizes.push_back(size);

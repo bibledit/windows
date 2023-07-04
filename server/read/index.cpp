@@ -25,7 +25,6 @@
 #include <filter/string.h>
 #include <filter/css.h>
 #include <filter/url.h>
-#include <filter/indonesian.h>
 #include <webserver/request.h>
 #include <locale/translate.h>
 #include <locale/logic.h>
@@ -69,8 +68,8 @@ string read_index (void * webserver_request)
   bool touch = request->session_logic ()->touchEnabled ();
   
   if (request->query.count ("switchbook") && request->query.count ("switchchapter")) {
-    int switchbook = convert_to_int (request->query ["switchbook"]);
-    int switchchapter = convert_to_int (request->query ["switchchapter"]);
+    int switchbook = filter::strings::convert_to_int (request->query ["switchbook"]);
+    int switchchapter = filter::strings::convert_to_int (request->query ["switchchapter"]);
     Ipc_Focus::set (request, switchbook, switchchapter, 1);
     Navigation_Passage::record_history (request, switchbook, switchchapter, 1);
   }
@@ -111,23 +110,25 @@ string read_index (void * webserver_request)
   // Store the active Bible in the page's javascript.
   view.set_variable ("navigationCode", Navigation_Passage::code (bible));
   
+  // Create a script for Javascript. Quote string to get legal Javascript.
+  stringstream script_stream {};
+  script_stream << "var readchooseEditorVerseLoaded = " << quoted(locale_logic_text_loaded ()) << ";\n";
+  script_stream << "var readchooseEditorVerseUpdating = " << quoted(locale_logic_text_updating ()) << ";\n";
+  script_stream << "var readchooseEditorVerseUpdated = " << quoted(locale_logic_text_updated ()) << ";\n";
+  script_stream << "var readchooseEditorWillSave = " << quoted(locale_logic_text_will_save ()) << ";\n";
+  script_stream << "var readchooseEditorVerseSaving = " << quoted(locale_logic_text_saving ()) << ";\n";
+  script_stream << "var readchooseEditorVerseSaved = " << quoted(locale_logic_text_saved ()) << ";\n";
+  script_stream << "var readchooseEditorVerseRetrying = " << quoted(locale_logic_text_retrying ()) << ";\n";
+  script_stream << "var readchooseEditorVerseUpdatedLoaded = " << quoted(locale_logic_text_reload ()) << ";\n";
   int verticalCaretPosition = request->database_config_user ()->getVerticalCaretPosition ();
-  string script =
-  "var readchooseEditorVerseLoaded = '" + locale_logic_text_loaded () + "';\n"
-  "var readchooseEditorVerseUpdating = '" + locale_logic_text_updating () + "';\n"
-  "var readchooseEditorVerseUpdated = '" + locale_logic_text_updated () + "';\n"
-  "var readchooseEditorWillSave = '" + locale_logic_text_will_save () + "';\n"
-  "var readchooseEditorVerseSaving = '" + locale_logic_text_saving () + "';\n"
-  "var readchooseEditorVerseSaved = '" + locale_logic_text_saved () + "';\n"
-  "var readchooseEditorVerseRetrying = '" + locale_logic_text_retrying () + "';\n"
-  "var readchooseEditorVerseUpdatedLoaded = '" + locale_logic_text_reload () + "';\n"
-  "var verticalCaretPosition = " + convert_to_string (verticalCaretPosition) + ";\n"
-  "var verseSeparator = '" + Database_Config_General::getNotesVerseSeparator () + "';\n";
+  script_stream << "var verticalCaretPosition = " << verticalCaretPosition << ";\n";
+  script_stream << "var verseSeparator = " << quoted(Database_Config_General::getNotesVerseSeparator ()) << ";\n";
+  string script {script_stream.str()};
   config::logic::swipe_enabled (webserver_request, script);
   view.set_variable ("script", script);
 
   string cls = Filter_Css::getClass (bible);
-  string font = Fonts_Logic::get_text_font (bible);
+  string font = fonts::logic::get_text_font (bible);
   int current_theme_index = request->database_config_user ()->getCurrentTheme ();
   string filename = current_theme_filebased_cache_filename (request->session_identifier);
   int direction = Database_Config_Bible::getTextDirection (bible);
@@ -137,7 +138,7 @@ string read_index (void * webserver_request)
   view.set_variable ("active_editor_theme_color", Filter_Css::theme_picker (current_theme_index, 3));
   view.set_variable ("custom_class", cls);
   view.set_variable ("custom_css", Filter_Css::get_css (cls,
-                                                       Fonts_Logic::get_font_path (font),
+                                                       fonts::logic::get_font_path (font),
                                                        direction,
                                                        lineheight,
                                                        letterspacing));

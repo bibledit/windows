@@ -48,13 +48,13 @@ string Database_Bibles::bibleFolder (string bible)
 
 string Database_Bibles::bookFolder (string bible, int book)
 {
-  return filter_url_create_path ({bibleFolder (bible), convert_to_string (book)});
+  return filter_url_create_path ({bibleFolder (bible), filter::strings::convert_to_string (book)});
 }
 
 
 string Database_Bibles::chapterFolder (string bible, int book, int chapter)
 {
-  return filter_url_create_path ({bookFolder (bible, book), convert_to_string (chapter)});
+  return filter_url_create_path ({bookFolder (bible, book), filter::strings::convert_to_string (chapter)});
 }
 
 
@@ -105,7 +105,7 @@ void Database_Bibles::storeChapter (string name, int book, int chapter_number, s
   // Increase the chapter identifier, and store the chapter data.
   int id = getChapterId (name, book, chapter_number);
   id++;
-  string file = filter_url_create_path ({folder, convert_to_string (id)});
+  string file = filter_url_create_path ({folder, filter::strings::convert_to_string (id)});
   filter_url_file_put_contents (file, chapter_text);
 
   // Update search fields.
@@ -129,8 +129,8 @@ vector <int> Database_Bibles::getBooks (string bible)
   vector <int> books {};
   vector <string> files = filter_url_scandir (folder);
   for (const string & book : files) {
-    if (filter_string_is_numeric (book)) {
-      books.push_back (convert_to_int (book));
+    if (filter::strings::is_numeric (book)) {
+      books.push_back (filter::strings::convert_to_int (book));
     }
   }
 
@@ -140,7 +140,7 @@ vector <int> Database_Bibles::getBooks (string bible)
     book_id book_enum = static_cast<book_id>(book_number);
     order.push_back (database::books::get_order_from_id (book_enum));
   }
-  quick_sort (order, books, 0, static_cast<unsigned>(order.size()));
+  filter::strings::quick_sort (order, books, 0, static_cast<unsigned>(order.size()));
 
   // Result.
   return books;
@@ -163,7 +163,7 @@ vector <int> Database_Bibles::getChapters (string bible, int book)
   vector <int> chapters;
   vector <string> files = filter_url_scandir (folder);
   for (string file : files) {
-    if (filter_string_is_numeric (file)) chapters.push_back (convert_to_int (file));
+    if (filter::strings::is_numeric (file)) chapters.push_back (filter::strings::convert_to_int (file));
   }
   sort (chapters.begin (), chapters.end ());
   return chapters;
@@ -188,7 +188,7 @@ string Database_Bibles::getChapter (string bible, int book, int chapter)
     string file = files [files.size () - 1];
     string data = filter_url_file_get_contents (filter_url_create_path ({folder, file}));
     // Remove trailing new line.
-    data = filter_string_trim (data);
+    data = filter::strings::trim (data);
     return data;
   }
   return "";
@@ -202,7 +202,7 @@ int Database_Bibles::getChapterId (string bible, int book, int chapter)
   vector <string> files = filter_url_scandir (folder);
   if (!files.empty ()) {
     string file = files [files.size() - 1];
-    return convert_to_int (file);
+    return filter::strings::convert_to_int (file);
   }
   return 100'000'000;
 }

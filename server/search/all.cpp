@@ -75,11 +75,11 @@ string search_all (void * webserver_request)
 
   
   // Clean the query string up.
-  queryString = filter_string_trim (queryString);
+  queryString = filter::strings::trim (queryString);
   
   
   // Generate search words for emphasizing the search passages.
-  vector <string> queryWords = filter_string_explode (queryString, ' ');
+  vector <string> queryWords = filter::strings::explode (queryString, ' ');
   
   
   Database_Notes database_notes = Database_Notes (request);
@@ -96,7 +96,7 @@ string search_all (void * webserver_request)
   
   
   size_t noteCount = identifiers.size();
-  view.set_variable ("noteCount", convert_to_string (noteCount));
+  view.set_variable ("noteCount", filter::strings::convert_to_string (noteCount));
   
   
   // Assemble the block of search results for the consultation notes.
@@ -107,18 +107,18 @@ string search_all (void * webserver_request)
     string summary = database_notes.get_summary (identifier);
     string verses = filter_passage_display_inline (database_notes.get_passages (identifier));
     string title = summary + " | " + verses;
-    title = escape_special_xml_characters (title);
+    title = filter::strings::escape_special_xml_characters (title);
     
     // The url.
-    string url = siteUrl + notes_note_url () + "?id=" + convert_to_string (identifier);
+    string url = siteUrl + notes_note_url () + "?id=" + filter::strings::convert_to_string (identifier);
     
     // The excerpt.
     string stext = database_notes.get_search_field (identifier);
-    vector <string> vtext = filter_string_explode (stext, '\n');
+    vector <string> vtext = filter::strings::explode (stext, '\n');
     string excerpt;
     // Go through each line of text separately.
     for (auto & line : vtext) {
-      string markedLine = filter_string_markup_words (queryWords, line);
+      string markedLine = filter::strings::markup_words (queryWords, line);
       // If the line is marked up, add it to the excerpts.
       if (!excerpt.empty()) excerpt.append ("\n");
       if (markedLine != line) {
@@ -147,7 +147,7 @@ string search_all (void * webserver_request)
   
   
   size_t textCount = passages.size ();
-  view.set_variable ("textCount", convert_to_string (textCount));
+  view.set_variable ("textCount", filter::strings::convert_to_string (textCount));
   
   
   // Assemble the search results for the Bible text.
@@ -160,12 +160,12 @@ string search_all (void * webserver_request)
     // The title plus link.
     string link = bible + " | " + filter_passage_link_for_opening_editor_at (book, chapter, verse);
     // The excerpt.
-    string stext = search_logic_get_bible_verse_text (bible, book, chapter, convert_to_int (verse));
-    vector <string> vtext = filter_string_explode (stext, '\n');
+    string stext = search_logic_get_bible_verse_text (bible, book, chapter, filter::strings::convert_to_int (verse));
+    vector <string> vtext = filter::strings::explode (stext, '\n');
     string excerpt;
     // Go through each line of text separately.
     for (auto & line : vtext) {
-      string markedLine = filter_string_markup_words (queryWords, line);
+      string markedLine = filter::strings::markup_words (queryWords, line);
       if (markedLine != line) {
         // Store this bit of the excerpt.
         excerpt.append ("<p style=\"margin-top: 0em\">" + markedLine + "</p>\n");

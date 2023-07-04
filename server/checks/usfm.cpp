@@ -102,7 +102,7 @@ void Checks_Usfm::finalize ()
 {
   // Check on unclosed markers.
   if (open_matching_markers.size () > 0) {
-    add_result (translate ("Unclosed markers:") + " " + filter_string_implode (open_matching_markers, " "), display_nothing);
+    add_result (translate ("Unclosed markers:") + " " + filter::strings::implode (open_matching_markers, " "), display_nothing);
   }
 }
 
@@ -123,7 +123,7 @@ void Checks_Usfm::check (const string & usfm)
       // Get the current verse number.
       if (usfm_item == R"(\v )") {
         string verseCode = filter::usfm::peek_text_following_marker (usfm_markers_and_text, usfm_markers_and_text_pointer);
-        verse_number = convert_to_int (filter::usfm::peek_verse_number (verseCode));
+        verse_number = filter::strings::convert_to_int (filter::usfm::peek_verse_number (verseCode));
       }
       
       malformed_verse_number ();
@@ -155,7 +155,7 @@ void Checks_Usfm::malformed_verse_number ()
   if (usfm_item == "\\v ") {
     string code = filter::usfm::peek_text_following_marker (usfm_markers_and_text, usfm_markers_and_text_pointer);
     string cleanVerseNumber = filter::usfm::peek_verse_number (code);
-    vector <string> v_dirtyVerseNumber = filter_string_explode (code, ' ');
+    vector <string> v_dirtyVerseNumber = filter::strings::explode (code, ' ');
     string dirtyVerseNumber;
     if (!v_dirtyVerseNumber.empty ()) dirtyVerseNumber = v_dirtyVerseNumber [0];
     if (cleanVerseNumber != dirtyVerseNumber) {
@@ -179,7 +179,7 @@ void Checks_Usfm::new_line_in_usfm (const string & usfm)
   if (position != string::npos) {
     if (position == 0) position = 1;
     string bit = usfm.substr (position - 1, 10);
-    bit = filter_string_str_replace ("\n", " ", bit);
+    bit = filter::strings::replace ("\n", " ", bit);
     add_result (translate ("New line within USFM:") + " " + bit, display_nothing);
   }
 }
@@ -188,7 +188,7 @@ void Checks_Usfm::new_line_in_usfm (const string & usfm)
 void Checks_Usfm::marker_in_stylesheet ()
 {
   string marker = usfm_item.substr (1);
-  marker = filter_string_trim (marker);
+  marker = filter::strings::trim (marker);
   if (!filter::usfm::is_opening_marker (marker)) {
     if (!marker.empty ()) marker = marker.substr (0, marker.length () - 1);
   }
@@ -209,14 +209,14 @@ void Checks_Usfm::malformed_id ()
   if (item == R"(\id)") {
     string code = filter::usfm::peek_text_following_marker (usfm_markers_and_text, usfm_markers_and_text_pointer);
     string sid = code.substr (0, 3);
-    vector <string> vid = filter_string_explode (code, ' ');
+    vector <string> vid = filter::strings::explode (code, ' ');
     string id {};
     if (!vid.empty ()) id = vid [0];
     book_id book = database::books::get_id_from_usfm (id);
     if (book == book_id::_unknown) {
       add_result (translate ("Unknown ID"), display_full);
     } else {
-      if (unicode_string_uppercase (id) != id) {
+      if (filter::strings::unicode_string_uppercase (id) != id) {
         add_result (translate ("ID is not in uppercase"), display_full);
       }
     }
@@ -226,7 +226,7 @@ void Checks_Usfm::malformed_id ()
 
 void Checks_Usfm::forward_slash (const string & usfm)
 {
-  string code = filter_string_str_replace ("\n", " ", usfm);
+  string code = filter::strings::replace ("\n", " ", usfm);
   size_t pos = code.find ("/");
   string bit {};
   if (pos != string::npos) {
@@ -251,7 +251,7 @@ void Checks_Usfm::forward_slash (const string & usfm)
 void Checks_Usfm::widow_back_slash ()
 {
   string marker = usfm_item;
-  marker = filter_string_trim (marker);
+  marker = filter::strings::trim (marker);
   if (marker.length() == 1) {
     add_result (translate ("Widow backslash"), display_current);
   }
@@ -263,7 +263,7 @@ void Checks_Usfm::matching_endmarker ()
   string marker = usfm_item;
   // Remove the initial backslash, e.g. '\add' becomes 'add'.
   marker = marker.substr (1);
-  marker = filter_string_trim (marker);
+  marker = filter::strings::trim (marker);
   bool isOpener = filter::usfm::is_opening_marker (marker);
   if (!isOpener) {
    if (!marker.empty ()) marker = marker.substr (0, marker.length () - 1);
@@ -277,9 +277,9 @@ void Checks_Usfm::matching_endmarker ()
     }
   } else {
     if (in_array (marker, open_matching_markers)) {
-      open_matching_markers = filter_string_array_diff (open_matching_markers, {marker});
+      open_matching_markers = filter::strings::array_diff (open_matching_markers, {marker});
     } else {
-      add_result (translate ("Closing marker does not match opening marker") + " " + filter_string_implode (open_matching_markers, " "), display_current);
+      add_result (translate ("Closing marker does not match opening marker") + " " + filter::strings::implode (open_matching_markers, " "), display_current);
     }
   }
 }
@@ -292,7 +292,7 @@ void Checks_Usfm::embedded_marker ()
 
   // Remove the initial backslash, e.g. '\add' becomes 'add'.
   marker = marker.substr (1);
-  marker = filter_string_trim (marker);
+  marker = filter::strings::trim (marker);
 
   bool isOpener = filter::usfm::is_opening_marker (marker);
 
@@ -323,7 +323,7 @@ void Checks_Usfm::embedded_marker ()
     }
   } else {
     if (in_array (marker, open_embeddable_markers)) {
-      open_embeddable_markers = filter_string_array_diff (open_embeddable_markers, {marker});
+      open_embeddable_markers = filter::strings::array_diff (open_embeddable_markers, {marker});
       if (!open_embeddable_markers.empty ()) {
         checkEmbedding = true;
       }

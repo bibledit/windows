@@ -22,7 +22,6 @@
 #include <filter/url.h>
 #include <filter/archive.h>
 #include <filter/usfm.h>
-#include <filter/indonesian.h>
 #include <filter/roles.h>
 #include <filter/date.h>
 #include <locale/translate.h>
@@ -61,7 +60,7 @@ void system_logic_produce_bibles_file (int jobid)
   
   // Generate the initial page.
   {
-    Html_Text html_text ("");
+    HtmlText html_text ("");
     html_text.new_paragraph ();
     html_text.add_text (translate ("Generating a file with the Bibles."));
     html_text.new_paragraph ();
@@ -92,10 +91,10 @@ void system_logic_produce_bibles_file (int jobid)
       vector <int> chapters = database_bibles.getChapters (bible, book);
       for (auto chapter : chapters) {
         string usfm = database_bibles.getChapter (bible, book, chapter);
-        book_usfm.append (filter_string_trim (usfm));
+        book_usfm.append (filter::strings::trim (usfm));
         book_usfm.append ("\n");
       }
-      string file = bible + "_" + convert_to_string (book) + ".usfm";
+      string file = bible + "_" + filter::strings::convert_to_string (book) + ".usfm";
       string path = filter_url_create_path ({directory, file});
       filter_url_file_put_contents (path, book_usfm);
       files.push_back (file);
@@ -109,7 +108,7 @@ void system_logic_produce_bibles_file (int jobid)
   
   // Ready, provide info about how to download the file, or about the error.
   {
-    Html_Text html_text ("");
+    HtmlText html_text ("");
     html_text.new_paragraph ();
     if (error.empty ()) {
       html_text.add_text (translate ("The file with Bibles is ready."));
@@ -169,7 +168,7 @@ void system_logic_import_bibles_file (string tarball)
         // so importing outdated Bibles would not affect the authoritative copy in the Cloud.
         database_bibles.storeChapter (bible, book_chapter_data.m_book, book_chapter_data.m_chapter, book_chapter_data.m_data);
         string bookname = database::books::get_english_from_id (static_cast<book_id>(book_chapter_data.m_book));
-        Database_Logs::log ("Imported " + bible + " " + bookname + " " + convert_to_string (book_chapter_data.m_chapter));
+        Database_Logs::log ("Imported " + bible + " " + bookname + " " + filter::strings::convert_to_string (book_chapter_data.m_chapter));
       } else {
         // Import error.
         Database_Logs::log ("Could not import this file: " + file);
@@ -204,7 +203,7 @@ void system_logic_produce_notes_file (int jobid)
   
   // Generate the initial page.
   {
-    Html_Text html_text ("");
+    HtmlText html_text ("");
     html_text.new_paragraph ();
     html_text.add_text (translate ("Generating a file with the Consultation Notes."));
     html_text.new_paragraph ();
@@ -235,7 +234,7 @@ void system_logic_produce_notes_file (int jobid)
   
   // Ready, provide info about how to download the file, or about the error.
   {
-    Html_Text html_text ("");
+    HtmlText html_text ("");
     html_text.new_paragraph ();
     if (error.empty ()) {
       html_text.add_text (translate ("The file with Consultation Notes is ready."));
@@ -296,7 +295,7 @@ void system_logic_produce_resources_file (int jobid)
   
   // Generate the initial page.
   {
-    Html_Text html_text ("");
+    HtmlText html_text ("");
     html_text.new_paragraph ();
     html_text.add_text (translate ("Generating a file with the resources."));
     html_text.new_paragraph ();
@@ -373,7 +372,7 @@ void system_logic_produce_resources_file (int jobid)
   
   // Ready, provide info about how to download the file or about the error.
   {
-    Html_Text html_text ("");
+    HtmlText html_text ("");
     html_text.new_paragraph ();
     if (!resources.empty ()) {
       if (error.empty ()) {
@@ -381,7 +380,7 @@ void system_logic_produce_resources_file (int jobid)
         html_text.add_text (" ");
         html_text.add_text (translate ("Amount of resources:"));
         html_text.add_text (" ");
-        html_text.add_text (convert_to_string (single_resources.size()));
+        html_text.add_text (filter::strings::convert_to_string (single_resources.size()));
         html_text.add_text (".");
         html_text.new_paragraph ();
         html_text.add_link (html_text.current_p_node, "/" + system_logic_resources_file_name (), "", "", "", translate ("Download the archive with all installed resources."));
@@ -451,166 +450,3 @@ void system_logic_import_resources_file (string tarball)
 }
 
 
-void system_logic_indonesian_free_deletion ([[maybe_unused]] string username,
-                                            [[maybe_unused]] string email)
-{
-#ifdef HAVE_CLOUD
-  Database_Logs::log ("Starting to inform and delete user " + username + " and associated Bible");
-
-  {
-    // Create the body of the email.
-    xml_document document;
-    xml_node node;
-    
-    node = document.append_child ("p");
-    node.text ().set ("Shalom Bapak/Ibu Pengguna Bibledit,");
-    
-    node = document.append_child ("p");
-    node.text ().set ("Kami berharap Saudara sempat menggunakan Bibledit Tamu selama sebulan ini. Kami mengundang Saudara untuk mendaftar kembali sekarang, atau di saat di mana Saudara punya keperluan meneliti ayat Alkitab. Kami juga mengundang Saudara mengunjungi situs http://alkitabkita.info untuk segala informasi dari bahan penelitian Alkitab yang akan ditambahkan.");
-
-    node = document.append_child ("p");
-    node.text ().set ("Apabila Saudara sudah memasukkan ayat-ayat dalam bagian Terjemahanku pasal-pasal itu akan dikirim lewat email kepada Saudara.");
-
-    node = document.append_child ("p");
-    node.text ().set ("Klik link ini untuk membaca tentang kelebihan tingkat Bibledit Anggota https://sites.google.com/view/alkitabkita/menjadi-anggota-bibledit.");
-
-    node = document.append_child ("p");
-    node.text ().set ("Tuhan memberkati Saudara,");
-
-    node = document.append_child ("p");
-    node.text ().set ("Balazi Gulo");
-
-    node = document.append_child ("p");
-    node.text ().set ("Pengurus Albata");
-
-    node = document.append_child ("p");
-    node.text ().set ("(albata.info)");
-
-    // Convert the document to a string.
-    stringstream output;
-    document.print (output, "", format_raw);
-    string html = output.str ();
-    
-    // Schedule the mail for sending to the user.
-    email_schedule (email, "Bibledit", html);
-  }
-  
-  Database_Bibles database_bibles;
-  string bible = filter::indonesian::mytranslation (username);
-  vector <int> books = database_bibles.getBooks (bible);
-  for (auto book : books) {
-    vector <int> chapters = database_bibles.getChapters (bible, book);
-    for (auto chapter : chapters) {
-
-      // If the chapter identifier is equal to the initial ID,
-      // it means the chapter was not changed by anyone.
-      int chapter_id = database_bibles.getChapterId (bible, book, chapter);
-      if (chapter_id == 100000001) continue;
-      // If the chapter was changed, email the contents of that chapter to the user.
-
-      // Create the body of the email.
-      xml_document document;
-      xml_node node;
-      
-      string heading = filter_passage_display (book, chapter, {});
-      node = document.append_child ("h3");
-      node.text ().set (heading.c_str());
-      
-      string explanation = "Inilah hasil terjemahan Saudara:";
-      node = document.append_child ("p");
-      node.text ().set (explanation.c_str ());
-
-      document.append_child ("br");
-      node = document.append_child ("pre");
-      string usfm = database_bibles.getChapter(bible, book, chapter);
-      node.text ().set (usfm.c_str ());
-      
-      // Convert the document to a string.
-      stringstream output;
-      document.print (output, "", format_raw);
-      string html = output.str ();
-      
-      // Schedule the mail for sending to the user.
-      email_schedule (email, translate (bible + ": " + heading), html);
-    }
-  }
-  
-  // Delete the user's Bible and associated data.
-  database_bibles.deleteBible(bible);
-  search_logic_delete_bible (bible);
-  Database_Privileges::removeBible (bible);
-  Database_Config_Bible::remove (bible);
-  
-  Database_Logs::log ("Ready handling user and associated data");
-#endif
-}
-
-
-void system_logic_indonesian_free_expiration ()
-{
-#ifdef HAVE_CLOUD
-  // The first sequence is to removed expired accounts and data that belongs to it.
-  Database_Logs::log ("Expiring free Indonesian Cloud accounts and associated data");
-  Database_Users database_users;
-  vector<string> users = database_users.get_users();
-  for (auto user : users) {
-    // In the free Indonesian Cloud, the relevant level is that of Consultant.
-    int level = database_users.get_level(user);
-    if (level != Filter_Roles::consultant()) continue;
-    // Expire this account after 30 days.
-    int account_creation_time = filter::date::seconds_since_epoch();
-    {
-      vector <string> lines = Database_Config_General::getAccountCreationTimes ();
-      for (auto line : lines) {
-        vector <string> bits = filter_string_explode(line, '|');
-        if (bits.size() != 2) continue;
-        int seconds = convert_to_int(bits[0]);
-        if (user == bits[1]) account_creation_time = seconds;
-      }
-    }
-    int seconds = filter::date::seconds_since_epoch() - account_creation_time;
-    int days = seconds / (3600 * 24);
-    if (days <= 30) continue;
-    // Get details of this user.
-    string email = database_users.get_email(user);
-    // Delete the user account.
-    Database_Logs::log("Deleting free user " + user + " with email " + email);
-    string message;
-    user_logic_delete_account (user, "free", email, message);
-    system_logic_indonesian_free_deletion (user, email);
-  }
-  
-  // The next sequence is to delete a Bible that was created for a user,
-  // but the user is no longer there, or did not confirm the account.
-  
-  // Create a container with Indonesian Bibles that are associated to an existing or pending user.
-  vector<string> valid_indonesian_bibles;
-  users = database_users.get_users();
-  for (auto user : users) {
-    string bible = filter::indonesian::mytranslation (user);
-    valid_indonesian_bibles.push_back(bible);
-  }
-  Database_Confirm database_confirm;
-  vector <int> ids = database_confirm.get_ids();
-  for (auto id : ids) {
-    string username = database_confirm.get_username(static_cast<unsigned int>(id));
-    string bible = filter::indonesian::mytranslation (username);
-    valid_indonesian_bibles.push_back(bible);
-  }
-  // Get all available Bibles at the system.
-  Database_Bibles database_bibles;
-  vector<string> bibles = database_bibles.getBibles();
-  // Get array of Bibles to delete.
-  vector <string> bibles_to_delete = filter_string_array_diff(bibles, valid_indonesian_bibles);
-  for (auto bible : bibles_to_delete) {
-    // Skip the shared Indonesian Bible.
-    if (bible == filter::indonesian::ourtranslation()) continue;
-    // Delete this unassociated Bible.
-    Database_Logs::log("Deleting Bible not associated with any account: " + bible);
-    database_bibles.deleteBible(bible);
-    search_logic_delete_bible (bible);
-    Database_Privileges::removeBible (bible);
-    Database_Config_Bible::remove (bible);
-  }
-#endif
-}

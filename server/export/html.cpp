@@ -66,10 +66,10 @@ void export_html_book (string bible, int book, bool log)
   
   
   // Copy font to the output directory.
-  string font = Fonts_Logic::get_text_font (bible);
+  string font = fonts::logic::get_text_font (bible);
   if (!font.empty ()) {
-    if (Fonts_Logic::font_exists (font)) {
-      string fontpath = Fonts_Logic::get_font_path (font);
+    if (fonts::logic::font_exists (font)) {
+      string fontpath = fonts::logic::get_font_path (font);
       string contents = filter_url_file_get_contents (fontpath);
       fontpath = filter_url_create_path ({directory, font});
       filter_url_file_put_contents (fontpath, contents);
@@ -78,7 +78,7 @@ void export_html_book (string bible, int book, bool log)
   
   
   Filter_Text filter_text = Filter_Text (bible);
-  filter_text.html_text_standard = new Html_Text (translate("Bible"));
+  filter_text.html_text_standard = new HtmlText (translate("Bible"));
   filter_text.html_text_standard->custom_class = Filter_Css::getClass (bible);
   if (Database_Config_Bible::getExportHtmlNotesOnHover(bible)) {
     filter_text.html_text_standard->have_popup_notes();
@@ -90,7 +90,7 @@ void export_html_book (string bible, int book, bool log)
   for (auto chapter : chapters) {
     // Get the USFM for this chapter.
     string usfm = database_bibles.getChapter (bible, book, chapter);
-    usfm = filter_string_trim (usfm);
+    usfm = filter::strings::trim (usfm);
     // Use small chunks of USFM at a time for much better performance.
     filter_text.add_usfm_code (usfm);
   }

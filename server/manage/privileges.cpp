@@ -68,64 +68,64 @@ string manage_privileges (void * webserver_request)
 
 
   // Usernames for setting default new user privilege.
-  set <string> defusers = {"defaultguest", "defaultmember", "defaulttranslator", "defaultconsultant", "defaultmanager"};
+  set <string> defusers = access_logic::default_privilege_usernames ();
 
   
   bool privileges_updated {false};
   string checkbox {request->post ["checkbox"]};
-  bool checked {convert_to_bool (request->post ["checked"])};
+  bool checked {filter::strings::convert_to_bool (request->post ["checked"])};
   bool state {false};
   
   
   // The privilege to view the Resources.
   if (checkbox == "viewresources") {
-    Database_Privileges::setFeature (user, PRIVILEGE_VIEW_RESOURCES, checked);
+    DatabasePrivileges::set_feature (user, PRIVILEGE_VIEW_RESOURCES, checked);
     privileges_updated = true;
   }
-  state = Database_Privileges::getFeature (user, PRIVILEGE_VIEW_RESOURCES);
+  state = DatabasePrivileges::get_feature (user, PRIVILEGE_VIEW_RESOURCES);
   if (level >= access_logic::view_resources_role () && defusers.find (user) == defusers.end ()) {
     state = true;
-    view.set_variable ("viewresourcesdisabled", get_disabled (true));
+    view.set_variable ("viewresourcesdisabled", filter::strings::get_disabled (true));
   }
-  view.set_variable ("viewresourceschecked", get_checkbox_status (state));
+  view.set_variable ("viewresourceschecked", filter::strings::get_checkbox_status (state));
 
   
   // Privilege to view the Consultation Notes.
   if (checkbox == "viewnotes") {
-    Database_Privileges::setFeature (user, PRIVILEGE_VIEW_NOTES, checked);
+    DatabasePrivileges::set_feature (user, PRIVILEGE_VIEW_NOTES, checked);
     privileges_updated = true;
   }
-  state = Database_Privileges::getFeature (user, PRIVILEGE_VIEW_NOTES);
+  state = DatabasePrivileges::get_feature (user, PRIVILEGE_VIEW_NOTES);
   if (level >= access_logic::view_resources_role () && defusers.find (user) == defusers.end ()) {
-    view.set_variable ("viewnotesdisabled", get_disabled (true));
+    view.set_variable ("viewnotesdisabled", filter::strings::get_disabled (true));
   }
   state = access_logic::privilege_view_notes (webserver_request, user);
-  view.set_variable ("viewnoteschecked", get_checkbox_status (state));
+  view.set_variable ("viewnoteschecked", filter::strings::get_checkbox_status (state));
   
   
   // Privilege to create and comment on Consultation Notes.
   if (checkbox == "createcommentnotes") {
-    Database_Privileges::setFeature (user, PRIVILEGE_CREATE_COMMENT_NOTES, checked);
+    DatabasePrivileges::set_feature (user, PRIVILEGE_CREATE_COMMENT_NOTES, checked);
     privileges_updated = true;
   }
-  state = Database_Privileges::getFeature (user, PRIVILEGE_CREATE_COMMENT_NOTES);
+  state = DatabasePrivileges::get_feature (user, PRIVILEGE_CREATE_COMMENT_NOTES);
   if (level >= access_logic::view_resources_role () && defusers.find (user) == defusers.end ()) {
-    view.set_variable ("createcommentnotesdisabled", get_disabled (true));
+    view.set_variable ("createcommentnotesdisabled", filter::strings::get_disabled (true));
   }
   state = access_logic::privilege_create_comment_notes (webserver_request, user);
-  view.set_variable ("createcommentnoteschecked", get_checkbox_status (state));
+  view.set_variable ("createcommentnoteschecked", filter::strings::get_checkbox_status (state));
 
   
   // Privilege to delete Consultation Notes.
   if (checkbox == "deletenotes") {
     request->database_config_user ()->setPrivilegeDeleteConsultationNotesForUser (user, checked);
   }
-  state = Database_Privileges::getFeature (user, PRIVILEGE_CREATE_COMMENT_NOTES);
+  state = DatabasePrivileges::get_feature (user, PRIVILEGE_CREATE_COMMENT_NOTES);
   if (level >= access_logic::delete_consultation_notes_role () && defusers.find (user) == defusers.end ()) {
-    view.set_variable ("deletenotesdisabled", get_disabled (true));
+    view.set_variable ("deletenotesdisabled", filter::strings::get_disabled (true));
   }
   state = access_logic::privilege_delete_consultation_notes (webserver_request, user);
-  view.set_variable ("deletenoteschecked", get_checkbox_status (state));
+  view.set_variable ("deletenoteschecked", filter::strings::get_checkbox_status (state));
 
   
   // Privilege to use advanced mode.
@@ -133,10 +133,10 @@ string manage_privileges (void * webserver_request)
     request->database_config_user ()->setPrivilegeUseAdvancedModeForUser (user, checked);
   }
   if (level >= access_logic::use_advanced_mode_role () && defusers.find (user) == defusers.end ()) {
-    view.set_variable ("useadvancedmodedisabled", get_disabled (true));
+    view.set_variable ("useadvancedmodedisabled", filter::strings::get_disabled (true));
   }
   state = access_logic::privilege_use_advanced_mode (webserver_request, user);
-  view.set_variable ("useadvancedmodechecked", get_checkbox_status (state));
+  view.set_variable ("useadvancedmodechecked", filter::strings::get_checkbox_status (state));
 
   
   // Privilege to be able to edit and set stylesheets.
@@ -144,16 +144,16 @@ string manage_privileges (void * webserver_request)
     request->database_config_user ()->setPrivilegeSetStylesheetsForUser (user, checked);
   }
   if (level >= access_logic::set_stylesheets_role () && defusers.find (user) == defusers.end ()) {
-    view.set_variable ("editstylesheetsdisabled", get_disabled (true));
+    view.set_variable ("editstylesheetsdisabled", filter::strings::get_disabled (true));
   }
   state = access_logic::privilege_set_stylesheets (webserver_request, user);
-  view.set_variable ("editstylesheetschecked", get_checkbox_status (state));
+  view.set_variable ("editstylesheetschecked", filter::strings::get_checkbox_status (state));
 
   
   if (privileges_updated) database_privileges_client_create (user, true);
 
   
-  if (privileges_updated) return get_reload ();
+  if (privileges_updated) return filter::strings::get_reload ();
 
 
   page += view.render ("manage", "privileges");

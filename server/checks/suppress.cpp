@@ -58,7 +58,7 @@ string checks_suppress (void * webserver_request)
   
   
   if (request->query.count ("release")) {
-    int release = convert_to_int (request->query["release"]);
+    int release = filter::strings::convert_to_int (request->query["release"]);
     database_check.release (release);
     view.set_variable ("success", translate ("The check result is no longer suppressed."));
   }
@@ -83,13 +83,13 @@ string checks_suppress (void * webserver_request)
     // Only display entries for Bibles the user has write access to.
     if (in_array (bible, bibles)) {
       int id = suppression.rowid;
-      bible = escape_special_xml_characters (bible);
-      string passage = filter_passage_display_inline ({Passage ("", suppression.book, suppression.chapter, convert_to_string (suppression.verse))});
-      string result = escape_special_xml_characters (suppression.data);
+      bible = filter::strings::escape_special_xml_characters (bible);
+      string passage = filter_passage_display_inline ({Passage ("", suppression.book, suppression.chapter, filter::strings::convert_to_string (suppression.verse))});
+      string result = filter::strings::escape_special_xml_characters (suppression.data);
       result.insert (0, bible + " " + passage + " ");
       block.append (R"(<p style="color:grey;">)");
-      block.append (R"(<a href="suppress?release=)" + convert_to_string (id) + R"(">)");
-      block.append (emoji_wastebasket ());
+      block.append (R"(<a href="suppress?release=)" + filter::strings::convert_to_string (id) + R"(">)");
+      block.append (filter::strings::emoji_wastebasket ());
       block.append ("</a>");
       block.append (result);
       block.append ("</p>\n");

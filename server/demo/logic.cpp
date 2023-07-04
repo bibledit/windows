@@ -23,7 +23,6 @@
 #include <filter/usfm.h>
 #include <filter/url.h>
 #include <filter/string.h>
-#include <filter/indonesian.h>
 #include <database/config/general.h>
 #include <database/config/bible.h>
 #include <database/logs.h>
@@ -247,7 +246,7 @@ void demo_create_sample_bible ()
     size_t pos = file.find(demo_sample_bible_name());
     if (pos == string::npos) {
       string filename = "Sample";
-      file = filter_string_str_replace(filename, demo_sample_bible_name(), file);
+      file = filter::strings::replace(filename, demo_sample_bible_name(), file);
     }
     // Proceed with the path.
     file = filter_url_create_root_path ({file});
@@ -282,7 +281,7 @@ void demo_prepare_sample_bible ()
       // Read the USFM and clean it up.
       file = filter_url_create_path ({directory, file});
       string usfm = filter_url_file_get_contents (file);
-      usfm = filter_string_collapse_whitespace (usfm);
+      usfm = filter::strings::collapse_whitespace (usfm);
       // Import the USFM into the sample Bible.
       vector <filter::usfm::BookChapterData> book_chapter_data = filter::usfm::usfm_import (usfm, styles_logic_standard_sheet ());
       for (const auto & data : book_chapter_data) {
@@ -339,7 +338,7 @@ void demo_create_sample_notes (void * webserver_request)
   vector <int> identifiers = database_notes.get_identifiers ();
   if (identifiers.size () < 10) {
     for (int i = 1; i <= 10; i++) {
-      database_notes.store_new_note (demo_sample_bible_name (), i, i, i, "Sample Note " + convert_to_string (i), "Sample Contents for note " + convert_to_string (i), false);
+      database_notes.store_new_note (demo_sample_bible_name (), i, i, i, "Sample Note " + filter::strings::convert_to_string (i), "Sample Contents for note " + filter::strings::convert_to_string (i), false);
     }
   }
 }

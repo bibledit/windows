@@ -48,7 +48,7 @@ bool http_parse_header (string header, void * webserver_request)
   Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   
   // Clean the header line.
-  header = filter_string_trim (header);
+  header = filter::strings::trim (header);
 
   // Deal with a header like this: GET /css/stylesheet.css?1.0.1 HTTP/1.1
   // Or like this: POST /session/login?request= HTTP/1.1
@@ -60,7 +60,7 @@ bool http_parse_header (string header, void * webserver_request)
   }
   if (is_get_request) {
     string query_data;
-    vector <string> get = filter_string_explode (header, ' ');
+    vector <string> get = filter::strings::explode (header, ' ');
     if (get.size () >= 2) {
       request->get = get [1];
       // The GET or POST value may be, for example: stylesheet.css?1.0.1.
@@ -118,7 +118,7 @@ bool http_parse_header (string header, void * webserver_request)
 
   // Extract the Content-Length from a header.
   if (header.substr (0, 14) == "Content-Length") {
-    request->content_length = convert_to_int (header.substr (16));
+    request->content_length = filter::strings::convert_to_int (header.substr (16));
   }
   
   // Extract the ETag from a header.
@@ -169,13 +169,13 @@ void http_parse_post (string content, void * webserver_request)
       // Special case: Extract the filename in case of a file upload.
       if (content.length () > 1000) content.resize (1000);
       if (content.find ("filename=") != string::npos) {
-        vector <string> lines = filter_string_explode (content, '\n');
+        vector <string> lines = filter::strings::explode (content, '\n');
         for (auto & line : lines) {
           if (line.find ("Content-Disposition") == string::npos) continue;
           size_t pos = line.find ("filename=");
           if (pos == string::npos) continue;
           line = line.substr (pos + 10);
-          line = filter_string_trim (line);
+          line = filter::strings::trim (line);
           line.pop_back ();
           request->post ["filename"] = line;
         }
@@ -212,7 +212,7 @@ void http_assemble_response (void * webserver_request)
   
   // Assemble the Content-Type.
   string extension = filter_url_get_extension (request->get);
-  extension = unicode_string_casefold (extension);
+  extension = filter::strings::unicode_string_casefold (extension);
   string content_type = filter_url_get_mime_type (extension);
   if (extension == "usfm") content_type = "text/plain";
   if (extension.empty()) content_type = "text/html";
@@ -265,7 +265,7 @@ void http_assemble_response (void * webserver_request)
     // This provides extra security.
 
     string identifier = request->session_identifier;
-    if (identifier.empty ()) identifier = get_new_random_string ();
+    if (identifier.empty ()) identifier = filter::strings::get_new_random_string ();
     string cookie = "Session=" + identifier + "; Path=/; Max-Age=2678400; HttpOnly";
     response.push_back ("Set-Cookie: " + cookie);
   }
@@ -311,7 +311,7 @@ void http_stream_file (void * webserver_request, bool enable_cache)
   // File size for browser caching.
   if (enable_cache) {
     int size = filter_url_filesize (filename);
-    request->etag = "\"" + convert_to_string (size) + "\"";
+    request->etag = "\"" + filter::strings::convert_to_string (size) + "\"";
   }
   
   // Deal with situation that the file in the browser's cache is up to date.

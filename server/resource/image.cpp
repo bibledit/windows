@@ -82,7 +82,7 @@ string resource_image (void * webserver_request)
       bool background_import = false;
       if (filter_archive_is_archive (file)) background_import = true;
       string extension = filter_url_get_extension (file);
-      extension = unicode_string_casefold (extension);
+      extension = filter::strings::unicode_string_casefold (extension);
       if (extension == "pdf") background_import = true;
       if (background_import) {
         tasks_logic_queue (IMPORTIMAGES, { name, file });
@@ -141,7 +141,7 @@ string resource_image (void * webserver_request)
     // From passage ...
     imageblock.append ("<td>");
     if (book1) {
-      imageblock.append (filter_passage_display (book1, chapter1, convert_to_string (verse1)));
+      imageblock.append (filter_passage_display (book1, chapter1, filter::strings::convert_to_string (verse1)));
     }
     imageblock.append ("</td>");
 
@@ -150,7 +150,7 @@ string resource_image (void * webserver_request)
     // ... to passage.
     imageblock.append ("<td>");
     if (book2) {
-      imageblock.append (filter_passage_display (book2, chapter2, convert_to_string (verse2)));
+      imageblock.append (filter_passage_display (book2, chapter2, filter::strings::convert_to_string (verse2)));
     }
     imageblock.append ("</td>");
     

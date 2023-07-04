@@ -82,17 +82,17 @@ string manage_users (void * webserver_request)
 
   // Set the default new user role.
   if (request->post.count ("defaultacl")) {
-    int defaultacl = convert_to_int (request->post ["defaultacl"]);
+    int defaultacl = filter::strings::convert_to_int (request->post ["defaultacl"]);
     Database_Config_General::setDefaultNewUserAccessLevel(defaultacl);
     assets_page::success (translate("The default new user is changed."));
   }
 
 
   // Set the chosen default new user role on the option HTML tag.
-  string default_acl = convert_to_string (Database_Config_General::getDefaultNewUserAccessLevel ());
+  string default_acl = filter::strings::convert_to_string (Database_Config_General::getDefaultNewUserAccessLevel ());
   string default_acl_html;
-  default_acl_html = Options_To_Select::add_selection ("Guest", convert_to_string(Filter_Roles::guest()), default_acl_html);
-  default_acl_html = Options_To_Select::add_selection ("Member", convert_to_string(Filter_Roles::member()), default_acl_html);
+  default_acl_html = Options_To_Select::add_selection ("Guest", filter::strings::convert_to_string(Filter_Roles::guest()), default_acl_html);
+  default_acl_html = Options_To_Select::add_selection ("Member", filter::strings::convert_to_string(Filter_Roles::member()), default_acl_html);
   view.set_variable ("defaultacloptags", Options_To_Select::mark_selected (default_acl, default_acl_html));
   view.set_variable ("defaultacl", default_acl);
   
@@ -115,14 +115,23 @@ string manage_users (void * webserver_request)
       request->database_users ()->add_user(user, user, role, "");
 
       // Set default privileges on new created user.
-      vector <string> defusers = {"defaultguest", "defaultmember", "defaulttranslator", "defaultconsultant", "defaultmanager"};
+      set <string> defusers = access_logic::default_privilege_usernames ();
       vector <int> privileges = {PRIVILEGE_VIEW_RESOURCES, PRIVILEGE_VIEW_NOTES, PRIVILEGE_CREATE_COMMENT_NOTES};
-      // Subtract one as guest is identified by 0 instead of 1 in the vector.
-      string default_username = defusers[(unsigned)(long)(unsigned)role - 1];
+      auto default_username = next(defusers.begin(), (unsigned)(long)(unsigned)role + 1);
       for (auto & privilege : privileges) {
-        bool state = Database_Privileges::getFeature (default_username, privilege);
-        Database_Privileges::setFeature (user, privilege, state);
+        bool state = DatabasePrivileges::get_feature (*default_username, privilege);
+        DatabasePrivileges::set_feature (user, privilege, state);
       }
+
+      bool deletenotes = request->database_config_user ()->getPrivilegeDeleteConsultationNotesForUser (*default_username);
+      bool useadvancedmode = request->database_config_user ()->getPrivilegeUseAdvancedModeForUser (*default_username);
+      bool editstylesheets = request->database_config_user ()->getPrivilegeSetStylesheetsForUser (*default_username);
+
+      if (deletenotes) request->database_config_user ()->setPrivilegeDeleteConsultationNotesForUser (user, 1);
+      if (useadvancedmode) request->database_config_user ()->setPrivilegeUseAdvancedModeForUser (user, 1);
+      if (editstylesheets) request->database_config_user ()->setPrivilegeSetStylesheetsForUser (user, 1);
+
+      page += assets_page::error (*default_username);
 
       user_logic_store_account_creation (user);
       user_updated = true;
@@ -165,13 +174,13 @@ string manage_users (void * webserver_request)
       dialog_list.add_query ("user", objectUsername);
       for (int i = Filter_Roles::lowest (); i <= Filter_Roles::highest (); i++) {
         if (i <= myLevel) {
-          dialog_list.add_row (Filter_Roles::text (i), "level", convert_to_string (i));
+          dialog_list.add_row (Filter_Roles::text (i), "level", filter::strings::convert_to_string (i));
         }
       }
       page += dialog_list.run ();
       return page;
     } else {
-      request->database_users ()->set_level (objectUsername, convert_to_int (level));
+      request->database_users ()->set_level (objectUsername, filter::strings::convert_to_int (level));
       user_updated = true;
     }
   }
@@ -220,7 +229,7 @@ string manage_users (void * webserver_request)
       assets_page::success (translate("The user has been granted access to this Bible"));
       // Write access depends on whether it's a translator role or higher.
       bool write = (objectUserLevel >= Filter_Roles::translator ());
-      Database_Privileges::setBible (objectUsername, addbible, write);
+      DatabasePrivileges::set_bible (objectUsername, addbible, write);
       user_updated = true;
       privileges_updated = true;
     }
@@ -230,7 +239,7 @@ string manage_users (void * webserver_request)
   // Remove Bible from user.
   if (request->query.count ("removebible")) {
     string removebible = request->query ["removebible"];
-    Database_Privileges::removeBibleBook (objectUsername, removebible, 0);
+    DatabasePrivileges::remove_bible_book (objectUsername, removebible, 0);
     user_updated = true;
     privileges_updated = true;
     assets_page::success (translate("The user no longer has access to this Bible"));
@@ -279,7 +288,7 @@ string manage_users (void * webserver_request)
     
     // Display emoji to delete this account.
     tbody << "<td>";
-    tbody << "<a href=" << quoted("?user=" + username + "&delete") << ">" << emoji_wastebasket () << "</a> " << username;
+    tbody << "<a href=" << quoted("?user=" + username + "&delete") << ">" << filter::strings::emoji_wastebasket () << "</a> " << username;
     tbody << "</td>";
 
     // Divider.
@@ -317,17 +326,17 @@ string manage_users (void * webserver_request)
     if (enabled) {
       if (objectUserLevel < Filter_Roles::manager ()) {
         for (auto & bible : allbibles) {
-          bool exists = Database_Privileges::getBibleBookExists (username, bible, 0);
+          bool exists = DatabasePrivileges::get_bible_book_exists (username, bible, 0);
           if (exists) {
-            auto [ read, write ] = Database_Privileges::getBible (username, bible);
+            auto [ read, write ] = DatabasePrivileges::get_bible (username, bible);
             if  (objectUserLevel >= Filter_Roles::translator ()) write = true;
-            tbody << "<a href=" << quoted ("?user=" + username + "&removebible=" + bible) << ">" << emoji_wastebasket () << "</a>";
+            tbody << "<a href=" << quoted ("?user=" + username + "&removebible=" + bible) << ">" << filter::strings::emoji_wastebasket () << "</a>";
             tbody << "<a href=" << quoted("/bible/settings?bible=" + bible) << ">" << bible << "</a>";
             tbody << "<a href=" << quoted("write?user=" + username + "&bible=" + bible) << ">";
             int readwritebooks = 0;
             vector <int> books = request->database_bibles ()->getBooks (bible);
             for (auto book : books) {
-              Database_Privileges::getBibleBook (username, bible, book, read, write);
+              DatabasePrivileges::get_bible_book (username, bible, book, read, write);
               if (write) readwritebooks++;
             }
             tbody << "(" << readwritebooks << "/" << books.size () << ")";
@@ -340,7 +349,7 @@ string manage_users (void * webserver_request)
         // Managers and higher roles have access to all Bibles.
         tbody << "(" << translate ("all") << ")";
       } else {
-        tbody << "<a href=" << quoted("?user=" + username + "&addbible=") << ">" << emoji_heavy_plus_sign () << "</a>";
+        tbody << "<a href=" << quoted("?user=" + username + "&addbible=") << ">" << filter::strings::emoji_heavy_plus_sign () << "</a>";
       }
     }
     tbody << "</td>";

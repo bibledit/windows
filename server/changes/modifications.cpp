@@ -81,7 +81,7 @@ void changes_process_identifiers (Webserver_Request * request,
     vector <int> new_verse_numbers = filter::usfm::get_verse_numbers (new_chapter_usfm);
     vector <int> verses = old_verse_numbers;
     verses.insert (verses.end (), new_verse_numbers.begin (), new_verse_numbers.end ());
-    verses = array_unique (verses);
+    verses = filter::strings::array_unique (verses);
     sort (verses.begin(), verses.end());
     for (auto verse : verses) {
       string old_verse_usfm = filter::usfm::get_verse_text (old_chapter_usfm, verse);
@@ -89,8 +89,8 @@ void changes_process_identifiers (Webserver_Request * request,
       if (old_verse_usfm != new_verse_usfm) {
         Filter_Text filter_text_old = Filter_Text (bible);
         Filter_Text filter_text_new = Filter_Text (bible);
-        filter_text_old.html_text_standard = new Html_Text (translate("Bible"));
-        filter_text_new.html_text_standard = new Html_Text (translate("Bible"));
+        filter_text_old.html_text_standard = new HtmlText (translate("Bible"));
+        filter_text_new.html_text_standard = new HtmlText (translate("Bible"));
         filter_text_old.text_text = new Text_Text ();
         filter_text_new.text_text = new Text_Text ();
         filter_text_old.add_usfm_code (old_verse_usfm);
@@ -104,7 +104,7 @@ void changes_process_identifiers (Webserver_Request * request,
         if (old_text != new_text) {
           string modification = filter_diff_diff (old_text, new_text);
           email += "<div>";
-          email += filter_passage_display (book, chapter, convert_to_string (verse));
+          email += filter_passage_display (book, chapter, filter::strings::convert_to_string (verse));
           email += " ";
           email += modification;
           email += "</div>";
@@ -312,17 +312,17 @@ void changes_modifications ()
     // The files get stored at http://site.org:<port>/revisions/<Bible>/<date>
     int seconds = filter::date::seconds_since_epoch ();
     string timepath;
-    timepath.append (convert_to_string (filter::date::numerical_year (seconds)));
+    timepath.append (filter::strings::convert_to_string (filter::date::numerical_year (seconds)));
     timepath.append ("-");
-    timepath.append (filter_string_fill (convert_to_string (filter::date::numerical_month (seconds)), 2, '0'));
+    timepath.append (filter::strings::fill (filter::strings::convert_to_string (filter::date::numerical_month (seconds)), 2, '0'));
     timepath.append ("-");
-    timepath.append (filter_string_fill (convert_to_string (filter::date::numerical_month_day (seconds)), 2, '0'));
+    timepath.append (filter::strings::fill (filter::strings::convert_to_string (filter::date::numerical_month_day (seconds)), 2, '0'));
     timepath.append (" ");
-    timepath.append (filter_string_fill (convert_to_string (filter::date::numerical_hour (seconds)), 2, '0'));
+    timepath.append (filter::strings::fill (filter::strings::convert_to_string (filter::date::numerical_hour (seconds)), 2, '0'));
     timepath.append (":");
-    timepath.append (filter_string_fill (convert_to_string (filter::date::numerical_minute (seconds)), 2, '0'));
+    timepath.append (filter::strings::fill (filter::strings::convert_to_string (filter::date::numerical_minute (seconds)), 2, '0'));
     timepath.append (":");
-    timepath.append (filter_string_fill (convert_to_string (filter::date::numerical_second (seconds)), 2, '0'));
+    timepath.append (filter::strings::fill (filter::strings::convert_to_string (filter::date::numerical_second (seconds)), 2, '0'));
     string directory = filter_url_create_root_path ({"revisions", bible, timepath});
     filter_url_mkdir (directory);
     
@@ -352,7 +352,7 @@ void changes_modifications ()
         vector <int> new_verse_numbers = filter::usfm::get_verse_numbers (new_chapter_usfm);
         vector <int> verses = old_verse_numbers;
         verses.insert (verses.end (), new_verse_numbers.begin (), new_verse_numbers.end ());
-        verses = array_unique (verses);
+        verses = filter::strings::array_unique (verses);
         sort (verses.begin (), verses.end());
         for (auto verse : verses) {
           string old_verse_usfm = filter::usfm::get_verse_text (old_chapter_usfm, verse);
@@ -367,8 +367,8 @@ void changes_modifications ()
             if (processedChangesCount < 800) {
               Filter_Text filter_text_old = Filter_Text (bible);
               Filter_Text filter_text_new = Filter_Text (bible);
-              filter_text_old.html_text_standard = new Html_Text ("");
-              filter_text_new.html_text_standard = new Html_Text ("");
+              filter_text_old.html_text_standard = new HtmlText ("");
+              filter_text_new.html_text_standard = new HtmlText ("");
               filter_text_old.text_text = new Text_Text ();
               filter_text_new.text_text = new Text_Text ();
               filter_text_old.add_usfm_code (old_verse_usfm);
@@ -382,7 +382,7 @@ void changes_modifications ()
             }
             string modification = filter_diff_diff (old_text, new_text);
             database_modifications.recordNotification (changeNotificationUsers, changes_bible_category (), bible, book, chapter, verse, old_html, modification, new_html);
-            string passage = filter_passage_display (book, chapter, convert_to_string (verse))   + ": ";
+            string passage = filter_passage_display (book, chapter, filter::strings::convert_to_string (verse))   + ": ";
             if (old_text != new_text) {
               email_changes.push_back (passage  + modification);
             } else {
@@ -427,7 +427,7 @@ void changes_modifications ()
       for (size_t b = 0; b < bodies.size (); b++) {
         string subject = translate("Recent changes:") + " " + bible;
         if (bodies.size () > 1) {
-          subject.append (" (" + convert_to_string (b + 1) + "/" + convert_to_string (bodies.size ()) + ")");
+          subject.append (" (" + filter::strings::convert_to_string (b + 1) + "/" + filter::strings::convert_to_string (bodies.size ()) + ")");
         }
         vector <string> all_users_2 = request.database_users ()->get_users ();
         for (auto & user : all_users_2) {

@@ -70,21 +70,21 @@ string resource_user1edit (void * webserver_request)
 
   if (request->post.count ("submit")) {
     string data = request->post["data"];
-    vector <string> lines = filter_string_explode (data, '\n');
+    vector <string> lines = filter::strings::explode (data, '\n');
     int count = 0;
     int bookcount = 0;
     for (auto line : lines) {
-      line = filter_string_trim (line);
+      line = filter::strings::trim (line);
       if (line.empty ()) continue;
       if (count == 0) {
         Database_UserResources::url (name, line);
       } else {
-        vector <string> bits = filter_string_explode (line, '=');
+        vector <string> bits = filter::strings::explode (line, '=');
         if (bits.size () == 2) {
-          string english = filter_string_trim (bits [0]);
+          string english = filter::strings::trim (bits [0]);
           book_id id = database::books::get_id_from_english (english);
           if (id != book_id::_unknown) {
-            string fragment = filter_string_trim (bits [1]);
+            string fragment = filter::strings::trim (bits [1]);
             Database_UserResources::book (name, static_cast<int>(id), fragment);
             bookcount++;
           } else {
@@ -95,7 +95,7 @@ string resource_user1edit (void * webserver_request)
       }
       count++;
     }
-    success = translate ("Number of defined books:") + " " + convert_to_string (bookcount);
+    success = translate ("Number of defined books:") + " " + filter::strings::convert_to_string (bookcount);
   }
   
   
@@ -110,7 +110,7 @@ string resource_user1edit (void * webserver_request)
       lines.push_back (english + " = " + book);
     }
   }
-  view.set_variable ("data", filter_string_implode (lines, "\n"));
+  view.set_variable ("data", filter::strings::implode (lines, "\n"));
   
 
   view.set_variable ("success", success);

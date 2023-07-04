@@ -69,7 +69,7 @@ string search_replacego (void * webserver_request)
   string bible = passage.m_bible;
   int book = passage.m_book;
   int chapter = passage.m_chapter;
-  int verse = convert_to_int (passage.m_verse);
+  int verse = filter::strings::convert_to_int (passage.m_verse);
   
   
   // Check whether the user has write access to the book.
@@ -90,11 +90,11 @@ string search_replacego (void * webserver_request)
   int plain_replacement_count = 0;
   string standardPlainText = search_logic_plain_replace_verse_text (old_verse_usfm);
   if (casesensitive) {
-    standardPlainText = filter_string_str_replace (searchfor, replacewith, standardPlainText, &plain_replacement_count);
+    standardPlainText = filter::strings::replace (searchfor, replacewith, standardPlainText, &plain_replacement_count);
   } else {
-    vector <string> needles = filter_string_search_needles (searchfor, standardPlainText);
+    vector <string> needles = filter::strings::search_needles (searchfor, standardPlainText);
     for (auto & needle : needles) {
-      standardPlainText = filter_string_str_replace (needle, replacewith, standardPlainText, &plain_replacement_count);
+      standardPlainText = filter::strings::replace (needle, replacewith, standardPlainText, &plain_replacement_count);
     }
   }
   
@@ -103,11 +103,11 @@ string search_replacego (void * webserver_request)
   int usfm_replacement_count = 0;
   string new_verse_usfm (old_verse_usfm);
   if (casesensitive) {
-    new_verse_usfm = filter_string_str_replace (searchfor, replacewith, new_verse_usfm, &usfm_replacement_count);
+    new_verse_usfm = filter::strings::replace (searchfor, replacewith, new_verse_usfm, &usfm_replacement_count);
   } else {
-    vector <string> needles = filter_string_search_needles (searchfor, old_verse_usfm);
+    vector <string> needles = filter::strings::search_needles (searchfor, old_verse_usfm);
     for (auto & needle : needles) {
-      new_verse_usfm = filter_string_str_replace (needle, replacewith, new_verse_usfm, &usfm_replacement_count);
+      new_verse_usfm = filter::strings::replace (needle, replacewith, new_verse_usfm, &usfm_replacement_count);
     }
   }
   
@@ -129,7 +129,7 @@ string search_replacego (void * webserver_request)
   // Check that the standard and real number of replacements, and the standard and new texts, are the same.
   bool replacementOkay = true;
   if (plain_replacement_count != usfm_replacement_count) replacementOkay = false;
-  if (filter_string_trim (updatedPlainText) != filter_string_trim (standardPlainText)) replacementOkay = false;
+  if (filter::strings::trim (updatedPlainText) != filter::strings::trim (standardPlainText)) replacementOkay = false;
 
   
   // Generate success or failure icon.
@@ -137,7 +137,7 @@ string search_replacego (void * webserver_request)
   if (replacementOkay && write) {
     icon = "<span class=\"success\">✔</span>";
   } else {
-    icon = "<span class=\"error\">" + emoji_wastebasket () + "</span>";
+    icon = "<span class=\"error\">" + filter::strings::emoji_wastebasket () + "</span>";
   }
   
   
@@ -148,11 +148,11 @@ string search_replacego (void * webserver_request)
   
   
   // Mark the new plain text.
-  if (replacewith != "") updatedPlainText = filter_string_markup_words ({replacewith}, updatedPlainText);
+  if (replacewith != "") updatedPlainText = filter::strings::markup_words ({replacewith}, updatedPlainText);
   
   
   // Clickable passage.
-  string link = filter_passage_link_for_opening_editor_at (book, chapter, convert_to_string (verse));
+  string link = filter_passage_link_for_opening_editor_at (book, chapter, filter::strings::convert_to_string (verse));
   
   
   // Success or failure message.

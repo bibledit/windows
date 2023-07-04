@@ -74,17 +74,17 @@ string search_replace (void * webserver_request)
     string verse = passage.m_verse;
     
     // Get the plain text.
-    string text = search_logic_get_bible_verse_text (bible2, book, chapter, convert_to_int (verse));
+    string text = search_logic_get_bible_verse_text (bible2, book, chapter, filter::strings::convert_to_int (verse));
     
     // Format it.
     string link = filter_passage_link_for_opening_editor_at (book, chapter, verse);
     string oldtext = text;
-    string newtext = filter_string_str_replace (searchfor, replacewith, text);
-    if (replacewith != "") newtext = filter_string_markup_words ({replacewith}, newtext);
+    string newtext = filter::strings::replace (searchfor, replacewith, text);
+    if (replacewith != "") newtext = filter::strings::markup_words ({replacewith}, newtext);
     
     string output =
-    "<div id=\"" + convert_to_string (id) + "\">\n"
-    "<p><a href=\"replace\"> ✔ </a> <a href=\"delete\">" + emoji_wastebasket () + "</a> $link</p>\n"
+    "<div id=\"" + filter::strings::convert_to_string (id) + "\">\n"
+    "<p><a href=\"replace\"> ✔ </a> <a href=\"delete\">" + filter::strings::emoji_wastebasket () + "</a> $link</p>\n"
     "<p>" + oldtext + "</p>\n"
     "<p>" + newtext + "</p>\n"
     "</div>\n";
@@ -118,8 +118,9 @@ string search_replace (void * webserver_request)
   }
   view.set_variable ("bible", bible);
   
-  string script = "var searchBible = \"" + bible + "\";";
-  view.set_variable ("script", script);
+  stringstream script {};
+  script << "var searchBible = " << quoted(bible) << ";";
+  view.set_variable ("script", script.str());
   
   page += view.render ("search", "replace");
   

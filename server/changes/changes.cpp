@@ -71,17 +71,17 @@ string changes_changes (void * webserver_request)
   
   // Handle AJAX call to load the summary of a change notification.
   if (request->query.count ("load")) {
-    const int identifier = convert_to_int (request->query["load"]);
+    const int identifier = filter::strings::convert_to_int (request->query["load"]);
     stringstream block {};
     const Passage passage = database_modifications.getNotificationPassage (identifier);
     const string link = filter_passage_link_for_opening_editor_at (passage.m_book, passage.m_chapter, passage.m_verse);
     string category = database_modifications.getNotificationCategory (identifier);
-    if (category == changes_personal_category ()) category = emoji_smiling_face_with_smiling_eyes ();
-    if (category == changes_bible_category ()) category = emoji_open_book ();
+    if (category == changes_personal_category ()) category = filter::strings::emoji_smiling_face_with_smiling_eyes ();
+    if (category == changes_bible_category ()) category = filter::strings::emoji_open_book ();
     string modification = database_modifications.getNotificationModification (identifier);
-    block << "<div id=" << quoted("entry" + convert_to_string (identifier)) << + ">\n";
-    block << "<a href=" << quoted ("expand") << ">" << emoji_file_folder () << "</a>\n";
-    block << "<a href=" << quoted("remove") << ">" << emoji_wastebasket () << "</a>\n";
+    block << "<div id=" << quoted("entry" + filter::strings::convert_to_string (identifier)) << + ">\n";
+    block << "<a href=" << quoted ("expand") << ">" << filter::strings::emoji_file_folder () << "</a>\n";
+    block << "<a href=" << quoted("remove") << ">" << filter::strings::emoji_wastebasket () << "</a>\n";
     block << link << "\n";
     block << category << "\n";
     block << modification << "\n";
@@ -92,7 +92,7 @@ string changes_changes (void * webserver_request)
   
   // Handle AJAX call to remove a change notification.
   if (request->post.count ("remove")) {
-    const int remove = convert_to_int (request->post["remove"]);
+    const int remove = filter::strings::convert_to_int (request->post["remove"]);
     trash_change_notification (request, remove);
     database_modifications.deleteNotification (remove);
 #ifdef HAVE_CLIENT
@@ -106,11 +106,11 @@ string changes_changes (void * webserver_request)
   // Handle AJAX call to navigate to the passage belonging to the change notification.
   if (request->post.count ("navigate")) {
     string navigate = request->post["navigate"];
-    const int id = convert_to_int (navigate);
+    const int id = filter::strings::convert_to_int (navigate);
     const Passage passage = database_modifications.getNotificationPassage (id);
     if (passage.m_book) {
-      Ipc_Focus::set (request, passage.m_book, passage.m_chapter, convert_to_int (passage.m_verse));
-      Navigation_Passage::record_history (request, passage.m_book, passage.m_chapter, convert_to_int (passage.m_verse));
+      Ipc_Focus::set (request, passage.m_book, passage.m_chapter, filter::strings::convert_to_int (passage.m_verse));
+      Navigation_Passage::record_history (request, passage.m_book, passage.m_chapter, filter::strings::convert_to_int (passage.m_verse));
     }
     // Set the correct default Bible for the user.
     const string bible = database_modifications.getNotificationBible (id);
@@ -215,14 +215,14 @@ string changes_changes (void * webserver_request)
   string pendingidentifiers {};
   for (auto id : notification_ids) {
     if (!pendingidentifiers.empty ()) pendingidentifiers.append (" ");
-    pendingidentifiers.append (convert_to_string (id));
+    pendingidentifiers.append (filter::strings::convert_to_string (id));
   }
   view.set_variable ("pendingidentifiers", pendingidentifiers);
   
   
   stringstream loading {};
-  loading << quoted(translate("Loading ..."));
-  string script = "var loading = " + loading.str() + ";";
+  loading << "var loading = " << quoted(translate("Loading ...")) << ";";
+  string script = loading.str();
   config::logic::swipe_enabled (webserver_request, script);
   view.set_variable ("script", script);
 
@@ -256,12 +256,12 @@ string changes_changes (void * webserver_request)
   vector <int> personal_ids = database_modifications.getNotificationTeamIdentifiers (username, changes_personal_category (), selectedbible);
   if (!personal_ids.empty ()) {
     view.enable_zone ("personal");
-    view.set_variable ("personalcount", convert_to_string (personal_ids.size ()));
+    view.set_variable ("personalcount", filter::strings::convert_to_string (personal_ids.size ()));
   }
   vector <int> bible_ids = database_modifications.getNotificationTeamIdentifiers (username, changes_bible_category (), selectedbible);
   if (!bible_ids.empty ()) {
     view.enable_zone ("bible");
-    view.set_variable ("teamcount", convert_to_string (bible_ids.size ()));
+    view.set_variable ("teamcount", filter::strings::convert_to_string (bible_ids.size ()));
   }
   
   
@@ -276,7 +276,7 @@ string changes_changes (void * webserver_request)
       view.add_iteration ("individual", {
         pair ("user", user),
         pair ("selectedbible", selectedbible),
-        pair ("count", convert_to_string(ids.size()))
+        pair ("count", filter::strings::convert_to_string(ids.size()))
       });
     }
   }
@@ -289,7 +289,7 @@ string changes_changes (void * webserver_request)
     vector <int> personal_ids2 = database_modifications.getNotificationTeamIdentifiers (username, user, selectedbible);
     string user_and_icon = translate ("user") + " " + category;
     if (category == changes_personal_category ()) {
-      user_and_icon = translate ("me") + " " + emoji_smiling_face_with_smiling_eyes ();
+      user_and_icon = translate ("me") + " " + filter::strings::emoji_smiling_face_with_smiling_eyes ();
     }
     if (!personal_ids2.empty () && !bible_ids.empty ()) {
       view.add_iteration ("matching", { pair ("user", user), pair ("icon", user_and_icon) } );

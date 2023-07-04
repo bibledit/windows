@@ -98,8 +98,8 @@ string edit_update (void * webserver_request)
   string unique_id;
   if (good2go) {
     bible = request->post["bible"];
-    book = convert_to_int (request->post["book"]);
-    chapter = convert_to_int (request->post["chapter"]);
+    book = filter::strings::convert_to_int (request->post["book"]);
+    chapter = filter::strings::convert_to_int (request->post["chapter"]);
     loaded_html = request->post["loaded"];
     edited_html = request->post["edited"];
     checksum1 = request->post["checksum1"];
@@ -128,13 +128,13 @@ string edit_update (void * webserver_request)
   // Decode html encoded in javascript, and clean it.
   loaded_html = filter_url_tag_to_plus (loaded_html);
   edited_html = filter_url_tag_to_plus (edited_html);
-  loaded_html = filter_string_trim (loaded_html);
-  edited_html = filter_string_trim (edited_html);
+  loaded_html = filter::strings::trim (loaded_html);
+  edited_html = filter::strings::trim (edited_html);
 
   
   // Check on valid UTF-8.
   if (good2go) {
-    if (!unicode_string_is_valid (loaded_html) || !unicode_string_is_valid (edited_html)) {
+    if (!filter::strings::unicode_string_is_valid (loaded_html) || !filter::strings::unicode_string_is_valid (edited_html)) {
       messages.push_back (translate ("Cannot update: Needs Unicode"));
       good2go = false;
     }
@@ -188,7 +188,7 @@ string edit_update (void * webserver_request)
     editor_export.run ();
     edited_chapter_usfm = editor_export.get ();
   }
-  string existing_chapter_usfm = filter_string_trim (old_chapter_usfm);
+  string existing_chapter_usfm = filter::strings::trim (old_chapter_usfm);
 
 
   // Check that the edited USFM contains no more than, and exactly the same as,
@@ -204,7 +204,7 @@ string edit_update (void * webserver_request)
     edited_chapter_usfm = book_chapter_text[0].m_data;
     bool chapter_ok = (((book_number == book) || (book_number == 0)) && (chapter_number == chapter));
     if (!chapter_ok) {
-      messages.push_back (translate("Incorrect chapter") + " " + convert_to_string (chapter_number));
+      messages.push_back (translate("Incorrect chapter") + " " + filter::strings::convert_to_string (chapter_number));
     }
   }
 
@@ -260,7 +260,7 @@ string edit_update (void * webserver_request)
   // If there's double spaces removed here,
   // then later in this code, the editor will load that text.
   if (good2go && bible_write_access && text_was_edited) {
-    edited_chapter_usfm = filter_string_collapse_whitespace(edited_chapter_usfm);
+    edited_chapter_usfm = filter::strings::collapse_whitespace(edited_chapter_usfm);
   }
   
   // Safely store the chapter.
@@ -312,12 +312,12 @@ string edit_update (void * webserver_request)
   // The response starts with the save message(s) if any.
   // The message(s) contain information about save success or failure.
   // Send it to the browser for display to the user.
-  response.append (filter_string_implode (messages, " | "));
+  response.append (filter::strings::implode (messages, " | "));
 
   
   // Add separator and the new chapter identifier to the response.
   response.append (separator);
-  response.append (convert_to_string (newID));
+  response.append (filter::strings::convert_to_string (newID));
 
   
   // The main purpose of the following block of code is this:
@@ -346,29 +346,29 @@ string edit_update (void * webserver_request)
     // Encode the condensed differences for the response to the Javascript editor.
     for (size_t i = 0; i < positions.size(); i++) {
       response.append ("#_be_#");
-      response.append (convert_to_string (positions[i]));
+      response.append (filter::strings::convert_to_string (positions[i]));
       response.append ("#_be_#");
       string operation = operators[i];
       response.append (operation);
       if (operation == bible_logic::insert_operator ()) {
         string text = content[i];
-        string character = unicode_string_substr (text, 0, 1);
+        string character = filter::strings::unicode_string_substr (text, 0, 1);
         response.append ("#_be_#");
         response.append (character);
-        size_t length = unicode_string_length (text);
-        string format = unicode_string_substr (text, 1, length - 1);
+        size_t length = filter::strings::unicode_string_length (text);
+        string format = filter::strings::unicode_string_substr (text, 1, length - 1);
         response.append ("#_be_#");
         response.append (format);
         // Also add the size of the character in UTF-16 format, 2-bytes or 4 bytes, as size 1 or 2.
         response.append ("#_be_#");
-        response.append (convert_to_string (sizes[i]));
+        response.append (filter::strings::convert_to_string (sizes[i]));
       }
       else if (operation == bible_logic::delete_operator ()) {
         // When deleting a UTF-16 character encoded in 4 bytes,
         // then the size in Quilljs is 2 instead of 1.
         // So always give the size when deleting a character.
         response.append ("#_be_#");
-        response.append (convert_to_string (sizes[i]));
+        response.append (filter::strings::convert_to_string (sizes[i]));
       }
       else if (operation == bible_logic::format_paragraph_operator ()) {
         response.append ("#_be_#");

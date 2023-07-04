@@ -79,12 +79,12 @@ void space_end_verse (const string & bible, int book, int chapter, const string 
     vector <string> items = filter::usfm::get_markers_and_text (text);
     for (const auto & item : items) {
       if (filter::usfm::is_usfm_marker (item)) {
-        text = filter_string_str_replace (item, "", text);
+        text = filter::strings::replace (item, "", text);
       }
     }
     bool hit {false};
     if (!text.empty ()) {
-      string trimmed = filter_string_trim (text);
+      string trimmed = filter::strings::trim (text);
       if (trimmed.empty ()) hit = true;
       char lastchar = text.back ();
       if (lastchar == ' ') hit = true;
@@ -110,7 +110,7 @@ bool transpose_note_space (string & usfm)
     };
     for (const auto & search_replace : data) {
       int count {0};
-      usfm = filter_string_str_replace (search_replace.first, search_replace.second, usfm, &count);
+      usfm = filter::strings::replace (search_replace.first, search_replace.second, usfm, &count);
       if (count) transposed = true;
     }
   }

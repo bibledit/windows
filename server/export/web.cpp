@@ -57,10 +57,10 @@ void export_web_book (string bible, int book, bool log)
   
   
   // Copy font to the output directory.
-  string font = Fonts_Logic::get_text_font (bible);
+  string font = fonts::logic::get_text_font (bible);
   if (!font.empty ()) {
-    if (Fonts_Logic::font_exists (font)) {
-      string fontpath = Fonts_Logic::get_font_path (font);
+    if (fonts::logic::font_exists (font)) {
+      string fontpath = fonts::logic::get_font_path (font);
       string contents = filter_url_file_get_contents (fontpath);
       fontpath = filter_url_create_path ({directory, font});
       filter_url_file_put_contents (fontpath, contents);
@@ -75,7 +75,7 @@ void export_web_book (string bible, int book, bool log)
   
   
   // Web index file for the book.
-  Html_Text html_text_rich_book_index (bibleBookText);
+  HtmlText html_text_rich_book_index (bibleBookText);
   Html_Header htmlHeader = Html_Header (&html_text_rich_book_index);
   htmlHeader.search_back_link (backLinkPath + filter_url_html_file_name_bible ("", book), translate("Go back to") + " " + bibleBookText);
   htmlHeader.create ({
@@ -99,32 +99,32 @@ void export_web_book (string bible, int book, bool log)
     // Get the USFM for the chapter.
     string usfm = database_bibles.getChapter (bible, book, chapter);
     // Trim it.
-    usfm = filter_string_trim (usfm);
+    usfm = filter::strings::trim (usfm);
     // Use small chunks of USFM at a time for much better performance.
     filter_text_chapter.add_usfm_code (usfm);
     
     // Interlinked web data for one chapter.
-    filter_text_chapter.html_text_linked = new Html_Text (translate("Bible"));
+    filter_text_chapter.html_text_linked = new HtmlText (translate("Bible"));
     filter_text_chapter.html_text_linked->custom_class = Filter_Css::getClass (bible);
     
     // Create breadcrumbs and navigator for the chapter.
     Html_Header html_header = Html_Header (filter_text_chapter.html_text_linked);
-    html_header.search_back_link (backLinkPath + filter_url_html_file_name_bible ("", book, chapter), translate("Go back to") + " " + bibleBookText + " " + convert_to_string (chapter));
+    html_header.search_back_link (backLinkPath + filter_url_html_file_name_bible ("", book, chapter), translate("Go back to") + " " + bibleBookText + " " + filter::strings::convert_to_string (chapter));
     vector <pair <string, string> > breadcrumbs_navigator;
     breadcrumbs_navigator.push_back (pair (bible, filter_url_html_file_name_bible ()));
     breadcrumbs_navigator.push_back (pair (translate (database::books::get_english_from_id (static_cast<book_id>(book))), filter_url_html_file_name_bible ()));
     if (!is_first_chapter) {
       breadcrumbs_navigator.push_back (pair ("«", filter_url_html_file_name_bible ("", book, chapter - 1)));
     }
-    breadcrumbs_navigator.push_back (pair (convert_to_string (chapter), filter_url_html_file_name_bible ("", book)));
+    breadcrumbs_navigator.push_back (pair (filter::strings::convert_to_string (chapter), filter_url_html_file_name_bible ("", book)));
     if (!is_last_chapter) {
       breadcrumbs_navigator.push_back (pair ("»", filter_url_html_file_name_bible ("", book, chapter + 1)));
     }
     // Optionally add a link for giving feedback by email.
     if (!feedback_email.empty ()) {
       breadcrumbs_navigator.push_back (pair ("|", ""));
-      string subject = translate ("Comment on") + " " + bible + " " + database::books::get_english_from_id (static_cast<book_id>(book)) + " " + convert_to_string (chapter);
-      subject = filter_string_str_replace (" ", "%20", subject);
+      string subject = translate ("Comment on") + " " + bible + " " + database::books::get_english_from_id (static_cast<book_id>(book)) + " " + filter::strings::convert_to_string (chapter);
+      subject = filter::strings::replace (" ", "%20", subject);
       string link = "mailto:" + feedback_email + "?Subject=" + subject;
       breadcrumbs_navigator.push_back (pair (translate ("Feedback"), link));
     }
@@ -134,7 +134,7 @@ void export_web_book (string bible, int book, bool log)
     filter_text_chapter.run (stylesheet);
     filter_text_chapter.html_text_linked->save (filter_url_html_file_name_bible (directory, book, chapter));
     
-    html_text_rich_book_index.add_link (html_text_rich_book_index.current_p_node, filter_url_html_file_name_bible ("", book, chapter), "", convert_to_string (chapter), "", " " + convert_to_string (chapter) + " ");
+    html_text_rich_book_index.add_link (html_text_rich_book_index.current_p_node, filter_url_html_file_name_bible ("", book, chapter), "", filter::strings::convert_to_string (chapter), "", " " + filter::strings::convert_to_string (chapter) + " ");
     html_text_rich_book_index.add_text ("|");
     
     // Save any images that were included.
@@ -186,7 +186,7 @@ void export_web_index (string bible, bool log)
   
   
   // Main index file.
-  Html_Text html_text_rich_bible_index (bible);
+  HtmlText html_text_rich_bible_index (bible);
   // On top are the breadcrumbs, starting with a clickable Bible name.
   Html_Header htmlHeader = Html_Header (&html_text_rich_bible_index);
   htmlHeader.search_back_link (backLinkPath + filter_url_html_file_name_bible (), translate("Go back to Bible"));

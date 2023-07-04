@@ -75,7 +75,7 @@ string resource_translated1edit (void * webserver_request)
 
   
   string checkbox = request->post ["checkbox"];
-  bool checked = convert_to_bool (request->post ["checked"]);
+  bool checked = filter::strings::convert_to_bool (request->post ["checked"]);
 
   
   bool resource_edited {false};
@@ -181,7 +181,7 @@ string resource_translated1edit (void * webserver_request)
     // Store the list of translated resources for download by the client devices.
     {
       string path = resource_logic_translated_resources_list_path ();
-      filter_url_file_put_contents (path, filter_string_implode (resources, "\n"));
+      filter_url_file_put_contents (path, filter::strings::implode (resources, "\n"));
     }
   }
   
@@ -192,7 +192,7 @@ string resource_translated1edit (void * webserver_request)
   view.set_variable ("original", original_resource);
   view.set_variable ("source", source_language);
   view.set_variable ("target", target_language);
-  view.set_variable ("cache", get_checkbox_status (cache));
+  view.set_variable ("cache", filter::strings::get_checkbox_status (cache));
   page += view.render ("resource", "translated1edit");
   page += assets_page::footer ();
   return page;

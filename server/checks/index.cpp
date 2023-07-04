@@ -63,14 +63,14 @@ string checks_index (void * webserver_request)
   
 
   if (request->query.count ("approve")) {
-    int approve = convert_to_int (request->query["approve"]);
+    int approve = filter::strings::convert_to_int (request->query["approve"]);
     database_check.approve (approve);
     view.set_variable ("success", translate("The entry was suppressed."));
   }
   
                         
   if (request->query.count ("delete")) {
-    int erase = convert_to_int (request->query["delete"]);
+    int erase = filter::strings::convert_to_int (request->query["delete"]);
     database_check.erase (erase);
     view.set_variable ("success", translate("The entry was deleted for just now."));
   }
@@ -94,15 +94,15 @@ string checks_index (void * webserver_request)
     string bible = hit.bible;
     if (find (bibles.begin(), bibles.end (), bible) != bibles.end ()) {
       int id = hit.rowid;
-      bible = escape_special_xml_characters (bible);
+      bible = filter::strings::escape_special_xml_characters (bible);
       int book = hit.book;
       int chapter = hit.chapter;
       int verse = hit.verse;
-      string link = filter_passage_link_for_opening_editor_at (book, chapter, convert_to_string (verse));
-      string information = escape_special_xml_characters (hit.data);
+      string link = filter_passage_link_for_opening_editor_at (book, chapter, filter::strings::convert_to_string (verse));
+      string information = filter::strings::escape_special_xml_characters (hit.data);
       resultblock << "<p>\n";
-      resultblock << "<a href=" << quoted("index?approve=" + convert_to_string (id)) << "> ✔ </a>\n";
-      resultblock << "<a href=" << quoted ("index?delete=" + convert_to_string (id)) << ">" << emoji_wastebasket () << "</a>\n";
+      resultblock << "<a href=" << quoted("index?approve=" + filter::strings::convert_to_string (id)) << "> ✔ </a>\n";
+      resultblock << "<a href=" << quoted ("index?delete=" + filter::strings::convert_to_string (id)) << ">" << filter::strings::emoji_wastebasket () << "</a>\n";
       resultblock << bible;
       resultblock << " ";
       resultblock << link;

@@ -65,7 +65,7 @@ string Paratext_Logic::searchProjectsFolder ()
   for (auto file : files) {
     if (file.find ("Paratext") != string::npos) {
       string path = filter_url_create_path ({homedir, file});
-      path = filter_string_str_replace ("\\\\", "\\", path);
+      path = filter::strings::replace ("\\\\", "\\", path);
       return path;
     }
   }
@@ -182,7 +182,7 @@ void Paratext_Logic::copyBibledit2Paratext (string bible)
       string path = filter_url_create_path ({paratext_project_folder, paratext_book});
       Database_Logs::log (bookname + ": " "Saving to:" " " + path);
       // Paratext on Windows and on Linux store the line ending with carriage return and line feed.
-      filter_url_file_put_contents (path, lf2crlf (usfm));
+      filter_url_file_put_contents (path, filter::strings::lf2crlf (usfm));
       
       paratext_books [book].clear ();
     
@@ -234,7 +234,7 @@ void Paratext_Logic::copyParatext2Bibledit (string bible)
 
     // Ancestor data needed for future merge.
     // The Paratext files have cr+lf at the end, and the ancestor data should only have lf at the end of each line.
-    string usfm = crlf2lf (filter_url_file_get_contents (path));
+    string usfm = filter::strings::crlf2lf (filter_url_file_get_contents (path));
     ancestor (bible, book, usfm);
   }
 }
@@ -264,7 +264,7 @@ string Paratext_Logic::ancestorPath (string bible, int book)
 {
   string path = filter_url_create_root_path ({"paratext", "ancestors", bible});
   if (!file_or_dir_exists (path)) filter_url_mkdir (path);
-  if (book) path = filter_url_create_path ({path, convert_to_string (book)});
+  if (book) path = filter_url_create_path ({path, filter::strings::convert_to_string (book)});
   return path;
 }
 
@@ -360,11 +360,11 @@ void Paratext_Logic::synchronize (tasks::enums::paratext_sync method)
       map <int, string> paratext_usfm;
       {
         string path = filter_url_create_path ({projectFolder (bible), paratext_book});
-        string book_usfm = crlf2lf (filter_url_file_get_contents (path));
+        string book_usfm = filter::strings::crlf2lf (filter_url_file_get_contents (path));
         // Paratext on Linux has been seen adding empty lines right after \c (chapter).
         // It does that after syncing with Bibledit and editing the chapter in Paratext.
         // This looks like a bug in Paratext. Remove those empty lines.
-        book_usfm = filter_string_str_replace ("\n\n", "\n", book_usfm);
+        book_usfm = filter::strings::replace ("\n\n", "\n", book_usfm);
         vector <int> chapters = filter::usfm::get_chapter_numbers (book_usfm);
         for (auto chapter : chapters) {
           string chapter_usfm = filter::usfm::get_chapter_text (book_usfm, chapter);
@@ -380,7 +380,7 @@ void Paratext_Logic::synchronize (tasks::enums::paratext_sync method)
       for (auto element : paratext_usfm) {
         chapters.push_back (element.first);
       }
-      chapters = array_unique (chapters);
+      chapters = filter::strings::array_unique (chapters);
       sort (chapters.begin(), chapters.end());
       
 
@@ -477,7 +477,7 @@ void Paratext_Logic::synchronize (tasks::enums::paratext_sync method)
           string data = element.second;
           if (!data.empty ()) {
             if (!usfm.empty ()) usfm.append ("\n");
-            usfm.append (filter_string_trim (data));
+            usfm.append (filter::strings::trim (data));
           }
         }
         ancestor (bible, book, usfm);
@@ -487,11 +487,11 @@ void Paratext_Logic::synchronize (tasks::enums::paratext_sync method)
           string data = element.second;
           if (!data.empty ()) {
             if (!usfm.empty ()) usfm.append ("\n");
-            usfm.append (filter_string_trim (data));
+            usfm.append (filter::strings::trim (data));
           }
         }
         string path = filter_url_create_path ({projectFolder (bible), paratext_book});
-        filter_url_file_put_contents (path, lf2crlf (usfm));
+        filter_url_file_put_contents (path, filter::strings::lf2crlf (usfm));
       }
     }
   }
@@ -522,7 +522,7 @@ string Paratext_Logic::synchronize (string ancestor, string bibledit, string par
   }
 
   // Bibledit and Paratext are the same: Do nothing.
-  else if (filter_string_trim (bibledit) == filter_string_trim (paratext)) {
+  else if (filter::strings::trim (bibledit) == filter::strings::trim (paratext)) {
   }
 
   // If the chapter in Bibledit is much larger than the chapter in Paratext,
@@ -574,7 +574,7 @@ string Paratext_Logic::journalTag (string bible, int book, int chapter)
   string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
   string project = Database_Config_Bible::getParatextProject (bible);
   string fragment = bible + " <> " + project + " " + bookname;
-  if (chapter >= 0) fragment.append (" " + convert_to_string (chapter));
+  if (chapter >= 0) fragment.append (" " + filter::strings::convert_to_string (chapter));
   fragment.append (": ");
   return fragment;
 }

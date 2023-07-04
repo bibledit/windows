@@ -25,7 +25,6 @@
 #include <filter/string.h>
 #include <filter/css.h>
 #include <filter/url.h>
-#include <filter/indonesian.h>
 #include <webserver/request.h>
 #include <locale/translate.h>
 #include <locale/logic.h>
@@ -68,8 +67,8 @@ string editone2_index (void * webserver_request)
   bool touch = request->session_logic ()->touchEnabled ();
   
   if (request->query.count ("switchbook") && request->query.count ("switchchapter")) {
-    int switchbook = convert_to_int (request->query ["switchbook"]);
-    int switchchapter = convert_to_int (request->query ["switchchapter"]);
+    int switchbook = filter::strings::convert_to_int (request->query ["switchbook"]);
+    int switchchapter = filter::strings::convert_to_int (request->query ["switchchapter"]);
     Ipc_Focus::set (request, switchbook, switchchapter, 1);
     Navigation_Passage::record_history (request, switchbook, switchchapter, 1);
   }
@@ -110,23 +109,25 @@ string editone2_index (void * webserver_request)
   // Store the active Bible in the page's javascript.
   view.set_variable ("navigationCode", Navigation_Passage::code (bible));
   
+  // Create the script, quote the strings to ensure it's legal Javascript.
+  stringstream script_stream {};
+  script_stream << "var oneverseEditorVerseLoaded = " << quoted(locale_logic_text_loaded ()) << ";\n";
+  script_stream << "var oneverseEditorVerseUpdating = " << quoted(locale_logic_text_updating ()) << ";\n";
+  script_stream << "var oneverseEditorVerseUpdated = " << quoted(locale_logic_text_updated ()) << ";\n";
+  script_stream << "var oneverseEditorWillSave = " << quoted(locale_logic_text_will_save ()) << ";\n";
+  script_stream << "var oneverseEditorVerseSaving = " << quoted(locale_logic_text_saving ()) << ";\n";
+  script_stream << "var oneverseEditorVerseSaved = " << quoted(locale_logic_text_saved ()) << ";\n";
+  script_stream << "var oneverseEditorVerseRetrying = " << quoted(locale_logic_text_retrying ()) << ";\n";
+  script_stream << "var oneverseEditorVerseUpdatedLoaded = " << quoted(locale_logic_text_reload ()) << ";\n";
   int verticalCaretPosition = request->database_config_user ()->getVerticalCaretPosition ();
-  string script =
-  "var oneverseEditorVerseLoaded = '" + locale_logic_text_loaded () + "';\n"
-  "var oneverseEditorVerseUpdating = '" + locale_logic_text_updating () + "';\n"
-  "var oneverseEditorVerseUpdated = '" + locale_logic_text_updated () + "';\n"
-  "var oneverseEditorWillSave = '" + locale_logic_text_will_save () + "';\n"
-  "var oneverseEditorVerseSaving = '" + locale_logic_text_saving () + "';\n"
-  "var oneverseEditorVerseSaved = '" + locale_logic_text_saved () + "';\n"
-  "var oneverseEditorVerseRetrying = '" + locale_logic_text_retrying () + "';\n"
-  "var oneverseEditorVerseUpdatedLoaded = '" + locale_logic_text_reload () + "';\n"
-  "var verticalCaretPosition = " + convert_to_string (verticalCaretPosition) + ";\n"
-  "var verseSeparator = '" + Database_Config_General::getNotesVerseSeparator () + "';\n";
+  script_stream << "var verticalCaretPosition = " << verticalCaretPosition << ";\n";
+  script_stream << "var verseSeparator = " << quoted(Database_Config_General::getNotesVerseSeparator ()) << ";\n";
+  string script {script_stream.str()};
   config::logic::swipe_enabled (webserver_request, script);
-  view.set_variable ("script", script);
+  view.set_variable ("script", script); 
 
   string custom_class = Filter_Css::getClass (bible);
-  string font = Fonts_Logic::get_text_font (bible);
+  string font = fonts::logic::get_text_font (bible);
   int current_theme_index = request->database_config_user ()->getCurrentTheme ();
   int direction = Database_Config_Bible::getTextDirection (bible);
   int lineheight = Database_Config_Bible::getLineHeight (bible);
@@ -135,7 +136,7 @@ string editone2_index (void * webserver_request)
   view.set_variable ("active_editor_theme_color", Filter_Css::theme_picker (current_theme_index, 3));
   view.set_variable ("custom_class", custom_class);
   string custom_css = Filter_Css::get_css (custom_class,
-                                          Fonts_Logic::get_font_path (font),
+                                          fonts::logic::get_font_path (font),
                                           direction, lineheight, letterspacing);
   view.set_variable ("custom_css", custom_css);
 

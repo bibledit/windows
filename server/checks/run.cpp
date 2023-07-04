@@ -86,7 +86,7 @@ void checks_run (string bible)
   string disregards = Database_Config_Bible::getSentenceStructureDisregards (bible);
   checks_sentences.enter_disregards (disregards);
   checks_sentences.enter_names (Database_Config_Bible::getSentenceStructureNames (bible));
-  vector <string> within_sentence_paragraph_markers = filter_string_explode (Database_Config_Bible::getSentenceStructureWithinSentenceMarkers (bible), ' ');
+  vector <string> within_sentence_paragraph_markers = filter::strings::explode (Database_Config_Bible::getSentenceStructureWithinSentenceMarkers (bible), ' ');
   bool check_books_versification = Database_Config_Bible::getCheckBooksVersification (bible);
   bool check_chapters_verses_versification = Database_Config_Bible::getCheckChaptesVersesVersification (bible);
   bool check_well_formed_usfm = Database_Config_Bible::getCheckWellFormedUsfm (bible);
@@ -94,18 +94,18 @@ void checks_run (string bible)
   bool check_missing_punctuation_end_verse = Database_Config_Bible::getCheckMissingPunctuationEndVerse (bible);
   bool check_patterns = Database_Config_Bible::getCheckPatterns (bible);
   string s_checking_patterns = Database_Config_Bible::getCheckingPatterns (bible);
-  vector <string> checking_patterns = filter_string_explode (s_checking_patterns, '\n');
+  vector <string> checking_patterns = filter::strings::explode (s_checking_patterns, '\n');
   bool check_matching_pairs = Database_Config_Bible::getCheckMatchingPairs (bible);
   vector <pair <string, string> > matching_pairs;
   {
     string fragment = Database_Config_Bible::getMatchingPairs (bible);
-    vector <string> pairs = filter_string_explode (fragment, ' ');
+    vector <string> pairs = filter::strings::explode (fragment, ' ');
     for (auto & pair : pairs) {
-      pair = filter_string_trim (pair);
-      size_t length = unicode_string_length (pair);
+      pair = filter::strings::trim (pair);
+      size_t length = filter::strings::unicode_string_length (pair);
       if (length == 2) {
-        string opener = unicode_string_substr (pair, 0, 1);
-        string closer = unicode_string_substr (pair, 1, 1);
+        string opener = filter::strings::unicode_string_substr (pair, 0, 1);
+        string closer = filter::strings::unicode_string_substr (pair, 1, 1);
         matching_pairs.push_back ({opener, closer});
       }
     }
@@ -165,7 +165,7 @@ void checks_run (string bible)
           checks::space::double_space_usfm (bible, book, chapter, verse, verseUsfm);
         }
         if (check_valid_utf8_text) {
-          if (!unicode_string_is_valid (verseUsfm)) {
+          if (!filter::strings::unicode_string_is_valid (verseUsfm)) {
             string msg = "Invalid UTF-8 Unicode in verse text";
             database_check.recordOutput (bible, book, chapter, verse, msg);
           }
@@ -253,8 +253,8 @@ void checks_run (string bible)
   vector <Database_Check_Hit> hits = database_check.getHits ();
   for (const auto & hit : hits) {
     if (hit.bible == bible) {
-      string passage = filter_passage_display_inline ({Passage ("", hit.book, hit.chapter, convert_to_string (hit.verse))});
-      string data = escape_special_xml_characters (hit.data);
+      string passage = filter_passage_display_inline ({Passage ("", hit.book, hit.chapter, filter::strings::convert_to_string (hit.verse))});
+      string data = filter::strings::escape_special_xml_characters (hit.data);
       string result = "<p>" + passage + " " + data + "</p>";
       emailBody.push_back (result);
     }
@@ -276,7 +276,7 @@ void checks_run (string bible)
   // Send email to users with access to the Bible and a subscription to the notification.
   if (!emailBody.empty ()) {
     string subject = translate("Bible Checks") + " " + bible;
-    string body = filter_string_implode (emailBody, "\n");
+    string body = filter::strings::implode (emailBody, "\n");
     vector <string> users = request.database_users ()->get_users ();
     for (auto user : users) {
       if (request.database_config_user()->getUserBibleChecksNotification (user)) {

@@ -64,11 +64,11 @@ string webbible_search (void * webserver_request)
 
   
   // Clean the query string up.
-  queryString = filter_string_trim (queryString);
+  queryString = filter::strings::trim (queryString);
   
   
   // Generate search words for emphasizing the search hits.
-  vector <string> queryWords = filter_string_explode (queryString, ' ');
+  vector <string> queryWords = filter::strings::explode (queryString, ' ');
   
   
   // Exported Bible.
@@ -80,7 +80,7 @@ string webbible_search (void * webserver_request)
   
   
   // Hit count.
-  view.set_variable ("hitCount", convert_to_string (passages.size ()));
+  view.set_variable ("hitCount", filter::strings::convert_to_string (passages.size ()));
   
   
   stringstream hitsblock;
@@ -100,7 +100,7 @@ string webbible_search (void * webserver_request)
     
     // The title.
     string title = bible + " | " + filter_passage_display (book, chapter, verse);
-    title = escape_special_xml_characters (title);
+    title = filter::strings::escape_special_xml_characters (title);
     
     
     // The URL.
@@ -112,11 +112,11 @@ string webbible_search (void * webserver_request)
     
     
     // The excerpt.
-    string text = search_logic_get_bible_verse_text (bible, book, chapter, convert_to_int (verse));
-    vector <string> v_text = filter_string_explode (text, '\n');
+    string text = search_logic_get_bible_verse_text (bible, book, chapter, filter::strings::convert_to_int (verse));
+    vector <string> v_text = filter::strings::explode (text, '\n');
     // Go through each line of text separately.
     for (auto line : v_text) {
-      string markedLine = filter_string_markup_words (queryWords, line);
+      string markedLine = filter::strings::markup_words (queryWords, line);
       if (markedLine != line) {
         // Store this bit of the excerpt.
         hitsblock << "<p style=" << quoted ("margin-top: 0em; margin-bottom: 0em") << ">" << markedLine << "</p>" << endl;

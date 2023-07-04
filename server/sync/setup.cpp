@@ -48,7 +48,7 @@ string sync_setup (void * webserver_request)
   string page;
   
   string username = request->query ["user"];
-  username = hex2bin (username);
+  username = filter::strings::hex2bin (username);
   string password = request->query ["pass"];
 
   // Check the credentials of the client.
@@ -58,7 +58,7 @@ string sync_setup (void * webserver_request)
       // Check brute force attack mitigation.
       if (user_logic_login_failure_check_okay ()) {
         // Return the level to the client.
-        return convert_to_string (request->database_users ()->get_level (username));
+        return filter::strings::convert_to_string (request->database_users ()->get_level (username));
       }
     }
   }

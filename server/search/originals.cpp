@@ -87,8 +87,8 @@ string search_originals (void * webserver_request)
       details = database_sblgnt.getVerse (static_cast<int>(book), chapter, verse);
       classs = "greek";
     }
-    searchtext = filter_string_implode (details, " ");
-    searchtext = filter_string_trim (searchtext);
+    searchtext = filter::strings::implode (details, " ");
+    searchtext = filter::strings::trim (searchtext);
     
     return classs + "\n" + searchtext;
   }
@@ -97,8 +97,8 @@ string search_originals (void * webserver_request)
   if (request->query.count ("words")) {
     string words = request->query ["words"];
     
-    words = filter_string_trim (words);
-    vector <string> v_words = filter_string_explode (words, ' ');
+    words = filter::strings::trim (words);
+    vector <string> v_words = filter::strings::explode (words, ' ');
     
     book_id book = static_cast<book_id>(Ipc_Focus::getBook (request));
     book_type type = database::books::get_type (book);
@@ -152,7 +152,7 @@ string search_originals (void * webserver_request)
       v_passages.push_back (passage);
       counts.push_back (count);
     }
-    quick_sort (counts, v_passages, 0, static_cast<unsigned> (counts.size()));
+    filter::strings::quick_sort (counts, v_passages, 0, static_cast<unsigned> (counts.size()));
     reverse (v_passages.begin(), v_passages.end());
 
     
@@ -160,14 +160,14 @@ string search_originals (void * webserver_request)
     string output;
     for (auto & passage : v_passages) {
       if (!output.empty ()) output.append ("\n");
-      output.append (convert_to_string (passage));
+      output.append (filter::strings::convert_to_string (passage));
     }
     return output;
   }
   
   
   if (request->query.count ("id")) {
-    int id = convert_to_int (request->query ["id"]);
+    int id = filter::strings::convert_to_int (request->query ["id"]);
     
     // Get the and passage for this identifier.
     Passage passage = filter_integer_to_passage (id);
@@ -176,7 +176,7 @@ string search_originals (void * webserver_request)
     string verse = passage.m_verse;
     
     // Get the plain text.
-    string text = search_logic_get_bible_verse_text (bible, book, chapter, convert_to_int (verse));
+    string text = search_logic_get_bible_verse_text (bible, book, chapter, filter::strings::convert_to_int (verse));
     
     // Format it.
     string link = filter_passage_link_for_opening_editor_at (book, chapter, verse);
@@ -198,8 +198,9 @@ string search_originals (void * webserver_request)
   
   view.set_variable ("bible", bible);
   
-  string script = "var searchBible = \"" + bible + "\";";
-  view.set_variable ("script", script);
+  stringstream script {};
+  script << "var searchBible = " << quoted(bible) << ";";
+  view.set_variable ("script", script.str());
 
   page += view.render ("search", "originals");
   

@@ -50,7 +50,7 @@ void bible_import_run (string location, string bible, int book, int chapter)
     string error_message {};
     string data = filter_url_file_get_contents (file);
     if (!data.empty()) {
-      if (unicode_string_is_valid (data)) {
+      if (filter::strings::unicode_string_is_valid (data)) {
         
         // Check whether this is USFM data.
         bool id = data.find ("\\id ") != string::npos;
@@ -91,7 +91,7 @@ void bible_import_usfm (string data, string bible, int book, int chapter)
     if (book_number > 0) {
       bible_logic::store_chapter (bible, book_number, chapter_number, chapter_data);
       string book_name = database::books::get_usfm_from_id (static_cast<book_id>(book_number));
-      Database_Logs::log ("Imported " + book_name + " " + convert_to_string (chapter_number));
+      Database_Logs::log ("Imported " + book_name + " " + filter::strings::convert_to_string (chapter_number));
     } else {
       Database_Logs::log ("Could not import this data: " + chapter_data.substr (0, 1000));
     }
@@ -106,13 +106,13 @@ void bible_import_text (string text, string bible, int book, int chapter)
   bool discoveries_passed {true};
   
   // Split the input text into separate lines.
-  vector <string> lines = filter_string_explode (text, '\n');
+  vector <string> lines = filter::strings::explode (text, '\n');
   
   // Go through the lines.
   for (size_t i = 0; i < lines.size(); i++) {
     
     // Trim the line.
-    lines[i] = filter_string_trim (lines[i]);
+    lines[i] = filter::strings::trim (lines[i]);
     
     // Skip empty line.
     if (lines[i].empty())
@@ -131,8 +131,8 @@ void bible_import_text (string text, string bible, int book, int chapter)
     // If the line is a number on its own, and the number agrees with the chapter number
     // that was set, it silently removes this line. But if it differs, an error comes up.
     if (discoveries_passed) {
-      if (number_in_string(lines[i]) == lines[i]) {
-        int number = convert_to_int (number_in_string (lines[i]));
+      if (filter::strings::number_in_string(lines[i]) == lines[i]) {
+        int number = filter::strings::convert_to_int (filter::strings::number_in_string (lines[i]));
         if (number == chapter) {
           lines[i].clear();
           continue;
@@ -148,9 +148,9 @@ void bible_import_text (string text, string bible, int book, int chapter)
     // it is considered a a normal paragraph.
     // If no punctuation at the end, it is a section heading.
     if (discoveries_passed) {
-      if (number_in_string(lines[i]).empty()) {
+      if (filter::strings::number_in_string(lines[i]).empty()) {
         string last_character = lines[i].substr(lines[i].length() -1, 1);
-        if (unicode_string_is_punctuation (last_character)) {
+        if (filter::strings::unicode_string_is_punctuation (last_character)) {
           lines[i].insert(0, "\\p ");
         } else {
           lines[i].insert(0, "\\s ");
@@ -164,7 +164,7 @@ void bible_import_text (string text, string bible, int book, int chapter)
     bool paragraph_open = false;
     if (discoveries_passed) {
       string output {};
-      string number = number_in_string(lines[i]);
+      string number = filter::strings::number_in_string(lines[i]);
       // Setting for having the number only at the start of the line.
       bool treat_as_normal_paragraph {false};
       bool verses_at_start {true};
@@ -196,8 +196,8 @@ void bible_import_text (string text, string bible, int book, int chapter)
           output.append (number);
           output.append (" ");
           lines[i].erase (0, number.length());
-          lines[i] = filter_string_trim (lines[i]);
-          number = number_in_string(lines[i]);
+          lines[i] = filter::strings::trim (lines[i]);
+          number = filter::strings::number_in_string(lines[i]);
           // Setting for discovering only first number in a paragraph.
           if (verses_at_start) {
             number.clear();
@@ -217,19 +217,19 @@ void bible_import_text (string text, string bible, int book, int chapter)
   for (unsigned int i = 0; i < lines.size(); i++) {
     if (lines[i].empty())
       continue;
-    lines[i] = filter_string_collapse_whitespace (lines[i]);
-    lines[i] = filter_string_str_replace (" \n", "\n", lines[i]);
+    lines[i] = filter::strings::collapse_whitespace (lines[i]);
+    lines[i] = filter::strings::replace (" \n", "\n", lines[i]);
     newtext.append(lines[i]);
     newtext.append("\n");
   }
   
   // If no chapter marker is found, insert it at the top.
   if (newtext.find("\\c") == string::npos) {
-    newtext.insert(0, "\\c " + convert_to_string(chapter) + "\n");
+    newtext.insert(0, "\\c " + filter::strings::convert_to_string(chapter) + "\n");
   }
 
   // Import the text as USFM.
   bible_logic::store_chapter (bible, book, chapter, newtext);
   string book_name = database::books::get_usfm_from_id (static_cast<book_id>(book));
-  Database_Logs::log ("Imported " + book_name + " " + convert_to_string (chapter) + ": " + text);
+  Database_Logs::log ("Imported " + book_name + " " + filter::strings::convert_to_string (chapter) + ": " + text);
 }

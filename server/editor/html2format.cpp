@@ -32,11 +32,11 @@ using namespace std;
 void Editor_Html2Format::load (string html)
 {
   // The web editor may insert non-breaking spaces. Convert them to normal spaces.
-  html = filter_string_str_replace (unicode_non_breaking_space_entity (), " ", html);
+  html = filter::strings::replace (filter::strings::unicode_non_breaking_space_entity (), " ", html);
   
   // The web editor produces <hr> and other elements following the HTML specs,
   // but the pugixml XML parser needs <hr/> and similar elements.
-  html = html2xml (html);
+  html = filter::strings::html2xml (html);
   
   string xml = "<body>" + html + "</body>";
   // Parse document such that all whitespace is put in the DOM tree.
@@ -177,7 +177,7 @@ void Editor_Html2Format::postprocess ()
 
 string Editor_Html2Format::update_quill_class (string classname)
 {
-  classname = filter_string_str_replace (quill_logic_class_prefix_block (), "", classname);
-  classname = filter_string_str_replace (quill_logic_class_prefix_inline (), "", classname);
+  classname = filter::strings::replace (quill_logic_class_prefix_block (), "", classname);
+  classname = filter::strings::replace (quill_logic_class_prefix_inline (), "", classname);
   return classname;
 }

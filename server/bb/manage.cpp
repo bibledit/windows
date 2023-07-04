@@ -89,7 +89,7 @@ string bible_manage (void * webserver_request)
   if (request->post.count ("new")) {
     string bible = request->post ["entry"];
     // No underscrore ( _ ) in the name of a Bible because the underscores are used in the searches to separate data.
-    bible = filter_string_str_replace ("_", "", bible);
+    bible = filter::strings::replace ("_", "", bible);
     vector <string> bibles = request->database_bibles ()->getBibles ();
     if (find (bibles.begin(), bibles.end(), bible) != bibles.end()) {
       error_message = translate("This Bible already exists");
@@ -98,7 +98,7 @@ string bible_manage (void * webserver_request)
       // Check / grant access.
       if (!access_bible::write (request, bible)) {
         string me = request->session_logic ()->currentUser ();
-        Database_Privileges::setBible (me, bible, true);
+        DatabasePrivileges::set_bible (me, bible, true);
       }
       success_message = translate("The Bible was created");
       // Creating a Bible removes any Sample Bible that might have been there.
@@ -121,7 +121,7 @@ string bible_manage (void * webserver_request)
     string origin = request->query["origin"];
     if (request->post.count ("entry")) {
       string destination = request->post["entry"];
-      destination = filter_string_str_replace ("_", "", destination); // No underscores in the name.
+      destination = filter::strings::replace ("_", "", destination); // No underscores in the name.
       vector <string> bibles = request->database_bibles ()->getBibles ();
       if (find (bibles.begin(), bibles.end(), destination) != bibles.end()) {
         error_message = translate("Cannot copy the Bible because the destination Bible already exists.");
@@ -139,7 +139,7 @@ string bible_manage (void * webserver_request)
           // Check / grant access to destination Bible.
           if (!access_bible::write (request, destination)) {
             string me = request->session_logic ()->currentUser ();
-            Database_Privileges::setBible (me, destination, true);
+            DatabasePrivileges::set_bible (me, destination, true);
           }
           // Creating a Bible removes any Sample Bible that might have been there.
           if (!config::logic::demo_enabled ()) {

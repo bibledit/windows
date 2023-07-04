@@ -53,15 +53,15 @@ string public_new (void * webserver_request)
 
   if (!request->query.empty ()) {
     string bible = request->query ["bible"];
-    int book = convert_to_int (request->query ["book"]);
-    int chapter = convert_to_int (request->query ["chapter"]);
-    int verse = convert_to_int (request->query ["verse"]);
+    int book = filter::strings::convert_to_int (request->query ["book"]);
+    int chapter = filter::strings::convert_to_int (request->query ["chapter"]);
+    int verse = filter::strings::convert_to_int (request->query ["verse"]);
 
     string chapter_usfm = request->database_bibles()->getChapter (bible, book, chapter);
     string verse_usfm = filter::usfm::get_verse_text (chapter_usfm, verse);
     string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
     Filter_Text filter_text = Filter_Text (bible);
-    filter_text.html_text_standard = new Html_Text (bible);
+    filter_text.html_text_standard = new HtmlText (bible);
     filter_text.add_usfm_code (verse_usfm);
     filter_text.run (stylesheet);
     return filter_text.html_text_standard->get_inner_html ();

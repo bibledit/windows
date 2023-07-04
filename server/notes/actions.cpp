@@ -70,12 +70,12 @@ string notes_actions (void * webserver_request)
   int level = request->session_logic()->currentLevel ();
 
   
-  int id = convert_to_int (request->query ["id"]);
-  if (!id) id = convert_to_int (request->post ["val1"]);
+  int id = filter::strings::convert_to_int (request->query ["id"]);
+  if (!id) id = filter::strings::convert_to_int (request->post ["val1"]);
 
   
   string checkbox = request->post ["checkbox"];
-  bool checked = convert_to_bool (request->post ["checked"]);
+  bool checked = filter::strings::convert_to_bool (request->post ["checked"]);
 
 
   if (request->query.count ("unsubscribe")) {
@@ -123,7 +123,7 @@ string notes_actions (void * webserver_request)
   }
 
   
-  view.set_variable ("id", convert_to_string (id));
+  view.set_variable ("id", filter::strings::convert_to_string (id));
   
                       
   string summary = database_notes.get_summary (id);
@@ -140,7 +140,7 @@ string notes_actions (void * webserver_request)
   for (auto & assignee : assignees) {
     assigneeblock << assignee;
     if (level >= Filter_Roles::manager ()) {
-      assigneeblock << "<a href=" << quoted ("?id=" + convert_to_string (id) + "&unassign=" + assignee) << "> [" << translate("unassign") << "]</a>";
+      assigneeblock << "<a href=" << quoted ("?id=" + filter::strings::convert_to_string (id) + "&unassign=" + assignee) << "> [" << translate("unassign") << "]</a>";
       assigneeblock << " | ";
     }
   }
@@ -183,10 +183,10 @@ string notes_actions (void * webserver_request)
   
 #ifdef HAVE_CLOUD
   view.enable_zone ("cloud");
-  view.set_variable ("public", get_checkbox_status (database_notes.get_public (id)));
+  view.set_variable ("public", filter::strings::get_checkbox_status (database_notes.get_public (id)));
 #endif
   // Roles of translator or higher can edit the public visibility of a note.
-  if (level < Filter_Roles::translator ()) view.set_variable(get_disabled(), get_disabled());
+  if (level < Filter_Roles::translator ()) view.set_variable(filter::strings::get_disabled(), filter::strings::get_disabled());
 
   
   view.set_variable ("success", success);

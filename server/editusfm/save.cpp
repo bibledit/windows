@@ -59,8 +59,8 @@ string editusfm_save (void * webserver_request)
   
   
   string bible = request->post["bible"];
-  int book = convert_to_int (request->post["book"]);
-  int chapter = convert_to_int (request->post["chapter"]);
+  int book = filter::strings::convert_to_int (request->post["book"]);
+  int chapter = filter::strings::convert_to_int (request->post["chapter"]);
   string usfm = request->post["usfm"];
   string checksum = request->post["checksum"];
   string unique_id = request->post ["id"];
@@ -69,12 +69,12 @@ string editusfm_save (void * webserver_request)
   if (request->post.count ("bible") && request->post.count ("book") && request->post.count ("chapter") && request->post.count ("usfm")) {
     if (checksum_logic::get (usfm) == checksum) {
       usfm = filter_url_tag_to_plus (usfm);
-      usfm = filter_string_trim (usfm);
+      usfm = filter::strings::trim (usfm);
       // Collapse multiple spaces in the USFM into one space.
       // https://github.com/bibledit/cloud/issues/711
-      usfm = filter_string_collapse_whitespace(usfm);
+      usfm = filter::strings::collapse_whitespace(usfm);
       if (!usfm.empty ()) {
-        if (unicode_string_is_valid (usfm)) {
+        if (filter::strings::unicode_string_is_valid (usfm)) {
           string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
           vector <filter::usfm::BookChapterData> book_chapter_text = filter::usfm::usfm_import (usfm, stylesheet);
           if (!book_chapter_text.empty()) {

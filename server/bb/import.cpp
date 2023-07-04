@@ -68,7 +68,7 @@ string bible_import (void * webserver_request)
   
   // The name of the Bible.
   string bible = access_bible::clamp (request, request->query["bible"]);
-  view.set_variable ("bible", escape_special_xml_characters (bible));
+  view.set_variable ("bible", filter::strings::escape_special_xml_characters (bible));
   
   int book = Ipc_Focus::getBook (webserver_request);
   int chapter = Ipc_Focus::getChapter (webserver_request);
@@ -83,14 +83,14 @@ string bible_import (void * webserver_request)
     // Submission may take long if there's a lot of data or the network is slow.
     string data = request->post ["data"];
     data = filter_url_tag_to_plus (data);
-    data = filter_string_trim (data);
+    data = filter::strings::trim (data);
     if (!data.empty()) {
-      if (unicode_string_is_valid (data)) {
+      if (filter::strings::unicode_string_is_valid (data)) {
         string datafile = filter_url_tempfile ();
         filter_url_file_put_contents (datafile, data);
         success_message = translate("Import has started.");
         view.set_variable ("journal", journal_logic_see_journal_for_progress ());
-        tasks_logic_queue (IMPORTBIBLE, { datafile, bible, convert_to_string (book), convert_to_string (chapter) });
+        tasks_logic_queue (IMPORTBIBLE, { datafile, bible, filter::strings::convert_to_string (book), filter::strings::convert_to_string (chapter) });
       } else {
         error_message = translate("Please supply valid Unicode UTF-8 text.");
       }
@@ -109,7 +109,7 @@ string bible_import (void * webserver_request)
       filter_url_file_put_contents (datafile, data);
       success_message = translate("Import has started.");
       view.set_variable ("journal", journal_logic_see_journal_for_progress ());
-      tasks_logic_queue (IMPORTBIBLE, { datafile, bible, convert_to_string (book), convert_to_string (chapter) });
+      tasks_logic_queue (IMPORTBIBLE, { datafile, bible, filter::strings::convert_to_string (book), filter::strings::convert_to_string (chapter) });
     } else {
       error_message = translate ("Nothing was uploaded");
     }
