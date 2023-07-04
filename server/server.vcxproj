@@ -340,7 +340,6 @@
     <ClCompile Include="filter\google.cpp" />
     <ClCompile Include="filter\html.cpp" />
     <ClCompile Include="filter\image.cpp" />
-    <ClCompile Include="filter\indonesian.cpp" />
     <ClCompile Include="filter\md5.cpp" />
     <ClCompile Include="filter\merge.cpp" />
     <ClCompile Include="filter\note.cpp" />
