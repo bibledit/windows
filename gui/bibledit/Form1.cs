@@ -11,7 +11,7 @@ using System.Net.Sockets;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using System.Windows.Threading;
-
+using CefSharp.Handler;
 
 namespace Bibledit
 {
@@ -108,7 +108,7 @@ namespace Bibledit
             Cef.Initialize(new CefSettings());
             browser = new ChromiumWebBrowser("http://localhost:" + portNumber);
             //Console.WriteLine("http://localhost:" + portNumber);
-            //browser.DownloadHandler = new DownloadHandler();
+            browser.DownloadHandler = new DownloadHandler();
             Controls.Add(browser);
             browser.Dock = DockStyle.Fill;
         }
