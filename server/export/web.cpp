@@ -42,36 +42,36 @@ using namespace std;
 
 void export_web_book (string bible, int book, bool log)
 {
-  string directory = export_logic::web_directory (bible);
+  const string directory = export_logic::web_directory (bible);
   if (!file_or_dir_exists (directory)) filter_url_mkdir (directory);
   
   
-  Database_Bibles database_bibles;
-  Database_BibleImages database_bibleimages;
+  Database_Bibles database_bibles {};
+  Database_BibleImages database_bibleimages {};
   
   
-  string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
+  const string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
   
   
-  string feedback_email = Database_Config_Bible::getExportFeedbackEmail (bible);
+  const string feedback_email = Database_Config_Bible::getExportFeedbackEmail (bible);
   
   
   // Copy font to the output directory.
-  string font = fonts::logic::get_text_font (bible);
+  const string font = fonts::logic::get_text_font (bible);
   if (!font.empty ()) {
     if (fonts::logic::font_exists (font)) {
       string fontpath = fonts::logic::get_font_path (font);
-      string contents = filter_url_file_get_contents (fontpath);
+      const string contents = filter_url_file_get_contents (fontpath);
       fontpath = filter_url_create_path ({directory, font});
       filter_url_file_put_contents (fontpath, contents);
     }
   }
   
   
-  string backLinkPath = export_logic::web_back_link_directory (bible);
+  const string backLinkPath {export_logic::web_back_link_directory (bible)};
   
   
-  string bibleBookText = bible + " " + database::books::get_english_from_id (static_cast<book_id>(book));
+  const string bibleBookText = bible + " " + database::books::get_english_from_id (static_cast<book_id>(book));
   
   
   // Web index file for the book.
@@ -87,17 +87,17 @@ void export_web_book (string bible, int book, bool log)
   
   
   // Go through the chapters of this book.
-  vector <int> chapters = database_bibles.getChapters (bible, book);
+  const vector <int> chapters = database_bibles.get_chapters (bible, book);
   for (size_t c = 0; c < chapters.size(); c++) {
-    int chapter = chapters [c];
-    bool is_first_chapter = (c == 0);
-    bool is_last_chapter = (c == chapters.size() - 1);
+    const int chapter = chapters [c];
+    const bool is_first_chapter = (c == 0);
+    const bool is_last_chapter = (c == chapters.size() - 1);
     
     // The text filter for this chapter.
     Filter_Text filter_text_chapter = Filter_Text (bible);
     
     // Get the USFM for the chapter.
-    string usfm = database_bibles.getChapter (bible, book, chapter);
+    string usfm = database_bibles.get_chapter (bible, book, chapter);
     // Trim it.
     usfm = filter::strings::trim (usfm);
     // Use small chunks of USFM at a time for much better performance.
@@ -154,7 +154,9 @@ void export_web_book (string bible, int book, bool log)
   Database_State::clearExport (bible, book, export_logic::export_web);
   
   
-  if (log) Database_Logs::log (translate("Exported to web") + ": " + bible + " " + database::books::get_english_from_id (static_cast<book_id>(book)), Filter_Roles::translator ());
+  if (log) {
+    Database_Logs::log (translate("Exported to web") + ": " + bible + " " + database::books::get_english_from_id (static_cast<book_id>(book)), Filter_Roles::translator ());
+  }
 }
 
 
@@ -199,7 +201,7 @@ void export_web_index (string bible, bool log)
   
   
   // Go through the Bible books.
-  vector <int> books = database_bibles.getBooks (bible);
+  vector <int> books = database_bibles.get_books (bible);
   for (auto book : books) {
     // Add this book to the main web index.
     html_text_rich_bible_index.add_link (html_text_rich_bible_index.current_p_node,  filter_url_html_file_name_bible ("", book), "", translate (database::books::get_english_from_id (static_cast<book_id>(book))), "", " " + translate (database::books::get_english_from_id (static_cast<book_id>(book))) + " ");

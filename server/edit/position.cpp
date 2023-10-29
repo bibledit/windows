@@ -59,7 +59,7 @@ string edit_position (void * webserver_request)
   
   
   string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
-  string usfm = request->database_bibles()->getChapter (bible, book, chapter);
+  string usfm = request->database_bibles()->get_chapter (bible, book, chapter);
   int verse = Ipc_Focus::getVerse (request);
 
 
@@ -71,7 +71,7 @@ string edit_position (void * webserver_request)
   int startingOffset = 0;
   int endingOffset = 0;
   // To deal with a combined verse, go through the offsets, and pick the correct one.
-  for (auto element : editor_usfm2html.verseStartOffsets) {
+  for (auto element : editor_usfm2html.m_verse_start_offsets) {
     int vs = element.first;
     int offset = element.second;
     if (vs <= verse) startingOffset = offset;
@@ -87,7 +87,7 @@ string edit_position (void * webserver_request)
   if (endingOffset) {
     endingOffset--;
   } else {
-    endingOffset = static_cast<int>(editor_usfm2html.textLength);
+    endingOffset = static_cast<int>(editor_usfm2html.m_text_tength);
   }
   
   string data = filter::strings::convert_to_string (startingOffset);

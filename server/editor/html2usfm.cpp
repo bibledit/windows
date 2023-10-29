@@ -37,7 +37,7 @@ void Editor_Html2Usfm::load (string html)
   // The web editor produces <hr> and other elements following the HTML specs,
   // but the pugixml XML parser needs <hr/> and similar elements.
   html = filter::strings::html2xml (html);
-  
+
   string xml = "<body>" + html + "</body>";
   // Parse document such that all whitespace is put in the DOM tree.
   // See http://pugixml.org/docs/manual.html for more information.

@@ -92,10 +92,10 @@ private:
   // Chapter number, e.g. 1, 2, 3, etc.
   int m_current_chapter_number {0};
   // Verse number, e.g. "0", "1", "2", and so on.
-  std::string currentVerseNumber {};
+  std::string m_current_verse_number {};
   std::string getCurrentPassageText ();
   // Map of (book, chapter number).
-  std::map <int, int> numberOfChaptersPerBook {};
+  std::map <int, int> m_number_of_chapters_per_book {};
   void process_usfm ();
   void processNote ();
   // Opening a new paragraph.
@@ -125,7 +125,7 @@ public:
   std::vector <filter::text::passage_marker_value> publishedVerseMarkers {};
 private:
   // std::string holding the chapter number or text to output at the first verse.
-  std::string output_chapter_text_at_first_verse {};
+  std::string m_output_chapter_text_at_first_verse {};
 
 public:
   // Object for creating OpenDocument with text in standard form.
@@ -155,8 +155,8 @@ private:
   // Information for the citations for the notes.
   filter::note::citations note_citations {};
 
-  std::string standardContentMarkerFootEndNote {};
-  std::string standardContentMarkerCrossReference {};
+  std::string standard_content_marker_foot_end_note {};
+  std::string standard_content_marker_cross_reference {};
 
 public:
   // Object for creating standard web documents.
@@ -194,7 +194,7 @@ private:
   bool headings_text_per_verse_active { false };
   bool heading_started  { false };
   // Holds verse numbers and the plain text in that verse, without anything extra.
-  std::map <int, std::string> verses_text {};
+  std::map <int, std::string> m_verses_text {};
   // Flag for text per verse processor.
   bool text_started {false};
   void store_verses_paragraphs ();
@@ -230,5 +230,8 @@ private:
   // Flag for whether to left-align certain poetry styles
   // in exports to OpenDocument format.
   bool odt_left_align_verse_in_poetry_styles { false };
-  
+
+public:
+private:
+  void set_to_zero (std::string& value);
 };
