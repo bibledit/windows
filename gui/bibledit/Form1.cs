@@ -355,7 +355,7 @@ namespace Bibledit
                 // If the users enters an empty string, any markup is supposed to be removed from the webview.
                 // This is done by searching for something that is not likely to be found.
                 if (search.Length == 0) search = "b.i.b.l.e.d.i.t";
-                //browser.GetBrowserHost().Find(0, search, true, false, true);
+                browser.GetBrowserHost().Find(search, true, false, true);
             }
 
             SearchDialogOpen = false;
