@@ -546,13 +546,13 @@ void filter_url_rmdir (std::string directory)
       filter_url_rmdir(path);
     }
 #ifdef HAVE_WINDOWS
-  // Remove directory.
-  std::wstring wpath = filter::strings::string2wstring(path);
-  _wrmdir(wpath.c_str());
-  // Remove file.
-  filter_url_unlink(path);
+    // Remove directory.
+    std::wstring wpath = filter::strings::string2wstring(path);
+    _wrmdir(wpath.c_str());
+    // Remove file.
+    filter_url_unlink(path);
 #else
-  // On Linux remove the directory or the file.
+    // On Linux remove the directory or the file.
     remove(path.c_str());
 #endif
   }
