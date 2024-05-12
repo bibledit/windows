@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -20,15 +20,13 @@
 #include <public/logic.h>
 #include <webserver/request.h>
 #include <database/config/bible.h>
-using namespace std;
 
 
-vector <string> public_logic_bibles (void * webserver_request)
+std::vector <std::string> public_logic_bibles (Webserver_Request& webserver_request)
 {
-  vector <string> public_bibles;
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  vector <string> bibles = request->database_bibles()->get_bibles ();
-  for (auto & bible : bibles) {
+  std::vector <std::string> public_bibles;
+  const std::vector <std::string> bibles = webserver_request.database_bibles()->get_bibles ();
+  for (const auto& bible : bibles) {
     if (Database_Config_Bible::getPublicFeedbackEnabled (bible)) {
       public_bibles.push_back (bible);
     }

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -46,7 +46,6 @@
 #include <search/logic.h>
 #include <book/create.h>
 #include <setup/logic.h>
-using namespace std;
 
 
 /*
@@ -72,7 +71,7 @@ using namespace std;
 
 
 // Returns true if the credentials are correct for a demo installation.
-bool demo_acl (string user, string pass)
+bool demo_acl (std::string user, std::string pass)
 {
   if (config::logic::demo_enabled ()) {
     if (user == session_admin_credentials ()) {
@@ -86,11 +85,11 @@ bool demo_acl (string user, string pass)
 
 
 // Returns a warning in case the client is connected to the open demo server.
-string demo_client_warning ()
+std::string demo_client_warning ()
 {
-  string warning {};
+  std::string warning {};
   if (client_logic_client_enabled ()) {
-    string address = Database_Config_General::getServerAddress ();
+    std::string address = Database_Config_General::getServerAddress ();
     if (address == demo_address () || address == demo_address_secure ()) {
       int port = Database_Config_General::getServerPort ();
       if (port == demo_port () || port == demo_port_secure ()) {
@@ -112,22 +111,22 @@ void demo_clean_data ()
   Database_Logs::log ("Cleaning up the demo data");
   
   
-  Webserver_Request request {};
+  Webserver_Request webserver_request {};
   
   
   // Set user to the demo credentials (admin).
   // This is the user who is always logged-in in a demo installation.
-  request.session_logic ()->set_username (session_admin_credentials ());
+  webserver_request.session_logic ()->set_username (session_admin_credentials ());
   
   
   // Delete empty stylesheet that may have been there.
-  request.database_styles()->revokeWriteAccess ("", styles_logic_standard_sheet ());
-  request.database_styles()->deleteSheet ("");
+  webserver_request.database_styles()->revokeWriteAccess ("", styles_logic_standard_sheet ());
+  webserver_request.database_styles()->deleteSheet ("");
   styles_sheets_create_all ();
   
   
   // Set both stylesheets to "Standard" for all Bibles.
-  vector <string> bibles = request.database_bibles()->get_bibles ();
+  std::vector <std::string> bibles = webserver_request.database_bibles()->get_bibles ();
   for (const auto & bible : bibles) {
     Database_Config_Bible::setExportStylesheet (bible, styles_logic_standard_sheet ());
     Database_Config_Bible::setEditorStylesheet (bible, styles_logic_standard_sheet ());
@@ -139,23 +138,23 @@ void demo_clean_data ()
 
   
   // Set the site language to "Default"
-  Database_Config_General::setSiteLanguage (string());
+  Database_Config_General::setSiteLanguage (std::string());
 
 
   // Ensure the default users are there.
-  map <string, int> users = {
-    pair ("guest", Filter_Roles::guest ()),
-    pair ("member", Filter_Roles::member ()),
-    pair ("consultant", Filter_Roles::consultant ()),
-    pair ("translator", Filter_Roles::translator ()),
-    pair ("manager", Filter_Roles::manager ()),
-    pair (session_admin_credentials (), Filter_Roles::admin ())
+  std::map <std::string, int> users = {
+    std::pair ("guest", Filter_Roles::guest ()),
+    std::pair ("member", Filter_Roles::member ()),
+    std::pair ("consultant", Filter_Roles::consultant ()),
+    std::pair ("translator", Filter_Roles::translator ()),
+    std::pair ("manager", Filter_Roles::manager ()),
+    std::pair (session_admin_credentials (), Filter_Roles::admin ())
   };
   for (const auto & element : users) {
-    if (!request.database_users ()->usernameExists (element.first)) {
-      request.database_users ()->add_user(element.first, element.first, element.second, "");
+    if (!webserver_request.database_users ()->usernameExists (element.first)) {
+      webserver_request.database_users ()->add_user(element.first, element.first, element.second, "");
     }
-    request.database_users ()->set_level (element.first, element.second);
+    webserver_request.database_users ()->set_level (element.first, element.second);
   }
   
   
@@ -167,46 +166,46 @@ void demo_clean_data ()
 
   // Create sample notes.
   if (config::logic::default_bibledit_configuration ()) {
-    demo_create_sample_notes (&request);
+    demo_create_sample_notes (webserver_request);
   }
 
 
   // Create samples for the workspaces.
   if (config::logic::default_bibledit_configuration ()) {
-    demo_create_sample_workspaces (&request);
+    demo_create_sample_workspaces (webserver_request);
   }
   
   
   // Set navigator to John 3:16.
   if (config::logic::default_bibledit_configuration ()) {
-    Ipc_Focus::set (&request, 43, 3, 16);
+    Ipc_Focus::set (webserver_request, 43, 3, 16);
   }
 
 
   // Set and/or trim resources to display.
   // Too many resources crash the demo: Limit the amount.
-  vector <string> resources = request.database_config_user()->getActiveResources ();
+  std::vector <std::string> resources = webserver_request.database_config_user()->getActiveResources ();
   bool reset_resources {false};
   size_t max_resource {25};
   if (resources.size () > max_resource) reset_resources = true;
   // Check if all the current resource exists in the default.
-  vector <string> defaults = demo_logic_default_resources ();
+  std::vector <std::string> defaults = demo_logic_default_resources ();
   for (const auto & name : defaults) {
     if (!in_array (name, resources)) reset_resources = true;
   }
   if (reset_resources) {
     resources = demo_logic_default_resources ();
-    request.database_config_user()->setActiveResources (resources);
+    webserver_request.database_config_user()->setActiveResources (resources);
   }
   
   
   // No flipped basic <> advanded mode.
-  request.database_config_user ()->setBasicInterfaceMode (false);
+  webserver_request.database_config_user ()->setBasicInterfaceMode (false);
 }
 
 
 // The name of the sample Bible.
-string demo_sample_bible_name ()
+std::string demo_sample_bible_name ()
 {
   return "Sample";
 }
@@ -228,10 +227,10 @@ void demo_create_sample_bible ()
   search_logic_delete_bible (demo_sample_bible_name ());
 
   // Copy the sample Bible data and search index into place.
-  vector <int> rowids = Database_Sample::get ();
+  std::vector <int> rowids = Database_Sample::get ();
   for (auto rowid : rowids) {
-    string file {};
-    string data {};
+    std::string file {};
+    std::string data {};
     Database_Sample::get (rowid, file, data);
     // Remove the "./" from the start.
     file.erase (0, 2);
@@ -244,13 +243,13 @@ void demo_create_sample_bible ()
     // * it means that Bibledit uses a different name for the Sample Bible,
     // * and the file needs an update.
     size_t pos = file.find(demo_sample_bible_name());
-    if (pos == string::npos) {
-      string filename = "Sample";
+    if (pos == std::string::npos) {
+      std::string filename = "Sample";
       file = filter::strings::replace(filename, demo_sample_bible_name(), file);
     }
     // Proceed with the path.
     file = filter_url_create_root_path ({file});
-    string path = filter_url_dirname (file);
+    std::string path = filter_url_dirname (file);
     if (!file_or_dir_exists (path)) filter_url_mkdir (path);
     filter_url_file_put_contents (file, data);
   }
@@ -273,17 +272,17 @@ void demo_prepare_sample_bible ()
   // Create a new sample Bible.
   database_bibles.create_bible (demo_sample_bible_name ());
   // Location of the source USFM files for the sample Bible.
-  string directory = filter_url_create_root_path ({"demo"});
-  vector <string> files = filter_url_scandir (directory);
+  std::string directory = filter_url_create_root_path ({"demo"});
+  std::vector <std::string> files = filter_url_scandir (directory);
   for (auto file : files) {
     // Process only USFM files, skipping others.
     if (filter_url_get_extension (file) == "usfm") {
       // Read the USFM and clean it up.
       file = filter_url_create_path ({directory, file});
-      string usfm = filter_url_file_get_contents (file);
+      std::string usfm = filter_url_file_get_contents (file);
       usfm = filter::strings::collapse_whitespace (usfm);
       // Import the USFM into the sample Bible.
-      vector <filter::usfm::BookChapterData> book_chapter_data = filter::usfm::usfm_import (usfm, styles_logic_standard_sheet ());
+      std::vector <filter::usfm::BookChapterData> book_chapter_data = filter::usfm::usfm_import (usfm, styles_logic_standard_sheet ());
       for (const auto & data : book_chapter_data) {
         int book = data.m_book;
         if (book) {
@@ -291,7 +290,7 @@ void demo_prepare_sample_bible ()
           // This results in a book with number 0.
           // This book gets skipped here, so the license information is skipped as well.
           int chapter {data.m_chapter};
-          string usfm2 {data.m_data};
+          std::string usfm2 {data.m_data};
           bible_logic::store_chapter (demo_sample_bible_name (), book, chapter, usfm2);
         }
       }
@@ -303,7 +302,7 @@ void demo_prepare_sample_bible ()
   filter_url_recursive_scandir (directory, files);
   for (const auto & file : files) {
     if (!filter_url_is_dir (file)) {
-      string data = filter_url_file_get_contents (file);
+      std::string data = filter_url_file_get_contents (file);
       Database_Sample::store (file, data);
     }
   }
@@ -312,8 +311,8 @@ void demo_prepare_sample_bible ()
   files.clear ();
   filter_url_recursive_scandir (directory, files);
   for (const auto & file : files) {
-    if (file.find (demo_sample_bible_name ()) != string::npos) {
-      string data = filter_url_file_get_contents (file);
+    if (file.find (demo_sample_bible_name ()) != std::string::npos) {
+      std::string data = filter_url_file_get_contents (file);
       Database_Sample::store (file, data);
     }
   }
@@ -332,10 +331,10 @@ void demo_prepare_sample_bible ()
 
 
 // Create sample notes.
-void demo_create_sample_notes (void * webserver_request)
+void demo_create_sample_notes (Webserver_Request& webserver_request)
 {
   Database_Notes database_notes (webserver_request);
-  vector <int> identifiers = database_notes.get_identifiers ();
+  std::vector <int> identifiers = database_notes.get_identifiers ();
   if (identifiers.size () < 10) {
     for (int i = 1; i <= 10; i++) {
       database_notes.store_new_note (demo_sample_bible_name (), i, i, i, "Sample Note " + filter::strings::convert_to_string (i), "Sample Contents for note " + filter::strings::convert_to_string (i), false);
@@ -344,21 +343,19 @@ void demo_create_sample_notes (void * webserver_request)
 }
 
 
-string demo_workspace ()
+std::string demo_workspace ()
 {
   return "Translation";
 }
 
 
-void demo_create_sample_workspaces (void * webserver_request)
+void demo_create_sample_workspaces (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  map <int, string> urls {};
-  map <int, string> widths {};
+  std::map <int, std::string> urls {};
+  std::map <int, std::string> widths {};
   for (int i = 0; i < 15; i++) {
-    string url {};
-    string width {};
+    std::string url {};
+    std::string width {};
     if (i == 0) {
       url = editusfm_index_url ();
       width = "45%";
@@ -370,30 +367,30 @@ void demo_create_sample_workspaces (void * webserver_request)
     urls [i] = url;
     widths [i] = width;
   }
-  map <int, string> row_heights = {
-    pair (0, "90%"),
-    pair (1, ""),
-    pair (2, "")
+  std::map <int, std::string> row_heights = {
+    std::pair (0, "90%"),
+    std::pair (1, ""),
+    std::pair (2, "")
   };
   
-  request->database_config_user()->setActiveWorkspace ("USFM");
-  workspace_set_urls (request, urls);
-  workspace_set_widths (request, widths);
-  workspace_set_heights (request, row_heights);
+  webserver_request.database_config_user()->setActiveWorkspace ("USFM");
+  workspace_set_urls (webserver_request, urls);
+  workspace_set_widths (webserver_request, widths);
+  workspace_set_heights (webserver_request, row_heights);
   
   urls[0] = editone2_index_url ();
   urls[1] = resource_index_url ();
   
-  request->database_config_user()->setActiveWorkspace (demo_workspace ());
-  workspace_set_urls (request, urls);
-  workspace_set_widths (request, widths);
-  workspace_set_heights (request, row_heights);
+  webserver_request.database_config_user()->setActiveWorkspace (demo_workspace ());
+  workspace_set_urls (webserver_request, urls);
+  workspace_set_widths (webserver_request, widths);
+  workspace_set_heights (webserver_request, row_heights);
 }
 
 
-vector <string> demo_logic_default_resources ()
+std::vector <std::string> demo_logic_default_resources ()
 {
-  vector <string> resources {};
+  std::vector <std::string> resources {};
   if (config::logic::default_bibledit_configuration ()) {
     // Add a few resources that are also safe in an obfuscated version.
     resources = {

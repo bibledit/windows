@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,12 +21,14 @@
 
 #include <config/libraries.h>
 
+class Webserver_Request;
+
 class Ipc_Focus
 {
 public:
-  static void set (void * webserver_request, int book, int chapter, int verse);
-  static int getBook (void * webserver_request);
-  static int getChapter (void * webserver_request);
-  static int getVerse (void * webserver_request);
+  static void set (Webserver_Request& webserver_request, int book, int chapter, int verse);
+  static int getBook (Webserver_Request& webserver_request);
+  static int getChapter (Webserver_Request& webserver_request);
+  static int getVerse (Webserver_Request& webserver_request);
 private:
 };

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -36,97 +36,95 @@
 #include <database/logs.h>
 #include <styles/logic.h>
 #include <access/logic.h>
-using namespace std;
 
 
-string notes_actions_url ()
+std::string notes_actions_url ()
 {
   return "notes/actions";
 }
 
 
-bool notes_actions_acl (void * webserver_request)
+bool notes_actions_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ());
 }
 
 
-string notes_actions (void * webserver_request)
+std::string notes_actions (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   Database_Notes database_notes (webserver_request);
   Notes_Logic notes_logic = Notes_Logic (webserver_request);
 
   
-  string page;
-  Assets_Header header = Assets_Header (translate("Actions"), request);
+  std::string page;
+  Assets_Header header = Assets_Header (translate("Actions"), webserver_request);
   header.set_navigator ();
   page += header.run ();
   Assets_View view;
-  string success, error;
+  std::string success, error;
 
   
-  string user = request->session_logic()->currentUser ();
-  int level = request->session_logic()->currentLevel ();
+  std::string user = webserver_request.session_logic()->currentUser ();
+  int level = webserver_request.session_logic()->currentLevel ();
 
   
-  int id = filter::strings::convert_to_int (request->query ["id"]);
-  if (!id) id = filter::strings::convert_to_int (request->post ["val1"]);
+  int id = filter::strings::convert_to_int (webserver_request.query ["id"]);
+  if (!id) id = filter::strings::convert_to_int (webserver_request.post ["val1"]);
 
   
-  string checkbox = request->post ["checkbox"];
-  bool checked = filter::strings::convert_to_bool (request->post ["checked"]);
+  std::string checkbox = webserver_request.post ["checkbox"];
+  bool checked = filter::strings::convert_to_bool (webserver_request.post ["checked"]);
 
 
-  if (request->query.count ("unsubscribe")) {
+  if (webserver_request.query.count ("unsubscribe")) {
     notes_logic.unsubscribe (id);
   }
   
   
-  if (request->query.count ("subscribe")) {
+  if (webserver_request.query.count ("subscribe")) {
     notes_logic.subscribe (id);
   }
   
   
-  if (request->query.count ("unassign")) {
-    string unassign = request->query["unassign"];
+  if (webserver_request.query.count ("unassign")) {
+    std::string unassign = webserver_request.query["unassign"];
     notes_logic.unassignUser (id, unassign);
   }
   
   
-  if (request->query.count ("done")) {
+  if (webserver_request.query.count ("done")) {
     notes_logic.unassignUser (id, user);
   }
   
   
-  if (request->query.count ("markdel")) {
+  if (webserver_request.query.count ("markdel")) {
     notes_logic.markForDeletion (id);
     success = translate("The note will be deleted after a week.") + " " + translate ("Adding a comment to the note cancels the deletion.");
   }
   
   
-  if (request->query.count ("unmarkdel")) {
+  if (webserver_request.query.count ("unmarkdel")) {
     notes_logic.unmarkForDeletion (id);
   }
   
   
-  if (request->query.count ("delete")) {
+  if (webserver_request.query.count ("delete")) {
     notes_logic.erase (id);
-    redirect_browser (request, notes_index_url ());
-    return "";
+    redirect_browser (webserver_request, notes_index_url ());
+    return std::string();
   }
   
   
   if (checkbox == "public") {
     database_notes.set_public (id, checked);
-    return "";
+    return std::string();
   }
 
   
   view.set_variable ("id", filter::strings::convert_to_string (id));
   
                       
-  string summary = database_notes.get_summary (id);
+  std::string summary = database_notes.get_summary (id);
   view.set_variable ("summary", summary);
                                           
                                           
@@ -135,12 +133,12 @@ string notes_actions (void * webserver_request)
   else view.enable_zone ("subscribe");
   
 
-  vector <string> assignees = database_notes.get_assignees (id);
-  stringstream assigneeblock;
+  std::vector <std::string> assignees = database_notes.get_assignees (id);
+  std::stringstream assigneeblock;
   for (auto & assignee : assignees) {
     assigneeblock << assignee;
     if (level >= Filter_Roles::manager ()) {
-      assigneeblock << "<a href=" << quoted ("?id=" + filter::strings::convert_to_string (id) + "&unassign=" + assignee) << "> [" << translate("unassign") << "]</a>";
+      assigneeblock << "<a href=" << std::quoted ("?id=" + filter::strings::convert_to_string (id) + "&unassign=" + assignee) << "> [" << translate("unassign") << "]</a>";
       assigneeblock << " | ";
     }
   }
@@ -152,21 +150,21 @@ string notes_actions (void * webserver_request)
   if (assigned) view.enable_zone ("assigned");
   
   
-  string status = database_notes.get_status (id);
+  std::string status = database_notes.get_status (id);
   view.set_variable ("status", status);
   if (Filter_Roles::translator ()) view.enable_zone ("editstatus");
   else view.enable_zone ("viewstatus");
 
   
-  string verses = filter_passage_display_inline (database_notes.get_passages (id));
+  std::string verses = filter_passage_display_inline (database_notes.get_passages (id));
   view.set_variable ("verses", verses);
                                           
                                           
-  string severity = database_notes.get_severity (id);
+  std::string severity = database_notes.get_severity (id);
   view.set_variable ("severity",  severity);
 
   
-  string bible = database_notes.get_bible (id);
+  std::string bible = database_notes.get_bible (id);
   view.set_variable ("bible", bible);
   if (bible.empty ()) view.enable_zone ("nobible");
 

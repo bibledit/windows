@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -38,7 +38,6 @@
 #include <sync/resources.h>
 #include <sword/logic.h>
 #include <demo/logic.h>
-using namespace std;
 
 
 int sendreceive_resources_watchdog = 0;
@@ -69,7 +68,7 @@ void sendreceive_resources_delay_during_prioritized_tasks ()
     // and it takes some time to restart the resource installation.
     // Rather it now delays the installation a bit while the priority tasks flag is on.
     // That delay is not visible in the Journal, it just happens silently.
-    this_thread::sleep_for (chrono::seconds (10));
+    std::this_thread::sleep_for (std::chrono::seconds (10));
   }
 }
 
@@ -88,7 +87,7 @@ void sendreceive_resources ()
   // If any of the prioritized synchronization tasks run, postpone the current task and do not start it.
   if (sendreceive_logic_prioritized_task_is_active ()) {
     sendreceive_resources_done ();
-    this_thread::sleep_for (chrono::seconds (5));
+    std::this_thread::sleep_for (std::chrono::seconds (5));
     tasks_logic_queue (SYNCRESOURCES);
     return;
   }
@@ -96,7 +95,7 @@ void sendreceive_resources ()
   sendreceive_resources_interrupt = false;
 
   // If there's nothing to cache, bail out.
-  vector <string> resources = Database_Config_General::getResourcesToCache ();
+  std::vector <std::string> resources = Database_Config_General::getResourcesToCache ();
   if (resources.empty ()) return;
   
   sendreceive_resources_kick_watchdog ();
@@ -107,7 +106,7 @@ void sendreceive_resources ()
   int wait_count = 0;
   
   // Resource to cache.
-  string resource = resources [0];
+  std::string resource = resources [0];
   
   // Erase the two older storage locations that were used to cache resources in earlier versions of Bibledit.
   {
@@ -118,7 +117,7 @@ void sendreceive_resources ()
   Database_Logs::log ("Starting to install resource:" " " + resource, Filter_Roles::consultant ());
 
   // Server address and port.
-  string address = Database_Config_General::getServerAddress ();
+  std::string address = Database_Config_General::getServerAddress ();
   int port = Database_Config_General::getServerPort ();
   // If the client has not been connected to a cloud instance,
   // fetch the resource from the Bibledit Cloud demo.
@@ -126,23 +125,23 @@ void sendreceive_resources ()
     address = demo_address ();
     port = demo_port ();
   }
-  string cloud_url = client_logic_url (address, port, sync_resources_url ());
-  string resource_url = filter_url_build_http_query (cloud_url, "r", filter_url_urlencode (resource));
+  std::string cloud_url = client_logic_url (address, port, sync_resources_url ());
+  std::string resource_url = filter_url_build_http_query (cloud_url, "r", filter_url_urlencode (resource));
 
   // Go through all Bible books.
   Database_Versifications database_versifications;
-  vector <int> books = database_versifications.getMaximumBooks ();
+  std::vector <int> books = database_versifications.getMaximumBooks ();
   for (auto & book : books) {
     sendreceive_resources_delay_during_prioritized_tasks ();
     if (sendreceive_resources_interrupt) continue;
 
     // The URL fragment that contains the current book in its query.
-    string book_url = filter_url_build_http_query (resource_url, "b", filter::strings::convert_to_string (book));
+    std::string book_url = filter_url_build_http_query (resource_url, "b", filter::strings::convert_to_string (book));
     
     // The URL to request the resource database for this book from the Cloud.
-    string url = filter_url_build_http_query (book_url, "a", filter::strings::convert_to_string (Sync_Logic::resources_request_database));
-    string error;
-    string response = filter_url_http_get (url, error, false);
+    std::string url = filter_url_build_http_query (book_url, "a", filter::strings::convert_to_string (Sync_Logic::resources_request_database));
+    std::string error;
+    std::string response = filter_url_http_get (url, error, false);
     if (error.empty ()) {
       // When the Cloud responds with a "0", it means that the database is not yet ready for distribution.
       // The Cloud will be working on preparing it.
@@ -152,19 +151,19 @@ void sendreceive_resources ()
         // Now request the path to download it.
         url = filter_url_build_http_query (book_url, "a", filter::strings::convert_to_string (Sync_Logic::resources_request_download));
         error.clear ();
-        string response2 = filter_url_http_get (url, error, false);
+        std::string response2 = filter_url_http_get (url, error, false);
         if (error.empty ()) {
           // At this stage the file size is known, plus the fragment of the path in the Cloud.
           // Check whether the file is already available on the client, fully downloaded.
-          string client_path = filter_url_create_root_path ({filter_url_urldecode (response2)});
+          std::string client_path = filter_url_create_root_path ({filter_url_urldecode (response2)});
           int client_size = filter_url_filesize (client_path);
           if (server_size != client_size) {
             // Download it.
-            string url2 = client_logic_url (address, port, response2);
+            std::string url2 = client_logic_url (address, port, response2);
             error.clear ();
             filter_url_download_file (url2, client_path, error, false);
             if (error.empty ()) {
-              string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
+              std::string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
               Database_Logs::log ("Downloaded " + resource + " " + bookname, Filter_Roles::consultant ());
             } else {
               Database_Logs::log ("Failed to download resource " + response2 + " :" + error, Filter_Roles::consultant ());
@@ -189,10 +188,10 @@ void sendreceive_resources ()
   
   // Done.
   if (error_count) {
-    string msg = "Error count while downloading resource: " + filter::strings::convert_to_string (error_count);
+    std::string msg = "Error count while downloading resource: " + filter::strings::convert_to_string (error_count);
     Database_Logs::log (msg, Filter_Roles::consultant ());
   } else if (wait_count) {
-    string msg = "Waiting for Cloud to prepare resource for download. Remaining books: " + filter::strings::convert_to_string (wait_count);
+    std::string msg = "Waiting for Cloud to prepare resource for download. Remaining books: " + filter::strings::convert_to_string (wait_count);
     Database_Logs::log (msg, Filter_Roles::consultant ());
   } else {
     Database_Logs::log ("Completed installing resource:" " " + resource, Filter_Roles::consultant ());
@@ -203,7 +202,7 @@ void sendreceive_resources ()
     if (!sendreceive_resources_interrupt) {
       // Wait a bit so as not to generate too many journal entries
       // when there were errors of when it had to wait for the Cloud.
-      this_thread::sleep_for (chrono::minutes (1));
+      std::this_thread::sleep_for (std::chrono::minutes (1));
       if (!sendreceive_resources_interrupt) {
         re_schedule_download = true;
         Database_Logs::log ("Re-scheduling resource installation", Filter_Roles::consultant ());

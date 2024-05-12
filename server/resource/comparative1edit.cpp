@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -39,50 +39,46 @@
 #include <menu/logic.h>
 #include <access/logic.h>
 #include <client/logic.h>
-using namespace std;
 
 
-string resource_comparative1edit_url ()
+std::string resource_comparative1edit_url ()
 {
   return "resource/comparative1edit";
 }
 
 
-bool resource_comparative1edit_acl (void * webserver_request)
+bool resource_comparative1edit_acl (Webserver_Request& webserver_request)
 {
   return access_logic::privilege_view_resources (webserver_request);
 }
 
 
-string resource_comparative1edit (void * webserver_request)
+std::string resource_comparative1edit (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
-  
-  string page;
-  Assets_Header header = Assets_Header (translate("Comparative resource"), request);
+  std::string page;
+  Assets_Header header = Assets_Header (translate("Comparative resource"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
   Assets_View view;
-  string error, success;
+  std::string error, success;
   
   
-  string name = request->query ["name"];
-  if (name.empty()) name = request->post ["val1"];
+  std::string name = webserver_request.query ["name"];
+  if (name.empty()) name = webserver_request.post ["val1"];
   view.set_variable ("name", name);
 
   
-  string checkbox = request->post ["checkbox"];
-  bool checked = filter::strings::convert_to_bool (request->post ["checked"]);
+  std::string checkbox = webserver_request.post ["checkbox"];
+  bool checked = filter::strings::convert_to_bool (webserver_request.post ["checked"]);
 
   
   bool resource_edited = false;
 
 
-  string title, base, update, remove, replace;
+  std::string title, base, update, remove, replace;
   bool diacritics = false, casefold = false, cache = false;
   {
-    vector <string> resources = Database_Config_General::getComparativeResources ();
+    std::vector <std::string> resources = Database_Config_General::getComparativeResources ();
     for (auto resource : resources) {
       resource_logic_parse_comparative_resource (resource, &title, &base, &update, &remove, &replace, &diacritics, &casefold, &cache);
       if (title == name) break;
@@ -91,12 +87,12 @@ string resource_comparative1edit (void * webserver_request)
 
   
   // The comparative resource's base resource.
-  if (request->query.count ("base")) {
-    string value = request->query["base"];
+  if (webserver_request.query.count ("base")) {
+    std::string value = webserver_request.query["base"];
     if (value.empty()) {
       Dialog_List dialog_list = Dialog_List ("comparative1edit", translate("Select a resource to be used as a base resource"), translate ("The base resource is used as a starting point for the comparison."), "");
       dialog_list.add_query ("name", name);
-      vector <string> resources = resource_logic_get_names (webserver_request, true);
+      std::vector <std::string> resources = resource_logic_get_names (webserver_request, true);
       for (auto & resource : resources) {
         dialog_list.add_row (resource, "base", resource);
       }
@@ -110,12 +106,12 @@ string resource_comparative1edit (void * webserver_request)
   
   
   // The comparative resource's updated resource.
-  if (request->query.count ("update")) {
-    string value = request->query["update"];
+  if (webserver_request.query.count ("update")) {
+    std::string value = webserver_request.query["update"];
     if (value.empty()) {
       Dialog_List dialog_list = Dialog_List ("comparative1edit", translate("Select a resource to be used as the updated resource."), translate ("The updated resource will be compared with the base resource."), "");
       dialog_list.add_query ("name", name);
-      vector <string> resources = resource_logic_get_names (webserver_request, true);
+      std::vector <std::string> resources = resource_logic_get_names (webserver_request, true);
       for (auto & resource : resources) {
         dialog_list.add_row (resource, "update", resource);
       }
@@ -129,27 +125,27 @@ string resource_comparative1edit (void * webserver_request)
   
   
   // The characters to remove from both resources before doing a comparison.
-  if (request->query.count ("remove")) {
+  if (webserver_request.query.count ("remove")) {
     Dialog_Entry dialog_entry = Dialog_Entry ("comparative1edit", translate("Enter or edit the characters to remove from the resources"), remove, "remove", "");
     dialog_entry.add_query ("name", name);
     page += dialog_entry.run ();
     return page;
   }
-  if (request->post.count ("remove")) {
-    remove = request->post ["entry"];
+  if (webserver_request.post.count ("remove")) {
+    remove = webserver_request.post ["entry"];
     resource_edited = true;
   }
 
   
   // The characters to search for and replace in both resources before doing a comparison.
-  if (request->query.count ("replace")) {
+  if (webserver_request.query.count ("replace")) {
     Dialog_Entry dialog_entry = Dialog_Entry ("comparative1edit", translate("Enter or edit the search and replace sets"), replace, "replace", "");
     dialog_entry.add_query ("name", name);
     page += dialog_entry.run ();
     return page;
   }
-  if (request->post.count ("replace")) {
-    replace = request->post ["entry"];
+  if (webserver_request.post.count ("replace")) {
+    replace = webserver_request.post ["entry"];
     resource_edited = true;
   }
 
@@ -178,13 +174,13 @@ string resource_comparative1edit (void * webserver_request)
   // If the resource was edited, then take a number of steps.
   if (resource_edited) {
     // Save the comparative resource if it was edited.
-    vector <string> resources = Database_Config_General::getComparativeResources ();
+    std::vector <std::string> resources = Database_Config_General::getComparativeResources ();
     error = translate ("Could not save");
     for (size_t i = 0; i < resources.size(); i++) {
-      string title2;
+      std::string title2;
       resource_logic_parse_comparative_resource (resources[i], &title2);
       if (title2 == title) {
-        string resource = resource_logic_assemble_comparative_resource (title, base, update, remove, replace, diacritics, casefold, cache);
+        std::string resource = resource_logic_assemble_comparative_resource (title, base, update, remove, replace, diacritics, casefold, cache);
         resources[i] = resource;
         success = translate ("Saved");
         error.clear();
@@ -196,7 +192,7 @@ string resource_comparative1edit (void * webserver_request)
     else client_logic_no_cache_resource_add(title);
     // Store the list of comparative resources for download by the client devices.
     {
-      string path = resource_logic_comparative_resources_list_path ();
+      std::string path = resource_logic_comparative_resources_list_path ();
       filter_url_file_put_contents (path, filter::strings::implode (resources, "\n"));
     }
   }

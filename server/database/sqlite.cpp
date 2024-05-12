@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/string.h>
 #include <database/logs.h>
 #include <database/logic.h>
-using namespace std;
 
 
 /*
@@ -91,10 +90,10 @@ The database errors went away.
 // INSERT INTO cache VALUES ( 136 , 0 , '' ); - database is locked - database is locked
 // INSERT INTO cache VALUES ( 25 , 21 , '' ); - unrecognized token: "'" - SQL logic error or missing database
 // Therefore here's an extra mutex for our own logic, and that should fix those errors.
-mutex sqlite_execute_mutex;
+std::mutex sqlite_execute_mutex;
 
 
-sqlite3 * database_sqlite_connect_file (string filename)
+sqlite3 * database_sqlite_connect_file (std::string filename)
 {
   sqlite3 *db {nullptr};
   int rc = sqlite3_open (filename.c_str(), &db);
@@ -111,7 +110,7 @@ sqlite3 * database_sqlite_connect_file (string filename)
 // The function provides the path to the "database" in the default database folder.
 // It does this in case "database" contains no path.
 // If it has a path, then it returns the path as given.
-string database_sqlite_file (string database)
+std::string database_sqlite_file (std::string database)
 {
   if (filter_url_dirname (database) == ".") {
     return filter_url_create_root_path ({database_logic_databases (), database + database_sqlite_suffix ()});
@@ -120,25 +119,25 @@ string database_sqlite_file (string database)
 }
 
 
-string database_sqlite_suffix ()
+std::string database_sqlite_suffix ()
 {
   return ".sqlite";
 }
 
 
-sqlite3 * database_sqlite_connect (string database)
+sqlite3 * database_sqlite_connect (std::string database)
 {
   return database_sqlite_connect_file (database_sqlite_file (database));
 }
 
 
-string database_sqlite_no_sql_injection (string sql)
+std::string database_sqlite_no_sql_injection (std::string sql)
 {
   return filter::strings::replace ("'", "''", sql);
 }
 
 
-void database_sqlite_exec (sqlite3 * db, string sql)
+void database_sqlite_exec (sqlite3 * db, std::string sql)
 {
   char *error = nullptr;
   if (db) {
@@ -153,7 +152,7 @@ void database_sqlite_exec (sqlite3 * db, string sql)
 }
 
 
-map <string, vector <string> > database_sqlite_query (sqlite3 * db, string sql)
+std::map <std::string, std::vector <std::string> > database_sqlite_query (sqlite3 * db, std::string sql)
 {
   char * error = nullptr;
   SqliteReader reader (0);
@@ -178,17 +177,17 @@ void database_sqlite_disconnect (sqlite3 * database)
 
 // Does an integrity check on the database.
 // Returns true if healthy, false otherwise.
-bool database_sqlite_healthy (string database)
+bool database_sqlite_healthy (std::string database)
 {
-  string file = database_sqlite_file (database);
+  std::string file = database_sqlite_file (database);
   bool ok = false;
   // Do an integrity check on the database.
   // An empty file appears healthy too, so deal with that.
   if (filter_url_filesize (file) > 0) {
     sqlite3 * db = database_sqlite_connect (database);
-    string query = "PRAGMA integrity_check;";
-    map <string, vector <string> > result = database_sqlite_query (db, query);
-    vector <string> health = result ["integrity_check"];
+    std::string query = "PRAGMA integrity_check;";
+    std::map <std::string, std::vector <std::string> > result = database_sqlite_query (db, query);
+    std::vector <std::string> health = result ["integrity_check"];
     if (health.size () == 1) {
       if (health [0] == "ok") ok = true;
     }
@@ -200,9 +199,9 @@ bool database_sqlite_healthy (string database)
 
 // Logs any error on the database connection,
 // The error will be prefixed by $prefix.
-void database_sqlite_error (sqlite3 * database, const string & prefix, char * error)
+void database_sqlite_error (sqlite3 * database, const std::string& prefix, char * error)
 {
-  string message = prefix;
+  std::string message = prefix;
   if (error) {
     message.append (" - ");
     message.append (error);
@@ -210,11 +209,11 @@ void database_sqlite_error (sqlite3 * database, const string & prefix, char * er
   if (database) {
     int errcode = sqlite3_errcode (database);
     const char * errstr = sqlite3_errstr (errcode);
-    string error_string;
+    std::string error_string;
     if (errstr) error_string.assign (errstr);
     int x_errcode = sqlite3_extended_errcode (database);
     const char * x_errstr = sqlite3_errstr (x_errcode);
-    string extended_error_string;
+    std::string extended_error_string;
     if (x_errstr) extended_error_string.assign (x_errstr);
     if (!error_string.empty ()) {
       message.append (" - ");
@@ -257,7 +256,7 @@ void SqliteSQL::add (int value)
   sql.append (" ");
 }
 
-void SqliteSQL::add (string value)
+void SqliteSQL::add (std::string value)
 {
   sql.append (" '");
   value = database_sqlite_no_sql_injection (value);
@@ -289,7 +288,7 @@ int SqliteReader::callback (void *userdata, int argc, char **argv, char **column
 }
 
 
-SqliteDatabase::SqliteDatabase (string filename)
+SqliteDatabase::SqliteDatabase (std::string filename)
 {
   db = database_sqlite_connect (filename);
 }
@@ -323,7 +322,7 @@ void SqliteDatabase::add (int value)
 }
 
 
-void SqliteDatabase::add (string value)
+void SqliteDatabase::add (std::string value)
 {
   sql.append (" '");
   value = database_sqlite_no_sql_injection (value);
@@ -338,7 +337,7 @@ void SqliteDatabase::execute ()
 }
 
 
-map <string, vector <string> > SqliteDatabase::query ()
+std::map <std::string, std::vector <std::string> > SqliteDatabase::query ()
 {
   return database_sqlite_query (db, sql);
 }

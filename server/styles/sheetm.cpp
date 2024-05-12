@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -37,26 +37,23 @@
 #include <menu/logic.h>
 #include <styles/indexm.h>
 #include <database/logic.h>
-using namespace std;
 
 
-string styles_sheetm_url ()
+std::string styles_sheetm_url ()
 {
   return "styles/sheetm";
 }
 
 
-bool styles_sheetm_acl (void * webserver_request)
+bool styles_sheetm_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
 }
 
 
-string styles_sheetm (void * webserver_request)
+std::string styles_sheetm (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  string page;
+  std::string page;
   
   Assets_Header header = Assets_Header (translate("Stylesheet"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
@@ -65,19 +62,19 @@ string styles_sheetm (void * webserver_request)
 
   Assets_View view;
   
-  string name = request->query["name"];
+  std::string name = webserver_request.query["name"];
   view.set_variable ("name", filter::strings::escape_special_xml_characters (name));
 
   Database_Styles database_styles;
   
-  string username = request->session_logic ()->currentUser ();
-  int userlevel = request->session_logic ()->currentLevel ();
+  std::string username = webserver_request.session_logic ()->currentUser ();
+  int userlevel = webserver_request.session_logic ()->currentLevel ();
   bool write = database_styles.hasWriteAccess (username, name);
   if (userlevel >= Filter_Roles::admin ()) write = true;
 
-  if (request->post.count ("new")) {
-    string newstyle = request->post["entry"];
-    vector <string> existing_markers = database_styles.getMarkers (name);
+  if (webserver_request.post.count ("new")) {
+    std::string newstyle = webserver_request.post["entry"];
+    std::vector <std::string> existing_markers = database_styles.getMarkers (name);
     if (find (existing_markers.begin(), existing_markers.end(), newstyle) != existing_markers.end()) {
       page += assets_page::error (translate("This style already exists"));
     } else {
@@ -86,23 +83,23 @@ string styles_sheetm (void * webserver_request)
       page += assets_page::success (translate("The style has been created"));
     }
   }
-  if (request->query.count("new")) {
+  if (webserver_request.query.count("new")) {
     Dialog_Entry dialog_entry = Dialog_Entry ("sheetm", translate("Please enter the name for the new style"), "", "new", "");
     dialog_entry.add_query ("name", name);
     page += dialog_entry.run ();
     return page;
   }
   
-  string del = request->query["delete"];
+  std::string del = webserver_request.query["delete"];
   if (del != "") {
     if (write) database_styles.deleteMarker (name, del);
   }
 
-  stringstream markerblock;
-  map <string, string> markers_names = database_styles.getMarkersAndNames (name);
+  std::stringstream markerblock;
+  std::map <std::string, std::string> markers_names = database_styles.getMarkersAndNames (name);
   for (auto & item : markers_names) {
-    string marker = item.first;
-    string marker_name = item.second;
+    std::string marker = item.first;
+    std::string marker_name = item.second;
     marker_name = translate (marker_name);
     markerblock << "<tr>";
     markerblock << R"(<td><a href=")" << "view?sheet=" << name << "&style=" << marker << R"(">)"  << marker << "</a></td>";
@@ -112,7 +109,7 @@ string styles_sheetm (void * webserver_request)
   }
   view.set_variable ("markerblock", markerblock.str());
   
-  string folder = filter_url_create_root_path ({database_logic_databases (), "styles", name});
+  std::string folder = filter_url_create_root_path ({database_logic_databases (), "styles", name});
   view.set_variable ("folder", folder);
 
   page += view.render ("styles", "sheetm");

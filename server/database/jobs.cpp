@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/date.h>
 #include <config/globals.h>
 #include <database/sqlite.h>
-using namespace std;
 
 
 // Database resilience: 
@@ -41,7 +40,7 @@ void Database_Jobs::create ()
 {
   sqlite3 * db = connect ();
   database_sqlite_exec (db, "DROP TABLE IF EXISTS jobs");
-  string sql = "CREATE TABLE IF NOT EXISTS jobs ("
+  std::string sql = "CREATE TABLE IF NOT EXISTS jobs ("
                " id integer,"
                " timestamp integer,"
                " level integer,"
@@ -84,7 +83,7 @@ bool Database_Jobs::id_exists (int id)
   sql.add (id);
   sql.add (";");
   sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql.sql) ["id"];
+  std::vector <std::string> result = database_sqlite_query (db, sql.sql) ["id"];
   database_sqlite_disconnect (db);
   return !result.empty ();
 }
@@ -135,7 +134,7 @@ int Database_Jobs::get_level (int id)
   sql.add (id);
   sql.add (";");
   sqlite3 * db = connect ();
-  vector <string> levels = database_sqlite_query (db, sql.sql) ["level"];
+  std::vector <std::string> levels = database_sqlite_query (db, sql.sql) ["level"];
   database_sqlite_disconnect (db);
   if (!levels.empty()) {
     return filter::strings::convert_to_int (levels[0]);
@@ -144,7 +143,7 @@ int Database_Jobs::get_level (int id)
 }
 
 
-void Database_Jobs::set_start (int id, string start)
+void Database_Jobs::set_start (int id, std::string start)
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("UPDATE jobs SET start =");
@@ -158,20 +157,20 @@ void Database_Jobs::set_start (int id, string start)
 }
 
 
-string Database_Jobs::get_start (int id)
+std::string Database_Jobs::get_start (int id)
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT start FROM jobs WHERE id =");
   sql.add (id);
   sql.add (";");
   sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql.sql) ["start"];
+  std::vector <std::string> result = database_sqlite_query (db, sql.sql) ["start"];
   database_sqlite_disconnect (db);
   if (!result.empty()) {
     auto start = result[0];
     return start;
   }
-  return "";
+  return std::string();
 }
 
 
@@ -189,23 +188,23 @@ void Database_Jobs::set_percentage (int id, int percentage)
 }
 
 
-string Database_Jobs::get_percentage (int id)
+std::string Database_Jobs::get_percentage (int id)
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT percentage FROM jobs WHERE id =");
   sql.add (id);
   sql.add (";");
   sqlite3 * db = connect ();
-  vector <string> percentages = database_sqlite_query (db, sql.sql) ["percentage"];
+  std::vector <std::string> percentages = database_sqlite_query (db, sql.sql) ["percentage"];
   database_sqlite_disconnect (db);
   if (!percentages.empty()) {
     return percentages[0];
   }
-  return "";
+  return std::string();
 }
 
 
-void Database_Jobs::set_progress (int id, string progress)
+void Database_Jobs::set_progress (int id, std::string progress)
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("UPDATE jobs SET progress =");
@@ -219,23 +218,23 @@ void Database_Jobs::set_progress (int id, string progress)
 }
 
 
-string Database_Jobs::get_progress (int id)
+std::string Database_Jobs::get_progress (int id)
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT progress FROM jobs WHERE id =");
   sql.add (id);
   sql.add (";");
   sqlite3 * db = connect ();
-  vector <string> progress = database_sqlite_query (db, sql.sql) ["progress"];
+  std::vector <std::string> progress = database_sqlite_query (db, sql.sql) ["progress"];
   database_sqlite_disconnect (db);
   if (!progress.empty()) {
     return progress[0];
   }
-  return "";
+  return std::string();
 }
 
 
-void Database_Jobs::set_result (int id, string result)
+void Database_Jobs::set_result (int id, std::string result)
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("UPDATE jobs SET result =");
@@ -249,19 +248,17 @@ void Database_Jobs::set_result (int id, string result)
 }
 
 
-string Database_Jobs::get_result (int id)
+std::string Database_Jobs::get_result (int id)
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT result FROM jobs WHERE id =");
   sql.add (id);
   sql.add (";");
   sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql.sql) ["result"];
+  std::vector <std::string> result = database_sqlite_query (db, sql.sql) ["result"];
   database_sqlite_disconnect (db);
   if (!result.empty()) {
     return result[0];
   }
-  return string();
+  return std::string();
 }
-
-

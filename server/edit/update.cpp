@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -42,44 +42,41 @@
 #include <developer/logic.h>
 #include <rss/logic.h>
 #include <sendreceive/logic.h>
-using namespace std;
 
 
-string edit_update_url ()
+std::string edit_update_url ()
 {
   return "edit/update";
 }
 
 
-bool edit_update_acl (void * webserver_request)
+bool edit_update_acl (Webserver_Request& webserver_request)
 {
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
+  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ()))
+    return true;
   auto [ read, write ] = access_bible::any (webserver_request);
   return read;
 }
 
 
-string edit_update (void * webserver_request)
+std::string edit_update (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
-
   // Whether the update is good to go.
   bool good2go = true;
   
   
   // The messages to return.
-  vector <string> messages;
+  std::vector <std::string> messages;
 
   
   // Check the relevant bits of information.
   if (good2go) {
     bool parameters_ok = true;
-    if (!request->post.count ("bible")) parameters_ok = false;
-    if (!request->post.count ("book")) parameters_ok = false;
-    if (!request->post.count ("chapter")) parameters_ok = false;
-    if (!request->post.count ("loaded")) parameters_ok = false;
-    if (!request->post.count ("edited")) parameters_ok = false;
+    if (!webserver_request.post.count ("bible")) parameters_ok = false;
+    if (!webserver_request.post.count ("book")) parameters_ok = false;
+    if (!webserver_request.post.count ("chapter")) parameters_ok = false;
+    if (!webserver_request.post.count ("loaded")) parameters_ok = false;
+    if (!webserver_request.post.count ("edited")) parameters_ok = false;
     if (!parameters_ok) {
       messages.push_back (translate("Don't know what to update"));
       good2go = false;
@@ -88,37 +85,37 @@ string edit_update (void * webserver_request)
 
   
   // Get the relevant bits of information.
-  string bible;
+  std::string bible;
   int book = 0;
   int chapter = 0;
-  string loaded_html;
-  string edited_html;
-  string checksum1;
-  string checksum2;
-  string unique_id;
+  std::string loaded_html;
+  std::string edited_html;
+  std::string checksum1;
+  std::string checksum2;
+  std::string unique_id;
   if (good2go) {
-    bible = request->post["bible"];
-    book = filter::strings::convert_to_int (request->post["book"]);
-    chapter = filter::strings::convert_to_int (request->post["chapter"]);
-    loaded_html = request->post["loaded"];
-    edited_html = request->post["edited"];
-    checksum1 = request->post["checksum1"];
-    checksum2 = request->post["checksum2"];
-    unique_id = request->post ["id"];
+    bible = webserver_request.post["bible"];
+    book = filter::strings::convert_to_int (webserver_request.post["book"]);
+    chapter = filter::strings::convert_to_int (webserver_request.post["chapter"]);
+    loaded_html = webserver_request.post["loaded"];
+    edited_html = webserver_request.post["edited"];
+    checksum1 = webserver_request.post["checksum1"];
+    checksum2 = webserver_request.post["checksum2"];
+    unique_id = webserver_request.post ["id"];
   }
 
 
   // Checksums of the loaded and edited html.
   if (good2go) {
     if (checksum_logic::get (loaded_html) != checksum1) {
-      request->response_code = 409;
+      webserver_request.response_code = 409;
       messages.push_back (translate ("Checksum error"));
       good2go = false;
     }
   }
   if (good2go) {
     if (checksum_logic::get (edited_html) != checksum2) {
-      request->response_code = 409;
+      webserver_request.response_code = 409;
       messages.push_back (translate ("Checksum error"));
       good2go = false;
     }
@@ -143,27 +140,27 @@ string edit_update (void * webserver_request)
 
   bool bible_write_access = false;
   if (good2go) {
-    bible_write_access = access_bible::book_write (request, string(), bible, book);
+    bible_write_access = access_bible::book_write (webserver_request, std::string(), bible, book);
   }
 
 
-  string stylesheet;
+  std::string stylesheet;
   if (good2go) {
     stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
   }
 
   
   // Collect some data about the changes for this user.
-  string username = request->session_logic()->currentUser ();
+  std::string username = webserver_request.session_logic()->currentUser ();
 #ifdef HAVE_CLOUD
   int oldID = 0;
   if (good2go) {
-    oldID = request->database_bibles()->get_chapter_id (bible, book, chapter);
+    oldID = webserver_request.database_bibles()->get_chapter_id (bible, book, chapter);
   }
 #endif
-  string old_chapter_usfm;
+  std::string old_chapter_usfm;
   if (good2go) {
-    old_chapter_usfm = request->database_bibles()->get_chapter (bible, book, chapter);
+    old_chapter_usfm = webserver_request.database_bibles()->get_chapter (bible, book, chapter);
   }
 
   
@@ -172,7 +169,7 @@ string edit_update (void * webserver_request)
   // This needs the loaded USFM as the ancestor,
   // the edited USFM as a change-set,
   // and the existing USFM as a prioritized change-set.
-  string loaded_chapter_usfm;
+  std::string loaded_chapter_usfm;
   if (good2go) {
     Editor_Html2Usfm editor_export;
     editor_export.load (loaded_html);
@@ -180,7 +177,7 @@ string edit_update (void * webserver_request)
     editor_export.run ();
     loaded_chapter_usfm = editor_export.get ();
   }
-  string edited_chapter_usfm;
+  std::string edited_chapter_usfm;
   if (good2go) {
     Editor_Html2Usfm editor_export;
     editor_export.load (edited_html);
@@ -188,13 +185,13 @@ string edit_update (void * webserver_request)
     editor_export.run ();
     edited_chapter_usfm = editor_export.get ();
   }
-  string existing_chapter_usfm = filter::strings::trim (old_chapter_usfm);
+  std::string existing_chapter_usfm = filter::strings::trim (old_chapter_usfm);
 
 
   // Check that the edited USFM contains no more than, and exactly the same as,
   // the book and chapter that was loaded in the editor.
   if (good2go && bible_write_access) {
-    vector <filter::usfm::BookChapterData> book_chapter_text = filter::usfm::usfm_import (edited_chapter_usfm, stylesheet);
+    std::vector <filter::usfm::BookChapterData> book_chapter_text = filter::usfm::usfm_import (edited_chapter_usfm, stylesheet);
     if (book_chapter_text.size () != 1) {
       Database_Logs::log (translate ("A user tried to save something different from exactly one chapter"));
       messages.push_back (translate("Incorrect chapter"));
@@ -223,9 +220,9 @@ string edit_update (void * webserver_request)
   // The three-way merge reconciles those differences.
   if (good2go && bible_write_access && text_was_edited) {
     if (loaded_chapter_usfm != existing_chapter_usfm) {
-      vector <Merge_Conflict> conflicts;
+      std::vector <Merge_Conflict> conflicts;
       // Do a merge while giving priority to the USFM already in the chapter.
-      string merged_chapter_usfm = filter_merge_run (loaded_chapter_usfm, edited_chapter_usfm, existing_chapter_usfm, true, conflicts);
+      std::string merged_chapter_usfm = filter_merge_run (loaded_chapter_usfm, edited_chapter_usfm, existing_chapter_usfm, true, conflicts);
       // Mail the user if there is a merge anomaly.
       bible_logic::optional_merge_irregularity_email (bible, book, chapter, username, loaded_chapter_usfm, edited_chapter_usfm, merged_chapter_usfm);
       filter_merge_add_book_chapter (conflicts, book, chapter);
@@ -264,20 +261,20 @@ string edit_update (void * webserver_request)
   }
   
   // Safely store the chapter.
-  string explanation;
-  string message;
+  std::string explanation;
+  std::string message;
   if (good2go && bible_write_access && text_was_edited) {
-    message = filter::usfm::safely_store_chapter (request, bible, book, chapter, edited_chapter_usfm, explanation);
+    message = filter::usfm::safely_store_chapter (webserver_request, bible, book, chapter, edited_chapter_usfm, explanation);
     bible_logic::unsafe_save_mail (message, explanation, username, edited_chapter_usfm, book, chapter);
     if (!message.empty ()) messages.push_back (message);
   }
 
   
   // The new chapter identifier and new chapter USFM.
-  int newID = request->database_bibles()->get_chapter_id (bible, book, chapter);
-  string new_chapter_usfm;
+  int newID = webserver_request.database_bibles()->get_chapter_id (bible, book, chapter);
+  std::string new_chapter_usfm;
   if (good2go) {
-    new_chapter_usfm = request->database_bibles()->get_chapter (bible, book, chapter);
+    new_chapter_usfm = webserver_request.database_bibles()->get_chapter (bible, book, chapter);
   }
 
   
@@ -307,8 +304,8 @@ string edit_update (void * webserver_request)
   
   
   // The response to send to back to the editor.
-  string response;
-  string separator = "#_be_#";
+  std::string response;
+  std::string separator = "#_be_#";
   // The response starts with the save message(s) if any.
   // The message(s) contain information about save success or failure.
   // Send it to the browser for display to the user.
@@ -329,8 +326,8 @@ string edit_update (void * webserver_request)
   // delete - position
   if (good2go) {
     // Determine the server's current chapter content, and the editor's current chapter content.
-    string editor_html (edited_html);
-    string server_html;
+    std::string editor_html (edited_html);
+    std::string server_html;
     {
       Editor_Usfm2Html editor_usfm2html;
       editor_usfm2html.load (new_chapter_usfm);
@@ -338,25 +335,25 @@ string edit_update (void * webserver_request)
       editor_usfm2html.run ();
       server_html = editor_usfm2html.get ();
     }
-    vector <int> positions;
-    vector <int> sizes;
-    vector <string> operators;
-    vector <string> content;
+    std::vector <int> positions;
+    std::vector <int> sizes;
+    std::vector <std::string> operators;
+    std::vector <std::string> content;
     bible_logic::html_to_editor_updates (editor_html, server_html, positions, sizes, operators, content);
     // Encode the condensed differences for the response to the Javascript editor.
     for (size_t i = 0; i < positions.size(); i++) {
       response.append ("#_be_#");
       response.append (filter::strings::convert_to_string (positions[i]));
       response.append ("#_be_#");
-      string operation = operators[i];
+      std::string operation = operators[i];
       response.append (operation);
       if (operation == bible_logic::insert_operator ()) {
-        string text = content[i];
-        string character = filter::strings::unicode_string_substr (text, 0, 1);
+        std::string text = content[i];
+        std::string character = filter::strings::unicode_string_substr (text, 0, 1);
         response.append ("#_be_#");
         response.append (character);
         size_t length = filter::strings::unicode_string_length (text);
-        string format = filter::strings::unicode_string_substr (text, 1, length - 1);
+        std::string format = filter::strings::unicode_string_substr (text, 1, length - 1);
         response.append ("#_be_#");
         response.append (format);
         // Also add the size of the character in UTF-16 format, 2-bytes or 4 bytes, as size 1 or 2.
@@ -406,6 +403,6 @@ string edit_update (void * webserver_request)
   response = checksum_logic::send (response, write);
 
   // Ready.
-  //this_thread::sleep_for(chrono::seconds(5));
+  //this_thread::sleep_for(std::chrono::seconds(5));
   return response;
 }

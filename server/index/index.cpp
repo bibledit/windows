@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/webview.h>
 #include <menu/logic.h>
 #include <read/index.h>
-using namespace std;
+#include <webserver/request.h>
 
 
 const char * index_index_url ()
@@ -44,33 +44,23 @@ const char * index_index_url ()
 }
 
 
-bool index_index_acl (void * webserver_request)
+bool index_index_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::guest ());
 }
 
 
-string index_index (void * webserver_request)
+std::string index_index (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  filter_webview_log_user_agent (request->user_agent);
+  filter_webview_log_user_agent (webserver_request.user_agent);
   
   Assets_Header header = Assets_Header (translate ("Bibledit"), webserver_request);
   
-  if (config::logic::demo_enabled ()) {
-    // The demo, when there's no active menu, forwards to the active workspace.
-    // This is disabled see https://github.com/bibledit/cloud/issues/789
-//    if (request->query.empty ()) {
-//      header.refresh (5, "/" + workspace_index_url ());
-//    }
-  }
-  
   // Basic or advanced mode setting.
-  string mode = request->query ["mode"];
+  const std::string mode = webserver_request.query ["mode"];
   if (!mode.empty ()) {
-    bool basic = (mode == "basic");
-    request->database_config_user ()->setBasicInterfaceMode (basic);
+    const bool basic = (mode == "basic");
+    webserver_request.database_config_user ()->setBasicInterfaceMode (basic);
     menu_logic_tabbed_mode_save_json (webserver_request);
   }
   
@@ -89,13 +79,13 @@ string index_index (void * webserver_request)
   // Normally a page does not show the expanded main menu.
   // This is to save space on the screen.
   // But the home page of Bibledit shows the extended main menu.
-  if (request->query.count ("item") == 0) {
-    request->query ["item"] = "main";
+  if (webserver_request.query.count ("item") == 0) {
+    webserver_request.query ["item"] = "main";
   }
 
-  string page = header.run ();
+  std::string page = header.run ();
   
-  Assets_View view;
+  Assets_View view {};
 
   view.set_variable ("warning", bible_logic::unsent_unreceived_data_warning ());
   

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,42 +32,38 @@
 #include <database/config/general.h>
 #include <tasks/logic.h>
 #include <journal/index.h>
-using namespace std;
 
 
-string paratext_index_url ()
+std::string paratext_index_url ()
 {
   return "paratext/index";
 }
 
 
-bool paratext_index_acl (void * webserver_request)
+bool paratext_index_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
 }
 
 
-string paratext_index (void * webserver_request)
+std::string paratext_index (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
-
-  string page;
+  std::string page;
   page = assets_page::header (translate ("Paratext"), webserver_request);
   Assets_View view;
-  string success;
-  string error;
+  std::string success;
+  std::string error;
 
   
-  string bible = request->query ["bible"];
+  std::string bible = webserver_request.query ["bible"];
 
   
-  if (request->query.count ("selectbible")) {
-    string select = request->query["selectbible"];
+  if (webserver_request.query.count ("selectbible")) {
+    std::string select = webserver_request.query["selectbible"];
     if (select == "") {
       Dialog_List dialog_list = Dialog_List ("index", translate("Which Bible are you going to use?"), "", "");
       dialog_list.add_query ("bible", bible);
-      vector <string> bibles = request->database_bibles()->get_bibles();
+      std::vector <std::string> bibles = webserver_request.database_bibles()->get_bibles();
       for (auto & value : bibles) {
         dialog_list.add_row (value, "selectbible", value);
       }
@@ -79,7 +75,7 @@ string paratext_index (void * webserver_request)
   }
   
   
-  if (request->query.count ("disable")) {
+  if (webserver_request.query.count ("disable")) {
     Database_Config_Bible::setParatextProject (bible, "");
     Database_Config_Bible::setParatextCollaborationEnabled (bible, false);
     filter_url_rmdir (Paratext_Logic::ancestorPath (bible, 0));
@@ -92,17 +88,17 @@ string paratext_index (void * webserver_request)
   
   
   // Paratext Projects folder.
-  string paratext_folder = Database_Config_General::getParatextProjectsFolder ();
+  std::string paratext_folder = Database_Config_General::getParatextProjectsFolder ();
   if (!file_or_dir_exists (paratext_folder)) paratext_folder.clear ();
   
-  if (request->query.count ("paratextfolder")) {
+  if (webserver_request.query.count ("paratextfolder")) {
     Dialog_Entry dialog_entry = Dialog_Entry ("index", translate("Please enter the name of the Paratext projects folder"), paratext_folder, "paratextfolder", "");
     dialog_entry.add_query ("bible", bible);
     page += dialog_entry.run ();
     return page;
   }
-  if (request->post.count ("paratextfolder")) {
-    string folder = request->post ["entry"];
+  if (webserver_request.post.count ("paratextfolder")) {
+    std::string folder = webserver_request.post ["entry"];
     if (file_or_dir_exists (folder)) {
       paratext_folder = folder;
       success = translate ("Paratext projects folder was set.");
@@ -124,15 +120,15 @@ string paratext_index (void * webserver_request)
 
   
   // Paratext Project.
-  string paratext_project = Database_Config_Bible::getParatextProject (bible);
+  std::string paratext_project = Database_Config_Bible::getParatextProject (bible);
   if (!file_or_dir_exists (filter_url_create_path ({paratext_folder, paratext_project}))) paratext_project.clear ();
   
-  if (request->query.count ("paratextproject")) {
-    string project = request->query["paratextproject"];
+  if (webserver_request.query.count ("paratextproject")) {
+    std::string project = webserver_request.query["paratextproject"];
     if (project == "") {
       Dialog_List dialog_list = Dialog_List ("index", translate("Which Paratext project are you going to use?"), "", "");
       dialog_list.add_query ("bible", bible);
-      vector <string> projects = Paratext_Logic::searchProjects (paratext_folder);
+      std::vector <std::string> projects = Paratext_Logic::searchProjects (paratext_folder);
       for (auto & value : projects) {
         dialog_list.add_row (value, "paratextproject", value);
       }
@@ -149,8 +145,8 @@ string paratext_index (void * webserver_request)
 
 
   // Authoritative copy: Take from either Bibledit or else from Paratext.
-  if (request->query.count ("master")) {
-    string master = request->query["master"];
+  if (webserver_request.query.count ("master")) {
+    std::string master = webserver_request.query["master"];
     if (master == "") {
       Dialog_List dialog_list = Dialog_List ("index", translate("Where are you going to take the initial Bible data from?"), "", "");
       dialog_list.add_query ("bible", bible);
@@ -167,8 +163,8 @@ string paratext_index (void * webserver_request)
       }
       view.set_variable ("master", master);
       view.enable_zone ("setuprunning");
-      redirect_browser (request, journal_index_url ());
-      return "";
+      redirect_browser (webserver_request, journal_index_url ());
+      return std::string();
     }
   }
 

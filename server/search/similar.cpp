@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,45 +32,42 @@
 #include <search/logic.h>
 #include <menu/logic.h>
 #include <access/bible.h>
-using namespace std;
 
 
-string search_similar_url ()
+std::string search_similar_url ()
 {
   return "search/similar";
 }
 
 
-bool search_similar_acl (void * webserver_request)
+bool search_similar_acl (Webserver_Request& webserver_request)
 {
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ())) return true;
+  if (Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ()))
+    return true;
   auto [ read, write ] = access_bible::any (webserver_request);
   return read;
 }
 
 
-string search_similar (void * webserver_request)
+std::string search_similar (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
- 
-  int myIdentifier = filter::strings::user_identifier (request);
+  const int myIdentifier = filter::strings::user_identifier (webserver_request);
   
   
-  string bible = request->database_config_user()->getBible ();
-  if (request->query.count ("b")) {
-    bible = request->query ["b"];
+  std::string bible = webserver_request.database_config_user()->getBible ();
+  if (webserver_request.query.count ("b")) {
+    bible = webserver_request.query ["b"];
   }
 
 
-  if (request->query.count ("load")) {
-    int book = Ipc_Focus::getBook (request);
-    int chapter = Ipc_Focus::getChapter (request);
-    int verse = Ipc_Focus::getVerse (request);
+  if (webserver_request.query.count ("load")) {
+    const int book = Ipc_Focus::getBook (webserver_request);
+    const int chapter = Ipc_Focus::getChapter (webserver_request);
+    const int verse = Ipc_Focus::getVerse (webserver_request);
     // Text of the focused verse in the active Bible.
     // Remove all punctuation from it.
-    string versetext = search_logic_get_bible_verse_text (bible, book, chapter, verse);
-    vector <string> punctuation = filter::strings::explode (Database_Config_Bible::getSentenceStructureEndPunctuation (bible), ' ');
+    std::string versetext = search_logic_get_bible_verse_text (bible, book, chapter, verse);
+    std::vector <std::string> punctuation = filter::strings::explode (Database_Config_Bible::getSentenceStructureEndPunctuation (bible), ' ');
     for (auto & sign : punctuation) {
       versetext = filter::strings::replace (sign, "", versetext);
     }
@@ -84,12 +81,12 @@ string search_similar (void * webserver_request)
   }
   
   
-  if (request->query.count ("words")) {
+  if (webserver_request.query.count ("words")) {
     
-    string words = request->query ["words"];
+    std::string words = webserver_request.query ["words"];
     words = filter::strings::trim (words);
     Database_Volatile::setValue (myIdentifier, "searchsimilar", words);
-    vector <string> vwords = filter::strings::explode (words, ' ');
+    std::vector <std::string> vwords = filter::strings::explode (words, ' ');
     
     // Include items if there are no more search hits than 30% of the total number of verses in the Bible.
     size_t maxcount = static_cast<size_t> (round (0.3 * search_logic_get_verse_count (bible)));
@@ -97,12 +94,12 @@ string search_similar (void * webserver_request)
     // Store how often a verse occurs in an array.
     // The keys are the identifiers of the search results.
     // The values are how often the identifiers occur in the entire focused verse.
-    map <int, int> identifiers;
+    std::map <int, int> identifiers;
     
     for (auto & word : vwords) {
       
       // Find out how often this word occurs in the Bible. Skip if too often.
-      vector <Passage> passages = search_logic_search_bible_text (bible, word);
+      std::vector <Passage> passages = search_logic_search_bible_text (bible, word);
       if (passages.size () > maxcount) continue;
       
       // Store the identifiers and their count.
@@ -116,8 +113,8 @@ string search_similar (void * webserver_request)
     
     // Sort on occurrence from high to low.
     // Skip identifiers that only occur once.
-    vector <int> ids;
-    vector <int> counts;
+    std::vector <int> ids;
+    std::vector <int> counts;
     for (auto & element : identifiers) {
       int id = element.first;
       int count = element.second;
@@ -129,7 +126,7 @@ string search_similar (void * webserver_request)
     reverse (ids.begin(), ids.end());
 
     // Output the passage identifiers to the browser.
-    string output;
+    std::string output;
     for (auto & id : ids) {
       if (!output.empty ()) output.append ("\n");
       output.append (filter::strings::convert_to_string (id));
@@ -138,36 +135,36 @@ string search_similar (void * webserver_request)
   }
   
   
-  if (request->query.count ("id")) {
-    int id = filter::strings::convert_to_int (request->query ["id"]);
+  if (webserver_request.query.count ("id")) {
+    int id = filter::strings::convert_to_int (webserver_request.query ["id"]);
     
     // Get the Bible and passage for this identifier.
     Passage passage = filter_integer_to_passage (id);
-    string bible2 = request->database_config_user()->getBible ();
+    std::string bible2 = webserver_request.database_config_user()->getBible ();
     // string bible = passage.bible;
     int book = passage.m_book;
     int chapter = passage.m_chapter;
-    string verse = passage.m_verse;
+    std::string verse = passage.m_verse;
     
     // Get the plain text.
-    string text = search_logic_get_bible_verse_text (bible2, book, chapter, filter::strings::convert_to_int (verse));
+    std::string text = search_logic_get_bible_verse_text (bible2, book, chapter, filter::strings::convert_to_int (verse));
     
     // Get search words.
-    vector <string> words = filter::strings::explode (Database_Volatile::getValue (myIdentifier, "searchsimilar"), ' ');
+    std::vector <std::string> words = filter::strings::explode (Database_Volatile::getValue (myIdentifier, "searchsimilar"), ' ');
     
     // Format it.
-    string link = filter_passage_link_for_opening_editor_at (book, chapter, verse);
+    std::string link = filter_passage_link_for_opening_editor_at (book, chapter, verse);
     text = filter::strings::markup_words (words, text);
-    string output = "<div>" + link + " " + text + "</div>";
+    std::string output = "<div>" + link + " " + text + "</div>";
     
     // Output to browser.
     return output;
   }
 
   
-  string page;
+  std::string page;
   
-  Assets_Header header = Assets_Header (translate("Search"), request);
+  Assets_Header header = Assets_Header (translate("Search"), webserver_request);
   header.set_navigator ();
   header.add_bread_crumb (menu_logic_search_menu (), menu_logic_search_text ());
   page = header.run ();
@@ -176,8 +173,8 @@ string search_similar (void * webserver_request)
   
   view.set_variable ("bible", bible);
   
-  stringstream script {};
-  script << "var searchBible = " << quoted(bible) << ";";
+  std::stringstream script {};
+  script << "var searchBible = " << std::quoted(bible) << ";";
   view.set_variable ("script", script.str());
 
   page += view.render ("search", "similar");

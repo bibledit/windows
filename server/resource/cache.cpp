@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -38,40 +38,36 @@
 #include <sendreceive/resources.h>
 #include <client/logic.h>
 #include <config/globals.h>
-using namespace std;
 
 
-string resource_cache_url ()
+std::string resource_cache_url ()
 {
   return "resource/cache";
 }
 
 
-bool resource_cache_acl (void * webserver_request)
+bool resource_cache_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::member ());
 }
 
 
-string resource_cache (void * webserver_request)
+std::string resource_cache (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
-  
-  string resource = request->query ["resource"];
+  std::string resource = webserver_request.query ["resource"];
   
   
-  string page;
-  Assets_Header header = Assets_Header (menu_logic_resources_text (), request);
+  std::string page;
+  Assets_Header header = Assets_Header (menu_logic_resources_text (), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
   Assets_View view;
 
   
-  if (request->query.count ("clear")) {
+  if (webserver_request.query.count ("clear")) {
     sendreceive_resources_clear_all ();
   }
-  vector <string> resources = Database_Config_General::getResourcesToCache ();
+  std::vector <std::string> resources = Database_Config_General::getResourcesToCache ();
   if (!resources.empty ()) {
     view.enable_zone ("scheduled");
     view.set_variable ("scheduled", filter::strings::implode (resources, " | "));
@@ -91,19 +87,19 @@ string resource_cache (void * webserver_request)
   // This makes it faster to spot any of the active resources in the long list.
 
   
-  map <string, string> resource_types;
-  string sword_type = "sword";
-  string old_type = "old";
+  std::map <std::string, std::string> resource_types;
+  std::string sword_type = "sword";
+  std::string old_type = "old";
   
 
-  vector <string> active_resources;
-  resources = request->database_config_user()->getActiveResources ();
+  std::vector <std::string> active_resources;
+  resources = webserver_request.database_config_user()->getActiveResources ();
   for (auto & resource2 : resources) {
     active_resources.push_back (resource2);
   }
 
   
-  vector <string> all_resources;
+  std::vector <std::string> all_resources;
   // USFM resources.
   resources = client_logic_usfm_resources_get ();
   for (auto & resource2 : resources) {
@@ -148,8 +144,8 @@ string resource_cache (void * webserver_request)
 
   
   // Generate the resources to be listed.
-  string horizontal_line = "-----";
-  vector <string> listed_resources = active_resources;
+  std::string horizontal_line = "-----";
+  std::vector <std::string> listed_resources = active_resources;
   listed_resources.push_back (horizontal_line);
   for (auto & resource2 : all_resources) {
     if (!in_array (resource2, listed_resources)) listed_resources.push_back (resource2);
@@ -157,8 +153,8 @@ string resource_cache (void * webserver_request)
   
   
   // Generate html block with the resources.
-  vector <string> bibles = request->database_bibles()->get_bibles ();
-  string block;
+  std::vector <std::string> bibles = webserver_request.database_bibles()->get_bibles ();
+  std::string block;
   for (auto & resource2 : listed_resources) {
     // Skip internal Bibles and dividers.
     if (in_array (resource2, bibles)) continue;
@@ -166,11 +162,11 @@ string resource_cache (void * webserver_request)
     block.append ("<p>");
     if (resource2 == horizontal_line) block.append ("<hr>");
     else {
-      string href (resource2);
-      string query;
+      std::string href (resource2);
+      std::string query;
       if (resource_types [resource2] == sword_type) {
-        string source = sword_logic_get_source (resource2);
-        string module = sword_logic_get_remote_module (resource2);
+        std::string source = sword_logic_get_source (resource2);
+        std::string module = sword_logic_get_remote_module (resource2);
         href = sword_logic_get_resource_name (source, module);
       }
       if (resource_types [resource2] == old_type) {

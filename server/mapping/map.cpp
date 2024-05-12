@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,27 +29,25 @@
 #include <dialog/yes.h>
 #include <assets/header.h>
 #include <menu/logic.h>
-using namespace std;
 
 
-string mapping_map_url ()
+std::string mapping_map_url ()
 {
   return "mapping/map";
 }
 
 
-bool mapping_map_acl (void * webserver_request)
+bool mapping_map_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
 }
 
 
-string mapping_map (void * webserver_request)
+std::string mapping_map (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   Database_Mappings database_mappings;
   
-  string page;
+  std::string page;
   
   Assets_Header header = Assets_Header (translate("Verse mappings"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
@@ -58,20 +56,20 @@ string mapping_map (void * webserver_request)
   page = header.run ();
 
   Assets_View view;
-  string success;
+  std::string success;
   
-  string name = request->query["name"];
+  std::string name = webserver_request.query["name"];
   view.set_variable ("name", name);
 
-  if (request->post.count ("submit")) {
-    string data = request->post["data"];
+  if (webserver_request.post.count ("submit")) {
+    std::string data = webserver_request.post["data"];
     database_mappings.import (name, data);
     success = translate("The verse mapping was saved");
   }
 
   view.set_variable ("success", success);
 
-  string data = database_mappings.output (name);
+  std::string data = database_mappings.output (name);
   view.set_variable ("data", data);
   
   page += view.render ("mapping", "map");

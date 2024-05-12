@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -23,31 +23,28 @@
 #include <filter/url.h>
 #include <webserver/request.h>
 #include <database/bibleimages.h>
-using namespace std;
 
 
-string images_fetch_url ()
+std::string images_fetch_url ()
 {
   return "images/fetch";
 }
 
 
-bool images_fetch_acl (void * webserver_request)
+bool images_fetch_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ());
 }
 
 
-string images_fetch (void * webserver_request)
+std::string images_fetch (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
   // Image name.
-  string image = request->query ["image"];
+  std::string image = webserver_request.query ["image"];
 
   // Set the HTTP GET parameter to the image name,
   // so the server will return the appropriate Mime type for this image.
-  request->get = image;
+  webserver_request.get = image;
 
   // Return the raw image data for sending off to the browser.
   Database_BibleImages database_bibleimages;

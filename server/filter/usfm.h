@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma once
 
 #include <config/libraries.h>
+
+class Webserver_Request;
 
 namespace filter::usfm {
 
@@ -54,12 +56,13 @@ std::string peek_text_following_marker (const std::vector <std::string>& usfm, u
 std::string peek_verse_number (std::string usfm);
 std::string get_opening_usfm (std::string text, bool embedded = false);
 std::string get_closing_usfm (std::string text, bool embedded = false);
-std::string save_is_safe (void * webserver_request, std::string oldtext, std::string newtext, bool chapter, std::string & explanation);
-std::string safely_store_chapter (void * webserver_request,
-                             std::string bible, int book, int chapter, std::string usfm, std::string & explanation);
-std::string safely_store_verse (void * webserver_request,
-                           std::string bible, int book, int chapter, int verse, std::string usfm,
-                           std::string & explanation, bool quill);
+std::string save_is_safe (Webserver_Request& webserver_request, 
+                          std::string oldtext, std::string newtext, bool chapter, std::string & explanation);
+std::string safely_store_chapter (Webserver_Request& webserver_request,
+                                  std::string bible, int book, int chapter, std::string usfm, std::string & explanation);
+std::string safely_store_verse (Webserver_Request& webserver_request,
+                                std::string bible, int book, int chapter, int verse, std::string usfm,
+                                std::string & explanation, bool quill);
 bool contains_empty_verses (std::string usfm);
 bool handle_verse_range (std::string verse, std::vector <int> & verses);
 bool handle_verse_sequence (std::string verse, std::vector <int> & verses);

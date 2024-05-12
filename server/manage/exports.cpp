@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@
 #include <assets/external.h>
 #include <locale/logic.h>
 #include <styles/logic.h>
-using namespace std;
+#include <webserver/request.h>
 
 
 const char * manage_exports_url ()
@@ -48,13 +48,13 @@ const char * manage_exports_url ()
 }
 
 
-bool manage_exports_acl (void * webserver_request)
+bool manage_exports_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
 }
 
 
-string space_href (string name)
+std::string space_href (std::string name)
 {
   name = filter::strings::replace ("-", "", name);
   name = filter::strings::replace (" ", "", name);
@@ -62,44 +62,41 @@ string space_href (string name)
 }
 
 
-string manage_exports (void * webserver_request)
+std::string manage_exports (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  
-  string page;
+  std::string page;
   Assets_Header header = Assets_Header (translate ("Export"), webserver_request);
   header.add_bread_crumb (menu_logic_tools_menu (), menu_logic_tools_text ());
   page = header.run ();
   Assets_View view;
   
   
-  if (request->query.count ("bible")) {
-    string bible = request->query["bible"];
+  if (webserver_request.query.count ("bible")) {
+    std::string bible = webserver_request.query["bible"];
     if (bible.empty()) {
       Dialog_List dialog_list = Dialog_List ("exports", translate("Select a Bible"), "", "");
-      vector <string> bibles = access_bible::bibles (webserver_request);
-      for (auto bible2 : bibles) {
+      std::vector <std::string> bibles = access_bible::bibles (webserver_request);
+      for (const auto& bible2 : bibles) {
         dialog_list.add_row (bible2, "bible", bible2);
       }
       page += dialog_list.run ();
       return page;
     } else {
-      request->database_config_user()->setBible (bible);
+      webserver_request.database_config_user()->setBible (bible);
     }
   }
   
   
-  string bible = access_bible::clamp (webserver_request, request->database_config_user()->getBible ());
+  std::string bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->getBible ());
   view.set_variable ("bible", bible);
   
   
-  string checkbox = request->post ["checkbox"];
-  bool checked = filter::strings::convert_to_bool (request->post ["checked"]);
+  std::string checkbox = webserver_request.post ["checkbox"];
+  bool checked = filter::strings::convert_to_bool (webserver_request.post ["checked"]);
   
   
-  if (request->query.count ("remove")) {
-    string directory = export_logic::bible_directory (bible);
+  if (webserver_request.query.count ("remove")) {
+    std::string directory = export_logic::bible_directory (bible);
     filter_url_rmdir (directory);
     Database_State::setExport (bible, 0, export_logic::export_needed);
     view.set_variable ("success", translate("The export has been removed."));
@@ -109,20 +106,20 @@ string manage_exports (void * webserver_request)
   if (checkbox == "web") {
     Database_Config_Bible::setExportWebDuringNight (bible, checked);
     Database_State::setExport (bible, 0, export_logic::export_needed);
-    return "";
+    return std::string();
   }
   view.set_variable ("web", filter::strings::get_checkbox_status (Database_Config_Bible::getExportWebDuringNight (bible)));
   
   
-  if (request->query.count ("webnow")) {
+  if (webserver_request.query.count ("webnow")) {
     export_logic::schedule_web (bible, true);
     export_logic::schedule_web_index (bible, true);
     view.set_variable ("success", translate("The Bible is being exported to Web format."));
   }
   
   
-  if (request->post.count ("emailsubmit")) {
-    string email = request->post["emailentry"];
+  if (webserver_request.post.count ("emailsubmit")) {
+    std::string email = webserver_request.post["emailentry"];
     bool save = false;
     if (email.empty ()) {
       save = true;
@@ -147,7 +144,7 @@ string manage_exports (void * webserver_request)
   view.set_variable ("html", filter::strings::get_checkbox_status (Database_Config_Bible::getExportHtmlDuringNight (bible)));
   
   
-  if (request->query.count ("htmlnow")) {
+  if (webserver_request.query.count ("htmlnow")) {
     export_logic::schedule_html (bible, true);
     view.set_variable ("success", translate("The Bible is being exported to Html format."));
   }
@@ -166,7 +163,7 @@ string manage_exports (void * webserver_request)
   view.set_variable ("usfm", filter::strings::get_checkbox_status (Database_Config_Bible::getExportUsfmDuringNight (bible)));
  
   
-  if (request->query.count ("usfmnow")) {
+  if (webserver_request.query.count ("usfmnow")) {
     export_logic::schedule_usfm (bible, true);
     view.set_variable ("success", translate("The Bible is being exported to USFM format."));
   }
@@ -185,7 +182,7 @@ string manage_exports (void * webserver_request)
   view.set_variable ("text", filter::strings::get_checkbox_status (Database_Config_Bible::getExportTextDuringNight (bible)));
   
   
-  if (request->query.count ("textnow")) {
+  if (webserver_request.query.count ("textnow")) {
     export_logic::schedule_text_and_basic_usfm (bible, true);
     view.set_variable ("success", translate("The Bible is being exported to basic USFM format and text."));
   }
@@ -198,7 +195,7 @@ string manage_exports (void * webserver_request)
   view.set_variable ("odt", filter::strings::get_checkbox_status (Database_Config_Bible::getExportOdtDuringNight (bible)));
 
   
-  if (request->query.count ("odtnow")) {
+  if (webserver_request.query.count ("odtnow")) {
     export_logic::schedule_open_document (bible, true);
     view.set_variable ("success", translate("The Bible is being exported to OpenDocument format."));
   }
@@ -211,13 +208,13 @@ string manage_exports (void * webserver_request)
   view.set_variable ("dropcaps", filter::strings::get_checkbox_status (Database_Config_Bible::getExportChapterDropCapsFrames (bible)));
 
   
-  if (request->query.count ("pagewidth")) {
+  if (webserver_request.query.count ("pagewidth")) {
     Dialog_Entry dialog_entry = Dialog_Entry ("exports", translate("Please enter a page width in millimeters"), Database_Config_Bible::getPageWidth (bible), "pagewidth", translate ("The width of A4 is 210 mm. The width of Letter is 216 mm."));
     page += dialog_entry.run ();
     return page;
   }
-  if (request->post.count ("pagewidth")) {
-    int value = filter::strings::convert_to_int (request->post["entry"]);
+  if (webserver_request.post.count ("pagewidth")) {
+    int value = filter::strings::convert_to_int (webserver_request.post["entry"]);
     if ((value >= 30) && (value <= 500)) {
       Database_State::setExport (bible, 0, export_logic::export_needed);
       Database_Config_Bible::setPageWidth (bible, filter::strings::convert_to_string (value));
@@ -226,13 +223,13 @@ string manage_exports (void * webserver_request)
   view.set_variable ("pagewidth", Database_Config_Bible::getPageWidth (bible));
 
                      
-  if (request->query.count ("pageheight")) {
+  if (webserver_request.query.count ("pageheight")) {
     Dialog_Entry dialog_entry = Dialog_Entry ("exports", translate("Please enter a page height in millimeters"), Database_Config_Bible::getPageHeight (bible), "pageheight", translate ("The height of A4 is 297 mm. The width of Letter is 279 mm."));
     page += dialog_entry.run ();
     return page;
   }
-  if (request->post.count ("pageheight")) {
-    int value = filter::strings::convert_to_int (request->post["entry"]);
+  if (webserver_request.post.count ("pageheight")) {
+    int value = filter::strings::convert_to_int (webserver_request.post["entry"]);
     if ((value >= 40) && (value <= 600)) {
       Database_State::setExport (bible, 0, export_logic::export_needed);
       Database_Config_Bible::setPageHeight (bible, filter::strings::convert_to_string (value));
@@ -241,13 +238,13 @@ string manage_exports (void * webserver_request)
   view.set_variable ("pageheight", Database_Config_Bible::getPageHeight (bible));
 
   
-  if (request->query.count ("innermargin")) {
+  if (webserver_request.query.count ("innermargin")) {
     Dialog_Entry dialog_entry = Dialog_Entry ("exports", translate("Please enter an inner margin size in millimeters"), Database_Config_Bible::getInnerMargin (bible), "innermargin", "");
     page += dialog_entry.run ();
     return page;
   }
-  if (request->post.count ("innermargin")) {
-    int value = filter::strings::convert_to_int (request->post["entry"]);
+  if (webserver_request.post.count ("innermargin")) {
+    int value = filter::strings::convert_to_int (webserver_request.post["entry"]);
     if ((value >= 0) && (value <= 100)) {
       Database_State::setExport (bible, 0, export_logic::export_needed);
       Database_Config_Bible::setInnerMargin (bible, filter::strings::convert_to_string (value));
@@ -256,13 +253,13 @@ string manage_exports (void * webserver_request)
   view.set_variable ("innermargin", Database_Config_Bible::getInnerMargin (bible));
 
 
-  if (request->query.count ("outermargin")) {
+  if (webserver_request.query.count ("outermargin")) {
     Dialog_Entry dialog_entry = Dialog_Entry ("exports", translate("Please enter an outer margin size in millimeters"), Database_Config_Bible::getOuterMargin (bible), "outermargin", "");
     page += dialog_entry.run ();
     return page;
   }
-  if (request->post.count ("outermargin")) {
-    int value = filter::strings::convert_to_int (request->post["entry"]);
+  if (webserver_request.post.count ("outermargin")) {
+    int value = filter::strings::convert_to_int (webserver_request.post["entry"]);
     if ((value >= 0) && (value <= 100)) {
       Database_State::setExport (bible, 0, export_logic::export_needed);
       Database_Config_Bible::setOuterMargin (bible, filter::strings::convert_to_string (value));
@@ -271,13 +268,13 @@ string manage_exports (void * webserver_request)
   view.set_variable ("outermargin", Database_Config_Bible::getOuterMargin (bible));
   
   
-  if (request->query.count ("topmargin")) {
+  if (webserver_request.query.count ("topmargin")) {
     Dialog_Entry dialog_entry = Dialog_Entry ("exports", translate("Please enter an top margin size in millimeters"), Database_Config_Bible::getTopMargin (bible), "topmargin", "");
     page += dialog_entry.run ();
     return page;
   }
-  if (request->post.count ("topmargin")) {
-    int value = filter::strings::convert_to_int (request->post["entry"]);
+  if (webserver_request.post.count ("topmargin")) {
+    int value = filter::strings::convert_to_int (webserver_request.post["entry"]);
     if ((value >= 0) && (value <= 100)) {
       Database_State::setExport (bible, 0, export_logic::export_needed);
       Database_Config_Bible::setTopMargin (bible, filter::strings::convert_to_string (value));
@@ -286,13 +283,13 @@ string manage_exports (void * webserver_request)
   view.set_variable ("topmargin", Database_Config_Bible::getTopMargin (bible));
 
 
-  if (request->query.count ("bottommargin")) {
+  if (webserver_request.query.count ("bottommargin")) {
     Dialog_Entry dialog_entry = Dialog_Entry ("exports", translate("Please enter an bottom margin size in millimeters"), Database_Config_Bible::getBottomMargin (bible), "bottommargin", "");
     page += dialog_entry.run ();
     return page;
   }
-  if (request->post.count ("bottommargin")) {
-    int value = filter::strings::convert_to_int (request->post["entry"]);
+  if (webserver_request.post.count ("bottommargin")) {
+    int value = filter::strings::convert_to_int (webserver_request.post["entry"]);
     if ((value >= 0) && (value <= 100)) {
       Database_State::setExport (bible, 0, export_logic::export_needed);
       Database_Config_Bible::setBottomMargin (bible, filter::strings::convert_to_string (value));
@@ -314,28 +311,28 @@ string manage_exports (void * webserver_request)
   view.set_variable ("odtsecure", filter::strings::get_checkbox_status (Database_Config_Bible::getSecureOdtExport (bible)));
 
   
-  vector <string> spaces = { " ", filter::strings::non_breaking_space_u00A0 (), filter::strings::en_space_u2002 (), filter::strings::figure_space_u2007 (), filter::strings::narrow_non_breaking_space_u202F () };
-  if (request->query.count ("odtwhitespace")) {
-    string odtwhitespace = request->query ["odtwhitespace"];
+  std::vector <std::string> spaces = { " ", filter::strings::non_breaking_space_u00A0 (), filter::strings::en_space_u2002 (), filter::strings::figure_space_u2007 (), filter::strings::narrow_non_breaking_space_u202F () };
+  if (webserver_request.query.count ("odtwhitespace")) {
+    std::string odtwhitespace = webserver_request.query ["odtwhitespace"];
     for (auto space : spaces) {
       // Work with non-localized, English, space names.
       // Then it works across localizations.
-      string href = space_href (locale_logic_space_get_name (space, true));
+      std::string href = space_href (locale_logic_space_get_name (space, true));
       if (odtwhitespace == href) {
         Database_Config_Bible::setOdtSpaceAfterVerse (bible, space);
       }
     }
   }
-  string space_setting = Database_Config_Bible::getOdtSpaceAfterVerse (bible);
+  std::string space_setting = Database_Config_Bible::getOdtSpaceAfterVerse (bible);
   for (auto space : spaces) {
-    string name = locale_logic_space_get_name (space, true);
-    string href = space_href (name);
-    string cssclass;
+    std::string name = locale_logic_space_get_name (space, true);
+    std::string href = space_href (name);
+    std::string cssclass;
     if (space == space_setting) {
       cssclass = "active";
     }
     name = locale_logic_space_get_name (space, false);
-    view.add_iteration ("spaces", { pair ("space", href), pair ("class", cssclass), pair ("name", name) } );
+    view.add_iteration ("spaces", { std::pair ("space", href), std::pair ("class", cssclass), std::pair ("name", name) } );
   }
 
   
@@ -346,8 +343,8 @@ string manage_exports (void * webserver_request)
   view.set_variable ("odtqleft", filter::strings::get_checkbox_status (Database_Config_Bible::getOdtPoetryVersesLeft (bible)));
   {
     Database_Styles database_styles;
-    vector <string> markers = database_styles.getMarkers (styles_logic_standard_sheet ());
-    vector <string> poetry_styles;
+    std::vector <std::string> markers = database_styles.getMarkers (styles_logic_standard_sheet ());
+    std::vector <std::string> poetry_styles;
     for (auto & style : markers) {
       if (filter::usfm::is_standard_q_poetry (style)) poetry_styles.push_back(style);
     }
@@ -355,8 +352,8 @@ string manage_exports (void * webserver_request)
   }
 
   
-  if (request->post.count ("fontsubmit")) {
-    string font = request->post["fontentry"];
+  if (webserver_request.post.count ("fontsubmit")) {
+    std::string font = webserver_request.post["fontentry"];
     Database_State::setExport (bible, 0, export_logic::export_needed);
     Database_Config_Bible::setExportFont (bible, font);
     view.set_variable ("success", translate("The font for securing exports was saved."));
@@ -378,7 +375,7 @@ string manage_exports (void * webserver_request)
   view.set_variable ("info", filter::strings::get_checkbox_status (Database_Config_Bible::getGenerateInfoDuringNight (bible)));
                    
   
-  if (request->query.count ("infonow")) {
+  if (webserver_request.query.count ("infonow")) {
     export_logic::schedule_info (bible, true);
     view.set_variable ("success", translate("The info documents are being generated."));
   }
@@ -391,7 +388,7 @@ string manage_exports (void * webserver_request)
   view.set_variable ("esword", filter::strings::get_checkbox_status (Database_Config_Bible::getExportESwordDuringNight (bible)));
                      
                                           
-  if (request->query.count ("eswordnow")) {
+  if (webserver_request.query.count ("eswordnow")) {
     export_logic::schedule_e_sword (bible, true);
     view.set_variable ("success", translate("The Bible is being exported to e-Sword format."));
   }
@@ -404,14 +401,14 @@ string manage_exports (void * webserver_request)
   view.set_variable ("onlinebible", filter::strings::get_checkbox_status (Database_Config_Bible::getExportOnlineBibleDuringNight (bible)));
   
   
-  if (request->query.count ("onlinebiblenow")) {
+  if (webserver_request.query.count ("onlinebiblenow")) {
     export_logic::schedule_online_bible (bible, true);
     view.set_variable ("success", translate("The Bible is being exported to Online Bible format."));
   }
   
                      
-  if (request->post.count ("passwordsubmit")) {
-    string password = request->post["passwordentry"];
+  if (webserver_request.post.count ("passwordsubmit")) {
+    std::string password = webserver_request.post["passwordentry"];
     Database_State::setExport (bible, 0, export_logic::export_needed);
     Database_Config_Bible::setExportPassword (bible, password);
     view.set_variable ("success", translate("The password for securing exports was saved."));
@@ -426,10 +423,10 @@ string manage_exports (void * webserver_request)
   view.set_variable ("password", Database_Config_Bible::getExportPassword (bible));
 
   
-  if (request->query.count ("bibledropboxnow")) {
-    string username = request->session_logic()->currentUser ();
+  if (webserver_request.query.count ("bibledropboxnow")) {
+    std::string username = webserver_request.session_logic()->currentUser ();
     tasks_logic_queue (SUBMITBIBLEDROPBOX, { username, bible });
-    string msg = translate("The Bible will be submitted to the Bible Drop Box.");
+    std::string msg = translate("The Bible will be submitted to the Bible Drop Box.");
     msg.append (" ");
     msg.append (translate("You will receive email with further details."));
     view.set_variable ("success", msg);

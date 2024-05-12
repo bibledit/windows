@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,37 +32,35 @@
 #include <ipc/focus.h>
 #include <navigation/passage.h>
 #include <notes/actions.h>
-using namespace std;
 
 
-string notes_status_n_url ()
+std::string notes_status_n_url ()
 {
   return "notes/status-n";
 }
 
 
-bool notes_status_n_acl (void * webserver_request)
+bool notes_status_n_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
 }
 
 
-string notes_status_n (void * webserver_request)
+std::string notes_status_n (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   Database_Notes database_notes (webserver_request);
   
   
-  string page;
-  Assets_Header header = Assets_Header (translate("Notes status"), request);
+  std::string page;
+  Assets_Header header = Assets_Header (translate("Notes status"), webserver_request);
   page += header.run ();
   Assets_View view;
   
   
-  stringstream statusblock;
-  vector <Database_Notes_Text> statuses = database_notes.get_possible_statuses ();
+  std::stringstream statusblock;
+  std::vector <Database_Notes_Text> statuses = database_notes.get_possible_statuses ();
   for (auto & status : statuses) {
-    statusblock << "<li><a href=" << quoted ("bulk?status=" + status.raw) << ">" << status.raw << "</a></li>" << endl;
+    statusblock << "<li><a href=" << std::quoted ("bulk?status=" + status.raw) << ">" << status.raw << "</a></li>" << std::endl;
   }
   view.set_variable ("statusblock", statusblock.str());
   

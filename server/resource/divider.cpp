@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -43,26 +43,23 @@
 #include <resource/logic.h>
 #include <resource/organize.h>
 #include <sync/logic.h>
-using namespace std;
 
 
-string resource_divider_url ()
+std::string resource_divider_url ()
 {
   return "resource/divider";
 }
 
 
-bool resource_divider_acl (void * webserver_request)
+bool resource_divider_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ());
 }
 
 
-string resource_divider (void * webserver_request)
+std::string resource_divider (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  string page;
+  std::string page;
   
   Assets_Header header = Assets_Header (translate("Rich Divider"), webserver_request);
   header.add_bread_crumb (menu_logic_translate_menu (), menu_logic_translate_text ());
@@ -71,35 +68,35 @@ string resource_divider (void * webserver_request)
   Assets_View view;
 
 
-  int userid = filter::strings::user_identifier (webserver_request);
-  string key = "rich divider";
+  const int userid = filter::strings::user_identifier (webserver_request);
+  const std::string key = "rich divider";
 
 
   // For administrator level default resource management purposes.
   bool is_def = false;
-  if (request->query["type"] == "def") is_def = true;
+  if (webserver_request.query["type"] == "def") is_def = true;
   if (is_def) view.set_variable("type", "def");
   
 
   // Start off with default comparative resource.
   // Or keep the comparative resource now being constructed.
   bool clean_divider = true;
-  if (request->query.count ("title")) clean_divider = false;
-  if (request->query.count ("link")) clean_divider = false;
-  if (request->query.count ("foreground")) clean_divider = false;
-  if (request->query.count ("background")) clean_divider = false;
-  if (request->query.count ("foreground2")) clean_divider = false;
-  if (request->query.count ("background2")) clean_divider = false;
-  if (request->post.count ("entry")) clean_divider = false;
-  if (request->query.count ("add")) clean_divider = false;
+  if (webserver_request.query.count ("title")) clean_divider = false;
+  if (webserver_request.query.count ("link")) clean_divider = false;
+  if (webserver_request.query.count ("foreground")) clean_divider = false;
+  if (webserver_request.query.count ("background")) clean_divider = false;
+  if (webserver_request.query.count ("foreground2")) clean_divider = false;
+  if (webserver_request.query.count ("background2")) clean_divider = false;
+  if (webserver_request.post.count ("entry")) clean_divider = false;
+  if (webserver_request.query.count ("add")) clean_divider = false;
   if (clean_divider) Database_Volatile::setValue (userid, key, resource_logic_rich_divider());
  
 
-  string divider = Database_Volatile::getValue (userid, key);
-  string title;
-  string link;
-  string foreground;
-  string background;
+  std::string divider = Database_Volatile::getValue (userid, key);
+  std::string title;
+  std::string link;
+  std::string foreground;
+  std::string background;
   if (!resource_logic_parse_rich_divider (divider, title, link, foreground, background)) {
     title = "Divider title";
     link = "https://bibledit.org";
@@ -113,44 +110,44 @@ string resource_divider (void * webserver_request)
   
   
   // The divider's title.
-  if (request->query.count ("title")) {
+  if (webserver_request.query.count ("title")) {
     Dialog_Entry dialog_entry = Dialog_Entry ("divider", translate("Please enter the title for the divider"), title, "title", "");
-    if (is_def) dialog_entry.add_query ("type", request->query["type"]);
+    if (is_def) dialog_entry.add_query ("type", webserver_request.query["type"]);
     page += dialog_entry.run ();
     return page;
   }
-  if (request->post.count ("title")) {
-    title = request->post["entry"];
+  if (webserver_request.post.count ("title")) {
+    title = webserver_request.post["entry"];
     divider_edited = true;
   }
 
   
   // The divider's link.
-  if (request->query.count ("link")) {
+  if (webserver_request.query.count ("link")) {
     Dialog_Entry dialog_entry = Dialog_Entry ("divider", translate("Please enter the link for the divider"), link, "link", "");
-    if (is_def) dialog_entry.add_query ("type", request->query["type"]);
+    if (is_def) dialog_entry.add_query ("type", webserver_request.query["type"]);
     page += dialog_entry.run ();
     return page;
   }
-  if (request->post.count ("link")) {
-    link = request->post["entry"];
+  if (webserver_request.post.count ("link")) {
+    link = webserver_request.post["entry"];
     divider_edited = true;
   }
  
 
   // The divider's text / foreground color.
-  if (request->query.count ("foreground")) {
+  if (webserver_request.query.count ("foreground")) {
     Dialog_Color dialog_color = Dialog_Color ("divider", translate("Please specify a new color"));
     dialog_color.add_query ("foreground2", "true");
-    if (is_def) dialog_color.add_query ("type", request->query["type"]);
+    if (is_def) dialog_color.add_query ("type", webserver_request.query["type"]);
     page += dialog_color.run ();
     return page;
   }
-  if (request->query.count ("foreground2")) {
-    string color = request->query["color"];
+  if (webserver_request.query.count ("foreground2")) {
+    std::string color = webserver_request.query["color"];
     if (!color.empty()) {
       foreground = color;
-      if (foreground.find ("#") == string::npos) foreground.insert (0, "#");
+      if (foreground.find ("#") == std::string::npos) foreground.insert (0, "#");
       if (foreground.length () != 7) foreground = "#000000";
       divider_edited = true;
     }
@@ -158,18 +155,18 @@ string resource_divider (void * webserver_request)
 
   
   // The divider's background color.
-  if (request->query.count ("background")) {
+  if (webserver_request.query.count ("background")) {
     Dialog_Color dialog_color = Dialog_Color ("divider", translate("Please specify a new color"));
     dialog_color.add_query ("background2", "true");
-    if (is_def) dialog_color.add_query ("type", request->query["type"]);
+    if (is_def) dialog_color.add_query ("type", webserver_request.query["type"]);
     page += dialog_color.run ();
     return page;
   }
-  if (request->query.count ("background2")) {
-    string color = request->query["color"];
+  if (webserver_request.query.count ("background2")) {
+    std::string color = webserver_request.query["color"];
     if (!color.empty()) {
       background = color;
-      if (background.find ("#") == string::npos) background.insert (0, "#");
+      if (background.find ("#") == std::string::npos) background.insert (0, "#");
       if (background.length () != 7) background = "#FFFFFF";
       divider_edited = true;
     }
@@ -184,15 +181,15 @@ string resource_divider (void * webserver_request)
 
   
   // Add it to the existing resources.
-  if (request->query.count ("add")) {
-    vector <string> resources = request->database_config_user()->getActiveResources ();
+  if (webserver_request.query.count ("add")) {
+    std::vector <std::string> resources = webserver_request.database_config_user()->getActiveResources ();
     if (is_def) resources = Database_Config_General::getDefaultActiveResources ();
     resources.push_back (divider);
     if (is_def) Database_Config_General::setDefaultActiveResources (resources);
-    else request->database_config_user()->setActiveResources (resources);
-    if (!is_def) request->database_config_user()->addUpdatedSetting (Sync_Logic::settings_send_resources_organization);
-    redirect_browser (request, resource_organize_url ());
-    return "";
+    else webserver_request.database_config_user()->setActiveResources (resources);
+    if (!is_def) webserver_request.database_config_user()->addUpdatedSetting (Sync_Logic::settings_send_resources_organization);
+    redirect_browser (webserver_request, resource_organize_url ());
+    return std::string();
   }
   
 

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -43,7 +43,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <locale/logic.h>
 #include <ipc/focus.h>
 #include <client/logic.h>
-using namespace std;
 
 
 bool bibledit_started {false};
@@ -66,7 +65,7 @@ const char * bibledit_get_network_port ()
 
   // On a client device, negotiate a local port number.
 #ifdef HAVE_CLIENT
-  vector <int> ports = { 9876, 9987, 9998 };
+  std::vector <int> ports = { 9876, 9987, 9998 };
   for (auto port : ports) {
     if (!filter_url_port_can_connect ("localhost", port)) {
       config_globals_negotiated_port_number = filter::strings::convert_to_string(port);
@@ -102,7 +101,7 @@ void bibledit_initialize_library (const char * package, const char * webroot)
   // Initialize SQLite: Full thread safety: https://www.sqlite.org/c3ref/threadsafe.html.
   // This is supported to prevent "database locked" errors.
   if (!sqlite3_threadsafe ()) {
-    cerr << "SQLite is not threadsafe" << endl;
+    std::cerr << "SQLite is not threadsafe" << std::endl;
   }
   sqlite3_config (SQLITE_CONFIG_SERIALIZED);
 
@@ -115,7 +114,7 @@ void bibledit_initialize_library (const char * package, const char * webroot)
   config_globals_document_root = webroot;
   
   // Initialize SSL/TLS (after webroot has been set).
-  thread ssl_tls = thread (filter_url_ssl_tls_initialize);
+  std::thread ssl_tls = std::thread (filter_url_ssl_tls_initialize);
   ssl_tls.detach ();
   
 #ifndef HAVE_CLIENT
@@ -148,7 +147,7 @@ void bibledit_initialize_library (const char * package, const char * webroot)
   config::logic::load_settings ();
   
   // Initialize data in a thread.
-  thread setup_thread = thread (setup_conditionally, package);
+  std::thread setup_thread = std::thread (setup_conditionally, package);
   setup_thread.detach ();
   
   // Multiple start/stop guard.
@@ -210,13 +209,13 @@ void bibledit_start_library ()
   config_globals_webserver_running = true;
   
   // Run the plain web server in a thread.
-  config_globals_http_worker = new thread (http_server);
+  config_globals_http_worker = new std::thread (http_server);
   
   // Run the secure web server in a thread.
-  config_globals_https_worker = new thread (https_server);
+  config_globals_https_worker = new std::thread (https_server);
   
   // Run the timers in a thread.
-  config_globals_timer = new thread (timer_index);
+  config_globals_timer = new std::thread (timer_index);
   
   // Client should sync right after wake up.
   sendreceive_queue_startup ();
@@ -226,7 +225,7 @@ void bibledit_start_library ()
 // Gets the last page that was opened via the menu.
 const char * bibledit_get_last_page ()
 {
-  static string href = Database_Config_General::getLastMenuClick ();
+  static std::string href = Database_Config_General::getLastMenuClick ();
   return href.c_str();
 }
 
@@ -234,7 +233,7 @@ const char * bibledit_get_last_page ()
 // Returns true if Bibledit is running.
 bool bibledit_is_running ()
 {
-  this_thread::sleep_for (chrono::milliseconds (10));
+  std::this_thread::sleep_for (std::chrono::milliseconds (10));
   if (config_globals_webserver_running) return true;
   return false;
 }
@@ -298,7 +297,7 @@ const char * bibledit_get_pages_to_open ()
 [[noreturn]]
 void bibledit_last_ditch_forced_exit ()
 {
-  this_thread::sleep_for (chrono::seconds (2));
+  std::this_thread::sleep_for (std::chrono::seconds (2));
   exit (0);
 }
 
@@ -314,7 +313,7 @@ void bibledit_stop_library ()
   // Clear running flag.
   config_globals_webserver_running = false;
   
-  string url, error;
+  std::string url, error;
   
   // Connect to the plain webserver to initiate its shutdown mechanism.
   url = "http://localhost:";
@@ -323,7 +322,7 @@ void bibledit_stop_library ()
 
 #ifdef RUN_SECURE_SERVER
   // If the secure server runs, connect to it to initiate its shutdown mechanism.
-  string https_port = config::logic::https_network_port ();
+  std::string https_port = config::logic::https_network_port ();
   if (https_port.length() > 1) {
     url = "https://localhost:";
     url.append (https_port);
@@ -339,7 +338,7 @@ void bibledit_stop_library ()
   // This should not be done on devices like Android and iOS
   // because then the app would quit when the user moves the app to the background,
   // whereas the user expects the app to stay alive in the background.
-  new thread (bibledit_last_ditch_forced_exit);
+  new std::thread (bibledit_last_ditch_forced_exit);
 #endif
 #endif
 
@@ -406,28 +405,28 @@ const char * bibledit_get_reference_for_accordance ()
   // Keep the static reference always in memory as a global reference.
   // The purpose is that the value remains live in memory for the caller,
   // even after the function has returned, and local variables will have been destroyed.
-  static string reference;
+  static std::string reference;
   
   // Wait till all the data has been initialized.
   // If the data is not yet initialized, return an empty reference instead.
   if (!config_globals_data_initialized) return reference.c_str();
 
   // Get the username on this client device.
-  string user = client_logic_get_username ();
+  std::string user = client_logic_get_username ();
 
   // Get the active Bible and its versification system.
-  Webserver_Request request;
-  request.session_logic()->set_username(user);
-  Database_Config_User database_config_user (&request);
-  string bible = request.database_config_user ()->getBible ();
-  string versification = Database_Config_Bible::getVersificationSystem (bible);
+  Webserver_Request webserver_request;
+  webserver_request.session_logic()->set_username(user);
+  Database_Config_User database_config_user (webserver_request);
+  std::string bible = webserver_request.database_config_user ()->getBible ();
+  std::string versification = Database_Config_Bible::getVersificationSystem (bible);
 
-  int book = Ipc_Focus::getBook (&request);
-  int chapter = Ipc_Focus::getChapter (&request);
-  int verse = Ipc_Focus::getVerse (&request);
+  int book = Ipc_Focus::getBook (webserver_request);
+  int chapter = Ipc_Focus::getChapter (webserver_request);
+  int verse = Ipc_Focus::getVerse (webserver_request);
 
   // Accordance expects a verse reference in the English versification system.
-  vector <Passage> passages;
+  std::vector <Passage> passages;
   Database_Mappings database_mappings;
   if ((versification != filter::strings::english()) && !versification.empty ()) {
     passages = database_mappings.translate (versification, filter::strings::english (), book, chapter, verse);
@@ -439,8 +438,8 @@ const char * bibledit_get_reference_for_accordance ()
   // Accordance expects for instance, 2 Corinthians 9:2, to be broadcast as "2CO 9:2".
   book = passages[0].m_book;
   chapter = passages[0].m_chapter;
-  string verse_s = passages[0].m_verse;
-  string usfm_id = database::books::get_usfm_from_id (static_cast<book_id>(book));
+  std::string verse_s = passages[0].m_verse;
+  std::string usfm_id = database::books::get_usfm_from_id (static_cast<book_id>(book));
   reference = usfm_id + " " + filter::strings::convert_to_string (chapter) + ":" + filter::strings::convert_to_string (verse_s);
 
   // Return the reference.
@@ -455,31 +454,31 @@ const char * bibledit_get_reference_for_accordance ()
 void bibledit_put_reference_from_accordance (const char * reference)
 {
   // Get and set the user name on this client device.
-  string user = client_logic_get_username ();
-  Webserver_Request request;
-  request.session_logic()->set_username(user);
+  std::string user = client_logic_get_username ();
+  Webserver_Request webserver_request;
+  webserver_request.session_logic()->set_username(user);
 
   // Setting whether to enable receiving verse references from Accordance.
-  bool enabled  = request.database_config_user ()->getReceiveFocusedReferenceFromAccordance ();
+  bool enabled = webserver_request.database_config_user ()->getReceiveFocusedReferenceFromAccordance ();
   if (!enabled) return;
   
   // Interpret the passage from Accordance, e.g. MAT 1:1.
   // Accordance broadcasts for instance, 2 Corinthians 9:2, as "2CO 9:2".
-  vector<string> book_rest = filter::strings::explode (reference, ' ');
+  std::vector<std::string> book_rest = filter::strings::explode (reference, ' ');
   if (book_rest.size() != 2) return;
   int book = static_cast<int>(database::books::get_id_from_usfm (book_rest[0]));
-  vector <string> chapter_verse = filter::strings::explode(book_rest[1], ':');
+  std::vector <std::string> chapter_verse = filter::strings::explode(book_rest[1], ':');
   if (chapter_verse.size() != 2) return;
   int chapter = filter::strings::convert_to_int(chapter_verse[0]);
   int verse = filter::strings::convert_to_int(chapter_verse[1]);
 
   // Get the active Bible and its versification system.
-  Database_Config_User database_config_user (&request);
-  string bible = request.database_config_user ()->getBible ();
-  string versification = Database_Config_Bible::getVersificationSystem (bible);
+  Database_Config_User database_config_user (webserver_request);
+  std::string bible = webserver_request.database_config_user ()->getBible ();
+  std::string versification = Database_Config_Bible::getVersificationSystem (bible);
 
   // Accordance expects a verse reference in the English versification system.
-  vector <Passage> passages;
+  std::vector <Passage> passages;
   Database_Mappings database_mappings;
   if ((versification != filter::strings::english()) && !versification.empty ()) {
     passages = database_mappings.translate (filter::strings::english (), versification, book, chapter, verse);
@@ -491,6 +490,6 @@ void bibledit_put_reference_from_accordance (const char * reference)
   // Set the focused passage in Bibledit.
   book = passages[0].m_book;
   chapter = passages[0].m_chapter;
-  string verse_s = passages[0].m_verse;
-  Ipc_Focus::set (&request, book, chapter, verse);
+  std::string verse_s = passages[0].m_verse;
+  Ipc_Focus::set (webserver_request, book, chapter, verse);
 }

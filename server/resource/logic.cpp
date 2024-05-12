@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -93,7 +93,7 @@ Stages to retrieve resource content and serve it.
 */
 
 
-std::vector <std::string> resource_logic_get_names (void * webserver_request, bool bibles_only)
+std::vector <std::string> resource_logic_get_names (Webserver_Request& webserver_request, bool bibles_only)
 {
   std::vector <std::string> names {};
   
@@ -137,12 +137,10 @@ std::vector <std::string> resource_logic_get_names (void * webserver_request, bo
 }
 
 
-std::string resource_logic_get_html (void * webserver_request,
+std::string resource_logic_get_html (Webserver_Request& webserver_request,
                                      std::string resource, int book, int chapter, int verse,
                                      bool add_verse_numbers)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
   // Determine the type of the resource.
   bool is_bible = resource_logic_is_bible (resource);
   bool is_usfm = resource_logic_is_usfm (resource);
@@ -184,7 +182,7 @@ std::string resource_logic_get_html (void * webserver_request,
   Database_Mappings database_mappings;
 
   // Retrieve versification system of the active Bible.
-  std::string bible = request->database_config_user ()->getBible ();
+  std::string bible = webserver_request.database_config_user ()->getBible ();
   std::string bible_versification = Database_Config_Bible::getVersificationSystem (bible);
 
   // Determine the versification system of the current resource.
@@ -228,7 +226,7 @@ std::string resource_logic_get_html (void * webserver_request,
   bool add_passages_in_full = false;
 
   // Deal with user's preference whether to include related passages.
-  if (request->database_config_user ()->getIncludeRelatedPassages ()) {
+  if (webserver_request.database_config_user ()->getIncludeRelatedPassages ()) {
     
     // Take the Bible's active passage and mapping, and translate that to the original mapping.
     std::vector <Passage> related_passages = database_mappings.translate (bible_versification, database_mappings.original (), book, chapter, verse);
@@ -270,10 +268,8 @@ std::string resource_logic_get_html (void * webserver_request,
 // This is the most basic version that fetches the text of a $resource.
 // It works on server and on client.
 // It uses the cache.
-std::string resource_logic_get_verse (void * webserver_request, std::string resource, int book, int chapter, int verse)
+std::string resource_logic_get_verse (Webserver_Request& webserver_request, std::string resource, int book, int chapter, int verse)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
   std::string data {};
 
   // Determine the type of the current resource.
@@ -295,7 +291,8 @@ std::string resource_logic_get_verse (void * webserver_request, std::string reso
   
   if (isBible || isLocalUsfm) {
     std::string chapter_usfm {};
-    if (isBible) chapter_usfm = request->database_bibles()->get_chapter (resource, book, chapter);
+    if (isBible) 
+      chapter_usfm = webserver_request.database_bibles()->get_chapter (resource, book, chapter);
     if (isLocalUsfm) chapter_usfm = database_usfmresources.getUsfm (resource, book, chapter);
     std::string verse_usfm = filter::usfm::get_verse_text (chapter_usfm, verse);
     std::string stylesheet = styles_logic_standard_sheet ();
@@ -321,7 +318,7 @@ std::string resource_logic_get_verse (void * webserver_request, std::string reso
       data.append ("<div><img src=\"/resource/imagefetch?name=" + resource + "&image=" + image + "\" alt=\"Image resource\" style=\"width:100%\"></div>");
     }
   } else if (isLexicon) {
-    data = lexicon_logic_get_html (request, resource, book, chapter, verse);
+    data = lexicon_logic_get_html (webserver_request, resource, book, chapter, verse);
   } else if (isSword) {
     const std::string sword_module = sword_logic_get_remote_module (resource);
     const std::string sword_source = sword_logic_get_source (resource);
@@ -354,7 +351,7 @@ std::string resource_logic_get_verse (void * webserver_request, std::string reso
 }
 
 
-std::string resource_logic_cloud_get_comparison (void * webserver_request,
+std::string resource_logic_cloud_get_comparison (Webserver_Request& webserver_request,
                                                  std::string resource, int book, int chapter, int verse,
                                                  bool add_verse_numbers)
 {
@@ -427,7 +424,7 @@ std::string resource_logic_cloud_get_comparison (void * webserver_request,
 }
 
 
-std::string resource_logic_cloud_get_translation (void * webserver_request,
+std::string resource_logic_cloud_get_translation (Webserver_Request& webserver_request,
                                                   const std::string& resource,
                                                   int book, int chapter, int verse,
                                                   bool add_verse_numbers)
@@ -513,15 +510,15 @@ std::string resource_logic_get_contents_for_client (std::string resource, int bo
     // This type of resource is special.
     // It is not one resource, but made out of two resources.
     // It fetches data from two resources and combines that into one.
-    Webserver_Request request {};
-    return resource_logic_cloud_get_comparison (&request, resource, book, chapter, verse, false);
+    Webserver_Request webserver_request {};
+    return resource_logic_cloud_get_comparison (webserver_request, resource, book, chapter, verse, false);
   }
   
   if (is_translated) {
     // Handle a translated resource.
     // This passes the resource title only
-    Webserver_Request request;
-    return resource_logic_cloud_get_translation (&request, resource, book, chapter, verse, false);
+    Webserver_Request webserver_request;
+    return resource_logic_cloud_get_translation (webserver_request, resource, book, chapter, verse, false);
   }
   
   // Nothing found.
@@ -772,16 +769,15 @@ std::string resource_logic_web_or_cache_get (std::string url, std::string& error
 
 
 // Returns the page type for the resource selector.
-std::string resource_logic_selector_page (void * webserver_request)
+std::string resource_logic_selector_page (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request {static_cast<Webserver_Request *>(webserver_request)};
-  std::string page {request->query["page"]};
+  std::string page {webserver_request.query["page"]};
   return page;
 }
 
 
 // Returns the page which called the resource selector.
-std::string resource_logic_selector_caller (void * webserver_request)
+std::string resource_logic_selector_caller (Webserver_Request& webserver_request)
 {
   std::string caller = resource_logic_selector_page (webserver_request);
   if (caller == "view") caller = "organize";
@@ -948,10 +944,10 @@ std::string resource_logic_bible_gateway_module_list_refresh ()
   if (error.empty ()) {
     std::vector <std::string> resources {};
     html =  filter::strings::html_get_element (html, "select");
-    xml_document document;
+    pugi::xml_document document;
     document.load_string (html.c_str());
-    xml_node select_node = document.first_child ();
-    for (xml_node option_node : select_node.children()) {
+    pugi::xml_node select_node = document.first_child ();
+    for (pugi::xml_node option_node : select_node.children()) {
       std::string cls = option_node.attribute ("class").value ();
       if (cls == "lang") continue;
       if (cls == "spacer") continue;
@@ -1129,14 +1125,14 @@ std::string resource_external_convert_book_studylight (int book)
 }
 
 
-struct bible_gateway_walker: xml_tree_walker
+struct bible_gateway_walker: pugi::xml_tree_walker
 {
   bool skip_next_text = false;
   bool parsing = true;
   std::string text {};
   std::vector <std::string> footnotes {};
 
-  virtual bool for_each (xml_node& node) override
+  virtual bool for_each (pugi::xml_node& node) override
   {
     // Details of the current node.
     std::string classname = node.attribute ("class").value ();
@@ -1208,8 +1204,8 @@ std::string resource_logic_bible_gateway_get (std::string resource, int book, in
         // The parser will also give the location where this mismatch occurs first.
         // The location where the mismatch occurs indicates the end of the relevant verses content.
         {
-          xml_document document;
-          xml_parse_result parse_result = document.load_string (html.c_str(), parse_default | parse_fragment);
+          pugi::xml_document document;
+          pugi::xml_parse_result parse_result = document.load_string (html.c_str(), pugi::parse_default | pugi::parse_fragment);
           if (parse_result.offset > 10) {
             size_t pos2 = static_cast<size_t>(parse_result.offset - 2);
             html.erase (pos2);
@@ -1217,7 +1213,7 @@ std::string resource_logic_bible_gateway_get (std::string resource, int book, in
         }
         // Parse the html fragment into a DOM.
         std::string verse_s = filter::strings::convert_to_string (verse);
-        xml_document document;
+        pugi::xml_document document;
         document.load_string (html.c_str());
         // There can be cross references in the html.
         // These result in e.g. "A" or "B" scattered through the final text.
@@ -1226,13 +1222,13 @@ std::string resource_logic_bible_gateway_get (std::string resource, int book, in
         // <sup class='crossreference' data-cr='#cen-NASB-30388A'  data-link='(&lt;a href=&quot;#cen-NASB-30388A&quot; title=&quot;See cross-reference A&quot;&gt;A&lt;/a&gt;)'>(<a href="#cen-NASB-30388A" title="See cross-reference A">A</a>)</sup>
         {
           std::string selector = "//sup[@class='crossreference']";
-          xpath_node_set nodeset = document.select_nodes(selector.c_str());
+          pugi::xpath_node_set nodeset = document.select_nodes(selector.c_str());
           for (auto xrefnode: nodeset) xrefnode.node().parent().remove_child(xrefnode.node());
         }
         // Start parsing for actual text.
-        xml_node passage_text_node = document.first_child ();
-        xml_node passage_wrap_node = passage_text_node.first_child ();
-        xml_node passage_content_node = passage_wrap_node.first_child ();
+        pugi::xml_node passage_text_node = document.first_child ();
+        pugi::xml_node passage_wrap_node = passage_text_node.first_child ();
+        pugi::xml_node passage_content_node = passage_wrap_node.first_child ();
         bible_gateway_walker walker {};
         passage_content_node.traverse (walker);
         result.append (walker.text);
@@ -1245,10 +1241,10 @@ std::string resource_logic_bible_gateway_get (std::string resource, int book, in
           // XPath selector.
           // <li id="fen-TLB-20531a"><a href="#en-TLB-20531" title="Go to Matthew 1:17">Matthew 1:17</a> <span class='footnote-text'><i>These are fourteen,</i> literally, “So all the generations from Abraham unto David are fourteen.”</span></li>
           std::string selector = "//li[@id='" + footnote_id + "']/span[@class='footnote-text']";
-          xpath_node xpath = document.select_node(selector.c_str());
+          pugi::xpath_node xpath = document.select_node(selector.c_str());
           if (xpath) {
             std::stringstream ss {};
-            xpath.node().print (ss, "", format_raw);
+            xpath.node().print (ss, "", pugi::format_raw);
             std::string selected_html = ss.str ();
             std::string footnote_text = filter::strings::html2text (selected_html);
             result.append ("<br>Note: ");
@@ -1395,7 +1391,7 @@ std::string resource_logic_study_light_get (std::string resource, int book, int 
 
   // Parse the html into a DOM.
   std::string verse_s {filter::strings::convert_to_string (verse)};
-  xml_document document {};
+  pugi::xml_document document {};
   pugi::xml_parse_result parse_result = document.load_string (html.c_str());
   pugixml_utils_error_logger (&parse_result, html);
 
@@ -1405,13 +1401,13 @@ std::string resource_logic_study_light_get (std::string resource, int book, int 
   std::string selector1 = "//a[contains(@name,'verses-" + filter::strings::convert_to_string (verse) + "-')]";
   std::string selector2 = "//a[@name='verse-" + filter::strings::convert_to_string (verse) + "']";
   std::string selector = selector1 + "|" + selector2;
-  xpath_node_set nodeset = document.select_nodes(selector.c_str());
+  pugi::xpath_node_set nodeset = document.select_nodes(selector.c_str());
   nodeset.sort();
-  for (xpath_node xpathnode : nodeset) {
-    xml_node h3_node = xpathnode.node().parent();
-    xml_node div_node = h3_node.parent();
+  for (pugi::xpath_node xpathnode : nodeset) {
+    pugi::xml_node h3_node = xpathnode.node().parent();
+    pugi::xml_node div_node = h3_node.parent();
     std::stringstream ss {};
-    div_node.print (ss, "", format_raw);
+    div_node.print (ss, "", pugi::format_raw);
     result.append(ss.str ());
   }
 #endif
@@ -1555,11 +1551,11 @@ std::vector <std::string> resource_logic_easy_english_bible_pages (int book, int
 }
 
 
-struct easy_english_bible_walker: xml_tree_walker
+struct easy_english_bible_walker: pugi::xml_tree_walker
 {
   std::string text {};
 
-  virtual bool for_each (xml_node& node) override
+  virtual bool for_each (pugi::xml_node& node) override
   {
     // Handle this node if it's a text node.
     if (node.type() == pugi::node_pcdata) {
@@ -1638,7 +1634,7 @@ std::string resource_logic_easy_english_bible_get (int book, int chapter, int ve
     if (pos != std::string::npos) html.erase (0, pos);
     
     // Parse the html into a DOM.
-    xml_document document {};
+    pugi::xml_document document {};
     document.load_string (html.c_str());
     
     // The document has one main div like this:
@@ -1646,8 +1642,8 @@ std::string resource_logic_easy_english_bible_get (int book, int chapter, int ve
     // Or: <div class="WordSection1"> like in Exodus.
     // That secion has many children all containing one paragraph of text.
     std::string selector = "//div[contains(@class, 'Section1')]";
-    xpath_node xnode = document.select_node(selector.c_str());
-    xml_node div_node = xnode.node();
+    pugi::xpath_node xnode = document.select_node(selector.c_str());
+    pugi::xml_node div_node = xnode.node();
 
     // Iterate over the paragraphs of text and process them.
     for (auto paragraph_node : div_node.children()) {

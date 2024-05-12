@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 #pragma once
 
 #include <config/libraries.h>
+
+class Webserver_Request;
 
 namespace filter::date {
 
@@ -51,6 +53,6 @@ enum date_format {
   yyyy_mn_dd = 2
 };
 std::string date_format_to_text (date_format format);
-std::string localized_date_format (void * webserver_request);
+std::string localized_date_format (Webserver_Request& webserver_request);
 
 }

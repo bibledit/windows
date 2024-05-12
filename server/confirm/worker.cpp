@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,16 +38,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <pugixml.hpp>
 #endif
 #pragma GCC diagnostic pop
-using namespace std;
-using namespace pugi;
 
 
 #ifdef HAVE_CLOUD
 
 
-Confirm_Worker::Confirm_Worker (void * webserver_request_in)
+Confirm_Worker::Confirm_Worker (Webserver_Request& webserver_request):
+m_webserver_request (webserver_request)
 {
-  webserver_request = webserver_request_in;
 }
 
 
@@ -60,26 +58,26 @@ Confirm_Worker::Confirm_Worker (void * webserver_request_in)
 // query             : The query to be executed on the database if the user confirms the email successfully.
 // subsequent_subject: The subject of the email to send upon user confirmation.
 // subsequent_body   : The body of the email to send upon user confirmation.
-void Confirm_Worker::setup (string mailto, string username,
-                            string initial_subject, string initial_body,
-                            string query,
-                            string subsequent_subject, string subsequent_body)
+void Confirm_Worker::setup (std::string mailto, std::string username,
+                            std::string initial_subject, std::string initial_body,
+                            std::string query,
+                            std::string subsequent_subject, std::string subsequent_body)
 {
   Database_Confirm database_confirm;
   unsigned int confirmation_id = database_confirm.get_new_id ();
-  xml_document document;
-  xml_node node = document.append_child ("p");
-  string information;
+  pugi::xml_document document;
+  pugi::xml_node node = document.append_child ("p");
+  std::string information;
   if (config::logic::default_bibledit_configuration ()) {
     information = translate ("Please confirm this request by clicking this following link:");
   }
   node.text ().set (information.c_str());
   node = document.append_child ("p");
-  string siteUrl = config::logic::site_url (webserver_request);
-  string confirmation_url = filter_url_build_http_query (siteUrl + session_confirm_url (), "id", to_string(confirmation_id));
+  std::string siteUrl = config::logic::site_url (m_webserver_request);
+  std::string confirmation_url = filter_url_build_http_query (siteUrl + session_confirm_url (), "id", std::to_string(confirmation_id));
   node.text ().set (confirmation_url.c_str());
-  stringstream output;
-  document.print (output, "", format_raw);
+  std::stringstream output;
+  document.print (output, "", pugi::format_raw);
   initial_body += output.str ();
   email_schedule (mailto, initial_subject, initial_body);
   database_confirm.store (confirmation_id, query, mailto, subsequent_subject, subsequent_body, username);
@@ -88,7 +86,7 @@ void Confirm_Worker::setup (string mailto, string username,
 
 // Handles a confirmation email received "from" with "subject" and "body".
 // Returns true if the mail was handled, else false.
-bool Confirm_Worker::handleEmail ([[maybe_unused]]string from, string subject, string body)
+bool Confirm_Worker::handleEmail ([[maybe_unused]]std::string from, std::string subject, std::string body)
 {
   // Find out in the confirmation database whether the subject line contains an active ID.
   // If not, bail out.
@@ -98,11 +96,10 @@ bool Confirm_Worker::handleEmail ([[maybe_unused]]string from, string subject, s
     return false;
   }
   // An active ID was found: Execute the associated database query.
-  string query = database_confirm.get_query (id);
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  request->database_users()->execute (query);
+  std::string query = database_confirm.get_query (id);
+  m_webserver_request.database_users()->execute (query);
   // Send confirmation mail.
-  string mailto = database_confirm.get_mail_to (id);
+  std::string mailto = database_confirm.get_mail_to (id);
   subject = database_confirm.get_subject (id);
   body = database_confirm.get_body (id);
   email_schedule (mailto, subject, body);
@@ -117,11 +114,10 @@ bool Confirm_Worker::handleEmail ([[maybe_unused]]string from, string subject, s
 
 // Handles a confirmation link clicked with a confirmation ID.
 // Returns true if link was valid, else false.
-bool Confirm_Worker::handleLink (string & email)
+bool Confirm_Worker::handleLink (std::string & email)
 {
   // Get the confirmation identifier from the link that was clicked.
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  string web_id = request->query["id"];
+  std::string web_id = m_webserver_request.query["id"];
   
   // If the identifier was not given, the link was not handled successfully.
   if (web_id.empty()) return false;
@@ -135,13 +131,13 @@ bool Confirm_Worker::handleLink (string & email)
   }
  
   // An active ID was found: Execute the associated database query.
-  string query = database_confirm.get_query (id);
-  request->database_users()->execute (query);
+  std::string query = database_confirm.get_query (id);
+  m_webserver_request.database_users()->execute (query);
 
   // Send confirmation mail.
-  string mailto = database_confirm.get_mail_to (id);
-  string subject = database_confirm.get_subject (id);
-  string body = database_confirm.get_body (id);
+  std::string mailto = database_confirm.get_mail_to (id);
+  std::string subject = database_confirm.get_subject (id);
+  std::string body = database_confirm.get_body (id);
   email_schedule (mailto, subject, body);
 
   // Delete the confirmation record.
@@ -159,16 +155,16 @@ bool Confirm_Worker::handleLink (string & email)
 
 
 // Inform the managers about an account change.
-void Confirm_Worker::informManagers (string email, string body)
+void Confirm_Worker::informManagers (std::string email, std::string body)
 {
   Database_Users database_users;
-  vector <string> users = database_users.get_users ();
+  std::vector <std::string> users = database_users.get_users ();
   for (auto & user : users) {
     int level = database_users.get_level (user);
     if (level >= Filter_Roles::manager ()) {
-      string mailto = database_users.get_email (user);
-      string subject = translate ("User account change");
-      string newbody = translate ("A user account was changed.");
+      std::string mailto = database_users.get_email (user);
+      std::string subject = translate ("User account change");
+      std::string newbody = translate ("A user account was changed.");
       newbody.append (" ");
       newbody.append (translate ("Email address:"));
       newbody.append (" ");

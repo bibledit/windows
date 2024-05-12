@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,31 +23,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/logs.h>
 #include <database/notes.h>
 #include <webserver/request.h>
-using namespace std;
 
 
-void trash_change_notification (void * webserver_request, int id)
+void trash_change_notification (Webserver_Request& webserver_request, int id)
 {
   Database_Modifications database_modifications;
   Passage passage = database_modifications.getNotificationPassage (id);
-  string passageText = filter_passage_display_inline ({passage});
-  string modification = database_modifications.getNotificationModification (id);
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  string username = request->session_logic()->currentUser ();
+  std::string passageText = filter_passage_display_inline ({passage});
+  std::string modification = database_modifications.getNotificationModification (id);
+  std::string username = webserver_request.session_logic()->currentUser ();
   Database_Logs::log (username + " removed change notification " + passageText + " : " + modification);
 }
 
 
-void trash_consultation_note (void * webserver_request, int id)
+void trash_consultation_note (Webserver_Request& webserver_request, int id)
 {
   Database_Notes database_notes (webserver_request);
-  vector <Passage> passages = database_notes.get_passages (id);
-  string passageText = filter_passage_display_inline (passages);
-  string summary = database_notes.get_summary (id);
-  string contents = database_notes.get_contents (id);
+  std::vector <Passage> passages = database_notes.get_passages (id);
+  std::string passageText = filter_passage_display_inline (passages);
+  std::string summary = database_notes.get_summary (id);
+  std::string contents = database_notes.get_contents (id);
   contents = filter::strings::html2text (contents);
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  string username = request->session_logic()->currentUser ();
+  std::string username = webserver_request.session_logic()->currentUser ();
   if (username.empty ()) username = "This app";
   Database_Logs::log (username + " deleted or marked for deletion consultation note " + passageText + " | " + summary + " | " + contents);
 }

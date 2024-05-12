@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,12 +21,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <config/libraries.h>
 
+class Webserver_Request;
+
 std::string session_admin_credentials ();
 
 class Session_Logic
 {
 public:
-  Session_Logic (void * webserver_request_in);
+  Session_Logic (Webserver_Request& webserver_request);
   Session_Logic(const Session_Logic&) = delete;
   Session_Logic operator=(const Session_Logic&) = delete;
   void set_username (std::string name);
@@ -45,7 +47,7 @@ private:
   bool logged_in { false };            // Whether user is logged in.
   std::string username {};                  // The username.
   bool touch_enabled { false };        // Whether user works from a touch-enabled device.
-  void * webserver_request {nullptr};  // Pointer to instance of Webserver_Request.
+  Webserver_Request& m_webserver_request;  // Pointer to instance of Webserver_Request.
   void open ();
   bool openAccess ();
   std::string fingerprint ();

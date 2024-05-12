@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,27 +31,23 @@
 #include <access/logic.h>
 #include <menu/logic.h>
 #include <manage/users.h>
-using namespace std;
 
 
-string manage_privileges_url ()
+std::string manage_privileges_url ()
 {
   return "manage/privileges";
 }
 
 
-bool manage_privileges_acl (void * webserver_request)
+bool manage_privileges_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
 }
 
 
-string manage_privileges (void * webserver_request)
+std::string manage_privileges (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
-  
-  string page {};
+  std::string page {};
   Assets_Header header = Assets_Header (translate("Read/write"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   header.add_bread_crumb (manage_users_url (), menu_logic_manage_users_text ());
@@ -60,20 +56,20 @@ string manage_privileges (void * webserver_request)
 
   
   // Get the user and his/her level.
-  string user {request->query["user"]};
-  if (user.empty()) user = request->post["val1"];
+  std::string user {webserver_request.query["user"]};
+  if (user.empty()) user = webserver_request.post["val1"];
   view.set_variable ("user", user);
   int level {0};
   access_logic::user_level (webserver_request, user, level);
 
 
   // Usernames for setting default new user privilege.
-  set <string> defusers = access_logic::default_privilege_usernames ();
+  std::set <std::string> defusers = access_logic::default_privilege_usernames ();
 
   
   bool privileges_updated {false};
-  string checkbox {request->post ["checkbox"]};
-  bool checked {filter::strings::convert_to_bool (request->post ["checked"])};
+  std::string checkbox {webserver_request.post ["checkbox"]};
+  bool checked {filter::strings::convert_to_bool (webserver_request.post ["checked"])};
   bool state {false};
   
   
@@ -118,7 +114,7 @@ string manage_privileges (void * webserver_request)
   
   // Privilege to delete Consultation Notes.
   if (checkbox == "deletenotes") {
-    request->database_config_user ()->setPrivilegeDeleteConsultationNotesForUser (user, checked);
+    webserver_request.database_config_user ()->setPrivilegeDeleteConsultationNotesForUser (user, checked);
   }
   state = DatabasePrivileges::get_feature (user, PRIVILEGE_CREATE_COMMENT_NOTES);
   if (level >= access_logic::delete_consultation_notes_role () && defusers.find (user) == defusers.end ()) {
@@ -130,7 +126,7 @@ string manage_privileges (void * webserver_request)
   
   // Privilege to use advanced mode.
   if (checkbox == "useadvancedmode") {
-    request->database_config_user ()->setPrivilegeUseAdvancedModeForUser (user, checked);
+    webserver_request.database_config_user ()->setPrivilegeUseAdvancedModeForUser (user, checked);
   }
   if (level >= access_logic::use_advanced_mode_role () && defusers.find (user) == defusers.end ()) {
     view.set_variable ("useadvancedmodedisabled", filter::strings::get_disabled (true));
@@ -141,7 +137,7 @@ string manage_privileges (void * webserver_request)
   
   // Privilege to be able to edit and set stylesheets.
   if (checkbox == "editstylesheets") {
-    request->database_config_user ()->setPrivilegeSetStylesheetsForUser (user, checked);
+    webserver_request.database_config_user ()->setPrivilegeSetStylesheetsForUser (user, checked);
   }
   if (level >= access_logic::set_stylesheets_role () && defusers.find (user) == defusers.end ()) {
     view.set_variable ("editstylesheetsdisabled", filter::strings::get_disabled (true));

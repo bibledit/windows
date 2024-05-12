@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/sqlite.h>
 #include <filter/date.h>
 #include <config/globals.h>
-using namespace std;
 
 
 // Handles email and web page confirmations.
@@ -60,10 +59,10 @@ void Database_Confirm::upgrade ()
   // Get the existing columns in the database.
   SqliteDatabase sql (filename ());
   sql.add ("PRAGMA table_info (confirm);");
-  vector <string> columns = sql.query () ["name"];
+  std::vector <std::string> columns = sql.query () ["name"];
 
   // Add the column for the username if it's not yet there.
-  if (!in_array (static_cast<string> ("username"), columns)) {
+  if (!in_array (static_cast<std::string> ("username"), columns)) {
     sql.clear ();
     sql.add ("ALTER TABLE confirm ADD COLUMN username text;");
     sql.execute ();
@@ -97,15 +96,15 @@ bool Database_Confirm::id_exists (unsigned int id)
   sql.add ("SELECT id FROM confirm WHERE id =");
   sql.add (static_cast<int>(id));
   sql.add (";");
-  vector <string> ids = sql.query () ["id"];
+  std::vector <std::string> ids = sql.query () ["id"];
   return !ids.empty ();
 }
 
 
 // Store a confirmation cycle
-void Database_Confirm::store (unsigned int id, string query,
-                              string to, string subject, string body,
-                              string username)
+void Database_Confirm::store (unsigned int id, std::string query,
+                              std::string to, std::string subject, std::string body,
+                              std::string username)
 {
   SqliteDatabase sql (filename ());
   sql.add ("INSERT INTO confirm VALUES (");
@@ -129,14 +128,14 @@ void Database_Confirm::store (unsigned int id, string query,
 
 // Search the database for an existing ID in $subject.
 // If it exists, it returns the ID number, else it returns 0.
-unsigned int Database_Confirm::search_id (string subject)
+unsigned int Database_Confirm::search_id (std::string subject)
 {
   SqliteDatabase sql (filename ());
   sql.add ("SELECT id FROM confirm;");
-  vector <string> ids = sql.query () ["id"];
-  for (string id : ids) {
+  std::vector <std::string> ids = sql.query () ["id"];
+  for (std::string id : ids) {
     size_t pos = subject.find (id);
-    if (pos != string::npos) {
+    if (pos != std::string::npos) {
       return static_cast<unsigned>(filter::strings::convert_to_int (id));
     }
   }
@@ -144,79 +143,79 @@ unsigned int Database_Confirm::search_id (string subject)
 }
 
 
-vector <int> Database_Confirm::get_ids ()
+std::vector <int> Database_Confirm::get_ids ()
 {
   SqliteDatabase sql (filename ());
   sql.add ("SELECT id FROM confirm;");
-  vector <string> s_ids = sql.query () ["id"];
-  vector <int> ids;
+  std::vector <std::string> s_ids = sql.query () ["id"];
+  std::vector <int> ids;
   for (auto id : s_ids) ids.push_back(filter::strings::convert_to_int(id));
   return ids;
 }
 
 
 // Returns the query for $id.
-string Database_Confirm::get_query (unsigned int id)
+std::string Database_Confirm::get_query (unsigned int id)
 {
   SqliteDatabase sql (filename ());
   sql.add ("SELECT query FROM confirm WHERE id =");
   sql.add (static_cast<int>(id));
   sql.add (";");
-  vector <string> result = sql.query () ["query"];
+  std::vector <std::string> result = sql.query () ["query"];
   if (!result.empty ()) return result [0];
-  return "";
+  return std::string();
 }
 
 
 // Returns the To: address for $id.
-string Database_Confirm::get_mail_to (unsigned int id)
+std::string Database_Confirm::get_mail_to (unsigned int id)
 {
   SqliteDatabase sql (filename ());
   sql.add ("SELECT mailto FROM confirm WHERE id =");
   sql.add (static_cast<int>(id));
   sql.add (";");
-  vector <string> result = sql.query () ["mailto"];
+  std::vector <std::string> result = sql.query () ["mailto"];
   if (!result.empty ()) return result [0];
-  return "";
+  return std::string();
 }
 
 
 // Returns the Subject: for $id.
-string Database_Confirm::get_subject (unsigned int id)
+std::string Database_Confirm::get_subject (unsigned int id)
 {
   SqliteDatabase sql (filename ());
   sql.add ("SELECT subject FROM confirm WHERE id =");
   sql.add (static_cast<int>(id));
   sql.add (";");
-  vector <string> result = sql.query () ["subject"];
+  std::vector <std::string> result = sql.query () ["subject"];
   if (!result.empty ()) return result [0];
-  return "";
+  return std::string();
 }
 
 
 // Returns the email's body for $id.
-string Database_Confirm::get_body (unsigned int id)
+std::string Database_Confirm::get_body (unsigned int id)
 {
   SqliteDatabase sql (filename ());
   sql.add ("SELECT body FROM confirm WHERE id =");
   sql.add (static_cast<int>(id));
   sql.add (";");
-  vector <string> result = sql.query () ["body"];
+  std::vector <std::string> result = sql.query () ["body"];
   if (!result.empty ()) return result [0];
-  return "";
+  return std::string();
 }
 
 
 // Returns the username for $id.
-string Database_Confirm::get_username (unsigned int id) // Test return valid and invalid username.
+std::string Database_Confirm::get_username (unsigned int id) // Test return valid and invalid username.
 {
   SqliteDatabase sql (filename ());
   sql.add ("SELECT username FROM confirm WHERE id =");
   sql.add (static_cast<int>(id));
   sql.add (";");
-  vector <string> result = sql.query () ["username"];
+  std::vector <std::string> result = sql.query () ["username"];
   if (!result.empty ()) return result [0];
-  return string();
+  return std::string();
 }
 
 
@@ -234,7 +233,7 @@ void Database_Confirm::erase (unsigned int id)
 void Database_Confirm::trim ()
 {
   // Leave entries for no more than 30 days.
-  int time = filter::date::seconds_since_epoch () - 2592000;
+  const int time = filter::date::seconds_since_epoch () - 2592000;
   SqliteDatabase sql (filename ());
   sql.add ("DELETE FROM confirm WHERE timestamp <");
   sql.add (time);

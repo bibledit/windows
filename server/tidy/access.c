@@ -3171,7 +3171,7 @@ static void CheckForStyleAttribute( TidyDocImpl* doc, Node* node )
 /*****************************************************
 * CheckForListElements
 *
-* Checks document for list elements (<ol>, <ul>, <li>)
+* Checks document for list elements (ol, ul, li)
 *****************************************************/
 
 static void CheckForListElements( TidyDocImpl* doc, Node* node )
@@ -3195,9 +3195,8 @@ static void CheckForListElements( TidyDocImpl* doc, Node* node )
 /******************************************************
 * CheckListUsage
 *
-* Ensures that lists are properly used.  <ol> and <ul>
-* must contain <li> within itself, and <li> must not be
-* by itself.
+* Ensures that lists are properly used.  The tags "ol" and "ul"
+* must contain "li" within itself, and "li" must not be by itself.
 ******************************************************/
 
 static void CheckListUsage( TidyDocImpl* doc, Node* node )

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,43 +32,41 @@
 #include <sync/logic.h>
 #include <checksum/logic.h>
 #include <config/globals.h>
-using namespace std;
 
 
-string sync_changes_url ()
+std::string sync_changes_url ()
 {
   return "sync/changes";
 }
 
 
-string sync_changes (void * webserver_request)
+std::string sync_changes (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  Sync_Logic sync_logic = Sync_Logic (webserver_request);
+  Sync_Logic sync_logic (webserver_request);
   Database_Modifications database_modifications;
 
   if (!sync_logic.security_okay ()) {
     // When the Cloud enforces https, inform the client to upgrade.
-    request->response_code = 426;
-    return "";
+    webserver_request.response_code = 426;
+    return std::string();
   }
   
   // Check on the credentials.
-  if (!sync_logic.credentials_okay ()) return "";
+  if (!sync_logic.credentials_okay ()) return std::string();
 
   // Bail out if the change notifications are not now available to clients.
   if (!config_globals_change_notifications_available) {
-    request->response_code = 503;
-    return "";
+    webserver_request.response_code = 503;
+    return std::string();
   }
   
   // Client makes a prioritized server call: Record the client's IP address.
   sync_logic.prioritized_ip_address_record ();
 
   // Get the relevant parameters the client may have POSTed to us, the server.
-  string user = filter::strings::hex2bin (request->post ["u"]);
-  int action = filter::strings::convert_to_int (request->post ["a"]);
-  int id = filter::strings::convert_to_int (request->post ["i"]);
+  std::string user = filter::strings::hex2bin (webserver_request.post ["u"]);
+  int action = filter::strings::convert_to_int (webserver_request.post ["a"]);
+  int id = filter::strings::convert_to_int (webserver_request.post ["i"]);
 
   switch (action) {
     case Sync_Logic::changes_delete_modification:
@@ -76,25 +74,25 @@ string sync_changes (void * webserver_request)
       // The server deletes the change notification.
       database_modifications.deleteNotification (id);
       Database_Logs::log ("Client deletes change notification from server: " + filter::strings::convert_to_string (id), Filter_Roles::translator ());
-      request->database_config_user ()->setChangeNotificationsChecksum ("");
-      return "";
+      webserver_request.database_config_user ()->setChangeNotificationsChecksum ("");
+      return std::string();
     }
     case Sync_Logic::changes_get_checksum:
     {
       // The server responds with the possibly cached total checksum for the user's change notifications.
-      string checksum = request->database_config_user ()->getChangeNotificationsChecksum ();
+      std::string checksum = webserver_request.database_config_user ()->getChangeNotificationsChecksum ();
       if (checksum.empty ()) {
         checksum = Sync_Logic::changes_checksum (user);
-        request->database_config_user ()->setChangeNotificationsChecksum (checksum);
+        webserver_request.database_config_user ()->setChangeNotificationsChecksum (checksum);
       }
       return checksum;
     }
     case Sync_Logic::changes_get_identifiers:
     {
       // The server responds with the identifiers of all the user's change notifications.
-      string any_bible {};
-      vector <int> notification_ids = database_modifications.getNotificationIdentifiers (user, any_bible);
-      string response;
+      std::string any_bible {};
+      std::vector <int> notification_ids = database_modifications.getNotificationIdentifiers (user, any_bible);
+      std::string response;
       for (auto & notif_id : notification_ids) {
         if (!response.empty ()) response.append ("\n");
         response.append (filter::strings::convert_to_string (notif_id));
@@ -104,7 +102,7 @@ string sync_changes (void * webserver_request)
     case Sync_Logic::changes_get_modification:
     {
       // The server responds with the relevant data of the requested modification.
-      vector <string> lines;
+      std::vector <std::string> lines;
       // category
       lines.push_back (database_modifications.getNotificationCategory (id));
       // bible
@@ -117,15 +115,15 @@ string sync_changes (void * webserver_request)
       lines.push_back (filter::strings::convert_to_string (passage.m_chapter));
       lines.push_back (passage.m_verse);
       // oldtext (ensure it's one line for correct transfer to client)
-      string oldtext = database_modifications.getNotificationOldText (id);
+      std::string oldtext = database_modifications.getNotificationOldText (id);
       oldtext = filter::strings::replace ("\n", " ", oldtext);
       lines.push_back (oldtext);
       // modification (ensure it's one line for correct transfer to client)
-      string modification = database_modifications.getNotificationModification (id);
+      std::string modification = database_modifications.getNotificationModification (id);
       modification = filter::strings::replace ("\n", " ", modification);
       lines.push_back (modification);
       // newtext (ensure it's one line for correct transfer to client)
-      string newtext = database_modifications.getNotificationNewText (id);
+      std::string newtext = database_modifications.getNotificationNewText (id);
       newtext = filter::strings::replace ("\n", " ", newtext);
       lines.push_back (newtext);
       // Result.
@@ -137,7 +135,7 @@ string sync_changes (void * webserver_request)
   
   // Bad request.
   // Delay a while to obstruct a flood of bad requests.
-  this_thread::sleep_for (chrono::seconds (1));
-  request->response_code = 400;
-  return "";
+  std::this_thread::sleep_for (std::chrono::seconds (1));
+  webserver_request.response_code = 400;
+  return std::string();
 }

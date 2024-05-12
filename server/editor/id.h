@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 
 #include <config/libraries.h>
 
+class Webserver_Request;
+
 std::string editor_id_url ();
-bool editor_id_acl (void * webserver_request);
-std::string editor_id (void * webserver_request);
+bool editor_id_acl (Webserver_Request& webserver_request);
+std::string editor_id (Webserver_Request& webserver_request);

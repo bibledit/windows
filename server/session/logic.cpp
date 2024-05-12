@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,11 +27,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/roles.h>
 #include <config/globals.h>
 #include <user/logic.h>
-using namespace std;
 
 
 // The username and password for a demo installation, and for a disconnected client installation
-string session_admin_credentials ()
+std::string session_admin_credentials ()
 {
   return "admin";
 }
@@ -67,9 +66,9 @@ It sets the cookie to expire after a certain time.
 */
 
 
-Session_Logic::Session_Logic (void * webserver_request_in)
+Session_Logic::Session_Logic (Webserver_Request& webserver_request):
+m_webserver_request (webserver_request)
 {
-  webserver_request = webserver_request_in;
   touch_enabled = false;
   open ();
 }
@@ -81,14 +80,12 @@ void Session_Logic::open ()
   if (openAccess ()) return;
   if (clientAccess ()) return;
 
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
   // Work around a weird bug where the user_agent's size is 140735294083184 leading to a crash.
-  if (request->user_agent.size () > 10'000) return;
+  if (m_webserver_request.user_agent.size () > 10'000) return;
 
   // Discard empty cookies right-away.
   // Don't regard this as something that triggers the brute force attach mitigation mechanism.
-  string cookie = request->session_identifier;
+  std::string cookie = m_webserver_request.session_identifier;
   if (cookie.empty ()) {
     set_username ("");
     logged_in = false;
@@ -96,20 +93,20 @@ void Session_Logic::open ()
   }
   
   bool daily;
-  string username_from_cookie = Database_Login::getUsername (cookie, daily);
+  std::string username_from_cookie = Database_Login::getUsername (cookie, daily);
   if (!username_from_cookie.empty ()) {
     set_username (username_from_cookie);
     logged_in = true;
-    if (daily) request->resend_cookie = true;
+    if (daily) m_webserver_request.resend_cookie = true;
     touch_enabled = Database_Login::getTouchEnabled (cookie);
   } else {
-    set_username (string());
+    set_username (std::string());
     logged_in = false;
   }
 }
 
 
-void Session_Logic::set_username (string name)
+void Session_Logic::set_username (std::string name)
 {
   username = name;
 }
@@ -129,11 +126,10 @@ bool Session_Logic::openAccess ()
 
 
 // Returns IP blocks of remote address.
-string Session_Logic::remoteAddress ()
+std::string Session_Logic::remoteAddress ()
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  vector <string> blocks = filter::strings::explode (request->remote_address, '.');
-  string address;
+  std::vector <std::string> blocks = filter::strings::explode (m_webserver_request.remote_address, '.');
+  std::string address;
   size_t num_blocks = static_cast<size_t> (abs (check_ip_blocks));
   if (num_blocks > blocks.size ()) num_blocks = blocks.size ();
   for (unsigned int i = 0; i < num_blocks; i++) {
@@ -144,13 +140,12 @@ string Session_Logic::remoteAddress ()
 
 
 // Returns a fingerprint from the user's browser.
-string Session_Logic::fingerprint ()
+std::string Session_Logic::fingerprint ()
 {
-  string fingerprint = "";
+  std::string fingerprint = "";
   // fingerprint += $_SERVER ['HTTP_CONNECTION']; Unstable fingerprint. No use for persistent login.
   // fingerprint += $_SERVER ['HTTP_ACCEPT_ENCODING']; Unstable fingerprint. No use for persistent login.
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  fingerprint += request->accept_language;
+  fingerprint += m_webserver_request.accept_language;
   return fingerprint;
 }
 
@@ -158,7 +153,7 @@ string Session_Logic::fingerprint ()
 // Attempts to log into the system.
 // Records whether the user logged in from a touch-enabled device.
 // Returns boolean success.
-bool Session_Logic::attempt_login (string user_or_email, string password,
+bool Session_Logic::attempt_login (std::string user_or_email, std::string password,
                                    bool touch_enabled_in, bool skip_checks)
 {
   // Brute force attack mitigation.
@@ -193,8 +188,7 @@ bool Session_Logic::attempt_login (string user_or_email, string password,
     open ();
     set_username (user_or_email);
     logged_in = true;
-    Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-    string cookie = request->session_identifier;
+    std::string cookie = m_webserver_request.session_identifier;
     Database_Login::setTokens (user_or_email, "", "", "", cookie, touch_enabled_in);
     currentLevel (true);
     return true;
@@ -220,7 +214,7 @@ bool Session_Logic::loggedIn ()
 }
 
 
-string Session_Logic::currentUser ()
+std::string Session_Logic::currentUser ()
 {
   return username;
 }
@@ -259,10 +253,9 @@ int Session_Logic::currentLevel (bool force)
 
 void Session_Logic::logout ()
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  string cookie = request->session_identifier;
+  const std::string cookie = m_webserver_request.session_identifier;
   Database_Login::removeTokens (currentUser (), cookie);
-  set_username (string());
+  set_username (std::string());
   level = Filter_Roles::guest();
 }
 
@@ -274,8 +267,8 @@ bool Session_Logic::clientAccess ()
   // or as the admin in case no user has been set up yet.
   if (config_globals_client_prepared) {
     Database_Users database_users;
-    vector <string> users = database_users.get_users ();
-    string user;
+    std::vector <std::string> users = database_users.get_users ();
+    std::string user;
     if (users.empty ()) {
       user = session_admin_credentials ();
       level = Filter_Roles::admin ();
@@ -291,10 +284,9 @@ bool Session_Logic::clientAccess ()
 }
 
 
-void Session_Logic::switch_user (string new_user)
+void Session_Logic::switch_user (std::string new_user)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  string cookie = request->session_identifier;
+  std::string cookie = m_webserver_request.session_identifier;
   Database_Login::removeTokens (new_user, cookie);
   Database_Login::renameTokens (currentUser (), new_user, cookie);
 }

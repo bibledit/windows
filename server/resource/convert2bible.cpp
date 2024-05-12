@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -27,10 +27,9 @@
 #include <database/logs.h>
 #include <locale/translate.h>
 #include <tasks/logic.h>
-using namespace std;
 
 
-void convert_resource_to_bible (string resource)
+void convert_resource_to_bible (std::string resource)
 {
   Database_Bibles database_bibles;
   Database_UsfmResources database_usfmresources = Database_UsfmResources ();
@@ -40,13 +39,13 @@ void convert_resource_to_bible (string resource)
   
   
   database_bibles.create_bible (resource);
-  vector <int> books = database_usfmresources.getBooks (resource);
+  std::vector <int> books = database_usfmresources.getBooks (resource);
   for (auto & book : books) {
-    string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
+    std::string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
     Database_Logs::log (bookname);
-    vector <int> chapters = database_usfmresources.getChapters (resource, book);
+    std::vector <int> chapters = database_usfmresources.getChapters (resource, book);
     for (auto & chapter : chapters) {
-      string usfm = database_usfmresources.getUsfm (resource, book, chapter);
+      std::string usfm = database_usfmresources.getUsfm (resource, book, chapter);
       database_bibles.store_chapter (resource, book, chapter, usfm);
     }
   }

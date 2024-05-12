@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,11 +20,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <styles/logic.h>
 #include <locale/translate.h>
 #include <filter/string.h>
-using namespace std;
 
 
 // The name of the "Standard" stylesheet.
-string styles_logic_standard_sheet ()
+std::string styles_logic_standard_sheet ()
 {
   return "Standard";
 }
@@ -32,7 +31,7 @@ string styles_logic_standard_sheet ()
 
 // This contains the styles logic.
 // categoryText - Returns the $category as human readable text.
-string styles_logic_category_text (string category)
+std::string styles_logic_category_text (std::string category)
 {
   if (category == "id")  return translate ("Identification information");
   if (category == "ith") return translate ("Introduction titles and headings");
@@ -57,7 +56,7 @@ string styles_logic_category_text (string category)
 
 
 // Returns the $type as human readable text.
-string styles_logic_type_text (int type)
+std::string styles_logic_type_text (int type)
 {
   if (type == StyleTypeIdentifier     ) return translate ("is an identifier");
   if (type == StyleTypeStartsParagraph) return translate ("starts a new paragraph");
@@ -76,7 +75,7 @@ string styles_logic_type_text (int type)
 
 
 // This returns the $subtype as human readable text.
-string styles_logic_subtype_text (int type, int subtype)
+std::string styles_logic_subtype_text (int type, int subtype)
 {
   if (type == StyleTypeIdentifier) {
     if (subtype == IdentifierSubtypeBook                  ) return translate ("identifies the book");
@@ -251,7 +250,7 @@ bool styles_logic_italic_bold_underline_smallcaps_are_full (int type, int subtyp
 
 
 // Returns the $value as human readable text.
-string styles_logic_off_on_inherit_toggle_text (int value)
+std::string styles_logic_off_on_inherit_toggle_text (int value)
 {
   if (value == ooitOff    ) return translate ("Off");
   if (value == ooitOn     ) return translate ("On");
@@ -333,7 +332,7 @@ bool styles_logic_paragraph_treats_are_relevant (int type, int subtype)
 
 
 // Returns the $value as human readable text.
-string styles_logic_alignment_text (int value)
+std::string styles_logic_alignment_text (int value)
 {
   if (value == AlignmentLeft   ) return translate ("Left align");
   if (value == AlignmentCenter ) return translate ("Center");
@@ -440,7 +439,7 @@ int styles_logic_get_userbool1_function (int type, int subtype)
 
 
 // Returns the text of userbool1's function.
-string styles_logic_get_userbool1_text (int function)
+std::string styles_logic_get_userbool1_text (int function)
 {
   switch (function) {
     case UserBool1PrintChapterAtFirstVerse: return translate ("Print chapter number at first verse");
@@ -449,7 +448,7 @@ string styles_logic_get_userbool1_text (int function)
     case UserBool1VerseRestartsParagraph: return translate ("Restart paragraph");
     default: return "--";
   }
-  return string();
+  return std::string();
 }
 
 
@@ -468,15 +467,15 @@ int styles_logic_get_userbool2_function (int type, int subtype)
 
 
 // Returns the text of userbool2's function.
-string styles_logic_get_userbool2_text (int function)
+std::string styles_logic_get_userbool2_text (int function)
 {
   switch (function) {
     case UserBool2IdStartsOddPage: return translate ("New page starts with an odd number (not implemented due to limitations in OpenDocument)");
     case UserBool2ChapterInLeftRunningHeader: return translate ("Print chapter number in the running header of the left page");
     case UserBool2RunningHeaderLeft: return translate ("Print this in the running header of the left page");
-    default: return string();
+    default: return std::string();
   }
-  return string();
+  return std::string();
 }
 
 
@@ -495,14 +494,14 @@ int styles_logic_get_userbool3_function (int type, int subtype)
 
 
 // Returns the text of userbool3's function.
-string styles_logic_get_userbool3_text (int function)
+std::string styles_logic_get_userbool3_text (int function)
 {
   switch (function) {
     case UserBool3ChapterInRightRunningHeader: return translate ("Print chapter number in the running header of the right page");
     case UserBool3RunningHeaderRight: return translate ("Print this in the running header of the right page");
-    default: return string();
+    default: return std::string();
   }
-  return string();
+  return std::string();
 }
 
 
@@ -530,7 +529,7 @@ int styles_logic_get_userint1_function (int type, int subtype)
 
 
 // Returns the value as human readable text for note numbering.
-string styles_logic_note_numbering_text (int value)
+std::string styles_logic_note_numbering_text (int value)
 {
   if (value == NoteNumbering123 ) return "1, 2, 3 ...";
   if (value == NoteNumberingAbc ) return "a, b, c ...";
@@ -557,7 +556,7 @@ int styles_logic_get_userint2_function (int type, int subtype)
 
 
 // Returns the value as human readable text for when to restart the note numbering.
-string styles_logic_note_restart_numbering_text (int value)
+std::string styles_logic_note_restart_numbering_text (int value)
 {
   if (value == NoteRestartNumberingNever       ) return translate ("Never");
   if (value == NoteRestartNumberingEveryBook   ) return translate ("Every book");
@@ -567,7 +566,7 @@ string styles_logic_note_restart_numbering_text (int value)
 
 
 // Returns the value as human readable text for the position of the endnotes.
-string styles_logic_end_note_position_text (int value)
+std::string styles_logic_end_note_position_text (int value)
 {
   if (value == EndNotePositionAfterBook) return translate ("After each book");
   if (value == EndNotePositionVeryEnd  ) return translate ("After everything else");

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ void setup_copy_library (const char * package);
 void setup_write_access ();
 void setup_wait_till_main_folders_present ();
 void setup_initialize_data ();
-void setup_set_admin_details (std::string username, std::string password, std::string email);
+void setup_set_admin_details (const std::string& username, const std::string& password, const std::string& email);
 void setup_complete_gui ();
 void setup_generate_locale_databases (bool progress);
 void setup_generate_verse_mapping_databases ();

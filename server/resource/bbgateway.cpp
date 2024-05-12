@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -42,36 +42,31 @@
 #include <pugixml.hpp>
 #endif
 #pragma GCC diagnostic pop
-using namespace std;
-using namespace pugi;
 
 
-string resource_biblegateway_url ()
+std::string resource_biblegateway_url ()
 {
   return "resource/bbgateway";
 }
 
 
-bool resource_biblegateway_acl (void * webserver_request)
+bool resource_biblegateway_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ());
 }
 
 
-string resource_biblegateway (void * webserver_request)
+std::string resource_biblegateway (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
-  
-  string page;
-  Assets_Header header = Assets_Header (translate("Resources"), request);
+  std::string page;
+  Assets_Header header = Assets_Header (translate("Resources"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
   Assets_View view;
 
   
-  if (request->query.count ("refresh")) {
-    string error = resource_logic_bible_gateway_module_list_refresh ();
+  if (webserver_request.query.count ("refresh")) {
+    std::string error = resource_logic_bible_gateway_module_list_refresh ();
     if (error.empty ()) {
       view.set_variable ("success", translate ("The list was updated"));
     }
@@ -79,9 +74,9 @@ string resource_biblegateway (void * webserver_request)
   }
   
   
-  string path = resource_logic_bible_gateway_module_list_path ();
-  string moduleblock = filter_url_file_get_contents (path);
-  vector <string> lines = filter::strings::explode (moduleblock, '\n');
+  std::string path = resource_logic_bible_gateway_module_list_path ();
+  std::string moduleblock = filter_url_file_get_contents (path);
+  std::vector <std::string> lines = filter::strings::explode (moduleblock, '\n');
   moduleblock.clear ();
   for (auto line : lines) {
     moduleblock.append ("<p>");

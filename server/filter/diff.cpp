@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -39,11 +39,9 @@
 #include <text/text.h>
 #include <locale/translate.h>
 #include <developer/logic.h>
-using namespace std;
-using dtl::Diff;
 
 
-static mutex filter_diff_mutex;
+static std::mutex filter_diff_mutex;
 
 
 // This filter returns the diff of two input strings.
@@ -52,19 +50,19 @@ static mutex filter_diff_mutex;
 // The function returns the differences marked.
 // If the containers for $removals and $additions are given,
 // they will be filled with the appropriate text fragments.
-string filter_diff_diff (string oldstring, string newstring,
-                         vector <string> * removals,
-                         vector <string> * additions)
+std::string filter_diff_diff (std::string oldstring, std::string newstring,
+                              std::vector <std::string> * removals,
+                              std::vector <std::string> * additions)
 {
   // Save the new lines.
-  string newline = " newline_newline_newline ";
+  std::string newline = " newline_newline_newline ";
   oldstring = filter::strings::replace ("\n", newline, oldstring);
   newstring = filter::strings::replace ("\n", newline, newstring);
   
   // Split the input up into words.
   // It compares with word granularity.
-  vector <string> old_sequence = filter::strings::explode (oldstring, ' ');
-  vector <string> new_sequence = filter::strings::explode (newstring, ' ');
+  std::vector <std::string> old_sequence = filter::strings::explode (oldstring, ' ');
+  std::vector <std::string> new_sequence = filter::strings::explode (newstring, ' ');
   
   // See issue https://github.com/bibledit/cloud/issues/419
   // It is unclear at this time whether the code below
@@ -73,17 +71,17 @@ string filter_diff_diff (string oldstring, string newstring,
   filter_diff_mutex.lock();
 
   // Run the diff engine.
-  Diff <string> diff (old_sequence, new_sequence);
+  dtl::Diff <std::string> diff (old_sequence, new_sequence);
   diff.compose();
   
   // Get the shortest edit distance.
-  stringstream result;
+  std::stringstream result;
   diff.printSES (result);
 
   filter_diff_mutex.unlock();
   
   // Add html markup for bold and strikethrough.
-  vector <string> output = filter::strings::explode (result.str (), '\n');
+  std::vector <std::string> output = filter::strings::explode (result.str (), '\n');
   for (auto & line : output) {
     if (line.empty ()) continue;
     char indicator = line.front ();
@@ -101,7 +99,7 @@ string filter_diff_diff (string oldstring, string newstring,
   }
   
   // Resulting html.
-  string html = filter::strings::implode (output, " ");
+  std::string html = filter::strings::implode (output, " ");
   
   // Restore the new lines.
   html = filter::strings::replace (filter::strings::trim (newline), "\n", html);
@@ -110,9 +108,9 @@ string filter_diff_diff (string oldstring, string newstring,
 }
 
 
-// This filter returns the diff of two input vector<string>'s.
-// $old: The old vector<string> for input.
-// $new: The new vector<string> for input.
+// This filter returns the diff of two input vector<std::string>'s.
+// $old: The old vector<std::string> for input.
+// $new: The new vector<std::string> for input.
 //
 // The function produces information,
 // that if applied to the old input, will produce the new input.
@@ -135,11 +133,11 @@ string filter_diff_diff (string oldstring, string newstring,
 // That means that characters that fit in 2-byte UTF-16 give their positions as 1.
 // Those that fit in 4-byte UTF-16 give their positions as 2.
 // Each differing character is given a size of 1 or 2 accordingly.
-void filter_diff_diff_utf16 (const vector<string> & oldinput, const vector<string> & newinput,
-                             vector <int> & positions,
-                             vector <int> & sizes,
-                             vector <bool> & additions,
-                             vector <string> & content,
+void filter_diff_diff_utf16 (const std::vector <std::string> & oldinput, const std::vector <std::string> & newinput,
+                             std::vector <int> & positions,
+                             std::vector <int> & sizes,
+                             std::vector <bool> & additions,
+                             std::vector <std::string> & content,
                              int & new_line_diff_count)
 {
   // Clear anything from the output containers just to be sure.
@@ -152,11 +150,11 @@ void filter_diff_diff_utf16 (const vector<string> & oldinput, const vector<strin
   new_line_diff_count = 0;
   
   // The sequences to compare.
-  vector <string> old_sequence = oldinput;
-  vector <string> new_sequence = newinput;
+  std::vector <std::string> old_sequence = oldinput;
+  std::vector <std::string> new_sequence = newinput;
 
   // Save the new lines.
-  string newline = "_newline_";
+  std::string newline = "_newline_";
   for (auto & s : old_sequence) {
     s = filter::strings::replace ("\n", newline, s);
   }
@@ -165,15 +163,15 @@ void filter_diff_diff_utf16 (const vector<string> & oldinput, const vector<strin
   }
 
   // Run the diff engine.
-  Diff <string> diff (old_sequence, new_sequence);
+  dtl::Diff <std::string> diff (old_sequence, new_sequence);
   diff.compose();
   
   // Get the shortest edit distance.
-  stringstream result;
+  std::stringstream result;
   diff.printSES (result);
 
   // Convert the new line place holder back to the original new line.
-  vector <string> differences = filter::strings::explode (result.str (), '\n');
+  std::vector <std::string> differences = filter::strings::explode (result.str (), '\n');
   for (auto & s : differences) {
     s = filter::strings::replace (newline, "\n", s);
   }
@@ -185,8 +183,8 @@ void filter_diff_diff_utf16 (const vector<string> & oldinput, const vector<strin
     char indicator = line.front ();
     line.erase (0, 1);
     // Get the size of the character in UTF-16, whether 1 or 2.
-    string utf8 = filter::strings::unicode_string_substr (line, 0, 1);
-    u16string utf16 = filter::strings::convert_to_u16string (utf8);
+    std::string utf8 = filter::strings::unicode_string_substr (line, 0, 1);
+    std::u16string utf16 = filter::strings::convert_to_u16string (utf8);
     size_t size = utf16.length();
     if (indicator == '+') {
       // Something to be inserted into the old sequence to get at the new sequence.
@@ -227,13 +225,13 @@ void filter_diff_diff_utf16 (const vector<string> & oldinput, const vector<strin
 // 100% means that the text is completely similar.
 // And 0% means that the text is completely different.
 // The output ranges from 0 to 100%.
-int filter_diff_character_similarity (string oldstring, string newstring)
+int filter_diff_character_similarity (std::string oldstring, std::string newstring)
 {
   try {
    
     // Split the input up into unicode characers.
-    vector <string> old_sequence;
-    vector <string> new_sequence;
+    std::vector <std::string> old_sequence;
+    std::vector <std::string> new_sequence;
     size_t oldlength = oldstring.size();
     for (size_t i = 0; i < oldlength; i++) {
       old_sequence.push_back (oldstring.substr (i, 1));
@@ -250,11 +248,11 @@ int filter_diff_character_similarity (string oldstring, string newstring)
     filter_diff_mutex.lock();
 
     // Run the diff engine.
-    Diff <string> diff (old_sequence, new_sequence);
+    dtl::Diff <std::string> diff (old_sequence, new_sequence);
     diff.compose();
     
     // Get the shortest edit distance.
-    stringstream result;
+    std::stringstream result;
     diff.printSES (result);
 
     filter_diff_mutex.unlock();
@@ -262,7 +260,7 @@ int filter_diff_character_similarity (string oldstring, string newstring)
     // Calculate the total elements compared, and the total differences found.
     int element_count = 0;
     int similar_count = 0;
-    vector <string> output = filter::strings::explode (result.str(), '\n');
+    std::vector <std::string> output = filter::strings::explode (result.str(), '\n');
     for (auto & line : output) {
       if (line.empty ()) continue;
       element_count++;
@@ -289,11 +287,11 @@ int filter_diff_character_similarity (string oldstring, string newstring)
 // 100% means that the text is completely similar.
 // And 0% means that the text is completely different.
 // The output ranges from 0 to 100%.
-int filter_diff_word_similarity (string oldstring, string newstring)
+int filter_diff_word_similarity (std::string oldstring, std::string newstring)
 {
   // Split the input up into words separated by spaces.
-  vector <string> old_sequence;
-  vector <string> new_sequence;
+  std::vector <std::string> old_sequence;
+  std::vector <std::string> new_sequence;
   oldstring = filter::strings::replace ("\n", " ", oldstring);
   newstring = filter::strings::replace ("\n", " ", newstring);
   old_sequence = filter::strings::explode (oldstring, ' ');
@@ -306,11 +304,11 @@ int filter_diff_word_similarity (string oldstring, string newstring)
   filter_diff_mutex.lock();
 
   // Run the diff engine.
-  Diff <string> diff (old_sequence, new_sequence);
+  dtl::Diff <std::string> diff (old_sequence, new_sequence);
   diff.compose();
   
   // Get the shortest edit distance.
-  stringstream result;
+  std::stringstream result;
   diff.printSES (result);
 
   filter_diff_mutex.unlock();
@@ -318,7 +316,7 @@ int filter_diff_word_similarity (string oldstring, string newstring)
   // Calculate the total elements compared, and the total differences found.
   int element_count = 0;
   int similar_count = 0;
-  vector <string> output = filter::strings::explode (result.str(), '\n');
+  std::vector <std::string> output = filter::strings::explode (result.str(), '\n');
   for (auto & line : output) {
     if (line.empty ()) continue;
     element_count++;
@@ -339,14 +337,14 @@ int filter_diff_word_similarity (string oldstring, string newstring)
 // $directory: The existing directory where to put the files.
 // Two files are created: verses_old.usfm and verses_new.usfm.
 // The book chapter.verse precede each verse.
-void filter_diff_produce_verse_level (string bible, string directory)
+void filter_diff_produce_verse_level (std::string bible, std::string directory)
 {
   Webserver_Request request;
   Database_Modifications database_modifications;
-  string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
+  const std::string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
   
-  vector <string> old_vs_usfm;
-  vector <string> new_vs_usfm;
+  std::vector <std::string> old_vs_usfm;
+  std::vector <std::string> new_vs_usfm;
   
   Filter_Text filter_text_old = Filter_Text (bible);
   filter_text_old.html_text_standard = new HtmlText (translate("Bible"));
@@ -355,25 +353,25 @@ void filter_diff_produce_verse_level (string bible, string directory)
   filter_text_new.html_text_standard = new HtmlText (translate("Bible"));
   filter_text_new.text_text = new Text_Text ();
   
-  vector <int> books = database_modifications.getTeamDiffBooks (bible);
+  std::vector <int> books = database_modifications.getTeamDiffBooks (bible);
   for (auto book : books) {
-    string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
-    vector <int> chapters = database_modifications.getTeamDiffChapters (bible, book);
+    std::string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
+    std::vector <int> chapters = database_modifications.getTeamDiffChapters (bible, book);
     for (auto chapter : chapters) {
       // Go through the combined verse numbers in the old and new chapter.
-      string old_chapter_usfm = database_modifications.getTeamDiff (bible, book, chapter);
-      string new_chapter_usfm = request.database_bibles()->get_chapter (bible, book, chapter);
-      vector <int> old_verse_numbers = filter::usfm::get_verse_numbers (old_chapter_usfm);
-      vector <int> new_verse_numbers = filter::usfm::get_verse_numbers (new_chapter_usfm);
-      vector <int> verses = old_verse_numbers;
+      std::string old_chapter_usfm = database_modifications.getTeamDiff (bible, book, chapter);
+      std::string new_chapter_usfm = request.database_bibles()->get_chapter (bible, book, chapter);
+      std::vector <int> old_verse_numbers = filter::usfm::get_verse_numbers (old_chapter_usfm);
+      std::vector <int> new_verse_numbers = filter::usfm::get_verse_numbers (new_chapter_usfm);
+      std::vector <int> verses = old_verse_numbers;
       verses.insert (verses.end (), new_verse_numbers.begin (), new_verse_numbers.end ());
       verses = filter::strings::array_unique (verses);
       sort (verses.begin(), verses.end());
       for (auto verse : verses) {
-        string old_verse_text = filter::usfm::get_verse_text (old_chapter_usfm, verse);
-        string new_verse_text = filter::usfm::get_verse_text (new_chapter_usfm, verse);
+        std::string old_verse_text = filter::usfm::get_verse_text (old_chapter_usfm, verse);
+        std::string new_verse_text = filter::usfm::get_verse_text (new_chapter_usfm, verse);
         if (old_verse_text != new_verse_text) {
-          string usfmCode = "\\p " + bookname + " " + filter::strings::convert_to_string (chapter) + "." + filter::strings::convert_to_string (verse) + ": " + old_verse_text;
+          std::string usfmCode = "\\p " + bookname + " " + filter::strings::convert_to_string (chapter) + "." + filter::strings::convert_to_string (verse) + ": " + old_verse_text;
           old_vs_usfm.push_back (usfmCode);
           filter_text_old.add_usfm_code (usfmCode);
           usfmCode = "\\p " + bookname + " " + filter::strings::convert_to_string (chapter) + "." + filter::strings::convert_to_string (verse) + ": " + new_verse_text;
@@ -401,14 +399,14 @@ void filter_diff_produce_verse_level (string bible, string directory)
  * $newfile: The name of the new file for input.
  * $outputfile: The name of the output file
  */
-void filter_diff_run_file (string oldfile, string newfile, string outputfile)
+void filter_diff_run_file (std::string oldfile, std::string newfile, std::string outputfile)
 {
-  string oldstring = filter_url_file_get_contents (oldfile);
-  string newstring = filter_url_file_get_contents (newfile);
+  std::string oldstring = filter_url_file_get_contents (oldfile);
+  std::string newstring = filter_url_file_get_contents (newfile);
 
-  string differences = filter_diff_diff (oldstring, newstring);
+  std::string differences = filter_diff_diff (oldstring, newstring);
   
-  vector <string> lines = filter::strings::explode (differences, '\n');
+  std::vector <std::string> lines = filter::strings::explode (differences, '\n');
   for (auto & line : lines) {
     line = "<p>" + line + "</p>";
   }

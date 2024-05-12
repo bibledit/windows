@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/passage.h>
 
 
+class Webserver_Request;
+
+
 class Sync_Logic_Range
 {
 public:
@@ -34,7 +37,7 @@ public:
 class Sync_Logic
 {
 public:
-  Sync_Logic (void * webserver_request_in);
+  Sync_Logic (Webserver_Request& webserver_request);
 
   static constexpr int settings_get_total_checksum = 1;
   static constexpr int settings_send_workspace_urls = 2;
@@ -139,6 +142,6 @@ public:
   bool prioritized_ip_address_active ();
   
 private:
-  void * webserver_request {nullptr};
+  Webserver_Request& m_webserver_request;
 };
 

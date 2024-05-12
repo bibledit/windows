@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -37,16 +37,15 @@
 #include <assets/header.h>
 #include <menu/logic.h>
 #include <journal/logic.h>
-using namespace std;
 
 
-string checks_settings_url ()
+std::string checks_settings_url ()
 {
   return "checks/settings";
 }
 
 
-bool checks_settings_acl ([[maybe_unused]] void * webserver_request)
+bool checks_settings_acl ([[maybe_unused]] Webserver_Request& webserver_request)
 {
 #ifdef HAVE_CLIENT
   return true;
@@ -56,44 +55,41 @@ bool checks_settings_acl ([[maybe_unused]] void * webserver_request)
 }
 
 
-string checks_settings (void * webserver_request)
+std::string checks_settings (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  
-  string page {};
+  std::string page {};
   Assets_Header header = Assets_Header (translate("Manage Checks"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
   Assets_View view {};
   
   
-  if (request->query.count ("bible")) {
-    string bible = request->query["bible"];
+  if (webserver_request.query.count ("bible")) {
+    const std::string bible = webserver_request.query["bible"];
     if (bible.empty()) {
-      Dialog_List dialog_list = Dialog_List ("settings", translate("Select which Bible to manage"), string(), string());
-      vector <string> bibles = access_bible::bibles (webserver_request);
+      Dialog_List dialog_list = Dialog_List ("settings", translate("Select which Bible to manage"), std::string(), std::string());
+      std::vector <std::string> bibles = access_bible::bibles (webserver_request);
       for (const auto & selectable_bible : bibles) {
         dialog_list.add_row (selectable_bible, "bible", selectable_bible);
       }
       page += dialog_list.run ();
       return page;
     } else {
-      request->database_config_user()->setBible (bible);
+      webserver_request.database_config_user()->setBible (bible);
     }
   }
-  string bible = access_bible::clamp (webserver_request, request->database_config_user()->getBible ());
+  const std::string bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->getBible ());
 
   
-  if (request->query.count ("run")) {
+  if (webserver_request.query.count ("run")) {
     checks_logic_start (bible);
     view.set_variable ("success", translate("Will run the checks."));
     view.set_variable ("journal", journal_logic_see_journal_for_progress ());
   }
   
   
-  string checkbox = request->post ["checkbox"];
-  bool checked = filter::strings::convert_to_bool (request->post ["checked"]);
+  const std::string checkbox = webserver_request.post ["checkbox"];
+  const bool checked = filter::strings::convert_to_bool (webserver_request.post ["checked"]);
   
                         
   if (checkbox == "doublespacesusfm") {

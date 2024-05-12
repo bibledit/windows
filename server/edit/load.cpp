@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -30,55 +30,53 @@
 #include <database/logs.h>
 #include <quill/logic.h>
 #include <database/config/bible.h>
-using namespace std;
 
 
-string edit_load_url ()
+std::string edit_load_url ()
 {
   return "edit/load";
 }
 
 
-bool edit_load_acl (void * webserver_request)
+bool edit_load_acl (Webserver_Request& webserver_request)
 {
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
+  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ()))
+    return true;
   auto [ read, write ] = access_bible::any (webserver_request);
   return write;
 }
 
 
-string edit_load (void * webserver_request)
+std::string edit_load (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  string bible = request->query ["bible"];
-  int book = filter::strings::convert_to_int (request->query ["book"]);
-  int chapter = filter::strings::convert_to_int (request->query ["chapter"]);
-  string unique_id = request->query ["id"];
+  const std::string bible = webserver_request.query ["bible"];
+  const int book = filter::strings::convert_to_int (webserver_request.query ["book"]);
+  const int chapter = filter::strings::convert_to_int (webserver_request.query ["chapter"]);
+  const std::string unique_id = webserver_request.query ["id"];
 
   // Store a copy of the USFM loaded in the editor for later reference.
   storeLoadedUsfm2 (webserver_request, bible, book, chapter, unique_id);
   
-  string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
+  const std::string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
   
-  string usfm = request->database_bibles()->get_chapter (bible, book, chapter);
+  const std::string usfm = webserver_request.database_bibles()->get_chapter (bible, book, chapter);
   
   Editor_Usfm2Html editor_usfm2html;
   editor_usfm2html.load (usfm);
   editor_usfm2html.stylesheet (stylesheet);
   editor_usfm2html.run ();
   
-  string html = editor_usfm2html.get ();
+  std::string html = editor_usfm2html.get ();
   
   // To make editing empty verses easier, convert spaces to non-breaking spaces, so they appear in the editor.
   if (filter::usfm::contains_empty_verses (usfm)) {
-    string search = "<span> </span>";
-    string replace = "<span>" + filter::strings::unicode_non_breaking_space_entity () + "</span>";
+    const std::string search = "<span> </span>";
+    const std::string replace = "<span>" + filter::strings::unicode_non_breaking_space_entity () + "</span>";
     html = filter::strings::replace (search, replace, html);
   }
   
-  string user = request->session_logic ()->currentUser ();
-  bool write = access_bible::book_write (webserver_request, user, bible, book);
+  const std::string user = webserver_request.session_logic ()->currentUser ();
+  const bool write = access_bible::book_write (webserver_request, user, bible, book);
   
   return checksum_logic::send (html, write);
 }

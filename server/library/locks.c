@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -64,7 +64,7 @@ static unsigned long id_function()
 #endif
 
 
-void thread_setup ()
+void thread_setup (void)
 {
 #ifndef HAVE_CLIENT
   mutex_buf = malloc (CRYPTO_num_locks () * sizeof(MUTEX_TYPE));
@@ -78,7 +78,7 @@ void thread_setup ()
 }
 
 
-void thread_cleanup ()
+void thread_cleanup (void)
 {
 #ifndef HAVE_CLIENT
   if (!mutex_buf) return;

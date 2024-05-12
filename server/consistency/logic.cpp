@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -27,38 +27,33 @@
 #include <webserver/request.h>
 #include <access/bible.h>
 #include <locale/translate.h>
-using namespace std;
 
 
-Consistency_Logic::Consistency_Logic (void * webserver_request_in, int id_in)
+Consistency_Logic::Consistency_Logic (Webserver_Request& webserver_request, int id) :
+m_webserver_request (webserver_request), m_id (id)
 {
-  webserver_request = webserver_request_in;
-  id = id_in;
 }
 
 
-string Consistency_Logic::response ()
+std::string Consistency_Logic::response ()
 {
-  // The request.
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
   // The resources to display in the Consistency tool.
-  vector <string> resources = request->database_config_user()->getConsistencyResources ();
-  string bible = access_bible::clamp (webserver_request, request->database_config_user()->getBible ());
+  std::vector <std::string> resources = m_webserver_request.database_config_user()->getConsistencyResources ();
+  std::string bible = access_bible::clamp (m_webserver_request, m_webserver_request.database_config_user()->getBible ());
   resources.insert (resources.begin (), bible);
   
   // The passages entered in the Consistency tool.
-  string s_passages = Database_Volatile::getValue (id, "passages");
+  std::string s_passages = Database_Volatile::getValue (m_id, "passages");
   s_passages = filter::strings::trim (s_passages);
-  vector <string> passages = filter::strings::explode (s_passages, '\n');
+  std::vector <std::string> passages = filter::strings::explode (s_passages, '\n');
   
   // The translations entered in the Consistency tool.
-  string s_translations = Database_Volatile::getValue (id, "translations");
+  std::string s_translations = Database_Volatile::getValue (m_id, "translations");
   s_translations = filter::strings::trim (s_translations);
-  vector <string> translations = filter::strings::explode (s_translations, '\n');
+  std::vector <std::string> translations = filter::strings::explode (s_translations, '\n');
   
   // Contains the response to display.
-  vector <string> response;
+  std::vector <std::string> response;
   
   // Go through the passages interpreting them.
   Passage previousPassage = Passage ("", 1, 1, "1");
@@ -73,13 +68,13 @@ string Consistency_Logic::response ()
     // Remove verse text remaining with the passage(s) only.
     line = omit_verse_text (line);
     
-    vector <string> range_sequence = filter_passage_handle_sequences_ranges (line);
+    std::vector <std::string> range_sequence = filter_passage_handle_sequences_ranges (line);
     for (auto line2 : range_sequence) {
       Passage passage = filter_passage_interpret_passage (previousPassage, line2);
       if (passage.m_book != 0) {
         int book = passage.m_book;
         int chapter = passage.m_chapter;
-        string verse = passage.m_verse;
+        std::string verse = passage.m_verse;
         line2 = filter_passage_link_for_opening_editor_at (book, chapter, verse);
         line2 += " ";
         
@@ -87,11 +82,11 @@ string Consistency_Logic::response ()
         // If so, set a flag so the data can be re-assembled for this verse.
         // If there was no change, then the data can be fetched from the volatile database.
         bool redoPassage = false;
-        string passageKey = filter::strings::convert_to_string (book) + "." + filter::strings::convert_to_string (chapter) + "." + verse;
-        int currentChapterId = request->database_bibles()->get_chapter_id (resources [0], book, chapter);
-        int storedChapterId = filter::strings::convert_to_int (Database_Volatile::getValue (id, passageKey + ".id"));
+        std::string passageKey = filter::strings::convert_to_string (book) + "." + filter::strings::convert_to_string (chapter) + "." + verse;
+        int currentChapterId = m_webserver_request.database_bibles()->get_chapter_id (resources [0], book, chapter);
+        int storedChapterId = filter::strings::convert_to_int (Database_Volatile::getValue (m_id, passageKey + ".id"));
         if (currentChapterId != storedChapterId) {
-          Database_Volatile::setValue (id, passageKey + ".id", filter::strings::convert_to_string (currentChapterId));
+          Database_Volatile::setValue (m_id, passageKey + ".id", filter::strings::convert_to_string (currentChapterId));
           redoPassage = true;
         }
         
@@ -99,7 +94,7 @@ string Consistency_Logic::response ()
         for (auto resource : resources) {
           
           // Produce new verse text if the passage is to be redone, or else fetch the existing text.
-          string text;
+          std::string text;
           if (redoPassage) {
             text = verseText (resource, book, chapter, filter::strings::convert_to_int (verse));
             size_t length1 = text.size ();
@@ -111,9 +106,9 @@ string Consistency_Logic::response ()
               text.insert (0, R"(<div style="background-color: yellow;">)");
               text.append ("</div>");
             }
-            Database_Volatile::setValue (id, passageKey + "." + resource, text);
+            Database_Volatile::setValue (m_id, passageKey + "." + resource, text);
           } else {
-            text = Database_Volatile::getValue (id, passageKey + "." + resource);
+            text = Database_Volatile::getValue (m_id, passageKey + "." + resource);
           }
           
           // Formatting.
@@ -130,7 +125,7 @@ string Consistency_Logic::response ()
     }
   }
   
-  string output;
+  std::string output;
   for (auto line : response) {
     output += "<div>" + line + "</div>\n";
   }
@@ -138,14 +133,14 @@ string Consistency_Logic::response ()
 }
 
 
-string Consistency_Logic::verseText (string resource, int book, int chapter, int verse)
+std::string Consistency_Logic::verseText (std::string resource, int book, int chapter, int verse)
 {
-  return resource_logic_get_html (webserver_request, resource, book, chapter, verse, false);
+  return resource_logic_get_html (m_webserver_request, resource, book, chapter, verse, false);
 }
 
 
 // This function omits the verse text from a line of text from the search results.
-string Consistency_Logic::omit_verse_text (string input)
+std::string Consistency_Logic::omit_verse_text (std::string input)
 {
   // Imagine the following $input:
   // 1 Peter 4:17 For the time has come for judgment to begin with the household of God. If it begins first with us, what will happen to those who don’t obey the Good News of God?
@@ -154,7 +149,7 @@ string Consistency_Logic::omit_verse_text (string input)
   size_t length = filter::strings::unicode_string_length (input);
   size_t last_numeral = 0;
   for (size_t i = 0; i < length; i++) {
-    string character = filter::strings::unicode_string_substr (input, i, 1);
+    std::string character = filter::strings::unicode_string_substr (input, i, 1);
     if (filter::strings::is_numeric (character)) {
       last_numeral = i;
     }

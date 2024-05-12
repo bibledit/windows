@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ void database_maintenance ()
   database_users.optimize ();
   
   
-  Database_Mail database_mail = Database_Mail (&webserver_request);
+  Database_Mail database_mail (webserver_request);
   database_mail.trim ();
   database_mail.optimize ();
   
@@ -91,11 +91,11 @@ void database_maintenance ()
   database_bibles.optimize ();
 
   
-  Database_Ipc database_ipc = Database_Ipc (&webserver_request);
+  Database_Ipc database_ipc (webserver_request);
   database_ipc.trim ();
   
   
-  Database_Notes database_notes = Database_Notes (&webserver_request);
+  Database_Notes database_notes (webserver_request);
   database_notes.trim ();
   if (!client_mode) database_notes.trim_server ();
   database_notes.optimize ();
@@ -121,7 +121,7 @@ void database_maintenance ()
   database_jobs.optimize ();
   
   
-  Database_Config_User database_config_user = Database_Config_User (&webserver_request);
+  Database_Config_User database_config_user (webserver_request);
   database_config_user.trim ();
   
   

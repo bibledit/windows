@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,7 +31,6 @@
 #include <locale/translate.h>
 #include <assets/external.h>
 #include <database/logic.h>
-using namespace std;
 
 
 // Returns whether Client mode is enabled.
@@ -56,7 +55,7 @@ void client_logic_enable_client (bool enable)
 // $address is the website.
 // $port is the port number.
 // $path is the path after the website.
-string client_logic_url (const string & address, int port, const string & path)
+std::string client_logic_url (const std::string& address, int port, const std::string& path)
 {
   return address + ":" + filter::strings::convert_to_string (port) + "/" + path;
 }
@@ -66,26 +65,26 @@ string client_logic_url (const string & address, int port, const string & path)
 // It receives settings from the server and applies them to the client.
 // It returns the level of the user.
 // It returns an empty string in case of failure or the response from the server.
-string client_logic_connection_setup (string user, string hash)
+std::string client_logic_connection_setup (std::string user, std::string hash)
 {
   Database_Users database_users {};
   
   if (user.empty ()) {
-    vector <string> users = database_users.get_users ();
-    if (users.empty()) return string();
+    std::vector <std::string> users = database_users.get_users ();
+    if (users.empty()) return std::string();
     user = users [0];
     hash = database_users.get_md5 (user);
   }
   
-  string encoded_user = filter::strings::bin2hex (user);
+  std::string encoded_user = filter::strings::bin2hex (user);
   
-  string address = Database_Config_General::getServerAddress ();
+  std::string address = Database_Config_General::getServerAddress ();
   int port = Database_Config_General::getServerPort ();
   
-  string url = client_logic_url (address, port, sync_setup_url ()) + "?user=" + encoded_user + "&pass=" + hash;
+  std::string url = client_logic_url (address, port, sync_setup_url ()) + "?user=" + encoded_user + "&pass=" + hash;
   
-  string error {};
-  string response = filter_url_http_get (url, error, true);
+  std::string error {};
+  std::string response = filter_url_http_get (url, error, true);
   int iresponse = filter::strings::convert_to_int (response);
   
   if ((iresponse >= Filter_Roles::guest ()) && (iresponse <= Filter_Roles::admin ())) {
@@ -102,9 +101,9 @@ string client_logic_connection_setup (string user, string hash)
     // it will give a response code 426 plus text.
     // So in such a case clarify the meaning of that to the user.
     // https://github.com/bibledit/cloud/issues/829.
-    string upgrade_required = filter_url_http_response_code_text (426);
+    std::string upgrade_required = filter_url_http_response_code_text (426);
     size_t pos = error.find (upgrade_required);
-    if (pos != string::npos) {
+    if (pos != std::string::npos) {
       // Since the error code ends without a full stop, add a full stop to it first.
       error.append (". ");
       // Add a good explanation to the error code so the user knows what to do if this error occurs.
@@ -118,10 +117,10 @@ string client_logic_connection_setup (string user, string hash)
 }
 
 
-string client_logic_create_note_encode (const string & bible, int book, int chapter, int verse,
-                                        const string & summary, const string & contents, bool raw)
+std::string client_logic_create_note_encode (const std::string& bible, int book, int chapter, int verse,
+                                             const std::string& summary, const std::string& contents, bool raw)
 {
-  vector <string> data {};
+  std::vector <std::string> data {};
   data.push_back (bible);
   data.push_back (filter::strings::convert_to_string (book));
   data.push_back (filter::strings::convert_to_string (chapter));
@@ -133,11 +132,11 @@ string client_logic_create_note_encode (const string & bible, int book, int chap
 }
 
 
-void client_logic_create_note_decode (const string & data,
-                                      string& bible, int& book, int& chapter, int& verse,
-                                      string& summary, string& contents, bool& raw)
+void client_logic_create_note_decode (const std::string& data,
+                                      std::string& bible, int& book, int& chapter, int& verse,
+                                      std::string& summary, std::string& contents, bool& raw)
 {
-  vector <string> lines = filter::strings::explode (data, '\n');
+  std::vector <std::string> lines = filter::strings::explode (data, '\n');
   if (!lines.empty ()) {
     bible = lines [0];
     lines.erase (lines.begin());
@@ -168,12 +167,12 @@ void client_logic_create_note_decode (const string & data,
 
 // This provides a html link to Bibledit Cloud / $path.
 // It displays the $linktext.
-string client_logic_link_to_cloud (string path, string linktext)
+std::string client_logic_link_to_cloud (std::string path, std::string linktext)
 {
-  string url {};
-  string external {};
+  std::string url {};
+  std::string external {};
   if (client_logic_client_enabled ()) {
-    string address = Database_Config_General::getServerAddress ();
+    std::string address = Database_Config_General::getServerAddress ();
     int port = Database_Config_General::getServerPort ();
     url = address + ":" + filter::strings::convert_to_string (port);
     if (!path.empty ()) {
@@ -195,14 +194,14 @@ string client_logic_link_to_cloud (string path, string linktext)
     linktext = url;
   }
   
-  stringstream link {};
-  link << "<a href=" << quoted(url) << external << ">" << linktext << "</a>";
+  std::stringstream link {};
+  link << "<a href=" << std::quoted(url) << external << ">" << linktext << "</a>";
   return link.str();
 }
 
 
 // Path to the file in the client files area that contains a list of USFM resources on the server.
-string client_logic_usfm_resources_path ()
+std::string client_logic_usfm_resources_path ()
 {
   return filter_url_create_root_path ({database_logic_databases (), "client", "usfm_resources.txt"});
 }
@@ -213,68 +212,68 @@ void client_logic_usfm_resources_update ()
   // The Cloud stores the list of USFM resources.
   // It is stored in the client files area.
   // Clients can access it from there.
-  string path = client_logic_usfm_resources_path ();
+  std::string path = client_logic_usfm_resources_path ();
   Database_UsfmResources database_usfmresources {};
-  vector <string> resources = database_usfmresources.getResources ();
+  std::vector <std::string> resources = database_usfmresources.getResources ();
   filter_url_file_put_contents (path, filter::strings::implode (resources, "\n"));
 }
 
 
-vector <string> client_logic_usfm_resources_get ()
+std::vector <std::string> client_logic_usfm_resources_get ()
 {
-  string contents = filter_url_file_get_contents (client_logic_usfm_resources_path ());
+  std::string contents = filter_url_file_get_contents (client_logic_usfm_resources_path ());
   return filter::strings::explode (contents, '\n');
 }
 
 
-string client_logic_get_username ()
+std::string client_logic_get_username ()
 {
   // Set the user name to the first one in the database.
   // Or if the database has no users, make the user admin.
   // That happens when disconnected from the Cloud.
-  string user = session_admin_credentials ();
+  std::string user = session_admin_credentials ();
   Database_Users database_users;
-  vector <string> users = database_users.get_users ();
+  std::vector <std::string> users = database_users.get_users ();
   if (!users.empty()) user = users [0];
   return user;
 }
 
 
-string client_logic_no_cache_resources_path ()
+std::string client_logic_no_cache_resources_path ()
 {
   return filter_url_create_root_path ({database_logic_databases (), "client", "no_cache_resources.txt"});
 }
 
 
-void client_logic_no_cache_resources_save (vector<string> resources)
+void client_logic_no_cache_resources_save (std::vector<std::string> resources)
 {
-  string contents = filter::strings::implode(resources, "\n");
-  string path = client_logic_no_cache_resources_path ();
+  std::string contents = filter::strings::implode(resources, "\n");
+  std::string path = client_logic_no_cache_resources_path ();
   filter_url_file_put_contents(path, contents);
 }
 
 
-void client_logic_no_cache_resource_add (string name)
+void client_logic_no_cache_resource_add (std::string name)
 {
-  vector <string> resources = client_logic_no_cache_resources_get();
+  std::vector <std::string> resources = client_logic_no_cache_resources_get();
   if (in_array(name, resources)) return;
   resources.push_back(name);
   client_logic_no_cache_resources_save(resources);
 }
 
 
-void client_logic_no_cache_resource_remove (string name)
+void client_logic_no_cache_resource_remove (std::string name)
 {
-  vector <string> resources = client_logic_no_cache_resources_get();
+  std::vector <std::string> resources = client_logic_no_cache_resources_get();
   if (!in_array(name, resources)) return;
   resources = filter::strings::array_diff(resources, {name});
   client_logic_no_cache_resources_save(resources);
 }
 
 
-vector <string> client_logic_no_cache_resources_get ()
+std::vector <std::string> client_logic_no_cache_resources_get ()
 {
-  string contents = filter_url_file_get_contents (client_logic_no_cache_resources_path());
-  vector<string> resources = filter::strings::explode(contents, "\n");
+  std::string contents = filter_url_file_get_contents (client_logic_no_cache_resources_path());
+  std::vector<std::string> resources = filter::strings::explode(contents, "\n");
   return resources;
 }

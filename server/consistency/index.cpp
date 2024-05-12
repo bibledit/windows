@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -35,55 +35,51 @@
 #include <dialog/list.h>
 #include <resource/logic.h>
 #include <menu/logic.h>
-using namespace std;
 
 
-string consistency_index_url ()
+std::string consistency_index_url ()
 {
   return "consistency/index";
 }
 
 
-bool consistency_index_acl (void * webserver_request)
+bool consistency_index_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
 }
 
 
-string consistency_index (void * webserver_request)
+std::string consistency_index (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
-  
-  string page;
+  std::string page;
   Assets_Header header = Assets_Header (translate("Consistency"), webserver_request);
   header.add_bread_crumb (menu_logic_tools_menu (), menu_logic_tools_text ());
   page = header.run ();
   Assets_View view;
 
   
-  string add = request->post ["add"];
+  std::string add = webserver_request.post ["add"];
   if (!add.empty ()) {
-    vector <string> resources = request->database_config_user()->getConsistencyResources ();
+    std::vector <std::string> resources = webserver_request.database_config_user()->getConsistencyResources ();
     resources.push_back (add);
-    request->database_config_user()->setConsistencyResources (resources);
+    webserver_request.database_config_user()->setConsistencyResources (resources);
   }
   
   
-  string remove = request->query ["remove"];
+  std::string remove = webserver_request.query ["remove"];
   if (!remove.empty ()) {
-    vector <string> resources = request->database_config_user()->getConsistencyResources ();
+    std::vector <std::string> resources = webserver_request.database_config_user()->getConsistencyResources ();
     resources = filter::strings::array_diff (resources, {remove});
-    request->database_config_user()->setConsistencyResources (resources);
+    webserver_request.database_config_user()->setConsistencyResources (resources);
   }
   
   
-  stringstream resourceblock;
-  vector <string> resources = request->database_config_user()->getConsistencyResources ();
+  std::stringstream resourceblock;
+  std::vector <std::string> resources = webserver_request.database_config_user()->getConsistencyResources ();
   for (auto resource : resources) {
     resourceblock << resource;
     resourceblock << "\n";
-    resourceblock << "<a href=" << quoted("?remove=" + resource) << ">[" << translate("remove") << "]</a>";
+    resourceblock << "<a href=" << std::quoted("?remove=" + resource) << ">[" << translate("remove") << "]</a>";
     resourceblock << " | ";
   }
   view.set_variable ("resourceblock", resourceblock.str());

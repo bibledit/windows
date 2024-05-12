@@ -226,6 +226,9 @@
 		CA74D259277B6D74000EC1CA /* utils.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = utils.cxx; sourceTree = "<group>"; };
 		CA74D25A277B6D74000EC1CA /* contentdisposition.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = contentdisposition.cxx; sourceTree = "<group>"; };
 		CA74D25C277B6D74000EC1CA /* mimeversion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mimeversion.h; sourceTree = "<group>"; };
+		CA7520D12B6965B900C9F032 /* loading.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = loading.css; sourceTree = "<group>"; };
+		CA7520D22B6965BA00C9F032 /* loading.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = loading.html; sourceTree = "<group>"; };
+		CA7520D32B69664500C9F032 /* browserconfig.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = browserconfig.xml; sourceTree = "<group>"; };
 		CA7540A8294628EA0043BE37 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
 		CA77114527524B8B003ADD67 /* libicui18n.67.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicui18n.67.1.dylib; path = ../../../../opt/local/lib/libicui18n.67.1.dylib; sourceTree = "<group>"; };
 		CA77114727524BC8003ADD67 /* libicuuc.67.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicuuc.67.1.dylib; path = ../../../../opt/local/lib/libicuuc.67.1.dylib; sourceTree = "<group>"; };
@@ -567,7 +570,7 @@
 		CADE394624F17422003165BB /* passage.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = passage.cpp; sourceTree = "<group>"; };
 		CADE394724F17422003165BB /* shell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = shell.h; sourceTree = "<group>"; };
 		CADE394924F17422003165BB /* html.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = html.h; sourceTree = "<group>"; };
-		CADE394B24F17422003165BB /* UriCodec.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UriCodec.cpp; sourceTree = "<group>"; };
+		CADE394B24F17422003165BB /* UriCodec.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = UriCodec.hpp; sourceTree = "<group>"; };
 		CADE394D24F17422003165BB /* text.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = text.cpp; sourceTree = "<group>"; };
 		CADE394E24F17422003165BB /* text.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = text.h; sourceTree = "<group>"; };
 		CADE394F24F17422003165BB /* passage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = passage.h; sourceTree = "<group>"; };
@@ -2014,10 +2017,8 @@
 		CADE451A24F174C0003165BB /* Catholic1.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Catholic1.txt; sourceTree = "<group>"; };
 		CADE451C24F174C0003165BB /* http.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = http.h; sourceTree = "<group>"; };
 		CADE451E24F174C0003165BB /* webserver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = webserver.h; sourceTree = "<group>"; };
-		CADE452024F174C0003165BB /* io.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = io.c; sourceTree = "<group>"; };
 		CADE452124F174C0003165BB /* request.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = request.cpp; sourceTree = "<group>"; };
 		CADE452224F174C0003165BB /* webserver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = webserver.cpp; sourceTree = "<group>"; };
-		CADE452424F174C0003165BB /* io.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = io.h; sourceTree = "<group>"; };
 		CADE452524F174C0003165BB /* http.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = http.cpp; sourceTree = "<group>"; };
 		CADE452624F174C0003165BB /* request.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = request.h; sourceTree = "<group>"; };
 		CADE453024F174C1003165BB /* index.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = index.h; sourceTree = "<group>"; };
@@ -2476,6 +2477,7 @@
 		CADE370D24F1737A003165BB /* assets */ = {
 			isa = PBXGroup;
 			children = (
+				CA7520D32B69664500C9F032 /* browserconfig.xml */,
 				CADE372024F1737A003165BB /* checkbox.js */,
 				CADE371F24F1737A003165BB /* editor.js */,
 				CADE372D24F1737A003165BB /* error.html */,
@@ -2559,6 +2561,8 @@
 			children = (
 				CADE376F24F17394003165BB /* bootstrap.cpp */,
 				CADE376D24F17394003165BB /* bootstrap.h */,
+				CA7520D12B6965B900C9F032 /* loading.css */,
+				CA7520D22B6965BA00C9F032 /* loading.html */,
 			);
 			path = bootstrap;
 			sourceTree = "<group>";
@@ -2919,7 +2923,7 @@
 				CADE396E24F17422003165BB /* string.hpp */,
 				CADE394D24F17422003165BB /* text.cpp */,
 				CADE394E24F17422003165BB /* text.h */,
-				CADE394B24F17422003165BB /* UriCodec.cpp */,
+				CADE394B24F17422003165BB /* UriCodec.hpp */,
 				CADE395924F17422003165BB /* url.cpp */,
 				CADE396B24F17422003165BB /* url.h */,
 				CADE397324F17422003165BB /* url.js */,
@@ -5192,8 +5196,6 @@
 			children = (
 				CADE452524F174C0003165BB /* http.cpp */,
 				CADE451C24F174C0003165BB /* http.h */,
-				CADE452024F174C0003165BB /* io.c */,
-				CADE452424F174C0003165BB /* io.h */,
 				CADE452124F174C0003165BB /* request.cpp */,
 				CADE452624F174C0003165BB /* request.h */,
 				CADE452224F174C0003165BB /* webserver.cpp */,
@@ -5286,7 +5288,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1520;
 				ORGANIZATIONNAME = Bibledit;
 				TargetAttributes = {
 					CAA877B22A63DC440059B211 = {
@@ -5317,6 +5319,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
@@ -5381,6 +5384,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";

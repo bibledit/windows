@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -20,8 +20,7 @@
 #pragma once
 
 #include <config/libraries.h>
-using namespace std;
 
-void bible_import_run (string location, string bible, int book, int chapter);
-void bible_import_usfm (string data, string bible, int book, int chapter);
-void bible_import_text (string text, string bible, int book, int chapter);
+void bible_import_run (std::string location, const std::string& bible, int book, int chapter);
+void bible_import_usfm (const std::string& data, const std::string& bible, int book, int chapter);
+void bible_import_text (const std::string& text, const std::string& bible, int book, int chapter);

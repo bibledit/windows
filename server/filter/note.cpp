@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/note.h>
 #include <styles/logic.h>
 #include <filter/string.h>
-using namespace std;
 
 
 namespace filter::note {
@@ -31,7 +30,7 @@ citation::citation ()
   pointer = 0;
 }
 
-void citation::set_sequence (int numbering, const string & usersequence)
+void citation::set_sequence (int numbering, const std::string& usersequence)
 {
   if (numbering == NoteNumbering123) {
     this->sequence.clear();
@@ -58,14 +57,14 @@ void citation::set_restart (int setting)
   else this->restart = "chapter";
 }
 
-string citation::get (string citation_in)
+std::string citation::get (std::string citation_in)
 {
   // Handle USFM automatic note citation.
   if (citation_in == "+") {
     // If the sequence is empty, then the note citation starts at 1 and increases each time.
     if (sequence.empty()) {
       pointer++;
-      citation_in = to_string (pointer);
+      citation_in = std::to_string (pointer);
     }
     // The sequence of note callers is not empty.
     // So take the note citaton from the sequence,
@@ -86,7 +85,7 @@ string citation::get (string citation_in)
   return citation_in;
 }
 
-void citation::run_restart (const string & moment)
+void citation::run_restart (const std::string& moment)
 {
   if (restart == moment) {
     pointer = 0;
@@ -117,7 +116,7 @@ void citations::evaluate_style (const Database_Styles_Item & style)
 }
 
 
-string citations::get (const string & marker, const string & citation)
+std::string citations::get (const std::string& marker, const std::string& citation)
 {
   return cache[marker].get(citation);
 }
@@ -126,7 +125,7 @@ string citations::get (const string & marker, const string & citation)
 // This resets the note citations data.
 // Resetting means that the note citations start to count afresh.
 // $moment: what type of reset to apply, e.g. 'chapter' or 'book'.
-void citations::restart (const string & moment)
+void citations::restart (const std::string& moment)
 {
   for (auto & notecitation : cache) {
     notecitation.second.run_restart (moment);

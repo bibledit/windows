@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -42,10 +42,9 @@
 #include <email/send.h>
 #include <search/logic.h>
 #include <user/logic.h>
-using namespace std;
 
 
-string system_logic_bibles_file_name ()
+std::string system_logic_bibles_file_name ()
 {
   return filter_url_create_path ({filter_url_temp_dir (), "bibles.tar"});
 }
@@ -70,32 +69,32 @@ void system_logic_produce_bibles_file (int jobid)
 
   
   // The location of the tarball to generate.
-  string tarball = filter_url_create_root_path ({system_logic_bibles_file_name ()});
+  std::string tarball = filter_url_create_root_path ({system_logic_bibles_file_name ()});
   
   
   // The directory where the exported Bibles will be put.
-  string directory = filter_url_tempfile ();
+  std::string directory = filter_url_tempfile ();
   filter_url_mkdir (directory);
 
   
   // The files in the tarball.
-  vector <string> files;
+  std::vector <std::string> files;
   
 
   // Iterate over the Bibles, the books, the chapters.
-  vector <string> bibles = database_bibles.get_bibles ();
+  std::vector <std::string> bibles = database_bibles.get_bibles ();
   for (auto bible : bibles) {
-    vector <int> books = database_bibles.get_books (bible);
+    std::vector <int> books = database_bibles.get_books (bible);
     for (auto book : books) {
-      string book_usfm;
-      vector <int> chapters = database_bibles.get_chapters (bible, book);
+      std::string book_usfm;
+      std::vector <int> chapters = database_bibles.get_chapters (bible, book);
       for (auto chapter : chapters) {
-        string usfm = database_bibles.get_chapter (bible, book, chapter);
+        std::string usfm = database_bibles.get_chapter (bible, book, chapter);
         book_usfm.append (filter::strings::trim (usfm));
         book_usfm.append ("\n");
       }
-      string file = bible + "_" + filter::strings::convert_to_string (book) + ".usfm";
-      string path = filter_url_create_path ({directory, file});
+      std::string file = bible + "_" + filter::strings::convert_to_string (book) + ".usfm";
+      std::string path = filter_url_create_path ({directory, file});
       filter_url_file_put_contents (path, book_usfm);
       files.push_back (file);
     }
@@ -103,7 +102,7 @@ void system_logic_produce_bibles_file (int jobid)
   
   
   // Pack the contents of all the Bibles into one tarball.
-  string error = filter_archive_microtar_pack (tarball, directory, files);
+  std::string error = filter_archive_microtar_pack (tarball, directory, files);
   
   
   // Ready, provide info about how to download the file, or about the error.
@@ -128,38 +127,38 @@ void system_logic_produce_bibles_file (int jobid)
 }
 
 
-void system_logic_import_bibles_file (string tarball)
+void system_logic_import_bibles_file (std::string tarball)
 {
   Database_Logs::log ("Importing Bibles from " + tarball);
 
   Database_Bibles database_bibles;
   
   // Unpack the tarball into a directory.
-  string directory = filter_url_tempfile ();
+  std::string directory = filter_url_tempfile ();
   filter_url_mkdir (directory);
-  string error= filter_archive_microtar_unpack (tarball, directory);
+  std::string error= filter_archive_microtar_unpack (tarball, directory);
   if (!error.empty ()) {
     Database_Logs::log ("Importing Bibles failure: " + error);
     return;
   }
 
   // Iterate over all the files of the tarball.
-  vector <string> files = filter_url_scandir (directory);
+  std::vector <std::string> files = filter_url_scandir (directory);
   for (auto file : files) {
     
     // Get the file's contents for import.
     Database_Logs::log ("Importing from file " + file);
-    string path = filter_url_create_path ({directory, file});
-    string data = filter_url_file_get_contents (path);
+    std::string path = filter_url_create_path ({directory, file});
+    std::string data = filter_url_file_get_contents (path);
     
     // The name of the Bible this file is to be imported into.
-    string bible (file);
+    std::string bible (file);
     size_t pos = bible.find_last_of ("_");
-    if (pos != string::npos) bible.erase (pos);
+    if (pos != std::string::npos) bible.erase (pos);
     
     // Get details about the USFM to import.
-    string stylesheet = styles_logic_standard_sheet ();
-    vector <filter::usfm::BookChapterData> book_chapter_text = filter::usfm::usfm_import (data, stylesheet);
+    const std::string stylesheet = styles_logic_standard_sheet ();
+    std::vector <filter::usfm::BookChapterData> book_chapter_text = filter::usfm::usfm_import (data, stylesheet);
     for (auto & book_chapter_data : book_chapter_text) {
       if (book_chapter_data.m_book > 0) {
         // Store the data and log it.
@@ -167,7 +166,7 @@ void system_logic_import_bibles_file (string tarball)
         // Reason is that the Cloud is authoritative,
         // so importing outdated Bibles would not affect the authoritative copy in the Cloud.
         database_bibles.store_chapter (bible, book_chapter_data.m_book, book_chapter_data.m_chapter, book_chapter_data.m_data);
-        string bookname = database::books::get_english_from_id (static_cast<book_id>(book_chapter_data.m_book));
+        std::string bookname = database::books::get_english_from_id (static_cast<book_id>(book_chapter_data.m_book));
         Database_Logs::log ("Imported " + bible + " " + bookname + " " + filter::strings::convert_to_string (book_chapter_data.m_chapter));
       } else {
         // Import error.
@@ -189,7 +188,7 @@ void system_logic_import_bibles_file (string tarball)
 }
 
 
-string system_logic_notes_file_name ()
+std::string system_logic_notes_file_name ()
 {
   return filter_url_create_path ({filter_url_temp_dir (), "notes.tar"});
 }
@@ -213,23 +212,23 @@ void system_logic_produce_notes_file (int jobid)
   
   
   // The location of the tarball to generate.
-  string tarball = filter_url_create_root_path ({system_logic_notes_file_name ()});
+  std::string tarball = filter_url_create_root_path ({system_logic_notes_file_name ()});
   
   
   // The database directory where the consultation notes reside.
-  string directory = filter_url_create_root_path ({"consultations"});
+  std::string directory = filter_url_create_root_path ({"consultations"});
 
   
   // The files to include in the tarball.
-  vector <string> files;
+  std::vector <std::string> files;
   filter_url_recursive_scandir (directory, files);
-  for (string & file : files) {
+  for (std::string & file : files) {
     file.erase (0, directory.length () + 1);
   }
   
 
   // Pack the contents of all the Bibles into one tarball.
-  string error = filter_archive_microtar_pack (tarball, directory, files);
+  std::string error = filter_archive_microtar_pack (tarball, directory, files);
 
   
   // Ready, provide info about how to download the file, or about the error.
@@ -254,15 +253,15 @@ void system_logic_produce_notes_file (int jobid)
 }
 
 
-void system_logic_import_notes_file (string tarball)
+void system_logic_import_notes_file (std::string tarball)
 {
   Database_Logs::log ("Importing Consultation Notes from " + tarball);
   
   // The database directory where the consultation notes reside.
-  string directory = filter_url_create_root_path ({"consultations"});
+  std::string directory = filter_url_create_root_path ({"consultations"});
   
   // Unpack the tarball into the directory.
-  string error= filter_archive_microtar_unpack (tarball, directory);
+  std::string error= filter_archive_microtar_unpack (tarball, directory);
   if (!error.empty ()) {
     Database_Logs::log ("Importing Consultation Notes failure: " + error);
     return;
@@ -280,7 +279,7 @@ void system_logic_import_notes_file (string tarball)
 }
 
 
-string system_logic_resources_file_name (string resourcename)
+std::string system_logic_resources_file_name (std::string resourcename)
 {
   if (!resourcename.empty ()) resourcename.append ("_");
   return filter_url_create_path ({filter_url_temp_dir (), resourcename + "resources.tar"});
@@ -304,18 +303,18 @@ void system_logic_produce_resources_file (int jobid)
   }
   
   // The location of the single tarball to generate.
-  string tarball = filter_url_create_root_path ({system_logic_resources_file_name ()});
+  std::string tarball = filter_url_create_root_path ({system_logic_resources_file_name ()});
   
   
   // The database directory where the cached resources reside.
-  string directory = filter_url_create_root_path ({database_logic_databases ()});
+  std::string directory = filter_url_create_root_path ({database_logic_databases ()});
   
   
   // The filenames of the cached resources.
-  vector <string> resources;
-  vector <string> rawfiles = filter_url_scandir (directory);
+  std::vector <std::string> resources;
+  std::vector <std::string> rawfiles = filter_url_scandir (directory);
   for (auto filename : rawfiles) {
-    if (filename.find (Database_Cache::fragment()) != string::npos) {
+    if (filename.find (Database_Cache::fragment()) != std::string::npos) {
       resources.push_back (filename);
     }
   }
@@ -326,15 +325,15 @@ void system_logic_produce_resources_file (int jobid)
   // Such devices fail to have sufficient memory to handle one tarball with logs and logs of resources.
   // It fails to allocate enough memory on such devices.
   // So that's the reason for doing one resource per tarball.
-  map <string, vector <string> > single_resources;
+  std::map <std::string, std::vector <std::string> > single_resources;
   for (auto filename : rawfiles) {
     // Sample filename: cache_resource_[CrossWire][LXX]_62.sqlite
     // Look for the last underscore.
     // This indicates which resource it is, by leaving the book number out.
-    if (filename.find (Database_Cache::fragment()) != string::npos) {
+    if (filename.find (Database_Cache::fragment()) != std::string::npos) {
       size_t pos = filename.find_last_of ("_");
-      if (pos != string::npos) {
-        string resource = filename.substr (0, pos);
+      if (pos != std::string::npos) {
+        std::string resource = filename.substr (0, pos);
         single_resources[resource].push_back (filename);
       }
     }
@@ -355,17 +354,17 @@ void system_logic_produce_resources_file (int jobid)
   tarball_counter++;
   database_jobs.set_percentage (jobid, 100 * tarball_counter / tarball_count);
   database_jobs.set_progress (jobid, translate ("All"));
-  string error = filter_archive_microtar_pack (tarball, directory, resources);
+  std::string error = filter_archive_microtar_pack (tarball, directory, resources);
 
   
   // Create one tarball per resource.
   for (auto element : single_resources) {
     tarball_counter++;
-    string resource_name = element.first;
-    vector <string> v_resources = element.second;
+    std::string resource_name = element.first;
+    std::vector <std::string> v_resources = element.second;
     database_jobs.set_percentage (jobid, 100 * tarball_counter / tarball_count);
     database_jobs.set_progress (jobid, resource_name);
-    string resource_tarball = filter_url_create_root_path ({system_logic_resources_file_name (resource_name)});
+    std::string resource_tarball = filter_url_create_root_path ({system_logic_resources_file_name (resource_name)});
     error += filter_archive_microtar_pack (resource_tarball, directory, v_resources);
   }
   
@@ -395,7 +394,7 @@ void system_logic_produce_resources_file (int jobid)
         html_text.add_text (" ");
         html_text.add_text (translate ("These are smaller in size."));
         for (auto element : single_resources) {
-          string resource_name = element.first;
+          std::string resource_name = element.first;
           html_text.new_paragraph ();
           html_text.add_link (html_text.current_p_node, "/" + system_logic_resources_file_name (resource_name), "", "", "", translate ("Download") + " " + resource_name);
         }
@@ -414,27 +413,27 @@ void system_logic_produce_resources_file (int jobid)
 }
 
 
-void system_logic_import_resources_file (string tarball)
+void system_logic_import_resources_file (std::string tarball)
 {
   Database_Logs::log ("Importing Resources from " + tarball);
   
   // Unpack the tarball into a directory.
-  string directory = filter_url_tempfile ();
+  std::string directory = filter_url_tempfile ();
   filter_url_mkdir (directory);
-  string error= filter_archive_microtar_unpack (tarball, directory);
+  std::string error= filter_archive_microtar_unpack (tarball, directory);
   if (!error.empty ()) {
     Database_Logs::log ("Importing Resources failure: " + error);
     return;
   }
   
   // Iterate over all the files of the tarball.
-  vector <string> files = filter_url_scandir (directory);
+  std::vector <std::string> files = filter_url_scandir (directory);
   for (auto file : files) {
 
     // Get the file's contents for import.
     Database_Logs::log ("Importing " + file);
-    string path = filter_url_create_path ({directory, file});
-    string data = filter_url_file_get_contents (path);
+    std::string path = filter_url_create_path ({directory, file});
+    std::string data = filter_url_file_get_contents (path);
 
     // Store the resource into place.
     path = filter_url_create_root_path ({database_logic_databases (), file});

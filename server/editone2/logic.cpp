@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,10 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <editor/html2usfm.h>
 #include <filter/string.h>
 #include <filter/url.h>
-using namespace std;
 
 
-void editone_logic_prefix_html (string usfm, string stylesheet, string& html, string& last_p_style)
+void editone_logic_prefix_html (std::string usfm, std::string stylesheet, std::string& html, std::string& last_p_style)
 {
   if (!usfm.empty ()) {
     Editor_Usfm2Html editor_usfm2html;
@@ -45,7 +44,7 @@ void editone_logic_prefix_html (string usfm, string stylesheet, string& html, st
 }
 
 
-void editone_logic_editable_html (string usfm, string stylesheet, string& html)
+void editone_logic_editable_html (std::string usfm, std::string stylesheet, std::string& html)
 {
   if (!usfm.empty ()) {
     Editor_Usfm2Html editor_usfm2html;
@@ -57,7 +56,7 @@ void editone_logic_editable_html (string usfm, string stylesheet, string& html)
 }
 
 
-void editone_logic_suffix_html (string editable_last_p_style, string usfm, string stylesheet, string& html)
+void editone_logic_suffix_html (std::string editable_last_p_style, std::string usfm, std::string stylesheet, std::string& html)
 {
   if (!usfm.empty ()) {
     Editor_Usfm2Html editor_usfm2html;
@@ -77,23 +76,23 @@ void editone_logic_suffix_html (string editable_last_p_style, string usfm, strin
   // <p class="q1"><span class="v">7</span><span /><span>For Yahweh knows the way of the righteous,</span></p><p class="q2"><span>but the way of the wicked shall perish.</span></p>
   if (!html.empty ()) {
     if (!editable_last_p_style.empty ()) {
-      xml_document document;
+      pugi::xml_document document;
       html = filter::strings::html2xml (html);
-      document.load_string (html.c_str(), parse_ws_pcdata_single);
-      xml_node p_node = document.first_child ();
-      string p_style = p_node.attribute ("class").value ();
+      document.load_string (html.c_str(), pugi::parse_ws_pcdata_single);
+      pugi::xml_node p_node = document.first_child ();
+      std::string p_style = p_node.attribute ("class").value ();
       if (p_style.empty ()) {
         p_node.append_attribute ("class") = editable_last_p_style.c_str ();
       }
-      stringstream output;
-      document.print (output, "", format_raw);
+      std::stringstream output;
+      document.print (output, "", pugi::format_raw);
       html = output.str ();
     }
   }
 }
 
 
-string editone_logic_html_to_usfm (string stylesheet, string html)
+std::string editone_logic_html_to_usfm (std::string stylesheet, std::string html)
 {
   // It used to convert XML entities to normal characters.
   // For example, it used to convert "&lt;" to "<".
@@ -108,7 +107,7 @@ string editone_logic_html_to_usfm (string stylesheet, string html)
   html = filter::strings::any_space_to_standard_space (html);
 
   // Convert the html back to USFM in the special way for editing one verse.
-  string usfm = editor_export_verse_quill (stylesheet, html);
+  std::string usfm = editor_export_verse_quill (stylesheet, html);
 
   // Done.
   return usfm;
@@ -116,7 +115,7 @@ string editone_logic_html_to_usfm (string stylesheet, string html)
 
 
 // Move the notes from the $prefix to the $suffix.
-void editone_logic_move_notes_v2 (string & prefix, string & suffix)
+void editone_logic_move_notes_v2 (std::string & prefix, std::string & suffix)
 {
   // No input: Ready.
   if (prefix.empty ()) return;
@@ -125,8 +124,8 @@ void editone_logic_move_notes_v2 (string & prefix, string & suffix)
   prefix = filter::strings::html2xml (prefix);
 
   // Load the prefix.
-  xml_document document;
-  document.load_string (prefix.c_str(), parse_ws_pcdata_single);
+  pugi::xml_document document;
+  document.load_string (prefix.c_str(), pugi::parse_ws_pcdata_single);
 
   // The notes separator class.
   const char * b_notes_class = "b-notes";
@@ -135,13 +134,13 @@ void editone_logic_move_notes_v2 (string & prefix, string & suffix)
   // - the possible notes separator.
   // - any possible subsequent note nodes.
   bool within_notes = false;
-  xml_node prefix_separator_node;
-  vector <xml_node> prefix_note_nodes;
-  for (xml_node p_node : document.children ()) {
+  pugi::xml_node prefix_separator_node;
+  std::vector <pugi::xml_node> prefix_note_nodes;
+  for (pugi::xml_node p_node : document.children ()) {
     if (within_notes) {
       prefix_note_nodes.push_back (p_node);
     }
-    string cls = p_node.attribute ("class").value ();
+    std::string cls = p_node.attribute ("class").value ();
     if (cls == b_notes_class) {
       within_notes = true;
       prefix_separator_node = p_node;
@@ -154,11 +153,11 @@ void editone_logic_move_notes_v2 (string & prefix, string & suffix)
   // Get the note(s) text from the note node(s).
   // Remove the note node(s) from the prefix.
   // Remove the notes separator node from the prefix.
-  string notes_text;
-  for (xml_node p_node : prefix_note_nodes) {
-    stringstream ss;
-    p_node.print (ss, "", format_raw);
-    string note = ss.str ();
+  std::string notes_text;
+  for (pugi::xml_node p_node : prefix_note_nodes) {
+    std::stringstream ss;
+    p_node.print (ss, "", pugi::format_raw);
+    std::string note = ss.str ();
     notes_text.append (note);
     document.remove_child (p_node);
   }
@@ -166,8 +165,8 @@ void editone_logic_move_notes_v2 (string & prefix, string & suffix)
 
   // Convert the XML document back to a possibly cleaned prefix without notes.
   {
-    stringstream ss;
-    document.print (ss, "", format_raw);
+    std::stringstream ss;
+    document.print (ss, "", pugi::format_raw);
     prefix = ss.str ();
   }
 
@@ -175,12 +174,12 @@ void editone_logic_move_notes_v2 (string & prefix, string & suffix)
   suffix = filter::strings::html2xml (suffix);
 
   // Load the suffix.
-  document.load_string (suffix.c_str(), parse_ws_pcdata_single);
+  document.load_string (suffix.c_str(), pugi::parse_ws_pcdata_single);
 
   // Iterate over the document to find the possible notes separator.
-  xml_node suffix_separator_node;
-  for (xml_node p_node : document.children ()) {
-    string cls = p_node.attribute ("class").value ();
+  pugi::xml_node suffix_separator_node;
+  for (pugi::xml_node p_node : document.children ()) {
+    std::string cls = p_node.attribute ("class").value ();
     if (cls == b_notes_class) {
       suffix_separator_node = p_node;
     }
@@ -198,8 +197,8 @@ void editone_logic_move_notes_v2 (string & prefix, string & suffix)
 
   // Convert the DOM to suffix text.
   {
-    stringstream ss;
-    document.print (ss, "", format_raw);
+    std::stringstream ss;
+    document.print (ss, "", pugi::format_raw);
     suffix = ss.str ();
   }
 }

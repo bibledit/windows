@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <filter/string.h>
 #include <database/sqlite.h>
-using namespace std;
 
 
 // This is the database for the Greek Bible text morphology.
@@ -72,7 +71,7 @@ void Database_MorphGnt::optimize ()
 
 
 void Database_MorphGnt::store (int book, int chapter, int verse,
-                               string pos, string parsing, string word, string lemma)
+                               std::string pos, std::string parsing, std::string word, std::string lemma)
 {
   int pos_id = get_id ("pos", pos);
   int parsing_id = get_id ("parsing", parsing);
@@ -107,7 +106,7 @@ void Database_MorphGnt::store (int book, int chapter, int verse,
 }
 
 
-vector <int> Database_MorphGnt::rowids (int book, int chapter, int verse)
+std::vector <int> Database_MorphGnt::rowids (int book, int chapter, int verse)
 {
   SqliteDatabase sql = SqliteDatabase (filename ());
   sql.add ("SELECT rowid FROM morphgnt WHERE book =");
@@ -117,38 +116,38 @@ vector <int> Database_MorphGnt::rowids (int book, int chapter, int verse)
   sql.add ("AND verse =");
   sql.add (verse);
   sql.add ("ORDER BY rowid;");
-  vector <string> result = sql.query () ["rowid"];
-  vector <int> rowids;
+  std::vector <std::string> result = sql.query () ["rowid"];
+  std::vector <int> rowids;
   for (auto rowid : result) rowids.push_back (filter::strings::convert_to_int (rowid));
   return rowids;
 }
 
 
-string Database_MorphGnt::pos (int rowid)
+std::string Database_MorphGnt::pos (int rowid)
 {
   return get_item ("pos", rowid);
 }
 
 
-string Database_MorphGnt::parsing (int rowid)
+std::string Database_MorphGnt::parsing (int rowid)
 {
   return get_item ("parsing", rowid);
 }
 
 
-string Database_MorphGnt::word (int rowid)
+std::string Database_MorphGnt::word (int rowid)
 {
   return get_item ("word", rowid);
 }
 
 
-string Database_MorphGnt::lemma (int rowid)
+std::string Database_MorphGnt::lemma (int rowid)
 {
   return get_item ("lemma", rowid);
 }
 
 
-int Database_MorphGnt::get_id (const char * table_row, string item)
+int Database_MorphGnt::get_id (const char * table_row, std::string item)
 {
   SqliteDatabase sql = SqliteDatabase (filename ());
   // Two iterations to be sure a rowid can be returned.
@@ -162,7 +161,7 @@ int Database_MorphGnt::get_id (const char * table_row, string item)
     sql.add ("=");
     sql.add (item);
     sql.add (";");
-    vector <string> result = sql.query () ["rowid"];
+    std::vector <std::string> result = sql.query () ["rowid"];
     if (!result.empty ()) return filter::strings::convert_to_int (result [0]);
     // The rowid was not found: Insert the word into the table.
     // The rowid will now be found during the second iteration.
@@ -178,7 +177,7 @@ int Database_MorphGnt::get_id (const char * table_row, string item)
 }
 
 
-string Database_MorphGnt::get_item (const char * item, int rowid)
+std::string Database_MorphGnt::get_item (const char * item, int rowid)
 {
   // The $rowid refers to the main table.
   // Update it so it refers to the sub table.
@@ -188,7 +187,7 @@ string Database_MorphGnt::get_item (const char * item, int rowid)
   sql.add ("FROM morphgnt WHERE rowid =");
   sql.add (rowid);
   sql.add (";");
-  vector <string> result = sql.query () [item];
+  std::vector <std::string> result = sql.query () [item];
   rowid = 0;
   if (!result.empty ()) rowid = filter::strings::convert_to_int (result [0]);
   // Retrieve the requested value from the sub table.
@@ -203,5 +202,5 @@ string Database_MorphGnt::get_item (const char * item, int rowid)
   result = sql.query () [item];
   if (!result.empty ()) return result [0];
   // Not found.
-  return "";
+  return std::string();
 }

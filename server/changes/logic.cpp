@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -40,8 +40,6 @@
 #include <database/jobs.h>
 #include <filter/string.h>
 #include <webserver/request.h>
-using namespace std;
-using namespace pugi;
 
 
 void changes_logic_start ()
@@ -62,11 +60,11 @@ const char * changes_bible_category ()
 }
 
 
-string changes_interlinks (void * webserver_request, string my_url)
+std::string changes_interlinks (Webserver_Request& webserver_request, std::string my_url)
 {
   // Storage the available links.
-  vector <string> urls {};
-  vector <string> labels {};
+  std::vector <std::string> urls {};
+  std::vector <std::string> labels {};
   
   // Handle situation that the user has permission to view the changes.
   if (changes_changes_acl (webserver_request)) {
@@ -88,7 +86,7 @@ string changes_interlinks (void * webserver_request, string my_url)
     }
   }
 
-  string revisions = "revisions";
+  const std::string revisions = "revisions";
   if (index_listing_url (revisions) != my_url) {
     if (index_listing_acl (webserver_request, revisions)) {
       urls.push_back (index_listing_url (revisions));
@@ -106,28 +104,28 @@ string changes_interlinks (void * webserver_request, string my_url)
 #endif
 
   // Generate the links in XML.
-  xml_document document {};
+  pugi::xml_document document {};
   bool first {true};
   for (unsigned int i = 0; i < urls.size (); i++) {
     if (!first) {
-      xml_node node = document.append_child ("span");
+      pugi::xml_node node = document.append_child ("span");
       node.text ().set (" | ");
     }
     first = false;
-    xml_node a = document.append_child ("a");
-    string href = "/" + urls[i];
+    pugi::xml_node a = document.append_child ("a");
+    const std::string href = "/" + urls[i];
     a.append_attribute ("href") = href.c_str();
     a.text ().set (labels[i].c_str());
   }
   
   // Convert the document to a string.
-  stringstream output {};
-  document.print (output, "", format_raw);
+  std::stringstream output {};
+  document.print (output, "", pugi::format_raw);
   return output.str ();
 }
 
 
-void changes_clear_notifications_user (string jobid, string username)
+void changes_clear_notifications_user (std::string jobid, std::string username)
 {
   Database_Logs::log (translate ("Start clearing change notifications") + " " + username);
   
@@ -135,8 +133,8 @@ void changes_clear_notifications_user (string jobid, string username)
   Database_Jobs database_jobs {};
 
   // Get the total amount of change notifications to clear for the user.
-  string any_bible {};
-  vector <int> identifiers = database_modifications.getNotificationIdentifiers (username, any_bible);
+  std::string any_bible {};
+  std::vector <int> identifiers = database_modifications.getNotificationIdentifiers (username, any_bible);
   
   // Total notes cleared.
   int total_cleared {0};

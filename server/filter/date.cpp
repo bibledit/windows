@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@
 #include <filter/string.h>
 #include <database/config/general.h>
 #include <webserver/request.h>
-using namespace std;
 
 
 namespace filter::date {
@@ -103,9 +102,9 @@ int numerical_year (int seconds)
 // This function gives the number of microseconds within the current second.
 int numerical_microseconds ()
 {
-  auto now = chrono::system_clock::now ();
+  auto now = std::chrono::system_clock::now ();
   auto duration = now.time_since_epoch ();
-  auto microseconds = chrono::duration_cast<std::chrono::microseconds>(duration).count();
+  auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
   int usecs = static_cast<int>(microseconds % 1000000);
   return usecs;
 }
@@ -114,9 +113,9 @@ int numerical_microseconds ()
 // This function returns the seconds since the Unix epoch, which is 1 January 1970 UTC.
 int seconds_since_epoch ()
 {
-  auto now = chrono::system_clock::now ();
+  auto now = std::chrono::system_clock::now ();
   auto duration = now.time_since_epoch ();
-  int seconds = static_cast<int>(chrono::duration_cast<std::chrono::seconds>(duration).count());
+  int seconds = static_cast<int>(std::chrono::duration_cast<std::chrono::seconds>(duration).count());
   return seconds;
 }
 
@@ -218,7 +217,7 @@ void get_next_month (int & month, int & year)
 }
 
 
-string day_rfc822 (int day)
+std::string day_rfc822 (int day)
 {
   if (day == 0) return "Sun";
   if (day == 1) return "Mon";
@@ -227,11 +226,11 @@ string day_rfc822 (int day)
   if (day == 4) return "Thu";
   if (day == 5) return "Fri";
   if (day == 6) return "Sat";
-  return "";
+  return std::string();
 }
 
 
-string month_rfc822 (int month)
+std::string month_rfc822 (int month)
 {
   if (month ==  1) return "Jan";
   if (month ==  2) return "Feb";
@@ -245,16 +244,16 @@ string month_rfc822 (int month)
   if (month == 10) return "Oct";
   if (month == 11) return "Nov";
   if (month == 12) return "Dec";
-  return "";
+  return std::string();
 }
 
 
 // Converts the number of $seconds since the Unix epoch
 // to date and time values according to RFC 822,
 // e.g.: Wed, 02 Oct 2002 15:00:00 +0200.
-string rfc822 (int seconds)
+std::string rfc822 (int seconds)
 {
-  string rfc822;
+  std::string rfc822;
   // The feed validator at https://validator.w3.org/feed/ says:
   // <pubDate>Wed, 18 Feb 2017 12:26:39 +0100</pubDate>
   // This feed does not validate: Incorrect day of week: Wed (2 occurrences).
@@ -265,7 +264,7 @@ string rfc822 (int seconds)
   // int weekday = numerical_week_day (seconds);
   // rfc822.append (day_rfc822 (weekday));
   // rfc822.append (", ");
-  string monthday = filter::strings::convert_to_string (numerical_month_day (seconds));
+  std::string monthday = filter::strings::convert_to_string (numerical_month_day (seconds));
   rfc822.append (filter::strings::fill (monthday, 2, '0'));
   rfc822.append (" ");
   int month = numerical_month (seconds);
@@ -274,13 +273,13 @@ string rfc822 (int seconds)
   int year = numerical_year (seconds);
   rfc822.append (filter::strings::convert_to_string (year));
   rfc822.append (" ");
-  string hour = filter::strings::convert_to_string (numerical_hour (seconds));
+  std::string hour = filter::strings::convert_to_string (numerical_hour (seconds));
   rfc822.append (filter::strings::fill (hour, 2, '0'));
   rfc822.append (":");
-  string minute = filter::strings::convert_to_string (numerical_minute (seconds));
+  std::string minute = filter::strings::convert_to_string (numerical_minute (seconds));
   rfc822.append (filter::strings::fill (minute, 2, '0'));
   rfc822.append (":");
-  string second = filter::strings::convert_to_string (numerical_second (seconds));
+  std::string second = filter::strings::convert_to_string (numerical_second (seconds));
   rfc822.append (filter::strings::fill (second, 2, '0'));
   rfc822.append (" ");
   int timezone = Database_Config_General::getTimezone ();
@@ -297,15 +296,15 @@ string rfc822 (int seconds)
 // It returns the elapsed number of microseconds.
 long elapsed_microseconds (long start)
 {
-  auto now = chrono::system_clock::now ();
+  auto now = std::chrono::system_clock::now ();
   auto duration = now.time_since_epoch ();
-  auto microseconds = chrono::duration_cast<std::chrono::microseconds>(duration).count();
+  auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
   long elapsed = microseconds - start;
   return elapsed;
 }
 
 
-string localized_date_format ()
+std::string localized_date_format ()
 {
   time_t tt;
   time (&tt);
@@ -315,32 +314,31 @@ string localized_date_format ()
 #pragma GCC diagnostic ignored "-Wformat-y2k"
   strftime(buffer, sizeof(buffer), "%x", localtm);
 #pragma GCC diagnostic pop
-  return string (buffer);
+  return std::string (buffer);
 }
 
 
-string date_format_to_text (date_format format)
+std::string date_format_to_text (date_format format)
 {
   switch (format) {
     case dd_mm_yyyy: return "dd/mm/yyyy";
     case mm_dd_yyyy: return "mm/dd/yyyy";
     case yyyy_mn_dd: return "yyyy-mm-dd";
-    default: return string();
+    default: return std::string();
   }
-  return string();
+  return std::string();
 }
 
 
-string localized_date_format (void * webserver_request)
+std::string localized_date_format (Webserver_Request& webserver_request)
 {
   int time = seconds_since_epoch ();
   
-  string day = filter::strings::convert_to_string (numerical_month_day (time));
-  string month = filter::strings::convert_to_string (numerical_month (time));
-  string year = filter::strings::convert_to_string (numerical_year (time));
+  std::string day = filter::strings::convert_to_string (numerical_month_day (time));
+  std::string month = filter::strings::convert_to_string (numerical_month (time));
+  std::string year = filter::strings::convert_to_string (numerical_year (time));
 
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  date_format df = static_cast<date_format>(request->database_config_user()->getNotesDateFormat());
+  date_format df = static_cast<date_format>(webserver_request.database_config_user()->getNotesDateFormat());
 
   switch (df) {
     case dd_mm_yyyy:
@@ -358,9 +356,8 @@ string localized_date_format (void * webserver_request)
     }
   }
   
-  return string();
+  return std::string();
 }
 
 
 }
-

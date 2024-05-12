@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -22,31 +22,28 @@
 #include <webserver/request.h>
 #include <navigation/passage.h>
 #include <ipc/focus.h>
-using namespace std;
 
 
-string navigation_poll_url ()
+std::string navigation_poll_url ()
 {
   return "navigation/poll";
 }
 
 
-bool navigation_poll_acl (void * webserver_request)
+bool navigation_poll_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::guest ());
 }
 
 
-string navigation_poll (void * webserver_request)
+std::string navigation_poll (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  int book = Ipc_Focus::getBook (request);
-  int chapter = Ipc_Focus::getChapter (request);
-  int verse = Ipc_Focus::getVerse (request);
-  vector <string> passage;
+  int book = Ipc_Focus::getBook (webserver_request);
+  int chapter = Ipc_Focus::getChapter (webserver_request);
+  int verse = Ipc_Focus::getVerse (webserver_request);
+  std::vector <std::string> passage;
   passage.push_back (filter::strings::convert_to_string (book));
   passage.push_back (filter::strings::convert_to_string (chapter));
   passage.push_back (filter::strings::convert_to_string (verse));
   return filter::strings::implode (passage, "\n");
 }
-

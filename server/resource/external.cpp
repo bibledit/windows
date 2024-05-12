@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -37,9 +37,6 @@
 #include <pugixml.hpp>
 #endif
 #pragma GCC diagnostic pop
-using namespace std;
-using namespace jsonxx;
-using namespace pugi;
 
 
 // Local forward declarations:
@@ -47,30 +44,30 @@ using namespace pugi;
 
 unsigned int resource_external_count ();
 int gbs_digitaal_json_callback (void *userdata, int type, const char *data, uint32_t length);
-string bibleserver_processor (string directory, int book, int chapter, int verse);
-string resource_external_get_statenbijbel_gbs (int book, int chapter, int verse);
-string resource_external_get_statenbijbel_plus_gbs (int book, int chapter, int verse);
-string resource_external_get_king_james_version_gbs (int book, int chapter, int verse);
-string resource_external_get_king_james_version_plus_gbs (int book, int chapter, int verse);
-string resource_external_get_biblehub_interlinear (int book, int chapter, int verse);
-string resource_external_get_biblehub_scrivener (int book, int chapter, int verse);
-string resource_external_get_biblehub_westminster (int book, int chapter, int verse);
-string resource_external_get_net_bible (int book, int chapter, int verse);
-string resource_external_get_blue_letter_bible (int book, int chapter, int verse);
-string resource_external_get_elberfelder_bibel (int book, int chapter, int verse);
-string resource_external_convert_book_biblehub (int book);
-string resource_external_convert_book_netbible (int book);
-string resource_external_convert_book_blueletterbible (int book);
-string resource_external_convert_book_bibleserver (int book);
+std::string bibleserver_processor (std::string directory, int book, int chapter, int verse);
+std::string resource_external_get_statenbijbel_gbs (int book, int chapter, int verse);
+std::string resource_external_get_statenbijbel_plus_gbs (int book, int chapter, int verse);
+std::string resource_external_get_king_james_version_gbs (int book, int chapter, int verse);
+std::string resource_external_get_king_james_version_plus_gbs (int book, int chapter, int verse);
+std::string resource_external_get_biblehub_interlinear (int book, int chapter, int verse);
+std::string resource_external_get_biblehub_scrivener (int book, int chapter, int verse);
+std::string resource_external_get_biblehub_westminster (int book, int chapter, int verse);
+std::string resource_external_get_net_bible (int book, int chapter, int verse);
+std::string resource_external_get_blue_letter_bible (int book, int chapter, int verse);
+std::string resource_external_get_elberfelder_bibel (int book, int chapter, int verse);
+std::string resource_external_convert_book_biblehub (int book);
+std::string resource_external_convert_book_netbible (int book);
+std::string resource_external_convert_book_blueletterbible (int book);
+std::string resource_external_convert_book_bibleserver (int book);
 
 
 typedef struct
 {
-  string name;
+  std::string name;
   const char *versification;
   const char *mapping;
   const char *type;
-  string (* func) (int, int, int);
+  std::string (* func) (int, int, int);
 } resource_record;
 
 
@@ -98,25 +95,25 @@ resource_record resource_table [] =
 };
 
 
-struct gbs_basic_walker: xml_tree_walker
+struct gbs_basic_walker: pugi::xml_tree_walker
 {
-  vector <string> texts {};
+  std::vector <std::string> texts {};
   bool canonical_text {true};
 
-  virtual bool for_each (xml_node& node) override
+  virtual bool for_each (pugi::xml_node& node) override
   {
-    xml_node_type nodetype = node.type();
-    if (nodetype == node_pcdata) {
+    pugi::xml_node_type nodetype = node.type();
+    if (nodetype == pugi::node_pcdata) {
       // Handle plain character data.
-      string text = node.text().get();
+      std::string text = node.text().get();
       if (canonical_text) texts.push_back(text);
       // If the text above was a footnote caller,
       // in the GBS layout the following text could be canonical again.
       canonical_text = true;
     } else {
       // Handle the node itself.
-      string nodename = node.name ();
-      string classname = node.attribute ("class").value ();
+      std::string nodename = node.name ();
+      std::string classname = node.attribute ("class").value ();
       canonical_text = true;
       // Bits to exclude from the canonical text.
       if (classname == "verse-number") canonical_text = false;
@@ -134,12 +131,12 @@ struct gbs_basic_walker: xml_tree_walker
 
 
 // This function displays the canonical text from bijbel-statenvertaling.com.
-string gbs_basic_processor (string url, int verse)
+std::string gbs_basic_processor (std::string url, int verse)
 {
-  string text {};
+  std::string text {};
   
   // Get the html from the server.
-  string html = resource_logic_web_or_cache_get (url, text);
+  std::string html = resource_logic_web_or_cache_get (url, text);
 
   // The GBS data does not load at all in XML.
   // If it were tidied through gumbo it does not load well as XML, just a few bits load.
@@ -149,16 +146,16 @@ string gbs_basic_processor (string url, int verse)
   // * Starting from that line, add several more lines, enough to cover the whole verse.
   // * Load the resulting block of text into pugixml.
 
-  vector <string> lines = filter::strings::explode(html, '\n');
-  string html_fragment {};
+  std::vector <std::string> lines = filter::strings::explode(html, '\n');
+  std::string html_fragment {};
   
   // Example verse container within the html:
   // Verse 0:
   // <p class="summary">...</>
   // Other verses:
   // <div class="verse verse-1 active size-change bold-change cursive-change align-change">...
-  string search1 {};
-  string search2 {};
+  std::string search1 {};
+  std::string search2 {};
   if (verse != 0) {
     search1 = R"(class="verse )";
     search2 = " verse-" + filter::strings::convert_to_string (verse) + " ";
@@ -172,9 +169,9 @@ string gbs_basic_processor (string url, int verse)
   for (const auto & line : lines) {
     if (!line_count) {
       size_t pos = line.find (search1);
-      if (pos == string::npos) continue;
+      if (pos == std::string::npos) continue;
       pos = line.find (search2);
-      if (pos == string::npos) continue;
+      if (pos == std::string::npos) continue;
       line_count++;
     }
     if (line_count) {
@@ -189,7 +186,7 @@ string gbs_basic_processor (string url, int verse)
   }
   
   // Parse the html into a DOM.
-  xml_document document;
+  pugi::xml_document document;
   document.load_string (html_fragment.c_str());
 
   // Example verse container within the XML:
@@ -197,11 +194,11 @@ string gbs_basic_processor (string url, int verse)
   // <p class="summary">...</>
   // Other verses:
   // <div class="verse verse-1 active size-change bold-change cursive-change align-change">...
-  string selector;
+  std::string selector;
   if (verse != 0) selector = "//div[contains(@class,'verse-" + filter::strings::convert_to_string (verse) + " ')]";
   else selector = "//p[@class='summary']";
-  xpath_node xpathnode = document.select_node(selector.c_str());
-  xml_node div_node = xpathnode.node();
+  pugi::xpath_node xpathnode = document.select_node(selector.c_str());
+  pugi::xml_node div_node = xpathnode.node();
   
   // Extract relevant information.
   gbs_basic_walker walker {};
@@ -216,20 +213,20 @@ string gbs_basic_processor (string url, int verse)
 }
 
 
-struct gbs_plus_walker: xml_tree_walker
+struct gbs_plus_walker: pugi::xml_tree_walker
 {
-  vector <string> texts {};
+  std::vector <std::string> texts {};
   bool canonical_text {true};
   bool verse_references {false};
-  string reference_number {};
+  std::string reference_number {};
 
-  virtual bool for_each (xml_node& node) override
+  virtual bool for_each (pugi::xml_node& node) override
   {
-    xml_node_type nodetype = node.type();
-    if (nodetype == node_pcdata) {
+    pugi::xml_node_type nodetype = node.type();
+    if (nodetype == pugi::node_pcdata) {
       // Handle plain character data.
       if (canonical_text && !verse_references) {
-        string text = node.text().get();
+        std::string text = node.text().get();
         texts.push_back(text);
       }
       // If the text above was a footnote caller,
@@ -237,8 +234,8 @@ struct gbs_plus_walker: xml_tree_walker
       canonical_text = true;
     } else {
       // Handle the node itself.
-      string nodename = node.name ();
-      string classname = node.attribute ("class").value ();
+      std::string nodename = node.name ();
+      std::string classname = node.attribute ("class").value ();
       canonical_text = true;
       // Bits to exclude from the canonical text.
       if (classname == "verse-number") canonical_text = false;
@@ -253,9 +250,9 @@ struct gbs_plus_walker: xml_tree_walker
       if (classname == "reference") {
         texts.push_back("<br>");
         texts.push_back(reference_number);
-        string title = node.attribute("data-title").value();
+        std::string title = node.attribute("data-title").value();
         texts.push_back(title);
-        string content = node.attribute("data-content").value();
+        std::string content = node.attribute("data-content").value();
         texts.push_back(content);
       }
       // Store the reference caller in the object.
@@ -270,23 +267,23 @@ struct gbs_plus_walker: xml_tree_walker
 };
 
 
-struct gbs_annotation_walker: xml_tree_walker
+struct gbs_annotation_walker: pugi::xml_tree_walker
 {
-  vector <string> texts {};
+  std::vector <std::string> texts {};
   bool within_annotations {false};
 
-  virtual bool for_each (xml_node& node) override
+  virtual bool for_each (pugi::xml_node& node) override
   {
-    xml_node_type nodetype = node.type();
-    if (nodetype == node_pcdata) {
+    pugi::xml_node_type nodetype = node.type();
+    if (nodetype == pugi::node_pcdata) {
       if (within_annotations) {
-        string text = node.text().get();
+        std::string text = node.text().get();
         texts.push_back(text);
       }
     } else {
       // Handle the node itself.
-      string nodename = node.name ();
-      string classname = node.attribute ("class").value ();
+      std::string nodename = node.name ();
+      std::string classname = node.attribute ("class").value ();
       if (classname == "annotationnumber") {
         texts.push_back("<br>");
         within_annotations = true;
@@ -301,12 +298,12 @@ struct gbs_annotation_walker: xml_tree_walker
 
 
 // This function displays the canonical text from bijbel-statenvertaling.com.
-string gbs_plus_processor (string url, int book, [[maybe_unused]] int chapter, int verse)
+std::string gbs_plus_processor (std::string url, int book, [[maybe_unused]] int chapter, int verse)
 {
-  string text {};
+  std::string text {};
   
   // Get the html from the server.
-  string html {resource_logic_web_or_cache_get (url, text)};
+  std::string html {resource_logic_web_or_cache_get (url, text)};
 
   // The GBS data does not load at all in XML.
   // If it were tidied through gumbo it does not load well as XML, just a few bits load.
@@ -316,16 +313,16 @@ string gbs_plus_processor (string url, int book, [[maybe_unused]] int chapter, i
   // * Starting from that line, add several more lines, enough to cover the whole verse.
   // * Load the resulting block of text into pugixml.
   
-  vector <string> lines {filter::strings::explode(html, '\n')};
-  string html_fragment {};
+  std::vector <std::string> lines {filter::strings::explode(html, '\n')};
+  std::string html_fragment {};
   
   // Example verse container within the html:
   // Verse 0:
   // <p class="summary">...</>
   // Other verses:
   // <div class="verse verse-1 active size-change bold-change cursive-change align-change">...
-  string search1 {};
-  string search2 {};
+  std::string search1 {};
+  std::string search2 {};
   if (verse != 0) {
     search1 = R"(class="verse )";
     search2 = " verse-" + filter::strings::convert_to_string (verse) + " ";
@@ -339,9 +336,9 @@ string gbs_plus_processor (string url, int book, [[maybe_unused]] int chapter, i
   for (const auto & line : lines) {
     if (!line_count) {
       size_t pos = line.find (search1);
-      if (pos == string::npos) continue;
+      if (pos == std::string::npos) continue;
       pos = line.find (search2);
-      if (pos == string::npos) continue;
+      if (pos == std::string::npos) continue;
       line_count++;
     }
     if (line_count) {
@@ -356,7 +353,7 @@ string gbs_plus_processor (string url, int book, [[maybe_unused]] int chapter, i
   }
   
   // Parse the html fragment into a DOM.
-  xml_document document {};
+  pugi::xml_document document {};
   document.load_string (html_fragment.c_str());
 
   // Example verse container within the XML:
@@ -364,11 +361,11 @@ string gbs_plus_processor (string url, int book, [[maybe_unused]] int chapter, i
   // <p class="summary">...</>
   // Other verses:
   // <div class="verse verse-1 active size-change bold-change cursive-change align-change">...
-  string selector {};
+  std::string selector {};
   if (verse != 0) selector = "//div[contains(@class,'verse-" + filter::strings::convert_to_string (verse) + " ')]";
   else selector = "//p[@class='summary']";
-  xpath_node xpathnode = document.select_node(selector.c_str());
-  xml_node div_node = xpathnode.node();
+  pugi::xpath_node xpathnode = document.select_node(selector.c_str());
+  pugi::xml_node div_node = xpathnode.node();
 
   // Example text:
   // <div class="verse verse-1 active size-change bold-change cursive-change align-change" id="1" onclick="i_toggle_annotation('sv','30217','Hebr.','10','1', '1201')"><span class="verse-number">  1</span><div class="verse-text "><p class="text">      WANT<span class="verwijzing"> a</span><span class="kanttekening">1</span>de wet, hebbende <span class="kanttekening"> 2</span>een schaduw <span class="kanttekening"> 3</span>der toekomende goederen, niet <span class="kanttekening"> 4</span>het beeld zelf der zaken, kan met <span class="kanttekening"> 5</span>dezelfde offeranden die zij alle jaar <span class="kanttekening"> 6</span>geduriglijk opofferen, nimmermeer <span class="kanttekening"> 7</span>heiligen degenen die <span class="kanttekening"> 8</span>daar toegaan.    </p><span class="verse-references"><div class="verse-reference"><span class="reference-number">a </span><a href="/statenvertaling/kolossenzen/2/#17" target="_blank" class="reference" data-title="Kol. 2:17" data-content="Welke zijn een schaduw der toekomende dingen, maar het lichaam is van Christus.">Kol. 2:17</a>. <a href="/statenvertaling/hebreeen/8/#5" target="_blank" class="reference" data-title="Hebr. 8:5" data-content="Welke het voorbeeld en de schaduw der hemelse dingen dienen, gelijk Mozes door Goddelijke aanspraak vermaand was, als hij den tabernakel volmaken zou. Want zie, zegt Hij, dat gij het alles maakt naar de afbeelding die u op den berg getoond is.">Hebr. 8:5</a>.        </div></span></div></div>
@@ -382,11 +379,11 @@ string gbs_plus_processor (string url, int book, [[maybe_unused]] int chapter, i
   }
   
   // Get the raw annotations html.
-  string annotation_info {div_node.attribute("onclick").value()};
-  vector <string> bits {filter::strings::explode(annotation_info, '\'')};
+  std::string annotation_info {div_node.attribute("onclick").value()};
+  std::vector <std::string> bits {filter::strings::explode(annotation_info, '\'')};
   if (bits.size() >= 13) {
-    string annotation_url {"https://bijbel-statenvertaling.com/includes/ajax/kanttekening.php"};
-    map <string, string> post {};
+    std::string annotation_url {"https://bijbel-statenvertaling.com/includes/ajax/kanttekening.php"};
+    std::map <std::string, std::string> post {};
     post ["prefix"] = bits[1];
     post ["verse_id"] = bits[3];
     post ["short_bookname"] = bits[5];
@@ -394,17 +391,17 @@ string gbs_plus_processor (string url, int book, [[maybe_unused]] int chapter, i
     post ["verse"] = bits[9];
     post ["slug_id"] = bits[11];
     post ["book_id"] = filter::strings::convert_to_string(book);
-    string error {};
-    string annotation_html {filter_url_http_post (annotation_url, string(), post, error, false, false, {})};
+    std::string error {};
+    std::string annotation_html {filter_url_http_post (annotation_url, std::string(), post, error, false, false, {})};
     if (error.empty()) {
       annotation_html = filter::strings::fix_invalid_html_gumbo (annotation_html);
-      xml_document annotation_document {};
+      pugi::xml_document annotation_document {};
       annotation_document.load_string (annotation_html.c_str());
-      string selector2 {"//body"};
-      xpath_node xpathnode2 {annotation_document.select_node(selector2.c_str())};
-      xml_node body_node {xpathnode2.node()};
-      stringstream ss {};
-      body_node.print (ss, "", format_raw);
+      std::string selector2 {"//body"};
+      pugi::xpath_node xpathnode2 {annotation_document.select_node(selector2.c_str())};
+      pugi::xml_node body_node {xpathnode2.node()};
+      std::stringstream ss {};
+      body_node.print (ss, "", pugi::format_raw);
       gbs_annotation_walker annotation_walker {};
       body_node.traverse (annotation_walker);
       for (auto fragment : annotation_walker.texts) {
@@ -423,28 +420,28 @@ string gbs_plus_processor (string url, int book, [[maybe_unused]] int chapter, i
 
 
 // This filters Bibles from www.bibleserver.com.
-string bibleserver_processor (string directory, int book, int chapter, int verse)
+std::string bibleserver_processor (std::string directory, int book, int chapter, int verse)
 {
-  string bookname = resource_external_convert_book_bibleserver (book);
+  std::string bookname = resource_external_convert_book_bibleserver (book);
   
-  string url = "http://www.bibleserver.com/text/" + directory + "/" + bookname + filter::strings::convert_to_string (chapter);
+  std::string url = "http://www.bibleserver.com/text/" + directory + "/" + bookname + filter::strings::convert_to_string (chapter);
   
-  string error;
-  string text = resource_logic_web_or_cache_get (url, error);
-  string tidy = filter::strings::html_tidy (text);
-  vector <string> tidied = filter::strings::explode (tidy, '\n');
+  std::string error;
+  std::string text = resource_logic_web_or_cache_get (url, error);
+  std::string tidy = filter::strings::html_tidy (text);
+  std::vector <std::string> tidied = filter::strings::explode (tidy, '\n');
 
   text.clear ();
   bool relevant_line = false;
   for (auto & line : tidied) {
     size_t pos = line.find ("noscript");
-    if (pos != string::npos) relevant_line = false;
+    if (pos != std::string::npos) relevant_line = false;
     if (relevant_line) {
       if (!text.empty ()) text.append (" ");
       text.append (line);
     }
     pos = line.find ("no=\"" + filter::strings::convert_to_string (verse) + "," + filter::strings::convert_to_string (verse) + "\"");
-    if (pos != string::npos) relevant_line = true;
+    if (pos != std::string::npos) relevant_line = true;
   }
   filter::strings::replace_between (text, "<", ">", "");
   text = filter::strings::trim (text);
@@ -455,7 +452,7 @@ string bibleserver_processor (string directory, int book, int chapter, int verse
 }
 
 
-string resource_external_convert_book_gbs_statenbijbel (int book)
+std::string resource_external_convert_book_gbs_statenbijbel (int book)
 {
   switch (book) {
     case 1: return "genesis";
@@ -524,13 +521,13 @@ string resource_external_convert_book_gbs_statenbijbel (int book)
     case 64: return "3-johannes";
     case 65: return "judas";
     case 66: return "openbaring";
-    default: return string();
+    default: return std::string();
   }
-  return string();
+  return std::string();
 }
 
 
-string resource_external_convert_book_gbs_king_james_bible (int book)
+std::string resource_external_convert_book_gbs_king_james_bible (int book)
 {
   switch (book) {
     case 1: return "genesis";
@@ -599,80 +596,80 @@ string resource_external_convert_book_gbs_king_james_bible (int book)
     case 64: return "3-john";
     case 65: return "jude";
     case 66: return "revelation";
-    default: return string();
+    default: return std::string();
   }
-  return string();
+  return std::string();
 }
 
 
 // This script fetches the Statenbijbel from the Dutch GBS.
-string resource_external_get_statenbijbel_gbs (int book, int chapter, int verse)
+std::string resource_external_get_statenbijbel_gbs (int book, int chapter, int verse)
 {
   // Hebrews 11: https://bijbel-statenvertaling.com/statenvertaling/hebreeen/11/
-  string url = "http://bijbel-statenvertaling.com/statenvertaling/" + resource_external_convert_book_gbs_statenbijbel (book) + "/" + filter::strings::convert_to_string(chapter) + "/";
+  std::string url = "http://bijbel-statenvertaling.com/statenvertaling/" + resource_external_convert_book_gbs_statenbijbel (book) + "/" + filter::strings::convert_to_string(chapter) + "/";
   return gbs_basic_processor (url, verse);
 }
 
 
 // This displays the Statenbijbel from the Dutch GBS.
 // It also includes headers, introductions, and notes.
-string resource_external_get_statenbijbel_plus_gbs (int book, int chapter, int verse)
+std::string resource_external_get_statenbijbel_plus_gbs (int book, int chapter, int verse)
 {
   // Hebrews 11: https://bijbel-statenvertaling.com/statenvertaling/hebreeen/11/
-  string url = "http://bijbel-statenvertaling.com/statenvertaling/" + resource_external_convert_book_gbs_statenbijbel (book) + "/" + filter::strings::convert_to_string(chapter) + "/";
+  std::string url = "http://bijbel-statenvertaling.com/statenvertaling/" + resource_external_convert_book_gbs_statenbijbel (book) + "/" + filter::strings::convert_to_string(chapter) + "/";
   return gbs_plus_processor (url, book, chapter, verse);
 }
 
 
 // This script displays the King James Bible published by the Dutch GBS.
-string resource_external_get_king_james_version_gbs (int book, int chapter, int verse)
+std::string resource_external_get_king_james_version_gbs (int book, int chapter, int verse)
 {
-  string url = "http://bijbel-statenvertaling.com/authorised-version/" + resource_external_convert_book_gbs_king_james_bible (book) + "/" + filter::strings::convert_to_string(chapter) + "/";
+  std::string url = "http://bijbel-statenvertaling.com/authorised-version/" + resource_external_convert_book_gbs_king_james_bible (book) + "/" + filter::strings::convert_to_string(chapter) + "/";
   return gbs_basic_processor (url, verse);
 }
 
 
 // This script displays the Statenbijbel from the Dutch GBS.
 // It also includes headers, introductions, and notes.
-string resource_external_get_king_james_version_plus_gbs (int book, int chapter, int verse)
+std::string resource_external_get_king_james_version_plus_gbs (int book, int chapter, int verse)
 {
-  string url = "http://bijbel-statenvertaling.com/authorised-version/" + resource_external_convert_book_gbs_king_james_bible (book) + "/" + filter::strings::convert_to_string(chapter) + "/";
+  std::string url = "http://bijbel-statenvertaling.com/authorised-version/" + resource_external_convert_book_gbs_king_james_bible (book) + "/" + filter::strings::convert_to_string(chapter) + "/";
   return gbs_plus_processor (url, book, chapter, verse);
 }
 
 
 // This displays the interlinear Bible from biblehub.com.
-string resource_external_get_biblehub_interlinear (int book, int chapter, int verse)
+std::string resource_external_get_biblehub_interlinear (int book, int chapter, int verse)
 {
   // Sample URL:
   // http://biblehub.com/interlinear/genesis/1-1.htm
  
-  string bookname = resource_external_convert_book_biblehub (book);
+  std::string bookname = resource_external_convert_book_biblehub (book);
   
-  string url = "http://biblehub.com/interlinear/" + bookname + "/" + filter::strings::convert_to_string (chapter) + "-" + filter::strings::convert_to_string (verse) + ".htm";
+  std::string url = "http://biblehub.com/interlinear/" + bookname + "/" + filter::strings::convert_to_string (chapter) + "-" + filter::strings::convert_to_string (verse) + ".htm";
   
   // Get the html from the server, and tidy it up.
-  string error;
-  string html = resource_logic_web_or_cache_get (url, error);
-  string tidy = filter::strings::html_tidy (html);
-  vector <string> tidied = filter::strings::explode (tidy, '\n');
+  std::string error;
+  std::string html = resource_logic_web_or_cache_get (url, error);
+  std::string tidy = filter::strings::html_tidy (html);
+  std::vector <std::string> tidied = filter::strings::explode (tidy, '\n');
   
-  vector <string> filtered_lines;
+  std::vector <std::string> filtered_lines;
   
   int relevant_line = 0;
   for (auto & line : tidied) {
-    if (line.find ("<div") != string::npos) {
+    if (line.find ("<div") != std::string::npos) {
       relevant_line = 0;
     }
     if (relevant_line) {
       relevant_line++;
     }
     if (relevant_line > 3) {
-      if (line.find ("iframe") == string::npos) {
+      if (line.find ("iframe") == std::string::npos) {
         filtered_lines.push_back (line);
       }
     }
-    if (line.find ("\"vheading\"") != string::npos) {
+    if (line.find ("\"vheading\"") != std::string::npos) {
       relevant_line++;
     }
   }
@@ -691,13 +688,13 @@ string resource_external_get_biblehub_interlinear (int book, int chapter, int ve
   
   // Stylesheet for using web fonts,
   // because installing fonts on some tablets is very hard.
-  string stylesheet =
+  const std::string stylesheet =
   "<style>\n"
   "span[class*='ref'] {\n"
   "display: none;\n"
   "}\n"
   "</style>\n";
-  string output = stylesheet;
+  std::string output = stylesheet;
   // The following line prevents the Hebrew and Greek from floating around
   // the name of the Resource, which would disturb the order of the words in Hebrew.
   output += "<p></p>\n";
@@ -708,17 +705,17 @@ string resource_external_get_biblehub_interlinear (int book, int chapter, int ve
 
 
 // Filters the Scrivener Greek text from biblehub.com.
-string resource_external_get_biblehub_scrivener (int book, int chapter, int verse)
+std::string resource_external_get_biblehub_scrivener (int book, int chapter, int verse)
 {
-  string bookname = resource_external_convert_book_biblehub (book);
+  std::string bookname = resource_external_convert_book_biblehub (book);
   
-  string url = "http://biblehub.com/text/" + bookname + "/" + filter::strings::convert_to_string (chapter) + "-" + filter::strings::convert_to_string (verse) + ".htm";
+  std::string url = "http://biblehub.com/text/" + bookname + "/" + filter::strings::convert_to_string (chapter) + "-" + filter::strings::convert_to_string (verse) + ".htm";
   
   // Get the html from the server, and tidy it up.
-  string error;
-  string html = resource_logic_web_or_cache_get (url, error);
-  string tidy = filter::strings::html_tidy (html);
-  vector <string> tidied = filter::strings::explode (tidy, '\n');
+  std::string error;
+  std::string html = resource_logic_web_or_cache_get (url, error);
+  std::string tidy = filter::strings::html_tidy (html);
+  std::vector <std::string> tidied = filter::strings::explode (tidy, '\n');
 
   html.clear ();
   int hits = 0;
@@ -733,8 +730,8 @@ string resource_external_get_biblehub_scrivener (int book, int chapter, int vers
     <span class="greek">Βίβλος γενέσεως Ἰησοῦ Χριστοῦ, υἱοῦ Δαβὶδ, υἱοῦ Ἀβραάμ.
     </span>
     */
-    if (line.find ("Scrivener") != string::npos) hits = 1;
-    if (hits == 1) if (line.find ("greek") != string::npos) hits = 2;
+    if (line.find ("Scrivener") != std::string::npos) hits = 1;
+    if (hits == 1) if (line.find ("greek") != std::string::npos) hits = 2;
     if ((hits == 2) || (hits == 3)) {
       html.append (line);
       hits++;
@@ -743,7 +740,7 @@ string resource_external_get_biblehub_scrivener (int book, int chapter, int vers
   
   if (html.empty ()) return html;
   
-  string stylesheet =
+  const std::string stylesheet =
   "<style>\n"
   "</style>\n";
   
@@ -752,24 +749,24 @@ string resource_external_get_biblehub_scrivener (int book, int chapter, int vers
 
 
 // This displays the Westminster Leningrad Codex from biblehub.com.
-string resource_external_get_biblehub_westminster (int book, int chapter, int verse)
+std::string resource_external_get_biblehub_westminster (int book, int chapter, int verse)
 {
   // No New Testament in the Westminster Leningrad Codex.
   if (book >= 40) {
-    return "";
+    return std::string();
   }
   
-  string bookname = resource_external_convert_book_biblehub (book);
+  std::string bookname = resource_external_convert_book_biblehub (book);
   
   // Sample URL:
   // http://biblehub.com/text/genesis/1-1.htm
-  string url = "http://biblehub.com/text/" + bookname + "/" + filter::strings::convert_to_string (chapter) + "-" + filter::strings::convert_to_string (verse) + ".htm";
+  std::string url = "http://biblehub.com/text/" + bookname + "/" + filter::strings::convert_to_string (chapter) + "-" + filter::strings::convert_to_string (verse) + ".htm";
   
   // Get the html from the server, and tidy it up.
-  string error;
-  string html = resource_logic_web_or_cache_get (url, error);
-  string tidy = filter::strings::html_tidy (html);
-  vector <string> tidied = filter::strings::explode (tidy, '\n');
+  std::string error;
+  std::string html = resource_logic_web_or_cache_get (url, error);
+  std::string tidy = filter::strings::html_tidy (html);
+  std::vector <std::string> tidied = filter::strings::explode (tidy, '\n');
   
   html.clear ();
   int hits = 0;
@@ -785,11 +782,11 @@ string resource_external_get_biblehub_westminster (int book, int chapter, int ve
      </span>
      <p>
     */
-    if (line.find ("Westminster") != string::npos) hits = 1;
-    if (hits == 1) if (line.find ("class=\"heb\"") != string::npos) hits = 2;
+    if (line.find ("Westminster") != std::string::npos) hits = 1;
+    if (hits == 1) if (line.find ("class=\"heb\"") != std::string::npos) hits = 2;
     if (hits == 2) {
       html.append (line);
-      if (line.find ("</span>") != string::npos) hits = 0;
+      if (line.find ("</span>") != std::string::npos) hits = 0;
     }
   }
   
@@ -801,11 +798,11 @@ string resource_external_get_biblehub_westminster (int book, int chapter, int ve
   
   // Stylesheet for using web fonts,
   // because installing fonts on some tablets is very hard.
-  string stylesheet =
+  const std::string stylesheet =
   "<style>\n"
   "</style>\n";
 
-  string output = stylesheet;
+  std::string output = stylesheet;
   
   // The following line prevents the Hebrew from floating around the name of the Resource,
   // which would disturb the order of the words.
@@ -821,34 +818,34 @@ string resource_external_get_biblehub_westminster (int book, int chapter, int ve
 
 
 // This displays the text and the notes of the NET Bible.
-string resource_external_get_net_bible (int book, int chapter, int verse)
+std::string resource_external_get_net_bible (int book, int chapter, int verse)
 {
-  string bookname = resource_external_convert_book_netbible (book);
+  std::string bookname = resource_external_convert_book_netbible (book);
   
-  string url = bookname + " " + filter::strings::convert_to_string (chapter) + ":" + filter::strings::convert_to_string (verse);
+  std::string url = bookname + " " + filter::strings::convert_to_string (chapter) + ":" + filter::strings::convert_to_string (verse);
   url = filter_url_urlencode (url);
   url.insert (0, "https://net.bible.org/resource/netTexts/");
   
-  string error;
-  string text = resource_logic_web_or_cache_get (url, error);
+  std::string error;
+  std::string text = resource_logic_web_or_cache_get (url, error);
   
   // Due to an error, the result could include PHP.
   // See https://github.com/bibledit/cloud/issues/579.
   // So if the text contains ".php", then there's that error.
-  if (text.find(".php") != string::npos) text.clear();
+  if (text.find(".php") != std::string::npos) text.clear();
   
-  string output = text;
+  std::string output = text;
   
   url = bookname + " " + filter::strings::convert_to_string (chapter) + ":" + filter::strings::convert_to_string (verse);
   url = filter_url_urlencode (url);
   url.insert (0, "https://net.bible.org/resource/netNotes/");
   
-  string notes = resource_logic_web_or_cache_get (url, error);
+  std::string notes = resource_logic_web_or_cache_get (url, error);
   // If notes fail with an error, don't include the note text.
   if (!error.empty ()) notes.clear ();
 
   // It the verse contains no notes, the website returns an unusual message.
-  if (notes.find ("We are currently offline") != string::npos) notes.clear ();
+  if (notes.find ("We are currently offline") != std::string::npos) notes.clear ();
 
   // Deal with the following message:
   // Warning Message
@@ -857,7 +854,7 @@ string resource_external_get_net_bible (int book, int chapter, int verse)
   // Invalid argument supplied for foreach()
   // Loaded in 0.0303 seconds, using 0.59MB of memory. Generated by Kohana v2.3.4.
   // This error contains so much additional code, that the entire Bibledit program gets confused.
-  if (notes.find ("Warning Message") != string::npos) notes.clear ();
+  if (notes.find ("Warning Message") != std::string::npos) notes.clear ();
 
   // The "bibleref" class experiences interference from other resources,
   // so that the reference would become invisible.
@@ -871,15 +868,15 @@ string resource_external_get_net_bible (int book, int chapter, int verse)
 
 
 // Blue Letter Bible.
-string resource_external_get_blue_letter_bible (int book, int chapter, int verse)
+std::string resource_external_get_blue_letter_bible (int book, int chapter, int verse)
 {
   if (verse) {};
   
-  string bookname = resource_external_convert_book_blueletterbible (book);
+  std::string bookname = resource_external_convert_book_blueletterbible (book);
   
-  string output;
+  std::string output;
   
-  string url = "http://www.blueletterbible.org/Bible.cfm?b=" + filter_url_urlencode (bookname) + "&c=$" + filter::strings::convert_to_string (chapter) + "&t=KJV&ss=1";
+  std::string url = "http://www.blueletterbible.org/Bible.cfm?b=" + filter_url_urlencode (bookname) + "&c=$" + filter::strings::convert_to_string (chapter) + "&t=KJV&ss=1";
   
   output += "<a href=\"" + url + "\">KJV</a>";
   
@@ -900,10 +897,10 @@ string resource_external_get_blue_letter_bible (int book, int chapter, int verse
 
 
 // This displays the text of the Elberfelder Bibel.
-string resource_external_get_elberfelder_bibel (int book, int chapter, int verse)
+std::string resource_external_get_elberfelder_bibel (int book, int chapter, int verse)
 {
   // The directory on bibleserver.com
-  string directory = "ELB";
+  std::string directory = "ELB";
   return bibleserver_processor (directory, book, chapter, verse);
 }
 
@@ -916,9 +913,9 @@ unsigned int resource_external_count ()
 
 
 // Gets the names of all the known Web resources.
-vector <string> resource_external_names ()
+std::vector <std::string> resource_external_names ()
 {
-  vector <string> names;
+  std::vector <std::string> names;
   for (unsigned int i = 0; i < resource_external_count (); i++) {
     names.push_back (resource_table [i].name);
   }
@@ -928,9 +925,9 @@ vector <string> resource_external_names ()
 
 
 // Get the names of the Web resources which are original language resources.
-vector <string> resource_external_get_original_language_resources ()
+std::vector <std::string> resource_external_get_original_language_resources ()
 {
-  vector <string> names;
+  std::vector <std::string> names;
   for (unsigned int i = 0; i < resource_external_count (); i++) {
     if (strcmp (resource_table [i].type, ORIGINAL) == 0) {
       names.push_back (resource_table [i].name);
@@ -942,9 +939,9 @@ vector <string> resource_external_get_original_language_resources ()
 
 
 // Get the names of the Web resources which are Bibles and notes.
-vector <string> resource_external_get_bibles ()
+std::vector <std::string> resource_external_get_bibles ()
 {
-  vector <string> names;
+  std::vector <std::string> names;
   for (unsigned int i = 0; i < resource_external_count (); i++) {
     if (strcmp (resource_table [i].type, BIBLE) == 0) {
       names.push_back (resource_table [i].name);
@@ -956,11 +953,11 @@ vector <string> resource_external_get_bibles ()
 
 
 // Returns the versification for the resource.
-string resource_external_versification (string name)
+std::string resource_external_versification (std::string name)
 {
-  string versification = filter::strings::english ();
+  std::string versification = filter::strings::english ();
   for (unsigned int i = 0; i < resource_external_count (); i++) {
-    string resource = resource_table [i].name;
+    std::string resource = resource_table [i].name;
     if (name == resource) {
       versification = resource_table [i].versification;
     }
@@ -970,11 +967,11 @@ string resource_external_versification (string name)
 
 
 // Returns the versification for the resource.
-string resource_external_mapping (string name)
+std::string resource_external_mapping (std::string name)
 {
-  string versification = filter::strings::english ();
+  std::string versification = filter::strings::english ();
   for (unsigned int i = 0; i < resource_external_count (); i++) {
-    string resource = resource_table [i].name;
+    std::string resource = resource_table [i].name;
     if (name == resource) {
       versification = resource_table [i].mapping;
     }
@@ -984,11 +981,11 @@ string resource_external_mapping (string name)
 
 
 // Returns what type the Web resource $name is.
-string resource_external_type (string name)
+std::string resource_external_type (std::string name)
 {
-  string type = UNKNOWN;
+  std::string type = UNKNOWN;
   for (unsigned int i = 0; i < resource_external_count (); i++) {
-    string resource = resource_table [i].name;
+    std::string resource = resource_table [i].name;
     if (name == resource) {
       type = resource_table [i].type;
     }
@@ -1002,321 +999,321 @@ string resource_external_type (string name)
 // It fetches data either from the cache or from the web via http(s),
 // while optionally updating the cache with the raw web page content.
 // It extracts the relevant snipped from the larger http(s) content.
-string resource_external_cloud_fetch_cache_extract (const string & name, int book, int chapter, int verse)
+std::string resource_external_cloud_fetch_cache_extract (const std::string& name, int book, int chapter, int verse)
 {
-  string (* function_name) (int, int, int) {nullptr};
+  std::string (* function_name) (int, int, int) {nullptr};
 
   for (unsigned int i {0}; i < resource_external_count (); i++) {
-    string resource {resource_table [i].name};
+    std::string resource {resource_table [i].name};
     if (name == resource) {
       function_name = resource_table [i].func;
     }
   }
   
-  if (function_name == nullptr) return string();
+  if (function_name == nullptr) return std::string();
 
-  string result = function_name (book, chapter, verse);
+  std::string result = function_name (book, chapter, verse);
   
   return result;
 }
 
 
-string resource_external_convert_book_biblehub (int book)
+std::string resource_external_convert_book_biblehub (int book)
 {
   // Map Bibledit books to biblehub.com books.
-  map <int, string> mapping = {
-    pair (1, "genesis"),
-    pair (2, "exodus"),
-    pair (3, "leviticus"),
-    pair (4, "numbers"),
-    pair (5, "deuteronomy"),
-    pair (6, "joshua"),
-    pair (7, "judges"),
-    pair (8, "ruth"),
-    pair (9, "1_samuel"),
-    pair (10, "2_samuel"),
-    pair (11, "1_kings"),
-    pair (12, "2_kings"),
-    pair (13, "1_chronicles"),
-    pair (14, "2_chronicles"),
-    pair (15, "ezra"),
-    pair (16, "nehemiah"),
-    pair (17, "esther"),
-    pair (18, "job"),
-    pair (19, "psalms"),
-    pair (20, "proverbs"),
-    pair (21, "ecclesiastes"),
-    pair (22, "songs"),
-    pair (23, "isaiah"),
-    pair (24, "jeremiah"),
-    pair (25, "lamentations"),
-    pair (26, "ezekiel"),
-    pair (27, "daniel"),
-    pair (28, "hosea"),
-    pair (29, "joel"),
-    pair (30, "amos"),
-    pair (31, "obadiah"),
-    pair (32, "jonah"),
-    pair (33, "micah"),
-    pair (34, "nahum"),
-    pair (35, "habakkuk"),
-    pair (36, "zephaniah"),
-    pair (37, "haggai"),
-    pair (38, "zechariah"),
-    pair (39, "malachi"),
-    pair (40, "matthew"),
-    pair (41, "mark"),
-    pair (42, "luke"),
-    pair (43, "john"),
-    pair (44, "acts"),
-    pair (45, "romans"),
-    pair (46, "1_corinthians"),
-    pair (47, "2_corinthians"),
-    pair (48, "galatians"),
-    pair (49, "ephesians"),
-    pair (50, "philippians"),
-    pair (51, "colossians"),
-    pair (52, "1_thessalonians"),
-    pair (53, "2_thessalonians"),
-    pair (54, "1_timothy"),
-    pair (55, "2_timothy"),
-    pair (56, "titus"),
-    pair (57, "philemon"),
-    pair (58, "hebrews"),
-    pair (59, "james"),
-    pair (60, "1_peter"),
-    pair (61, "2_peter"),
-    pair (62, "1_john"),
-    pair (63, "2_john"),
-    pair (64, "3_john"),
-    pair (65, "jude"),
-    pair (66, "revelation")
+  std::map <int, std::string> mapping = {
+    std::pair (1, "genesis"),
+    std::pair (2, "exodus"),
+    std::pair (3, "leviticus"),
+    std::pair (4, "numbers"),
+    std::pair (5, "deuteronomy"),
+    std::pair (6, "joshua"),
+    std::pair (7, "judges"),
+    std::pair (8, "ruth"),
+    std::pair (9, "1_samuel"),
+    std::pair (10, "2_samuel"),
+    std::pair (11, "1_kings"),
+    std::pair (12, "2_kings"),
+    std::pair (13, "1_chronicles"),
+    std::pair (14, "2_chronicles"),
+    std::pair (15, "ezra"),
+    std::pair (16, "nehemiah"),
+    std::pair (17, "esther"),
+    std::pair (18, "job"),
+    std::pair (19, "psalms"),
+    std::pair (20, "proverbs"),
+    std::pair (21, "ecclesiastes"),
+    std::pair (22, "songs"),
+    std::pair (23, "isaiah"),
+    std::pair (24, "jeremiah"),
+    std::pair (25, "lamentations"),
+    std::pair (26, "ezekiel"),
+    std::pair (27, "daniel"),
+    std::pair (28, "hosea"),
+    std::pair (29, "joel"),
+    std::pair (30, "amos"),
+    std::pair (31, "obadiah"),
+    std::pair (32, "jonah"),
+    std::pair (33, "micah"),
+    std::pair (34, "nahum"),
+    std::pair (35, "habakkuk"),
+    std::pair (36, "zephaniah"),
+    std::pair (37, "haggai"),
+    std::pair (38, "zechariah"),
+    std::pair (39, "malachi"),
+    std::pair (40, "matthew"),
+    std::pair (41, "mark"),
+    std::pair (42, "luke"),
+    std::pair (43, "john"),
+    std::pair (44, "acts"),
+    std::pair (45, "romans"),
+    std::pair (46, "1_corinthians"),
+    std::pair (47, "2_corinthians"),
+    std::pair (48, "galatians"),
+    std::pair (49, "ephesians"),
+    std::pair (50, "philippians"),
+    std::pair (51, "colossians"),
+    std::pair (52, "1_thessalonians"),
+    std::pair (53, "2_thessalonians"),
+    std::pair (54, "1_timothy"),
+    std::pair (55, "2_timothy"),
+    std::pair (56, "titus"),
+    std::pair (57, "philemon"),
+    std::pair (58, "hebrews"),
+    std::pair (59, "james"),
+    std::pair (60, "1_peter"),
+    std::pair (61, "2_peter"),
+    std::pair (62, "1_john"),
+    std::pair (63, "2_john"),
+    std::pair (64, "3_john"),
+    std::pair (65, "jude"),
+    std::pair (66, "revelation")
   };
   return mapping [book];
 }
 
 
-string resource_external_convert_book_netbible (int book)
+std::string resource_external_convert_book_netbible (int book)
 {
   // Map Bibledit books to net.bible.com books as used at the web service.
-  map <int, string> mapping = {
-    pair (1, "Genesis"),
-    pair (2, "Exodus"),
-    pair (3, "Leviticus"),
-    pair (4, "Numbers"),
-    pair (5, "Deuteronomy"),
-    pair (6, "Joshua"),
-    pair (7, "Judges"),
-    pair (8, "Ruth"),
-    pair (9, "1 Samuel"),
-    pair (10, "2 Samuel"),
-    pair (11, "1 Kings"),
-    pair (12, "2 Kings"),
-    pair (13, "1 Chronicles"),
-    pair (14, "2 Chronicles"),
-    pair (15, "Ezra"),
-    pair (16, "Nehemiah"),
-    pair (17, "Esther"),
-    pair (18, "Job"),
-    pair (19, "Psalms"),
-    pair (20, "Proverbs"),
-    pair (21, "Ecclesiastes"),
-    pair (22, "Song of Solomon"),
-    pair (23, "Isaiah"),
-    pair (24, "Jeremiah"),
-    pair (25, "Lamentations"),
-    pair (26, "Ezekiel"),
-    pair (27, "Daniel"),
-    pair (28, "Hosea"),
-    pair (29, "Joel"),
-    pair (30, "Amos"),
-    pair (31, "Obadiah"),
-    pair (32, "Jonah"),
-    pair (33, "Micah"),
-    pair (34, "Nahum"),
-    pair (35, "Habakkuk"),
-    pair (36, "Zephaniah"),
-    pair (37, "Haggai"),
-    pair (38, "Zechariah"),
-    pair (39, "Malachi"),
-    pair (40, "Matthew"),
-    pair (41, "Mark"),
-    pair (42, "Luke"),
-    pair (43, "John"),
-    pair (44, "Acts"),
-    pair (45, "Romans"),
-    pair (46, "1 Corinthians"),
-    pair (47, "2 Corinthians"),
-    pair (48, "Galatians"),
-    pair (49, "Ephesians"),
-    pair (50, "Philippians"),
-    pair (51, "Colossians"),
-    pair (52, "1 Thessalonians"),
-    pair (53, "2 Thessalonians"),
-    pair (54, "1 Timothy"),
-    pair (55, "2 Timothy"),
-    pair (56, "Titus"),
-    pair (57, "Philemon"),
-    pair (58, "Hebrews"),
-    pair (59, "James"),
-    pair (60, "1 Peter"),
-    pair (61, "2 Peter"),
-    pair (62, "1 John"),
-    pair (63, "2 John"),
-    pair (64, "3 John"),
-    pair (65, "Jude"),
-    pair (66, "Revelation")
+  std::map <int, std::string> mapping = {
+    std::pair (1, "Genesis"),
+    std::pair (2, "Exodus"),
+    std::pair (3, "Leviticus"),
+    std::pair (4, "Numbers"),
+    std::pair (5, "Deuteronomy"),
+    std::pair (6, "Joshua"),
+    std::pair (7, "Judges"),
+    std::pair (8, "Ruth"),
+    std::pair (9, "1 Samuel"),
+    std::pair (10, "2 Samuel"),
+    std::pair (11, "1 Kings"),
+    std::pair (12, "2 Kings"),
+    std::pair (13, "1 Chronicles"),
+    std::pair (14, "2 Chronicles"),
+    std::pair (15, "Ezra"),
+    std::pair (16, "Nehemiah"),
+    std::pair (17, "Esther"),
+    std::pair (18, "Job"),
+    std::pair (19, "Psalms"),
+    std::pair (20, "Proverbs"),
+    std::pair (21, "Ecclesiastes"),
+    std::pair (22, "Song of Solomon"),
+    std::pair (23, "Isaiah"),
+    std::pair (24, "Jeremiah"),
+    std::pair (25, "Lamentations"),
+    std::pair (26, "Ezekiel"),
+    std::pair (27, "Daniel"),
+    std::pair (28, "Hosea"),
+    std::pair (29, "Joel"),
+    std::pair (30, "Amos"),
+    std::pair (31, "Obadiah"),
+    std::pair (32, "Jonah"),
+    std::pair (33, "Micah"),
+    std::pair (34, "Nahum"),
+    std::pair (35, "Habakkuk"),
+    std::pair (36, "Zephaniah"),
+    std::pair (37, "Haggai"),
+    std::pair (38, "Zechariah"),
+    std::pair (39, "Malachi"),
+    std::pair (40, "Matthew"),
+    std::pair (41, "Mark"),
+    std::pair (42, "Luke"),
+    std::pair (43, "John"),
+    std::pair (44, "Acts"),
+    std::pair (45, "Romans"),
+    std::pair (46, "1 Corinthians"),
+    std::pair (47, "2 Corinthians"),
+    std::pair (48, "Galatians"),
+    std::pair (49, "Ephesians"),
+    std::pair (50, "Philippians"),
+    std::pair (51, "Colossians"),
+    std::pair (52, "1 Thessalonians"),
+    std::pair (53, "2 Thessalonians"),
+    std::pair (54, "1 Timothy"),
+    std::pair (55, "2 Timothy"),
+    std::pair (56, "Titus"),
+    std::pair (57, "Philemon"),
+    std::pair (58, "Hebrews"),
+    std::pair (59, "James"),
+    std::pair (60, "1 Peter"),
+    std::pair (61, "2 Peter"),
+    std::pair (62, "1 John"),
+    std::pair (63, "2 John"),
+    std::pair (64, "3 John"),
+    std::pair (65, "Jude"),
+    std::pair (66, "Revelation")
   };
   return mapping [book];
 }
 
 
-string resource_external_convert_book_blueletterbible (int book)
+std::string resource_external_convert_book_blueletterbible (int book)
 {
   // This array maps the the book identifiers from Bibledit
   // to the book names as used by the blueletterbible.org web service.
-  map <int, string> mapping = {
-    pair (1, "Gen"),
-    pair (2, "Exd"),
-    pair (3, "Lev"),
-    pair (4, "Num"),
-    pair (5, "Deu"),
-    pair (6, "Jos"),
-    pair (7, "Jdg"),
-    pair (8, "Rth"),
-    pair (9, "1Sa"),
-    pair (10, "2Sa"),
-    pair (11, "1Ki"),
-    pair (12, "2Ki"),
-    pair (13, "1Ch"),
-    pair (14, "2Ch"),
-    pair (15, "Ezr"),
-    pair (16, "Neh"),
-    pair (17, "Est"),
-    pair (18, "Job"),
-    pair (19, "Psa"),
-    pair (20, "Pro"),
-    pair (21, "Ecc"),
-    pair (22, "Sgs"),
-    pair (23, "Isa"),
-    pair (24, "Jer"),
-    pair (25, "Lam"),
-    pair (26, "Eze"),
-    pair (27, "Dan"),
-    pair (28, "Hsa"),
-    pair (29, "Joe"),
-    pair (30, "Amo"),
-    pair (31, "Oba"),
-    pair (32, "Jon"),
-    pair (33, "Mic"),
-    pair (34, "Nah"),
-    pair (35, "Hab"),
-    pair (36, "Zep"),
-    pair (37, "Hag"),
-    pair (38, "Zec"),
-    pair (39, "Mal"),
-    pair (40, "Mat"),
-    pair (41, "Mar"),
-    pair (42, "Luk"),
-    pair (43, "Jhn"),
-    pair (44, "Act"),
-    pair (45, "Rom"),
-    pair (46, "1Cr"),
-    pair (47, "2Cr"),
-    pair (48, "Gal"),
-    pair (49, "Eph"),
-    pair (50, "Phl"),
-    pair (51, "Col"),
-    pair (52, "1Th"),
-    pair (53, "2Th"),
-    pair (54, "1Ti"),
-    pair (55, "2Ti"),
-    pair (56, "Tts"),
-    pair (57, "Phm"),
-    pair (58, "Hbr"),
-    pair (59, "Jam"),
-    pair (60, "1Pe"),
-    pair (61, "2Pe"),
-    pair (62, "1Jo"),
-    pair (63, "2Jo"),
-    pair (64, "3Jo"),
-    pair (65, "Jud"),
-    pair (66, "Rev")
+  std::map <int, std::string> mapping = {
+    std::pair (1, "Gen"),
+    std::pair (2, "Exd"),
+    std::pair (3, "Lev"),
+    std::pair (4, "Num"),
+    std::pair (5, "Deu"),
+    std::pair (6, "Jos"),
+    std::pair (7, "Jdg"),
+    std::pair (8, "Rth"),
+    std::pair (9, "1Sa"),
+    std::pair (10, "2Sa"),
+    std::pair (11, "1Ki"),
+    std::pair (12, "2Ki"),
+    std::pair (13, "1Ch"),
+    std::pair (14, "2Ch"),
+    std::pair (15, "Ezr"),
+    std::pair (16, "Neh"),
+    std::pair (17, "Est"),
+    std::pair (18, "Job"),
+    std::pair (19, "Psa"),
+    std::pair (20, "Pro"),
+    std::pair (21, "Ecc"),
+    std::pair (22, "Sgs"),
+    std::pair (23, "Isa"),
+    std::pair (24, "Jer"),
+    std::pair (25, "Lam"),
+    std::pair (26, "Eze"),
+    std::pair (27, "Dan"),
+    std::pair (28, "Hsa"),
+    std::pair (29, "Joe"),
+    std::pair (30, "Amo"),
+    std::pair (31, "Oba"),
+    std::pair (32, "Jon"),
+    std::pair (33, "Mic"),
+    std::pair (34, "Nah"),
+    std::pair (35, "Hab"),
+    std::pair (36, "Zep"),
+    std::pair (37, "Hag"),
+    std::pair (38, "Zec"),
+    std::pair (39, "Mal"),
+    std::pair (40, "Mat"),
+    std::pair (41, "Mar"),
+    std::pair (42, "Luk"),
+    std::pair (43, "Jhn"),
+    std::pair (44, "Act"),
+    std::pair (45, "Rom"),
+    std::pair (46, "1Cr"),
+    std::pair (47, "2Cr"),
+    std::pair (48, "Gal"),
+    std::pair (49, "Eph"),
+    std::pair (50, "Phl"),
+    std::pair (51, "Col"),
+    std::pair (52, "1Th"),
+    std::pair (53, "2Th"),
+    std::pair (54, "1Ti"),
+    std::pair (55, "2Ti"),
+    std::pair (56, "Tts"),
+    std::pair (57, "Phm"),
+    std::pair (58, "Hbr"),
+    std::pair (59, "Jam"),
+    std::pair (60, "1Pe"),
+    std::pair (61, "2Pe"),
+    std::pair (62, "1Jo"),
+    std::pair (63, "2Jo"),
+    std::pair (64, "3Jo"),
+    std::pair (65, "Jud"),
+    std::pair (66, "Rev")
   };
   return mapping [book];
 }
 
 
-string resource_external_convert_book_bibleserver (int book)
+std::string resource_external_convert_book_bibleserver (int book)
 {
   // On bibleserver.com, Genesis is "1.Mose", Exodus is "2.Mose", and so on.
-  map <int, string> mapping = {
-    pair (1, "1.Mose"),
-    pair (2, "2.Mose"),
-    pair (3, "3.Mose"),
-    pair (4, "4.Mose"),
-    pair (5, "5.Mose"),
-    pair (6, "Josua"),
-    pair (7, "Richter"),
-    pair (8, "Rut"),
-    pair (9, "1.Samuel"),
-    pair (10, "2.Samuel"),
-    pair (11, "1.Könige"),
-    pair (12, "2.Könige"),
-    pair (13, "1.Chronik"),
-    pair (14, "2.Chronik"),
-    pair (15, "Esra"),
-    pair (16, "Nehemia"),
-    pair (17, "Esther"),
-    pair (18, "Hiob"),
-    pair (19, "Psalm"),
-    pair (20, "Sprüche"),
-    pair (21, "Prediger"),
-    pair (22, "Hoheslied"),
-    pair (23, "Jesaja"),
-    pair (24, "Jeremia"),
-    pair (25, "Klagelieder"),
-    pair (26, "Hesekiel"),
-    pair (27, "Daniel"),
-    pair (28, "Hosea"),
-    pair (29, "Joel"),
-    pair (30, "Amos"),
-    pair (31, "Obadja"),
-    pair (32, "Jona"),
-    pair (33, "Micha"),
-    pair (34, "Nahum"),
-    pair (35, "Habakuk"),
-    pair (36, "Zefanja"),
-    pair (37, "Haggai"),
-    pair (38, "Sacharja"),
-    pair (39, "Maleachi"),
-    pair (40, "Matthäus"),
-    pair (41, "Markus"),
-    pair (42, "Lukas"),
-    pair (43, "Johannes"),
-    pair (44, "Apostelgeschichte"),
-    pair (45, "Römer"),
-    pair (46, "1.Korinther"),
-    pair (47, "2.Korinther"),
-    pair (48, "Galater"),
-    pair (49, "Epheser"),
-    pair (50, "Philipper"),
-    pair (51, "Kolosser"),
-    pair (52, "1.Thessalonicher"),
-    pair (53, "2.Thessalonicher"),
-    pair (54, "1.Timotheus"),
-    pair (55, "2.Timotheus"),
-    pair (56, "Titus"),
-    pair (57, "Philemon"),
-    pair (58, "Hebräer"),
-    pair (59, "Jakobus"),
-    pair (60, "1.Petrus"),
-    pair (61, "2.Petrus"),
-    pair (62, "1.Johannes"),
-    pair (63, "2.Johannes"),
-    pair (64, "3.Johannes"),
-    pair (65, "Judas"),
-    pair (66, "Offenbarung")
+  std::map <int, std::string> mapping = {
+    std::pair (1, "1.Mose"),
+    std::pair (2, "2.Mose"),
+    std::pair (3, "3.Mose"),
+    std::pair (4, "4.Mose"),
+    std::pair (5, "5.Mose"),
+    std::pair (6, "Josua"),
+    std::pair (7, "Richter"),
+    std::pair (8, "Rut"),
+    std::pair (9, "1.Samuel"),
+    std::pair (10, "2.Samuel"),
+    std::pair (11, "1.Könige"),
+    std::pair (12, "2.Könige"),
+    std::pair (13, "1.Chronik"),
+    std::pair (14, "2.Chronik"),
+    std::pair (15, "Esra"),
+    std::pair (16, "Nehemia"),
+    std::pair (17, "Esther"),
+    std::pair (18, "Hiob"),
+    std::pair (19, "Psalm"),
+    std::pair (20, "Sprüche"),
+    std::pair (21, "Prediger"),
+    std::pair (22, "Hoheslied"),
+    std::pair (23, "Jesaja"),
+    std::pair (24, "Jeremia"),
+    std::pair (25, "Klagelieder"),
+    std::pair (26, "Hesekiel"),
+    std::pair (27, "Daniel"),
+    std::pair (28, "Hosea"),
+    std::pair (29, "Joel"),
+    std::pair (30, "Amos"),
+    std::pair (31, "Obadja"),
+    std::pair (32, "Jona"),
+    std::pair (33, "Micha"),
+    std::pair (34, "Nahum"),
+    std::pair (35, "Habakuk"),
+    std::pair (36, "Zefanja"),
+    std::pair (37, "Haggai"),
+    std::pair (38, "Sacharja"),
+    std::pair (39, "Maleachi"),
+    std::pair (40, "Matthäus"),
+    std::pair (41, "Markus"),
+    std::pair (42, "Lukas"),
+    std::pair (43, "Johannes"),
+    std::pair (44, "Apostelgeschichte"),
+    std::pair (45, "Römer"),
+    std::pair (46, "1.Korinther"),
+    std::pair (47, "2.Korinther"),
+    std::pair (48, "Galater"),
+    std::pair (49, "Epheser"),
+    std::pair (50, "Philipper"),
+    std::pair (51, "Kolosser"),
+    std::pair (52, "1.Thessalonicher"),
+    std::pair (53, "2.Thessalonicher"),
+    std::pair (54, "1.Timotheus"),
+    std::pair (55, "2.Timotheus"),
+    std::pair (56, "Titus"),
+    std::pair (57, "Philemon"),
+    std::pair (58, "Hebräer"),
+    std::pair (59, "Jakobus"),
+    std::pair (60, "1.Petrus"),
+    std::pair (61, "2.Petrus"),
+    std::pair (62, "1.Johannes"),
+    std::pair (63, "2.Johannes"),
+    std::pair (64, "3.Johannes"),
+    std::pair (65, "Judas"),
+    std::pair (66, "Offenbarung")
   };
   return mapping [book];
 }

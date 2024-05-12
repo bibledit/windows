@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,30 +24,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/sqlite.h>
 #include <webserver/request.h>
 #include <database/logic.h>
-using namespace std;
 
 
 // Database resilience: Stored in plain file system.
 
 
-Database_Ipc::Database_Ipc (void * webserver_request_in)
+Database_Ipc::Database_Ipc (Webserver_Request& webserver_request):
+m_webserver_request (webserver_request)
 {
-  webserver_request = webserver_request_in;
 }
 
 
 void Database_Ipc::trim ()
 {
-  vector <Database_Ipc_Item> data = readData ();
+  std::vector <Database_Ipc_Item> data = readData ();
   for (auto & record : data) {
     if (record.user == "") {
       deleteMessage (record.rowid);
     }
   }
   int now = filter::date::seconds_since_epoch ();
-  vector <string> files = filter_url_scandir (folder ());
-  for (string item : files) {
-    string path = file(item);
+  std::vector <std::string> files = filter_url_scandir (folder ());
+  for (std::string item : files) {
+    std::string path = file(item);
     int time = filter_url_file_modification_time (path);
     int age_seconds = now - time;
     if (age_seconds > 3600) {
@@ -57,13 +56,13 @@ void Database_Ipc::trim ()
 }
 
 
-void Database_Ipc::storeMessage (string user, string channel, string command, string message)
+void Database_Ipc::storeMessage (std::string user, std::string channel, std::string command, std::string message)
 {
   // Load entire database into memory.
-  vector <Database_Ipc_Item> data = readData ();
+  std::vector <Database_Ipc_Item> data = readData ();
 
   // Gather information about records to delete.
-  vector <int> deletes;
+  std::vector <int> deletes;
   if (channel == "") {
     for (auto & record : data) {
       if ((record.user == user) && (record.channel == channel) && (record.command == command)) {
@@ -88,25 +87,25 @@ void Database_Ipc::storeMessage (string user, string channel, string command, st
 // Returns an object with the data.
 // The rowid is 0 if there was nothing,
 // Else the object's properties are set properly.
-Database_Ipc_Message Database_Ipc::retrieveMessage (int id, string user, string channel, string command)
+Database_Ipc_Message Database_Ipc::retrieveMessage (int id, std::string user, std::string channel, std::string command)
 {
   int highestId = 0;
-  string hitChannel = "";
-  string hitCommand = "";
-  string hitMessage = "";
-  vector <Database_Ipc_Item> data = readData ();
+  std::string hitChannel = "";
+  std::string hitCommand = "";
+  std::string hitMessage = "";
+  std::vector <Database_Ipc_Item> data = readData ();
   for (auto & record : data) {
     // Selection condition 1: The database record has a message identifier younger than the calling identifier.
     int recordid = record.rowid;
     if (recordid > id) {
       // Selection condition 2: Channel matches calling channel, or empty channel.
-      string recordchannel = record.channel;
+      std::string recordchannel = record.channel;
       if ((recordchannel == channel) || (recordchannel == "")) {
         // Selection condition 3: Record user matches calling user, or empty user.
-        string recorduser = record.user;
+        std::string recorduser = record.user;
         if ((recorduser == user) || (recorduser == "")) {
           // Selection condition 4: Matching command.
-          string recordcommand = record.command;
+          std::string recordcommand = record.command;
           if (recordcommand == command) {
             if (recordid > highestId) {
               highestId = recordid;
@@ -132,7 +131,7 @@ Database_Ipc_Message Database_Ipc::retrieveMessage (int id, string user, string 
 
 void Database_Ipc::deleteMessage (int id)
 {
-  vector <Database_Ipc_Item> data = readData ();
+  std::vector <Database_Ipc_Item> data = readData ();
   for (auto & record : data) {
     if (record.rowid == id) {
       filter_url_unlink (file (record.file));
@@ -141,14 +140,13 @@ void Database_Ipc::deleteMessage (int id)
 }
 
 
-string Database_Ipc::getFocus ()
+std::string Database_Ipc::getFocus ()
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  string user = request->session_logic ()->currentUser ();
+  std::string user = m_webserver_request.session_logic ()->currentUser ();
 
   int highestId = 0;
-  string hitMessage = "";
-  vector <Database_Ipc_Item> data = readData ();
+  std::string hitMessage = "";
+  std::vector <Database_Ipc_Item> data = readData ();
   for (auto & record : data) {
     int recordid = record.rowid;
     // Conditions: Command is "focus", and matching user.
@@ -171,13 +169,12 @@ string Database_Ipc::getFocus ()
 
 Database_Ipc_Message Database_Ipc::getNote ()
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  string user = request->session_logic ()->currentUser ();
+  std::string user = m_webserver_request.session_logic ()->currentUser ();
 
   int highestId = 0;
-  string hitMessage = "";
+  std::string hitMessage = "";
 
-  vector <Database_Ipc_Item> data = readData ();
+  std::vector <Database_Ipc_Item> data = readData ();
   for (auto & record : data) {
     int recordid = record.rowid;
     // Conditions: Command is "opennote", and matching user.
@@ -203,13 +200,12 @@ Database_Ipc_Message Database_Ipc::getNote ()
 
 bool Database_Ipc::getNotesAlive ()
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  string user = request->session_logic ()->currentUser ();
+  std::string user = m_webserver_request.session_logic ()->currentUser ();
 
   int highestId = 0;
-  string hitMessage = "";
+  std::string hitMessage = "";
 
-  vector <Database_Ipc_Item> data = readData ();
+  std::vector <Database_Ipc_Item> data = readData ();
   for (auto & record : data) {
     int recordid = record.rowid;
     // Conditions: Command is "notesalive", and matching user.
@@ -229,13 +225,13 @@ bool Database_Ipc::getNotesAlive ()
 }
 
 
-string Database_Ipc::folder ()
+std::string Database_Ipc::folder ()
 {
   return filter_url_create_root_path ({database_logic_databases (), "ipc"});
 }
 
 
-string Database_Ipc::file (string file)
+std::string Database_Ipc::file (std::string file)
 {
   return filter_url_create_path ({folder (), file});
 }
@@ -246,12 +242,12 @@ string Database_Ipc::file (string file)
 // The fields are those that can be obtained from the name of the files.
 // One file is one entry in the database.
 // The filename looks like this: rowid__user__channel__command
-vector <Database_Ipc_Item> Database_Ipc::readData ()
+std::vector <Database_Ipc_Item> Database_Ipc::readData ()
 {
-  vector <Database_Ipc_Item> data;
-  vector <string> files = filter_url_scandir (folder ());
-  for (string file : files) {
-    vector <string> explosion = filter::strings::explode (file, '_');
+  std::vector <Database_Ipc_Item> data;
+  std::vector <std::string> files = filter_url_scandir (folder ());
+  for (std::string file : files) {
+    std::vector <std::string> explosion = filter::strings::explode (file, '_');
     if (explosion.size () == 7) {
       Database_Ipc_Item item = Database_Ipc_Item ();
       item.file = file;
@@ -266,16 +262,16 @@ vector <Database_Ipc_Item> Database_Ipc::readData ()
 }
   
 
-void Database_Ipc::writeRecord (int rowid, string user, string channel, string command, string message)
+void Database_Ipc::writeRecord (int rowid, std::string user, std::string channel, std::string command, std::string message)
 {
-  string filename = filter::strings::convert_to_string (rowid) + "__" + user + "__" +  channel + "__" + command;
+  std::string filename = filter::strings::convert_to_string (rowid) + "__" + user + "__" +  channel + "__" + command;
   filename = file (filename);
   filter_url_file_put_contents (filename, message);
 }
 
 
 // Returns the next available row identifier.
-int Database_Ipc::getNextId (const vector <Database_Ipc_Item> & data)
+int Database_Ipc::getNextId (const std::vector <Database_Ipc_Item> & data)
 {
   int id = 0;
   for (auto & record : data) {

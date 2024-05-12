@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -26,34 +26,32 @@
 #include <database/config/general.h>
 #include <search/logic.h>
 #include <access/bible.h>
-using namespace std;
 
 
-string search_getids_url ()
+std::string search_getids_url ()
 {
   return "search/getids";
 }
 
 
-bool search_getids_acl (void * webserver_request)
+bool search_getids_acl (Webserver_Request& webserver_request)
 {
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
+  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ()))
+    return true;
   auto [ read, write ] = access_bible::any (webserver_request);
   return write;
 }
 
 
-string search_getids (void * webserver_request)
+std::string search_getids (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
   // Get search variables from the query.
-  string bible = request->query ["b"];
-  string searchfor = request->query ["q"];
-  bool casesensitive = (request->query ["c"] == "true");
+  std::string bible = webserver_request.query ["b"];
+  std::string searchfor = webserver_request.query ["q"];
+  bool casesensitive = (webserver_request.query ["c"] == "true");
 
   // Do the search.
-  vector <Passage> passages;
+  std::vector <Passage> passages;
   if (casesensitive) {
     passages = search_logic_search_bible_text_case_sensitive (bible, searchfor);
   } else {
@@ -61,8 +59,8 @@ string search_getids (void * webserver_request)
   }
 
   // Output identifiers of the search results.
-  string output;
-  for (auto & passage : passages) {
+  std::string output;
+  for (const auto& passage : passages) {
     if (!output.empty ()) output.append ("\n");
     output.append (passage.encode ());
   }

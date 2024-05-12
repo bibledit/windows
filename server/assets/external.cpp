@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,31 +20,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <assets/external.h>
 #include <config/globals.h>
 #include <webserver/request.h>
-using namespace std;
 
 
-string assets_external_url ()
+std::string assets_external_url ()
 {
   return "assets/external";
 }
 
 
-string assets_external (void * webserver_request)
+std::string assets_external (Webserver_Request& webserver_request)
 {
-  // The request from the client.
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
   // Whether a URL was POSTed, that is, whether it was clicked by the user.
-  string href = request->post ["href"];
+  std::string href = webserver_request.post ["href"];
   if (!href.empty ()) {
-    config_globals_external_url = request->post ["href"];
-    return string();
+    config_globals_external_url = webserver_request.post ["href"];
+    return std::string();
   }
 
   // Wait for some time till a URL is available.
   int timer {100};
   while (timer) {
-    this_thread::sleep_for (chrono::milliseconds (100));
+    std::this_thread::sleep_for (std::chrono::milliseconds (100));
     timer--;
     if (!config_globals_external_url.empty ()) {
       href = config_globals_external_url;
@@ -58,7 +54,7 @@ string assets_external (void * webserver_request)
 }
 
 
-string assets_external_logic_link_addon ()
+std::string assets_external_logic_link_addon ()
 {
   // Open an external link in an external browser on most clients.
   // Open an external link in a new tab in some situations.
@@ -66,7 +62,7 @@ string assets_external_logic_link_addon ()
 #ifdef HAVE_CLOUD
   newtab = true;
 #endif
-  string addon {};
+  std::string addon {};
   if (newtab) addon = R"(target="_blank")";
   else addon = R"(class="external")";
   // Done.

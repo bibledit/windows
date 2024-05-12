@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <filter/string.h>
 #include <database/sqlite.h>
-using namespace std;
 
 
 // This is the database for the Strong's definitions.
@@ -30,7 +29,7 @@ using namespace std;
 
 
 // Get Strong's definition for the $strong's number.
-string Database_Strong::definition (string strong)
+std::string Database_Strong::definition (std::string strong)
 {
   sqlite3 * db;
   {
@@ -40,18 +39,18 @@ string Database_Strong::definition (string strong)
     sql.add (strong);
     sql.add (";");
     db = connect ();
-    vector <string> definitions = database_sqlite_query (db, sql.sql) ["definition"];
+    std::vector <std::string> definitions = database_sqlite_query (db, sql.sql) ["definition"];
     database_sqlite_disconnect (db);
     if (!definitions.empty ()) return definitions[0];
   }
   // Nothing found.
-  return "";
+  return std::string();
 }
 
 
 // Get Strong's number(s) for the $lemma.
 // Most lemma's refer to one Strong's number, but some lemma's refer to more than one.
-vector <string> Database_Strong::strong (string lemma)
+std::vector <std::string> Database_Strong::strong (std::string lemma)
 {
   sqlite3 * db;
   {
@@ -61,7 +60,7 @@ vector <string> Database_Strong::strong (string lemma)
     sql.add (lemma);
     sql.add (";");
     db = connect ();
-    vector <string> ids = database_sqlite_query (db, sql.sql) ["id"];
+    std::vector <std::string> ids = database_sqlite_query (db, sql.sql) ["id"];
     database_sqlite_disconnect (db);
     if (!ids.empty ()) return ids;
   }

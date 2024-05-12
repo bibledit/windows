@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,47 +31,45 @@
 #include <access/bible.h>
 #include <ipc/focus.h>
 #include <notes/note.h>
-using namespace std;
 
 
-string notes_summary_url ()
+std::string notes_summary_url ()
 {
   return "notes/summary";
 }
 
 
-bool notes_summary_acl (void * webserver_request)
+bool notes_summary_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
 }
 
 
-string notes_summary (void * webserver_request)
+std::string notes_summary (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   Database_Notes database_notes (webserver_request);
-  Notes_Logic notes_logic = Notes_Logic (webserver_request);
+  Notes_Logic notes_logic (webserver_request);
 
   
-  string page;
-  Assets_Header header = Assets_Header (translate("Note summary"), request);
+  std::string page;
+  Assets_Header header = Assets_Header (translate("Note summary"), webserver_request);
   page += header.run ();
   Assets_View view;
 
 
-  int id = filter::strings::convert_to_int (request->query ["id"]);
+  int id = filter::strings::convert_to_int (webserver_request.query ["id"]);
   view.set_variable ("id", filter::strings::convert_to_string (id));
   
   
-  if (request->post.count ("submit")) {
-    string summary = request->post["entry"];
+  if (webserver_request.post.count ("submit")) {
+    std::string summary = webserver_request.post["entry"];
     notes_logic.set_summary (id, summary);
-    redirect_browser (request, notes_note_url () + "?id=" + filter::strings::convert_to_string (id));
-    return "";
+    redirect_browser (webserver_request, notes_note_url () + "?id=" + filter::strings::convert_to_string (id));
+    return std::string();
   }
   
   
-  string summary = database_notes.get_summary (id);
+  std::string summary = database_notes.get_summary (id);
   view.set_variable ("summary", filter::strings::escape_special_xml_characters (summary));
 
   

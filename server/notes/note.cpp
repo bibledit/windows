@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -34,49 +34,47 @@
 #include <navigation/passage.h>
 #include <notes/index.h>
 #include <access/logic.h>
-using namespace std;
 
 
-string notes_note_url ()
+std::string notes_note_url ()
 {
   return "notes/note";
 }
 
 
-bool notes_note_acl (void * webserver_request)
+bool notes_note_acl (Webserver_Request& webserver_request)
 {
   return access_logic::privilege_view_notes (webserver_request);
 }
 
 
-string notes_note (void * webserver_request)
+std::string notes_note (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   Database_Notes database_notes (webserver_request);
   
   
-  string page;
-  Assets_Header header = Assets_Header (translate("Note"), request);
+  std::string page;
+  Assets_Header header = Assets_Header (translate("Note"), webserver_request);
   header.set_navigator ();
 
   
   // After adding a comment to a note, when doing nothing for several seconds,
   // the browser then returns to the list of notes.
-  if (request->query.count ("temporal")) {
+  if (webserver_request.query.count ("temporal")) {
     header.refresh (5, "index");
   }
 
   
   page += header.run ();
   Assets_View view;
-  string success;
+  std::string success;
 
   
-  int id = filter::strings::convert_to_int (request->query ["id"]);
+  int id = filter::strings::convert_to_int (webserver_request.query ["id"]);
   
   
   // When a note is opened, then the passage navigator should go to the passage that belongs to that note.
-  vector <Passage> passages = database_notes.get_passages (id);
+  std::vector <Passage> passages = database_notes.get_passages (id);
   if (!passages.empty ()) {
     Passage focused_passage;
     focused_passage.m_book = Ipc_Focus::getBook (webserver_request);
@@ -106,23 +104,23 @@ string notes_note (void * webserver_request)
   view.set_variable ("passage", filter_passage_display_inline (passages));
   
 
-  string summary = database_notes.get_summary (id);
+  std::string summary = database_notes.get_summary (id);
   view.set_variable ("summary", summary);
 
   
-  bool show_note_status = request->database_config_user ()->getShowNoteStatus ();
+  bool show_note_status = webserver_request.database_config_user ()->getShowNoteStatus ();
   if (show_note_status) {
-    string status = database_notes.get_status (id);
+    std::string status = database_notes.get_status (id);
     view.set_variable ("status", status);
   }
   
   
-  if (request->session_logic ()->currentLevel () >= Filter_Roles::translator ()) {
+  if (webserver_request.session_logic ()->currentLevel () >= Filter_Roles::translator ()) {
     view.enable_zone ("editlevel");
   }
   
   
-  string content = database_notes.get_contents (id);
+  std::string content = database_notes.get_contents (id);
   view.set_variable ("content", content);
 
   
@@ -133,7 +131,7 @@ string notes_note (void * webserver_request)
   view.set_variable ("brs", filter_html_android_brs ());
   
 
-  if (request->database_config_user ()->getQuickNoteEditLink ()) {
+  if (webserver_request.database_config_user ()->getQuickNoteEditLink ()) {
     view.enable_zone ("editcontent");
   }
     

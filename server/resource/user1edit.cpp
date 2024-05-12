@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -36,41 +36,37 @@
 #include <dialog/entry.h>
 #include <tasks/logic.h>
 #include <menu/logic.h>
-using namespace std;
 
 
-string resource_user1edit_url ()
+std::string resource_user1edit_url ()
 {
   return "resource/user1edit";
 }
 
 
-bool resource_user1edit_acl (void * webserver_request)
+bool resource_user1edit_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
 }
 
 
-string resource_user1edit (void * webserver_request)
+std::string resource_user1edit (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
-  
-  string page {};
-  Assets_Header header = Assets_Header (translate("User-defined resources"), request);
+  std::string page {};
+  Assets_Header header = Assets_Header (translate("User-defined resources"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
   Assets_View view {};
-  string error, success;
+  std::string error, success;
   
   
-  string name = request->query ["name"];
+  std::string name = webserver_request.query ["name"];
   view.set_variable ("name", name);
   
 
-  if (request->post.count ("submit")) {
-    string data = request->post["data"];
-    vector <string> lines = filter::strings::explode (data, '\n');
+  if (webserver_request.post.count ("submit")) {
+    std::string data = webserver_request.post["data"];
+    std::vector <std::string> lines = filter::strings::explode (data, '\n');
     int count = 0;
     int bookcount = 0;
     for (auto line : lines) {
@@ -79,12 +75,12 @@ string resource_user1edit (void * webserver_request)
       if (count == 0) {
         Database_UserResources::url (name, line);
       } else {
-        vector <string> bits = filter::strings::explode (line, '=');
+        std::vector <std::string> bits = filter::strings::explode (line, '=');
         if (bits.size () == 2) {
-          string english = filter::strings::trim (bits [0]);
+          std::string english = filter::strings::trim (bits [0]);
           book_id id = database::books::get_id_from_english (english);
           if (id != book_id::_unknown) {
-            string fragment = filter::strings::trim (bits [1]);
+            std::string fragment = filter::strings::trim (bits [1]);
             Database_UserResources::book (name, static_cast<int>(id), fragment);
             bookcount++;
           } else {
@@ -99,14 +95,14 @@ string resource_user1edit (void * webserver_request)
   }
   
   
-  vector <string> lines;
+  std::vector <std::string> lines;
   lines.push_back (Database_UserResources::url (name));
-  vector <book_id> ids = database::books::get_ids ();
+  std::vector <book_id> ids = database::books::get_ids ();
   for (auto id : ids) {
     book_type type = database::books::get_type (id);
     if ((type == book_type::old_testament) || (type == book_type::new_testament)) {
-      string english = database::books::get_english_from_id (id);
-      string book = Database_UserResources::book (name, static_cast<int>(id));
+      std::string english = database::books::get_english_from_id (id);
+      std::string book = Database_UserResources::book (name, static_cast<int>(id));
       lines.push_back (english + " = " + book);
     }
   }

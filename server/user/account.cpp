@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,28 +28,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <locale/translate.h>
 #include <assets/header.h>
 #include <menu/logic.h>
-using namespace std;
 
 
-string user_account_url ()
+std::string user_account_url ()
 {
   return "user/account";
 }
 
 
-bool user_account_acl (void * webserver_request)
+bool user_account_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::member ());
 }
 
 
-string user_account ([[maybe_unused]] void * webserver_request)
+std::string user_account ([[maybe_unused]] Webserver_Request& webserver_request)
 {
-  string page;
+  std::string page;
 
 #ifdef HAVE_CLOUD
-
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
 
   Assets_Header header = Assets_Header (translate("Account"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
@@ -57,19 +54,19 @@ string user_account ([[maybe_unused]] void * webserver_request)
 
   Assets_View view;
 
-  string username = request->session_logic()->currentUser ();
-  string email = request->database_users()->get_email (username);
+  const std::string username = webserver_request.session_logic()->currentUser ();
+  const std::string email = webserver_request.database_users()->get_email (username);
 
   bool actions_taken = false;
-  vector <string> success_messages;
+  std::vector <std::string> success_messages;
 
   // Form submission handler.
-  if (request->post.count ("submit")) {
+  if (webserver_request.post.count ("submit")) {
     bool form_is_valid = true;
-    string currentpassword = request->post ["currentpassword"];
-    string newpassword     = request->post ["newpassword"];
-    string newpassword2    = request->post ["newpassword2"];
-    string newemail        = request->post ["newemail"];
+    std::string currentpassword = webserver_request.post ["currentpassword"];
+    std::string newpassword     = webserver_request.post ["newpassword"];
+    std::string newpassword2    = webserver_request.post ["newpassword2"];
+    std::string newemail        = webserver_request.post ["newemail"];
   
     if ((newpassword != "") || (newpassword2 != "")) {
       if (newpassword.length () < 4) {
@@ -84,12 +81,12 @@ string user_account ([[maybe_unused]] void * webserver_request)
         form_is_valid = false;
         view.set_variable ("new_password2_invalid_message", translate("Passwords do not match"));
       }
-      if (!request->database_users()->matchUserPassword (username, currentpassword)) {
+      if (!webserver_request.database_users()->matchUserPassword (username, currentpassword)) {
         form_is_valid = false;
         view.set_variable ("current_password_invalid_message", translate("Current password is not valid"));
       }
       if (form_is_valid) {
-        request->database_users()->set_password (username, newpassword);
+        webserver_request.database_users()->set_password (username, newpassword);
         actions_taken = true;
         success_messages.push_back (translate("The new password was saved"));
       }
@@ -100,18 +97,18 @@ string user_account ([[maybe_unused]] void * webserver_request)
         form_is_valid = false;
         view.set_variable ("new_email_invalid_message", translate("Email address is not valid"));
       }
-      if (!request->database_users()->matchUserPassword (username, currentpassword)) {
+      if (!webserver_request.database_users()->matchUserPassword (username, currentpassword)) {
         form_is_valid = false;
         view.set_variable ("current_password_invalid_message", translate("Current password is not valid"));
       }
       if (form_is_valid) {
-        Confirm_Worker confirm_worker = Confirm_Worker (webserver_request);
-        string initial_subject = translate("Email address verification");
-        string initial_body = translate("Somebody requested to change the email address that belongs to your account.");
-        string query = request->database_users()->updateEmailQuery (username, newemail);
-        string subsequent_subject = translate("Email address change");
-        string subsequent_body = translate("The email address that belongs to your account has been changed successfully.");
-        confirm_worker.setup (newemail, string(), initial_subject, initial_body, query, subsequent_subject, subsequent_body);
+        Confirm_Worker confirm_worker (webserver_request);
+        std::string initial_subject = translate("Email address verification");
+        std::string initial_body = translate("Somebody requested to change the email address that belongs to your account.");
+        std::string query = webserver_request.database_users()->updateEmailQuery (username, newemail);
+        std::string subsequent_subject = translate("Email address change");
+        std::string subsequent_body = translate("The email address that belongs to your account has been changed successfully.");
+        confirm_worker.setup (newemail, std::string(), initial_subject, initial_body, query, subsequent_subject, subsequent_body);
         actions_taken = true;
         success_messages.push_back (translate("A verification email was sent to") + " " + newemail);
       }
@@ -125,7 +122,7 @@ string user_account ([[maybe_unused]] void * webserver_request)
 
   view.set_variable ("username", filter::strings::escape_special_xml_characters (username));
   view.set_variable ("email", filter::strings::escape_special_xml_characters (email));
-  string success_message = filter::strings::implode (success_messages, "\n");
+  std::string success_message = filter::strings::implode (success_messages, "\n");
   view.set_variable ("success_messages", success_message);
   if (!actions_taken) view.enable_zone ("no_actions_taken");
 

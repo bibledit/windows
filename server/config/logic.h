@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <config/libraries.h>
 
+class Webserver_Request;
+
 namespace config::logic {
 
 const char * config_folder ();
@@ -32,18 +34,18 @@ bool demo_enabled ();
 std::string admin_username ();
 std::string admin_password ();
 std::string admin_email ();
-int my_stoi (const std::string& str, void * idx = nullptr, int base = 10);
-bool basic_mode (void * webserver_request);
-std::string site_url (void * webserver_request);
+bool basic_mode (Webserver_Request& webserver_request);
+std::string site_url (Webserver_Request& webserver_request);
 std::string manual_user_facing_url ();
 std::string server_key_path (const bool force);
 std::string server_certificate_path (const bool force);
 std::string authorities_certificates_path (const bool force);
 bool enforce_https_browser ();
 bool enforce_https_client ();
-void swipe_enabled (void * webserver_request, std::string & script);
+void swipe_enabled (Webserver_Request& webserver_request, std::string& script);
 bool indonesian_member_cloud ();
 bool default_bibledit_configuration ();
 std::string google_translate_json_key_path ();
+bool create_no_accounts();
 
 } // End of namespace.

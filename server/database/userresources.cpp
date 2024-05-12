@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/string.h>
 #include <database/logic.h>
 #include <database/logic.h>
-using namespace std;
 
 
 // Database resilience: 
@@ -31,12 +30,12 @@ using namespace std;
 
 
 // Returns the names of the available user-defined resources.
-vector <string> Database_UserResources::names ()
+std::vector <std::string> Database_UserResources::names ()
 {
-  vector <string> names;
-  vector <string> files = filter_url_scandir (folder ());
+  std::vector <std::string> names;
+  std::vector <std::string> files = filter_url_scandir (folder ());
   for (auto name : files) {
-    if (name.find (fragment ()) != string::npos) {
+    if (name.find (fragment ()) != std::string::npos) {
       name.erase (0, fragment ().size ());
       name = filter_url_filename_unclean (name);
       names.push_back (name);
@@ -47,55 +46,55 @@ vector <string> Database_UserResources::names ()
 
 
 // Removes a user-defined resource from disk.
-void Database_UserResources::remove (const string& name)
+void Database_UserResources::remove (const std::string& name)
 {
   filter_url_unlink (file (name));
 }
 
 
-string Database_UserResources::url (const string& name)
+std::string Database_UserResources::url (const std::string& name)
 {
   return load (name, 0);
 }
 
 
-void Database_UserResources::url (const string& name, const string & value)
+void Database_UserResources::url (const std::string& name, const std::string& value)
 {
   save (name, 0, value);
 }
 
 
 // Returns the text fragent for a Bible book with $id.
-string Database_UserResources::book (const string& name, int id)
+std::string Database_UserResources::book (const std::string& name, int id)
 {
-  if (id < 1) return string();
+  if (id < 1) return std::string();
   return load (name, static_cast<size_t>(id));
 }
 
 
 // Stores the text fragment for a Bible book in the database.
-void Database_UserResources::book (const string& name, int id, const string & fragment)
+void Database_UserResources::book (const std::string& name, int id, const std::string& fragment)
 {
   if (id > 0) save (name, static_cast<size_t>(id), fragment);
 }
 
 
 // The folder for storing the user-defined resource definition files.
-string Database_UserResources::folder ()
+std::string Database_UserResources::folder ()
 {
   return filter_url_create_root_path ({database_logic_databases (), "client"});
 }
 
 
 // The fragment that always occurs in the name of a user-defined resource definition file.
-string Database_UserResources::fragment ()
+std::string Database_UserResources::fragment ()
 {
   return "user_resource_";
 }
 
 
 // The full path of the definition file.
-string Database_UserResources::file (const string& name)
+std::string Database_UserResources::file (const std::string& name)
 {
   return filter_url_create_path ({folder (), fragment () + filter_url_filename_clean (name)});
 }
@@ -103,23 +102,23 @@ string Database_UserResources::file (const string& name)
 
 // Load one value from the user-defined resource definition $name.
 // The value is at line number $offset.
-string Database_UserResources::load (const string & name, size_t offset)
+std::string Database_UserResources::load (const std::string& name, size_t offset)
 {
-  string path = file (name);
-  string contents = filter_url_file_get_contents (path);
-  vector <string> lines = filter::strings::explode (contents, '\n');
-  if (offset >= lines.size ()) return string();
+  std::string path = file (name);
+  std::string contents = filter_url_file_get_contents (path);
+  std::vector <std::string> lines = filter::strings::explode (contents, '\n');
+  if (offset >= lines.size ()) return std::string();
   return lines [offset];
 }
 
 
 // Save one value to the user-defined resource definition $name.
 // It saves the $value to line number $offset.
-void Database_UserResources::save (const string & name, size_t offset, const string & value)
+void Database_UserResources::save (const std::string& name, size_t offset, const std::string& value)
 {
-  string path = file (name);
-  string contents = filter_url_file_get_contents (path);
-  vector <string> lines = filter::strings::explode (contents, '\n');
+  std::string path = file (name);
+  std::string contents = filter_url_file_get_contents (path);
+  std::vector <std::string> lines = filter::strings::explode (contents, '\n');
   while (lines.size () <= offset) lines.push_back ("");
   lines [offset] = value;
   contents = filter::strings::implode (lines, "\n");

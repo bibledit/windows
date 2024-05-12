@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -18,15 +18,14 @@
 
 
 #include <filter/html.h>
-using namespace std;
 
 
 // There's weird behaviour on Android that prevents clicking links at a certain location.
 // See https://github.com/bibledit/cloud/issues/321
 // This function delivers a set of <br> to mitigate the problem.
-string filter_html_android_brs ()
+std::string filter_html_android_brs ()
 {
-  string brs;
+  std::string brs;
 #ifdef HAVE_ANDROID
   brs = "<br><br><br><br><br><br><br><br><br><br><br><br><br><br>";
 #endif

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -48,18 +48,16 @@
 #include <mimetic098/mimetic.h>
 #pragma clang diagnostic pop
 #pragma GCC diagnostic pop
-using namespace std;
-using namespace mimetic;
 
 
-string filter_mail_remove_headers_internal (string contents)
+std::string filter_mail_remove_headers_internal (std::string contents)
 {
   bool empty_line_encountered = false;
-  vector <string> cleaned;
-  vector <string> inputlines = filter::strings::explode (contents, '\n');
+  std::vector <std::string> cleaned;
+  std::vector <std::string> inputlines = filter::strings::explode (contents, '\n');
   for (auto line : inputlines) {
-    if (line.find ("Content-Type") != string::npos) continue;
-    if (line.find ("Content-Transfer-Encoding") != string::npos) continue;
+    if (line.find ("Content-Type") != std::string::npos) continue;
+    if (line.find ("Content-Transfer-Encoding") != std::string::npos) continue;
     if (empty_line_encountered) cleaned.push_back (line);
     if (filter::strings::trim (line).empty ()) empty_line_encountered = true;
   }
@@ -69,25 +67,25 @@ string filter_mail_remove_headers_internal (string contents)
 }
 
 
-void filter_mail_dissect_internal (const MimeEntity& me, string& plaintext)
+void filter_mail_dissect_internal (const mimetic::MimeEntity& me, std::string& plaintext)
 {
   // If the plain text of this email has been found already,
   // there's no need to search any further.
   if (!plaintext.empty ()) return;
   
   // Get the header of this part.
-  const Header& h = me.header();
+  const mimetic::Header& h = me.header();
   
   // Look for content type and subtype.
   // Fold their case as some messages use upper case.
-  string type = filter::strings::unicode_string_casefold (h.contentType().type());
-  string subtype = filter::strings::unicode_string_casefold (h.contentType().subtype());
+  const std::string type = filter::strings::unicode_string_casefold (h.contentType().type());
+  const std::string subtype = filter::strings::unicode_string_casefold (h.contentType().subtype());
 
   if (type == "text") {
   
     if (subtype== "plain") {
       // Get the plain text of the message.
-      stringstream ss;
+      std::stringstream ss;
       ss << me;
       plaintext = ss.str ();
       // Remove headers.
@@ -96,9 +94,9 @@ void filter_mail_dissect_internal (const MimeEntity& me, string& plaintext)
     
     if (subtype== "html") {
       // Get the html text of the message.
-      stringstream ss;
+      std::stringstream ss;
       ss << me;
-      string html = ss.str ();
+      std::string html = ss.str ();
       // Remove headers.
       html = filter_mail_remove_headers_internal (html);
       // Convert the html to plain text.
@@ -107,34 +105,34 @@ void filter_mail_dissect_internal (const MimeEntity& me, string& plaintext)
     
     // Get transfer encoding.
     // Fold the case as some email messages use uppercase.
-    string transfer_encoding = filter::strings::unicode_string_casefold (h.contentTransferEncoding().str ());
+    std::string transfer_encoding = filter::strings::unicode_string_casefold (h.contentTransferEncoding().str ());
     
     // Decode quoted-printable text.
-    if (transfer_encoding == ContentTransferEncoding::quoted_printable) {
-      istringstream is (plaintext);
-      ostringstream os;
-      istreambuf_iterator<char> ibeg (is), iend;
-      ostreambuf_iterator<char> out (os);
-      QP::Decoder qp;
+    if (transfer_encoding == mimetic::ContentTransferEncoding::quoted_printable) {
+      std::istringstream is (plaintext);
+      std::ostringstream os;
+      std::istreambuf_iterator<char> ibeg (is), iend;
+      std::ostreambuf_iterator<char> out (os);
+      mimetic::QP::Decoder qp;
       decode (ibeg, iend, qp, out);
       plaintext = os.str ();
     }
     
     // Decode base64 text.
-    if (transfer_encoding == ContentTransferEncoding::base64) {
-      istringstream is (plaintext);
-      ostringstream os;
-      istreambuf_iterator<char> ibeg (is), iend;
-      ostreambuf_iterator<char> out (os);
-      Base64::Decoder b64;
+    if (transfer_encoding == mimetic::ContentTransferEncoding::base64) {
+      std::istringstream is (plaintext);
+      std::ostringstream os;
+      std::istreambuf_iterator<char> ibeg (is), iend;
+      std::ostreambuf_iterator<char> out (os);
+      mimetic::Base64::Decoder b64;
       code (ibeg, iend, b64, out);
       plaintext = os.str ();
     }
   }
 
   // Iterate over the other parts it may contain and process them.
-  MimeEntityList::const_iterator mime_body_iterator = me.body().parts().begin();
-  MimeEntityList::const_iterator meit = me.body().parts().end();
+  mimetic::MimeEntityList::const_iterator mime_body_iterator = me.body().parts().begin();
+  mimetic::MimeEntityList::const_iterator meit = me.body().parts().end();
   for (; mime_body_iterator != meit; ++mime_body_iterator) {
     filter_mail_dissect_internal (**mime_body_iterator, plaintext);
   }
@@ -143,19 +141,19 @@ void filter_mail_dissect_internal (const MimeEntity& me, string& plaintext)
 
 // Dissects an email $message.
 // It extracts the $from address, the $subject, and the plain text body.
-void filter_mail_dissect (string message, string & from, string & subject, string & plaintext)
+void filter_mail_dissect (std::string message, std::string & from, std::string & subject, std::string & plaintext)
 {
   // Load the email message into the mimetic library.
-  MimeEntity me;
+  mimetic::MimeEntity me;
   me.load (message.begin(), message.end(), 0);
 
   // Get the sender's address.
-  stringstream fromstream;
+  std::stringstream fromstream;
   fromstream << me.header().from();
   from = fromstream.str ();
 
   // Get the subject.
-  stringstream subjectstream;
+  std::stringstream subjectstream;
   subjectstream << me.header().subject();
   subject = subjectstream.str ();
 
@@ -167,8 +165,8 @@ void filter_mail_dissect (string message, string & from, string & subject, strin
   if (plaintext.empty ()) plaintext = me.body ();
 
   // Clean the text body up.
-  vector <string> cleaned;
-  vector <string> inputlines = filter::strings::explode (plaintext, '\n');
+  std::vector <std::string> cleaned;
+  std::vector <std::string> inputlines = filter::strings::explode (plaintext, '\n');
   for (auto line : inputlines) {
     // Remove whitespace and empty lines.
     line = filter::strings::trim (line);

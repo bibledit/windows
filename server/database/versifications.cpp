@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/logs.h>
 #include <versification/logic.h>
 #include <locale/logic.h>
-using namespace std;
 
 
 // This is a database for the versification systems.
@@ -46,7 +45,7 @@ sqlite3 * Database_Versifications::connect ()
 void Database_Versifications::create ()
 {
   sqlite3 * db = connect ();
-  string sql;
+  std::string sql;
   sql = 
     "CREATE TABLE IF NOT EXISTS names ("
     " system integer,"
@@ -75,7 +74,7 @@ void Database_Versifications::optimize ()
 
 
 // Import data.
-void Database_Versifications::input (const string& contents, const string& name)
+void Database_Versifications::input (const std::string& contents, const std::string& name)
 {
   // Delete old system if it is there, and create new one.
   erase (name);
@@ -87,13 +86,13 @@ void Database_Versifications::input (const string& contents, const string& name)
   database_sqlite_exec (db, "PRAGMA journal_mode = OFF;");
   database_sqlite_exec (db, "BEGIN;");
   
-  vector <string> lines = filter::strings::explode (contents, '\n');
+  std::vector <std::string> lines = filter::strings::explode (contents, '\n');
   for (auto line : lines) {
     line = filter::strings::trim (line);
     if (line.empty ()) continue;
     // The line will be something similar to this: 1 Corinthians 1:31
     // Split the passage entry on the colon (:) to get the verse.
-    vector <string> bits = filter::strings::explode(line, ':');
+    std::vector <std::string> bits = filter::strings::explode(line, ':');
     if (bits.size() != 2) continue;
     int verse = filter::strings::convert_to_int(bits[1]);
     // Split the first bit on the spaces and get the last item as the chapter.
@@ -102,7 +101,7 @@ void Database_Versifications::input (const string& contents, const string& name)
     int chapter = filter::strings::convert_to_int(bits[bits.size()-1]);
     // Remove the last bit so it remains with the book, and get that book.
     bits.pop_back();
-    string passage_book_string = filter::strings::implode(bits, " ");
+    std::string passage_book_string = filter::strings::implode(bits, " ");
     int book = static_cast<int>(database::books::get_id_from_english(passage_book_string));
     // Check result.
     if ((book == 0) || (chapter == 0)) {
@@ -129,12 +128,12 @@ void Database_Versifications::input (const string& contents, const string& name)
 
 
 // Export data.
-string Database_Versifications::output (const string& name)
+std::string Database_Versifications::output (const std::string& name)
 {
-  vector <string> lines;
-  vector <Passage> versification_data = getBooksChaptersVerses (name);
+  std::vector <std::string> lines;
+  std::vector <Passage> versification_data = getBooksChaptersVerses (name);
   for (Passage & passage : versification_data) {
-    string line = database::books::get_english_from_id (static_cast<book_id>(passage.m_book));
+    std::string line = database::books::get_english_from_id (static_cast<book_id>(passage.m_book));
     line.append (" ");
     line.append (filter::strings::convert_to_string (passage.m_chapter));
     line.append (":");
@@ -146,7 +145,7 @@ string Database_Versifications::output (const string& name)
 
 
 // Delete a versification system.
-void Database_Versifications::erase (const string& name)
+void Database_Versifications::erase (const std::string& name)
 {
   int id = getID (name);
 
@@ -168,14 +167,14 @@ void Database_Versifications::erase (const string& name)
 
 
 // Returns the ID for a named versification system.
-int Database_Versifications::getID (const string& name)
+int Database_Versifications::getID (const std::string& name)
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT system FROM names WHERE name =");
   sql.add (name);
   sql.add (";");
   sqlite3 * db = connect ();
-  vector <string> systems = database_sqlite_query (db, sql.sql) ["system"];
+  std::vector <std::string> systems = database_sqlite_query (db, sql.sql) ["system"];
   database_sqlite_disconnect (db);
   if (!systems.empty()) {
     auto id = systems[0];
@@ -187,7 +186,7 @@ int Database_Versifications::getID (const string& name)
 
 // Creates a new empty versification system.
 // Returns the new ID.
-int Database_Versifications::createSystem (const string& name)
+int Database_Versifications::createSystem (const std::string& name)
 {
   // If the versification system already exists, return its ID.
   int id = getID (name);
@@ -197,7 +196,7 @@ int Database_Versifications::createSystem (const string& name)
   // Get the first free ID starting from 1000 (except when creating the default systems).
   id = 0;
   sqlite3 * db = connect ();
-  vector <string> systems = database_sqlite_query (db, "SELECT system FROM names ORDER BY system DESC LIMIT 1;") ["system"];
+  std::vector <std::string> systems = database_sqlite_query (db, "SELECT system FROM names ORDER BY system DESC LIMIT 1;") ["system"];
   for (auto & system : systems) {
     id = filter::strings::convert_to_int (system);
   }
@@ -218,30 +217,30 @@ int Database_Versifications::createSystem (const string& name)
 
 
 // Returns an array of the available versification systems.
-vector <string> Database_Versifications::getSystems ()
+std::vector <std::string> Database_Versifications::getSystems ()
 {
   sqlite3 * db = connect ();
-  vector <string> systems = database_sqlite_query (db, "SELECT name FROM names ORDER BY name ASC;") ["name"];
+  std::vector <std::string> systems = database_sqlite_query (db, "SELECT name FROM names ORDER BY name ASC;") ["name"];
   database_sqlite_disconnect (db);
   return systems;
 }
 
 
 // Returns the books, chapters, verses for the given versification system.
-vector <Passage> Database_Versifications::getBooksChaptersVerses (const string& name)
+std::vector <Passage> Database_Versifications::getBooksChaptersVerses (const std::string& name)
 {
-  vector <Passage> data;
+  std::vector <Passage> data;
   int id = getID (name);
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT book, chapter, verse FROM data WHERE system =");
   sql.add (id);
   sql.add ("ORDER BY book, chapter, verse ASC;");
   sqlite3 * db = connect ();
-  map <string, vector <string> > result = database_sqlite_query (db, sql.sql);
+  std::map <std::string, std::vector <std::string> > result = database_sqlite_query (db, sql.sql);
   database_sqlite_disconnect (db);
-  vector <string> books = result ["book"];
-  vector <string> chapters = result ["chapter"];
-  vector <string> verses = result ["verse"];
+  std::vector <std::string> books = result ["book"];
+  std::vector <std::string> chapters = result ["chapter"];
+  std::vector <std::string> verses = result ["verse"];
   for (unsigned int i = 0; i < books.size (); i++) {
     Passage passage;
     passage.m_book = filter::strings::convert_to_int (books [i]);
@@ -253,16 +252,16 @@ vector <Passage> Database_Versifications::getBooksChaptersVerses (const string& 
 }
 
 
-vector <int> Database_Versifications::getBooks (const string& name)
+std::vector <int> Database_Versifications::getBooks (const std::string& name)
 {
-  vector <int> books;
+  std::vector <int> books;
   int id = getID (name);
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT DISTINCT book FROM data WHERE system =");
   sql.add (id);
   sql.add ("ORDER BY book ASC;");
   sqlite3 * db = connect ();
-  vector <string> sbooks = database_sqlite_query (db, sql.sql) ["book"];
+  std::vector <std::string> sbooks = database_sqlite_query (db, sql.sql) ["book"];
   database_sqlite_disconnect (db);
   for (auto & book : sbooks) {
     books.push_back (filter::strings::convert_to_int (book));
@@ -273,9 +272,9 @@ vector <int> Database_Versifications::getBooks (const string& name)
 
 // This returns all the chapters in book of versification system name.
 // include0: Includes chapter 0 also.
-vector <int> Database_Versifications::getChapters (const string& name, int book, bool include0)
+std::vector <int> Database_Versifications::getChapters (const std::string& name, int book, bool include0)
 {
-  vector <int> chapters;
+  std::vector <int> chapters;
   if (include0) chapters.push_back (0);
   int id = this->getID (name);
   SqliteSQL sql = SqliteSQL ();
@@ -285,7 +284,7 @@ vector <int> Database_Versifications::getChapters (const string& name, int book,
   sql.add (book);
   sql.add ("ORDER BY chapter ASC;");
   sqlite3 * db = connect ();
-  vector <string> schapters = database_sqlite_query (db, sql.sql) ["chapter"];
+  std::vector <std::string> schapters = database_sqlite_query (db, sql.sql) ["chapter"];
   database_sqlite_disconnect (db);
   for (auto & chapter : schapters) {
     chapters.push_back (filter::strings::convert_to_int (chapter));
@@ -294,9 +293,9 @@ vector <int> Database_Versifications::getChapters (const string& name, int book,
 }
 
 
-vector <int> Database_Versifications::getVerses (const string& name, int book, int chapter)
+std::vector <int> Database_Versifications::getVerses (const std::string& name, int book, int chapter)
 {
-  vector <int> verses;
+  std::vector <int> verses;
   int id = getID (name);
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT DISTINCT verse FROM data WHERE system =");
@@ -307,7 +306,7 @@ vector <int> Database_Versifications::getVerses (const string& name, int book, i
   sql.add (chapter);
   sql.add ("ORDER BY verse ASC;");
   sqlite3 * db = connect ();
-  vector <string> sverses = database_sqlite_query (db, sql.sql) ["verse"];
+  std::vector <std::string> sverses = database_sqlite_query (db, sql.sql) ["verse"];
   database_sqlite_disconnect (db);
   for (auto & verse : sverses) {
     int maxverse = filter::strings::convert_to_int (verse);
@@ -329,10 +328,10 @@ void Database_Versifications::defaults ()
   database_sqlite_disconnect (db);
 
   creating_defaults = true;
-  vector <string> names = versification_logic_names ();
+  std::vector <std::string> names = versification_logic_names ();
   for (auto name : names) {
     // Read the file contents.
-    string contents = versification_logic_data (name);
+    std::string contents = versification_logic_data (name);
     // Due to a need of obfuscating "Bible" and similar,
     // If a versification system is called "Staten Bible",
     // it will be stored in the file system as "Staten Bb",
@@ -347,13 +346,13 @@ void Database_Versifications::defaults ()
 
 
 // This returns all possible books in any versification system.
-vector <int> Database_Versifications::getMaximumBooks ()
+std::vector <int> Database_Versifications::getMaximumBooks ()
 {
-  vector <int> books;
+  std::vector <int> books;
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT DISTINCT book FROM data ORDER BY book ASC;");
   sqlite3 * db = connect ();
-  vector <string> sbooks = database_sqlite_query (db, sql.sql) ["book"];
+  std::vector <std::string> sbooks = database_sqlite_query (db, sql.sql) ["book"];
   database_sqlite_disconnect (db);
   for (auto & book : sbooks) {
     books.push_back (filter::strings::convert_to_int (book));
@@ -363,16 +362,16 @@ vector <int> Database_Versifications::getMaximumBooks ()
 
 
 // This returns all possible chapters in a book of any versification system.
-vector <int> Database_Versifications::getMaximumChapters (int book)
+std::vector <int> Database_Versifications::getMaximumChapters (int book)
 {
-  vector <int> chapters;
+  std::vector <int> chapters;
   chapters.push_back (0);
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT DISTINCT chapter FROM data WHERE book =");
   sql.add (book);
   sql.add ("ORDER BY chapter ASC;");
   sqlite3 * db = connect ();
-  vector <string> schapters = database_sqlite_query (db, sql.sql) ["chapter"];
+  std::vector <std::string> schapters = database_sqlite_query (db, sql.sql) ["chapter"];
   database_sqlite_disconnect (db);
   for (auto & chapter : schapters) {
     chapters.push_back (filter::strings::convert_to_int (chapter));
@@ -382,9 +381,9 @@ vector <int> Database_Versifications::getMaximumChapters (int book)
 
 
 // This returns all possible verses in a book / chapter of any versification system.
-vector <int> Database_Versifications::getMaximumVerses (int book, int chapter)
+std::vector <int> Database_Versifications::getMaximumVerses (int book, int chapter)
 {
-  vector <int> verses;
+  std::vector <int> verses;
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT DISTINCT verse FROM data WHERE book =");
   sql.add (book);
@@ -392,7 +391,7 @@ vector <int> Database_Versifications::getMaximumVerses (int book, int chapter)
   sql.add (chapter);
   sql.add ("ORDER BY verse ASC;");
   sqlite3 * db = connect ();
-  vector <string> sverses = database_sqlite_query (db, sql.sql) ["verse"];
+  std::vector <std::string> sverses = database_sqlite_query (db, sql.sql) ["verse"];
   database_sqlite_disconnect (db);
   for (auto & verse : sverses) {
     int maxverse = filter::strings::convert_to_int (verse);

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <filter/url.h>
 #include <database/books.h>
-using namespace std;
 
 
 // Class for creating input files for the Online Bible compiler.
@@ -46,7 +45,7 @@ void OnlineBible_Text::newVerse (int bookIdentifier, int chapterNumber, int vers
   storeData ();
   // Store passage and any text only in case the book is valid,
   // and the chapter and verse are non-zero.
-  string book = database::books::get_onlinebible_from_id (static_cast<book_id>(bookIdentifier));
+  std::string book = database::books::get_onlinebible_from_id (static_cast<book_id>(bookIdentifier));
   if (!book.empty()) {
     if (chapterNumber > 0) {
       if (verseNumber > 0) {
@@ -61,7 +60,7 @@ void OnlineBible_Text::newVerse (int bookIdentifier, int chapterNumber, int vers
 
 
 // This function adds $text to the current line.
-void OnlineBible_Text::add_text (string text)
+void OnlineBible_Text::add_text (std::string text)
 {
   if (lineLoaded) currentLine += text;
 }
@@ -82,9 +81,9 @@ void OnlineBible_Text::close_current_note ()
 
 
 // This saves the data to file $name: the name of the file to save to.
-void OnlineBible_Text::save (string name)
+void OnlineBible_Text::save (std::string name)
 {
   storeData ();
-  string data = filter::strings::implode (output, "\n");
+  std::string data = filter::strings::implode (output, "\n");
   filter_url_file_put_contents (name, data);
 }

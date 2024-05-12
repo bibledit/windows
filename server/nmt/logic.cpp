@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -28,10 +28,9 @@
 #include <database/versifications.h>
 #include <database/config/bible.h>
 #include <database/mappings.h>
-using namespace std;
 
 
-void nmt_logic_export (string referencebible, string translatingbible)
+void nmt_logic_export (std::string referencebible, std::string translatingbible)
 {
   Database_Logs::log (R"(Exporting reference Bible ")" + referencebible + R"(" plus translated Bible ")" + translatingbible + R"(" for a neural machine translation training job)");
   
@@ -39,38 +38,38 @@ void nmt_logic_export (string referencebible, string translatingbible)
   Database_Versifications database_versifications;
   Database_Mappings database_mappings;
 
-  vector <string> reference_lines;
-  vector <string> translation_lines;
+  std::vector <std::string> reference_lines;
+  std::vector <std::string> translation_lines;
   
   // Get the versification systems of both Bibles.
-  string reference_versification = Database_Config_Bible::getVersificationSystem (referencebible);
-  string translating_versification = Database_Config_Bible::getVersificationSystem (translatingbible);
+  std::string reference_versification = Database_Config_Bible::getVersificationSystem (referencebible);
+  std::string translating_versification = Database_Config_Bible::getVersificationSystem (translatingbible);
   
-  vector <int> books = database_bibles.get_books (referencebible);
+  std::vector <int> books = database_bibles.get_books (referencebible);
   for (auto book : books) {
   
     // Take books that contain text, leave others, like front matter, out.
     book_type type = database::books::get_type (static_cast<book_id>(book));
     if ((type != book_type::old_testament) && (type != book_type::new_testament) && (type != book_type::apocryphal)) continue;
     
-    string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
+    std::string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
     Database_Logs::log ("Exporting " + bookname);
     
-    vector <int> chapters = database_bibles.get_chapters (referencebible, book);
+    std::vector <int> chapters = database_bibles.get_chapters (referencebible, book);
     for (auto reference_chapter : chapters) {
       
       // Skip chapter 0.
       // It won't contain Bible text.
       if (reference_chapter == 0) continue;
 
-      vector <int> verses = database_versifications.getMaximumVerses (book, reference_chapter);
+      std::vector <int> verses = database_versifications.getMaximumVerses (book, reference_chapter);
       for (auto & reference_verse : verses) {
        
         // Verse 0 won't contain Bible text: Skip it.
         if (reference_verse == 0) continue;
 
         // Use the versification system to get the matching chapter and verse of the Bible in translation.
-        vector <Passage> translation_passages;
+        std::vector <Passage> translation_passages;
         if ((reference_versification != translating_versification) && !translating_versification.empty ()) {
           translation_passages = database_mappings.translate (reference_versification, translating_versification, book, reference_chapter, reference_verse);
         } else {
@@ -84,8 +83,8 @@ void nmt_logic_export (string referencebible, string translatingbible)
         // This mismatch would disturb the neural machine translation training process.
         // So such versea are skipped for that reason.
         if (translation_passages.size() != 1) {
-          string referencetext = filter_passage_display_inline (translation_passages);
-          string message = "Skipping reference Bible verse " + filter::strings::convert_to_string (reference_verse) + " and translated Bible " + referencetext;
+          std::string referencetext = filter_passage_display_inline (translation_passages);
+          std::string message = "Skipping reference Bible verse " + filter::strings::convert_to_string (reference_verse) + " and translated Bible " + referencetext;
           Database_Logs::log (message);
           continue;
         }
@@ -94,15 +93,15 @@ void nmt_logic_export (string referencebible, string translatingbible)
         int translation_verse = filter::strings::convert_to_int (translation_passages[0].m_verse);
 
         // Convert the verse USFM of the reference Bible to plain verse text.
-        string reference_text;
+        std::string reference_text;
         {
-          string chapter_usfm = database_bibles.get_chapter (referencebible, book, reference_chapter);
-          string stylesheet = styles_logic_standard_sheet ();
+          std::string chapter_usfm = database_bibles.get_chapter (referencebible, book, reference_chapter);
+          const std::string stylesheet = styles_logic_standard_sheet ();
           Filter_Text filter_text = Filter_Text ("");
           filter_text.initializeHeadingsAndTextPerVerse (false);
           filter_text.add_usfm_code (chapter_usfm);
           filter_text.run (stylesheet);
-          map <int, string> output = filter_text.getVersesText ();
+          std::map <int, std::string> output = filter_text.getVersesText ();
           reference_text = output [reference_verse];
           
           // The text may contain new lines, so remove these,
@@ -112,15 +111,15 @@ void nmt_logic_export (string referencebible, string translatingbible)
         }
 
         // Convert the verse USFM of the Bible being translated to plain verse text.
-        string translation_text;
+        std::string translation_text;
         {
-          string chapter_usfm = database_bibles.get_chapter (translatingbible, book, translation_chapter);
-          string stylesheet = styles_logic_standard_sheet ();
+          std::string chapter_usfm = database_bibles.get_chapter (translatingbible, book, translation_chapter);
+          const std::string stylesheet = styles_logic_standard_sheet ();
           Filter_Text filter_text = Filter_Text ("");
           filter_text.initializeHeadingsAndTextPerVerse (false);
           filter_text.add_usfm_code (chapter_usfm);
           filter_text.run (stylesheet);
-          map <int, string> output = filter_text.getVersesText ();
+          std::map <int, std::string> output = filter_text.getVersesText ();
           translation_text = output [translation_verse];
 
           // The text may contain new lines, so remove these,
@@ -134,7 +133,7 @@ void nmt_logic_export (string referencebible, string translatingbible)
         if (translation_text.empty ()) continue;
 
         // Split the texts set on matching punctuation markers.
-        vector <string> reference_bits, translating_bits;
+        std::vector <std::string> reference_bits, translating_bits;
         nmt_logic_split (reference_text, translation_text, reference_bits, translating_bits);
 
         // Store the texts set.
@@ -144,10 +143,10 @@ void nmt_logic_export (string referencebible, string translatingbible)
     }
   }
 
-  string reference_text = filter::strings::implode (reference_lines, "\n");
-  string translation_text = filter::strings::implode (translation_lines, "\n");
-  string reference_path = filter_url_create_root_path ({filter_url_temp_dir (), "reference_bible_nmt_training_text.txt"});
-  string translation_path = filter_url_create_root_path ({filter_url_temp_dir (), "translation_bible_nmt_training_text.txt"});
+  std::string reference_text = filter::strings::implode (reference_lines, "\n");
+  std::string translation_text = filter::strings::implode (translation_lines, "\n");
+  std::string reference_path = filter_url_create_root_path ({filter_url_temp_dir (), "reference_bible_nmt_training_text.txt"});
+  std::string translation_path = filter_url_create_root_path ({filter_url_temp_dir (), "translation_bible_nmt_training_text.txt"});
   filter_url_file_put_contents (reference_path, reference_text);
   filter_url_file_put_contents (translation_path, translation_text);
   Database_Logs::log ("The text of the reference Bible was exported to ", reference_path);
@@ -156,14 +155,14 @@ void nmt_logic_export (string referencebible, string translatingbible)
 }
 
 
-void nmt_logic_split (string reference_text, string translating_text,
-                      vector <string> & reference_bits, vector <string> & translating_bits)
+void nmt_logic_split (std::string reference_text, std::string translating_text,
+                      std::vector <std::string> & reference_bits, std::vector <std::string> & translating_bits)
 {
   // Define the punctuation marks to split the texts on.
   // The largest sets of punctuation will be tried first,
   // and then the smaller sets.
   // The first set of punctuation that leads to equally split texts is taken.
-  vector <string> punctuations = { ".!?:;", ".!?:", ".!?", ".!?:;,", ".!?:,", ".!?," };
+  std::vector <std::string> punctuations = { ".!?:;", ".!?:", ".!?", ".!?:;,", ".!?:,", ".!?," };
   for (auto punctuation : punctuations) {
     reference_bits = filter::strings::explode (reference_text, punctuation);
     translating_bits = filter::strings::explode (translating_text, punctuation);

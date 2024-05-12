@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,26 +31,23 @@
 #include <dialog/entry.h>
 #include <assets/header.h>
 #include <menu/logic.h>
-using namespace std;
 
 
-string versification_system_url ()
+std::string versification_system_url ()
 {
   return "versification/system";
 }
 
 
-bool versification_system_acl (void * webserver_request)
+bool versification_system_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
 }
 
 
-string versification_system (void * webserver_request)
+std::string versification_system (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  string page;
+  std::string page;
   
   Assets_Header header = Assets_Header (translate("Versification system"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
@@ -61,23 +58,23 @@ string versification_system (void * webserver_request)
   
   Database_Versifications database_versifications = Database_Versifications();
 
-  string name = request->query["name"];
+  std::string name = webserver_request.query["name"];
   view.set_variable ("name", filter::strings::escape_special_xml_characters (name));
 
-  if (request->post.count ("submit")) {
-    string data = request->post["data"];
+  if (webserver_request.post.count ("submit")) {
+    std::string data = webserver_request.post["data"];
     if (data != "") {
       database_versifications.input (data, name);
     }
   }
 
-  vector <string> data;
-  vector <Passage> passages = database_versifications.getBooksChaptersVerses (name);
+  std::vector <std::string> data;
+  std::vector <Passage> passages = database_versifications.getBooksChaptersVerses (name);
   for (auto & passage : passages) {
     int book = passage.m_book;
     int chapter = passage.m_chapter;
-    string verse = passage.m_verse;
-    string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
+    std::string verse = passage.m_verse;
+    std::string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
     data.push_back ("<tr>");
     data.push_back ("<td>" + bookname + "</td>");
     data.push_back ("<td>" + filter::strings::convert_to_string (chapter) + "</td>");
@@ -86,7 +83,7 @@ string versification_system (void * webserver_request)
   }
   view.set_variable ("data", filter::strings::implode (data, "\n"));
 
-  string output = database_versifications.output (name);
+  std::string output = database_versifications.output (name);
   view.set_variable ("output", output);
 
   page += view.render ("versification", "system");

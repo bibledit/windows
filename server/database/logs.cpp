@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/sqlite.h>
 #include <filter/date.h>
 #include <journal/logic.h>
-using namespace std;
 
 
 // Bibledit no longer uses a database for storing the journal.
@@ -34,7 +33,7 @@ using namespace std;
 
 
 // Records a journal entry.
-void Database_Logs::log (string description, int level)
+void Database_Logs::log (std::string description, int level)
 {
   // Trim spaces.
   description = filter::strings::trim (description);
@@ -47,9 +46,9 @@ void Database_Logs::log (string description, int level)
     description.append ("... This entry was too large and has been truncated: " + filter::strings::convert_to_string (length) + " bytes");
   }
   // Save this logbook entry to a filename with seconds and microseconds.
-  string seconds = filter::strings::convert_to_string (filter::date::seconds_since_epoch ());
-  string time = seconds + filter::strings::fill (filter::strings::convert_to_string (filter::date::numerical_microseconds ()), 8, '0');
-  string file = filter_url_create_path ({folder (), time});
+  std::string seconds = filter::strings::convert_to_string (filter::date::seconds_since_epoch ());
+  std::string time = seconds + filter::strings::fill (filter::strings::convert_to_string (filter::date::numerical_microseconds ()), 8, '0');
+  std::string file = filter_url_create_path ({folder (), time});
   // The microseconds granularity depends on the platform.
   // On Windows it is lower than on Linux.
   // There may be the rare case of more than one entry per file.
@@ -62,15 +61,15 @@ void Database_Logs::log (string description, int level)
   filter_url_file_put_contents_append (file, description);
 #ifdef HAVE_WINDOWS
   // Delay to cover for lower usec granularity on Windows.
-  this_thread::sleep_for (chrono::milliseconds (1));
+  std::this_thread::sleep_for (std::chrono::milliseconds (1));
 #endif
 }
 
 
 // Records an extended journal entry.
-void Database_Logs::log (string subject, string body, int level)
+void Database_Logs::log (std::string subject, std::string body, int level)
 {
-  string description (subject);
+  std::string description (subject);
   description.append ("\n");
   description.append (body);
   log (description, level);
@@ -83,8 +82,8 @@ void Database_Logs::rotate ()
   // The PHP function scandir choked on this or took a very long time.
   // The PHP functions opendir / readdir / closedir handled it better.
   // But now, in C++, with the new journal mechanism, this is no longer relevant.
-  string directory = folder ();
-  vector <string> files = filter_url_scandir (directory);
+  std::string directory = folder ();
+  std::vector <std::string> files = filter_url_scandir (directory);
 
   
   // Timestamp for removing older records, depending on whether it's a tiny journal.
@@ -109,7 +108,7 @@ void Database_Logs::rotate ()
   
   bool filtered_entries = false;
   for (unsigned int i = 0; i < files.size(); i++) {
-    string path = filter_url_create_path ({directory, files [i]});
+    std::string path = filter_url_create_path ({directory, files [i]});
 
     // Limit the number of journal entries.
     if (static_cast<int> (i) < limitfilecount) {
@@ -125,7 +124,7 @@ void Database_Logs::rotate ()
     }
 
     // Filtering of certain entries.
-    string entry = filter_url_file_get_contents (path);
+    std::string entry = filter_url_file_get_contents (path);
     if (journal_logic_filter_entry (entry)) {
       filtered_entries = true;
       filter_url_unlink (path);
@@ -141,12 +140,12 @@ void Database_Logs::rotate ()
 
 
 // Get the logbook entries.
-vector <string> Database_Logs::get (string & lastfilename)
+std::vector <std::string> Database_Logs::get (std::string & lastfilename)
 {
   lastfilename = "0";
 
   // Read the journal records from the filesystem.
-  vector <string> files = filter_url_scandir (folder ());
+  std::vector <std::string> files = filter_url_scandir (folder ());
   for (unsigned int i = 0; i < files.size(); i++) {
     // Last second gets updated based on the filename.
     lastfilename = files [i];
@@ -159,25 +158,25 @@ vector <string> Database_Logs::get (string & lastfilename)
 
 // Gets journal entry more recent than "filename".
 // Updates "filename" to the item it got.
-string Database_Logs::next (string &filename)
+std::string Database_Logs::next (std::string &filename)
 {
-  vector <string> files = filter_url_scandir (folder ());
+  std::vector <std::string> files = filter_url_scandir (folder ());
   for (unsigned int i = 0; i < files.size (); i++) {
-    string file = files [i];
+    std::string file = files [i];
     if (file > filename) {
       filename = file;
       return file;
     }
   }
-  return "";
+  return std::string();
 }
 
 
 // Clears all journal entries.
 void Database_Logs::clear ()
 {
-  string directory = folder ();
-  vector <string> files = filter_url_scandir (directory);
+  std::string directory = folder ();
+  std::vector <std::string> files = filter_url_scandir (directory);
   for (auto file : files) {
     filter_url_unlink (filter_url_create_path ({directory, file}));
   }
@@ -186,7 +185,7 @@ void Database_Logs::clear ()
 
 
 // The folder where to store the records.
-string Database_Logs::folder ()
+std::string Database_Logs::folder ()
 {
   return filter_url_create_root_path ({"logbook"});
 }

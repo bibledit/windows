@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -37,26 +37,23 @@
 #include <styles/logic.h>
 #include <assets/header.h>
 #include <menu/logic.h>
-using namespace std;
 
 
-string styles_indexm_url ()
+std::string styles_indexm_url ()
 {
   return "styles/indexm";
 }
 
 
-bool styles_indexm_acl (void * webserver_request)
+bool styles_indexm_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
 }
 
 
-string styles_indexm (void * webserver_request)
+std::string styles_indexm (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  string page {};
+  std::string page {};
   
   Assets_Header header = Assets_Header (translate("Styles"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
@@ -66,16 +63,16 @@ string styles_indexm (void * webserver_request)
   
   Database_Styles database_styles {};
   
-  string username {request->session_logic ()->currentUser ()};
-  int userlevel {request->session_logic ()->currentLevel ()};
+  std::string username {webserver_request.session_logic ()->currentUser ()};
+  int userlevel {webserver_request.session_logic ()->currentLevel ()};
   
-  if (request->post.count ("new")) {
-    string name {request->post["entry"]};
+  if (webserver_request.post.count ("new")) {
+    std::string name {webserver_request.post["entry"]};
     // Remove spaces at the ends of the name for the new stylesheet.
     // Because predictive keyboards can add a space to the name,
     // and the stylesheet system is not built for whitespace at the start / end of the name of the stylesheet.
     name = filter::strings::trim (name);
-    vector <string> existing {database_styles.getSheets ()};
+    std::vector <std::string> existing {database_styles.getSheets ()};
     if (find (existing.begin(), existing.end (), name) != existing.end ()) {
       page += assets_page::error (translate("This stylesheet already exists"));
     } else {
@@ -85,22 +82,22 @@ string styles_indexm (void * webserver_request)
       page += assets_page::success (translate("The stylesheet has been created"));
     }
   }
-  if (request->query.count ("new")) {
-    Dialog_Entry dialog_entry = Dialog_Entry ("indexm", translate("Please enter the name for the new stylesheet"), string(), "new", string());
+  if (webserver_request.query.count ("new")) {
+    Dialog_Entry dialog_entry = Dialog_Entry ("indexm", translate("Please enter the name for the new stylesheet"), std::string(), "new", std::string());
     page += dialog_entry.run();
     return page;
   }
   
-  if (request->query.count ("delete")) {
-    string del {request->query ["delete"]};
+  if (webserver_request.query.count ("delete")) {
+    std::string del {webserver_request.query ["delete"]};
     if (!del.empty()) {
-      string confirm {request->query ["confirm"]};
+      std::string confirm {webserver_request.query ["confirm"]};
       if (confirm == "yes") {
         bool write = database_styles.hasWriteAccess (username, del);
         if (userlevel >= Filter_Roles::admin ()) write = true;
         if (write) {
           database_styles.deleteSheet (del);
-          database_styles.revokeWriteAccess (string(), del);
+          database_styles.revokeWriteAccess (std::string(), del);
           page += assets_page::success (translate("The stylesheet has been deleted"));
         }
       } if (confirm.empty()) {
@@ -113,10 +110,10 @@ string styles_indexm (void * webserver_request)
   }
  
   // Delete empty sheet that may have been there.
-  database_styles.deleteSheet (string());
+  database_styles.deleteSheet (std::string());
 
-  vector <string> sheets = database_styles.getSheets();
-  stringstream sheetblock {};
+  std::vector <std::string> sheets = database_styles.getSheets();
+  std::stringstream sheetblock {};
   for (auto & sheet : sheets) {
     sheetblock << "<p>";
     sheetblock << sheet;
@@ -125,7 +122,7 @@ string styles_indexm (void * webserver_request)
     // Cannot edit the Standard stylesheet.
     if (sheet == styles_logic_standard_sheet ()) editable = false;
     if (editable) {
-      sheetblock << "<a href=" << quoted ("sheetm?name=" + sheet) << ">[" << translate("edit") << "]</a>";
+      sheetblock << "<a href=" << std::quoted ("sheetm?name=" + sheet) << ">[" << translate("edit") << "]</a>";
     }
     sheetblock << "</p>";
   }

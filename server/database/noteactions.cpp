@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/string.h>
 #include <filter/date.h>
 #include <database/sqlite.h>
-using namespace std;
 
 
 // Database resilience. 
@@ -40,7 +39,7 @@ sqlite3 * Database_NoteActions::connect ()
 void Database_NoteActions::create ()
 {
   sqlite3 * db = connect ();
-  string sql = 
+  std::string sql = 
     "CREATE TABLE IF NOT EXISTS noteactions ("
     "  username text,"
     "  note integer,"
@@ -70,7 +69,7 @@ void Database_NoteActions::optimize ()
 }
 
 
-void Database_NoteActions::record (const string& username, int note, int action, const string& content)
+void Database_NoteActions::record (const std::string& username, int note, int action, const std::string& content)
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("INSERT INTO noteactions VALUES (");
@@ -90,11 +89,11 @@ void Database_NoteActions::record (const string& username, int note, int action,
 }
 
 
-vector <int> Database_NoteActions::getNotes ()
+std::vector <int> Database_NoteActions::getNotes ()
 {
-  vector <int> notes;
+  std::vector <int> notes;
   sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, "SELECT DISTINCT note FROM noteactions ORDER BY rowid;") ["note"];
+  std::vector <std::string> result = database_sqlite_query (db, "SELECT DISTINCT note FROM noteactions ORDER BY rowid;") ["note"];
   database_sqlite_disconnect (db);
   for (auto & note : result) {
     notes.push_back (filter::strings::convert_to_int (note));
@@ -103,21 +102,21 @@ vector <int> Database_NoteActions::getNotes ()
 }
 
 
-vector <Database_Note_Action> Database_NoteActions::getNoteData (int note)
+std::vector <Database_Note_Action> Database_NoteActions::getNoteData (int note)
 {
-  vector <Database_Note_Action> data;
+  std::vector <Database_Note_Action> data;
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT rowid, username, timestamp, action, content FROM noteactions WHERE note =");
   sql.add (note);
   sql.add ("ORDER BY rowid;");
   sqlite3 * db = connect ();
-  map <string, vector <string> > result = database_sqlite_query (db, sql.sql);
+  std::map <std::string, std::vector <std::string> > result = database_sqlite_query (db, sql.sql);
   database_sqlite_disconnect (db);
-  vector <string> rowids = result ["rowid"];
-  vector <string> usernames = result ["username"];
-  vector <string> timestamps = result ["timestamp"];
-  vector <string> actions = result ["action"];
-  vector <string> contents = result ["content"];
+  std::vector <std::string> rowids = result ["rowid"];
+  std::vector <std::string> usernames = result ["username"];
+  std::vector <std::string> timestamps = result ["timestamp"];
+  std::vector <std::string> actions = result ["action"];
+  std::vector <std::string> contents = result ["content"];
   for (unsigned int i = 0; i < rowids.size (); i++) {
     Database_Note_Action action = Database_Note_Action ();
     action.rowid = filter::strings::convert_to_int (rowids [i]);
@@ -165,7 +164,7 @@ bool Database_NoteActions::exists (int note)
   sql.add (note);
   sql.add (";");
   sqlite3 * db = connect ();
-  map <string, vector <string> > result = database_sqlite_query (db, sql.sql);
+  std::map <std::string, std::vector <std::string> > result = database_sqlite_query (db, sql.sql);
   database_sqlite_disconnect (db);
   return !result.empty ();
 }

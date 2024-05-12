@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -40,8 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <locale/translate.h>
 #include <tasks/logic.h>
 #include <rss/feed.h>
-using namespace std;
-using namespace pugi;
 
 
 #ifdef HAVE_CLOUD
@@ -51,7 +49,7 @@ void rss_logic_feed_on_off ()
 {
   // See whether there's Bibles that send their changes to the RSS feed.
   Database_Bibles database_bibles;
-  vector <string> bibles = database_bibles.get_bibles ();
+  std::vector <std::string> bibles = database_bibles.get_bibles ();
   bool rss_enabled = false;
   for (auto bible : bibles) {
     if (Database_Config_Bible::getSendChangesToRSS (bible)) {
@@ -63,7 +61,7 @@ void rss_logic_feed_on_off ()
     rss_logic_update_xml ({}, {}, {});
   } else {
     // The RSS feed is disabled: Remove the last trace of it entirely.
-    string path = rss_logic_xml_path ();
+    std::string path = rss_logic_xml_path ();
     if (file_or_dir_exists (path)) {
       filter_url_unlink (path);
     }
@@ -71,14 +69,14 @@ void rss_logic_feed_on_off ()
 }
 
 
-string rss_logic_new_line ()
+std::string rss_logic_new_line ()
 {
   return "rss_new_line";
 }
 
 
-void rss_logic_schedule_update (string user, string bible, int book, int chapter,
-                                string oldusfm, string newusfm)
+void rss_logic_schedule_update (std::string user, std::string bible, int book, int chapter,
+                                std::string oldusfm, std::string newusfm)
 {
   // If the RSS feed system is off, bail out.
   if (!Database_Config_Bible::getSendChangesToRSS (bible)) return;
@@ -88,7 +86,7 @@ void rss_logic_schedule_update (string user, string bible, int book, int chapter
   newusfm = filter::strings::replace ("\n", rss_logic_new_line (), newusfm);
   
   // Schedule it.
-  vector <string> parameters;
+  std::vector <std::string> parameters;
   parameters.push_back (user);
   parameters.push_back (bible);
   parameters.push_back (filter::strings::convert_to_string (book));
@@ -99,8 +97,8 @@ void rss_logic_schedule_update (string user, string bible, int book, int chapter
 }
 
 
-void rss_logic_execute_update (string user, string bible, int book, int chapter,
-                               string oldusfm, string newusfm)
+void rss_logic_execute_update (std::string user, std::string bible, int book, int chapter,
+                               std::string oldusfm, std::string newusfm)
 {
   // Bail out if there's no changes.
   if (oldusfm == newusfm) return;
@@ -117,21 +115,21 @@ void rss_logic_execute_update (string user, string bible, int book, int chapter,
   if (!include_author) user.clear ();
   
   // Storage for the feed update.
-  vector <string> titles, authors, descriptions;
+  std::vector <std::string> titles, authors, descriptions;
   
-  string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
+  const std::string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
 
   // Get the combined verse numbers in old and new USFM.
-  vector <int> old_verse_numbers = filter::usfm::get_verse_numbers (oldusfm);
-  vector <int> new_verse_numbers = filter::usfm::get_verse_numbers (newusfm);
-  vector <int> verses = old_verse_numbers;
+  std::vector <int> old_verse_numbers = filter::usfm::get_verse_numbers (oldusfm);
+  std::vector <int> new_verse_numbers = filter::usfm::get_verse_numbers (newusfm);
+  std::vector <int> verses = old_verse_numbers;
   verses.insert (verses.end (), new_verse_numbers.begin (), new_verse_numbers.end ());
   verses = filter::strings::array_unique (verses);
   sort (verses.begin(), verses.end());
 
   for (auto verse : verses) {
-    string old_verse_usfm = filter::usfm::get_verse_text (oldusfm, verse);
-    string new_verse_usfm = filter::usfm::get_verse_text (newusfm, verse);
+    std::string old_verse_usfm = filter::usfm::get_verse_text (oldusfm, verse);
+    std::string new_verse_usfm = filter::usfm::get_verse_text (newusfm, verse);
     if (old_verse_usfm != new_verse_usfm) {
       Filter_Text filter_text_old = Filter_Text (bible);
       Filter_Text filter_text_new = Filter_Text (bible);
@@ -141,10 +139,10 @@ void rss_logic_execute_update (string user, string bible, int book, int chapter,
       filter_text_new.add_usfm_code (new_verse_usfm);
       filter_text_old.run (stylesheet);
       filter_text_new.run (stylesheet);
-      string old_text = filter_text_old.text_text->get ();
-      string new_text = filter_text_new.text_text->get ();
+      std::string old_text = filter_text_old.text_text->get ();
+      std::string new_text = filter_text_new.text_text->get ();
       if (old_text != new_text) {
-        string modification = filter_diff_diff (old_text, new_text);
+        std::string modification = filter_diff_diff (old_text, new_text);
         titles.push_back (filter_passage_display (book, chapter, filter::strings::convert_to_string (verse)));
         authors.push_back (user);
         descriptions.push_back ("<div>" + modification + "</div>");
@@ -157,30 +155,30 @@ void rss_logic_execute_update (string user, string bible, int book, int chapter,
 }
 
 
-string rss_logic_xml_path ()
+std::string rss_logic_xml_path ()
 {
   return filter_url_create_root_path ({"rss", "feed.xml"});
 }
 
 
-void rss_logic_update_xml (vector <string> titles, vector <string> authors, vector <string> descriptions)
+void rss_logic_update_xml (std::vector <std::string> titles, std::vector <std::string> authors, std::vector <std::string> descriptions)
 {
   int seconds = filter::date::seconds_since_epoch ();
-  string rfc822time = filter::date::rfc822 (seconds);
-  string guid = filter::strings::convert_to_string (seconds);
+  std::string rfc822time = filter::date::rfc822 (seconds);
+  std::string guid = filter::strings::convert_to_string (seconds);
   bool document_updated = false;
-  xml_document document;
-  string path = rss_logic_xml_path ();
+  pugi::xml_document document;
+  std::string path = rss_logic_xml_path ();
   document.load_file (path.c_str());
-  xml_node rss_node = document.first_child ();
+  pugi::xml_node rss_node = document.first_child ();
   if (strcmp (rss_node.name (), "rss") != 0) {
     // RSS node.
     rss_node = document.append_child ("rss");
     rss_node.append_attribute ("version") = "2.0";
     rss_node.append_attribute ("xmlns:atom") = "http://www.w3.org/2005/Atom";
-    xml_node channel = rss_node.append_child ("channel");
+    pugi::xml_node channel = rss_node.append_child ("channel");
     // Title.
-    xml_node node = channel.append_child ("title");
+    pugi::xml_node node = channel.append_child ("title");
     node.text () = translate ("Bibledit").c_str();
     // Link to website.
     node = channel.append_child ("link");
@@ -190,18 +188,18 @@ void rss_logic_update_xml (vector <string> titles, vector <string> authors, vect
     node.text () = translate ("Recent changes in the Bible texts").c_str ();
     // Feed's URL.
     node = channel.append_child ("atom:link");
-    string link = Database_Config_General::getSiteURL() + rss_feed_url ();
+    std::string link = Database_Config_General::getSiteURL() + rss_feed_url ();
     node.append_attribute ("href") = link.c_str();
     node.append_attribute ("rel") = "self";
     node.append_attribute ("type") = "application/rss+xml";
     // Updated.
     document_updated = true;
   }
-  xml_node channel = rss_node.child ("channel");
+  pugi::xml_node channel = rss_node.child ("channel");
   for (size_t i = 0; i < titles.size(); i++) {
-    xml_node item = channel.append_child ("item");
-    string guid2 = guid + filter::strings::convert_to_string (i);
-    xml_node guid_node = item.append_child ("guid");
+    pugi::xml_node item = channel.append_child ("item");
+    std::string guid2 = guid + filter::strings::convert_to_string (i);
+    pugi::xml_node guid_node = item.append_child ("guid");
     guid_node.append_attribute ("isPermaLink") = "false";
     guid_node.text () = guid2.c_str();
     // Many readers do not display the 'author' field.
@@ -215,21 +213,21 @@ void rss_logic_update_xml (vector <string> titles, vector <string> authors, vect
     document_updated = true;
   }
   int rss_size = 100;
-  int count = static_cast<int>(distance (channel.children ().begin (), channel.children ().end ()));
+  int count = static_cast<int>(std::distance (channel.children ().begin (), channel.children ().end ()));
   count -= 3;
   count -= rss_size;
   while (count > 0) {
-    xml_node node = channel.child ("item");
+    pugi::xml_node node = channel.child ("item");
     channel.remove_child (node);
     document_updated = true;
     count--;
   }
   if (document_updated) {
-    xml_node decl = document.prepend_child (node_declaration);
+    pugi::xml_node decl = document.prepend_child (pugi::node_declaration);
     decl.append_attribute("version") = "1.0";
     decl.append_attribute("encoding") = "UTF-8";
-    stringstream output;
-    document.print (output, " ", format_default);
+    std::stringstream output;
+    document.print (output, " ", pugi::format_default);
     filter_url_file_put_contents (path, output.str ());
   }
 }

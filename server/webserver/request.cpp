@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -49,7 +49,8 @@ Webserver_Request::~Webserver_Request ()
 Session_Logic * Webserver_Request::session_logic ()
 {
   // Single live object during the entire web request.
-  if (!session_logic_instance) session_logic_instance = new Session_Logic (this);
+  if (!session_logic_instance) 
+    session_logic_instance = new Session_Logic (*this);
   return session_logic_instance;
 }
 
@@ -58,7 +59,7 @@ Session_Logic * Webserver_Request::session_logic ()
 Database_Config_User * Webserver_Request::database_config_user ()
 {
   // Single live object during the entire web request.
-  if (!database_config_user_instance) database_config_user_instance = new Database_Config_User (this);
+  if (!database_config_user_instance) database_config_user_instance = new Database_Config_User (*this);
   return database_config_user_instance;
 }
 
@@ -95,7 +96,8 @@ Database_Check * Webserver_Request::database_check ()
 
 Database_Ipc * Webserver_Request::database_ipc ()
 {
-  if (!database_ipc_instance) database_ipc_instance = new Database_Ipc (this);
+  if (!database_ipc_instance) 
+    database_ipc_instance = new Database_Ipc (*this);
   return database_ipc_instance;
 }
 

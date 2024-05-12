@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/string.h>
 #include <config/globals.h>
 #include <database/sqlite.h>
-using namespace std;
 
 
 // This is the database for the Strong's numbers and English glosses.
@@ -77,10 +76,10 @@ const char * Database_Kjv::filename ()
 
 
 // Get Strong's numbers and English snippets for book / chapter / verse.
-vector <Database_Kjv_Item> Database_Kjv::getVerse (int book, int chapter, int verse)
+std::vector <Database_Kjv_Item> Database_Kjv::getVerse (int book, int chapter, int verse)
 {
-  vector <Database_Kjv_Item> hits;
-  vector <int> rows = rowids (book, chapter, verse);
+  std::vector <Database_Kjv_Item> hits;
+  std::vector <int> rows = rowids (book, chapter, verse);
   for (auto row : rows) {
     Database_Kjv_Item item;
     item.strong = strong (row);
@@ -92,18 +91,18 @@ vector <Database_Kjv_Item> Database_Kjv::getVerse (int book, int chapter, int ve
 
 
 // Get all passages that contain a strong's number.
-vector <Passage> Database_Kjv::searchStrong (string strong)
+std::vector <Passage> Database_Kjv::searchStrong (std::string strong)
 {
   int strongid = get_id ("strong", strong);
   SqliteDatabase sql = SqliteDatabase (filename ());
   sql.add ("SELECT DISTINCT book, chapter, verse FROM kjv2 WHERE strong =");
   sql.add (strongid);
   sql.add ("ORDER BY rowid;");
-  vector <Passage> hits;
-  map <string, vector <string> > result = sql.query ();
-  vector <string> books = result ["book"];
-  vector <string> chapters = result ["chapter"];
-  vector <string> verses = result ["verse"];
+  std::vector <Passage> hits;
+  std::map <std::string, std::vector <std::string> > result = sql.query ();
+  std::vector <std::string> books = result ["book"];
+  std::vector <std::string> chapters = result ["chapter"];
+  std::vector <std::string> verses = result ["verse"];
   for (unsigned int i = 0; i < books.size (); i++) {
     Passage passage;
     passage.m_book = filter::strings::convert_to_int (books [i]);
@@ -115,7 +114,7 @@ vector <Passage> Database_Kjv::searchStrong (string strong)
 }
 
 
-void Database_Kjv::store (int book, int chapter, int verse, string strong, string english)
+void Database_Kjv::store (int book, int chapter, int verse, std::string strong, std::string english)
 {
   int strongid = get_id ("strong", strong);
   int englishid = get_id ("english", english);
@@ -144,7 +143,7 @@ void Database_Kjv::store (int book, int chapter, int verse, string strong, strin
 }
 
 
-vector <int> Database_Kjv::rowids (int book, int chapter, int verse)
+std::vector <int> Database_Kjv::rowids (int book, int chapter, int verse)
 {
   SqliteDatabase sql = SqliteDatabase (filename ());
   sql.add ("SELECT rowid FROM kjv2 WHERE book =");
@@ -154,26 +153,26 @@ vector <int> Database_Kjv::rowids (int book, int chapter, int verse)
   sql.add ("AND verse =");
   sql.add (verse);
   sql.add ("ORDER BY rowid;");
-  vector <string> result = sql.query () ["rowid"];
-  vector <int> rowids;
+  std::vector <std::string> result = sql.query () ["rowid"];
+  std::vector <int> rowids;
   for (auto rowid : result) rowids.push_back (filter::strings::convert_to_int (rowid));
   return rowids;
 }
 
 
-string Database_Kjv::strong (int rowid)
+std::string Database_Kjv::strong (int rowid)
 {
   return get_item ("strong", rowid);
 }
 
 
-string Database_Kjv::english (int rowid)
+std::string Database_Kjv::english (int rowid)
 {
   return get_item ("english", rowid);
 }
 
 
-int Database_Kjv::get_id (const char * table_row, string item)
+int Database_Kjv::get_id (const char * table_row, std::string item)
 {
   SqliteDatabase sql = SqliteDatabase (filename ());
   // Two iterations to be sure a rowid can be returned.
@@ -187,7 +186,7 @@ int Database_Kjv::get_id (const char * table_row, string item)
     sql.add ("=");
     sql.add (item);
     sql.add (";");
-    vector <string> result = sql.query () ["rowid"];
+    std::vector <std::string> result = sql.query () ["rowid"];
     if (!result.empty ()) return filter::strings::convert_to_int (result [0]);
     // The rowid was not found: Insert the word into the table.
     // The rowid will now be found during the second iteration.
@@ -203,7 +202,7 @@ int Database_Kjv::get_id (const char * table_row, string item)
 }
 
 
-string Database_Kjv::get_item (const char * item, int rowid)
+std::string Database_Kjv::get_item (const char * item, int rowid)
 {
   // The $rowid refers to the main table.
   // Update it so it refers to the sub table.
@@ -213,7 +212,7 @@ string Database_Kjv::get_item (const char * item, int rowid)
   sql.add ("FROM kjv2 WHERE rowid =");
   sql.add (rowid);
   sql.add (";");
-  vector <string> result = sql.query () [item];
+  std::vector <std::string> result = sql.query () [item];
   rowid = 0;
   if (!result.empty ()) rowid = filter::strings::convert_to_int (result [0]);
   // Retrieve the requested value from the sub table.
@@ -228,5 +227,5 @@ string Database_Kjv::get_item (const char * item, int rowid)
   result = sql.query () [item];
   if (!result.empty ()) return result [0];
   // Not found.
-  return "";
+  return std::string();
 }

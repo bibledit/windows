@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,11 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <filter/date.h>
 #include <config/globals.h>
-using namespace std;
 
 
 // Takes a month from 1 to 12, and returns its localized name.
-string locale_logic_month (int month)
+std::string locale_logic_month (int month)
 {
   switch (month) {
     case 1:  return translate ("January");
@@ -44,11 +43,11 @@ string locale_logic_month (int month)
     case 12: return translate ("December");
     default: translate ("Month") + " " + filter::strings::convert_to_string (month);
   }
-  return string();
+  return std::string();
 }
 
 
-string locale_logic_date (int seconds)
+std::string locale_logic_date (int seconds)
 {
   seconds = filter::date::local_seconds (seconds);
   int day = filter::date::numerical_month_day (seconds);
@@ -58,12 +57,12 @@ string locale_logic_date (int seconds)
 }
 
 
-string locale_logic_date_time (int seconds)
+std::string locale_logic_date_time (int seconds)
 {
   // Localize the seconds.
   seconds = filter::date::local_seconds (seconds);
   // Convert the seconds into a human readable date and time.
-  string timestamp;
+  std::string timestamp;
   timestamp.append (locale_logic_date (seconds));
   timestamp.append (" ");
   timestamp.append (filter::strings::fill (filter::strings::convert_to_string (filter::date::numerical_hour (seconds)), 2, '0'));
@@ -77,44 +76,44 @@ string locale_logic_date_time (int seconds)
 
 
 // Return the available localizations.
-map <string, string> locale_logic_localizations ()
+std::map <std::string, std::string> locale_logic_localizations ()
 {
-  string directory = filter_url_create_root_path ({"locale"});
-  vector <string> files = filter_url_scandir (directory);
-  map <string, string> localizations = {pair (std::string(), filter::strings::english ())};
+  std::string directory = filter_url_create_root_path ({"locale"});
+  std::vector <std::string> files = filter_url_scandir (directory);
+  std::map <std::string, std::string> localizations = {std::pair (std::string(), filter::strings::english ())};
   for (auto file : files) {
-    string suffix = filter_url_get_extension (file);
+    std::string suffix = filter_url_get_extension (file);
     if (suffix == "po") {
-      string basename = filter::strings::replace ("." + suffix, "", file);
-      string path = filter_url_create_path ({directory, file});
-      string contents = filter_url_file_get_contents (path);
-      string language = translate ("Unknown");
-      vector <string> lines = filter::strings::explode (contents, '\n');
+      std::string basename = filter::strings::replace ("." + suffix, "", file);
+      std::string path = filter_url_create_path ({directory, file});
+      std::string contents = filter_url_file_get_contents (path);
+      std::string language = translate ("Unknown");
+      std::vector <std::string> lines = filter::strings::explode (contents, '\n');
       for (auto line : lines) {
-        if (line.find ("translation for bibledit") != string::npos) {
+        if (line.find ("translation for bibledit") != std::string::npos) {
           line.erase (0, 2);
           line.erase (line.length () - 25);
           language = line;
         }
       }
-      localizations.insert (pair (basename, language));
+      localizations.insert (std::pair (basename, language));
     }
   }
   return localizations;
 }
 
 
-unordered_map <string, string> locale_logic_read_msgid_msgstr (string file)
+std::unordered_map <std::string, std::string> locale_logic_read_msgid_msgstr (std::string file)
 {
-  unordered_map <string, string> translations;
-  string contents = filter_url_file_get_contents (file);
-  vector <string> lines = filter::strings::explode (contents, '\n');
-  string msgid;
-  string msgstr;
+  std::unordered_map <std::string, std::string> translations;
+  std::string contents = filter_url_file_get_contents (file);
+  std::vector <std::string> lines = filter::strings::explode (contents, '\n');
+  std::string msgid;
+  std::string msgstr;
   int stage = 0;
   for (size_t i = 0; i < lines.size (); i++) {
     // Clean the line up.
-    string line = filter::strings::trim (lines[i]);
+    std::string line = filter::strings::trim (lines[i]);
     // Skip a comment.
     if (line.find ("#") == 0) continue;
     // Deal with the messages.
@@ -157,68 +156,68 @@ unordered_map <string, string> locale_logic_read_msgid_msgstr (string file)
 }
 
 
-string locale_logic_text_loaded ()
+std::string locale_logic_text_loaded ()
 {
   return translate ("Loaded");
 }
 
 
-string locale_logic_text_will_save ()
+std::string locale_logic_text_will_save ()
 {
   return translate ("Will save...");
 }
 
 
-string locale_logic_text_updating ()
+std::string locale_logic_text_updating ()
 {
   return translate ("Updating...");
 }
 
 
-string locale_logic_text_updated ()
+std::string locale_logic_text_updated ()
 {
   return translate ("Updated");
 }
 
 
-string locale_logic_text_saving ()
+std::string locale_logic_text_saving ()
 {
   return translate ("Saving...");
 }
 
 
-string locale_logic_text_saved ()
+std::string locale_logic_text_saved ()
 {
   return translate ("Saved");
 }
 
 
-string locale_logic_text_retrying ()
+std::string locale_logic_text_retrying ()
 {
   return translate ("Retrying...");
 }
 
 
-string locale_logic_text_reformat ()
+std::string locale_logic_text_reformat ()
 {
   return translate ("Reformat");
 }
 
 
-string locale_logic_text_no_privileges_modify_book ()
+std::string locale_logic_text_no_privileges_modify_book ()
 {
   return translate ("You do not have enough privileges to modify this book.");
 }
 
 
-string locale_logic_text_reload ()
+std::string locale_logic_text_reload ()
 {
   return translate("Updated Bible text was loaded.");
 }
 
 
 // Returns the Unicode name of the $space.
-string locale_logic_space_get_name (string space, bool english)
+std::string locale_logic_space_get_name (std::string space, bool english)
 {
   if (space == " ") {
     if (english) return "space";
@@ -244,7 +243,7 @@ string locale_logic_space_get_name (string space, bool english)
 }
 
 
-string locale_logic_deobfuscate (string value)
+std::string locale_logic_deobfuscate (std::string value)
 {
   // Replace longest strings first.
   
@@ -265,7 +264,7 @@ string locale_logic_deobfuscate (string value)
 }
 
 
-bool locale_logic_obfuscate_compare_internal (const string& a, const string& b)
+bool locale_logic_obfuscate_compare_internal (const std::string& a, const std::string& b)
 {
   return (a.size() > b.size());
 }
@@ -274,12 +273,12 @@ bool locale_logic_obfuscate_compare_internal (const string& a, const string& b)
 void locale_logic_obfuscate_initialize ()
 {
   // Load the contents of the obfuscation configuration file
-  string filename = filter_url_create_root_path ({"obfuscate", "texts.txt"});
-  string contents = filter_url_file_get_contents (filename);
-  vector <string> lines = filter::strings::explode (contents, '\n');
+  std::string filename = filter_url_create_root_path ({"obfuscate", "texts.txt"});
+  std::string contents = filter_url_file_get_contents (filename);
+  std::vector <std::string> lines = filter::strings::explode (contents, '\n');
   
   // Container to map the original string to the obfuscated version.
-  map <string, string> original_to_obfuscated;
+  std::map <std::string, std::string> original_to_obfuscated;
   
   // Iterate over each line.
   for (auto & line : lines) {
@@ -292,23 +291,23 @@ void locale_logic_obfuscate_initialize ()
     
     // Skip lines that start with the number sign #.
     size_t pos = line.find ("#");
-    if (pos != string::npos) if (pos < 3) continue;
+    if (pos != std::string::npos) if (pos < 3) continue;
     
     // Apart from texts to obfuscate,
     // the settings can also contain a line to hide the Bible resources.
     // Deal with it here.
     pos = line.find ("HideBibleResources");
-    if (pos != string::npos) {
+    if (pos != std::string::npos) {
       config_globals_hide_bible_resources = true;
       continue;
     }
     
     // Lines require the equal sign = once.
-    vector <string> obfuscation_pair = filter::strings::explode (line, '=');
+    std::vector <std::string> obfuscation_pair = filter::strings::explode (line, '=');
     if (obfuscation_pair.size () != 2) continue;
 
     // Deobfuscate recognized search terms.
-    string searchfor = locale_logic_deobfuscate (obfuscation_pair[0]);
+    std::string searchfor = locale_logic_deobfuscate (obfuscation_pair[0]);
     
     // Store the unsorted obfuscation data.
     original_to_obfuscated [searchfor] = obfuscation_pair [1];

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -22,22 +22,17 @@
 #include <assets/page.h>
 #include <locale/translate.h>
 #include <filter/url.h>
-using namespace std;
 
 
-Dialog_Color::Dialog_Color (string url, string question)
+Dialog_Color::Dialog_Color (std::string url, std::string question)
 {
-  Assets_View * view = new Assets_View ();
   base_url = url;
-  view->set_variable ("question", question);
-  assets_view = view;
+  assets_view.set_variable ("question", question);
 }
 
 
 Dialog_Color::~Dialog_Color ()
 {
-  Assets_View * view = static_cast<Assets_View *>(assets_view);
-  delete view;
 }
 
 
@@ -45,17 +40,16 @@ Dialog_Color::~Dialog_Color ()
 // If any $query is passed, if Cancel is clicked in this dialog, it should go go back
 // to the original caller page  with the $query added.
 // Same for when a selection is made: It adds the $query to the page where to go.
-void Dialog_Color::add_query (string parameter, string value)
+void Dialog_Color::add_query (std::string parameter, std::string value)
 {
   base_url = filter_url_build_http_query (base_url, parameter, value);
 }
 
 
-string Dialog_Color::run ()
+std::string Dialog_Color::run ()
 {
-  Assets_View * view = static_cast<Assets_View *>(assets_view);
-  view->set_variable ("base_url", base_url);
-  string page = view->render ("dialog", "color");
+  assets_view.set_variable ("base_url", base_url);
+  std::string page = assets_view.render ("dialog", "color");
   page += assets_page::footer ();
   return page;
 }

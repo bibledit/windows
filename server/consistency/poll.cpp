@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -23,30 +23,28 @@
 #include <webserver/request.h>
 #include <consistency/logic.h>
 #include <database/volatile.h>
-using namespace std;
 
 
-string consistency_poll_url ()
+std::string consistency_poll_url ()
 {
   return "consistency/poll";
 }
 
 
-bool consistency_poll_acl (void * webserver_request)
+bool consistency_poll_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
 }
 
 
-string consistency_poll (void * webserver_request)
+std::string consistency_poll (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  int id = filter::strings::convert_to_int (request->query ["id"]);
+  const int id = filter::strings::convert_to_int (webserver_request.query ["id"]);
   Consistency_Logic consistency_logic = Consistency_Logic (webserver_request, id);
-  string response = consistency_logic.response ();
+  const std::string response = consistency_logic.response ();
   if (response != Database_Volatile::getValue (id, "response")) {
     Database_Volatile::setValue (id, "response", response);
     return response;
   }
-  return "";
+  return std::string();
 }

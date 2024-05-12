@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 #include <database/config/bible.h>
 #include <menu/logic.h>
 #include <journal/index.h>
-using namespace std;
+#include <webserver/request.h>
 
 
 const char * manage_hyphenation_url ()
@@ -40,61 +40,58 @@ const char * manage_hyphenation_url ()
 }
 
 
-bool manage_hyphenation_acl (void * webserver_request)
+bool manage_hyphenation_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
 }
 
 
-string manage_hyphenation (void * webserver_request)
+std::string manage_hyphenation (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  
-  string page;
+  std::string page;
   Assets_Header header = Assets_Header (translate ("Hyphenation"), webserver_request);
   header.add_bread_crumb (menu_logic_tools_menu (), menu_logic_tools_text ());
   page = header.run ();
   Assets_View view;
   
   
-  string bible = access_bible::clamp (webserver_request, request->database_config_user()->getBible ());
+  std::string bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->getBible ());
   
   
-  string success;
-  string error;
+  std::string success;
+  std::string error;
   
   
   // Character sets submission.
-  if (request->post.count ("sets")) {
-    string firstset = request->post["firstset"];
+  if (webserver_request.post.count ("sets")) {
+    std::string firstset = webserver_request.post["firstset"];
     Database_Config_Bible::setHyphenationFirstSet (bible, firstset);
-    string secondset = request->post["secondset"];
+    std::string secondset = webserver_request.post["secondset"];
     Database_Config_Bible::setHyphenationSecondSet (bible, secondset);
     success = translate("The two sets of characters were saved");
   }
   
   
-  if (request->query.count ("bible")) {
-    string bible2 = request->query ["bible"];
+  if (webserver_request.query.count ("bible")) {
+    std::string bible2 = webserver_request.query ["bible"];
     if (bible2.empty()) {
       Dialog_List dialog_list = Dialog_List ("", translate("Which Bible would you like to take the data from?"), "", "");
-      vector <string> bibles = access_bible::bibles (webserver_request);
+      std::vector <std::string> bibles = access_bible::bibles (webserver_request);
       for (auto list_bible : bibles) {
         dialog_list.add_row (list_bible, "bible", list_bible);
       }
       page += dialog_list.run ();
       return page;
     } else {
-      request->database_config_user()->setBible (bible2);
+      webserver_request.database_config_user()->setBible (bible2);
     }
   }
-  bible = access_bible::clamp (webserver_request, request->database_config_user()->getBible ());
+  bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->getBible ());
   
   
-  string firstset = Database_Config_Bible::getHyphenationFirstSet (bible);
-  string secondset = Database_Config_Bible::getHyphenationSecondSet (bible);
-  if (request->query.count ("run")) {
+  std::string firstset = Database_Config_Bible::getHyphenationFirstSet (bible);
+  std::string secondset = Database_Config_Bible::getHyphenationSecondSet (bible);
+  if (webserver_request.query.count ("run")) {
     if (bible == "") {
       error = translate("No Bible given");
     } else if (firstset == "") {
@@ -102,9 +99,9 @@ string manage_hyphenation (void * webserver_request)
     } else if (secondset == "") {
       error = translate("No second set of characters given");
     } else {
-      tasks_logic_queue (HYPHENATE, {bible, request->session_logic()->currentUser ()});
-      redirect_browser (request, journal_index_url ());
-      return "";
+      tasks_logic_queue (HYPHENATE, {bible, webserver_request.session_logic()->currentUser ()});
+      redirect_browser (webserver_request, journal_index_url ());
+      return std::string();
     }
   }
   

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -34,40 +34,37 @@
 #include <search/logic.h>
 #include <menu/logic.h>
 #include <dialog/list2.h>
-using namespace std;
 
 
-string search_search2_url ()
+std::string search_search2_url ()
 {
   return "search/search2";
 }
 
 
-bool search_search2_acl (void * webserver_request)
+bool search_search2_acl (Webserver_Request& webserver_request)
 {
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ())) return true;
+  if (Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ()))
+    return true;
   auto [ read, write ] = access_bible::any (webserver_request);
   return read;
 }
 
 
-string search_search2 (void * webserver_request)
+std::string search_search2 (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
+  std::string siteUrl = config::logic::site_url (webserver_request);
+  
+  
+  std::string bible = webserver_request.database_config_user()->getBible ();
+  if (webserver_request.query.count ("bible")) bible = webserver_request.query ["bible"];
 
   
-  string siteUrl = config::logic::site_url (webserver_request);
-  
-  
-  string bible = request->database_config_user()->getBible ();
-  if (request->query.count ("bible")) bible = request->query ["bible"];
-
-  
-  bool hit_is_set = request->query.count ("h");
-  bool query_is_set = request->query.count ("q");
-  int identifier = filter::strings::convert_to_int (request->query ["i"]);
-  string query = request->query ["q"];
-  string hit = request->query ["h"];
+  bool hit_is_set = webserver_request.query.count ("h");
+  bool query_is_set = webserver_request.query.count ("q");
+  int identifier = filter::strings::convert_to_int (webserver_request.query ["i"]);
+  std::string query = webserver_request.query ["q"];
+  std::string hit = webserver_request.query ["h"];
 
   
   // Get one search hit.
@@ -75,21 +72,21 @@ string search_search2 (void * webserver_request)
     
     
     // Retrieve the search parameters from the volatile database.
-    string query2 = Database_Volatile::getValue (identifier, "query");
+    std::string query2 = Database_Volatile::getValue (identifier, "query");
     //bool casesensitive = filter::strings::convert_to_bool (Database_Volatile::getValue (identifier, "casesensitive"));
     bool plaintext = filter::strings::convert_to_bool (Database_Volatile::getValue (identifier, "plaintext"));
     
     
     // Get the Bible and passage for this identifier.
     Passage details = Passage::decode (hit);
-    string bible2 = details.m_bible;
+    std::string bible2 = details.m_bible;
     int book = details.m_book;
     int chapter = details.m_chapter;
-    string verse = details.m_verse;
+    std::string verse = details.m_verse;
     
     
     // Get the plain text or USFM.
-    string text;
+    std::string text;
     if (plaintext) {
       text = search_logic_get_bible_verse_text (bible2, book, chapter, filter::strings::convert_to_int (verse));
     } else {
@@ -98,9 +95,9 @@ string search_search2 (void * webserver_request)
     
     
     // Format it.
-    string link = filter_passage_link_for_opening_editor_at (book, chapter, verse);
+    std::string link = filter_passage_link_for_opening_editor_at (book, chapter, verse);
     text =  filter::strings::markup_words ({query2}, text);
-    string output = "<div>" + link + " " + text + "</div>";
+    std::string output = "<div>" + link + " " + text + "</div>";
     
     
     // Output to browser.
@@ -113,10 +110,10 @@ string search_search2 (void * webserver_request)
     
     
     // Get extra search parameters and store them all in the volatile database.
-    bool casesensitive = (request->query ["c"] == "true");
-    bool plaintext = (request->query ["p"] == "true");
-    string books = request->query ["b"];
-    string sharing = request->query ["s"];
+    bool casesensitive = (webserver_request.query ["c"] == "true");
+    bool plaintext = (webserver_request.query ["p"] == "true");
+    std::string books = webserver_request.query ["b"];
+    std::string sharing = webserver_request.query ["s"];
     Database_Volatile::setValue (identifier, "query", query);
     Database_Volatile::setValue (identifier, "casesensitive", filter::strings::convert_to_string (casesensitive));
     Database_Volatile::setValue (identifier, "plaintext", filter::strings::convert_to_string (plaintext));
@@ -125,7 +122,7 @@ string search_search2 (void * webserver_request)
     // Deal with case sensitivity.
     // Deal with whether to search the plain text, or the raw USFM.
     // Fetch the initial set of hits.
-    vector <Passage> passages;
+    std::vector <Passage> passages;
     if (plaintext) {
       if (casesensitive) {
         passages = search_logic_search_bible_text_case_sensitive (bible, query);
@@ -143,8 +140,8 @@ string search_search2 (void * webserver_request)
     
     // Deal with possible searching in the current book only.
     if (books == "currentbook") {
-      int book = Ipc_Focus::getBook (request);
-      vector <Passage> bookpassages;
+      int book = Ipc_Focus::getBook (webserver_request);
+      std::vector <Passage> bookpassages;
       for (auto & passage : passages) {
         if (book == passage.m_book) {
           bookpassages.push_back (passage);
@@ -158,7 +155,7 @@ string search_search2 (void * webserver_request)
     bool otbooks = (books == "otbooks");
     bool ntbooks = (books == "ntbooks");
     if (otbooks || ntbooks) {
-      vector <Passage> bookpassages;
+      std::vector <Passage> bookpassages;
       for (auto & passage : passages) {
         book_type type = database::books::get_type (static_cast<book_id>(passage.m_book));
         if (otbooks) if (type != book_type::old_testament) continue;
@@ -170,12 +167,12 @@ string search_search2 (void * webserver_request)
     
 
     // Deal with how to share the results.
-    vector <string> hits;
+    std::vector <std::string> hits;
     for (auto & passage : passages) {
       hits.push_back (passage.encode ());
     }
     if (sharing != "load") {
-      vector <string> loaded_hits = filter::strings::explode (Database_Volatile::getValue (identifier, "hits"), '\n');
+      std::vector <std::string> loaded_hits = filter::strings::explode (Database_Volatile::getValue (identifier, "hits"), '\n');
       if (sharing == "add") {
         hits.insert (hits.end(), loaded_hits.begin(), loaded_hits.end());
       }
@@ -190,7 +187,7 @@ string search_search2 (void * webserver_request)
 
 
     // Generate one string from the hits.
-    string output = filter::strings::implode (hits, "\n");
+    std::string output = filter::strings::implode (hits, "\n");
 
 
     // Store search hits in the volatile database.
@@ -203,30 +200,30 @@ string search_search2 (void * webserver_request)
 
   
   // Set the user chosen Bible as the current Bible.
-  if (request->post.count ("bibleselect")) {
-    string bibleselect = request->post ["bibleselect"];
-    request->database_config_user ()->setBible (bibleselect);
-    return string();
+  if (webserver_request.post.count ("bibleselect")) {
+    std::string bibleselect = webserver_request.post ["bibleselect"];
+    webserver_request.database_config_user ()->setBible (bibleselect);
+    return std::string();
   }
   
   // Build the advanced search page.
-  string page;
-  Assets_Header header = Assets_Header (translate("Search"), request);
+  std::string page;
+  Assets_Header header = Assets_Header (translate("Search"), webserver_request);
   header.set_navigator ();
   header.add_bread_crumb (menu_logic_search_menu (), menu_logic_search_text ());
   page = header.run ();
   Assets_View view;
   {
-    string bible_html;
-    vector <string> accessible_bibles = access_bible::bibles (request);
+    std::string bible_html;
+    std::vector <std::string> accessible_bibles = access_bible::bibles (webserver_request);
     for (auto selectable_bible : accessible_bibles) {
       bible_html = Options_To_Select::add_selection (selectable_bible, selectable_bible, bible_html);
     }
     view.set_variable ("bibleoptags", Options_To_Select::mark_selected (bible, bible_html));
   }
   view.set_variable ("bible", bible);
-  stringstream script {};
-  script << "var searchBible = " << quoted(bible) << ";";
+  std::stringstream script {};
+  script << "var searchBible = " << std::quoted(bible) << ";";
   view.set_variable ("script", script.str());
   page += view.render ("search", "search2");
   page += assets_page::footer ();

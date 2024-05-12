@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,28 +21,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <filter/string.h>
 #include <database/sqlite.h>
-using namespace std;
 
 
 // Database resilience: It is stored in the plain filesystem in the temporal location.
 
 
-string Database_Volatile::getValue (int id, const string& key)
+std::string Database_Volatile::getValue (int id, const std::string& key)
 {
   return filter_url_file_get_contents (filename (id, key));
 }
 
 
-void Database_Volatile::setValue (int id, const string& key, const string& value)
+void Database_Volatile::setValue (int id, const std::string& key, const std::string& value)
 {
   filter_url_file_put_contents (filename (id, key), value);
 }
 
 
-string Database_Volatile::filename (int id, string key)
+std::string Database_Volatile::filename (int id, std::string key)
 {
-  string identifier = filter_url_clean_filename (filter::strings::convert_to_string (id));
+  std::string identifier = filter_url_clean_filename (filter::strings::convert_to_string (id));
   key = filter_url_clean_filename (key);
-  string path = filter_url_create_root_path ({filter_url_temp_dir (), "volatile__" + identifier + "__" + key});
+  std::string path = filter_url_create_root_path ({filter_url_temp_dir (), "volatile__" + identifier + "__" + key});
   return path;
 }

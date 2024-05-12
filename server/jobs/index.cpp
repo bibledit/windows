@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,46 +29,43 @@
 #include <access/bible.h>
 #include <tasks/logic.h>
 #include <database/jobs.h>
-using namespace std;
 
 
-string jobs_index_url ()
+std::string jobs_index_url ()
 {
   return "jobs/index";
 }
 
 
-bool jobs_index_acl (void * webserver_request)
+bool jobs_index_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ());
 }
 
 
-string jobs_index (void * webserver_request)
+std::string jobs_index (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
+  std::string page;
   
-  string page;
-  
-  Assets_Header header = Assets_Header (translate ("Job"), request);
+  Assets_Header header = Assets_Header (translate ("Job"), webserver_request);
   
   Assets_View view;
 
-  int id = filter::strings::convert_to_int (request->query ["id"]);
+  const int id = filter::strings::convert_to_int (webserver_request.query ["id"]);
 
   // Get information about this job.
   Database_Jobs database_jobs = Database_Jobs ();
-  bool exists = database_jobs.id_exists (id);
-  int level = database_jobs.get_level (id);
-  string start = database_jobs.get_start (id);
-  string percentage = database_jobs.get_percentage (id);
-  string progress = database_jobs.get_progress (id);
-  string result = database_jobs.get_result (id);
+  const bool exists = database_jobs.id_exists (id);
+  const int level = database_jobs.get_level (id);
+  const std::string start = database_jobs.get_start (id);
+  const std::string percentage = database_jobs.get_percentage (id);
+  const std::string progress = database_jobs.get_progress (id);
+  const std::string result = database_jobs.get_result (id);
 
   // Access control for the user.
-  int userlevel = request->session_logic()->currentLevel ();
+  const int userlevel = webserver_request.session_logic()->currentLevel ();
 
-  string contents;
+  std::string contents;
   if (!exists) {
     // Check on existence of the job.
     contents = translate("This job does not exist.");

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,8 +21,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <config/libraries.h>
 
-std::string get_base_url (void * webserver_request);
-void redirect_browser (void * webserver_request, std::string url);
+class Webserver_Request;
+
+std::string get_base_url (Webserver_Request& webserver_request);
+void redirect_browser (Webserver_Request& webserver_request, std::string url);
 std::string filter_url_dirname (std::string url);
 std::string filter_url_dirname_web (std::string url);
 std::string filter_url_basename (std::string url);
@@ -69,7 +71,7 @@ std::string filter_url_remove_username_password (std::string url);
 std::string filter_url_http_request_mbed (std::string url, std::string& error, const std::map <std::string, std::string>& post, const std::string& filename, bool check_certificate);
 void filter_url_ssl_tls_initialize ();
 void filter_url_ssl_tls_finalize ();
-void filter_url_display_mbed_tls_error (int & ret, std::string * error, bool server);
+void filter_url_display_mbed_tls_error (int& ret, std::string* error, bool server, const std::string& remote_ip_address);
 std::string filter_url_set_scheme (std::string url, bool secure);
 std::string filter_url_clean_filename (std::string name);
 std::string filter_url_filename_clean (std::string name);

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -256,7 +256,8 @@ bool convert_to_bool (const std::string& s)
 
 std::string convert_to_true_false (const bool b)
 {
-  if (b) return "true";
+  if (b) 
+    return "true";
   return "false";
 }
 
@@ -624,7 +625,7 @@ std::string unicode_string_casefold (const std::string& s)
    // Case folding.
    source.foldCase ();
    // UTF-16 UnicodeString -> UTF-8 std::string
-   string result;
+   std::string result;
    source.toUTF8String (result);
    // Ready.
    return result;
@@ -664,7 +665,7 @@ std::string unicode_string_uppercase (const std::string& s)
    How to do the above through the ICU library.
    UnicodeString source = UnicodeString::fromUTF8 (StringPiece (s));
    source.toUpper ();
-   string result;
+   std::string result;
    source.toUTF8String (result);
    return result;
    */
@@ -704,7 +705,7 @@ std::string unicode_string_transliterate (const std::string& s)
    transliterator->transliterate(source);
    
    // UTF-16 UnicodeString -> UTF-8 std::string
-   string result;
+   std::string result;
    source.toUTF8String (result);
    
    // Done.
@@ -1045,7 +1046,7 @@ std::string extract_body (const std::string& input, std::string year, std::strin
 std::string get_checkbox_status (const bool enabled)
 {
   if (enabled) return "checked";
-  return "";
+  return std::string();
 }
 
 
@@ -1419,12 +1420,11 @@ std::vector <std::string> search_needles (const std::string& search, const std::
 
 
 // Returns an integer identifier based on the name of the current user.
-int user_identifier (void * webserver_request)
+int user_identifier (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  const std::string username = request->session_logic()->currentUser ();
+  const std::string username = webserver_request.session_logic()->currentUser ();
   const std::string hash = md5 (username).substr (0, 5);
-  const int identifier = config::logic::my_stoi (hash, nullptr, 36);
+  const int identifier = std::stoi (hash, nullptr, 36);
   return identifier;
 }
 
@@ -1454,7 +1454,7 @@ std::string hex2bin (const std::string& hex)
     for (std::string::const_iterator pos = hex.begin(); pos < hex.end(); pos += 2)
     {
       extract.assign (pos, pos+2);
-      out.push_back (static_cast<char> (config::logic::my_stoi (extract, nullptr, 16)));
+      out.push_back (static_cast<char> (std::stoi (extract, nullptr, 16)));
     }
   }
   return out;
@@ -1749,7 +1749,7 @@ std::string html_get_element (std::string html, std::string element)
 
 
 /*
- string filter_string_tidy_invalid_html_leaking (string html)
+ string filter_string_tidy_invalid_html_leaking (std::string html)
  {
  // Everything in the <head> can be left out: It is not relevant.
  filter::strings::replace_between (html, "<head>", "</head>", "");
@@ -1819,6 +1819,7 @@ static std::string substitute_xml_entities_into_text(const std::string& text)
 }
 
 
+#ifdef HAVE_CLOUD
 static std::string substitute_xml_entities_into_attributes(const char quote, const std::string& text)
 {
   std::string result {substitute_xml_entities_into_text (text)};
@@ -1830,6 +1831,7 @@ static std::string substitute_xml_entities_into_attributes(const char quote, con
   }
   return result;
 }
+#endif
 
 
 #ifdef HAVE_CLOUD
@@ -2022,7 +2024,7 @@ static std::string pretty_print(GumboNode* node, int lvl, const std::string& ind
   std::string attributes {};
   std::string tagname {get_tag_name(node)};
   std::string key {"|" + tagname + "|"};
-  //bool need_special_handling {special_handling.find(key) != string::npos};
+  //bool need_special_handling {special_handling.find(key) != std::string::npos};
   const bool is_empty_tag {empty_tags.find(key) != std::string::npos};
   const bool no_entity_substitution {no_entity_substitution_tags.find(key) != std::string::npos};
   const bool keep_whitespace {preserve_whitespace_tags.find(key) != std::string::npos};
@@ -2155,11 +2157,11 @@ std::string fix_invalid_html_tidy (std::string html)
   
   if (rc >= 0) {
     if (rc > 0) {
-      //      cerr << "Html tidy diagnostics:" << endl;
-      //      cerr << errbuf.bp << endl;
+      //      std::cerr << "Html tidy diagnostics:" << std::endl;
+      //      std::cerr << errbuf.bp << std::endl;
     }
-    //    cout << "Html tidy result:" << endl;
-    //    cout << output.bp << endl;
+    //    std::cout << "Html tidy result:" << std::endl;
+    //    std::cout << output.bp << std::endl;
     html = std::string (reinterpret_cast<char const*>(output.bp));
   }
   else {

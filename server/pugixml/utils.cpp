@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -25,30 +25,23 @@
 #pragma GCC diagnostic ignored "-Wsuggest-override"
 #pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 #ifndef HAVE_PUGIXML
-#ifndef HAVE_PUGIXML
 #include <pugixml/pugixml.hpp>
 #endif
 #ifdef HAVE_PUGIXML
 #include <pugixml.hpp>
 #endif
-#endif
-#ifdef HAVE_PUGIXML
-#include <pugixml.hpp>
-#endif
 #pragma GCC diagnostic pop
-using namespace std;
-using namespace pugi;
 
 
-void pugixml_utils_error_logger (void * pugi_xml_parse_result, const string & xml)
+void pugixml_utils_error_logger (void * pugi_xml_parse_result, const std::string & xml)
 {
-  xml_parse_result * result = static_cast<xml_parse_result *>(pugi_xml_parse_result);
-  if (result->status == status_ok) return;
+  pugi::xml_parse_result * result = static_cast<pugi::xml_parse_result *>(pugi_xml_parse_result);
+  if (result->status == pugi::status_ok) return;
   int start = static_cast<int>(result->offset - 10);
   if (start < 0) start = 0;
-  string fragment = xml.substr (static_cast<size_t>(start), 20);
+  std::string fragment = xml.substr (static_cast<size_t>(start), 20);
   fragment = filter::strings::replace ("\n", "", fragment);
-  string msg;
+  std::string msg;
   msg.append (result->description());
   msg.append (" at offset ");
   msg.append (filter::strings::convert_to_string (static_cast<size_t>(result->offset)));

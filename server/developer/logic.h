@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,12 +21,14 @@
 
 #include <config/libraries.h>
 
+class Webserver_Request;
+
 void developer_logic_log_network_write ();
 
 class Developer_Logic_Tracer
 {
 public:
-  Developer_Logic_Tracer(void * webserver_request);
+  Developer_Logic_Tracer(Webserver_Request& webserver_request);
   ~Developer_Logic_Tracer();
   int seconds1 {0};
   int microseconds1 {0};

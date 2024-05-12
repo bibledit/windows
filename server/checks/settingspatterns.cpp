@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -28,16 +28,15 @@
 #include <assets/header.h>
 #include <menu/logic.h>
 #include <checks/settings.h>
-using namespace std;
 
 
-string checks_settingspatterns_url ()
+std::string checks_settingspatterns_url ()
 {
   return "checks/settingspatterns";
 }
 
 
-bool checks_settingspatterns_acl ([[maybe_unused]] void * webserver_request)
+bool checks_settingspatterns_acl ([[maybe_unused]] Webserver_Request& webserver_request)
 {
 #ifdef HAVE_CLIENT
   return true;
@@ -47,12 +46,9 @@ bool checks_settingspatterns_acl ([[maybe_unused]] void * webserver_request)
 }
 
 
-string checks_settingspatterns (void * webserver_request)
+std::string checks_settingspatterns (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  
-  string page {};
+  std::string page {};
   Assets_Header header = Assets_Header (translate ("Patterns"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   header.add_bread_crumb (checks_settings_url (), menu_logic_checks_settings_text ());
@@ -60,11 +56,11 @@ string checks_settingspatterns (void * webserver_request)
   Assets_View view {};
   
   
-  string bible = access_bible::clamp (webserver_request, request->database_config_user()->getBible ());
+  const std::string bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->getBible ());
   
   
-  if (request->post.count ("patterns")) {
-    string patterns = request->post ["patterns"];
+  if (webserver_request.post.count ("patterns")) {
+    const std::string patterns = webserver_request.post ["patterns"];
     if (!bible.empty ()) Database_Config_Bible::setCheckingPatterns (bible, patterns);
     view.set_variable ("success", translate("The patterns were saved"));
   }

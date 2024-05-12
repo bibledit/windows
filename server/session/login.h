@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,7 +21,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <config/libraries.h>
 
+class Webserver_Request;
+
 const char * session_login_url ();
-bool session_login_acl (void * webserver_request);
-std::string session_login (void * webserver_request);
-std::string session_login_display_header (void * webserver_request);
+bool session_login_acl (Webserver_Request& webserver_request);
+std::string session_login (Webserver_Request& webserver_request);
+std::string session_login_display_header (Webserver_Request& webserver_request);

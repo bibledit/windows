@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,54 +32,51 @@
 #include <bb/logic.h>
 #include <search/logic.h>
 #include <access/bible.h>
-using namespace std;
 
 
-string search_replacego_url ()
+std::string search_replacego_url ()
 {
   return "search/replacego";
 }
 
 
-bool search_replacego_acl (void * webserver_request)
+bool search_replacego_acl (Webserver_Request& webserver_request)
 {
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
+  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ()))
+    return true;
   auto [ read, write ] = access_bible::any (webserver_request);
   return write;
 }
 
 
-string search_replacego (void * webserver_request)
+std::string search_replacego (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  
-  string siteUrl = config::logic::site_url (webserver_request);
+  std::string siteUrl = config::logic::site_url (webserver_request);
   
   
   // Get the action variables from the query.
-  string id = request->query ["id"];
-  string searchfor = request->query ["q"];
-  string replacewith = request->query ["r"];
-  bool casesensitive = (request->query ["c"] == "true");
+  std::string id = webserver_request.query ["id"];
+  std::string searchfor = webserver_request.query ["q"];
+  std::string replacewith = webserver_request.query ["r"];
+  bool casesensitive = (webserver_request.query ["c"] == "true");
   
   
   // Get Bible and passage for this identifier.
   Passage passage = Passage::decode (id);
-  string bible = passage.m_bible;
+  std::string bible = passage.m_bible;
   int book = passage.m_book;
   int chapter = passage.m_chapter;
   int verse = filter::strings::convert_to_int (passage.m_verse);
   
   
   // Check whether the user has write access to the book.
-  string user = request->session_logic ()->currentUser ();
+  std::string user = webserver_request.session_logic ()->currentUser ();
   bool write = access_bible::book_write (webserver_request, user, bible, book);
 
   
   // Get the old chapter and verse USFM.
-  string old_chapter_usfm = request->database_bibles()->get_chapter (bible, book, chapter);
-  string old_verse_usfm = filter::usfm::get_verse_text (old_chapter_usfm, verse);
+  std::string old_chapter_usfm = webserver_request.database_bibles()->get_chapter (bible, book, chapter);
+  std::string old_verse_usfm = filter::usfm::get_verse_text (old_chapter_usfm, verse);
 
   
   // As a standard to compare against,
@@ -88,11 +85,11 @@ string search_replacego (void * webserver_request)
   // get the length difference due to the replacemenents,
   // and get the desired new plain text.
   int plain_replacement_count = 0;
-  string standardPlainText = search_logic_plain_replace_verse_text (old_verse_usfm);
+  std::string standardPlainText = search_logic_plain_replace_verse_text (old_verse_usfm);
   if (casesensitive) {
     standardPlainText = filter::strings::replace (searchfor, replacewith, standardPlainText, &plain_replacement_count);
   } else {
-    vector <string> needles = filter::strings::search_needles (searchfor, standardPlainText);
+    std::vector <std::string> needles = filter::strings::search_needles (searchfor, standardPlainText);
     for (auto & needle : needles) {
       standardPlainText = filter::strings::replace (needle, replacewith, standardPlainText, &plain_replacement_count);
     }
@@ -101,11 +98,11 @@ string search_replacego (void * webserver_request)
   
   // Do the replacing in the verse USFM, and count how many replacement were made.
   int usfm_replacement_count = 0;
-  string new_verse_usfm (old_verse_usfm);
+  std::string new_verse_usfm (old_verse_usfm);
   if (casesensitive) {
     new_verse_usfm = filter::strings::replace (searchfor, replacewith, new_verse_usfm, &usfm_replacement_count);
   } else {
-    vector <string> needles = filter::strings::search_needles (searchfor, old_verse_usfm);
+    std::vector <std::string> needles = filter::strings::search_needles (searchfor, old_verse_usfm);
     for (auto & needle : needles) {
       new_verse_usfm = filter::strings::replace (needle, replacewith, new_verse_usfm, &usfm_replacement_count);
     }
@@ -113,9 +110,9 @@ string search_replacego (void * webserver_request)
   
   
   // Get the updated chapter USFM as a string.
-  string new_chapter_usfm = old_chapter_usfm;
+  std::string new_chapter_usfm = old_chapter_usfm;
   size_t pos = new_chapter_usfm.find (old_verse_usfm);
-  if (pos != string::npos) {
+  if (pos != std::string::npos) {
     size_t length = old_verse_usfm.length ();
     new_chapter_usfm.erase (pos, length);
     new_chapter_usfm.insert (pos, new_verse_usfm);
@@ -123,7 +120,7 @@ string search_replacego (void * webserver_request)
   
   
   // Get the updated plain text of the correct verse of the updated USFM.
-  string updatedPlainText = search_logic_plain_replace_verse_text (new_verse_usfm);
+  std::string updatedPlainText = search_logic_plain_replace_verse_text (new_verse_usfm);
   
   
   // Check that the standard and real number of replacements, and the standard and new texts, are the same.
@@ -133,7 +130,7 @@ string search_replacego (void * webserver_request)
 
   
   // Generate success or failure icon.
-  string icon;
+  std::string icon;
   if (replacementOkay && write) {
     icon = "<span class=\"success\">✔</span>";
   } else {
@@ -152,11 +149,11 @@ string search_replacego (void * webserver_request)
   
   
   // Clickable passage.
-  string link = filter_passage_link_for_opening_editor_at (book, chapter, filter::strings::convert_to_string (verse));
+  std::string link = filter_passage_link_for_opening_editor_at (book, chapter, filter::strings::convert_to_string (verse));
   
   
   // Success or failure message.
-  string msg;
+  std::string msg;
   if (!write) {
     msg = locale_logic_text_no_privileges_modify_book ();
   } else if (replacementOkay) {
@@ -167,7 +164,7 @@ string search_replacego (void * webserver_request)
   
   
   // Create output.
-  string output = "<p>" + icon + " " + link + " " + msg + "</p>\n";
+  std::string output = "<p>" + icon + " " + link + " " + msg + "</p>\n";
   
   
   // Output to browser.

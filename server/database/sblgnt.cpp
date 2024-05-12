@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/sblgnt.h>
 #include <filter/string.h>
 #include <database/sqlite.h>
-using namespace std;
 
 
 // This is the database for the Greek New Testament.
@@ -45,7 +44,7 @@ sqlite3 * Database_Sblgnt::connect ()
 
 
 // Get Greek words for $book $chapter $verse.
-vector <string> Database_Sblgnt::getVerse (int book, int chapter, int verse)
+std::vector <std::string> Database_Sblgnt::getVerse (int book, int chapter, int verse)
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT greek FROM sblgnt WHERE book =");
@@ -56,26 +55,26 @@ vector <string> Database_Sblgnt::getVerse (int book, int chapter, int verse)
   sql.add (verse);
   sql.add (";");
   sqlite3 * db = connect ();
-  vector <string> words = database_sqlite_query (db, sql.sql) ["greek"];
+  std::vector <std::string> words = database_sqlite_query (db, sql.sql) ["greek"];
   database_sqlite_disconnect (db);
   return words;
 }
 
 
 // Get the passages that contain a $greek word.
-vector <Passage> Database_Sblgnt::searchGreek (string greek)
+std::vector <Passage> Database_Sblgnt::searchGreek (std::string greek)
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT DISTINCT book, chapter, verse FROM sblgnt WHERE greek =");
   sql.add (greek);
   sql.add (";");
-  vector <Passage> hits;
+  std::vector <Passage> hits;
   sqlite3 * db = connect ();
-  map <string, vector <string> > result = database_sqlite_query (db, sql.sql);
+  std::map <std::string, std::vector <std::string> > result = database_sqlite_query (db, sql.sql);
   database_sqlite_disconnect (db);
-  vector <string> books = result ["book"];
-  vector <string> chapters = result ["chapter"];
-  vector <string> verses = result ["verse"];
+  std::vector <std::string> books = result ["book"];
+  std::vector <std::string> chapters = result ["chapter"];
+  std::vector <std::string> verses = result ["verse"];
   for (unsigned int i = 0; i < books.size (); i++) {
     Passage passage;
     passage.m_book = filter::strings::convert_to_int (books [i]);

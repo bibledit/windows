@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -25,25 +25,24 @@
 #include <locale/translate.h>
 #include <database/bibleimages.h>
 #include <database/logs.h>
-using namespace std;
 
 
-void images_logic_import_images (string path)
+void images_logic_import_images (std::string path)
 {
   Database_BibleImages database_bibleimages;
 
   Database_Logs::log ("Importing: " + filter_url_basename (path));
 
   // To begin with, add the path of the zip file to the main file to the list of paths to be processed.
-  vector <string> paths = {path};
+  std::vector <std::string> paths = {path};
 
   while (!paths.empty ()) {
 
     // Take the first path and remove it from the container.
     path = paths[0];
     paths.erase (paths.begin());
-    string basename = filter_url_basename (path);
-    string extension = filter_url_get_extension (path);
+    std::string basename = filter_url_basename (path);
+    std::string extension = filter_url_get_extension (path);
     extension = filter::strings::unicode_string_casefold (extension);
 
     // Store images.
@@ -59,7 +58,7 @@ void images_logic_import_images (string path)
     // Uncompress archives.
     else if (filter_archive_is_archive (path)) {
       Database_Logs::log ("Unpacking archive " + basename);
-      string folder = filter_archive_uncompress (path);
+      std::string folder = filter_archive_uncompress (path);
       filter_url_recursive_scandir (folder, paths);
     }
    

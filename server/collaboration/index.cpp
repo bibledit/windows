@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,27 +32,24 @@
 #include <database/config/bible.h>
 #include <dialog/list.h>
 #include <menu/logic.h>
-using namespace std;
 
 
-string collaboration_index_url ()
+std::string collaboration_index_url ()
 {
   return "collaboration/index";
 }
 
 
-bool collaboration_index_acl (void * webserver_request)
+bool collaboration_index_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::admin ());
 }
 
 
-string collaboration_index (void * webserver_request)
+std::string collaboration_index (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  string page;
-  Assets_Header header = Assets_Header (translate("Repository"), request);
+  std::string page {};
+  Assets_Header header = Assets_Header (translate("Repository"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
   Assets_View view;
@@ -61,14 +58,14 @@ string collaboration_index (void * webserver_request)
 #ifdef HAVE_CLOUD
 
   
-  string object = request->query ["object"];
-  if (request->query.count ("select")) {
-    string select = request->query["select"];
-    if (select == "") {
+  std::string object = webserver_request.query ["object"];
+  if (webserver_request.query.count ("select")) {
+    const std::string& select = webserver_request.query["select"];
+    if (select.empty()) {
       Dialog_List dialog_list = Dialog_List ("index", translate("Which Bible are you going to use?"), "", "");
       dialog_list.add_query ("object", object);
-      vector <string> bibles = request->database_bibles()->get_bibles();
-      for (auto & value : bibles) {
+      const std::vector <std::string>& bibles = webserver_request.database_bibles()->get_bibles();
+      for (const auto& value : bibles) {
         dialog_list.add_row (value, "select", value);
       }
       page += dialog_list.run ();
@@ -81,14 +78,14 @@ string collaboration_index (void * webserver_request)
   if (!object.empty ()) view.enable_zone ("objectactive");
 
 
-  string repositoryfolder = filter_git_directory (object);
+  const std::string& repositoryfolder = filter_git_directory (object);
 
   
-  if (request->query.count ("disable")) {
+  if (webserver_request.query.count ("disable")) {
     Database_Config_Bible::setRemoteRepositoryUrl (object, "");
     filter_url_rmdir (repositoryfolder);
   }
-  string url = Database_Config_Bible::getRemoteRepositoryUrl (object);
+  const std::string& url = Database_Config_Bible::getRemoteRepositoryUrl (object);
   view.set_variable ("url", url);
   if (url.empty ()) {
     view.enable_zone ("urlinactive");
@@ -99,12 +96,12 @@ string collaboration_index (void * webserver_request)
   
   // Get the status of the git repository.
   // This could have been done through the following:
-  // vector <string> statuslines = filter_git_status (repositoryfolder);
+  // std::vector <std::string> statuslines = filter_git_status (repositoryfolder);
   // But this function does not capture standard error.
   // And the standard error output is needed in case of failures.
   // So the following is used instead.
   if (!object.empty ()) {
-    string statusoutput, statuserror;
+    std::string statusoutput, statuserror;
     filter_shell_run (repositoryfolder, "git", {"status"}, &statusoutput, &statuserror);
     view.set_variable ("status", statusoutput + " " + statuserror);
   }

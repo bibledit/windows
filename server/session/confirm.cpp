@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,15 +33,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/logs.h>
 #include <database/config/general.h>
 #include <user/logic.h>
-using namespace std;
 
 
 class Verification
 {
 public:
-  string question;
-  string answer;
-  string passage;
+  std::string question;
+  std::string answer;
+  std::string passage;
 };
 
 
@@ -51,41 +50,38 @@ const char * session_confirm_url ()
 }
 
 
-bool session_confirm_acl (void * webserver_request)
+bool session_confirm_acl (Webserver_Request& webserver_request)
 {
   // Find the level of the user.
   // This confirmation page only allows access if the user is not yet logged in.
   // Such a situation produces level 1, that is the guest level.
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  int level = request->session_logic ()->currentLevel ();
+  int level = webserver_request.session_logic ()->currentLevel ();
   return (level == Filter_Roles::guest());
 }
 
 
-string session_confirm ([[maybe_unused]] void * webserver_request)
+std::string session_confirm ([[maybe_unused]] Webserver_Request& webserver_request)
 {
-  string page;
+  std::string page;
 
 #ifdef HAVE_CLOUD
 
-  Confirm_Worker confirm_worker = Confirm_Worker (webserver_request);
-  string email;
+  Confirm_Worker confirm_worker = (webserver_request);
+  std::string email;
   bool is_valid_confirmation = confirm_worker.handleLink (email);
 
   // Handle a valid confirmation.
   if (is_valid_confirmation) {
 
-    Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
     // Authenticate against local database, but skipping some checks.
-    if (request->session_logic()->attempt_login (email, "", true, true)) {
+    if (webserver_request.session_logic()->attempt_login (email, "", true, true)) {
       // Log the login.
-      Database_Logs::log (request->session_logic()->currentUser () + " confirmed account and logged in");
+      Database_Logs::log (webserver_request.session_logic()->currentUser () + " confirmed account and logged in");
       // Store web site's base URL.
-      string siteUrl = get_base_url (request);
+      std::string siteUrl = get_base_url (webserver_request);
       Database_Config_General::setSiteURL (siteUrl);
       // Store account creation time.
-      user_logic_store_account_creation (request->session_logic()->currentUser ());
+      user_logic_store_account_creation (webserver_request.session_logic()->currentUser ());
     }
 
   }

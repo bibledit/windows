@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/diff.h>
 #include <locale/translate.h>
 #include <database/booksdata.h>
-using namespace std;
 
 
 namespace database::books {
@@ -36,7 +35,7 @@ constexpr size_t data_count = sizeof (books_table) / sizeof (*books_table);
 
 std::vector <book_id> get_ids ()
 {
-  vector <book_id> ids;
+  std::vector <book_id> ids;
   for (unsigned int i = 0; i < data_count; i++) {
     book_id id = books_table[i].id;
     ids.push_back (id);
@@ -45,7 +44,7 @@ std::vector <book_id> get_ids ()
 }
 
 
-book_id get_id_from_english (const string & english)
+book_id get_id_from_english (const std::string& english)
 {
   for (unsigned int i = 0; i < data_count; i++) {
     if (english == books_table[i].english) {
@@ -56,7 +55,7 @@ book_id get_id_from_english (const string & english)
 }
 
 
-string get_english_from_id (book_id id)
+std::string get_english_from_id (book_id id)
 {
   for (unsigned int i = 0; i < data_count; i++) {
     if (id == books_table[i].id) {
@@ -67,7 +66,7 @@ string get_english_from_id (book_id id)
 }
 
 
-string get_usfm_from_id (book_id id)
+std::string get_usfm_from_id (book_id id)
 {
   for (unsigned int i = 0; i < data_count; i++) {
     if (id == books_table[i].id) {
@@ -78,7 +77,7 @@ string get_usfm_from_id (book_id id)
 }
 
 
-string get_bibleworks_from_id (book_id id)
+std::string get_bibleworks_from_id (book_id id)
 {
   for (unsigned int i = 0; i < data_count; i++) {
     if (id == books_table[i].id) {
@@ -89,7 +88,7 @@ string get_bibleworks_from_id (book_id id)
 }
 
 
-string get_osis_from_id (book_id id)
+std::string get_osis_from_id (book_id id)
 {
   for (unsigned int i = 0; i < data_count; i++) {
     if (id == books_table[i].id) {
@@ -100,7 +99,7 @@ string get_osis_from_id (book_id id)
 }
 
 
-book_id get_id_from_usfm (const string & usfm)
+book_id get_id_from_usfm (const std::string& usfm)
 {
   for (unsigned int i = 0; i < data_count; i++) {
     if (usfm == books_table[i].usfm) {
@@ -111,7 +110,7 @@ book_id get_id_from_usfm (const string & usfm)
 }
 
 
-book_id get_id_from_osis (const string & osis)
+book_id get_id_from_osis (const std::string& osis)
 {
   for (unsigned int i = 0; i < data_count; i++) {
     if (osis == books_table[i].osis) {
@@ -122,7 +121,7 @@ book_id get_id_from_osis (const string & osis)
 }
 
 
-book_id get_id_from_bibleworks (const string & bibleworks)
+book_id get_id_from_bibleworks (const std::string& bibleworks)
 {
   for (unsigned int i = 0; i < data_count; i++) {
     if (bibleworks == books_table[i].bibleworks) {
@@ -136,13 +135,13 @@ book_id get_id_from_bibleworks (const string & bibleworks)
 // Tries to interprete $text as the name of a Bible book.
 // Returns the book's identifier if it succeeds.
 // If it fails, it returns 0.
-book_id get_id_like_text (const string & text)
+book_id get_id_like_text (const std::string& text)
 {
   // Go through all known book names and abbreviations.
   // Note how much the $text differs from the known names.
   // Then return the best match.
-  vector <int> ids {};
-  vector <int> similarities {};
+  std::vector <int> ids {};
+  std::vector <int> similarities {};
   for (unsigned int i = 0; i < data_count; i++) {
     int id {static_cast<int>(books_table[i].id)};
     ids.push_back (id);
@@ -162,7 +161,7 @@ book_id get_id_like_text (const string & text)
 }
 
 
-book_id get_id_from_onlinebible (const string & onlinebible)
+book_id get_id_from_onlinebible (const std::string& onlinebible)
 {
   for (unsigned int i = 0; i < data_count; i++) {
     if (onlinebible == books_table[i].onlinebible) {
@@ -173,14 +172,14 @@ book_id get_id_from_onlinebible (const string & onlinebible)
 }
 
 
-string get_onlinebible_from_id (book_id id)
+std::string get_onlinebible_from_id (book_id id)
 {
   for (unsigned int i = 0; i < data_count; i++) {
     if (id == books_table[i].id) {
       return books_table[i].onlinebible;
     }
   }
-  return string();
+  return std::string();
 }
 
 
@@ -209,15 +208,15 @@ book_type get_type (book_id id)
 std::string book_type_to_string (book_type type)
 {
   switch (type) {
-    case book_type::unknown: return string();
+    case book_type::unknown: return std::string();
     case book_type::old_testament: return "ot";
     case book_type::new_testament: return "nt";
     case book_type::front_back: return "frontback";
     case book_type::other: return "other";
     case book_type::apocryphal: return "ap";
-    default: return string();
+    default: return std::string();
   }
-  return string();
+  return std::string();
 }
 
 

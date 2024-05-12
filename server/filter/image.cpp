@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,10 +32,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
 #pragma GCC diagnostic pop
-using namespace std;
 
 
-void filter_image_get_sizes (string image_path, int & width, int & height)
+void filter_image_get_sizes (std::string image_path, int & width, int & height)
 {
   int bpp;
   uint8_t* rgb_image = stbi_load (image_path.c_str(), &width, &height, &bpp, 0);

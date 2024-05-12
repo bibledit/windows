@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/string.h>
 #include <config/globals.h>
 #include <database/sqlite.h>
-using namespace std;
 
 
 const char * Database_BibleActions::filename ()
@@ -60,7 +59,7 @@ void Database_BibleActions::optimize ()
 }
 
 
-void Database_BibleActions::record (string bible, int book, int chapter, string usfm)
+void Database_BibleActions::record (std::string bible, int book, int chapter, std::string usfm)
 {
   if (getUsfm (bible, book, chapter).empty ()) {
     SqliteDatabase sql (filename ());
@@ -78,29 +77,29 @@ void Database_BibleActions::record (string bible, int book, int chapter, string 
 }
 
 
-vector <string> Database_BibleActions::getBibles ()
+std::vector <std::string> Database_BibleActions::getBibles ()
 {
   SqliteDatabase sql (filename ());
   sql.add ("SELECT DISTINCT bible FROM bibleactions ORDER BY bible;");
-  vector <string> notes = sql.query ()["bible"];
+  std::vector <std::string> notes = sql.query ()["bible"];
   return notes;
 }
 
 
-vector <int> Database_BibleActions::getBooks (string bible)
+std::vector <int> Database_BibleActions::getBooks (std::string bible)
 {
   SqliteDatabase sql (filename ());
   sql.add ("SELECT DISTINCT book FROM bibleactions WHERE bible =");
   sql.add (bible);
   sql.add ("ORDER BY book;");
-  vector <string> result = sql.query ()["book"];
-  vector <int> books;
+  std::vector <std::string> result = sql.query ()["book"];
+  std::vector <int> books;
   for (auto book : result) books.push_back (filter::strings::convert_to_int (book));
   return books;
 }
 
 
-vector <int> Database_BibleActions::getChapters (string bible, int book)
+std::vector <int> Database_BibleActions::getChapters (std::string bible, int book)
 {
   SqliteDatabase sql (filename ());
   sql.add ("SELECT DISTINCT chapter FROM bibleactions WHERE bible =");
@@ -108,14 +107,14 @@ vector <int> Database_BibleActions::getChapters (string bible, int book)
   sql.add ("AND book =");
   sql.add (book);
   sql.add ("ORDER BY chapter;");
-  vector <string> result = sql.query ()["chapter"];
-  vector <int> chapters;
+  std::vector <std::string> result = sql.query ()["chapter"];
+  std::vector <int> chapters;
   for (auto chapter : result) chapters.push_back (filter::strings::convert_to_int (chapter));
   return chapters;
 }
 
 
-string Database_BibleActions::getUsfm (string bible, int book, int chapter)
+std::string Database_BibleActions::getUsfm (std::string bible, int book, int chapter)
 {
   SqliteDatabase sql (filename ());
   sql.add ("SELECT usfm FROM bibleactions WHERE bible =");
@@ -125,16 +124,16 @@ string Database_BibleActions::getUsfm (string bible, int book, int chapter)
   sql.add ("AND chapter =");
   sql.add (chapter);
   sql.add (";");
-  vector <string> result = sql.query ()["usfm"];
+  std::vector <std::string> result = sql.query ()["usfm"];
   if (!result.empty()) {
-    string usfm = result[0];
+    std::string usfm = result[0];
     return usfm;
   };
-  return string();
+  return std::string();
 }
 
 
-void Database_BibleActions::erase (string bible, int book, int chapter)
+void Database_BibleActions::erase (std::string bible, int book, int chapter)
 {
   SqliteDatabase sql (filename ());
   sql.add ("DELETE FROM bibleactions WHERE bible =");
@@ -146,4 +145,4 @@ void Database_BibleActions::erase (string bible, int book, int chapter)
   sql.add (";");
   sql.execute ();
 }
- 
+

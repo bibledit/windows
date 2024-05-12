@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -33,31 +33,27 @@
 #include <access/logic.h>
 #include <config/globals.h>
 #include <database/config/general.h>
-using namespace std;
 
 
-string resource_index_url ()
+std::string resource_index_url ()
 {
   return "resource/index";
 }
 
 
-bool resource_index_acl (void * webserver_request)
+bool resource_index_acl (Webserver_Request& webserver_request)
 {
   return access_logic::privilege_view_resources (webserver_request);
 }
 
 
-string resource_index (void * webserver_request)
+std::string resource_index (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  
-  bool touch = request->session_logic ()->touchEnabled ();
+  const bool touch = webserver_request.session_logic ()->touchEnabled ();
 
   
-  string page;
-  Assets_Header header = Assets_Header (translate("Resources"), request);
+  std::string page;
+  Assets_Header header = Assets_Header (translate("Resources"), webserver_request);
   header.set_navigator ();
   header.set_stylesheet ();
   if (touch) header.jquery_touch_on ();
@@ -66,24 +62,24 @@ string resource_index (void * webserver_request)
   Assets_View view;
   
   
-  vector <string> resources = request->database_config_user()->getActiveResources ();
+  std::vector <std::string> resources = webserver_request.database_config_user()->getActiveResources ();
 
 
   // If no resources are displayed, set a default selection of them.
   // If a default selection hasn't been set by an administrator, use the
   // default set from demo.
   if (resources.empty ()) {
-    vector <string> default_resources = Database_Config_General::getDefaultActiveResources ();
+    std::vector <std::string> default_resources = Database_Config_General::getDefaultActiveResources ();
     if (default_resources.empty ()) resources = demo_logic_default_resources ();
     else resources = default_resources;
-    request->database_config_user()->setActiveResources (resources);
+    webserver_request.database_config_user()->setActiveResources (resources);
   }
 
   
-  string resourceblock;
+  std::string resourceblock;
   for (size_t i = 1; i <= resources.size (); i++) {
     resourceblock.append ("<div id=\"line" + filter::strings::convert_to_string (i) + "\" style=\"clear:both\">\n");
-    string resource = resources[i - 1];
+    std::string resource = resources[i - 1];
     if (!sword_logic_get_remote_module (resource).empty ()) {
       if (!sword_logic_get_installed_module (resource).empty ()) {
         resource = sword_logic_get_name (resource);
@@ -98,9 +94,9 @@ string resource_index (void * webserver_request)
   
   
   size_t resource_count = resources.size ();
-  string username = request->session_logic()->currentUser ();
+  std::string username = webserver_request.session_logic()->currentUser ();
   int window_position = config_globals_resource_window_positions [username];
-  string script = "var resourceCount = " + filter::strings::convert_to_string (resource_count) + ";\n"
+  std::string script = "var resourceCount = " + filter::strings::convert_to_string (resource_count) + ";\n"
                   "var resourceWindowPosition = " + filter::strings::convert_to_string (window_position) + ";";
   config::logic::swipe_enabled (webserver_request, script);
   view.set_variable ("script", script);

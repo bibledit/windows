@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -19,10 +19,9 @@
 
 #include <filter/md5.h>
 #include <mbedtls/md5.h>
-using namespace std;
 
 
-string md5 (const string str)
+std::string md5 (const std::string str)
 {
   unsigned char md5sum[16];
   const unsigned char *input = reinterpret_cast<const unsigned char *>(str.c_str ());
@@ -41,5 +40,5 @@ string md5 (const string str)
   }
   
   // Resulting hexits.
-  return string (hexits);
+  return std::string (hexits);
 }

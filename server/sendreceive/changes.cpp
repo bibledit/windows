@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@
 #include <sync/logic.h>
 #include <sync/changes.h>
 #include <checksum/logic.h>
-using namespace std;
 
 
 int sendreceive_changes_watchdog {0};
@@ -46,19 +45,19 @@ void send_receive_changes_done ()
 }
 
 
-string sendreceive_changes_text ()
+std::string sendreceive_changes_text ()
 {
   return translate("Changes") + ": ";
 }
 
 
-string sendreceive_changes_sendreceive_text ()
+std::string sendreceive_changes_sendreceive_text ()
 {
   return sendreceive_changes_text () + translate ("Send/receive");
 }
 
 
-string sendreceive_changes_up_to_date_text ()
+std::string sendreceive_changes_up_to_date_text ()
 {
   return sendreceive_changes_text () + translate ("Up to date");
 }
@@ -81,8 +80,8 @@ void sendreceive_changes ()
   Database_Logs::log (sendreceive_changes_sendreceive_text (), Filter_Roles::translator ());
   
 
-  Webserver_Request request;
-  Sync_Logic sync_logic = Sync_Logic (&request);
+  Webserver_Request webserver_request;
+  Sync_Logic sync_logic (webserver_request);
   Database_Modifications database_modifications;
   
   
@@ -93,7 +92,7 @@ void sendreceive_changes ()
   }
   
   
-  string response = client_logic_connection_setup ("", "");
+  std::string response = client_logic_connection_setup ("", "");
   int iresponse = filter::strings::convert_to_int (response);
   if (iresponse < Filter_Roles::guest () || iresponse > Filter_Roles::admin ()) {
     Database_Logs::log (sendreceive_changes_text () + translate("Failure to initiate connection"), Filter_Roles::translator ());
@@ -103,38 +102,38 @@ void sendreceive_changes ()
   
   
   // Set the correct user in the session: The sole user on the Client.
-  vector <string> users = request.database_users ()->get_users ();
+  std::vector <std::string> users = webserver_request.database_users ()->get_users ();
   if (users.empty ()) {
     Database_Logs::log (translate("No user found"), Filter_Roles::translator ());
     send_receive_changes_done ();
     return;
   }
-  string user = users [0];
-  request.session_logic ()->set_username (user);
-  string password = request.database_users ()->get_md5 (user);
+  std::string user = users [0];
+  webserver_request.session_logic ()->set_username (user);
+  std::string password = webserver_request.database_users ()->get_md5 (user);
   
   
   // The basic request to be POSTed to the server.
   // It contains the user's credentials.
-  map <string, string> post;
+  std::map <std::string, std::string> post;
   post ["u"] = filter::strings::bin2hex (user);
   post ["p"] = password;
-  post ["l"] = filter::strings::convert_to_string (request.database_users ()->get_level (user));
+  post ["l"] = filter::strings::convert_to_string (webserver_request.database_users ()->get_level (user));
   
   
   // Error variables.
-  string error;
+  std::string error;
   bool communication_errors = false;
   
   
   // Server URL to call.
-  string address = Database_Config_General::getServerAddress ();
+  std::string address = Database_Config_General::getServerAddress ();
   int port = Database_Config_General::getServerPort ();
-  string url = client_logic_url (address, port, sync_changes_url ());
+  std::string url = client_logic_url (address, port, sync_changes_url ());
   
   
   // Send the removed change notifications to the server.
-  vector <int> ids = request.database_config_user ()->getRemovedChanges ();
+  std::vector <int> ids = webserver_request.database_config_user ()->getRemovedChanges ();
   if (!ids.empty ()) Database_Logs::log (sendreceive_changes_text () + "Sending removed notifications: " + filter::strings::convert_to_string (ids.size()), Filter_Roles::translator ());
   for (auto & id : ids) {
     post ["a"] = filter::strings::convert_to_string (Sync_Logic::changes_delete_modification);
@@ -145,7 +144,7 @@ void sendreceive_changes ()
       Database_Logs::log (sendreceive_changes_text () + "Failure sending removed notification: " + error, Filter_Roles::translator ());
     }
     else {
-      request.database_config_user ()->removeRemovedChange (id);
+      webserver_request.database_config_user ()->removeRemovedChange (id);
     }
   }
   
@@ -160,12 +159,12 @@ void sendreceive_changes ()
   // Compare the total checksum for the change notifications for the active user on client and server.
   // Checksum is cached for future re-use.
   // Take actions based on that.
-  string client_checksum = request.database_config_user ()->getChangeNotificationsChecksum ();
+  std::string client_checksum = webserver_request.database_config_user ()->getChangeNotificationsChecksum ();
   if (client_checksum.empty ()) {
     client_checksum = Sync_Logic::changes_checksum (user);
-    request.database_config_user ()->setChangeNotificationsChecksum (client_checksum);
+    webserver_request.database_config_user ()->setChangeNotificationsChecksum (client_checksum);
   }
-  string server_checksum;
+  std::string server_checksum;
   post ["a"] = filter::strings::convert_to_string (Sync_Logic::changes_get_checksum);
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
@@ -183,9 +182,9 @@ void sendreceive_changes ()
   
   // Get all identifiers for the notifications on the server for the user.
   // Get the identifiers on the client.
-  string any_bible = "";
-  vector <int> client_identifiers = database_modifications.getNotificationIdentifiers (user, any_bible);
-  vector <int> server_identifiers;
+  std::string any_bible = "";
+  std::vector <int> client_identifiers = database_modifications.getNotificationIdentifiers (user, any_bible);
+  std::vector <int> server_identifiers;
   post ["a"] = filter::strings::convert_to_string (Sync_Logic::changes_get_identifiers);
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
@@ -194,22 +193,22 @@ void sendreceive_changes ()
     return;
   }
   {
-    vector <string> ids2 = filter::strings::explode (response, '\n');
+    std::vector <std::string> ids2 = filter::strings::explode (response, '\n');
     for (auto & id : ids2) server_identifiers.push_back (filter::strings::convert_to_int (id));
   }
 
   
   // Any identifiers on the client, but not on the server, remove them from the client.
-  vector <int> remove_identifiers = filter::strings::array_diff (client_identifiers, server_identifiers);
+  std::vector <int> remove_identifiers = filter::strings::array_diff (client_identifiers, server_identifiers);
   for (auto & id : remove_identifiers) {
     database_modifications.deleteNotification (id);
-    request.database_config_user ()->setChangeNotificationsChecksum ("");
+    webserver_request.database_config_user ()->setChangeNotificationsChecksum ("");
     Database_Logs::log (sendreceive_changes_text () + "Removing notification: " + filter::strings::convert_to_string (id), Filter_Roles::translator ());
   }
 
   
   // Any identifiers on the server, but not on the client, download them from the server.
-  vector <int> download_identifiers = filter::strings::array_diff (server_identifiers, client_identifiers);
+  std::vector <int> download_identifiers = filter::strings::array_diff (server_identifiers, client_identifiers);
   for (auto & id : download_identifiers) {
     sendreceive_changes_kick_watchdog ();
     Database_Logs::log (sendreceive_changes_text () + "Downloading notification: " + filter::strings::convert_to_string (id), Filter_Roles::translator ());
@@ -221,13 +220,13 @@ void sendreceive_changes ()
     }
     else {
       // The server has put all bits together, one bit per line.
-      vector <string> lines = filter::strings::explode (response, '\n');
-      string category;
+      std::vector <std::string> lines = filter::strings::explode (response, '\n');
+      std::string category;
       if (!lines.empty ()) {
         category = lines [0];
         lines.erase (lines.begin ());
       }
-      string bible;
+      std::string bible;
       if (!lines.empty ()) {
         bible = lines [0];
         lines.erase (lines.begin ());
@@ -247,23 +246,23 @@ void sendreceive_changes ()
         verse = filter::strings::convert_to_int (lines [0]);
         lines.erase (lines.begin ());
       }
-      string oldtext;
+      std::string oldtext;
       if (!lines.empty ()) {
         oldtext = lines [0];
         lines.erase (lines.begin ());
       }
-      string modification;
+      std::string modification;
       if (!lines.empty ()) {
         modification = lines [0];
         lines.erase (lines.begin ());
       }
-      string newtext;
+      std::string newtext;
       if (!lines.empty ()) {
         newtext = lines [0];
         lines.erase (lines.begin ());
       }
       database_modifications.storeClientNotification (id, user, category, bible, book, chapter, verse, oldtext, modification, newtext);
-      request.database_config_user ()->setChangeNotificationsChecksum ("");
+      webserver_request.database_config_user ()->setChangeNotificationsChecksum ("");
     }
   }
   

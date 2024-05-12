@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -103,10 +103,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <resource/comparative9edit.h>
 #include <resource/translated9edit.h>
 #include <images/index.h>
-using namespace std;
 
 
-string menu_logic_href (string href)
+std::string menu_logic_href (std::string href)
 {
   href = filter::strings::replace ("?", "__q__", href);
   href = filter::strings::replace ("&", "__a__", href);
@@ -115,7 +114,7 @@ string menu_logic_href (string href)
 }
 
 
-string menu_logic_click (string item)
+std::string menu_logic_click (std::string item)
 {
   item = filter::strings::replace ("__q__", "?", item);
   item = filter::strings::replace ("__a__", "&", item);
@@ -125,9 +124,9 @@ string menu_logic_click (string item)
 }
 
 
-string menu_logic_create_item (string href, string text, bool history, string title, string colour)
+std::string menu_logic_create_item (std::string href, std::string text, bool history, std::string title, std::string colour)
 {
-  string item;
+  std::string item;
   item.append (R"(<span class="nowrap)");
   if (!colour.empty()) item.append (" " + colour);
   item.append (R"("><a href="/)");
@@ -143,31 +142,31 @@ string menu_logic_create_item (string href, string text, bool history, string ti
 }
 
 
-string menu_logic_translate_menu ()
+std::string menu_logic_translate_menu ()
 {
   return "translate";
 }
 
 
-string menu_logic_search_menu ()
+std::string menu_logic_search_menu ()
 {
   return "search";
 }
 
 
-string menu_logic_tools_menu ()
+std::string menu_logic_tools_menu ()
 {
   return "tools";
 }
 
 
-string menu_logic_settings_menu ()
+std::string menu_logic_settings_menu ()
 {
   return "settings";
 }
 
 
-string menu_logic_settings_resources_menu ()
+std::string menu_logic_settings_resources_menu ()
 {
   return "settings-resources";
 }
@@ -176,32 +175,29 @@ string menu_logic_settings_resources_menu ()
 // Returns the html for the main menu categories.
 // Also fills the $tooltip with an appropriate value for this main menu.
 // This function is called for the main page, that is, the home page.
-string menu_logic_main_categories (void * webserver_request, string & tooltip)
+std::string menu_logic_main_categories (Webserver_Request& webserver_request, std::string & tooltip)
 {
-  // Create the object from the void pointer.
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
   // The sets of html that is going to form the menu.
-  vector <string> html;
+  std::vector <std::string> html;
   
   // The sets of tooltips for the main menu item.
-  vector <string> tooltipbits;
+  std::vector <std::string> tooltipbits;
 
   // Deal with a situation the user has access to the workspaces.
   if (workspace_index_acl (webserver_request)) {
     if (config::logic::default_bibledit_configuration ()) {
-      string label = translate ("Workspace");
-      string tooltip2;
+      std::string label = translate ("Workspace");
+      std::string tooltip2;
       menu_logic_workspace_category (webserver_request, &tooltip2);
       html.push_back (menu_logic_create_item (workspace_index_url (), label, true, tooltip2, ""));
       tooltipbits.push_back (label);
     }
   }
 
-  string menutooltip;
-  int current_theme_index = request->database_config_user ()->getCurrentTheme ();
-  string filename = current_theme_filebased_cache_filename (request->session_identifier);
-  string color = Filter_Css::theme_picker (current_theme_index, 1);
+  std::string menutooltip;
+  int current_theme_index = webserver_request.database_config_user ()->getCurrentTheme ();
+  std::string filename = current_theme_filebased_cache_filename (webserver_request.session_identifier);
+  std::string color = Filter_Css::theme_picker (current_theme_index, 1);
 
   if (!menu_logic_translate_category (webserver_request, &menutooltip).empty ()) {
     if (config::logic::default_bibledit_configuration ()) {
@@ -243,15 +239,17 @@ string menu_logic_main_categories (void * webserver_request, string & tooltip)
   // put the public feedback into the main menu, rather than in a sub menu.
   if (menu_logic_public_or_guest (webserver_request)) {
     if (!public_logic_bibles (webserver_request).empty ()) {
-      html.push_back (menu_logic_create_item (public_index_url (), menu_logic_public_feedback_text (), true, "", ""));
-      tooltipbits.push_back (menu_logic_public_feedback_text ());
+      if (!config::logic::create_no_accounts()) {
+        html.push_back (menu_logic_create_item (public_index_url (), menu_logic_public_feedback_text (), true, "", ""));
+        tooltipbits.push_back (menu_logic_public_feedback_text ());
+      }
     }
   }
 #endif
 
   // When a user is logged in, and is a guest, put the Logout into the main menu, rather than in a sub menu.
-  if (request->session_logic ()->loggedIn ()) {
-    if (request->session_logic ()->currentLevel () == Filter_Roles::guest ()) {
+  if (webserver_request.session_logic ()->loggedIn ()) {
+    if (webserver_request.session_logic ()->currentLevel () == Filter_Roles::guest ()) {
       if (session_logout_acl (webserver_request)) {
         html.push_back (menu_logic_create_item (session_logout_url (), menu_logic_logout_text (), true, "", ""));
         tooltipbits.push_back (menu_logic_logout_text ());
@@ -261,8 +259,8 @@ string menu_logic_main_categories (void * webserver_request, string & tooltip)
 
   
   // When not logged in, display Login menu item.
-  if (request->session_logic ()->currentUser ().empty ()) {
-    string label = translate ("Login");
+  if (webserver_request.session_logic ()->currentUser ().empty ()) {
+    std::string label = translate ("Login");
     html.push_back (menu_logic_create_item (session_login_url (), label, true, "", ""));
     tooltipbits.push_back (label);
   }
@@ -288,15 +286,13 @@ string menu_logic_main_categories (void * webserver_request, string & tooltip)
  */
 
 
-string menu_logic_basic_categories (void * webserver_request)
+std::string menu_logic_basic_categories (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
+  std::vector <std::string> html;
 
-  vector <string> html;
-
-  int current_theme_index = request->database_config_user ()->getCurrentTheme ();
-  string filename = current_theme_filebased_cache_filename (request->session_identifier);
-  string color = Filter_Css::theme_picker (current_theme_index, 1);
+  int current_theme_index = webserver_request.database_config_user ()->getCurrentTheme ();
+  std::string filename = current_theme_filebased_cache_filename (webserver_request.session_identifier);
+  std::string color = Filter_Css::theme_picker (current_theme_index, 1);
 
   if (read_index_acl (webserver_request)) {
     html.push_back (menu_logic_create_item (read_index_url (), translate ("Read"), true, "", color));
@@ -311,7 +307,7 @@ string menu_logic_basic_categories (void * webserver_request)
   }
   
   if (changes_changes_acl (webserver_request)) {
-    if (request->database_config_user ()->getMenuChangesInBasicMode ()) {
+    if (webserver_request.database_config_user ()->getMenuChangesInBasicMode ()) {
       html.push_back (menu_logic_create_item (changes_changes_url (), menu_logic_changes_text (), true, "", color));
     }
   }
@@ -332,14 +328,16 @@ string menu_logic_basic_categories (void * webserver_request)
   if (public_feedback_possible) {
     if (menu_logic_public_or_guest (webserver_request)) {
       if (!public_logic_bibles (webserver_request).empty ()) {
-        html.push_back (menu_logic_create_item (public_index_url (), menu_logic_public_feedback_text (), true, "", ""));
+        if (!config::logic::create_no_accounts()) {
+          html.push_back (menu_logic_create_item (public_index_url (), menu_logic_public_feedback_text (), true, "", ""));
+        }
       }
     }
   }
 #endif
 
   // When not logged in, display Login menu item.
-  if (request->session_logic ()->currentUser ().empty ()) {
+  if (webserver_request.session_logic ()->currentUser ().empty ()) {
     html.push_back (menu_logic_create_item (session_login_url (), translate ("Login"), true, "", ""));
   }
 
@@ -347,8 +345,8 @@ string menu_logic_basic_categories (void * webserver_request)
   // put the Logout into the main menu,
   // rather than in a sub menu.
 #ifdef HAVE_CLOUD
-  if (request->session_logic ()->loggedIn ()) {
-    if (request->session_logic ()->currentLevel () == Filter_Roles::guest ()) {
+  if (webserver_request.session_logic ()->loggedIn ()) {
+    if (webserver_request.session_logic ()->currentLevel () == Filter_Roles::guest ()) {
       if (session_logout_acl (webserver_request)) {
         html.push_back (menu_logic_create_item (session_logout_url (), menu_logic_logout_text (), true, "", ""));
       }
@@ -362,25 +360,23 @@ string menu_logic_basic_categories (void * webserver_request)
 
 // Generates html for the workspace main menu.
 // Plus the tooltip for it.
-string menu_logic_workspace_category (void * webserver_request, string * tooltip)
+std::string menu_logic_workspace_category (Webserver_Request& webserver_request, std::string * tooltip)
 {
-  vector <string> html;
-  vector <string> labels;
+  std::vector <std::string> html;
+  std::vector <std::string> labels;
 
   // Add the available configured workspaces to the menu.
   // The user's role should be sufficiently high.
   if (workspace_organize_acl (webserver_request)) {
-    Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
+    std::string activeWorkspace = webserver_request.database_config_user()->getActiveWorkspace ();
 
-    string activeWorkspace = request->database_config_user()->getActiveWorkspace ();
-
-    vector <string> workspaces = workspace_get_names (webserver_request);
+    std::vector <std::string> workspaces = workspace_get_names (webserver_request);
     for (size_t i = 0; i < workspaces.size(); i++) {
-      string item = menu_logic_create_item (workspace_index_url () + "?bench=" + filter::strings::convert_to_string (i), workspaces[i], true, "", "");
+      std::string item = menu_logic_create_item (workspace_index_url () + "?bench=" + filter::strings::convert_to_string (i), workspaces[i], true, "", "");
       // Adds an active class if it is the current workspace.
       if (workspaces[i] == activeWorkspace) {
         size_t startIndex = item.find(R"("><a)");
-        if (startIndex != string::npos) item.insert (startIndex, " active");
+        if (startIndex != std::string::npos) item.insert (startIndex, " active");
       }
       html.push_back (item);
       labels.push_back (workspaces [i]);
@@ -392,30 +388,28 @@ string menu_logic_workspace_category (void * webserver_request, string * tooltip
 }
 
 
-string menu_logic_translate_category (void * webserver_request, string * tooltip)
+std::string menu_logic_translate_category (Webserver_Request& webserver_request, std::string * tooltip)
 {
-  [[maybe_unused]] Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
-  vector <string> html;
-  vector <string> labels;
+  std::vector <std::string> html;
+  std::vector <std::string> labels;
   
   // Visual chapter editor.
   if (edit_index_acl (webserver_request)) {
-    string label = menu_logic_editor_menu_text (true, true);
+    std::string label = menu_logic_editor_menu_text (true, true);
     html.push_back (menu_logic_create_item (edit_index_url (), label, true, "", ""));
     labels.push_back (label);
   }
 
   // Visual verse editor.
   if (editone2_index_acl (webserver_request)) {
-    string label = menu_logic_editor_menu_text (true, false);
+    std::string label = menu_logic_editor_menu_text (true, false);
     html.push_back (menu_logic_create_item (editone2_index_url (), label, true, "", ""));
     labels.push_back (label);
   }
 
   // USFM (chapter) editor.
   if (editusfm_index_acl (webserver_request)) {
-    string label = menu_logic_editor_menu_text (false, true);
+    std::string label = menu_logic_editor_menu_text (false, true);
     html.push_back (menu_logic_create_item (editusfm_index_url (), label, true, "", ""));
     labels.push_back (label);
   }
@@ -426,7 +420,7 @@ string menu_logic_translate_category (void * webserver_request, string * tooltip
   }
 
   if (resource_index_acl (webserver_request)) {
-    string label = menu_logic_resources_text ();
+    std::string label = menu_logic_resources_text ();
     html.push_back (menu_logic_create_item (resource_index_url (), label, true, "", ""));
     labels.push_back (label);
   }
@@ -434,7 +428,7 @@ string menu_logic_translate_category (void * webserver_request, string * tooltip
   if (resource_user9view_acl (webserver_request)) {
     // Only display user-defined resources if they are there.
     if (!Database_UserResources::names ().empty ()) {
-      string label = translate ("User resources");
+      std::string label = translate ("User resources");
       html.push_back (menu_logic_create_item (resource_user9view_url (), label, true, "", ""));
       labels.push_back (label);
     }
@@ -448,11 +442,13 @@ string menu_logic_translate_category (void * webserver_request, string * tooltip
   // When a user is logged in, but not a guest,
   // put the public feedback into this sub menu, rather than in the main menu.
 #ifndef HAVE_CLIENT
-  if (!request->session_logic ()->currentUser ().empty ()) {
+  if (!webserver_request.session_logic ()->currentUser ().empty ()) {
     if (!menu_logic_public_or_guest (webserver_request)) {
       if (!public_logic_bibles (webserver_request).empty ()) {
-        html.push_back (menu_logic_create_item (public_index_url (), menu_logic_public_feedback_text (), true, "", ""));
-        labels.push_back (menu_logic_public_feedback_text ());
+        if (!config::logic::create_no_accounts()) {
+          html.push_back (menu_logic_create_item (public_index_url (), menu_logic_public_feedback_text (), true, "", ""));
+          labels.push_back (menu_logic_public_feedback_text ());
+        }
       }
     }
   }
@@ -467,61 +463,61 @@ string menu_logic_translate_category (void * webserver_request, string * tooltip
 }
 
 
-string menu_logic_search_category (void * webserver_request, string * tooltip)
+std::string menu_logic_search_category (Webserver_Request& webserver_request, std::string * tooltip)
 {
-  vector <string> html;
-  vector <string> labels;
+  std::vector <std::string> html;
+  std::vector <std::string> labels;
 
   if (search_index_acl (webserver_request)) {
-    string label = translate ("Search");
+    std::string label = translate ("Search");
     html.push_back (menu_logic_create_item (search_index_url (), label, true, "", ""));
     labels.push_back (label);
   }
   
   if (search_replace_acl (webserver_request)) {
-    string label = translate ("Replace");
+    std::string label = translate ("Replace");
     html.push_back (menu_logic_create_item (search_replace_url (), label, true, "", ""));
     labels.push_back (label);
   }
   
   if (search_search2_acl (webserver_request)) {
-    string label = translate ("Advanced search");
+    std::string label = translate ("Advanced search");
     html.push_back (menu_logic_create_item (search_search2_url (), translate ("Advanced search"), true, "", ""));
     labels.push_back (label);
   }
   
   if (search_replace2_acl (webserver_request)) {
-    string label = translate ("Advanced replace");
+    std::string label = translate ("Advanced replace");
     html.push_back (menu_logic_create_item (search_replace2_url (), label, true, "", ""));
     labels.push_back (label);
   }
   
   if (search_all_acl (webserver_request)) {
-    string label = translate ("Search all Bibles and notes");
+    std::string label = translate ("Search all Bibles and notes");
     html.push_back (menu_logic_create_item (search_all_url (), label, true, "", ""));
     labels.push_back (label);
   }
 
   if (search_similar_acl (webserver_request)) {
-    string label = translate ("Search Bible for similar verses");
+    std::string label = translate ("Search Bible for similar verses");
     html.push_back (menu_logic_create_item (search_similar_url (), label, true, "", ""));
     labels.push_back (label);
   }
 
   if (search_strongs_acl (webserver_request)) {
-    string label = translate ("Search Bible for similar Strong's numbers");
+    std::string label = translate ("Search Bible for similar Strong's numbers");
     html.push_back (menu_logic_create_item (search_strongs_url (), label, true, "", ""));
     labels.push_back (label);
   }
 
   if (search_strong_acl (webserver_request)) {
-    string label = translate ("Search Bible for Strong's number");
+    std::string label = translate ("Search Bible for Strong's number");
     html.push_back (menu_logic_create_item (search_strong_url (), label, true, "", ""));
     labels.push_back (label);
   }
 
   if (search_originals_acl (webserver_request)) {
-    string label = translate ("Search Bible for similar Hebrew or Greek words");
+    std::string label = translate ("Search Bible for similar Hebrew or Greek words");
     html.push_back (menu_logic_create_item (search_originals_url (), label, true, "", ""));
     labels.push_back (label);
   }
@@ -535,20 +531,20 @@ string menu_logic_search_category (void * webserver_request, string * tooltip)
 }
 
 
-string menu_logic_tools_category (void * webserver_request, string * tooltip)
+std::string menu_logic_tools_category (Webserver_Request& webserver_request, std::string * tooltip)
 {
   // The labels that may end up in the menu.
-  string checks = translate ("Checks");
-  string consistency = translate ("Consistency");
-  string print = translate ("Print");
-  string changes = menu_logic_changes_text ();
-  string planning = translate ("Planning");
-  string send_receive = translate ("Send/receive");
-  string hyphenation = translate ("Hyphenate");
-  string develop = translate ("Develop");
-  string exporting = translate ("Export");
-  string journal = translate ("Journal");
-  vector <string> labels = {
+  std::string checks = translate ("Checks");
+  std::string consistency = translate ("Consistency");
+  std::string print = translate ("Print");
+  std::string changes = menu_logic_changes_text ();
+  std::string planning = translate ("Planning");
+  std::string send_receive = translate ("Send/receive");
+  std::string hyphenation = translate ("Hyphenate");
+  std::string develop = translate ("Develop");
+  std::string exporting = translate ("Export");
+  std::string journal = translate ("Journal");
+  std::vector <std::string> labels = {
     checks,
     consistency,
     print,
@@ -565,8 +561,8 @@ string menu_logic_tools_category (void * webserver_request, string * tooltip)
   // Using the localized labels means that the sorted order of the menu depends on the localization.
   sort (labels.begin (), labels.end ());
   
-  vector <string> html;
-  vector <string> tiplabels;
+  std::vector <std::string> html;
+  std::vector <std::string> tiplabels;
 
   for (auto & label : labels) {
 
@@ -658,33 +654,31 @@ string menu_logic_tools_category (void * webserver_request, string * tooltip)
 }
 
 
-string menu_logic_settings_category (void * webserver_request, string * tooltip)
+std::string menu_logic_settings_category (Webserver_Request& webserver_request, std::string * tooltip)
 {
-  [[maybe_unused]] Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
   [[maybe_unused]] bool demo = config::logic::demo_enabled ();
   
   // The labels that may end up in the menu.
-  string bibles = menu_logic_bible_manage_text ();
-  string workspaces = menu_logic_workspace_organize_text ();
-  string checks = menu_logic_checks_settings_text ();
-  string resources = menu_logic_resources_text ();
-  string changes = menu_logic_changes_text ();
-  string preferences = translate ("Preferences");
-  string users = menu_logic_manage_users_text ();
-  string mail = translate ("Mail");
-  string styles = menu_logic_styles_text ();
-  string versifications = menu_logic_versification_index_text ();
-  string mappings = menu_logic_mapping_index_text ();
-  string repository = translate ("Repository");
-  string cloud = translate ("Cloud");
-  string paratext = translate ("Paratext");
-  string notifications = translate ("Notifications");
-  string account = translate ("Account");
-  string basic_mode = translate ("Basic mode");
-  string system = translate ("System");
-  string images = menu_logic_images_index_text();
-  vector <string> labels = {
+  std::string bibles = menu_logic_bible_manage_text ();
+  std::string workspaces = menu_logic_workspace_organize_text ();
+  std::string checks = menu_logic_checks_settings_text ();
+  std::string resources = menu_logic_resources_text ();
+  std::string changes = menu_logic_changes_text ();
+  std::string preferences = translate ("Preferences");
+  std::string users = menu_logic_manage_users_text ();
+  std::string mail = translate ("Mail");
+  std::string styles = menu_logic_styles_text ();
+  std::string versifications = menu_logic_versification_index_text ();
+  std::string mappings = menu_logic_mapping_index_text ();
+  std::string repository = translate ("Repository");
+  std::string cloud = translate ("Cloud");
+  std::string paratext = translate ("Paratext");
+  std::string notifications = translate ("Notifications");
+  std::string account = translate ("Account");
+  std::string basic_mode = translate ("Basic mode");
+  std::string system = translate ("System");
+  std::string images = menu_logic_images_index_text();
+  std::vector <std::string> labels = {
     bibles,
     workspaces,
     checks,
@@ -711,8 +705,8 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
   // Using the localized labels means that the sorted order of the menu depends on the localization.
   sort (labels.begin (), labels.end ());
   
-  vector <string> html;
-  vector <string> tiplabels;
+  std::vector <std::string> html;
+  std::vector <std::string> tiplabels;
   
   for (auto & label : labels) {
   
@@ -746,7 +740,7 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
       // Only client can cache resources.
       // The Cloud is always online, with a fast connection, and can easily fetch a resource from the web.
       // Many Cloud instances may run on one server, and if the Cloud were to cache resources,
-      /// it was going to use a huge amount of disk space.
+      // it would be going to use a huge amount of disk space.
       if (resource_cache_acl (webserver_request)) {
         html.push_back (menu_logic_create_item (resource_cache_url (), menu_logic_resources_text (), true, "", ""));
         tiplabels.push_back (menu_logic_resources_text ());
@@ -850,8 +844,8 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
       // Cannot logout in the demo.
       if (!demo) {
         // If logged in, but not as guest, put the Logout menu here.
-        if (request->session_logic ()->loggedIn ()) {
-          if (request->session_logic ()->currentLevel () != Filter_Roles::guest ()) {
+        if (webserver_request.session_logic ()->loggedIn ()) {
+          if (webserver_request.session_logic ()->currentLevel () != Filter_Roles::guest ()) {
             if (session_logout_acl (webserver_request)) {
               html.push_back (menu_logic_create_item (session_logout_url (), menu_logic_logout_text (), true, "", ""));
               tiplabels.push_back (menu_logic_logout_text ());
@@ -883,7 +877,7 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
 #endif
     
     if (label == basic_mode) {
-      if (request->session_logic ()->currentLevel () > Filter_Roles::guest ()) {
+      if (webserver_request.session_logic ()->currentLevel () > Filter_Roles::guest ()) {
         html.push_back (menu_logic_create_item (index_index_url () + filter::strings::convert_to_string ("?mode=basic"), label, true, "", ""));
         tiplabels.push_back (label);
       }
@@ -906,7 +900,7 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
   }
   
   if (!html.empty ()) {
-    string user = request->session_logic ()->currentUser ();
+    std::string user = webserver_request.session_logic ()->currentUser ();
     html.insert (html.begin (), menu_logic_settings_text () + " (" + user + "): ");
   }
   
@@ -915,9 +909,9 @@ string menu_logic_settings_category (void * webserver_request, string * tooltip)
 }
 
 
-string menu_logic_settings_resources_category ([[maybe_unused]] void * webserver_request)
+std::string menu_logic_settings_resources_category ([[maybe_unused]] Webserver_Request& webserver_request)
 {
-  vector <string> html;
+  std::vector <std::string> html;
   
 #ifdef HAVE_CLOUD
   if (resource_manage_acl (webserver_request)) {
@@ -981,13 +975,11 @@ string menu_logic_settings_resources_category ([[maybe_unused]] void * webserver
 }
 
 
-string menu_logic_help_category (void * webserver_request)
+std::string menu_logic_help_category (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  vector <string> html;
+  std::vector <std::string> html;
 
-  if (!request->session_logic ()->currentUser ().empty ()) {
+  if (!webserver_request.session_logic ()->currentUser ().empty ()) {
     html.push_back (menu_logic_create_item ("help/index", translate ("Help and About"), true, "", ""));
   }
 
@@ -1001,17 +993,16 @@ string menu_logic_help_category (void * webserver_request)
 
 // Returns true in case the user is a public user, that is, not logged-in,
 // or when the user has the role of Guest.
-bool menu_logic_public_or_guest (void * webserver_request)
+bool menu_logic_public_or_guest (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  if (request->session_logic ()->currentUser ().empty ()) return true;
-  if (request->session_logic ()->currentLevel () == Filter_Roles::guest ()) return true;
+  if (webserver_request.session_logic ()->currentUser ().empty ()) return true;
+  if (webserver_request.session_logic ()->currentLevel () == Filter_Roles::guest ()) return true;
   return false;
 }
 
 
 // Returns the text that belongs to a certain menu item.
-string menu_logic_menu_text (string menu_item)
+std::string menu_logic_menu_text (std::string menu_item)
 {
   if (menu_item == menu_logic_translate_menu ()) {
     return menu_logic_translate_text ();
@@ -1033,7 +1024,7 @@ string menu_logic_menu_text (string menu_item)
 
 
 // Returns the URL that belongs to $menu_item.
-string menu_logic_menu_url (string menu_item)
+std::string menu_logic_menu_url (std::string menu_item)
 {
   if (
       (menu_item == menu_logic_translate_menu ())
@@ -1051,139 +1042,139 @@ string menu_logic_menu_url (string menu_item)
 }
 
 
-string menu_logic_translate_text ()
+std::string menu_logic_translate_text ()
 {
   return translate ("Translate");
 }
 
 
-string menu_logic_search_text ()
+std::string menu_logic_search_text ()
 {
   return translate ("Search");
 }
 
 
-string menu_logic_tools_text ()
+std::string menu_logic_tools_text ()
 {
   return translate ("Tools");
 }
 
 
-string menu_logic_settings_text ()
+std::string menu_logic_settings_text ()
 {
   return translate ("Settings");
 }
 
 
-string menu_logic_help_text ()
+std::string menu_logic_help_text ()
 {
   return translate ("Help");
 }
 
 
-string menu_logic_public_feedback_text ()
+std::string menu_logic_public_feedback_text ()
 {
   return translate ("Feedback");
 }
 
 
-string menu_logic_logout_text ()
+std::string menu_logic_logout_text ()
 {
   return translate ("Logout");
 }
 
 
-string menu_logic_consultation_notes_text ()
+std::string menu_logic_consultation_notes_text ()
 {
   return translate ("Notes");
 }
 
 
-string menu_logic_bible_manage_text ()
+std::string menu_logic_bible_manage_text ()
 {
   return translate ("Bibles");
 }
 
 
-string menu_logic_workspace_organize_text ()
+std::string menu_logic_workspace_organize_text ()
 {
   return translate ("Workspaces");
 }
 
 
-string menu_logic_checks_settings_text ()
+std::string menu_logic_checks_settings_text ()
 {
   return translate ("Checks");
 }
 
 
-string menu_logic_resources_text ()
+std::string menu_logic_resources_text ()
 {
   return translate ("Resources");
 }
 
 
-string menu_logic_resource_images_text ()
+std::string menu_logic_resource_images_text ()
 {
   return translate ("Image resources");
 }
 
 
-string menu_logic_manage_users_text ()
+std::string menu_logic_manage_users_text ()
 {
   return translate ("Users");
 }
 
 
-string menu_logic_versification_index_text ()
+std::string menu_logic_versification_index_text ()
 {
   return translate ("Versifications");
 }
 
 
-string menu_logic_mapping_index_text ()
+std::string menu_logic_mapping_index_text ()
 {
   return translate ("Verse mappings");
 }
 
 
-string menu_logic_styles_indext_text ()
+std::string menu_logic_styles_indext_text ()
 {
   return translate ("Select stylesheet");
 }
 
 
-string menu_logic_styles_indexm_text ()
+std::string menu_logic_styles_indexm_text ()
 {
   return translate ("Edit stylesheet");
 }
 
 
-string menu_logic_changes_text ()
+std::string menu_logic_changes_text ()
 {
   return translate ("Changes");
 }
 
 
-string menu_logic_styles_text ()
+std::string menu_logic_styles_text ()
 {
   return translate ("Styles");
 }
 
 
-string menu_logic_menu_text ()
+std::string menu_logic_menu_text ()
 {
   return translate ("Menu");
 }
 
 
-string menu_logic_images_index_text ()
+std::string menu_logic_images_index_text ()
 {
   return translate ("Images");
 }
 
 
-string menu_logic_editor_settings_text (bool visual, int selection)
+std::string menu_logic_editor_settings_text (bool visual, int selection)
 {
   if (visual) {
     if (selection == 0) return translate ("Both the visual chapter and visual verse editors");
@@ -1193,18 +1184,16 @@ string menu_logic_editor_settings_text (bool visual, int selection)
     if (selection <= 0) return translate ("Hide");
     if (selection >= 1) return translate ("Show");
   }
-  return "";
+  return std::string();
 }
 
 
-bool menu_logic_editor_enabled (void * webserver_request, bool visual, bool chapter)
+bool menu_logic_editor_enabled (Webserver_Request& webserver_request, bool visual, bool chapter)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
   // Get the user's preference for the visual or USFM editors.
   int selection = 0;
-  if (visual) selection = request->database_config_user ()->getFastSwitchVisualEditors ();
-  else selection = request->database_config_user ()->getFastSwitchUsfmEditors ();
+  if (visual) selection = webserver_request.database_config_user ()->getFastSwitchVisualEditors ();
+  else selection = webserver_request.database_config_user ()->getFastSwitchUsfmEditors ();
 
   if (visual) {
     // Check whether the visual chapter or verse editor is active.
@@ -1221,7 +1210,7 @@ bool menu_logic_editor_enabled (void * webserver_request, bool visual, bool chap
 }
 
 
-string menu_logic_editor_menu_text (bool visual, bool chapter)
+std::string menu_logic_editor_menu_text (bool visual, bool chapter)
 {
   // Get the correct menu text.
   if (visual && chapter) return translate ("Chapter editor");
@@ -1246,7 +1235,7 @@ bool menu_logic_can_do_tabbed_mode ()
 
 
 // For internal repatitive use.
-jsonxx::Object menu_logic_tabbed_mode_add_tab (string url, string label)
+jsonxx::Object menu_logic_tabbed_mode_add_tab (std::string url, std::string label)
 {
   jsonxx::Object object;
   object << "url" << url;
@@ -1256,9 +1245,9 @@ jsonxx::Object menu_logic_tabbed_mode_add_tab (string url, string label)
 
 
 // This looks at the settings, and then generates JSON, and stores that in the general configuration.
-void menu_logic_tabbed_mode_save_json (void * webserver_request)
+void menu_logic_tabbed_mode_save_json (Webserver_Request& webserver_request)
 {
-  string json;
+  std::string json;
 
   // Whether the device can do tabbed mode.
   if (menu_logic_can_do_tabbed_mode ()) {
@@ -1267,8 +1256,7 @@ void menu_logic_tabbed_mode_save_json (void * webserver_request)
     bool generate_json = Database_Config_General::getMenuInTabbedViewOn ();
     
     // Tabbed view not possible in advanced mode.
-    Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-    if (!request->database_config_user ()->getBasicInterfaceMode ()) {
+    if (!webserver_request.database_config_user ()->getBasicInterfaceMode ()) {
       generate_json = false;
     }
     
@@ -1283,7 +1271,7 @@ void menu_logic_tabbed_mode_save_json (void * webserver_request)
       // Add the consultation notes tab.
       json_array << menu_logic_tabbed_mode_add_tab (notes_index_url (), menu_logic_consultation_notes_text ());
       // Add the change notifications, if enabled.
-      if (request->database_config_user ()->getMenuChangesInBasicMode ()) {
+      if (webserver_request.database_config_user ()->getMenuChangesInBasicMode ()) {
         json_array << menu_logic_tabbed_mode_add_tab (changes_changes_url (), menu_logic_changes_text ());
       }
       // Add the preferences tab.
@@ -1297,7 +1285,7 @@ void menu_logic_tabbed_mode_save_json (void * webserver_request)
 }
 
 
-string menu_logic_verse_separator (string separator)
+std::string menu_logic_verse_separator (std::string separator)
 {
   if (separator == ".") {
     return translate ("dot") + " ( . )";

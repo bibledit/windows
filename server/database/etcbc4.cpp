@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/date.h>
 #include <config/globals.h>
 #include <database/sqlite.h>
-using namespace std;
 
 
 // Database resilience: 
@@ -39,7 +38,7 @@ sqlite3 * Database_Etcbc4::connect ()
 void Database_Etcbc4::create ()
 {
   sqlite3 * db = connect ();
-  string sql;
+  std::string sql;
 
   sql =
   "CREATE TABLE IF NOT EXISTS rawdata (book int, chapter int, verse int, data text);";
@@ -196,7 +195,7 @@ void Database_Etcbc4::create ()
 }
 
 
-string Database_Etcbc4::raw (int book, int chapter, int verse)
+std::string Database_Etcbc4::raw (int book, int chapter, int verse)
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT data FROM rawdata WHERE book =");
@@ -207,14 +206,14 @@ string Database_Etcbc4::raw (int book, int chapter, int verse)
   sql.add (verse);
   sql.add (";");
   sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql.sql) ["data"];
+  std::vector <std::string> result = database_sqlite_query (db, sql.sql) ["data"];
   database_sqlite_disconnect (db);
   if (!result.empty ()) return result [0];
-  return "";
+  return std::string();
 }
 
 
-void Database_Etcbc4::store (int book, int chapter, int verse, string data)
+void Database_Etcbc4::store (int book, int chapter, int verse, std::string data)
 {
   sqlite3 * db = connect ();
   {
@@ -246,12 +245,12 @@ void Database_Etcbc4::store (int book, int chapter, int verse, string data)
 
 
 void Database_Etcbc4::store (int book, int chapter, int verse,
-                            string word, string vocalized_lexeme, string consonantal_lexeme,
-                            string gloss, string pos, string subpos,
-                            string gender, string number, string person,
-                            string state, string tense, string stem,
-                            string phrase_function, string phrase_type, string phrase_relation,
-                            string phrase_a_relation, string clause_text_type, string clause_type, string clause_relation)
+                            std::string word, std::string vocalized_lexeme, std::string consonantal_lexeme,
+                            std::string gloss, std::string pos, std::string subpos,
+                            std::string gender, std::string number, std::string person,
+                            std::string state, std::string tense, std::string stem,
+                            std::string phrase_function, std::string phrase_type, std::string phrase_relation,
+                            std::string phrase_a_relation, std::string clause_text_type, std::string clause_type, std::string clause_relation)
 {
   sqlite3 * db = connect ();
   SqliteSQL sql = SqliteSQL ();
@@ -305,35 +304,35 @@ void Database_Etcbc4::store (int book, int chapter, int verse,
 }
 
 
-vector <int> Database_Etcbc4::books ()
+std::vector <int> Database_Etcbc4::books ()
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT DISTINCT book FROM rawdata ORDER BY book;");
   sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql.sql) ["book"];
+  std::vector <std::string> result = database_sqlite_query (db, sql.sql) ["book"];
   database_sqlite_disconnect (db);
-  vector <int> books;
+  std::vector <int> books;
   for (auto b : result) books.push_back (filter::strings::convert_to_int (b));
   return books;
 }
 
 
-vector <int> Database_Etcbc4::chapters (int book)
+std::vector <int> Database_Etcbc4::chapters (int book)
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT DISTINCT chapter FROM rawdata WHERE book =");
   sql.add (book);
   sql.add ("ORDER BY chapter;");
   sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql.sql) ["chapter"];
+  std::vector <std::string> result = database_sqlite_query (db, sql.sql) ["chapter"];
   database_sqlite_disconnect (db);
-  vector <int> chapters;
+  std::vector <int> chapters;
   for (auto c : result) chapters.push_back (filter::strings::convert_to_int (c));
   return chapters;
 }
 
 
-vector <int> Database_Etcbc4::verses (int book, int chapter)
+std::vector <int> Database_Etcbc4::verses (int book, int chapter)
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT DISTINCT verse FROM rawdata WHERE book =");
@@ -342,15 +341,15 @@ vector <int> Database_Etcbc4::verses (int book, int chapter)
   sql.add (chapter);
   sql.add ("ORDER BY verse;");
   sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql.sql) ["verse"];
+  std::vector <std::string> result = database_sqlite_query (db, sql.sql) ["verse"];
   database_sqlite_disconnect (db);
-  vector <int> verses;
+  std::vector <int> verses;
   for (auto v : result) verses.push_back (filter::strings::convert_to_int (v));
   return verses;
 }
 
 
-vector <int> Database_Etcbc4::rowids (int book, int chapter, int verse)
+std::vector <int> Database_Etcbc4::rowids (int book, int chapter, int verse)
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT rowid FROM data WHERE book =");
@@ -361,129 +360,129 @@ vector <int> Database_Etcbc4::rowids (int book, int chapter, int verse)
   sql.add (verse);
   sql.add (";");
   sqlite3 * db = connect ();
-  vector <string> result = database_sqlite_query (db, sql.sql) ["rowid"];
+  std::vector <std::string> result = database_sqlite_query (db, sql.sql) ["rowid"];
   database_sqlite_disconnect (db);
-  vector <int> rowids;
+  std::vector <int> rowids;
   for (auto rowid : result) rowids.push_back (filter::strings::convert_to_int (rowid));
   return rowids;
 }
 
 
-string Database_Etcbc4::word (int rowid)
+std::string Database_Etcbc4::word (int rowid)
 {
   return get_item ("word", rowid);
 }
 
 
-string Database_Etcbc4::vocalized_lexeme (int rowid)
+std::string Database_Etcbc4::vocalized_lexeme (int rowid)
 {
   return get_item ("vocalized_lexeme", rowid);
 }
 
 
-string Database_Etcbc4::consonantal_lexeme (int rowid)
+std::string Database_Etcbc4::consonantal_lexeme (int rowid)
 {
   return get_item ("consonantal_lexeme", rowid);
 }
 
 
-string Database_Etcbc4::gloss (int rowid)
+std::string Database_Etcbc4::gloss (int rowid)
 {
   return get_item ("gloss", rowid);
 }
 
 
-string Database_Etcbc4::pos (int rowid)
+std::string Database_Etcbc4::pos (int rowid)
 {
   return get_item ("pos", rowid);
 }
 
 
-string Database_Etcbc4::subpos (int rowid)
+std::string Database_Etcbc4::subpos (int rowid)
 {
   return get_item ("subpos", rowid);
 }
 
 
-string Database_Etcbc4::gender (int rowid)
+std::string Database_Etcbc4::gender (int rowid)
 {
   return get_item ("gender", rowid);
 }
 
 
-string Database_Etcbc4::number (int rowid)
+std::string Database_Etcbc4::number (int rowid)
 {
   return get_item ("number", rowid);
 }
 
 
-string Database_Etcbc4::person (int rowid)
+std::string Database_Etcbc4::person (int rowid)
 {
   return get_item ("person", rowid);
 }
 
 
-string Database_Etcbc4::state (int rowid)
+std::string Database_Etcbc4::state (int rowid)
 {
   return get_item ("state", rowid);
 }
 
 
-string Database_Etcbc4::tense (int rowid)
+std::string Database_Etcbc4::tense (int rowid)
 {
   return get_item ("tense", rowid);
 }
 
 
-string Database_Etcbc4::stem (int rowid)
+std::string Database_Etcbc4::stem (int rowid)
 {
   return get_item ("stem", rowid);
 }
 
 
-string Database_Etcbc4::phrase_function (int rowid)
+std::string Database_Etcbc4::phrase_function (int rowid)
 {
   return get_item ("phrase_function", rowid);
 }
 
 
-string Database_Etcbc4::phrase_type (int rowid)
+std::string Database_Etcbc4::phrase_type (int rowid)
 {
   return get_item ("phrase_type", rowid);
 }
 
 
-string Database_Etcbc4::phrase_relation (int rowid)
+std::string Database_Etcbc4::phrase_relation (int rowid)
 {
   return get_item ("phrase_relation", rowid);
 }
 
 
-string Database_Etcbc4::phrase_a_relation (int rowid)
+std::string Database_Etcbc4::phrase_a_relation (int rowid)
 {
   return get_item ("phrase_a_relation", rowid);
 }
 
 
-string Database_Etcbc4::clause_text_type (int rowid)
+std::string Database_Etcbc4::clause_text_type (int rowid)
 {
   return get_item ("clause_text_type", rowid);
 }
 
 
-string Database_Etcbc4::clause_type (int rowid)
+std::string Database_Etcbc4::clause_type (int rowid)
 {
   return get_item ("clause_type", rowid);
 }
 
 
-string Database_Etcbc4::clause_relation (int rowid)
+std::string Database_Etcbc4::clause_relation (int rowid)
 {
   return get_item ("clause_relation", rowid);
 }
 
 
-int Database_Etcbc4::get_id (sqlite3 * db, const char * table_row, string item)
+int Database_Etcbc4::get_id (sqlite3 * db, const char * table_row, std::string item)
 {
   // Two iterations to be sure a rowid can be returned.
   for (unsigned int i = 0; i < 2; i++) {
@@ -497,7 +496,7 @@ int Database_Etcbc4::get_id (sqlite3 * db, const char * table_row, string item)
       sql.add ("=");
       sql.add (item);
       sql.add (";");
-      vector <string> result = database_sqlite_query (db, sql.sql) ["rowid"];
+      std::vector <std::string> result = database_sqlite_query (db, sql.sql) ["rowid"];
       if (!result.empty ()) return filter::strings::convert_to_int (result [0]);
     }
     {
@@ -516,7 +515,7 @@ int Database_Etcbc4::get_id (sqlite3 * db, const char * table_row, string item)
 }
 
 
-string Database_Etcbc4::get_item (const char * item, int rowid)
+std::string Database_Etcbc4::get_item (const char * item, int rowid)
 {
   // The $rowid refers to the main table.
   // Update it so it refers to the sub table.
@@ -528,12 +527,12 @@ string Database_Etcbc4::get_item (const char * item, int rowid)
     sql.add ("FROM data WHERE rowid =");
     sql.add (rowid);
     sql.add (";");
-    vector <string> result = database_sqlite_query (db, sql.sql) [item];
+    std::vector <std::string> result = database_sqlite_query (db, sql.sql) [item];
     rowid = 0;
     if (!result.empty ()) rowid = filter::strings::convert_to_int (result [0]);
   }
   // Retrieve the requested value from the sub table.
-  string value;
+  std::string value;
   {
     SqliteSQL sql = SqliteSQL ();
     sql.add ("SELECT");
@@ -543,7 +542,7 @@ string Database_Etcbc4::get_item (const char * item, int rowid)
     sql.add ("WHERE rowid =");
     sql.add (rowid);
     sql.add (";");
-    vector <string> result = database_sqlite_query (db, sql.sql) [item];
+    std::vector <std::string> result = database_sqlite_query (db, sql.sql) [item];
     if (!result.empty ()) value = result [0];
   }
   database_sqlite_disconnect (db);

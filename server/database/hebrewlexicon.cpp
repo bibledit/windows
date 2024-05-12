@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <filter/string.h>
 #include <database/sqlite.h>
-using namespace std;
 
 
 // This is the database that contains Open Scriptures's Hebrew Lexicon.
@@ -71,7 +70,7 @@ void Database_HebrewLexicon::optimize ()
 }
 
 
-void Database_HebrewLexicon::setaug (string aug, string target)
+void Database_HebrewLexicon::setaug (std::string aug, std::string target)
 {
   SqliteDatabase sql = SqliteDatabase (filename ());
   sql.add ("INSERT INTO aug VALUES (");
@@ -83,7 +82,7 @@ void Database_HebrewLexicon::setaug (string aug, string target)
 }
 
 
-void Database_HebrewLexicon::setbdb (string id, string definition)
+void Database_HebrewLexicon::setbdb (std::string id, std::string definition)
 {
   SqliteDatabase sql = SqliteDatabase (filename ());
   sql.add ("INSERT INTO bdb VALUES (");
@@ -95,7 +94,7 @@ void Database_HebrewLexicon::setbdb (string id, string definition)
 }
 
 
-void Database_HebrewLexicon::setmap (string id, string bdb)
+void Database_HebrewLexicon::setmap (std::string id, std::string bdb)
 {
   SqliteDatabase sql = SqliteDatabase (filename ());
   sql.add ("INSERT INTO map VALUES (");
@@ -107,7 +106,7 @@ void Database_HebrewLexicon::setmap (string id, string bdb)
 }
 
 
-void Database_HebrewLexicon::setpos (string code, string name)
+void Database_HebrewLexicon::setpos (std::string code, std::string name)
 {
   SqliteDatabase sql = SqliteDatabase (filename ());
   sql.add ("INSERT INTO pos VALUES (");
@@ -119,7 +118,7 @@ void Database_HebrewLexicon::setpos (string code, string name)
 }
 
 
-void Database_HebrewLexicon::setstrong (string strong, string definition)
+void Database_HebrewLexicon::setstrong (std::string strong, std::string definition)
 {
   SqliteDatabase sql = SqliteDatabase (filename ());
   sql.add ("INSERT INTO strong VALUES (");
@@ -131,61 +130,61 @@ void Database_HebrewLexicon::setstrong (string strong, string definition)
 }
 
 
-string Database_HebrewLexicon::getaug (string aug)
+std::string Database_HebrewLexicon::getaug (std::string aug)
 {
   SqliteDatabase sql = SqliteDatabase (filename ());
   sql.add ("SELECT target FROM aug WHERE aug =");
   sql.add (aug);
   sql.add (";");
-  vector <string> result = sql.query () ["target"];
+  std::vector <std::string> result = sql.query () ["target"];
   if (!result.empty ()) return result [0];
-  return "";
+  return std::string();
 }
 
 
-string Database_HebrewLexicon::getbdb (string id)
+std::string Database_HebrewLexicon::getbdb (std::string id)
 {
   SqliteDatabase sql = SqliteDatabase (filename ());
   sql.add ("SELECT definition FROM bdb WHERE id =");
   sql.add (id);
   sql.add (";");
-  vector <string> result = sql.query () ["definition"];
+  std::vector <std::string> result = sql.query () ["definition"];
   if (!result.empty ()) return result [0];
-  return "";
+  return std::string();
 }
 
 
-string Database_HebrewLexicon::getmap (string id)
+std::string Database_HebrewLexicon::getmap (std::string id)
 {
   SqliteDatabase sql = SqliteDatabase (filename ());
   sql.add ("SELECT bdb FROM map WHERE id =");
   sql.add (id);
   sql.add (";");
-  vector <string> result = sql.query () ["bdb"];
+  std::vector <std::string> result = sql.query () ["bdb"];
   if (!result.empty ()) return result [0];
-  return "";
+  return std::string();
 }
 
 
-string Database_HebrewLexicon::getpos (string code)
+std::string Database_HebrewLexicon::getpos (std::string code)
 {
   SqliteDatabase sql = SqliteDatabase (filename ());
   sql.add ("SELECT name FROM pos WHERE code =");
   sql.add (code);
   sql.add (";");
-  vector <string> result = sql.query () ["name"];
+  std::vector <std::string> result = sql.query () ["name"];
   if (!result.empty ()) return result [0];
-  return "";
+  return std::string();
 }
 
 
-string Database_HebrewLexicon::getstrong (string strong)
+std::string Database_HebrewLexicon::getstrong (std::string strong)
 {
   SqliteDatabase sql = SqliteDatabase (filename ());
   sql.add ("SELECT definition FROM strong WHERE strong =");
   sql.add (strong);
   sql.add (";");
-  vector <string> result = sql.query () ["definition"];
+  std::vector <std::string> result = sql.query () ["definition"];
   if (!result.empty ()) return result [0];
-  return "";
+  return std::string();
 }

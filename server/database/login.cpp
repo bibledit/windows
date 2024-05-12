@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/md5.h>
 #include <filter/roles.h>
 #include <filter/date.h>
-using namespace std;
 
 
 // This database is resilient.
@@ -94,7 +93,7 @@ bool Database_Login::healthy ()
 // Sets the login security tokens for a user.
 // Also store whether the device is touch-enabled.
 // It only writes to the table if the combination of username and tokens differs from what the table already contains.
-void Database_Login::setTokens (string username, string address, string agent, string fingerprint, string cookie, bool touch)
+void Database_Login::setTokens (std::string username, std::string address, std::string agent, std::string fingerprint, std::string cookie, bool touch)
 {
   bool daily;
   if (username == getUsername (cookie, daily)) return;
@@ -122,7 +121,7 @@ void Database_Login::setTokens (string username, string address, string agent, s
 
 
 // Remove the login security tokens for a user.
-void Database_Login::removeTokens (string username)
+void Database_Login::removeTokens (std::string username)
 {
   SqliteDatabase sql (database ());
   sql.add ("DELETE FROM logins WHERE username =");
@@ -133,7 +132,7 @@ void Database_Login::removeTokens (string username)
 
 
 // Remove the login security tokens for a user based on the cookie.
-void Database_Login::removeTokens (string username, string cookie)
+void Database_Login::removeTokens (std::string username, std::string cookie)
 {
   //address = md5 (address);
   //agent = md5 (agent);
@@ -148,7 +147,7 @@ void Database_Login::removeTokens (string username, string cookie)
 }
 
 
-void Database_Login::renameTokens (string username_existing, string username_new, string cookie)
+void Database_Login::renameTokens (std::string username_existing, std::string username_new, std::string cookie)
 {
   SqliteDatabase sql (database ());
   sql.add ("UPDATE logins SET username =");
@@ -164,15 +163,15 @@ void Database_Login::renameTokens (string username_existing, string username_new
 
 // Returns the username that matches the cookie sent by the browser.
 // Once a day, $daily will be set true.
-string Database_Login::getUsername (string cookie, bool & daily)
+std::string Database_Login::getUsername (std::string cookie, bool & daily)
 {
   SqliteDatabase sql (database ());
   sql.add ("SELECT rowid, timestamp, username FROM logins WHERE cookie =");
   sql.add (cookie);
   sql.add (";");
-  map <string, vector <string> > result = sql.query ();
-  if (result.empty()) return "";
-  string username = result ["username"][0];
+  std::map <std::string, std::vector <std::string> > result = sql.query ();
+  if (result.empty()) return std::string();
+  std::string username = result ["username"][0];
   int stamp = filter::strings::convert_to_int (result ["timestamp"] [0]);
   if (stamp != timestamp ()) {
     // Touch the timestamp. This occurs once a day.
@@ -192,13 +191,13 @@ string Database_Login::getUsername (string cookie, bool & daily)
 
 
 // Returns whether the device, that matches the cookie it sent, is touch-enabled.
-bool Database_Login::getTouchEnabled (string cookie)
+bool Database_Login::getTouchEnabled (std::string cookie)
 {
   SqliteDatabase sql (database ());
   sql.add ("SELECT touch FROM logins WHERE cookie =");
   sql.add (cookie);
   sql.add (";");
-  vector <string> result = sql.query () ["touch"];
+  std::vector <std::string> result = sql.query () ["touch"];
   if (!result.empty()) return filter::strings::convert_to_bool (result [0]);
   return false;
 }

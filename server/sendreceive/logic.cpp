@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -28,10 +28,9 @@
 #include <database/bibles.h>
 #include <client/logic.h>
 #include <config/globals.h>
-using namespace std;
 
 
-void sendreceive_queue_bible (string bible)
+void sendreceive_queue_bible (std::string bible)
 {
   tasks_logic_queue (SENDRECEIVEBIBLES, {bible});
 }
@@ -144,7 +143,7 @@ void sendreceive_queue_paratext (tasks::enums::paratext_sync method)
   if (sendreceive_paratext_queued ()) {
     Database_Logs::log ("About to start synchronizing with Paratext");
   } else {
-    tasks_logic_queue (SYNCPARATEXT, { to_string(static_cast<int>(method)) });
+    tasks_logic_queue (SYNCPARATEXT, { std::to_string(static_cast<int>(method)) });
   }
 #endif
   (void) method;
@@ -163,7 +162,7 @@ bool sendreceive_paratext_queued ()
 void sendreceive_queue_all (bool now)
 {
   Database_Bibles database_bibles;
-  vector <string> bibles = database_bibles.get_bibles ();
+  std::vector <std::string> bibles = database_bibles.get_bibles ();
   for (auto & bible : bibles) {
     if (Database_Config_Bible::getRemoteRepositoryUrl (bible) != "") {
       if (Database_Config_Bible::getRepeatSendReceive (bible) || now) {
@@ -215,8 +214,8 @@ bool sendreceive_logic_prioritized_task_is_active ()
 
 
 // Returns true if Bibledit Cloud has been linked to an external git repository.
-bool sendreceive_git_repository_linked (string bible)
+bool sendreceive_git_repository_linked (std::string bible)
 {
-  string url = Database_Config_Bible::getRemoteRepositoryUrl (bible);
+  std::string url = Database_Config_Bible::getRemoteRepositoryUrl (bible);
   return !url.empty ();
 }

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,40 +26,38 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <locale/translate.h>
 #include <assets/header.h>
 #include <assets/external.h>
-using namespace std;
 
 
-string help_index_html (const string& url)
+std::string help_index_html (const std::string& url)
 {
-  string path (url);
-  size_t pos = url.find ("/");
-  if (pos != string::npos) path.erase (0, ++pos);
+  std::string path {url};
+  if (const auto pos = url.find ("/");
+      pos != std::string::npos)
+    path.erase (0, pos + 1);
   path.append (".html");
   path = filter_url_create_root_path ({"help", path});
   return path;
 }
 
 
-bool help_index_url (const string& url)
+bool help_index_url (const std::string& url)
 {
-  size_t pos = url.find ("help/");
-  if (pos != 0) return false;
+  if (url.find ("help/"))
+    return false;
   return file_or_dir_exists (help_index_html (url));
 }
 
 
-bool help_index_acl (void * webserver_request)
+bool help_index_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::guest ());
 }
 
 
-string help_index (void * webserver_request, const string& url)
+std::string help_index (Webserver_Request& webserver_request, const std::string& url)
 {
-  string page {};
-
   Assets_Header header = Assets_Header (translate("Help"), webserver_request);
-  page = header.run ();
+  std::string page = header.run ();
 
   Assets_View view {};
 
@@ -69,13 +67,14 @@ string help_index (void * webserver_request, const string& url)
 
   view.set_variable ("config", filter_url_create_root_path ({config::logic::config_folder ()}));
   
-  string filename (url);
-  size_t pos = url.find ("/");
-  if (pos != string::npos) filename.erase (0, ++pos);
+  std::string filename (url);
+  if (const auto pos = url.find ("/");
+      pos != std::string::npos)
+    filename.erase (0, pos + 1);
  
-  page += view.render ("help", filename);
+  page.append (view.render ("help", filename));
 
-  page += assets_page::footer ();
+  page.append (assets_page::footer ());
 
   return page;
 }

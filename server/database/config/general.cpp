@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,33 +24,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <config/globals.h>
 #include <system/index.h>
 #include <database/logic.h>
-using namespace std;
 
 
 // Cache values in memory for better speed.
 // The speed improvement is supposed to come from reading a value from disk only once,
 // and after that to read the value straight from the memory cache.
-map <string, string> database_config_general_cache;
+std::map <std::string, std::string> database_config_general_cache;
 
 
 // Functions for getting and setting values or lists of values follow here:
 
 
-string Database_Config_General::file (const char * key)
+std::string Database_Config_General::file (const char * key)
 {
   return filter_url_create_root_path ({database_logic_databases (), "config", "general", key});
 }
 
 
-string Database_Config_General::getValue (const char * key, const char * default_value)
+std::string Database_Config_General::getValue (const char * key, const char * default_value)
 {
   // Check the memory cache.
   if (database_config_general_cache.count (key)) {
     return database_config_general_cache [key];
   }
   // Get value from disk.
-  string value;
-  string filename = file (key);
+  std::string value;
+  std::string filename = file (key);
   if (file_or_dir_exists (filename)) value = filter_url_file_get_contents (filename);
   else value = default_value;
   // Cache it.
@@ -60,19 +59,19 @@ string Database_Config_General::getValue (const char * key, const char * default
 }
 
 
-void Database_Config_General::setValue (const char * key, string value)
+void Database_Config_General::setValue (const char * key, std::string value)
 {
   // Store in memory cache.
   database_config_general_cache [key] = value;
   // Store on disk.
-  string filename = file (key);
+  std::string filename = file (key);
   filter_url_file_put_contents (filename, value);
 }
 
 
 bool Database_Config_General::getBValue (const char * key, bool default_value)
 {
-  string value = getValue (key, filter::strings::convert_to_string (default_value).c_str());
+  std::string value = getValue (key, filter::strings::convert_to_string (default_value).c_str());
   return filter::strings::convert_to_bool (value);
 }
 
@@ -85,7 +84,7 @@ void Database_Config_General::setBValue (const char * key, bool value)
 
 int Database_Config_General::getIValue (const char * key, int default_value)
 {
-  string value = getValue (key, filter::strings::convert_to_string (default_value).c_str());
+  std::string value = getValue (key, filter::strings::convert_to_string (default_value).c_str());
   return filter::strings::convert_to_int (value);
 }
 
@@ -96,16 +95,16 @@ void Database_Config_General::setIValue (const char * key, int value)
 }
 
 
-vector <string> Database_Config_General::getList (const char * key)
+std::vector <std::string> Database_Config_General::getList (const char * key)
 {
-  string contents = getValue (key, "");
+  std::string contents = getValue (key, "");
   return filter::strings::explode (contents, '\n');
 }
 
 
-void Database_Config_General::setList (const char * key, vector <string> values)
+void Database_Config_General::setList (const char * key, std::vector <std::string> values)
 {
-  string value = filter::strings::implode (values, "\n");
+  std::string value = filter::strings::implode (values, "\n");
   setValue (key, value);
 }
 
@@ -113,123 +112,123 @@ void Database_Config_General::setList (const char * key, vector <string> values)
 // Named configuration functions.
 
 
-string Database_Config_General::getSiteMailName ()
+std::string Database_Config_General::getSiteMailName ()
 {
   return getValue ("site-mail-name", "Cloud");
 }
-void Database_Config_General::setSiteMailName (string value)
+void Database_Config_General::setSiteMailName (std::string value)
 {
   setValue ("site-mail-name", value);
 }
 
 
-string Database_Config_General::getSiteMailAddress ()
+std::string Database_Config_General::getSiteMailAddress ()
 {
   return getValue ("site-mail-address", "");
 }
-void Database_Config_General::setSiteMailAddress (string value)
+void Database_Config_General::setSiteMailAddress (std::string value)
 {
   setValue ("site-mail-address", value);
 }
 
 
-string Database_Config_General::getMailStorageHost ()
+std::string Database_Config_General::getMailStorageHost ()
 {
   return getValue ("mail-storage-host", "");
 }
-void Database_Config_General::setMailStorageHost (string value)
+void Database_Config_General::setMailStorageHost (std::string value)
 {
   setValue ("mail-storage-host", value);
 }
 
 
-string Database_Config_General::getMailStorageUsername ()
+std::string Database_Config_General::getMailStorageUsername ()
 {
   return getValue ("mail-storage-username", "");
 }
-void Database_Config_General::setMailStorageUsername (string value)
+void Database_Config_General::setMailStorageUsername (std::string value)
 {
   setValue ("mail-storage-username", value);
 }
 
 
-string Database_Config_General::getMailStoragePassword ()
+std::string Database_Config_General::getMailStoragePassword ()
 {
   return getValue ("mail-storage-password", "");
 }
 
 
-void Database_Config_General::setMailStoragePassword (string value)
+void Database_Config_General::setMailStoragePassword (std::string value)
 {
   setValue ("mail-storage-password", value);
 }
 
 
-string Database_Config_General::getMailStorageProtocol ()
+std::string Database_Config_General::getMailStorageProtocol ()
 {
   return getValue ("mail-storage-protocol", "");
 }
-void Database_Config_General::setMailStorageProtocol (string value)
+void Database_Config_General::setMailStorageProtocol (std::string value)
 {
   setValue ("mail-storage-protocol", value);
 }
 
 
-string Database_Config_General::getMailStoragePort ()
+std::string Database_Config_General::getMailStoragePort ()
 {
   return getValue ("mail-storage-port", "");
 }
-void Database_Config_General::setMailStoragePort (string value)
+void Database_Config_General::setMailStoragePort (std::string value)
 {
   setValue ("mail-storage-port", value);
 }
 
 
-string Database_Config_General::getMailSendHost ()
+std::string Database_Config_General::getMailSendHost ()
 {
   return getValue ("mail-send-host", "");
 }
-void Database_Config_General::setMailSendHost (string value)
+void Database_Config_General::setMailSendHost (std::string value)
 {
   setValue ("mail-send-host", value);
 }
 
 
-string Database_Config_General::getMailSendUsername ()
+std::string Database_Config_General::getMailSendUsername ()
 {
   return getValue ("mail-send-username", "");
 }
-void Database_Config_General::setMailSendUsername (string value)
+void Database_Config_General::setMailSendUsername (std::string value)
 {
   setValue ("mail-send-username", value);
 }
 
 
-string Database_Config_General::getMailSendPassword ()
+std::string Database_Config_General::getMailSendPassword ()
 {
   return getValue ("mail-send-password", "");
 }
-void Database_Config_General::setMailSendPassword (string value)
+void Database_Config_General::setMailSendPassword (std::string value)
 {
   setValue ("mail-send-password", value);
 }
 
 
-string Database_Config_General::getMailSendPort ()
+std::string Database_Config_General::getMailSendPort ()
 {
   return getValue ("mail-send-port", "");
 }
-void Database_Config_General::setMailSendPort (string value)
+void Database_Config_General::setMailSendPort (std::string value)
 {
   setValue ("mail-send-port", value);
 }
 
 
-string Database_Config_General::getTimerMinute ()
+std::string Database_Config_General::getTimerMinute ()
 {
   return getValue ("timer-minute", "");
 }
-void Database_Config_General::setTimerMinute (string value)
+void Database_Config_General::setTimerMinute (std::string value)
 {
   setValue ("timer-minute", value);
 }
@@ -252,14 +251,14 @@ void Database_Config_General::setTimezone (int value)
 }
 
 
-string Database_Config_General::getSiteURL ()
+std::string Database_Config_General::getSiteURL ()
 {
   // The site URL is set upon login, normally.
   // In a client setup, there is never a login.
   // Consequently the site URL is never set.
 #ifdef HAVE_CLIENT
   // In case of a client, return a predefined URL.
-  string url = "http://localhost:";
+  std::string url = "http://localhost:";
   url.append (config::logic::http_network_port ());
   url.append ("/");
   return url;
@@ -268,14 +267,14 @@ string Database_Config_General::getSiteURL ()
   return getValue ("site-url", "");
 #endif
 }
-void Database_Config_General::setSiteURL (string value)
+void Database_Config_General::setSiteURL (std::string value)
 {
   setValue ("site-url", value);
 }
 
 
 constexpr const char * general_site_language_key {"site-language"};
-string Database_Config_General::getSiteLanguage ()
+std::string Database_Config_General::getSiteLanguage ()
 {
   // The default site language is an empty string.
   // It means not to localize the interface.
@@ -283,7 +282,7 @@ string Database_Config_General::getSiteLanguage ()
   // the default language for the interface will be English.
   return getValue (general_site_language_key, "");
 }
-void Database_Config_General::setSiteLanguage (string value)
+void Database_Config_General::setSiteLanguage (std::string value)
 {
   setValue (general_site_language_key, value);
 }
@@ -299,11 +298,11 @@ void Database_Config_General::setClientMode (bool value)
 }
 
 
-string Database_Config_General::getServerAddress ()
+std::string Database_Config_General::getServerAddress ()
 {
   return getValue ("server-address", "");
 }
-void Database_Config_General::setServerAddress (string value)
+void Database_Config_General::setServerAddress (std::string value)
 {
   setValue ("server-address", value);
 }
@@ -339,21 +338,21 @@ void Database_Config_General::setLastSendReceive (int value)
 }
 
 
-string Database_Config_General::getInstalledInterfaceVersion ()
+std::string Database_Config_General::getInstalledInterfaceVersion ()
 {
   return getValue ("installed-interface-version", "");
 }
-void Database_Config_General::setInstalledInterfaceVersion (string value)
+void Database_Config_General::setInstalledInterfaceVersion (std::string value)
 {
   setValue ("installed-interface-version", value);
 }
 
 
-string Database_Config_General::getInstalledDatabaseVersion ()
+std::string Database_Config_General::getInstalledDatabaseVersion ()
 {
   return getValue ("installed-database-version", "");
 }
-void Database_Config_General::setInstalledDatabaseVersion (string value)
+void Database_Config_General::setInstalledDatabaseVersion (std::string value)
 {
   setValue ("installed-database-version", value);
 }
@@ -369,32 +368,32 @@ void Database_Config_General::setJustStarted (bool value)
 }
 
 
-string Database_Config_General::getParatextProjectsFolder ()
+std::string Database_Config_General::getParatextProjectsFolder ()
 {
   return getValue ("paratext-projects-folder", "");
 }
-void Database_Config_General::setParatextProjectsFolder (string value)
+void Database_Config_General::setParatextProjectsFolder (std::string value)
 {
   setValue ("paratext-projects-folder", value);
 }
 
 
 // Encryption / decryption key storage on client.
-string Database_Config_General::getSyncKey ()
+std::string Database_Config_General::getSyncKey ()
 {
   return getValue ("sync-key", "");
 }
-void Database_Config_General::setSyncKey (string key)
+void Database_Config_General::setSyncKey (std::string key)
 {
   setValue ("sync-key", key);
 }
 
 
-string Database_Config_General::getLastMenuClick ()
+std::string Database_Config_General::getLastMenuClick ()
 {
   return getValue ("last-menu-click", "");
 }
-void Database_Config_General::setLastMenuClick (string url)
+void Database_Config_General::setLastMenuClick (std::string url)
 {
   setValue ("last-menu-click", url);
 }
@@ -403,13 +402,13 @@ void Database_Config_General::setLastMenuClick (string url)
 // Store the resources to be cached.
 // The format is this:
 // <resource title><space><book number>
-vector <string> Database_Config_General::getResourcesToCache ()
+std::vector <std::string> Database_Config_General::getResourcesToCache ()
 {
   return getList ("resources-to-cache");
 }
 
 
-void Database_Config_General::setResourcesToCache (vector <string> values)
+void Database_Config_General::setResourcesToCache (std::vector <std::string> values)
 {
   setList ("resources-to-cache", values);
 }
@@ -487,11 +486,11 @@ void Database_Config_General::setMenuInTabbedViewOn (bool value)
 
 
 constexpr const char * menu_in_tabbed_view_json_key {"menu-in-tabbed-view-json"};
-string Database_Config_General::getMenuInTabbedViewJSON ()
+std::string Database_Config_General::getMenuInTabbedViewJSON ()
 {
   return getValue (menu_in_tabbed_view_json_key, "");
 }
-void Database_Config_General::setMenuInTabbedViewJSON (string value)
+void Database_Config_General::setMenuInTabbedViewJSON (std::string value)
 {
   setValue (menu_in_tabbed_view_json_key, value);
 }
@@ -509,56 +508,56 @@ void Database_Config_General::setDisableSelectionPopupChromeOS (bool value)
 
 
 constexpr const char * notes_verse_separator_key {"notes-verse-separator"};
-string Database_Config_General::getNotesVerseSeparator ()
+std::string Database_Config_General::getNotesVerseSeparator ()
 {
   // The colon is the default value. See https://github.com/bibledit/cloud/issues/509
   return getValue (notes_verse_separator_key, ":");
 }
-void Database_Config_General::setNotesVerseSeparator (string value)
+void Database_Config_General::setNotesVerseSeparator (std::string value)
 {
   setValue (notes_verse_separator_key, value);
 }
 
 
 constexpr const char * comparative_resources_key {"comparative-resources"};
-vector <string> Database_Config_General::getComparativeResources ()
+std::vector <std::string> Database_Config_General::getComparativeResources ()
 {
   return getList (comparative_resources_key);
 }
-void Database_Config_General::setComparativeResources (vector <string> values)
+void Database_Config_General::setComparativeResources (std::vector <std::string> values)
 {
   setList (comparative_resources_key, values);
 }
 
 
 constexpr const char * translated_resources_key {"translated-resources"};
-vector <string> Database_Config_General::getTranslatedResources ()
+std::vector <std::string> Database_Config_General::getTranslatedResources ()
 {
   return getList (translated_resources_key);
 }
-void Database_Config_General::setTranslatedResources (vector <string> values)
+void Database_Config_General::setTranslatedResources (std::vector <std::string> values)
 {
   setList (translated_resources_key, values);
 }
 
 
 constexpr const char * default_active_resources_key {"default-active-resources"};
-vector <string> Database_Config_General::getDefaultActiveResources ()
+std::vector <std::string> Database_Config_General::getDefaultActiveResources ()
 {
   return getList (default_active_resources_key);
 }
-void Database_Config_General::setDefaultActiveResources (vector <string> values)
+void Database_Config_General::setDefaultActiveResources (std::vector <std::string> values)
 {
   setList (default_active_resources_key, values);
 }
 
 
 constexpr const char * account_creation_times_key {"account-creation-times"};
-vector <string> Database_Config_General::getAccountCreationTimes ()
+std::vector <std::string> Database_Config_General::getAccountCreationTimes ()
 {
   return getList (account_creation_times_key);
 }
-void Database_Config_General::setAccountCreationTimes (vector <string> values)
+void Database_Config_General::setAccountCreationTimes (std::vector <std::string> values)
 {
   setList (account_creation_times_key, values);
 }

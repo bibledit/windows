@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -36,30 +36,28 @@
 #include <database/modifications.h>
 #include <menu/logic.h>
 #include <access/logic.h>
-using namespace std;
 
 
-string notes_create_url ()
+std::string notes_create_url ()
 {
   return "notes/create";
 }
 
 
-bool notes_create_acl (void * webserver_request)
+bool notes_create_acl (Webserver_Request& webserver_request)
 {
   return access_logic::privilege_create_comment_notes (webserver_request);
 }
 
 
-string notes_create (void * webserver_request)
+std::string notes_create (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   Database_Notes database_notes (webserver_request);
-  Notes_Logic notes_logic = Notes_Logic (webserver_request);
+  Notes_Logic notes_logic (webserver_request);
   
-  string page;
+  std::string page;
   
-  Assets_Header header = Assets_Header (translate("Create note"), request);
+  Assets_Header header = Assets_Header (translate("Create note"), webserver_request);
   header.add_bread_crumb (menu_logic_translate_menu (), menu_logic_translate_text ());
   header.add_bread_crumb (notes_index_url (), menu_logic_consultation_notes_text ());
   page = header.run();
@@ -70,47 +68,47 @@ string notes_create (void * webserver_request)
   // Is is possible to pass a Bible to this script.
   // The note will then be created for this Bible.
   // If no Bible is passed, it takes the user's active Bible.
-  string bible = request->post ["bible"];
+  std::string bible = webserver_request.post ["bible"];
   if (bible.empty ()) {
-    bible = access_bible::clamp (webserver_request, request->database_config_user()->getBible ());
+    bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->getBible ());
   }
   
   
   int book;
-  if (request->post.count ("book")) book = filter::strings::convert_to_int (request->post ["book"]);
+  if (webserver_request.post.count ("book")) book = filter::strings::convert_to_int (webserver_request.post ["book"]);
   else book = Ipc_Focus::getBook (webserver_request);
   int chapter;
-  if (request->post.count ("chapter")) chapter = filter::strings::convert_to_int (request->post ["chapter"]);
+  if (webserver_request.post.count ("chapter")) chapter = filter::strings::convert_to_int (webserver_request.post ["chapter"]);
   else chapter = Ipc_Focus::getChapter (webserver_request);
   int verse;
-  if (request->post.count ("verse")) verse = filter::strings::convert_to_int (request->post ["verse"]);
+  if (webserver_request.post.count ("verse")) verse = filter::strings::convert_to_int (webserver_request.post ["verse"]);
   else verse = Ipc_Focus::getVerse (webserver_request);
 
   
-  if (request->post.count ("summary")) {
-    string summary = filter::strings::trim (request->post["summary"]);
+  if (webserver_request.post.count ("summary")) {
+    std::string summary = filter::strings::trim (webserver_request.post["summary"]);
     summary = filter_url_tag_to_plus (summary);
-    string body = filter::strings::trim (request->post["body"]);
+    std::string body = filter::strings::trim (webserver_request.post["body"]);
     body = filter_url_tag_to_plus (body);
     notes_logic.createNote (bible, book, chapter, verse, summary, body, false);
-    return string();
+    return std::string();
   }
 
   
-  if (request->post.count ("cancel")) {
-    redirect_browser (request, notes_index_url ());
-    return string();
+  if (webserver_request.post.count ("cancel")) {
+    redirect_browser (webserver_request, notes_index_url ());
+    return std::string();
   }
   
 
   // This script can be called from a change notification.
   // It will then create a note based on that change notification.
-  if (request->query.count ("fromchange")) {
-    int fromchange = filter::strings::convert_to_int (request->query ["fromchange"]);
+  if (webserver_request.query.count ("fromchange")) {
+    int fromchange = filter::strings::convert_to_int (webserver_request.query ["fromchange"]);
     Database_Modifications database_modifications;
     //string bible = database_modifications.getNotificationBible (fromchange);
-    string summary = translate("Query about a change in the text");
-    string contents = "<p>" + translate("Old text:") + "</p>";
+    std::string summary = translate("Query about a change in the text");
+    std::string contents = "<p>" + translate("Old text:") + "</p>";
     contents += database_modifications.getNotificationOldText (fromchange);
     contents += "<p>" +  translate("Change:") + "</p>";
     contents += "<p>" + database_modifications.getNotificationModification (fromchange) + "</p>";
@@ -125,13 +123,13 @@ string notes_create (void * webserver_request)
   view.set_variable ("book", filter::strings::convert_to_string (book));
   view.set_variable ("chapter", filter::strings::convert_to_string (chapter));
   view.set_variable ("verse", filter::strings::convert_to_string (verse));
-  string passage = filter_passage_display (book, chapter, filter::strings::convert_to_string (verse));
+  std::string passage = filter_passage_display (book, chapter, filter::strings::convert_to_string (verse));
   view.set_variable ("passage", passage);
-  if (request->database_config_user ()->getShowVerseTextAtCreateNote ()) {
-    string versetext;
-    string chapter_usfm = request->database_bibles()->get_chapter (bible, book, chapter);
-    string verse_usfm = filter::usfm::get_verse_text (chapter_usfm, verse);
-    string stylesheet = styles_logic_standard_sheet ();
+  if (webserver_request.database_config_user ()->getShowVerseTextAtCreateNote ()) {
+    std::string versetext;
+    std::string chapter_usfm = webserver_request.database_bibles()->get_chapter (bible, book, chapter);
+    std::string verse_usfm = filter::usfm::get_verse_text (chapter_usfm, verse);
+    const std::string stylesheet = styles_logic_standard_sheet ();
     Filter_Text filter_text = Filter_Text (bible);
     filter_text.text_text = new Text_Text ();
     filter_text.add_usfm_code (verse_usfm);

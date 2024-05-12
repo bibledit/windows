@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -26,25 +26,23 @@
 #include <database/cache.h>
 #include <database/config/general.h>
 #include <tasks/logic.h>
-using namespace std;
 
 
-string sync_resources_url ()
+std::string sync_resources_url ()
 {
   return "sync/resources";
 }
 
 
 // Serves general resource content to a client.
-string sync_resources (void * webserver_request)
+std::string sync_resources (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  Sync_Logic sync_logic = Sync_Logic (webserver_request);
+  Sync_Logic sync_logic (webserver_request);
 
   if (!sync_logic.security_okay ()) {
     // When the Cloud enforces https, inform the client to upgrade.
-    request->response_code = 426;
-    return string();
+    webserver_request.response_code = 426;
+    return std::string();
   }
 
   // If the client's IP address very recently made a prioritized server call,
@@ -52,14 +50,14 @@ string sync_resources (void * webserver_request)
   // This is to give priority to the other calls from the same client:
   // Not clogging that client's internet connection.
   if (sync_logic.prioritized_ip_address_active ()) {
-    this_thread::sleep_for (chrono::seconds (5));
+    std::this_thread::sleep_for (std::chrono::seconds (5));
   }
 
-  int action = filter::strings::convert_to_int (request->query ["a"]);
-  string resource = request->query ["r"];
-  int book = filter::strings::convert_to_int (request->query ["b"]);
-  int chapter = filter::strings::convert_to_int (request->query ["c"]);
-  int verse = filter::strings::convert_to_int (request->query ["v"]);
+  int action = filter::strings::convert_to_int (webserver_request.query ["a"]);
+  std::string resource = webserver_request.query ["r"];
+  int book = filter::strings::convert_to_int (webserver_request.query ["b"]);
+  int chapter = filter::strings::convert_to_int (webserver_request.query ["c"]);
+  int verse = filter::strings::convert_to_int (webserver_request.query ["v"]);
   
   bool request_ok = true;
   if (book <= 0) request_ok = false;
@@ -85,8 +83,8 @@ string sync_resources (void * webserver_request)
           }
         }
         // Schedule this resource for caching if that's not yet the case.
-        vector <string> signatures = Database_Config_General::getResourcesToCache ();
-        string signature = resource + " " + filter::strings::convert_to_string (book);
+        std::vector <std::string> signatures = Database_Config_General::getResourcesToCache ();
+        std::string signature = resource + " " + filter::strings::convert_to_string (book);
         if (!in_array (signature, signatures)) {
           signatures.push_back (signature);
           Database_Config_General::setResourcesToCache (signatures);
@@ -107,7 +105,7 @@ string sync_resources (void * webserver_request)
   }
     
   // Bad request. Delay flood of bad requests.
-  this_thread::sleep_for (chrono::seconds (1));
-  request->response_code = 400;
-  return string();
+  std::this_thread::sleep_for (std::chrono::seconds (1));
+  webserver_request.response_code = 400;
+  return std::string();
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,37 +32,35 @@
 #include <ipc/focus.h>
 #include <navigation/passage.h>
 #include <notes/actions.h>
-using namespace std;
 
 
-string notes_severity_n_url ()
+std::string notes_severity_n_url ()
 {
   return "notes/severity-n";
 }
 
 
-bool notes_severity_n_acl (void * webserver_request)
+bool notes_severity_n_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ());
 }
 
 
-string notes_severity_n (void * webserver_request)
+std::string notes_severity_n (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   Database_Notes database_notes (webserver_request);
   
   
-  string page;
-  Assets_Header header = Assets_Header (translate("Severity"), request);
+  std::string page;
+  Assets_Header header = Assets_Header (translate("Severity"), webserver_request);
   page += header.run ();
   Assets_View view;
   
   
-  stringstream severityblock;
-  vector <Database_Notes_Text> severities = database_notes.get_possible_severities ();
+  std::stringstream severityblock;
+  std::vector <Database_Notes_Text> severities = database_notes.get_possible_severities ();
   for (auto & severity : severities) {
-    severityblock << "<li><a href=" << quoted ("bulk?severity=" + severity.raw) << ">" << severity.localized + "</a></li>" << endl;
+    severityblock << "<li><a href=" << std::quoted ("bulk?severity=" + severity.raw) << ">" << severity.localized + "</a></li>" << std::endl;
   }
   view.set_variable ("severityblock", severityblock.str());
   

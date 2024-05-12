@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,9 +29,9 @@
 #include <quill/logic.h>
 
 
-Styles_Css::Styles_Css (void* webserver_request, const std::string& stylesheet)
+Styles_Css::Styles_Css (Webserver_Request& webserver_request, const std::string& stylesheet):
+m_webserver_request (webserver_request)
 {
-  m_webserver_request = webserver_request;
   m_stylesheet = stylesheet;
 }
 
@@ -60,10 +60,9 @@ void Styles_Css::generate ()
   if (editor_enabled) {
     add_editor_styles ();
   }
-  Webserver_Request * request = static_cast<Webserver_Request *>(m_webserver_request);
-  std::vector <std::string> markers = request->database_styles ()->getMarkers (m_stylesheet);
+  std::vector <std::string> markers = m_webserver_request.database_styles ()->getMarkers (m_stylesheet);
   for (const auto& marker : markers) {
-    Database_Styles_Item style = request->database_styles ()->getMarkerData (m_stylesheet, marker);
+    Database_Styles_Item style = m_webserver_request.database_styles ()->getMarkerData (m_stylesheet, marker);
     evaluate (&style);
   }
 }

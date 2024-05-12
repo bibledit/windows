@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -27,32 +27,30 @@
 #include <database/oshb.h>
 #include <database/morphgnt.h>
 #include <database/strong.h>
-using namespace std;
 
 
-string lexicon_definition_url ()
+std::string lexicon_definition_url ()
 {
   return "lexicon/definition";
 }
 
 
-bool lexicon_definition_acl (void * webserver_request)
+bool lexicon_definition_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ());
 }
 
 
-string lexicon_definition (void * webserver_request)
+std::string lexicon_definition (Webserver_Request& webserver_request)
 {
   // Retrieve the id: It may contain a Strong's number or a lemma.
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  string id = request->query["id"];
+  std::string id = webserver_request.query["id"];
   
-  vector <string> renderings;
+  std::vector <std::string> renderings;
   
   if (!id.empty ()) {
     
-    string letter = id.substr (0, 1);
+    std::string letter = id.substr (0, 1);
     
     // ETCBC4 database.
     if (letter == HEBREW_ETCBC4_PREFIX) {
@@ -62,8 +60,8 @@ string lexicon_definition (void * webserver_request)
     // King James Bible with Strong's numbers.
     else if (letter == KJV_LEXICON_PREFIX) {
       Database_Kjv database_kjv;
-      string strong = database_kjv.strong (filter::strings::convert_to_int (id.substr (1)));
-      string rendering = lexicon_logic_render_strongs_definition (strong);
+      std::string strong = database_kjv.strong (filter::strings::convert_to_int (id.substr (1)));
+      std::string rendering = lexicon_logic_render_strongs_definition (strong);
       if (!rendering.empty ()) renderings.push_back (rendering);
       rendering = lexicon_logic_render_abbott_smiths_definition("", strong);
       if (!rendering.empty ()) renderings.push_back (rendering);
@@ -73,17 +71,17 @@ string lexicon_definition (void * webserver_request)
     else if (letter == OSHB_PREFIX) {
       int rowid = filter::strings::convert_to_int (id.substr (1));
       Database_OsHb database_oshb;
-      string morph = database_oshb.morph (rowid);
+      std::string morph = database_oshb.morph (rowid);
       renderings.push_back (lexicon_logic_hebrew_morphology_render (morph));
-      string lemma = database_oshb.lemma (rowid);
-      vector <string> strongs;
-      vector <string> bdbs;
+      std::string lemma = database_oshb.lemma (rowid);
+      std::vector <std::string> strongs;
+      std::vector <std::string> bdbs;
       lexicon_logic_convert_morphhb_parsing_to_strong (lemma, strongs, bdbs);
       for (size_t i = 0; i < strongs.size (); i++) {
-        string rendering1 = lexicon_logic_render_strongs_definition (strongs[i]);
+        std::string rendering1 = lexicon_logic_render_strongs_definition (strongs[i]);
         if (!rendering1.empty ()) renderings.push_back (rendering1);
-        stringstream rendering2;
-        rendering2 << "<a href=" << quoted(BDB_PREFIX + bdbs[i]) << ">Brown Driver Briggs</a>";
+        std::stringstream rendering2;
+        rendering2 << "<a href=" << std::quoted(BDB_PREFIX + bdbs[i]) << ">Brown Driver Briggs</a>";
         renderings.push_back (rendering2.str());
       }
     }
@@ -94,16 +92,16 @@ string lexicon_definition (void * webserver_request)
       Database_Strong database_strong;
       int rowid = filter::strings::convert_to_int (id.substr (1));
       // The part of speech.
-      string pos = database_morphgnt.pos (rowid);
-      string rendering = lexicon_logic_render_morphgnt_part_of_speech (pos);
+      std::string pos = database_morphgnt.pos (rowid);
+      std::string rendering = lexicon_logic_render_morphgnt_part_of_speech (pos);
       rendering.append (" ");
       // The parsing.
-      string parsing = database_morphgnt.parsing (rowid);
+      std::string parsing = database_morphgnt.parsing (rowid);
       rendering.append (lexicon_logic_render_morphgnt_parsing_code (parsing));
       renderings.push_back (rendering);
       // The lemma.
-      string lemma = database_morphgnt.lemma (rowid);
-      vector <string> strongs = database_strong.strong (lemma);
+      std::string lemma = database_morphgnt.lemma (rowid);
+      std::vector <std::string> strongs = database_strong.strong (lemma);
       for (auto & lexicon_id : strongs) {
         rendering = lexicon_logic_render_strongs_definition (lexicon_id);
         if (!rendering.empty ()) renderings.push_back (rendering);
@@ -114,19 +112,19 @@ string lexicon_definition (void * webserver_request)
     
     // Strong's Hebrew.
     else if (letter == "H") {
-      string rendering = lexicon_logic_render_strongs_definition (id);
+      std::string rendering = lexicon_logic_render_strongs_definition (id);
       if (!rendering.empty ()) renderings.push_back (rendering);
     }
     
     // Strong's Greek.
     else if (letter == "G") {
-      string rendering = lexicon_logic_render_strongs_definition (id);
+      std::string rendering = lexicon_logic_render_strongs_definition (id);
       if (!rendering.empty ()) renderings.push_back (rendering);
     }
     
     // Brown Driver Briggs lexicon.
     else if (letter == BDB_PREFIX) {
-      string rendering = lexicon_logic_render_bdb_entry (id.substr (1));
+      std::string rendering = lexicon_logic_render_bdb_entry (id.substr (1));
       if (!rendering.empty ()) renderings.push_back (rendering);
     }
     

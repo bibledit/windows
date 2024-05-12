@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <config/globals.h>
 #include <library/bibledit.h>
 #include <developer/logic.h>
-using namespace std;
+#include <webserver/request.h>
 
 
 const char * developer_index_url ()
@@ -43,23 +43,21 @@ const char * developer_index_url ()
 }
 
 
-bool developer_index_acl (void * webserver_request)
+bool developer_index_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::admin ());
 }
 
 
-string developer_index (void * webserver_request)
+std::string developer_index (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  if (request->query.count ("log")) {
-    string message = request->query ["log"];
-    cerr << message << endl;
-    return string();
+  if (webserver_request.query.count ("log")) {
+    std::string message = webserver_request.query ["log"];
+    std::cerr << message << std::endl;
+    return std::string();
   }
   
-  string page {};
+  std::string page {};
 
   Assets_Header header = Assets_Header ("Development", webserver_request);
   header.notify_it_on ();
@@ -67,9 +65,9 @@ string developer_index (void * webserver_request)
 
   Assets_View view {};
 
-  string code {};
+  std::string code {};
   
-  string debug = request->query ["debug"];
+  std::string debug = webserver_request.query ["debug"];
   
   // It is cleaner and easier to move the following task to the binary ./generate.
   if (debug == "etcbc4download") {
@@ -117,16 +115,16 @@ string developer_index (void * webserver_request)
 
   if (debug == "ipv6") {
     view.set_variable ("success", "Fetching data via IPv6");
-    string error {};
-    string response = filter_url_http_request_mbed ("http://ipv6.google.com", error, {}, "", true);
+    std::string error {};
+    std::string response = filter_url_http_request_mbed ("http://ipv6.google.com", error, {}, "", true);
     page.append (response);
     view.set_variable ("error", error);
   }
   
   if (debug == "ipv6s") {
     view.set_variable ("success", "Securely fetching data via IPv6");
-    string error {};
-    string response = filter_url_http_request_mbed ("https://ipv6.google.com", error, {}, "", true);
+    std::string error {};
+    std::string response = filter_url_http_request_mbed ("https://ipv6.google.com", error, {}, "", true);
     page.append (response);
     view.set_variable ("error", error);
   }
@@ -137,7 +135,7 @@ string developer_index (void * webserver_request)
   }
 
   if (debug == "accordance") {
-    string reference = bibledit_get_reference_for_accordance ();
+    std::string reference = bibledit_get_reference_for_accordance ();
     view.set_variable ("success", "Accordance reference: " + reference);
     bibledit_put_reference_from_accordance("PSA 3:2");
   }

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,26 +30,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <locale/translate.h>
 #include <assets/header.h>
 #include <menu/logic.h>
-using namespace std;
 
 
-string email_index_url ()
+std::string email_index_url ()
 {
   return "email/index";
 }
 
 
-bool email_index_acl (void * webserver_request)
+bool email_index_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::admin ());
 }
 
 
-string email_index (void * webserver_request)
+std::string email_index (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  string page;
+  std::string page;
 
   Assets_Header header = Assets_Header (translate("Mail"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
@@ -58,10 +55,10 @@ string email_index (void * webserver_request)
   Assets_View view;
 
   // Site name and email.
-  if (request->post ["email"] != "") {
+  if (webserver_request.post ["email"] != "") {
     bool form_is_valid = true;
-    string sitename = request->post ["sitename"];
-    string sitemail = request->post ["sitemail"];
+    std::string sitename = webserver_request.post ["sitename"];
+    std::string sitemail = webserver_request.post ["sitemail"];
     if (sitemail.length () > 0) {
       if (!filter_url_email_is_valid (sitemail)) {
         form_is_valid = false;
@@ -78,19 +75,19 @@ string email_index (void * webserver_request)
   view.set_variable ("sitemail", Database_Config_General::getSiteMailAddress ());
 
   // Email retrieval.
-  if (request->post ["retrieve"] != "") {
-    string storagehost = request->post ["storagehost"];
-    string storageusername = request->post ["storageusername"];
-    string storagepassword = request->post ["storagepassword"];
-    string storagesecurity = request->post ["storagesecurity"];
-    string storageport = request->post ["storageport"];
+  if (webserver_request.post ["retrieve"] != "") {
+    std::string storagehost = webserver_request.post ["storagehost"];
+    std::string storageusername = webserver_request.post ["storageusername"];
+    std::string storagepassword = webserver_request.post ["storagepassword"];
+    std::string storagesecurity = webserver_request.post ["storagesecurity"];
+    std::string storageport = webserver_request.post ["storageport"];
     Database_Config_General::setMailStorageHost (storagehost);
     Database_Config_General::setMailStorageUsername (storageusername);
     Database_Config_General::setMailStoragePassword (storagepassword);
     Database_Config_General::setMailStorageProtocol (storagesecurity);
     Database_Config_General::setMailStoragePort (storageport);
-    string storage_success = translate("The details were saved.");
-    string storage_error;
+    std::string storage_success = translate("The details were saved.");
+    std::string storage_error;
     int mailcount = email_receive_count (storage_error, true);
     if (storage_error.empty ()) {
       storage_success.append (" ");
@@ -111,21 +108,21 @@ string email_index (void * webserver_request)
   view.set_variable ("storageport", Database_Config_General::getMailStoragePort ());
   
   // Sending email.
-  if (request->post ["send"] != "") {
-    string sendhost = request->post ["sendhost"];
-    string sendauthentication = request->post ["sendauthentication"];
-    string sendusername = request->post ["sendusername"];
-    string sendpassword = request->post ["sendpassword"];
-    string sendsecurity = request->post ["sendsecurity"];
-    string sendport  = request->post ["sendport"];
+  if (webserver_request.post ["send"] != "") {
+    std::string sendhost = webserver_request.post ["sendhost"];
+    std::string sendauthentication = webserver_request.post ["sendauthentication"];
+    std::string sendusername = webserver_request.post ["sendusername"];
+    std::string sendpassword = webserver_request.post ["sendpassword"];
+    std::string sendsecurity = webserver_request.post ["sendsecurity"];
+    std::string sendport  = webserver_request.post ["sendport"];
     Database_Config_General::setMailSendHost (sendhost);
     Database_Config_General::setMailSendUsername (sendusername);
     Database_Config_General::setMailSendPassword (sendpassword);
     Database_Config_General::setMailSendPort (sendport);
-    string send_success  = translate("The details were saved.");
-    string send_error;
-    string send_debug;
-    string result = email_send (Database_Config_General::getSiteMailAddress(), Database_Config_General::getSiteMailName(), "Test", "This is to check sending email.", true);
+    std::string send_success  = translate("The details were saved.");
+    std::string send_error;
+    std::string send_debug;
+    std::string result = email_send (Database_Config_General::getSiteMailAddress(), Database_Config_General::getSiteMailName(), "Test", "This is to check sending email.", true);
     if (result.empty()) {
       send_success.append (" ");
       send_success.append ("For checking sending email, a test email was sent out to the account above:");

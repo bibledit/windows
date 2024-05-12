@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -23,31 +23,29 @@
 #include <webserver/request.h>
 #include <consistency/logic.h>
 #include <database/volatile.h>
-using namespace std;
 
 
-string consistency_input_url ()
+std::string consistency_input_url ()
 {
   return "consistency/input";
 }
 
 
-bool consistency_input_acl (void * webserver_request)
+bool consistency_input_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
 }
 
 
-string consistency_input (void * webserver_request)
+std::string consistency_input (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  int id = filter::strings::convert_to_int (request->post ["id"]);
-  string passages = request->post ["passages"];
-  string translations = request->post ["translations"];
+  const int id = filter::strings::convert_to_int (webserver_request.post ["id"]);
+  const std::string passages = webserver_request.post ["passages"];
+  const std::string translations = webserver_request.post ["translations"];
   Database_Volatile::setValue (id, "passages", passages);
   Database_Volatile::setValue (id, "translations", translations);
   Consistency_Logic consistency_logic (webserver_request, id);
-  string response = consistency_logic.response ();
+  const std::string response = consistency_logic.response ();
   Database_Volatile::setValue (id, "response", response);
   return response;
 }

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,36 +33,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <email/send.h>
 #include <ldap/logic.h>
 #include <webserver/request.h>
-using namespace std;
 
 
-void user_logic_optional_ldap_authentication (void * webserver_request, string user, string pass)
+void user_logic_optional_ldap_authentication (Webserver_Request& webserver_request, std::string user, std::string pass)
 {
   if (ldap_logic_is_on ()) {
     // Query the LDAP server and log the response.
     bool ldap_okay;
-    string email;
+    std::string email;
     int role;
     ldap_logic_fetch (user, pass, ldap_okay, email, role, true);
     if (ldap_okay) {
-      Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-      if (request->database_users ()->usernameExists (user)) {
+      if (webserver_request.database_users ()->usernameExists (user)) {
         // Verify and/or update the fields for the user in the local database.
-        if (request->database_users ()->get_md5 (user) != md5 (pass)) {
-          request->database_users ()->set_password (user, pass);
+        if (webserver_request.database_users ()->get_md5 (user) != md5 (pass)) {
+          webserver_request.database_users ()->set_password (user, pass);
         }
-        if (request->database_users ()->get_level (user) != role) {
-          request->database_users ()->set_level (user, role);
+        if (webserver_request.database_users ()->get_level (user) != role) {
+          webserver_request.database_users ()->set_level (user, role);
         }
-        if (request->database_users ()->get_email (user) != email) {
-          request->database_users ()->updateUserEmail (user, email);
+        if (webserver_request.database_users ()->get_email (user) != email) {
+          webserver_request.database_users ()->updateUserEmail (user, email);
         }
-        if (!request->database_users ()->get_enabled (user)) {
-          request->database_users ()->set_enabled (user, true);
+        if (!webserver_request.database_users ()->get_enabled (user)) {
+          webserver_request.database_users ()->set_enabled (user, true);
         }
       } else {
         // Enter the user into the database.
-        request->database_users ()->add_user (user, pass, role, email);
+        webserver_request.database_users ()->add_user (user, pass, role, email);
       }
     }
   }
@@ -97,16 +95,16 @@ void user_logic_login_failure_clear ()
 }
 
 
-void user_logic_store_account_creation (string username)
+void user_logic_store_account_creation (std::string username)
 {
-  vector <string> account_creation_times = Database_Config_General::getAccountCreationTimes ();
-  string account_creation_time = filter::strings::convert_to_string(filter::date::seconds_since_epoch()) + "|" + username;
+  std::vector <std::string> account_creation_times = Database_Config_General::getAccountCreationTimes ();
+  std::string account_creation_time = filter::strings::convert_to_string(filter::date::seconds_since_epoch()) + "|" + username;
   account_creation_times.push_back(account_creation_time);
   Database_Config_General::setAccountCreationTimes(account_creation_times);
 }
 
 
-void user_logic_delete_account (string user, string role, string email, string & feedback)
+void user_logic_delete_account (std::string user, std::string role, std::string email, std::string & feedback)
 {
   feedback = "Deleted user " + user + " with role " + role + " and email " + email;
   Database_Logs::log (feedback, Filter_Roles::admin ());
@@ -125,16 +123,17 @@ void user_logic_delete_account (string user, string role, string email, string &
   // Remove any settings for the user.
   // The advantage of this is that when a user is removed, all settings are gone,
   // so when the same user would be created again, all settings will go back to their defaults.
-  Database_Config_User database_config_user (nullptr);
+  Webserver_Request webserver_request;
+  Database_Config_User database_config_user (webserver_request);
   database_config_user.remove (user);
   // Remove note assignments for clients for this user.
   Database_NoteAssignment database_noteassignment;
   database_noteassignment.remove (user);
   // Remove the account creation time.
-  vector <string> updated;
-  vector <string> existing = Database_Config_General::getAccountCreationTimes ();
+  std::vector <std::string> updated;
+  std::vector <std::string> existing = Database_Config_General::getAccountCreationTimes ();
   for (auto line : existing) {
-    vector <string> bits = filter::strings::explode(line, '|');
+    std::vector <std::string> bits = filter::strings::explode(line, '|');
     if (bits.size() != 2) continue;
     if (bits[1] == user) continue;
     updated.push_back(line);

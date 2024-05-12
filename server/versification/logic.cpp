@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -20,16 +20,15 @@
 #include <versification/logic.h>
 #include <filter/string.h>
 #include <filter/url.h>
-using namespace std;
 
 
 // Get the names of the available versification systems that come with Bibledit.
-vector <string> versification_logic_names ()
+std::vector <std::string> versification_logic_names ()
 {
-  vector <string> names;
+  std::vector <std::string> names;
 
-  string directory = filter_url_create_root_path ({"versification"});
-  vector <string> files = filter_url_scandir (directory);
+  std::string directory = filter_url_create_root_path ({"versification"});
+  std::vector <std::string> files = filter_url_scandir (directory);
   for (auto file : files) {
     if (filter_url_get_extension (file) == "txt") {
       // Remove the dot and extension.
@@ -45,10 +44,10 @@ vector <string> versification_logic_names ()
 
 
 // Return the raw data of default versification system $name.
-string versification_logic_data (string name)
+std::string versification_logic_data (std::string name)
 {
   name = filter::strings::replace (" ", "_", name);
   name.append (".txt");
-  string file = filter_url_create_root_path ({"versification", name});
+  std::string file = filter_url_create_root_path ({"versification", name});
   return filter_url_file_get_contents (file);
 }

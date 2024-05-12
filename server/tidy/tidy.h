@@ -721,7 +721,7 @@ TIDY_EXPORT Bool TIDY_CALL tidyOptionIsList( TidyOption opt );
 
 /** Is Option read-only? Some options (mainly internal use only options) are
  ** read-only.
- ** @deprecated This is no longer a valid test for the public API; instead
+ ** This is no longer a valid test for the public API; instead
  **   you should test an option's availability using `tidyOptGetCategory()`
  **   against `TidyInternalCategory`. This API will be removed!
  ** @param opt An instance of a TidyOption to query.
@@ -1983,7 +1983,7 @@ TIDY_EXPORT ctmbstr TIDY_CALL tidyErrorCodeAsKey(uint code);
  ** represents it.
  **
  ** @remark We establish that for external purposes, the API will ensure that
- **         string keys remain consistent. *Never* count on the integer value
+ **         std::string keys remain consistent. *Never* count on the integer value
  **         of a message code. Always use this function to ensure that the
  **         integer is valid if you need one.
  ** @param code The string representing the error code.

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 
 #include <config/libraries.h>
 
+class Webserver_Request;
+
 std::string search_strong_url ();
-bool search_strong_acl (void * webserver_request);
-std::string search_strong (void * webserver_request);
+bool search_strong_acl (Webserver_Request& webserver_request);
+std::string search_strong (Webserver_Request& webserver_request);

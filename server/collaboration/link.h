@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,5 +21,5 @@
 
 #include <config/libraries.h>
 
-void collaboration_link (std::string object, int jobid, std::string direction);
+void collaboration_link (const std::string& object, const int jobid, const std::string& direction);
 std::string collaboration_link_header ();

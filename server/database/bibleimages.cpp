@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/string.h>
 #include <webserver/request.h>
 #include <database/logic.h>
-using namespace std;
 
 
 // Database resilience: 
@@ -30,12 +29,12 @@ using namespace std;
 // That should be resilient enough.
 
 
-vector <string> Database_BibleImages::get ()
+std::vector <std::string> Database_BibleImages::get ()
 {
-  vector <string> files = filter_url_scandir (folder ());
-  vector <string> images;
+  std::vector <std::string> files = filter_url_scandir (folder ());
+  std::vector <std::string> images;
   for (auto file : files) {
-    string extension = filter_url_get_extension (file);
+    std::string extension = filter_url_get_extension (file);
     if (extension == "o") continue;
     if (extension == "h") continue;
     if (extension == "cpp") continue;
@@ -46,36 +45,34 @@ vector <string> Database_BibleImages::get ()
 }
 
 
-void Database_BibleImages::store (string file)
+void Database_BibleImages::store (std::string file)
 {
-  string image = filter_url_basename (file);
+  std::string image = filter_url_basename (file);
   filter_url_file_cp (file, path (image));
 }
 
 
-string Database_BibleImages::get (string image)
+std::string Database_BibleImages::get (std::string image)
 {
-  string contents = filter_url_file_get_contents (path(image));
+  std::string contents = filter_url_file_get_contents (path(image));
   return contents;
 }
 
 
-void Database_BibleImages::erase (string image)
+void Database_BibleImages::erase (std::string image)
 {
-  string filepath = path(image);
+  std::string filepath = path(image);
   filter_url_unlink (filepath);
 }
 
 
-string Database_BibleImages::folder ()
+std::string Database_BibleImages::folder ()
 {
   return filter_url_create_root_path ({"images"});
 }
 
 
-string Database_BibleImages::path (string image)
+std::string Database_BibleImages::path (std::string image)
 {
   return filter_url_create_path ({folder (), image});
 }
-
-

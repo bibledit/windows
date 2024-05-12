@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <config/libraries.h>
 #include <filter/passage.h>
 
+class Webserver_Request;
 
 struct Database_Notes_Text
 {
@@ -35,9 +36,9 @@ class Database_Notes
 {
 
 public:
-  Database_Notes (void * webserver_request_in);
+  Database_Notes (Webserver_Request& webserver_request);
 private:
-  void * webserver_request {nullptr};
+  Webserver_Request& m_webserver_request;
 
 public:
   void create ();

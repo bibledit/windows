@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -36,10 +36,9 @@
 #include <database/books.h>
 #include <database/config/bible.h>
 #include <jobs/index.h>
-using namespace std;
 
 
-void compare_compare (string bible, string compare, int jobId)
+void compare_compare (std::string bible, std::string compare, int jobId)
 {
   Database_Logs::log (translate("Comparing Bibles") + " " + bible + " " + translate ("and") + " " + compare, Filter_Roles::consultant ());
 
@@ -48,50 +47,50 @@ void compare_compare (string bible, string compare, int jobId)
   Database_Bibles database_bibles;
   Database_UsfmResources database_usfmresources = Database_UsfmResources ();
 
-  string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
+  const std::string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
   
 
   database_jobs.set_progress (jobId, translate("The Bibles are being compared..."));
   
 
   // The results of the comparison. Will be displayed to the user.
-  vector <string> result;
+  std::vector <std::string> result;
   result.push_back (translate("Bible") + " '" + bible + "' " + translate ("has been compared with") + " '" + compare + "'.");
   result.push_back (translate("Additions are in bold.") + " " + translate ("Removed words are in strikethrough."));
   result.push_back ("");
   
   
   // Get the combined books in both Bibles / Resources.
-  vector <int> bibleBooks = database_bibles.get_books (bible);
-  vector <int> compareBooks = database_bibles.get_books (compare);
-  vector <int> resourceBooks = database_usfmresources.getBooks (compare);
-  vector <int> books;
+  std::vector <int> bibleBooks = database_bibles.get_books (bible);
+  std::vector <int> compareBooks = database_bibles.get_books (compare);
+  std::vector <int> resourceBooks = database_usfmresources.getBooks (compare);
+  std::vector <int> books;
   {
-    set <int> bookset;
+    std::set <int> bookset;
     bookset.insert (bibleBooks.begin(), bibleBooks.end());
     bookset.insert (compareBooks.begin(), compareBooks.end());
     bookset.insert (resourceBooks.begin(), resourceBooks.end());
     books.assign (bookset.begin(), bookset.end ());
-    sort (books.begin(), books.end());
+    std::sort (books.begin(), books.end());
   }
   
   
   // Results of comparison of raw USFM.
-  vector <string> raw;
+  std::vector <std::string> raw;
   
   
   // Absent books / chapters.
-  vector <string> absent;
+  std::vector <std::string> absent;
   
   
   // The new verses as in the $bible.
-  vector <string> new_verses;
+  std::vector <std::string> new_verses;
   
   
   for (auto & book : books) {
 
     
-    string bookName = database::books::get_english_from_id (static_cast<book_id>(book));
+    std::string bookName = database::books::get_english_from_id (static_cast<book_id>(book));
     database_jobs.set_progress (jobId, bookName);
     
     
@@ -109,21 +108,21 @@ void compare_compare (string bible, string compare, int jobId)
     
     
     // Get the combined chapters in both Bibles / Resources.
-    vector <int> bibleChapters = database_bibles.get_chapters (bible, book);
-    vector <int> compareChapters = database_bibles.get_chapters (compare, book);
-    vector <int> resourceChapters = database_usfmresources.getChapters (compare, book);
-    vector <int> chapters;
+    std::vector <int> bibleChapters = database_bibles.get_chapters (bible, book);
+    std::vector <int> compareChapters = database_bibles.get_chapters (compare, book);
+    std::vector <int> resourceChapters = database_usfmresources.getChapters (compare, book);
+    std::vector <int> chapters;
     {
-      set <int> chapterset;
+      std::set <int> chapterset;
       chapterset.insert (bibleChapters.begin(), bibleChapters.end());
       chapterset.insert (compareChapters.begin(), compareChapters.end());
       chapterset.insert (resourceChapters.begin(), resourceChapters.end());
       chapters.assign (chapterset.begin(), chapterset.end ());
-      sort (chapters.begin(), chapters.end());
+      std::sort (chapters.begin(), chapters.end());
     }
 
 
-    for (auto & chapter : chapters) {
+    for (const auto & chapter : chapters) {
 
       
       // Look for, report, and skip missing chapters in the source Bible.
@@ -143,8 +142,8 @@ void compare_compare (string bible, string compare, int jobId)
       
 
       // Get source and compare USFM, and skip them if they are equal.
-      string bible_chapter_usfm = database_bibles.get_chapter (bible, book, chapter);
-      string compare_chapter_usfm = database_bibles.get_chapter (compare, book, chapter);
+      std::string bible_chapter_usfm = database_bibles.get_chapter (bible, book, chapter);
+      std::string compare_chapter_usfm = database_bibles.get_chapter (compare, book, chapter);
       if (compare_chapter_usfm == "") {
         compare_chapter_usfm = database_usfmresources.getUsfm (compare, book, chapter);
       }
@@ -152,24 +151,24 @@ void compare_compare (string bible, string compare, int jobId)
       
       
       // Get the combined set of verses in the chapter of the Bible and of the USFM to compare with.
-      vector <int> bible_verse_numbers = filter::usfm::get_verse_numbers (bible_chapter_usfm);
-      vector <int> compare_verse_numbers = filter::usfm::get_verse_numbers (compare_chapter_usfm);
-      vector <int> verses;
+      std::vector <int> bible_verse_numbers = filter::usfm::get_verse_numbers (bible_chapter_usfm);
+      std::vector <int> compare_verse_numbers = filter::usfm::get_verse_numbers (compare_chapter_usfm);
+      std::vector <int> verses;
       {
-        set <int> verseset;
+        std::set <int> verseset;
         verseset.insert (bible_verse_numbers.begin(), bible_verse_numbers.end());
         verseset.insert (compare_verse_numbers.begin(), compare_verse_numbers.end());
         verses.assign (verseset.begin(), verseset.end ());
-        sort (verses.begin(), verses.end());
+        std::sort (verses.begin(), verses.end());
       }
       
       
-      for (int & verse : verses) {
+      for (const int & verse : verses) {
  
 
         // Get the USFM of verse of the Bible and comparison USFM, and skip it if both are the same.
-        string bible_verse_usfm = filter::usfm::get_verse_text (bible_chapter_usfm, verse);
-        string compare_verse_usfm = filter::usfm::get_verse_text (compare_chapter_usfm, verse);
+        std::string bible_verse_usfm = filter::usfm::get_verse_text (bible_chapter_usfm, verse);
+        std::string compare_verse_usfm = filter::usfm::get_verse_text (compare_chapter_usfm, verse);
         if (bible_verse_usfm == compare_verse_usfm) continue;
         
         Filter_Text filter_text_bible = Filter_Text (bible);
@@ -182,16 +181,16 @@ void compare_compare (string bible, string compare, int jobId)
         filter_text_compare.add_usfm_code (compare_verse_usfm);
         filter_text_bible.run (stylesheet);
         filter_text_compare.run (stylesheet);
-        string bible_html = filter_text_bible.html_text_standard->get_inner_html ();
-        string compare_html = filter_text_compare.html_text_standard->get_inner_html ();
-        string bible_text = filter_text_bible.text_text->get ();
-        string compare_text = filter_text_compare.text_text->get ();
+        std::string bible_html = filter_text_bible.html_text_standard->get_inner_html ();
+        std::string compare_html = filter_text_compare.html_text_standard->get_inner_html ();
+        std::string bible_text = filter_text_bible.text_text->get ();
+        std::string compare_text = filter_text_compare.text_text->get ();
         if (bible_text != compare_text) {
-          string modification = filter_diff_diff (compare_text, bible_text);
+          std::string modification = filter_diff_diff (compare_text, bible_text);
           result.push_back (filter_passage_display (book, chapter, filter::strings::convert_to_string (verse)) + " " + modification);
           new_verses.push_back (filter_passage_display (book, chapter, filter::strings::convert_to_string (verse)) + " " + bible_text);
         }
-        string modification = filter_diff_diff (compare_verse_usfm, bible_verse_usfm);
+        std::string modification = filter_diff_diff (compare_verse_usfm, bible_verse_usfm);
         raw.push_back (filter_passage_display (book, chapter, filter::strings::convert_to_string (verse)) + " " + modification);
       }
     }

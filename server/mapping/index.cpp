@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -28,45 +28,43 @@
 #include <dialog/yes.h>
 #include <assets/header.h>
 #include <menu/logic.h>
-using namespace std;
 
 
-string mapping_index_url ()
+std::string mapping_index_url ()
 {
   return "mapping/index";
 }
 
 
-bool mapping_index_acl (void * webserver_request)
+bool mapping_index_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
 }
 
 
-string mapping_index (void * webserver_request)
+std::string mapping_index (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   Database_Mappings database_mappings;
   
-  string page;
+  std::string page;
   
   Assets_Header header = Assets_Header (translate("Verse Mappings"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
   
   Assets_View view;
-  string error;
-  string success;
+  std::string error;
+  std::string success;
 
   // Create new verse mapping.
-  if (request->query.count ("new")) {
+  if (webserver_request.query.count ("new")) {
     Dialog_Entry dialog_entry = Dialog_Entry ("index", translate("Enter a name for the new verse mapping"), "", "new", "");
     page += dialog_entry.run ();
     return page;
   }
-  if (request->post.count ("new")) {
-    string name = request->post ["entry"];
-    vector <string> mappings = database_mappings.names ();
+  if (webserver_request.post.count ("new")) {
+    std::string name = webserver_request.post ["entry"];
+    std::vector <std::string> mappings = database_mappings.names ();
     if (find (mappings.begin(), mappings.end(), name) != mappings.end ()) {
       error = translate("This verse mapping already exists");
     } else {
@@ -75,9 +73,9 @@ string mapping_index (void * webserver_request)
   }
 
   // Delete verse mapping.
-  string name = request->query ["name"];
-  if (request->query.count ("delete")) {
-    string confirm = request->query ["confirm"];
+  std::string name = webserver_request.query ["name"];
+  if (webserver_request.query.count ("delete")) {
+    std::string confirm = webserver_request.query ["confirm"];
     if (confirm == "") {
       Dialog_Yes dialog_yes = Dialog_Yes ("index", translate("Would you like to delete this verse mapping?"));
       dialog_yes.add_query ("name", name);
@@ -93,14 +91,14 @@ string mapping_index (void * webserver_request)
   view.set_variable ("error", error);
   view.set_variable ("success", success);
   
-  stringstream mappingsblock;
-  vector <string> mappings = database_mappings.names ();
+  std::stringstream mappingsblock;
+  std::vector <std::string> mappings = database_mappings.names ();
   for (auto & mapping : mappings) {
     mappingsblock << "<p>";
     mappingsblock << mapping;
     mappingsblock << " ";
-    mappingsblock << "<a href=" << quoted("map?name=" + mapping) << ">[translate(" << quoted("edit") << "]</a>";
-    mappingsblock << "</p>" << endl;
+    mappingsblock << "<a href=" << std::quoted("map?name=" + mapping) << ">[translate(" << std::quoted("edit") << "]</a>";
+    mappingsblock << "</p>" << std::endl;
   }
   view.set_variable ("mappingsblock", mappingsblock.str());
   

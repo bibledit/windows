@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/notes.h>
 #include <database/state.h>
 #include <database/config/general.h>
-using namespace std;
 
 
 bool search_reindex_notes_running = false;
@@ -47,11 +46,11 @@ void search_reindex_notes ()
   
   
   // This does not run as a result of a webserver request, so create one.
-  Webserver_Request request;
+  Webserver_Request webserver_request;
 
 
   // Database.
-  Database_Notes database_notes (&request);
+  Database_Notes database_notes (webserver_request);
 
 
   // Set a flag indicating that the notes databases are not available to clients and other parties.
@@ -60,7 +59,7 @@ void search_reindex_notes ()
   
   // Delay shortly to give existing processes a change to complete.
   // Without this delay, "locked database" errors have been seen.
-  this_thread::sleep_for (chrono::seconds (1));
+  std::this_thread::sleep_for (std::chrono::seconds (1));
 
 
   // Check on health of the databases, and optionally recreate them.

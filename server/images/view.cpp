@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,34 +32,31 @@
 #include <journal/logic.h>
 #include <menu/logic.h>
 #include <database/bibleimages.h>
-using namespace std;
 
 
-string images_view_url ()
+std::string images_view_url ()
 {
   return "images/view";
 }
 
 
-bool images_view_acl (void * webserver_request)
+bool images_view_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
 }
 
 
-string images_view (void * webserver_request)
+std::string images_view (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  string page;
-  Assets_Header header = Assets_Header (translate("Bible image"), request);
+  std::string page;
+  Assets_Header header = Assets_Header (translate("Bible image"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   header.add_bread_crumb (images_view_url (), menu_logic_images_index_text ());
   page = header.run ();
   Assets_View view;
-  string error, success;
+  std::string error, success;
   
-  string image = request->query ["image"];
+  std::string image = webserver_request.query ["image"];
 
   view.set_variable ("image", image);
   view.set_variable ("success", success);

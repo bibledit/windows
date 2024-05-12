@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <config/libraries.h>
 
+class Webserver_Request;
+
 std::string user_account_url ();
-bool user_account_acl (void * webserver_request);
-std::string user_account (void * webserver_request);
+bool user_account_acl (Webserver_Request& webserver_request);
+std::string user_account (Webserver_Request& webserver_request);

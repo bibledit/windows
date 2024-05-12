@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -32,57 +32,57 @@
 #include <ipc/focus.h>
 #include <navigation/passage.h>
 #include <public/note.h>
-using namespace std;
+#include <config/logic.h>
 
 
-string public_comment_url ()
+std::string public_comment_url ()
 {
   return "public/comment";
 }
 
 
-bool public_comment_acl (void * webserver_request)
+bool public_comment_acl (Webserver_Request& webserver_request)
 {
+  if (config::logic::create_no_accounts()) return false;
   return Filter_Roles::access_control (webserver_request, Filter_Roles::guest ());
 }
 
 
-string public_comment (void * webserver_request)
+std::string public_comment (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   Database_Notes database_notes (webserver_request);
-  Notes_Logic notes_logic = Notes_Logic (webserver_request);
+  Notes_Logic notes_logic (webserver_request);
 
   
-  string page;
-  Assets_Header header = Assets_Header (translate("Feedback"), request);
+  std::string page;
+  Assets_Header header = Assets_Header (translate("Feedback"), webserver_request);
   page += header.run ();
   Assets_View view;
   
   
-  int id = filter::strings::convert_to_int (request->query ["id"]);
+  const int id = filter::strings::convert_to_int (webserver_request.query ["id"]);
   view.set_variable ("id", filter::strings::convert_to_string (id));
   
   
-  if (request->post.count ("submit")) {
-    string comment = filter::strings::trim (request->post ["comment"]);
+  if (webserver_request.post.count ("submit")) {
+    const std::string comment = filter::strings::trim (webserver_request.post ["comment"]);
     notes_logic.addComment (id, comment);
-    redirect_browser (request, public_note_url () + "?id=" + filter::strings::convert_to_string (id));
-    return "";
+    redirect_browser (webserver_request, public_note_url () + "?id=" + filter::strings::convert_to_string (id));
+    return std::string();
   }
   
   
-  if (request->post.count ("cancel")) {
-    redirect_browser (request, public_note_url () + "?id=" + filter::strings::convert_to_string (id));
-    return "";
+  if (webserver_request.post.count ("cancel")) {
+    redirect_browser (webserver_request, public_note_url () + "?id=" + filter::strings::convert_to_string (id));
+    return std::string();
   }
   
   
-  string summary = database_notes.get_summary (id);
+  const std::string summary = database_notes.get_summary (id);
   view.set_variable ("summary", summary);
   
   
-  string content = database_notes.get_contents (id);
+  const std::string content = database_notes.get_contents (id);
   view.set_variable ("content", content);
   
   

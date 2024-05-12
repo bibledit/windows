@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <windows.h>
 #endif
 #include <config/globals.h>
-using namespace std;
 
 // Fix for architecture hurd-i386 that does not define MAXPATHLEN.
 #ifndef MAXPATHLEN
@@ -44,13 +43,13 @@ static void sigint_handler ([[maybe_unused]] int s)
 {
   // When pressing Ctrl-C, the system outputs a "^C".
   // It is cleaner to write a new line after that.
-  cout << endl;
+  std::cout << std::endl;
   // Initiate server(s) shutdown.
   bibledit_stop_library ();
 }
 
 
-static string backtrace_path ()
+static std::string backtrace_path ()
 {
   return filter_url_create_root_path ({filter_url_temp_dir (), "backtrace.txt"});
 }
@@ -63,7 +62,7 @@ static string backtrace_path ()
 static void sigsegv_handler ([[maybe_unused]] int sig)
 {
   // Information.
-  cout << "Segmentation fault, writing backtrace to " << backtrace_path () << endl;
+  std::cout << "Segmentation fault, writing backtrace to " << backtrace_path () << std::endl;
   
   // Get void*'s for all entries on the stack
   void *array[20];
@@ -82,11 +81,11 @@ static void sigsegv_handler ([[maybe_unused]] int sig)
 #ifdef HAVE_WINDOWS
 void my_invalid_parameter_handler(const wchar_t* expression, const wchar_t* function, const wchar_t* file,	unsigned int line, uintptr_t pReserved) {
   wstring wexpression(expression);
-  string sexpression(wexpression.begin(), wexpression.end());
+  std::string sexpression(wexpression.begin(), wexpression.end());
   wstring wfunction(function);
-  string sfunction(wfunction.begin(), wfunction.end());
+  std::string sfunction(wfunction.begin(), wfunction.end());
   wstring wfile (file);
-  string sfile(wfile.begin(), wfile.end());
+  std::string sfile(wfile.begin(), wfile.end());
   Database_Logs::log ("Invalid parameter detected in function " + sfunction + " in file " + sfile + " line " + filter::strings::convert_to_string ((size_t)line) + " expression " + sexpression + ".");
 }
 #endif
@@ -113,7 +112,7 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
   
   // Get the executable path and derive the document root from it.
-  string webroot {};
+  std::string webroot {};
 #ifndef HAVE_WINDOWS
   {
     // The following works on Linux but not on macOS:
@@ -155,10 +154,10 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
   // The following is for the Cloud configuration only:
   {
     // Get home folder and working directory.
-    string home_folder;
+    std::string home_folder;
     const char * home_env_ptr = getenv ("HOME");
     if (home_env_ptr) home_folder = home_env_ptr;
-    string workingdirectory;
+    std::string workingdirectory;
     char cwd [MAXPATHLEN];
     if (getcwd(cwd, sizeof(cwd)) != nullptr) workingdirectory = cwd;
     // If the web root folder, derived from the binary, is the same as the current directory,
@@ -188,20 +187,20 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
   // Start the Bibledit library.
   bibledit_start_library ();
   bibledit_log ("The server started");
-  cout << "Listening on http://localhost:" << config::logic::http_network_port () << endl;
-  cout << "Press Ctrl-C to quit" << endl;
+  std::cout << "Listening on http://localhost:" << config::logic::http_network_port () << std::endl;
+  std::cout << "Press Ctrl-C to quit" << std::endl;
 
   
   // Log possible backtrace from a previous crash.
-  string backtrace = filter_url_file_get_contents (backtrace_path ());
+  std::string backtrace = filter_url_file_get_contents (backtrace_path ());
   filter_url_unlink (backtrace_path ());
   if (!backtrace.empty ()) {
     Database_Logs::log ("Backtrace of the last segmentation fault:");
-    vector <string> lines = filter::strings::explode (backtrace, '\n');
+    std::vector <std::string> lines = filter::strings::explode (backtrace, '\n');
     for (auto & line : lines) {
       Database_Logs::log (line);
       // Set a flag if the backtrace appears to be caused while sending email.
-      if (line.find ("email_send") != string::npos) config_globals_has_crashed_while_mailing = true;
+      if (line.find ("email_send") != std::string::npos) config_globals_has_crashed_while_mailing = true;
     }
   }
 

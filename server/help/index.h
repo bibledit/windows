@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,7 +21,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <config/libraries.h>
 
+class Webserver_Request;
+
 std::string help_index_html (const std::string& url);
 bool help_index_url (const std::string& url);
-bool help_index_acl (void * webserver_request);
-std::string help_index (void * webserver_request, const std::string& url);
+bool help_index_acl (Webserver_Request& webserver_request);
+std::string help_index (Webserver_Request& webserver_request, const std::string& url);

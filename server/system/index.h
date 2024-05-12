@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #define MINIMUM_TIMEZONE -12
 #define MAXIMUM_TIMEZONE 14
 
+class Webserver_Request;
+
 std::string system_index_url ();
-bool system_index_acl (void * webserver_request);
-std::string system_index (void * webserver_request);
+bool system_index_acl (Webserver_Request& webserver_request);
+std::string system_index (Webserver_Request& webserver_request);

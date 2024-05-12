@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -57,27 +57,23 @@
 #include <pugixml.hpp>
 #endif
 #pragma GCC diagnostic pop
-using namespace std;
-using namespace pugi;
 
 
-string bible_settings_url ()
+std::string bible_settings_url ()
 {
   return "bible/settings";
 }
 
 
-bool bible_settings_acl (void * webserver_request)
+bool bible_settings_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
 }
 
 
-string bible_settings (void * webserver_request)
+std::string bible_settings (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-  
-  string page {};
+  std::string page {};
   Assets_Header header = Assets_Header (translate("Bible"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   header.add_bread_crumb (bible_manage_url (), menu_logic_bible_manage_text ());
@@ -85,42 +81,43 @@ string bible_settings (void * webserver_request)
   Assets_View view {};
 
   
-  string success_message {};
-  string error_message {};
+  std::string success_message {};
+  std::string error_message {};
 
   
   // The Bible.
-  string bible = request->query["bible"];
-  if (bible.empty()) bible = request->post ["val1"];
-  bible = access_bible::clamp (request, bible);
+  std::string bible = webserver_request.query["bible"];
+  if (bible.empty()) bible = webserver_request.post ["val1"];
+  bible = access_bible::clamp (webserver_request, bible);
   view.set_variable ("bible", filter::strings::escape_special_xml_characters (bible));
+  view.set_variable ("urlbible", filter_url_urlencode(filter::strings::escape_special_xml_characters (bible)));
 
   
   // Whether the user has write access to this Bible.
-  bool write_access = access_bible::write (request, bible);
+  bool write_access = access_bible::write (webserver_request, bible);
   if (write_access) view.enable_zone ("write_access");
   
   
   // Whether the user has the privilege to change the stylesheet.
-  string current_user = request->session_logic()->currentUser ();
+  const std::string current_user = webserver_request.session_logic()->currentUser ();
   bool privilege_stylesheet = access_logic::privilege_set_stylesheets (webserver_request, current_user);
   if (privilege_stylesheet) view.enable_zone ("privilege_stylesheet");
 
   
   // The state of the checkbox.
-  string checkbox = request->post ["checkbox"];
-  bool checked = filter::strings::convert_to_bool (request->post ["checked"]);
+  const std::string checkbox = webserver_request.post ["checkbox"];
+  bool checked = filter::strings::convert_to_bool (webserver_request.post ["checked"]);
 
   
   // Versification.
-  if (request->query.count ("versification")) {
-    string versification = request->query["versification"];
-    if (versification == "") {
+  if (webserver_request.query.count ("versification")) {
+    const std::string versification = webserver_request.query["versification"];
+    if (versification.empty()) {
       Dialog_List dialog_list = Dialog_List ("settings", translate("Would you like to change the versification system?"), translate ("A versification system determines how many chapters are in each book, and how many verses are in each chapter. Please make your choice below."), "");
       dialog_list.add_query ("bible", bible);
       Database_Versifications database_versifications;
-      vector <string> versification_names = database_versifications.getSystems ();
-      for (auto & versification_name : versification_names) {
+      const std::vector <std::string> versification_names = database_versifications.getSystems ();
+      for (const auto& versification_name : versification_names) {
         dialog_list.add_row (versification_name, "versification", versification_name);
       }
       page += dialog_list.run ();
@@ -129,35 +126,38 @@ string bible_settings (void * webserver_request)
       if (write_access) Database_Config_Bible::setVersificationSystem (bible, versification);
     }
   }
-  string versification = Database_Config_Bible::getVersificationSystem (bible);
+  const std::string versification = Database_Config_Bible::getVersificationSystem (bible);
   view.set_variable ("versification", versification);
 
   
   // Book creation.
-  if (request->query.count ("createbook")) {
-    string createbook = request->query["createbook"];
-    if (createbook == "") {
-      Dialog_Books dialog_books = Dialog_Books ("settings", translate("Create book"), "", "", "createbook", {}, request->database_bibles()->get_books (bible));
+  if (webserver_request.query.count ("createbook")) {
+    const std::string createbook = webserver_request.query["createbook"];
+    if (createbook.empty()) {
+      Dialog_Books dialog_books = Dialog_Books ("settings", translate("Create book"), "", "", "createbook", {}, webserver_request.database_bibles()->get_books (bible));
       dialog_books.add_query ("bible", bible);
       page += dialog_books.run ();
       return page;
     } else {
-      vector <string> feedback;
-      if (write_access) book_create (bible, static_cast<book_id>(filter::strings::convert_to_int (createbook)), -1, feedback);
+      std::vector <std::string> feedback{};
+      if (write_access)
+        book_create (bible, static_cast<book_id>(filter::strings::convert_to_int (createbook)), -1, feedback);
     }
     // User creates a book in this Bible: Set it as the default Bible.
-    request->database_config_user()->setBible (bible);
+    webserver_request.database_config_user()->setBible (bible);
   }
   
   
   // Book deletion.
-  string deletebook = request->query["deletebook"];
+  const std::string deletebook = webserver_request.query["deletebook"];
   if (!deletebook.empty()) {
-    string confirm = request->query["confirm"];
+    const std::string confirm = webserver_request.query["confirm"];
     if (confirm == "yes") {
       if (write_access) bible_logic::delete_book (bible, filter::strings::convert_to_int (deletebook));
-    } else if (confirm == "cancel") {
-    } else {
+    } 
+    else if (confirm == "cancel") {
+    } 
+    else {
       Dialog_Yes dialog_yes = Dialog_Yes ("settings", translate("Would you like to delete this book?"));
       dialog_yes.add_query ("bible", bible);
       dialog_yes.add_query ("deletebook", deletebook);
@@ -168,18 +168,18 @@ string bible_settings (void * webserver_request)
   
   
   // Importing text from a resource.
-  if (request->query.count ("resource")) {
+  if (webserver_request.query.count ("resource")) {
     Dialog_List dialog_list = Dialog_List ("settings", translate("Select a resource to import into the Bible"), translate ("The resource will be imported.") + " " + translate ("It will overwrite the content of the Bible."), "", true);
     dialog_list.add_query ("bible", bible);
-    vector <string> resources = resource_external_names ();
-    for (auto & resource : resources) {
+    std::vector <std::string> resources = resource_external_names ();
+    for (const auto& resource : resources) {
       dialog_list.add_row (resource, "resource", resource);
     }
     resources = sword_logic_get_available ();
-    for (auto & resource : resources) {
-      string source = sword_logic_get_source (resource);
-      string module = sword_logic_get_remote_module (resource);
-      string name = sword_logic_get_resource_name (source, module);
+    for (const auto& resource : resources) {
+      const std::string source = sword_logic_get_source (resource);
+      const std::string module = sword_logic_get_remote_module (resource);
+      const std::string name = sword_logic_get_resource_name (source, module);
       dialog_list.add_row (resource, "resource", name);
     }
     page += dialog_list.run ();
@@ -187,7 +187,7 @@ string bible_settings (void * webserver_request)
   }
   // The resource should be POSTed.
   // This is for the demo, where a GET request would allow search crawlers to regularly import resources.
-  string resource = request->post["add"];
+  const std::string resource = webserver_request.post["add"];
   if (!resource.empty ()) {
     if (write_access) {
       tasks_logic_queue (IMPORTRESOURCE, { bible, resource });
@@ -196,32 +196,32 @@ string bible_settings (void * webserver_request)
   }
 
   
-  const int level = request->session_logic ()->currentLevel ();
+  const int level = webserver_request.session_logic ()->currentLevel ();
   const bool manager_level = (level >= Filter_Roles::manager ());
   if (manager_level) view.enable_zone ("manager");
 
   
   // Available books.
-  xml_document book_document {};
-  vector <int> book_ids = filter_passage_get_ordered_books (bible);
+  pugi::xml_document book_document {};
+  const std::vector <int> book_ids = filter_passage_get_ordered_books (bible);
   for (const auto book: book_ids) {
-    string book_name = database::books::get_english_from_id (static_cast<book_id>(book));
+    std::string book_name = database::books::get_english_from_id (static_cast<book_id>(book));
     book_name = translate(book_name);
-    xml_node a_or_span_node;
+    pugi::xml_node a_or_span_node;
     if (manager_level) {
       a_or_span_node = book_document.append_child("a");
-      string href = filter_url_build_http_query ("book", "bible", bible);
+      std::string href = filter_url_build_http_query ("book", "bible", bible);
       href = filter_url_build_http_query (href, "book", filter::strings::convert_to_string (book));
       a_or_span_node.append_attribute("href") = href.c_str();
     } else {
       a_or_span_node = book_document.append_child("span");
     }
     a_or_span_node.text().set(book_name.c_str());
-    xml_node space_node = book_document.append_child("span");
+    pugi::xml_node space_node = book_document.append_child("span");
     space_node.text().set(" ");
   }
-  stringstream bookblock2 {};
-  book_document.print (bookblock2, "", format_raw);
+  std::stringstream bookblock2 {};
+  book_document.print (bookblock2, "", pugi::format_raw);
   view.set_variable ("bookblock", bookblock2.str());
   view.set_variable ("book_count", filter::strings::convert_to_string (static_cast<int>(book_ids.size())));
 
@@ -247,14 +247,14 @@ string bible_settings (void * webserver_request)
 
   
   // Stylesheet for editing.
-  if (request->query.count ("stylesheetediting")) {
-    string stylesheet = request->query["stylesheetediting"];
+  if (webserver_request.query.count ("stylesheetediting")) {
+    const std::string stylesheet = webserver_request.query["stylesheetediting"];
     if (stylesheet.empty()) {
       Dialog_List dialog_list = Dialog_List ("settings", translate("Would you like to change the stylesheet for editing?"), translate ("The stylesheet affects how the Bible text in the editor looks.") + " " + translate ("Please make your choice below."), "");
       dialog_list.add_query ("bible", bible);
       Database_Styles database_styles = Database_Styles();
-      vector <string> sheets = database_styles.getSheets();
-      for (auto & name : sheets) {
+      const std::vector <std::string> sheets = database_styles.getSheets();
+      for (const auto& name : sheets) {
         dialog_list.add_row (name, "stylesheetediting", name);
       }
       page += dialog_list.run ();
@@ -263,19 +263,19 @@ string bible_settings (void * webserver_request)
       if (write_access) Database_Config_Bible::setEditorStylesheet (bible, stylesheet);
     }
   }
-  string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
+  std::string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
   view.set_variable ("stylesheetediting", stylesheet);
 
   
   // Stylesheet for export.
-  if (request->query.count ("stylesheetexport")) {
-    string export_stylesheet = request->query["stylesheetexport"];
+  if (webserver_request.query.count ("stylesheetexport")) {
+    const std::string export_stylesheet = webserver_request.query["stylesheetexport"];
     if (export_stylesheet.empty()) {
       Dialog_List dialog_list = Dialog_List ("settings", translate("Would you like to change the stylesheet for export?"), translate ("The stylesheet affects how the Bible text looks when exported.") + " " + translate ("Please make your choice below."), "");
       dialog_list.add_query ("bible", bible);
       Database_Styles database_styles = Database_Styles();
-      vector <string> sheets = database_styles.getSheets();
-      for (auto & name : sheets) {
+      const std::vector <std::string> sheets = database_styles.getSheets();
+      for (const auto& name : sheets) {
         dialog_list.add_row (name, "stylesheetexport", name);
       }
       page += dialog_list.run ();
@@ -315,8 +315,6 @@ string bible_settings (void * webserver_request)
   } else {
     view.enable_zone ("server");
   }
-  
-  
 
   
   page += view.render ("bb", "settings");

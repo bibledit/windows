@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,18 +22,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <filter/url.h>
 #include <database/sqlite.h>
-using namespace std;
 
 
 // Class for creating e-Sword documents.
 
 
-Esword_Text::Esword_Text (string bible)
+Esword_Text::Esword_Text (std::string bible)
 {
   currentBook = 0;
   currentChapter = 0;
   currentVerse = 0;
-  currentText = "";
+  currentText.clear();
   bible = database_sqlite_no_sql_injection (bible);
   sql.push_back ("PRAGMA foreign_keys=OFF;");
   sql.push_back ("PRAGMA synchronous=OFF;");
@@ -45,19 +44,19 @@ Esword_Text::Esword_Text (string bible)
 
 void Esword_Text::flushCache ()
 {
-  string text = filter::strings::trim (currentText);
+  std::string text = filter::strings::trim (currentText);
   if (!text.empty ()) {
-    string unicode;
+    std::string unicode;
     size_t length = filter::strings::unicode_string_length (text);
     for (size_t pos = 0; pos < length; pos++) {
-      string s = filter::strings::unicode_string_substr (text, pos, 1);
+      std::string s = filter::strings::unicode_string_substr (text, pos, 1);
       int codepoint = filter::strings::unicode_string_convert_to_codepoint (s);
       unicode.append ("\\u" + filter::strings::convert_to_string (codepoint) + "?");
     }
     int book = currentBook;
     int chapter = currentChapter;
     int verse = currentVerse;
-    string statement = "INSERT INTO Bible VALUES (" + filter::strings::convert_to_string (book) + ", " + filter::strings::convert_to_string (chapter) + ", " + filter::strings::convert_to_string (verse) + ", '" + unicode + "');";
+    std::string statement = "INSERT INTO Bible VALUES (" + filter::strings::convert_to_string (book) + ", " + filter::strings::convert_to_string (chapter) + ", " + filter::strings::convert_to_string (verse) + ", '" + unicode + "');";
     sql.push_back (statement);
   }
   currentText.clear ();
@@ -87,7 +86,7 @@ void Esword_Text::newVerse (int verse)
 }
 
 
-void Esword_Text::add_text (string text)
+void Esword_Text::add_text (std::string text)
 {
   if (text != "") currentText += text;
 }
@@ -104,18 +103,18 @@ void Esword_Text::finalize ()
 
 // This creates the eSword module.
 // $filename: the name of the file to create.
-void Esword_Text::createModule (string filename)
+void Esword_Text::createModule (std::string filename)
 {
   flushCache ();
   sqlite3 * db = database_sqlite_connect_file (filename);
-  for (string statement : sql) {
+  for (std::string statement : sql) {
     database_sqlite_exec (db, statement);
   }
   database_sqlite_disconnect (db);
 }
 
 
-vector <string> Esword_Text::get_sql ()
+std::vector <std::string> Esword_Text::get_sql ()
 {
   return sql;
 }

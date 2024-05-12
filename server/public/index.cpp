@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -34,75 +34,73 @@
 #include <fonts/logic.h>
 #include <database/config/bible.h>
 #include <styles/css.h>
-using namespace std;
+#include <config/logic.h>
 
 
-string public_index_url ()
+std::string public_index_url ()
 {
   return "public/index";
 }
 
 
-bool public_index_acl (void * webserver_request)
+bool public_index_acl (Webserver_Request& webserver_request)
 {
+  if (config::logic::create_no_accounts()) return false;
   return Filter_Roles::access_control (webserver_request, Filter_Roles::guest ());
 }
 
 
-string public_index (void * webserver_request)
+std::string public_index (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
-
   // If the person providing public feedback is not logged in, foward to the page for entering details.
-  if (!request->session_logic ()->loggedIn ()) {
-    redirect_browser (request, public_login_url ());
-    return "";
+  if (!webserver_request.session_logic ()->loggedIn ()) {
+    redirect_browser (webserver_request, public_login_url ());
+    return std::string();
   }
 
   
   // Take the Bible for this user, and ensure that it is one of the Bibles that have public feedback enabled.
-  string bible = request->database_config_user()->getBible ();
-  vector <string> public_bibles = public_logic_bibles (webserver_request);
+  std::string bible = webserver_request.database_config_user()->getBible ();
+  const std::vector <std::string> public_bibles = public_logic_bibles (webserver_request);
   if (!in_array (bible, public_bibles)) {
     bible.clear ();
     if (!public_bibles.empty ()) {
       bible = public_bibles [0];
     }
-    request->database_config_user()->setBible (bible);
+    webserver_request.database_config_user()->setBible (bible);
   }
   
   
   // Switch Bible before displaying the passage navigator because the navigator contains the active Bible.
-  if (request->query.count ("bible")) {
-    bible = request->query ["bible"];
-    if (bible == "") {
+  if (webserver_request.query.count ("bible")) {
+    bible = webserver_request.query ["bible"];
+    if (bible.empty()) {
       Dialog_List dialog_list = Dialog_List ("index", translate("Select which Bible to display"), "", "");
-      for (auto & public_bible : public_bibles) {
+      for (const auto& public_bible : public_bibles) {
         dialog_list.add_row (public_bible, "bible", public_bible);
       }
-      Assets_Header header = Assets_Header ("", request);
-      string page = header.run ();
+      Assets_Header header = Assets_Header ("", webserver_request);
+      std::string page = header.run ();
       page += dialog_list.run ();
       return page;
     } else {
-      request->database_config_user()->setBible (bible);
+      webserver_request.database_config_user()->setBible (bible);
     }
   }
   
   
-  string page;
-  Assets_Header header = Assets_Header (translate ("Public feedback"), request);
+  std::string page {};
+  Assets_Header header = Assets_Header (translate ("Public feedback"), webserver_request);
   header.set_navigator ();
   header.set_stylesheet ();
   page = header.run ();
-  Assets_View view;
+  Assets_View view {};
   
 
-  string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
+  const std::string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
 
   
-  bible = request->database_config_user()->getBible ();
+  bible = webserver_request.database_config_user()->getBible ();
   view.set_variable ("bible", bible);
   
   
@@ -112,22 +110,19 @@ string public_index (void * webserver_request)
   }
 
   
-  string clss = Filter_Css::getClass (bible);
-  string font = fonts::logic::get_text_font (bible);
-  int direction = Database_Config_Bible::getTextDirection (bible);
-  int lineheight = Database_Config_Bible::getLineHeight (bible);
-  int letterspacing = Database_Config_Bible::getLetterSpacing (bible);
+  const std::string clss = Filter_Css::getClass (bible);
+  const std::string font = fonts::logic::get_text_font (bible);
+  const int direction = Database_Config_Bible::getTextDirection (bible);
+  const int lineheight = Database_Config_Bible::getLineHeight (bible);
+  const int letterspacing = Database_Config_Bible::getLetterSpacing (bible);
   view.set_variable ("custom_class", clss);
-  view.set_variable ("custom_css", Filter_Css::get_css (clss,
-                                                       fonts::logic::get_font_path (font),
-                                                       direction,
-                                                       lineheight,
-                                                       letterspacing));
+  view.set_variable ("custom_css", Filter_Css::get_css (clss, fonts::logic::get_font_path (font),
+                                                        direction, lineheight, letterspacing));
   
-  Styles_Css styles_css = Styles_Css (request, stylesheet);
+  Styles_Css styles_css (webserver_request, stylesheet);
   styles_css.exports ();
   styles_css.generate ();
-  string css = styles_css.css ();
+  const std::string css = styles_css.css ();
   view.set_variable ("exports_css", css);
   
   page += view.render ("public", "index");

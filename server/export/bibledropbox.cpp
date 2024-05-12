@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,40 +31,39 @@
 #include <styles/sheets.h>
 #include <webserver/request.h>
 #include <email/send.h>
-using namespace std;
 
 
-void export_bibledropbox (string user, string bible)
+void export_bibledropbox (std::string user, std::string bible)
 {
   Webserver_Request request;
   Database_Bibles database_bibles;
   Database_Users database_users;
 
   
-  string tag = translate ("Submit to the Bible Drop Box") + ": ";
+  std::string tag = translate ("Submit to the Bible Drop Box") + ": ";
   Database_Logs::log (tag + bible, Filter_Roles::translator ());
 
   
   // Temporal USFM directory.
-  string directory = filter_url_tempfile ();
+  std::string directory = filter_url_tempfile ();
   filter_url_mkdir (directory);
   
 
   // Take the USFM from the Bible database.
   // Generate one USFM file per book.
-  vector <int> books = database_bibles.get_books (bible);
+  std::vector <int> books = database_bibles.get_books (bible);
   for (auto book : books) {
     
     
     // The USFM data of the current book.
-    string bookdata;
+    std::string bookdata;
     
     
     // Collect the USFM for all chapters in this book.
-    vector <int> chapters = database_bibles.get_chapters (bible, book);
+    std::vector <int> chapters = database_bibles.get_chapters (bible, book);
     for (auto chapter : chapters) {
       // Get the USFM code for the current chapter.
-      string usfm = database_bibles.get_chapter (bible, book, chapter);
+      std::string usfm = database_bibles.get_chapter (bible, book, chapter);
       usfm = filter::strings::trim (usfm);
       // Add the chapter USFM code to the book's USFM code.
       bookdata.append (usfm);
@@ -73,8 +72,8 @@ void export_bibledropbox (string user, string bible)
     
     
     // The filename for the USFM for this book.
-    string filename = export_logic::base_book_filename (bible, book);
-    string path = filter_url_create_path ({directory, filename + ".usfm"});
+    std::string filename = export_logic::base_book_filename (bible, book);
+    std::string path = filter_url_create_path ({directory, filename + ".usfm"});
     
     
     // Save.
@@ -83,9 +82,9 @@ void export_bibledropbox (string user, string bible)
   
   
   // Compress USFM files into one zip file.
-  string zipfile = filter_url_create_path ({directory, export_logic::base_book_filename (bible, 0) + ".zip"});
+  std::string zipfile = filter_url_create_path ({directory, export_logic::base_book_filename (bible, 0) + ".zip"});
   
-  string archive = filter_archive_zip_folder (directory);
+  std::string archive = filter_archive_zip_folder (directory);
   filter_url_rename (archive, zipfile);
   
   // Here is the submission form as of July 2018:
@@ -129,11 +128,11 @@ void export_bibledropbox (string user, string bible)
   
   
   // Bible Drop Box submission URL.
-  string url = "http://freely-given.org/Software/BibleDropBox/SubmitAction.phtml";
+  std::string url = "http://freely-given.org/Software/BibleDropBox/SubmitAction.phtml";
   
   
   // Form values to POST.
-  map <string, string> post;
+  std::map <std::string, std::string> post;
   post ["nameLine"] = user + " through " PACKAGE_STRING;
   post ["emailLine"] = database_users.get_email (user);
   post ["projectLine"] = bible;
@@ -147,14 +146,14 @@ void export_bibledropbox (string user, string bible)
   post ["submit"] = "Submit";
   
   // Submission and response.
-  string error;
-  string response = filter_url_http_upload (url, post, zipfile, error);
+  std::string error;
+  std::string response = filter_url_http_upload (url, post, zipfile, error);
   if (!error.empty ()) {
     Database_Logs::log (tag + error, Filter_Roles::translator ());
     email_schedule (user, "Error submitting to the Bible Drop Box", error);
   }
   size_t pos = response.find ("<head>");
-  if (pos != string::npos) {
+  if (pos != std::string::npos) {
     response.insert (pos + 6, R"(<base href="http://freely-given.org/Software/BibleDropBox/">)");
   }
   email_schedule (user, "Result of your submission to the Bible Drop Box", response);

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <filter/string.h>
 #include <database/sqlite.h>
-using namespace std;
 
 
 // This is the database that contains Abbott-Smith's Manual Greek Lexicon.
@@ -55,7 +54,7 @@ void Database_AbbottSmith::optimize ()
 }
 
 
-void Database_AbbottSmith::store (string lemma, string lemma_casefold, string strong, string contents)
+void Database_AbbottSmith::store (std::string lemma, std::string lemma_casefold, std::string strong, std::string contents)
 {
   SqliteDatabase sql = SqliteDatabase (filename ());
   sql.add ("PRAGMA temp_store = MEMORY;");
@@ -80,9 +79,9 @@ void Database_AbbottSmith::store (string lemma, string lemma_casefold, string st
 }
 
 
-string Database_AbbottSmith::get (string lemma, string strong)
+std::string Database_AbbottSmith::get (std::string lemma, std::string strong)
 {
-  string contents;
+  std::string contents;
   SqliteDatabase sql = SqliteDatabase (filename ());
   sql.add ("SELECT contents FROM entry WHERE");
   if (lemma.empty()) {
@@ -102,7 +101,7 @@ string Database_AbbottSmith::get (string lemma, string strong)
     sql.add (strong);
   }
   sql.add (";");
-  vector <string> results = sql.query () ["contents"];
+  std::vector <std::string> results = sql.query () ["contents"];
   for (auto result : results) contents.append (result);
   return contents;
 }

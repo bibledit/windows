@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -35,31 +35,30 @@
 #include <locale/translate.h>
 #include <styles/sheets.h>
 #include <olb/text.h>
-using namespace std;
 
 
-void export_onlinebible (string bible, bool log)
+void export_onlinebible (std::string bible, bool log)
 {
-  string directory = filter_url_create_path ({export_logic::bible_directory (bible), "onlinebible"});
+  std::string directory = filter_url_create_path ({export_logic::bible_directory (bible), "onlinebible"});
   if (!file_or_dir_exists (directory)) filter_url_mkdir (directory);
   
   
-  string filename = filter_url_create_path ({directory, "bible.exp"});
+  std::string filename = filter_url_create_path ({directory, "bible.exp"});
 
   
   Database_Bibles database_bibles;
   
   
-  string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
+  const std::string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
   
   
   Filter_Text filter_text_bible = Filter_Text (bible);
   filter_text_bible.onlinebible_text = new OnlineBible_Text ();
-  vector <int> books = database_bibles.get_books (bible);
+  std::vector <int> books = database_bibles.get_books (bible);
   for (auto book : books) {
-    vector <int> chapters = database_bibles.get_chapters (bible, book);
+    std::vector <int> chapters = database_bibles.get_chapters (bible, book);
     for (auto chapter : chapters) {
-      string chapter_data = database_bibles.get_chapter (bible, book, chapter);
+      std::string chapter_data = database_bibles.get_chapter (bible, book, chapter);
       chapter_data = filter::strings::trim (chapter_data);
       filter_text_bible.add_usfm_code (chapter_data);
     }

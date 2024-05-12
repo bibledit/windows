@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -48,12 +48,11 @@
 #include <locale/logic.h>
 #include <tasks/logic.h>
 #include <database/logic.h>
-using namespace std;
 
 
 void setup_conditionally (const char * package)
 {
-  string p (package);
+  std::string p (package);
   
   // When the package folder is the same as the document root folder,
   // it may mean that another program installs the data for us.
@@ -64,7 +63,7 @@ void setup_conditionally (const char * package)
   // Run the setup if the versions differ.
   if (config::logic::version () != Database_Config_General::getInstalledDatabaseVersion ()) {
     
-    vector <string> messages;
+    std::vector <std::string> messages {};
 
     // Copy the library into the destination place.
     if (p != config_globals_document_root) {
@@ -79,7 +78,7 @@ void setup_conditionally (const char * package)
     messages.push_back ("Initializing and upgrading data");
     setup_initialize_data ();
     
-    for (auto message : messages) {
+    for (const auto& message : messages) {
       Database_Logs::log (message);
     }
     
@@ -141,9 +140,9 @@ void setup_copy_library (const char * package)
   // Therefore there is a list of directories and another one of files in the httpfs.
   size_t package_length = 1;
   // Read all directories and create them in the persistent webroot.
-  string path = filter_url_create_path (package, "package_directories.txt");
-  string contents = filter_url_file_get_contents (path);
-  vector <string> paths = filter::strings::explode (contents, '\n');
+  std::string path = filter_url_create_path (package, "package_directories.txt");
+  std::string contents = filter_url_file_get_contents (path);
+  std::vector <std::string> paths = filter::strings::explode (contents, '\n');
   for (auto path : paths) {
     path = config_globals_document_root + path.substr (package_length);
     if (path.empty ()) continue;
@@ -155,8 +154,8 @@ void setup_copy_library (const char * package)
   contents = filter_url_file_get_contents (path);
   paths = filter::strings::explode (contents, '\n');
   for (auto path : paths) {
-    string package_path = package + path.substr (package_length);
-    string destination_path = config_globals_document_root + path.substr (package_length);
+    std::string package_path = package + path.substr (package_length);
+    std::string destination_path = config_globals_document_root + path.substr (package_length);
     config_globals_setup_message = destination_path;
     filter_url_file_cp (package_path, destination_path);
   }
@@ -164,10 +163,10 @@ void setup_copy_library (const char * package)
   size_t package_length = strlen (package);
   filter_url_mkdir (config_globals_document_root);
   config_globals_setup_message = "scanning";
-  vector <string> package_paths;
+  std::vector <std::string> package_paths;
   filter_url_recursive_scandir (package, package_paths);
-  for (auto package_path : package_paths) {
-    string dest_path = config_globals_document_root + package_path.substr (package_length);
+  for (const auto& package_path : package_paths) {
+    const std::string dest_path = config_globals_document_root + package_path.substr (package_length);
     config_globals_setup_message = dest_path;
     if (filter_url_is_dir (package_path)) {
       filter_url_mkdir (dest_path);
@@ -180,9 +179,9 @@ void setup_copy_library (const char * package)
 
 void setup_write_access ()
 {
-  vector <string> folders = {"exports", "git", "revisions", "dyncss", database_logic_databases (), "bibles", "fonts", "logbook", filter_url_temp_dir ()};
-  for (auto folder : folders) {
-    string path = filter_url_create_root_path ({folder});
+  std::vector <std::string> folders = {"exports", "git", "revisions", "dyncss", database_logic_databases (), "bibles", "fonts", "logbook", filter_url_temp_dir ()};
+  for (const auto& folder : folders) {
+    const std::string path = filter_url_create_root_path ({folder});
     if (!filter_url_get_write_permission (path)) {
       filter_url_set_write_permission (path);
     }
@@ -196,14 +195,15 @@ void setup_wait_till_main_folders_present ()
   bool present {true};
   do {
     present = true;
-    vector <string> folders = {"dyncss", database_logic_databases (), "databases/config/general", "logbook", "bibles", "processes"};
+    std::vector <std::string> folders = {"dyncss", database_logic_databases (), "databases/config/general", "logbook", "bibles", "processes"};
     for (const auto & folder : folders) {
-      string path = filter_url_create_root_path ({folder});
+      const std::string path = filter_url_create_root_path ({folder});
       if (!file_or_dir_exists (path)) {
         present = false;
       }
     }
-    if (!present) this_thread::sleep_for (chrono::milliseconds (300));
+    if (!present)
+      std::this_thread::sleep_for (std::chrono::milliseconds (300));
   } while (!present);
 }
 
@@ -211,21 +211,21 @@ void setup_wait_till_main_folders_present ()
 void setup_initialize_data ()
 {
   // Do the database setup.
-  Webserver_Request request;
+  Webserver_Request webserver_request;
   // Display progress in text format.
   // That provides feedback to the user during installation.
   // This alerts the user that installation is in progress, and is not stuck,
   // as the user might think when the install takes longer than expected.
   config_globals_setup_message = "users";
-  request.database_users ()->create ();
-  request.database_users ()->upgrade ();
+  webserver_request.database_users ()->create ();
+  webserver_request.database_users ()->upgrade ();
   config_globals_setup_message = "styles";
-  request.database_styles ()->create ();
+  webserver_request.database_styles ()->create ();
   config_globals_setup_message = "bible actions";
   Database_BibleActions database_bibleactions;
   database_bibleactions.create ();
   config_globals_setup_message = "checks";
-  request.database_check ()->create ();
+  webserver_request.database_check ()->create ();
   setup_generate_locale_databases (false);
 #ifdef HAVE_CLOUD
   config_globals_setup_message = "confirmations";
@@ -242,7 +242,7 @@ void setup_initialize_data ()
   database_sprint.create ();
 #endif
   config_globals_setup_message = "mail";
-  Database_Mail database_mail = Database_Mail (&request);
+  Database_Mail database_mail (webserver_request);
   database_mail.create ();
   config_globals_setup_message = "navigation";
   Database_Navigation database_navigation = Database_Navigation ();
@@ -258,7 +258,7 @@ void setup_initialize_data ()
   Database_Modifications database_modifications;
   database_modifications.create ();
   config_globals_setup_message = "notes";
-  Database_Notes database_notes (&request);
+  Database_Notes database_notes (webserver_request);
   database_notes.create ();
   config_globals_setup_message = "state";
   Database_State::create ();
@@ -288,7 +288,7 @@ void setup_initialize_data ()
   // The installation times were so long that user were tempted to think
   // that the install process was stuck.
   // To make installation fast, the creation of the sample Bible is now done in the background.
-  vector <string> bibles = request.database_bibles()->get_bibles ();
+  const std::vector <std::string> bibles = webserver_request.database_bibles()->get_bibles ();
   if (bibles.empty ()) {
     tasks_logic_queue (CREATESAMPLEBIBLE);
   }
@@ -306,9 +306,9 @@ void setup_initialize_data ()
 
 
 // Store the admin's details.
-void setup_set_admin_details (string username, string password, string email)
+void setup_set_admin_details (const std::string& username, const std::string& password, const std::string& email)
 {
-  Database_Users database_users;
+  Database_Users database_users{};
   database_users.removeUser (username);
   database_users.add_user (username, password, Filter_Roles::admin (), email);
 }
@@ -335,14 +335,15 @@ void setup_generate_locale_databases (bool progress)
   return;
 #endif
   // Generate databases for all the localizations.
-  map <string, string> localizations = locale_logic_localizations ();
-  for (auto & element : localizations) {
-    string localization = element.first;
+  const std::map <std::string, std::string> localizations = locale_logic_localizations ();
+  for (const auto& element : localizations) {
+    const std::string localization = element.first;
     if (localization.empty ()) continue;
     config_globals_setup_message = "locale " + localization;
-    if (progress) cout << config_globals_setup_message << endl;
+    if (progress) 
+      std::cout << config_globals_setup_message << std::endl;
     Database_Localization database_localization = Database_Localization (localization);
-    string path = filter_url_create_root_path ({"locale", localization + ".po"});
+    const std::string path = filter_url_create_root_path ({"locale", localization + ".po"});
     database_localization.create (path);
   }
 }

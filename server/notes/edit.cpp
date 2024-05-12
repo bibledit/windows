@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -33,70 +33,68 @@
 #include <ipc/focus.h>
 #include <navigation/passage.h>
 #include <notes/note.h>
-using namespace std;
 
 
-string notes_edit_url ()
+std::string notes_edit_url ()
 {
   return "notes/edit";
 }
 
 
-bool notes_edit_acl (void * webserver_request)
+bool notes_edit_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ());
 }
 
 
-string notes_edit (void * webserver_request)
+std::string notes_edit (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   Database_Notes database_notes (webserver_request);
-  Notes_Logic notes_logic = Notes_Logic (webserver_request);
+  Notes_Logic notes_logic (webserver_request);
   
   
-  string page;
-  Assets_Header header = Assets_Header (translate("Edit Note Source"), request);
+  std::string page;
+  Assets_Header header = Assets_Header (translate("Edit Note Source"), webserver_request);
   page += header.run ();
   Assets_View view;
   
   
-  string myusername = request->session_logic ()->currentUser ();
+  std::string myusername = webserver_request.session_logic ()->currentUser ();
   
   
   int identifier;
   const char * identifier_label = "identifier";
-  if (request->query.count (identifier_label)) identifier = filter::strings::convert_to_int (request->query [identifier_label]);
-  else identifier = filter::strings::convert_to_int (request->post [identifier_label]);
+  if (webserver_request.query.count (identifier_label)) identifier = filter::strings::convert_to_int (webserver_request.query [identifier_label]);
+  else identifier = filter::strings::convert_to_int (webserver_request.post [identifier_label]);
   if (identifier) view.set_variable (identifier_label, filter::strings::convert_to_string (identifier));
   
   
-  if (request->post.count ("data")) {
+  if (webserver_request.post.count ("data")) {
     // Save note.
-    string noteData = request->post["data"];
+    std::string noteData = webserver_request.post["data"];
     if (database_notes.identifier_exists (identifier)) {
-      vector <string> lines = filter::strings::explode (noteData, '\n');
+      std::vector <std::string> lines = filter::strings::explode (noteData, '\n');
       for (size_t i = 0; i < lines.size (); i++) {
         lines[i] = filter::strings::trim (lines[i]);
         size_t pos = lines[i].find (">");
-        if (pos != string::npos) lines[i].erase (0, pos + 1);
+        if (pos != std::string::npos) lines[i].erase (0, pos + 1);
         if (lines[i].length () >= 6) lines[i].erase (lines[i].length () - 6);
       }
       noteData = filter::strings::implode (lines, "\n");
       notes_logic.setContent (identifier, noteData);
-      string url = filter_url_build_http_query (notes_note_url (), "id", filter::strings::convert_to_string (identifier));
+      std::string url = filter_url_build_http_query (notes_note_url (), "id", filter::strings::convert_to_string (identifier));
       // View the updated note.
-      redirect_browser (request, url);
-      return "";
+      redirect_browser (webserver_request, url);
+      return std::string();
     }
   }
   
   
   if (identifier) {
     if (database_notes.identifier_exists (identifier)) {
-      string noteData = database_notes.get_contents (identifier);
+      std::string noteData = database_notes.get_contents (identifier);
       bool editable = false;
-      vector <string> lines = filter::strings::explode (noteData, '\n');
+      std::vector <std::string> lines = filter::strings::explode (noteData, '\n');
       for (size_t i = 0; i < lines.size (); i++) {
 
         lines[i] = filter::strings::trim (lines[i]);
@@ -106,10 +104,10 @@ string notes_edit (void * webserver_request)
         // <p>adminusername (8/9/2015):</p>
         // Or:
         // <p><b>adminusername (3/3/2019):</b></p>
-        string username;
+        std::string username;
         {
           // Splitting on space should yield two bits.
-          vector <string> bits = filter::strings::explode (lines[i], ' ');
+          std::vector <std::string> bits = filter::strings::explode (lines[i], ' ');
           if (bits.size () == 2) {
             // First bit should contain the <p> and optionally the <b>.
             if (bits[0].find ("<p>") == 0) {
@@ -119,17 +117,17 @@ string notes_edit (void * webserver_request)
               }
               // Second bit should contain colon plus b or p closing element.
               size_t pos = bits[1].find (":</");
-              if (pos != string::npos) {
+              if (pos != std::string::npos) {
                 bits[1].erase (pos);
                 // It should also contain ( and ).
                 pos = bits[1].find ("(");
-                if (pos != string::npos) {
+                if (pos != std::string::npos) {
                   bits[1].erase (pos, 1);
                   pos = bits[1].find (")");
-                  if (pos != string::npos) {
+                  if (pos != std::string::npos) {
                     bits[1].erase (pos, 1);
                     // Now deal with the data consisting of two slashes and three numbers.
-                    vector <string> date = filter::strings::explode (bits[1], '/');
+                    std::vector <std::string> date = filter::strings::explode (bits[1], '/');
                     if (date.size () == 3) {
                       username = bits[0];
                     }

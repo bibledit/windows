@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/string.h>
 #include <filter/date.h>
 #include <database/sqlite.h>
-using namespace std;
 
 
 // Database resilience: It contains statistical and non-essential data.
@@ -78,8 +77,8 @@ void Database_Git::optimize ()
 }
 
 
-void Database_Git::store_chapter (string user, string bible, int book, int chapter,
-                                  string oldusfm, string newusfm)
+void Database_Git::store_chapter (std::string user, std::string bible, int book, int chapter,
+                                  std::string oldusfm, std::string newusfm)
 {
   SqliteDatabase sql = SqliteDatabase (name ());
   sql.add ("INSERT INTO changes VALUES (");
@@ -102,19 +101,19 @@ void Database_Git::store_chapter (string user, string bible, int book, int chapt
 
 
 // Fetches the distinct users from the database for $bible.
-vector <string> Database_Git::get_users (string bible)
+std::vector <std::string> Database_Git::get_users (std::string bible)
 {
   SqliteDatabase sql = SqliteDatabase (name ());
   sql.add ("SELECT DISTINCT user FROM changes WHERE bible =");
   sql.add (bible);
   sql.add (";");
-  vector <string> users = sql.query () ["user"];
+  std::vector <std::string> users = sql.query () ["user"];
   return users;
 }
 
 
 // Fetches the rowids from the database for $user and $bible.
-vector <int> Database_Git::get_rowids (string user, string bible)
+std::vector <int> Database_Git::get_rowids (std::string user, std::string bible)
 {
   SqliteDatabase sql = SqliteDatabase (name ());
   sql.add ("SELECT rowid FROM changes WHERE user =");
@@ -122,8 +121,8 @@ vector <int> Database_Git::get_rowids (string user, string bible)
   sql.add ("AND bible =");
   sql.add (bible);
   sql.add ("ORDER BY rowid;");
-  vector <string> values = sql.query () ["rowid"];
-  vector <int> rowids;
+  std::vector <std::string> values = sql.query () ["rowid"];
+  std::vector <int> rowids;
   for (auto value : values) {
     rowids.push_back (filter::strings::convert_to_int (value));
   }
@@ -132,20 +131,20 @@ vector <int> Database_Git::get_rowids (string user, string bible)
 
 
 bool Database_Git::get_chapter (int rowid,
-                                string & user, string & bible, int & book, int & chapter,
-                                string & oldusfm, string & newusfm)
+                                std::string & user, std::string & bible, int & book, int & chapter,
+                                std::string & oldusfm, std::string & newusfm)
 {
   SqliteDatabase sql = SqliteDatabase (name ());
   sql.add ("SELECT * FROM changes WHERE rowid =");
   sql.add (rowid);
   sql.add (";");
-  map <string, vector <string> > result = sql.query ();
-  vector <string> users    = result ["user"];
-  vector <string> bibles   = result ["bible"];
-  vector <string> books    = result ["book"];
-  vector <string> chapters = result ["chapter"];
-  vector <string> oldusfms = result ["oldusfm"];
-  vector <string> newusfms = result ["newusfm"];
+  std::map <std::string, std::vector <std::string> > result = sql.query ();
+  std::vector <std::string> users    = result ["user"];
+  std::vector <std::string> bibles   = result ["bible"];
+  std::vector <std::string> books    = result ["book"];
+  std::vector <std::string> chapters = result ["chapter"];
+  std::vector <std::string> oldusfms = result ["oldusfm"];
+  std::vector <std::string> newusfms = result ["newusfm"];
   if (bibles.empty ()) return false;
   if (!users.empty ())    user    = users [0];
   if (!bibles.empty ())   bible   = bibles [0];

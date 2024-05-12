@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -6771,6 +6771,40 @@ style_record styles_table [] =
     /* underline */ 0,
     /* smallcaps */ 0,
     /* superscript */ 0,
+    /* justification */ 0,
+    /* spacebefore */ 0,
+    /* spaceafter */ 0,
+    /* leftmargin */ 0,
+    /* rightmargin */ 0,
+    /* firstlineindent */ 0,
+    /* spancolumns */ 0,
+    /* color */ "#000000",
+    /* print */ 1,
+    /* userbool1 */ 0,
+    /* userbool2 */ 0,
+    /* userbool3 */ 0,
+    /* userint1 */ 0,
+    /* userint2 */ 0,
+    /* userint3 */ 0,
+    /* userstring1 */ "",
+    /* userstring2 */ "",
+    /* userstring3 */ "",
+    /* backgroundcolor */ "#FFFFFF",
+  },
+  // https://ubsicap.github.io/usfm/characters/index.html?highlight=sup#sup-sup
+  {
+    /* marker */ "sup",
+    /* name */ "Superscript text",
+    /* info */ "Typically for use in critical edition footnotes.",
+    /* category */ "cs",
+    /* type */ 4,
+    /* subtype */ 0,
+    /* fontsize */ 12,
+    /* italic */ 0,
+    /* bold */ 0,
+    /* underline */ 0,
+    /* smallcaps */ 0,
+    /* superscript */ 1,
     /* justification */ 0,
     /* spacebefore */ 0,
     /* spaceafter */ 0,

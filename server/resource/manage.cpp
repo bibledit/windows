@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -33,28 +33,24 @@
 #include <journal/index.h>
 #include <dialog/yes.h>
 #include <menu/logic.h>
-using namespace std;
 
 
-string resource_manage_url ()
+std::string resource_manage_url ()
 {
   return "resource/manage";
 }
 
 
-bool resource_manage_acl (void * webserver_request)
+bool resource_manage_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
 }
 
 
-string resource_manage (void * webserver_request)
+std::string resource_manage (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
-
-  
-  string page;
-  Assets_Header header = Assets_Header (translate("USFM Resources"), request);
+  std::string page;
+  Assets_Header header = Assets_Header (translate("USFM Resources"), webserver_request);
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
   Assets_View view;
@@ -64,16 +60,16 @@ string resource_manage (void * webserver_request)
 
   
   // Delete resource.
-  string remove = request->query ["delete"];
+  std::string remove = webserver_request.query ["delete"];
   if (remove != "") {
-    string confirm = request->query ["confirm"];
+    std::string confirm = webserver_request.query ["confirm"];
     if (confirm == "") {
       Dialog_Yes dialog_yes = Dialog_Yes ("manage", translate("Would you like to delete this resource?"));
       dialog_yes.add_query ("delete", remove);
       page += dialog_yes.run ();
       return page;
     } if (confirm == "yes") {
-      if (access_bible::write (request, remove)) {
+      if (access_bible::write (webserver_request, remove)) {
         database_usfmresources.deleteResource (remove);
         // The Cloud updates the list of available USFM resources for the clients.
         tasks_logic_queue (LISTUSFMRESOURCES);
@@ -85,19 +81,19 @@ string resource_manage (void * webserver_request)
   
   
   // Convert resource.
-  string convert = request->query ["convert"];
+  std::string convert = webserver_request.query ["convert"];
   if (convert != "") {
-    string confirm = request->query ["confirm"];
+    std::string confirm = webserver_request.query ["confirm"];
     if (confirm == "") {
       Dialog_Yes dialog_yes = Dialog_Yes ("manage", translate("Would you like to convert this resource to a Bible?"));
       dialog_yes.add_query ("convert", convert);
       page += dialog_yes.run ();
       return page;
     } if (confirm == "yes") {
-      if (access_bible::write (request, convert)) {
+      if (access_bible::write (webserver_request, convert)) {
         tasks_logic_queue (CONVERTRESOURCE2BIBLE, {convert});
-        redirect_browser (request, journal_index_url ());
-        return "";
+        redirect_browser (webserver_request, journal_index_url ());
+        return std::string();
       } else {
         view.set_variable ("error", translate("Insufficient privileges"));
       }
@@ -105,8 +101,8 @@ string resource_manage (void * webserver_request)
   }
   
   
-  vector <string> resources = database_usfmresources.getResources ();
-  vector <string> resourceblock;
+  std::vector <std::string> resources = database_usfmresources.getResources ();
+  std::vector <std::string> resourceblock;
   for (auto & resource : resources) {
     resourceblock.push_back ("<p>");
     resourceblock.push_back ("<a href=\"?delete=" + resource + "\" class=\"deleteresource\" title=\"" + translate("Remove") + "\">");

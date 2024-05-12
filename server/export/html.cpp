@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -37,27 +37,26 @@
 #include <html/header.h>
 #include <locale/translate.h>
 #include <styles/sheets.h>
-using namespace std;
 
 
-void export_html_book (string bible, int book, bool log)
+void export_html_book (std::string bible, int book, bool log)
 {
   // Create folders for the html export.
-  string directory = filter_url_create_path ({export_logic::bible_directory (bible), "html"});
+  std::string directory = filter_url_create_path ({export_logic::bible_directory (bible), "html"});
   if (!file_or_dir_exists (directory)) filter_url_mkdir (directory);
   
   
   // Filename for the html file.
-  string basename = export_logic::base_book_filename (bible, book);
-  string filename_html = filter_url_create_path ({directory, basename + ".html"});
-  string stylesheet_css = filter_url_create_path ({directory, "stylesheet.css"});
+  std::string basename = export_logic::base_book_filename (bible, book);
+  std::string filename_html = filter_url_create_path ({directory, basename + ".html"});
+  std::string stylesheet_css = filter_url_create_path ({directory, "stylesheet.css"});
   
   
   Database_Bibles database_bibles;
   Database_BibleImages database_bibleimages;
 
   
-  string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
+  const std::string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
   
   
   // Create stylesheet.
@@ -66,11 +65,11 @@ void export_html_book (string bible, int book, bool log)
   
   
   // Copy font to the output directory.
-  string font = fonts::logic::get_text_font (bible);
+  std::string font = fonts::logic::get_text_font (bible);
   if (!font.empty ()) {
     if (fonts::logic::font_exists (font)) {
-      string fontpath = fonts::logic::get_font_path (font);
-      string contents = filter_url_file_get_contents (fontpath);
+      std::string fontpath = fonts::logic::get_font_path (font);
+      std::string contents = filter_url_file_get_contents (fontpath);
       fontpath = filter_url_create_path ({directory, font});
       filter_url_file_put_contents (fontpath, contents);
     }
@@ -86,10 +85,10 @@ void export_html_book (string bible, int book, bool log)
   
   
   // Load one book.
-  vector <int> chapters = database_bibles.get_chapters (bible, book);
+  std::vector <int> chapters = database_bibles.get_chapters (bible, book);
   for (auto chapter : chapters) {
     // Get the USFM for this chapter.
-    string usfm = database_bibles.get_chapter (bible, book, chapter);
+    std::string usfm = database_bibles.get_chapter (bible, book, chapter);
     usfm = filter::strings::trim (usfm);
     // Use small chunks of USFM at a time for much better performance.
     filter_text.add_usfm_code (usfm);
@@ -106,8 +105,8 @@ void export_html_book (string bible, int book, bool log)
   
   // Save any images that were included.
   for (auto src : filter_text.image_sources) {
-    string contents = database_bibleimages.get(src);
-    string filename = filter_url_create_path ({directory, src});
+    std::string contents = database_bibleimages.get(src);
+    std::string filename = filter_url_create_path ({directory, src});
     filter_url_file_put_contents(filename, contents);
   }
 

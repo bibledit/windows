@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/string.h>
 #include <filter/memory.h>
 #include <database/sqlite.h>
-using namespace std;
 
 
 // Database resilience: It only contains state information.
@@ -37,7 +36,7 @@ void Database_State::create ()
   }
 
   sqlite3 * db = connect ();
-  string sql;
+  std::string sql;
   
   // On Android, this pragma prevents the following error: VACUUM; Unable to open database file.
   sql = "PRAGMA temp_store = MEMORY;";
@@ -85,7 +84,7 @@ void Database_State::create ()
 
 
 // Stores a notes checksum for a range of notes.
-void Database_State::putNotesChecksum (int first, int last, const string& checksum)
+void Database_State::putNotesChecksum (int first, int last, const std::string& checksum)
 {
   sqlite3 * db = connect ();
   {
@@ -115,7 +114,7 @@ void Database_State::putNotesChecksum (int first, int last, const string& checks
 
 
 // Retrieves the checksum for a range of notes.
-string Database_State::getNotesChecksum (int first, int last)
+std::string Database_State::getNotesChecksum (int first, int last)
 {
   // Receive the checksum for the exact range.
   SqliteSQL sql = SqliteSQL ();
@@ -125,12 +124,12 @@ string Database_State::getNotesChecksum (int first, int last)
   sql.add (last);
   sql.add (";");
   sqlite3 * db = connect ();
-  vector <string> values = database_sqlite_query (db, sql.sql)["value"];
+  std::vector <std::string> values = database_sqlite_query (db, sql.sql)["value"];
   database_sqlite_disconnect (db);
   if (!values.empty()) {
     return values[0];
   }
-  return string();
+  return std::string();
 }
 
 
@@ -151,7 +150,7 @@ void Database_State::eraseNoteChecksum (int identifier)
 
 
 // Flag export of $bible $book to $format.
-void Database_State::setExport (const string & bible, int book, int format)
+void Database_State::setExport (const std::string& bible, int book, int format)
 {
   if (getExport (bible, book, format)) return;
   SqliteSQL sql = SqliteSQL ();
@@ -169,7 +168,7 @@ void Database_State::setExport (const string & bible, int book, int format)
 
 
 // Get whether the $bible $book has been flagged for export in format $format.
-bool Database_State::getExport (const string & bible, int book, int format)
+bool Database_State::getExport (const std::string& bible, int book, int format)
 {
   SqliteSQL sql = SqliteSQL ();
   sql.add ("SELECT format FROM export WHERE bible =");
@@ -180,7 +179,7 @@ bool Database_State::getExport (const string & bible, int book, int format)
   sql.add (format);
   sql.add (";");
   sqlite3 * db = connect ();
-  vector <string> values = database_sqlite_query (db, sql.sql)["format"];
+  std::vector <std::string> values = database_sqlite_query (db, sql.sql)["format"];
   database_sqlite_disconnect (db);
   if (!values.empty()) {
     return true;
@@ -190,7 +189,7 @@ bool Database_State::getExport (const string & bible, int book, int format)
 
 
 // Clear the export flag for $bible $book to $format
-void Database_State::clearExport (const string & bible, int book, int format)
+void Database_State::clearExport (const std::string& bible, int book, int format)
 {
   sqlite3 * db = connect ();
   SqliteSQL sql = SqliteSQL ();

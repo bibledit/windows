@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -34,78 +34,76 @@
 #include <journal/index.h>
 #include <dialog/yes.h>
 #include <dialog/entry.h>
-using namespace std;
 
 
-string resource_img_url ()
+std::string resource_img_url ()
 {
   return "resource/img";
 }
 
 
-bool resource_img_acl (void * webserver_request)
+bool resource_img_acl (Webserver_Request& webserver_request)
 {
   return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
 }
 
 
-string resource_img (void * webserver_request)
+std::string resource_img (Webserver_Request& webserver_request)
 {
-  Webserver_Request * request = static_cast<Webserver_Request *>(webserver_request);
   Database_ImageResources database_imageresources;
 
   
-  string page {};
-  Assets_Header header = Assets_Header (translate("Image resources"), request);
+  std::string page {};
+  Assets_Header header = Assets_Header (translate("Image resources"), webserver_request);
   page = header.run ();
   Assets_View view {};
-  string error, success;
+  std::string error, success;
   book_id book1 {book_id::_unknown};
   book_id book2 {book_id::_unknown};
   int chapter1, verse1, chapter2, verse2;
   
   
-  string name = request->query ["name"];
+  std::string name = webserver_request.query ["name"];
   view.set_variable ("name", name);
 
   
-  string image = request->query ["image"];
+  std::string image = webserver_request.query ["image"];
   view.set_variable ("image", image);
 
   
   int userid = filter::strings::user_identifier (webserver_request);
 
   
-  if (request->post.count ("submit")) {
+  if (webserver_request.post.count ("submit")) {
     
-    vector <string> errors {};
+    std::vector <std::string> errors {};
     
-    string book = request->post ["book1"];
+    std::string book = webserver_request.post ["book1"];
     book1 = filter_passage_interpret_book_v2 (book);
     if (book1 == book_id::_unknown) errors.push_back (translate ("Unknown starting book."));
 
-    chapter1 = filter::strings::convert_to_int (request->post ["chapter1"]);
+    chapter1 = filter::strings::convert_to_int (webserver_request.post ["chapter1"]);
     if (chapter1 < 0) errors.push_back (translate ("Negative starting chapter."));
     if (chapter1 > 200) errors.push_back (translate ("High starting chapter."));
     
-    verse1 = filter::strings::convert_to_int (request->post ["verse1"]);
+    verse1 = filter::strings::convert_to_int (webserver_request.post ["verse1"]);
     if (chapter1 < 0) errors.push_back (translate ("Negative starting verse."));
     if (chapter1 > 200) errors.push_back (translate ("High starting verse."));
     
-    book = request->post ["book2"];
+    book = webserver_request.post ["book2"];
     book2 = filter_passage_interpret_book_v2 (book);
     if (book2 == book_id::_unknown) errors.push_back (translate ("Unknown ending book."));
     
-    chapter2 = filter::strings::convert_to_int (request->post ["chapter2"]);
+    chapter2 = filter::strings::convert_to_int (webserver_request.post ["chapter2"]);
     if (chapter2 < 0) errors.push_back (translate ("Negative ending chapter."));
     if (chapter2 > 200) errors.push_back (translate ("High ending chapter."));
     
-    verse2 = filter::strings::convert_to_int (request->post ["verse2"]);
+    verse2 = filter::strings::convert_to_int (webserver_request.post ["verse2"]);
     if (chapter2 < 0) errors.push_back (translate ("Negative ending verse."));
     if (chapter2 > 200) errors.push_back (translate ("High ending verse."));
     
-    int start = filter_passage_to_integer (Passage (string(), static_cast<int>(book1), chapter1, filter::strings::convert_to_string (verse1)));
-    int end = filter_passage_to_integer (Passage (string(), static_cast<int>(book2), chapter2, filter::strings::convert_to_string (verse2)));
+    int start = filter_passage_to_integer (Passage (std::string(), static_cast<int>(book1), chapter1, filter::strings::convert_to_string (verse1)));
+    int end = filter_passage_to_integer (Passage (std::string(), static_cast<int>(book2), chapter2, filter::strings::convert_to_string (verse2)));
     if (start > end) {
       errors.push_back (translate ("The starting passage is beyond the ending passage."));
     }
@@ -116,8 +114,8 @@ string resource_img (void * webserver_request)
 
     error = filter::strings::implode (errors, " ");
     if (errors.empty ()) {
-      redirect_browser (request, filter_url_build_http_query (resource_image_url (), "name", name));
-      return "";
+      redirect_browser (webserver_request, filter_url_build_http_query (resource_image_url (), "name", name));
+      return std::string();
     }
   }
   
@@ -131,7 +129,7 @@ string resource_img (void * webserver_request)
     book2 = static_cast<book_id>(ibook2);
   }
   if ((book1 == book_id::_unknown) || (book2 == book_id::_unknown)) {
-    string end = Database_Volatile::getValue (userid, "imageresources");
+    std::string end = Database_Volatile::getValue (userid, "imageresources");
     Passage passage = filter_integer_to_passage (filter::strings::convert_to_int (end));
     book1 = book2 = static_cast<book_id>(passage.m_book);
     chapter1 = chapter2 = passage.m_chapter;

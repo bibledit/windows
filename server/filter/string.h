@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2023 Teus Benschop.
+Copyright (©) 2003-2024 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <config/libraries.h>
 #include <filter/string.hpp>
+
+class Webserver_Request;
 
 namespace filter::strings {
 
@@ -93,7 +95,7 @@ void quick_sort (std::vector <int> & one, std::vector <int> & two, unsigned int 
 std::string number_in_string (const std::string & str);
 std::string markup_words (const std::vector <std::string>& words, std::string text);
 std::vector <std::string> search_needles (const std::string& search, const std::string& text);
-int user_identifier (void * webserver_request);
+int user_identifier (Webserver_Request& webserver_request);
 std::string bin2hex (const std::string& bin);
 std::string hex2bin (const std::string& hex);
 std::string html_tidy (std::string html);

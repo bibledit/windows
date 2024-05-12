@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2023 Teus Benschop.
+ Copyright (©) 2003-2024 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -37,12 +37,11 @@
 #include <html/header.h>
 #include <locale/translate.h>
 #include <styles/sheets.h>
-using namespace std;
 
 
-void export_web_book (string bible, int book, bool log)
+void export_web_book (std::string bible, int book, bool log)
 {
-  const string directory = export_logic::web_directory (bible);
+  const std::string directory = export_logic::web_directory (bible);
   if (!file_or_dir_exists (directory)) filter_url_mkdir (directory);
   
   
@@ -50,44 +49,44 @@ void export_web_book (string bible, int book, bool log)
   Database_BibleImages database_bibleimages {};
   
   
-  const string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
+  const std::string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
   
   
-  const string feedback_email = Database_Config_Bible::getExportFeedbackEmail (bible);
+  const std::string feedback_email = Database_Config_Bible::getExportFeedbackEmail (bible);
   
   
   // Copy font to the output directory.
-  const string font = fonts::logic::get_text_font (bible);
+  const std::string font = fonts::logic::get_text_font (bible);
   if (!font.empty ()) {
     if (fonts::logic::font_exists (font)) {
-      string fontpath = fonts::logic::get_font_path (font);
-      const string contents = filter_url_file_get_contents (fontpath);
+      std::string fontpath = fonts::logic::get_font_path (font);
+      const std::string contents = filter_url_file_get_contents (fontpath);
       fontpath = filter_url_create_path ({directory, font});
       filter_url_file_put_contents (fontpath, contents);
     }
   }
   
   
-  const string backLinkPath {export_logic::web_back_link_directory (bible)};
+  const std::string backLinkPath {export_logic::web_back_link_directory (bible)};
   
   
-  const string bibleBookText = bible + " " + database::books::get_english_from_id (static_cast<book_id>(book));
+  const std::string bibleBookText = bible + " " + database::books::get_english_from_id (static_cast<book_id>(book));
   
   
   // Web index file for the book.
   HtmlText html_text_rich_book_index (bibleBookText);
-  Html_Header htmlHeader = Html_Header (&html_text_rich_book_index);
+  Html_Header htmlHeader = Html_Header (html_text_rich_book_index);
   htmlHeader.search_back_link (backLinkPath + filter_url_html_file_name_bible ("", book), translate("Go back to") + " " + bibleBookText);
   htmlHeader.create ({
-    pair (bible, filter_url_html_file_name_bible ()),
-    pair (translate (database::books::get_english_from_id (static_cast<book_id>(book))), filter_url_html_file_name_bible ())
+    std::pair (bible, filter_url_html_file_name_bible ()),
+    std::pair (translate (database::books::get_english_from_id (static_cast<book_id>(book))), filter_url_html_file_name_bible ())
   });
   html_text_rich_book_index.new_paragraph ("navigationbar");
   html_text_rich_book_index.add_text ("|");
   
   
   // Go through the chapters of this book.
-  const vector <int> chapters = database_bibles.get_chapters (bible, book);
+  const std::vector <int> chapters = database_bibles.get_chapters (bible, book);
   for (size_t c = 0; c < chapters.size(); c++) {
     const int chapter = chapters [c];
     const bool is_first_chapter = (c == 0);
@@ -97,7 +96,7 @@ void export_web_book (string bible, int book, bool log)
     Filter_Text filter_text_chapter = Filter_Text (bible);
     
     // Get the USFM for the chapter.
-    string usfm = database_bibles.get_chapter (bible, book, chapter);
+    std::string usfm = database_bibles.get_chapter (bible, book, chapter);
     // Trim it.
     usfm = filter::strings::trim (usfm);
     // Use small chunks of USFM at a time for much better performance.
@@ -108,25 +107,25 @@ void export_web_book (string bible, int book, bool log)
     filter_text_chapter.html_text_linked->custom_class = Filter_Css::getClass (bible);
     
     // Create breadcrumbs and navigator for the chapter.
-    Html_Header html_header = Html_Header (filter_text_chapter.html_text_linked);
+    Html_Header html_header = Html_Header (*filter_text_chapter.html_text_linked);
     html_header.search_back_link (backLinkPath + filter_url_html_file_name_bible ("", book, chapter), translate("Go back to") + " " + bibleBookText + " " + filter::strings::convert_to_string (chapter));
-    vector <pair <string, string> > breadcrumbs_navigator;
-    breadcrumbs_navigator.push_back (pair (bible, filter_url_html_file_name_bible ()));
-    breadcrumbs_navigator.push_back (pair (translate (database::books::get_english_from_id (static_cast<book_id>(book))), filter_url_html_file_name_bible ()));
+    std::vector <std::pair <std::string, std::string> > breadcrumbs_navigator;
+    breadcrumbs_navigator.push_back (std::pair (bible, filter_url_html_file_name_bible ()));
+    breadcrumbs_navigator.push_back (std::pair (translate (database::books::get_english_from_id (static_cast<book_id>(book))), filter_url_html_file_name_bible ()));
     if (!is_first_chapter) {
-      breadcrumbs_navigator.push_back (pair ("«", filter_url_html_file_name_bible ("", book, chapter - 1)));
+      breadcrumbs_navigator.push_back (std::pair ("«", filter_url_html_file_name_bible ("", book, chapter - 1)));
     }
-    breadcrumbs_navigator.push_back (pair (filter::strings::convert_to_string (chapter), filter_url_html_file_name_bible ("", book)));
+    breadcrumbs_navigator.push_back (std::pair (filter::strings::convert_to_string (chapter), filter_url_html_file_name_bible ("", book)));
     if (!is_last_chapter) {
-      breadcrumbs_navigator.push_back (pair ("»", filter_url_html_file_name_bible ("", book, chapter + 1)));
+      breadcrumbs_navigator.push_back (std::pair ("»", filter_url_html_file_name_bible ("", book, chapter + 1)));
     }
     // Optionally add a link for giving feedback by email.
     if (!feedback_email.empty ()) {
-      breadcrumbs_navigator.push_back (pair ("|", ""));
-      string subject = translate ("Comment on") + " " + bible + " " + database::books::get_english_from_id (static_cast<book_id>(book)) + " " + filter::strings::convert_to_string (chapter);
+      breadcrumbs_navigator.push_back (std::pair ("|", ""));
+      std::string subject = translate ("Comment on") + " " + bible + " " + database::books::get_english_from_id (static_cast<book_id>(book)) + " " + filter::strings::convert_to_string (chapter);
       subject = filter::strings::replace (" ", "%20", subject);
-      string link = "mailto:" + feedback_email + "?Subject=" + subject;
-      breadcrumbs_navigator.push_back (pair (translate ("Feedback"), link));
+      std::string link = "mailto:" + feedback_email + "?Subject=" + subject;
+      breadcrumbs_navigator.push_back (std::pair (translate ("Feedback"), link));
     }
     html_header.create (breadcrumbs_navigator);
     
@@ -139,8 +138,8 @@ void export_web_book (string bible, int book, bool log)
     
     // Save any images that were included.
     for (auto src : filter_text_chapter.image_sources) {
-      string contents = database_bibleimages.get(src);
-      string filename = filter_url_create_path ({directory, src});
+      std::string contents = database_bibleimages.get(src);
+      std::string filename = filter_url_create_path ({directory, src});
       filter_url_file_put_contents(filename, contents);
     }
   }
@@ -160,23 +159,23 @@ void export_web_book (string bible, int book, bool log)
 }
 
 
-void export_web_index (string bible, bool log)
+void export_web_index (std::string bible, bool log)
 {
   // Create folders for the web export.
-  string directory = export_logic::web_directory (bible);
+  std::string directory = export_logic::web_directory (bible);
   if (!file_or_dir_exists (directory)) filter_url_mkdir (directory);
   
   
   // Filenames for the web file and stylesheet.
-  string indexFile = filter_url_create_path ({directory, "index.html"});
-  string index00 = filter_url_create_path ({directory, "00_index.html"});
-  string filecss = filter_url_create_path ({directory, "stylesheet.css"});
+  std::string indexFile = filter_url_create_path ({directory, "index.html"});
+  std::string index00 = filter_url_create_path ({directory, "00_index.html"});
+  std::string filecss = filter_url_create_path ({directory, "stylesheet.css"});
   
   
   Database_Bibles database_bibles;
   
   
-  string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
+  const std::string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
   
   
   // Create stylesheet.
@@ -184,15 +183,15 @@ void export_web_index (string bible, bool log)
   styles_sheets.create (stylesheet, filecss, false, bible);
   
   
-  string backLinkPath = export_logic::web_back_link_directory (bible);
+  std::string backLinkPath = export_logic::web_back_link_directory (bible);
   
   
   // Main index file.
   HtmlText html_text_rich_bible_index (bible);
   // On top are the breadcrumbs, starting with a clickable Bible name.
-  Html_Header htmlHeader = Html_Header (&html_text_rich_bible_index);
+  Html_Header htmlHeader = Html_Header (html_text_rich_bible_index);
   htmlHeader.search_back_link (backLinkPath + filter_url_html_file_name_bible (), translate("Go back to Bible"));
-  htmlHeader.create ({ pair (bible, filter_url_html_file_name_bible ())});
+  htmlHeader.create ({ std::pair (bible, filter_url_html_file_name_bible ())});
   
   
   // Prepare for the list of books in de html index file.
@@ -201,7 +200,7 @@ void export_web_index (string bible, bool log)
   
   
   // Go through the Bible books.
-  vector <int> books = database_bibles.get_books (bible);
+  std::vector <int> books = database_bibles.get_books (bible);
   for (auto book : books) {
     // Add this book to the main web index.
     html_text_rich_bible_index.add_link (html_text_rich_bible_index.current_p_node,  filter_url_html_file_name_bible ("", book), "", translate (database::books::get_english_from_id (static_cast<book_id>(book))), "", " " + translate (database::books::get_english_from_id (static_cast<book_id>(book))) + " ");
@@ -215,8 +214,8 @@ void export_web_index (string bible, bool log)
   
   
   // Lens image supporting search.
-  string lenspath = filter_url_create_root_path ({"webbb", "lens.png"});
-  string contents = filter_url_file_get_contents (lenspath);
+  std::string lenspath = filter_url_create_root_path ({"webbb", "lens.png"});
+  std::string contents = filter_url_file_get_contents (lenspath);
   lenspath = filter_url_create_path ({directory, "lens.png"});
   filter_url_file_put_contents (lenspath, contents);
 
