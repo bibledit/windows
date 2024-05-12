@@ -625,7 +625,6 @@
     <ClCompile Include="versification\system.cpp" />
     <ClCompile Include="webbb\search.cpp" />
     <ClCompile Include="webserver\http.cpp" />
-    <ClCompile Include="webserver\io.c" />
     <ClCompile Include="webserver\request.cpp" />
     <ClCompile Include="webserver\webserver.cpp" />
     <ClCompile Include="workspace\index.cpp" />
