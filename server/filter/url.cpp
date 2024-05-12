@@ -310,7 +310,7 @@ std::string filter_url_basename_web (std::string url)
 void filter_url_unlink (std::string filename)
 {
 #ifdef HAVE_WINDOWS
-  wstring wfilename = filter::strings::string2wstring (filename);
+  std::wstring wfilename = filter::strings::string2wstring (filename);
   _wunlink (wfilename.c_str ());
 #else
   unlink (filename.c_str ());
@@ -830,7 +830,7 @@ void filter_url_recursive_scandir (std::string folder, std::vector <std::string>
 int filter_url_file_modification_time (std::string filename)
 {
 #ifdef HAVE_WINDOWS
-  wstring wfilename = filter::strings::string2wstring (filename);
+  std::wstring wfilename = filter::strings::string2wstring (filename);
   struct _stat attributes;
   _wstat (wfilename.c_str (), &attributes);
 #else
