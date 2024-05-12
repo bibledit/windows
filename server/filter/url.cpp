@@ -78,12 +78,12 @@ std::vector <std::string> filter_url_scandir_internal (std::string folder)
       folder = folder.substr(0, folder.size() - 1);
     }
     folder.append("\\*");
-    wstring wfolder = filter::strings::string2wstring(folder);
+    std::wstring wfolder = filter::strings::string2wstring(folder);
     WIN32_FIND_DATA fdata;
     HANDLE hFind = FindFirstFileW(wfolder.c_str(), &fdata);
     if (hFind != INVALID_HANDLE_VALUE) {
       do {
-        wstring wfilename(fdata.cFileName);
+        std::wstring wfilename(fdata.cFileName);
         std::string name = filter::strings::wstring2string (wfilename);
         if (name.substr(0, 1) != ".") {
           files.push_back(name);
