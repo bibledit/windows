@@ -19,7 +19,9 @@ echo Build the core library once more
 # led to this script failing.
 cd $WINDOWSDIR
 cd ../cloud
+if [ $? != 0 ]; then exit; fi
 make --jobs=4
+if [ $? != 0 ]; then exit; fi
 
 
 echo Remove all existing code.
@@ -27,19 +29,24 @@ echo Remove all existing code.
 # that still is in the Windows port
 # but no longer in the core library.
 cd $WINDOWSDIR
+if [ $? != 0 ]; then exit; fi
 cd server
+if [ $? != 0 ]; then exit; fi
 find . -name "*.h" -delete
 find . -name "*.c" -delete
 find . -name "*.cpp" -delete
 
 
 cd $WINDOWSDIR
+if [ $? != 0 ]; then exit; fi
 echo Pulling in the relevant Bibledit library source code.
 rsync --archive --exclude '*.o' --exclude '*.a' --exclude '.dirstamp' --exclude 'server' --exclude 'unittest' --exclude '.DS_Store' --exclude 'autom4te.cache' --exclude 'bibledit' --exclude '*~' --exclude 'dev' --exclude 'generate' --exclude 'valgrind' --exclude 'AUTHORS' --exclude 'NEWS' --exclude 'README' --exclude 'ChangeLog' --exclude 'reconfigure' --exclude 'xcode' --exclude 'DEVELOP' --exclude '*.Po' ../cloud/* server
+if [ $? != 0 ]; then exit; fi
 
 
 echo Change directory to the core library.
 cd server
+if [ $? != 0 ]; then exit; fi
 
 
 echo Prepare the sample Bible.
@@ -71,15 +78,22 @@ if [ $? != 0 ]; then exit; fi
 
 # Remove some Linux related definitions as they don't work on Windows.
 sed -i.bak '/HAVE_LIBPROC/d' config.h
+if [ $? != 0 ]; then exit; fi
 sed -i.bak '/HAVE_EXECINFO/d' config.h
+if [ $? != 0 ]; then exit; fi
 sed -i.bak '/HAVE_ICU/d' config.h
+if [ $? != 0 ]; then exit; fi
 sed -i.bak '/HAVE_PUGIXML/d' config.h
+if [ $? != 0 ]; then exit; fi
 sed -i.bak '/HAVE_UTF8PROC/d' config.h
+if [ $? != 0 ]; then exit; fi
 
 
 # Disable threading in mbedTLS on Windows.
-sed -i.bak '/#define MBEDTLS_THREADING_C/d' mbedtls/config.h
-sed -i.bak '/#define MBEDTLS_THREADING_PTHREAD/d' mbedtls/config.h
+sed -i.bak '/#define MBEDTLS_THREADING_C/d' mbedtls/mbedtls_config.h
+if [ $? != 0 ]; then exit; fi
+sed -i.bak '/#define MBEDTLS_THREADING_PTHREAD/d' mbedtls/mbedtls_config.h
+if [ $? != 0 ]; then exit; fi
 
 
 # Remove files and folders no longer needed after configure.
@@ -108,16 +122,20 @@ rm -rf autom4te.cache
 
 # Clean stuff out.
 cd $WINDOWSDIR
+if [ $? != 0 ]; then exit; fi
 find . -name .DS_Store -delete
 
 
 # Update Inno Setup script.
 cd $WINDOWSDIR
+if [ $? != 0 ]; then exit; fi
 VERSION=`sed -n -e 's/^.* PACKAGE_VERSION //p' server/config.h | tr -d '"'`
+echo Version $VERSION
 sed -i.bak "s/AppVersion=.*/AppVersion=$VERSION/" package.iss
+if [ $? != 0 ]; then exit; fi
 sed -i.bak "s/OutputBaseFilename=.*/OutputBaseFilename=bibledit-$VERSION/" package.iss
+if [ $? != 0 ]; then exit; fi
 rm package.iss.bak
 
 
 echo Ready
-
