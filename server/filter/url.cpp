@@ -33,16 +33,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <curl/curl.h>
 #endif
 #pragma GCC diagnostic push
-#pragma clang diagnostic ignored "-Wold-style-cast"
-#pragma GCC diagnostic ignored "-Wswitch-enum"
-#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
-#include <mbedtls/net_sockets.h>
-#include <mbedtls/debug.h>
-#include <mbedtls/ssl.h>
-#include <mbedtls/entropy.h>
-#include <mbedtls/ctr_drbg.h>
-#include <mbedtls/error.h>
-#include <mbedtls/certs.h>
+#pragma GCC diagnostic ignored "-Wc99-extensions"
+#include <mbedtls/build_info.h>
+#include <mbedtls/platform.h>
+#include "mbedtls/net_sockets.h"
+#include "mbedtls/debug.h"
+#include "mbedtls/ssl.h"
+#include "mbedtls/entropy.h"
+#include "mbedtls/ctr_drbg.h"
+#include "mbedtls/error.h"
 #pragma GCC diagnostic pop
 #ifdef HAVE_WINDOWS
 #include <direct.h>
@@ -61,10 +60,49 @@ int filter_url_curl_trace (CURL *handle, curl_infotype type, char *data, size_t 
 #endif
 
 
-// SSL/TLS globals.
-mbedtls_entropy_context filter_url_mbed_tls_entropy;
-mbedtls_ctr_drbg_context filter_url_mbed_tls_ctr_drbg;
-mbedtls_x509_crt filter_url_mbed_tls_cacert;
+// Static check on required definitions, taken from the ssl_client1.c example.
+#ifndef MBEDTLS_BIGNUM_C
+static_assert (false, "MBEDTLS_BIGNUM_C should be defined");
+#endif
+#ifndef MBEDTLS_ENTROPY_C
+static_assert (false, "MBEDTLS_ENTROPY_C should be defined");
+#endif
+#ifndef MBEDTLS_SSL_TLS_C
+static_assert (false, "MBEDTLS_SSL_TLS_C should be defined");
+#endif
+#ifndef MBEDTLS_SSL_CLI_C
+static_assert (false, "MBEDTLS_SSL_CLI_C should be defined");
+#endif
+#ifndef MBEDTLS_NET_C
+static_assert (false, "MBEDTLS_NET_C should be defined");
+#endif
+#ifndef MBEDTLS_RSA_C
+static_assert (false, "MBEDTLS_RSA_C should be defined");
+#endif
+#ifndef MBEDTLS_PEM_PARSE_C
+static_assert (false, "MBEDTLS_PEM_PARSE_C should be defined");
+#endif
+#ifndef MBEDTLS_CTR_DRBG_C
+static_assert (false, "MBEDTLS_CTR_DRBG_C should be defined");
+#endif
+#ifndef MBEDTLS_X509_CRT_PARSE_C
+static_assert (false, "MBEDTLS_X509_CRT_PARSE_C should be defined");
+#endif
+#ifndef MBEDTLS_DEBUG_C
+static_assert (false, "MBEDTLS_DEBUG_C should be defined");
+#endif
+//#ifndef MBEDTLS_USE_PSA_CRYPTO
+//static_assert (false, "MBEDTLS_USE_PSA_CRYPTO should be defined");
+//#endif
+#ifdef MBEDTLS_X509_REMOVE_INFO
+static_assert (false, "MBEDTLS_X509_REMOVE_INFO should not be defined");
+#endif
+
+
+// SSL/TLS variables.
+static mbedtls_x509_crt x509_ca_cert;
+static mbedtls_ctr_drbg_context ctr_drbg_context;
+static mbedtls_entropy_context entropy_context;
 
 
 std::vector <std::string> filter_url_scandir_internal (std::string folder)
@@ -868,7 +906,7 @@ const char * filter_url_temp_dir ()
 // Returns the name of a temporary file.
 std::string filter_url_tempfile (const char * directory)
 {
-  std::string filename = filter::strings::convert_to_string (filter::date::seconds_since_epoch ()) + filter::strings::convert_to_string (filter::date::numerical_microseconds ()) + filter::strings::convert_to_string (filter::strings::rand (10000000, 99999999));
+  std::string filename = std::to_string (filter::date::seconds_since_epoch ()) + std::to_string (filter::date::numerical_microseconds ()) + std::to_string (filter::strings::rand (10000000, 99999999));
   if (directory) {
     filename = filter_url_create_path ({directory, filename});
   } else {
@@ -895,10 +933,10 @@ std::string filter_url_unique_path (std::string path)
 {
   if (!file_or_dir_exists (path)) return path;
   for (size_t i = 1; i < 100; i++) {
-    std::string uniquepath = path + "." + filter::strings::convert_to_string (i);
+    std::string uniquepath = path + "." + std::to_string (i);
     if (!file_or_dir_exists (uniquepath)) return uniquepath;
   }
-  return path + "." + filter::strings::convert_to_string (filter::strings::rand (100, 1000));
+  return path + "." + std::to_string (filter::strings::rand (100, 1000));
 }
 
 
@@ -973,7 +1011,7 @@ std::string filter_url_http_get (std::string url, std::string& error, [[maybe_un
       long http_code = 0;
       curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
       if (http_code != 200) {
-        response.append ("http code " + filter::strings::convert_to_string (static_cast<int>(http_code)));
+        response.append ("http code " + std::to_string (http_code));
       }
     } else {
       response.clear ();
@@ -1207,7 +1245,7 @@ std::string filter_url_http_upload ([[maybe_unused]] std::string url,
 
 std::string filter_url_http_response_code_text (int code)
 {
-  std::string text = filter::strings::convert_to_string (code);
+  std::string text = std::to_string (code);
   text.append (" ");
   switch (code) {
     case 100: text += "Continue"; break;
@@ -1283,7 +1321,7 @@ void filter_url_download_file (std::string url, std::string filename, std::strin
       long http_code = 0;
       curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
       if (http_code != 200) {
-        error.append ("http code " + filter::strings::convert_to_string (static_cast<int>(http_code)));
+        error.append ("http code " + std::to_string (http_code));
       }
     } else {
       error = curl_easy_strerror (res);
@@ -1317,14 +1355,14 @@ std::string filter_url_html_file_name_bible (std::string path, int book, int cha
   }
   
   // Add the name for the book. No spaces.
-  filename += filter::strings::fill (filter::strings::convert_to_string (book), 2, '0');
+  filename += filter::strings::fill (std::to_string (book), 2, '0');
   std::string sbook = database::books::get_english_from_id (static_cast<book_id>(book));
   sbook = filter::strings::replace (" ", "", sbook);
   filename += '-' + sbook;
   
   // Chapter given: Provide name for the chaper.
   if (chapter >= 0) {
-    filename += '-' + filter::strings::fill (filter::strings::convert_to_string (chapter), 3, '0');
+    filename += '-' + filter::strings::fill (std::to_string (chapter), 3, '0');
   }
   
   filename += ".html";
@@ -1430,14 +1468,16 @@ std::string filter_url_remove_username_password (std::string url)
 // $post: Value pairs for a POST request.
 // $filename: The filename to save the data to.
 // $check_certificate: Whether to check the server certificate in case of secure http.
-std::string filter_url_http_request_mbed (std::string url, std::string& error, const std::map <std::string, std::string>& post, const std::string& filename, bool check_certificate)
+std::string filter_url_http_request_mbed (std::string url, std::string& error, 
+                                          const std::map <std::string, std::string>& post,
+                                          const std::string& filename, bool check_certificate)
 {
   // The "http" scheme is used to locate network resources via the HTTP protocol.
-  // $url = "http(s):" "//" host [ ":" port ] [ abs_path [ "?" query ]]
+  // url = "http(s):" "//" host [ ":" port ] [ abs_path [ "?" query ]]
 
 
   // Whether this is a secure http request.
-  bool secure = url.find ("https:") != std::string::npos;
+  const bool secure = url.find ("https:") != std::string::npos;
   
   
   // Remove the scheme: http(s).
@@ -1464,7 +1504,7 @@ std::string filter_url_http_request_mbed (std::string url, std::string& error, c
     url.erase (0, 1);
     size_t pos2 = url.find ("/");
     if (pos2 == std::string::npos) pos2 = url.length () + 1;
-    std::string p = url.substr (0, pos2);
+    const std::string p = url.substr (0, pos2);
     port = filter::strings::convert_to_int (p);
     url.erase (0, p.length ());
   }
@@ -1485,8 +1525,8 @@ std::string filter_url_http_request_mbed (std::string url, std::string& error, c
   // On Windows, threading has been disabled in the mbedTLS library.
   // On the server, this will lead to undefined crashes which are hard to find.
   // On a client, since the TLS context is not shared, there won't be any crashes.
-  mbedtls_ssl_context ssl;
-  mbedtls_ssl_config conf;
+  mbedtls_ssl_context ssl {};
+  mbedtls_ssl_config conf {};
   if (secure) {
     mbedtls_ssl_init (&ssl);
     mbedtls_ssl_config_init (&conf);
@@ -1507,9 +1547,9 @@ std::string filter_url_http_request_mbed (std::string url, std::string& error, c
     // Select protocol that matches with the socket type.
     hints.ai_protocol = 0;
     // The 'service' is actually the port number.
-    std::string service = filter::strings::convert_to_string (port);
+    const std::string service = std::to_string (port);
     // Get a list of address structures. There can be several of them.
-    int res = getaddrinfo (hostname.c_str(), service.c_str (), &hints, &address_results);
+    const int res = getaddrinfo (hostname.c_str(), service.c_str (), &hints, &address_results);
     if (res != 0) {
       error = "Internet connection failure: " + hostname + ": ";
 #ifdef HAVE_WINDOWS
@@ -1526,7 +1566,7 @@ std::string filter_url_http_request_mbed (std::string url, std::string& error, c
   
   
   // Secure connection setup.
-  mbedtls_net_context fd;
+  mbedtls_net_context fd {};
   if (secure) {
 
     // Secure socket setup.
@@ -1542,8 +1582,8 @@ std::string filter_url_http_request_mbed (std::string url, std::string& error, c
         connection_healthy = false;
       }
       mbedtls_ssl_conf_authmode (&conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
-      mbedtls_ssl_conf_ca_chain (&conf, &filter_url_mbed_tls_cacert, nullptr);
-      mbedtls_ssl_conf_rng (&conf, mbedtls_ctr_drbg_random, &filter_url_mbed_tls_ctr_drbg);
+      mbedtls_ssl_conf_ca_chain (&conf, &x509_ca_cert, nullptr);
+      mbedtls_ssl_conf_rng (&conf, mbedtls_ctr_drbg_random, &ctr_drbg_context);
       ret = mbedtls_ssl_setup (&ssl, &conf);
       if (ret != 0) {
         filter_url_display_mbed_tls_error (ret, &error, false, std::string());
@@ -1564,7 +1604,7 @@ std::string filter_url_http_request_mbed (std::string url, std::string& error, c
       // const char * server_port = filter::strings::convert_to_string (port).c_str ();
       // But MSVC optimized this variable away before it could be passed to that routine.
       // The code was updated to work around that.
-      int ret = mbedtls_net_connect (&fd, hostname.c_str(), filter::strings::convert_to_string (port).c_str (), MBEDTLS_NET_PROTO_TCP);
+      int ret = mbedtls_net_connect (&fd, hostname.c_str(), std::to_string(port).c_str(), MBEDTLS_NET_PROTO_TCP);
       if (ret != 0) {
         filter_url_display_mbed_tls_error (ret, &error, false, std::string());
         connection_healthy = false;
@@ -1574,11 +1614,11 @@ std::string filter_url_http_request_mbed (std::string url, std::string& error, c
   
   
   // Plain connection setup.
-  int sock = 0;
+  int sock {0};
   if (!secure) {
     
     // Iterate over the list of address structures.
-    std::vector <std::string> errors;
+    std::vector <std::string> errors {};
     addrinfo * rp {nullptr};
     if (connection_healthy) {
       for (rp = address_results; rp != nullptr; rp = rp->ai_next) {
@@ -1595,7 +1635,7 @@ std::string filter_url_http_request_mbed (std::string url, std::string& error, c
         int res = connect (sock, rp->ai_addr, rp->ai_addrlen);
         // Test and record error.
         if (res < 0) {
-          std::string err = hostname + ":" + filter::strings::convert_to_string (port) + ": ";
+          std::string err = hostname + ":" + std::to_string (port) + ": ";
           err.append (strerror (errno));
           errors.push_back (err);
         }
@@ -1663,7 +1703,7 @@ std::string filter_url_http_request_mbed (std::string url, std::string& error, c
   
   // SSL/TLS handshake.
   if (secure) {
-    int ret;
+    int ret {};
     while (connection_healthy && ((ret = mbedtls_ssl_handshake (&ssl)) != 0)) {
       if (ret == MBEDTLS_ERR_SSL_WANT_READ) continue;
       if (ret == MBEDTLS_ERR_SSL_WANT_WRITE) continue;
@@ -1687,7 +1727,7 @@ std::string filter_url_http_request_mbed (std::string url, std::string& error, c
   
   // Assemble the data to POST, if any.
   std::string postdata;
-  for (auto & element : post) {
+  for (const auto& element : post) {
     if (!postdata.empty ()) postdata.append ("&");
     postdata.append (element.first);
     postdata.append ("=");
@@ -1713,7 +1753,7 @@ std::string filter_url_http_request_mbed (std::string url, std::string& error, c
     if (!post.empty ()) {
       request.append ("Content-Type: application/x-www-form-urlencoded");
       request.append ("\r\n");
-      request.append ("Content-Length: " + filter::strings::convert_to_string (postdata.length()));
+      request.append ("Content-Length: " + std::to_string (postdata.length()));
       request.append ("\r\n");
     }
     request.append ("\r\n");
@@ -1766,11 +1806,11 @@ std::string filter_url_http_request_mbed (std::string url, std::string& error, c
   std::string response;
   if (connection_healthy) {
 
-    bool reading = true;
-    bool reading_body = false;
-    char prev = 0;
+    bool reading {true};
+    bool reading_body {false};
+    char prev {0};
     char cur;
-    FILE * file = nullptr;
+    FILE* file {nullptr};
     if (!filename.empty ()) {
 #ifdef HAVE_WINDOWS
       std::wstring wfilename = filter::strings::string2wstring (filename);
@@ -1781,7 +1821,7 @@ std::string filter_url_http_request_mbed (std::string url, std::string& error, c
     }
 
     do {
-      int ret = 0;
+      int ret {0};
       if (secure) {
         unsigned char buffer [1];
         memset (&buffer, 0, 1);
@@ -1850,7 +1890,7 @@ std::string filter_url_http_request_mbed (std::string url, std::string& error, c
   for (auto & line : lines) {
     if (line.empty ()) continue;
     if (line.find ("HTTP") != std::string::npos) {
-      size_t pos2 = line.find (" ");
+      const size_t pos2 = line.find (" ");
       if (pos2 != std::string::npos) {
         line.erase (0, pos2 + 1);
         int response_code = filter::strings::convert_to_int (line);
@@ -1875,19 +1915,34 @@ std::string filter_url_http_request_mbed (std::string url, std::string& error, c
 // Initialize the SSL/TLS system once.
 void filter_url_ssl_tls_initialize ()
 {
+  // No debug output.
+  mbedtls_debug_set_threshold(0);
+
   int ret = 0;
+
+  // Initialize the certificate store.
+  mbedtls_x509_crt_init(&x509_ca_cert);
+
   // Random number generator.
-  mbedtls_ctr_drbg_init (&filter_url_mbed_tls_ctr_drbg);
-  mbedtls_entropy_init (&filter_url_mbed_tls_entropy);
-  const char *pers = "Client";
-  ret = mbedtls_ctr_drbg_seed (&filter_url_mbed_tls_ctr_drbg, mbedtls_entropy_func, &filter_url_mbed_tls_entropy, reinterpret_cast <const unsigned char *> (pers), strlen (pers));
+  mbedtls_ctr_drbg_init (&ctr_drbg_context);
+  mbedtls_entropy_init (&entropy_context);
+
+  // Initialize the Platform Security Architecture.
+  psa_status_t status = psa_crypto_init();
+  filter_url_display_mbed_tls_error (status, nullptr, false, std::string());
+
+  // Seed the random number generator.
+  constexpr const auto pers = "Client";
+  ret = mbedtls_ctr_drbg_seed (&ctr_drbg_context, mbedtls_entropy_func, &entropy_context, reinterpret_cast <const unsigned char *> (pers), strlen (pers));
   filter_url_display_mbed_tls_error (ret, nullptr, false, std::string());
-  // Wait until the trusted root certificates exist.
+
+  // Wait until the Certificate Authority root certificate exist.
   // This is necessary as there's cases that the data is still being installed at this point.
   std::string path = filter_url_create_root_path ({"filter", "cas.crt"});
   while (!file_or_dir_exists (path)) std::this_thread::sleep_for (std::chrono::milliseconds (100));
-  // Read the trusted root certificates.
-  ret = mbedtls_x509_crt_parse_file (&filter_url_mbed_tls_cacert, path.c_str ());
+  
+  // Initialize the certificate store and read the Certificate Authority root certificates.
+  ret = mbedtls_x509_crt_parse_file (&x509_ca_cert, path.c_str ());
   filter_url_display_mbed_tls_error (ret, nullptr, false, std::string());
 }
 
@@ -1895,9 +1950,10 @@ void filter_url_ssl_tls_initialize ()
 // Finalize the SSL/TLS system once.
 void filter_url_ssl_tls_finalize ()
 {
-  mbedtls_ctr_drbg_free (&filter_url_mbed_tls_ctr_drbg);
-  mbedtls_entropy_free (&filter_url_mbed_tls_entropy);
-  mbedtls_x509_crt_free (&filter_url_mbed_tls_cacert);
+  mbedtls_ctr_drbg_free (&ctr_drbg_context);
+  mbedtls_entropy_free (&entropy_context);
+  mbedtls_x509_crt_free (&x509_ca_cert);
+  mbedtls_psa_crypto_free();
 }
 
 
@@ -1917,7 +1973,7 @@ void filter_url_display_mbed_tls_error (int& ret, std::string* error, bool serve
   // The reason for suppressing them is to prevent them from flooding the Journal.
   if (server) {
     // SSL - Processing of the ClientHello handshake message failed (-30976)
-    if (local_return == MBEDTLS_ERR_SSL_BAD_HS_CLIENT_HELLO) return;
+    // No longer in MbedTLS 3.x if (local_return == MBEDTLS_ERR_SSL_BAD_HS_CLIENT_HELLO) return;
     // SSL - The connection indicated an EOF (-29312)
     if (local_return == MBEDTLS_ERR_SSL_CONN_EOF) return;
     // NET - Reading information from the socket failed (-76)
@@ -1925,13 +1981,13 @@ void filter_url_display_mbed_tls_error (int& ret, std::string* error, bool serve
     // NET - Connection was reset by peer (-80)
     if (local_return == MBEDTLS_ERR_NET_CONN_RESET) return;
   }
-  
+
   // There's an error: Display it.
   char error_buf [100];
   mbedtls_strerror (local_return, error_buf, 100);
   std::string msg = error_buf;
   msg.append (" (");
-  msg.append (filter::strings::convert_to_string (local_return));
+  msg.append (std::to_string (local_return));
   msg.append (")");
   // Add the remote IP address if available.
   if (!remote_ip_address.empty()) {
@@ -2047,7 +2103,7 @@ bool filter_url_port_can_connect (std::string hostname, int port)
   // Select protocol that matches with the socket type.
   hints.ai_protocol = 0;
   // The 'service' is actually the port number.
-  std::string service = filter::strings::convert_to_string (port);
+  std::string service = std::to_string (port);
   // Get a list of address structures. There can be several of them.
   int res = getaddrinfo (hostname.c_str(), service.c_str (), &hints, &address_results);
   if (res != 0) return false;

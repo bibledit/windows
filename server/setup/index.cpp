@@ -84,7 +84,7 @@ const char * setup_initialization_notice ()
   // The user will understand that the device is still busy, and not think that it is not stuck.
   config_globals_setup_progress += 5;
   if (config_globals_setup_progress > 90) config_globals_setup_progress = 10;
-  notice.append ("<p><progress value=\"" + filter::strings::convert_to_string (config_globals_setup_progress) + "\" max=\"100\"></progress></p>");
+  notice.append ("<p><progress value=\"" + std::to_string (config_globals_setup_progress) + "\" max=\"100\"></progress></p>");
   
   // Informative text for progress indication.
   notice.append ("<p>... " + config_globals_setup_message + " ...</p>");
@@ -124,7 +124,7 @@ std::string setup_index (Webserver_Request& webserver_request)
         setup_complete_gui ();
         // Store web site's base URL.
         const std::string site_url = get_base_url (webserver_request);
-        Database_Config_General::setSiteURL (site_url);
+        database::config::general::set_site_url (site_url);
         // Redirect.
         redirect_browser (webserver_request, index_index_url ());
       } else {
@@ -158,7 +158,7 @@ std::string setup_index (Webserver_Request& webserver_request)
     view.set_variable ("readonly", "readonly");
     // If the admin's are already there, then the setup has completed.
     // The automatic page refresh will kick in, and navigate to the main screen.
-    Database_Config_General::setInstalledInterfaceVersion (config::logic::version ());
+    database::config::general::set_installed_interface_version (config::logic::version ());
   }
 
   return view.render ("setup", "index");

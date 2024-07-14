@@ -62,7 +62,6 @@ bool changes_change_acl (Webserver_Request& webserver_request)
 
 std::string changes_change (Webserver_Request& webserver_request)
 {
-  Database_Modifications database_modifications {};
   Database_Notes database_notes (webserver_request);
   Notes_Logic notes_logic (webserver_request);
 
@@ -80,7 +79,7 @@ std::string changes_change (Webserver_Request& webserver_request)
   if (webserver_request.post.count ("unassign")) {
     std::string unassign = webserver_request.post["unassign"];
     unassign.erase (0, 8);
-    notes_logic.unassignUser (filter::strings::convert_to_int (unassign), webserver_request.session_logic()->currentUser ());
+    notes_logic.unassignUser (filter::strings::convert_to_int (unassign), webserver_request.session_logic ()->get_username ());
     return std::string();
   }
   
@@ -97,28 +96,28 @@ std::string changes_change (Webserver_Request& webserver_request)
   
   // From here on the script will produce output.
   Assets_View view {};
-  const std::string username {webserver_request.session_logic()->currentUser ()};
-  const int level {webserver_request.session_logic ()->currentLevel ()};
+  const std::string& username {webserver_request.session_logic ()->get_username ()};
+  const int level {webserver_request.session_logic ()->get_level ()};
   
                       
   // The identifier of the change notification.
   const int id {filter::strings::convert_to_int (webserver_request.query ["get"])};
-  view.set_variable ("id", filter::strings::convert_to_string (id));
+  view.set_variable ("id", std::to_string (id));
                       
                       
   // Get old text, modification, new text, date.
-  const std::string old_text {database_modifications.getNotificationOldText (id)};
+  const std::string old_text {database::modifications::getNotificationOldText (id)};
   view.set_variable ("old_text", old_text);
-  const std::string modification {database_modifications.getNotificationModification (id)};
+  const std::string modification {database::modifications::getNotificationModification (id)};
   view.set_variable ("modification", modification);
-  const std::string new_text {database_modifications.getNotificationNewText (id)};
+  const std::string new_text {database::modifications::getNotificationNewText (id)};
   view.set_variable ("new_text", new_text);
-  const std::string date {locale_logic_date (database_modifications.getNotificationTimeStamp (id))};
+  const std::string date {locale_logic_date (database::modifications::getNotificationTimeStamp (id))};
   view.set_variable ("date", date);
   
 
   // Bibles and passage.
-  const Passage passage {database_modifications.getNotificationPassage (id)};
+  const Passage passage {database::modifications::getNotificationPassage (id)};
   const std::vector<std::string> bibles {access_bible::bibles (webserver_request)};
   
   
@@ -179,28 +178,28 @@ std::string changes_change (Webserver_Request& webserver_request)
     std::string href {};
     if (live_notes_editor) {
       a_node.append_attribute("class") = "opennote";
-      href = filter::strings::convert_to_string (note);
+      href = std::to_string (note);
     } else {
-      href = "/notes/note?id=" + filter::strings::convert_to_string (note);
+      href = "/notes/note?id=" + std::to_string (note);
     }
     a_node.append_attribute("href") = href.c_str();
     a_node.text().set(summary.c_str());
     td_node = tr_node.append_child("td");
     if (subscription) {
       pugi::xml_node a_node2 = td_node.append_child("a");
-      a_node2.append_attribute("href") = ("unsubscribe" + filter::strings::convert_to_string (note)).c_str();
+      a_node2.append_attribute("href") = ("unsubscribe" + std::to_string (note)).c_str();
       a_node2.text().set(("[" + translate("unsubscribe") + "]").c_str());
     }
     td_node = tr_node.append_child("td");
     if (assignment) {
       pugi::xml_node a_node2 = td_node.append_child("a");
-      a_node2.append_attribute("href") = ("unassign" + filter::strings::convert_to_string (note)).c_str();
+      a_node2.append_attribute("href") = ("unassign" + std::to_string (note)).c_str();
       a_node2.text().set(("[" + translate("I have done my part on it") + "]").c_str());
     }
     td_node = tr_node.append_child("td");
     if (level >= Filter_Roles::manager ()) {
       pugi::xml_node a_node2 = td_node.append_child("a");
-      a_node2.append_attribute("href") = ("delete" + filter::strings::convert_to_string (note)).c_str();
+      a_node2.append_attribute("href") = ("delete" + std::to_string (note)).c_str();
       a_node2.text().set(("[" + translate("mark for deletion") + "]").c_str());
     }
   }

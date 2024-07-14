@@ -71,12 +71,12 @@ std::string notes_notes (Webserver_Request& webserver_request)
 
   
   // The Bibles the current user has access to.
-  std::vector <std::string> bibles = access_bible::bibles (webserver_request, webserver_request.session_logic()->currentUser ());
+  std::vector <std::string> bibles = access_bible::bibles (webserver_request, webserver_request.session_logic ()->get_username ());
   
   
   // The admin disables notes selection on Bibles,
   // so the admin sees all notes, including notes referring to non-existing Bibles.
-  if (webserver_request.session_logic ()->currentLevel () == Filter_Roles::admin ()) bibles.clear ();
+  if (webserver_request.session_logic ()->get_level () == Filter_Roles::admin ()) bibles.clear ();
   
   
   std::vector <int> identifiers = database_notes.select_notes (bibles, book, chapter, verse, passage_selector, edit_selector, non_edit_selector, status_selector, bible_selector, assignment_selector, subscription_selector, severity_selector, text_selector, search_text, -1);
@@ -144,7 +144,7 @@ std::string notes_notes (Webserver_Request& webserver_request)
     if (passage_inclusion_selector) {
       std::vector <Passage> include_passages = database_notes.get_passages (identifier);
       for (auto & passage : include_passages) {
-        std::string usfm = webserver_request.database_bibles()->get_chapter (bible, passage.m_book, passage.m_chapter);
+        std::string usfm = database::bibles::get_chapter (bible, passage.m_book, passage.m_chapter);
         std::string text = filter::usfm::get_verse_text (usfm, filter::strings::convert_to_int (passage.m_verse));
         if (!verse_text.empty ()) verse_text.append ("<br>");
         verse_text.append (text);
@@ -156,8 +156,8 @@ std::string notes_notes (Webserver_Request& webserver_request)
       content = database_notes.get_contents (identifier);
     }
 
-    notesblock << "<a name=" << std::quoted ("note" + filter::strings::convert_to_string (identifier)) << "></a>" << std::endl;
-    notesblock << "<p><a href=" << std::quoted ("note?id=" + filter::strings::convert_to_string (identifier)) << ">" << summary << "</a></p>" << std::endl;
+    notesblock << "<a name=" << std::quoted ("note" + std::to_string (identifier)) << "></a>" << std::endl;
+    notesblock << "<p><a href=" << std::quoted ("note?id=" + std::to_string (identifier)) << ">" << summary << "</a></p>" << std::endl;
     if (!verse_text.empty ()) notesblock << "<p>" << verse_text << "</p>" << std::endl;
     if (!content.empty ()) notesblock << "<p>" << content << "</p>" << std::endl;
   }

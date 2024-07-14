@@ -63,7 +63,7 @@ bool read_index_acl (Webserver_Request& webserver_request)
 
 std::string read_index (Webserver_Request& webserver_request)
 {
-  bool touch = webserver_request.session_logic ()->touchEnabled ();
+  bool touch = webserver_request.session_logic ()->get_touch_enabled ();
   
   if (webserver_request.query.count ("switchbook") && webserver_request.query.count ("switchchapter")) {
     int switchbook = filter::strings::convert_to_int (webserver_request.query ["switchbook"]);
@@ -120,7 +120,7 @@ std::string read_index (Webserver_Request& webserver_request)
   script_stream << "var readchooseEditorVerseUpdatedLoaded = " << std::quoted(locale_logic_text_reload ()) << ";\n";
   int verticalCaretPosition = webserver_request.database_config_user ()->getVerticalCaretPosition ();
   script_stream << "var verticalCaretPosition = " << verticalCaretPosition << ";\n";
-  script_stream << "var verseSeparator = " << std::quoted(Database_Config_General::getNotesVerseSeparator ()) << ";\n";
+  script_stream << "var verseSeparator = " << std::quoted(database::config::general::get_notes_verse_separator ()) << ";\n";
   std::string script {script_stream.str()};
   config::logic::swipe_enabled (webserver_request, script);
   view.set_variable ("script", script);
@@ -128,10 +128,9 @@ std::string read_index (Webserver_Request& webserver_request)
   std::string cls = Filter_Css::getClass (bible);
   std::string font = fonts::logic::get_text_font (bible);
   int current_theme_index = webserver_request.database_config_user ()->getCurrentTheme ();
-  std::string filename = current_theme_filebased_cache_filename (webserver_request.session_identifier);
-  int direction = Database_Config_Bible::getTextDirection (bible);
-  int lineheight = Database_Config_Bible::getLineHeight (bible);
-  int letterspacing = Database_Config_Bible::getLetterSpacing (bible);
+  int direction = database::config::bible::get_text_direction (bible);
+  int lineheight = database::config::bible::get_line_height (bible);
+  int letterspacing = database::config::bible::get_letter_spacing (bible);
   view.set_variable ("editor_theme_color", Filter_Css::theme_picker (current_theme_index, 2));
   view.set_variable ("active_editor_theme_color", Filter_Css::theme_picker (current_theme_index, 3));
   view.set_variable ("custom_class", cls);

@@ -36,7 +36,6 @@
 void statistics_statistics ()
 {
   Webserver_Request webserver_request;
-  Database_Modifications database_modifications;
   Database_Notes database_notes (webserver_request);
   
   
@@ -46,7 +45,7 @@ void statistics_statistics ()
   std::string siteUrl = config::logic::site_url (webserver_request);
   
   
-  std::vector <std::string> bibles = webserver_request.database_bibles()->get_bibles ();
+  std::vector <std::string> bibles = database::bibles::get_bibles ();
   
   
   std::vector <std::string> users = webserver_request.database_users ()->get_users ();
@@ -60,7 +59,7 @@ void statistics_statistics ()
     size_t change_notificatons_count = 0;
     if (webserver_request.database_config_user()->getUserPendingChangesNotification (user)) {
       std::string any_bible = std::string();
-      std::vector <int> ids = database_modifications.getNotificationIdentifiers (user, any_bible);
+      std::vector <int> ids = database::modifications::getNotificationIdentifiers (user, any_bible);
       change_notificatons_count = ids.size();
       body << "<p><a href=" << std::quoted (siteUrl + changes_changes_url ()) << ">" << translate("Number of change notifications") << "</a>: " << ids.size() << "</p>" << std::endl;
     }

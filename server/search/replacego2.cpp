@@ -71,12 +71,12 @@ std::string search_replacego2 (Webserver_Request& webserver_request)
   
   
   // Check whether the user has write access to the book.
-  std::string user = webserver_request.session_logic ()->currentUser ();
+  const std::string& user = webserver_request.session_logic ()->get_username ();
   bool write = access_bible::book_write (webserver_request, user, bible, book);
 
   
   // Get the old chapter and verse USFM.
-  std::string old_chapter_usfm = webserver_request.database_bibles()->get_chapter (bible, book, chapter);
+  std::string old_chapter_usfm = database::bibles::get_chapter (bible, book, chapter);
   std::string old_verse_usfm = filter::usfm::get_verse_text (old_chapter_usfm, verse);
   
   
@@ -158,7 +158,7 @@ std::string search_replacego2 (Webserver_Request& webserver_request)
   
   
   // Clickable passage.
-  std::string link = filter_passage_link_for_opening_editor_at (book, chapter, filter::strings::convert_to_string (verse));
+  std::string link = filter_passage_link_for_opening_editor_at (book, chapter, std::to_string (verse));
   
   
   // Success or failure message.

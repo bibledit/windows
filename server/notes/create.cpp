@@ -105,29 +105,28 @@ std::string notes_create (Webserver_Request& webserver_request)
   // It will then create a note based on that change notification.
   if (webserver_request.query.count ("fromchange")) {
     int fromchange = filter::strings::convert_to_int (webserver_request.query ["fromchange"]);
-    Database_Modifications database_modifications;
-    //string bible = database_modifications.getNotificationBible (fromchange);
+    //string bible = database::modifications::getNotificationBible (fromchange);
     std::string summary = translate("Query about a change in the text");
     std::string contents = "<p>" + translate("Old text:") + "</p>";
-    contents += database_modifications.getNotificationOldText (fromchange);
+    contents += database::modifications::getNotificationOldText (fromchange);
     contents += "<p>" +  translate("Change:") + "</p>";
-    contents += "<p>" + database_modifications.getNotificationModification (fromchange) + "</p>";
+    contents += "<p>" + database::modifications::getNotificationModification (fromchange) + "</p>";
     contents += "<p>" + translate("New text:") + "</p>";
-    contents += database_modifications.getNotificationNewText (fromchange);
+    contents += database::modifications::getNotificationNewText (fromchange);
     view.set_variable ("summary", summary);
     view.set_variable ("contents", contents);
   }
 
   
   view.set_variable ("bible", bible);
-  view.set_variable ("book", filter::strings::convert_to_string (book));
-  view.set_variable ("chapter", filter::strings::convert_to_string (chapter));
-  view.set_variable ("verse", filter::strings::convert_to_string (verse));
-  std::string passage = filter_passage_display (book, chapter, filter::strings::convert_to_string (verse));
+  view.set_variable ("book", std::to_string (book));
+  view.set_variable ("chapter", std::to_string (chapter));
+  view.set_variable ("verse", std::to_string (verse));
+  std::string passage = filter_passage_display (book, chapter, std::to_string (verse));
   view.set_variable ("passage", passage);
   if (webserver_request.database_config_user ()->getShowVerseTextAtCreateNote ()) {
     std::string versetext;
-    std::string chapter_usfm = webserver_request.database_bibles()->get_chapter (bible, book, chapter);
+    std::string chapter_usfm = database::bibles::get_chapter (bible, book, chapter);
     std::string verse_usfm = filter::usfm::get_verse_text (chapter_usfm, verse);
     const std::string stylesheet = styles_logic_standard_sheet ();
     Filter_Text filter_text = Filter_Text (bible);

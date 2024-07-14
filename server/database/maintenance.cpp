@@ -76,9 +76,8 @@ void database_maintenance ()
   
   
 #ifdef HAVE_CLOUD
-  Database_Confirm database_confirm;
-  database_confirm.trim ();
-  database_confirm.optimize ();
+  database::confirm::trim ();
+  database::confirm::optimize ();
 #endif
   
   
@@ -87,8 +86,7 @@ void database_maintenance ()
   // Database_Styles database_styles;
   
   
-  Database_Bibles database_bibles;
-  database_bibles.optimize ();
+  database::bibles::optimize ();
 
   
   Database_Ipc database_ipc (webserver_request);
@@ -101,8 +99,7 @@ void database_maintenance ()
   database_notes.optimize ();
   
   
-  Database_Check database_check = Database_Check ();
-  database_check.optimize ();
+  database::check::optimize ();
   
   
 #ifdef HAVE_CLOUD
@@ -133,7 +130,7 @@ void database_maintenance ()
   
   
 #ifdef HAVE_CLOUD
-  Database_Git::optimize ();
+  database::git::optimize ();
 #endif
 
   

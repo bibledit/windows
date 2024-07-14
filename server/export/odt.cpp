@@ -53,11 +53,7 @@ void export_odt_book (std::string bible, int book, bool log)
   std::string notesFilename = filter_url_create_path ({directory, basename + "_notes.odt"});
 
   
-  Database_Bibles database_bibles;
-  Database_BibleImages database_bibleimages;
-  
-  
-  const std::string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
+  const std::string stylesheet = database::config::bible::get_export_stylesheet (bible);
   
   
   Filter_Text filter_text = Filter_Text (bible);
@@ -71,9 +67,9 @@ void export_odt_book (std::string bible, int book, bool log)
     // Load entire Bible, ordered.
     std::vector <int> books = filter_passage_get_ordered_books (bible);
     for (auto book2 : books) {
-      std::vector <int> chapters = database_bibles.get_chapters (bible, book2);
+      std::vector <int> chapters = database::bibles::get_chapters (bible, book2);
       for (auto chapter : chapters) {
-        std::string usfm = database_bibles.get_chapter (bible, book2, chapter);
+        std::string usfm = database::bibles::get_chapter (bible, book2, chapter);
         usfm = filter::strings::trim (usfm);
         // Use small chunks of USFM at a time for much better performance.
         filter_text.add_usfm_code (usfm);
@@ -81,9 +77,9 @@ void export_odt_book (std::string bible, int book, bool log)
     }
   } else {
     // Load one book.
-    std::vector <int> chapters = database_bibles.get_chapters (bible, book);
+    std::vector <int> chapters = database::bibles::get_chapters (bible, book);
     for (auto chapter : chapters) {
-      std::string usfm = database_bibles.get_chapter (bible, book, chapter);
+      std::string usfm = database::bibles::get_chapter (bible, book, chapter);
       usfm = filter::strings::trim (usfm);
       // Use small chunks of USFM at a time for much better performance.
       filter_text.add_usfm_code (usfm);
@@ -101,7 +97,7 @@ void export_odt_book (std::string bible, int book, bool log)
   filter_text.odf_text_text_and_note_citations->save (textAndCitationsFilename);
   filter_text.odf_text_notes->save (notesFilename);
   for (auto src : filter_text.image_sources) {
-    std::string contents = database_bibleimages.get(src);
+    std::string contents = database::bible_images::get(src);
     std::string path = filter_url_create_path ({directory, src});
     filter_url_file_put_contents(path, contents);
   }
@@ -109,8 +105,8 @@ void export_odt_book (std::string bible, int book, bool log)
     
   // Securing the OpenDocument export implies that the exported files are zipped and secured with a password.
   // It uses the external zip binary.
-  bool secure = Database_Config_Bible::getSecureOdtExport (bible);
-  std::string password = Database_Config_Bible::getExportPassword (bible);
+  bool secure = database::config::bible::get_secure_odt_export (bible);
+  std::string password = database::config::bible::get_export_password (bible);
   std::string basefile = filter_url_basename (standardFilename);
   filter_url_unlink (standardFilename + ".zip");
   if (secure) {

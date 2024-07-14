@@ -37,9 +37,6 @@
 
 void export_usfm (std::string bible, bool log)
 {
-  Database_Bibles database_bibles;
-  
-  
   // Root USFM directory, plus info file.
   std::string usfmDirectory = export_logic::usfm_directory (bible, 2);
   if (!file_or_dir_exists (usfmDirectory)) filter_url_mkdir (usfmDirectory);
@@ -58,7 +55,7 @@ void export_usfm (std::string bible, bool log)
   // Generate one USFM file per book.
   
   
-  std::vector <int> books = database_bibles.get_books (bible);
+  std::vector <int> books = database::bibles::get_books (bible);
   for (auto book : books) {
 
     
@@ -71,10 +68,10 @@ void export_usfm (std::string bible, bool log)
     
     
     // Collect the USFM for all chapters in this book.
-    std::vector <int> chapters = database_bibles.get_chapters (bible, book);
+    std::vector <int> chapters = database::bibles::get_chapters (bible, book);
     for (auto chapter : chapters) {
       // Get the USFM code for the current chapter.
-      std::string chapter_data = database_bibles.get_chapter (bible, book, chapter);
+      std::string chapter_data = database::bibles::get_chapter (bible, book, chapter);
       chapter_data = filter::strings::trim (chapter_data);
       // Add the chapter USFM code to the book's USFM code.
       bookUsfmDataFull += chapter_data;
@@ -107,7 +104,7 @@ void export_usfm (std::string bible, bool log)
   filter_url_rename (archive, zippath);
   
   
-  if (Database_Config_Bible::getSecureUsfmExport (bible)) {
+  if (database::config::bible::get_secure_usfm_export (bible)) {
     // Securing the full USFM export means that there will be one zip file secured with a password.
     // This zip file contains all exported USFM data.
     // All other files will be removed.
@@ -116,7 +113,7 @@ void export_usfm (std::string bible, bool log)
     for (auto file : files) {
       if (file != zipfile) filter_url_unlink (filter_url_create_path ({usfmDirectoryFull, file}));
     }
-    std::string password = Database_Config_Bible::getExportPassword (bible);
+    std::string password = database::config::bible::get_export_password (bible);
     std::string output, error;
     filter_shell_run (usfmDirectoryFull, "zip", {"-P", password, "bible.zip", zipfile}, &output, &error);
     filter_url_unlink (zippath);

@@ -54,15 +54,15 @@ std::string nmt_index (Webserver_Request& webserver_request)
 
   int userid = filter::strings::user_identifier (webserver_request);
   
-  std::string referencebible = Database_Volatile::getValue (userid, "nmt-ref-bible");
-  std::string translatingbible = Database_Volatile::getValue (userid, "nmt-trans-bible");
+  std::string referencebible = database::volatile_::get_value (userid, "nmt-ref-bible");
+  std::string translatingbible = database::volatile_::get_value (userid, "nmt-trans-bible");
 
 
   if (webserver_request.query.count ("reference")) {
     referencebible = webserver_request.query["reference"];
     if (referencebible.empty()) {
       Dialog_List dialog_list = Dialog_List ("index", translate("Which Bible would you like to use as a reference for producing the neural machine translation suggestions?"), "", "");
-      std::vector <std::string> bibles = webserver_request.database_bibles()->get_bibles ();
+      std::vector <std::string> bibles = database::bibles::get_bibles ();
       bibles = filter::strings::array_diff (bibles, {translatingbible});
       for (auto bible : bibles) {
         dialog_list.add_row (bible, "reference", bible);
@@ -70,7 +70,7 @@ std::string nmt_index (Webserver_Request& webserver_request)
       page += dialog_list.run ();
       return page;
     } else {
-      Database_Volatile::setValue (userid, "nmt-ref-bible", referencebible);
+      database::volatile_::set_value (userid, "nmt-ref-bible", referencebible);
     }
   }
   if (referencebible.empty()) referencebible = "[" + translate ("select") + "]";
@@ -81,7 +81,7 @@ std::string nmt_index (Webserver_Request& webserver_request)
     translatingbible = webserver_request.query["translating"];
     if (translatingbible.empty()) {
       Dialog_List dialog_list = Dialog_List ("index", translate("Which Bible would you like to use as the one now being translated for getting the neural machine translation suggestions?"), "", "");
-      std::vector <std::string> bibles = webserver_request.database_bibles()->get_bibles ();
+      std::vector <std::string> bibles = database::bibles::get_bibles ();
       bibles = filter::strings::array_diff (bibles, {referencebible});
       for (auto bible : bibles) {
         dialog_list.add_row (bible, "translating", bible);
@@ -89,7 +89,7 @@ std::string nmt_index (Webserver_Request& webserver_request)
       page += dialog_list.run ();
       return page;
     } else {
-      Database_Volatile::setValue (userid, "nmt-trans-bible", translatingbible);
+      database::volatile_::set_value (userid, "nmt-trans-bible", translatingbible);
     }
   }
   if (translatingbible.empty()) translatingbible = "[" + translate ("select") + "]";

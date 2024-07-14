@@ -67,16 +67,16 @@ std::string search_similar (Webserver_Request& webserver_request)
     // Text of the focused verse in the active Bible.
     // Remove all punctuation from it.
     std::string versetext = search_logic_get_bible_verse_text (bible, book, chapter, verse);
-    std::vector <std::string> punctuation = filter::strings::explode (Database_Config_Bible::getSentenceStructureEndPunctuation (bible), ' ');
+    std::vector <std::string> punctuation = filter::strings::explode (database::config::bible::get_sentence_structure_end_punctuation (bible), ' ');
     for (auto & sign : punctuation) {
       versetext = filter::strings::replace (sign, "", versetext);
     }
-    punctuation = filter::strings::explode (Database_Config_Bible::getSentenceStructureMiddlePunctuation (bible), ' ');
+    punctuation = filter::strings::explode (database::config::bible::get_sentence_structure_middle_punctuation (bible), ' ');
     for (auto & sign : punctuation) {
       versetext = filter::strings::replace (sign, "", versetext);
     }
     versetext = filter::strings::trim (versetext);
-    Database_Volatile::setValue (myIdentifier, "searchsimilar", versetext);
+    database::volatile_::set_value (myIdentifier, "searchsimilar", versetext);
     return versetext;
   }
   
@@ -85,7 +85,7 @@ std::string search_similar (Webserver_Request& webserver_request)
     
     std::string words = webserver_request.query ["words"];
     words = filter::strings::trim (words);
-    Database_Volatile::setValue (myIdentifier, "searchsimilar", words);
+    database::volatile_::set_value (myIdentifier, "searchsimilar", words);
     std::vector <std::string> vwords = filter::strings::explode (words, ' ');
     
     // Include items if there are no more search hits than 30% of the total number of verses in the Bible.
@@ -129,7 +129,7 @@ std::string search_similar (Webserver_Request& webserver_request)
     std::string output;
     for (auto & id : ids) {
       if (!output.empty ()) output.append ("\n");
-      output.append (filter::strings::convert_to_string (id));
+      output.append (std::to_string (id));
     }
     return output;
   }
@@ -150,7 +150,7 @@ std::string search_similar (Webserver_Request& webserver_request)
     std::string text = search_logic_get_bible_verse_text (bible2, book, chapter, filter::strings::convert_to_int (verse));
     
     // Get search words.
-    std::vector <std::string> words = filter::strings::explode (Database_Volatile::getValue (myIdentifier, "searchsimilar"), ' ');
+    std::vector <std::string> words = filter::strings::explode (database::volatile_::get_value (myIdentifier, "searchsimilar"), ' ');
     
     // Format it.
     std::string link = filter_passage_link_for_opening_editor_at (book, chapter, verse);

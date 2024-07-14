@@ -95,7 +95,7 @@ void sendreceive_resources ()
   sendreceive_resources_interrupt = false;
 
   // If there's nothing to cache, bail out.
-  std::vector <std::string> resources = Database_Config_General::getResourcesToCache ();
+  std::vector <std::string> resources = database::config::general::get_resources_to_cache ();
   if (resources.empty ()) return;
   
   sendreceive_resources_kick_watchdog ();
@@ -117,8 +117,8 @@ void sendreceive_resources ()
   Database_Logs::log ("Starting to install resource:" " " + resource, Filter_Roles::consultant ());
 
   // Server address and port.
-  std::string address = Database_Config_General::getServerAddress ();
-  int port = Database_Config_General::getServerPort ();
+  std::string address = database::config::general::get_server_address ();
+  int port = database::config::general::get_server_port ();
   // If the client has not been connected to a cloud instance,
   // fetch the resource from the Bibledit Cloud demo.
   if (!client_logic_client_enabled ()) {
@@ -136,10 +136,10 @@ void sendreceive_resources ()
     if (sendreceive_resources_interrupt) continue;
 
     // The URL fragment that contains the current book in its query.
-    std::string book_url = filter_url_build_http_query (resource_url, "b", filter::strings::convert_to_string (book));
+    std::string book_url = filter_url_build_http_query (resource_url, "b", std::to_string (book));
     
     // The URL to request the resource database for this book from the Cloud.
-    std::string url = filter_url_build_http_query (book_url, "a", filter::strings::convert_to_string (Sync_Logic::resources_request_database));
+    std::string url = filter_url_build_http_query (book_url, "a", std::to_string (Sync_Logic::resources_request_database));
     std::string error;
     std::string response = filter_url_http_get (url, error, false);
     if (error.empty ()) {
@@ -149,7 +149,7 @@ void sendreceive_resources ()
       if (server_size > 0) {
         // The Cloud has now responded with the file size of the resource database, in bytes.
         // Now request the path to download it.
-        url = filter_url_build_http_query (book_url, "a", filter::strings::convert_to_string (Sync_Logic::resources_request_download));
+        url = filter_url_build_http_query (book_url, "a", std::to_string (Sync_Logic::resources_request_download));
         error.clear ();
         std::string response2 = filter_url_http_get (url, error, false);
         if (error.empty ()) {
@@ -188,10 +188,10 @@ void sendreceive_resources ()
   
   // Done.
   if (error_count) {
-    std::string msg = "Error count while downloading resource: " + filter::strings::convert_to_string (error_count);
+    std::string msg = "Error count while downloading resource: " + std::to_string (error_count);
     Database_Logs::log (msg, Filter_Roles::consultant ());
   } else if (wait_count) {
-    std::string msg = "Waiting for Cloud to prepare resource for download. Remaining books: " + filter::strings::convert_to_string (wait_count);
+    std::string msg = "Waiting for Cloud to prepare resource for download. Remaining books: " + std::to_string (wait_count);
     Database_Logs::log (msg, Filter_Roles::consultant ());
   } else {
     Database_Logs::log ("Completed installing resource:" " " + resource, Filter_Roles::consultant ());
@@ -210,12 +210,12 @@ void sendreceive_resources ()
     }
   }
   // Store new download schedule.
-  resources = Database_Config_General::getResourcesToCache ();
+  resources = database::config::general::get_resources_to_cache ();
   resources = filter::strings::array_diff (resources, {resource});
   if (re_schedule_download) {
     resources.push_back (resource);
   }
-  Database_Config_General::setResourcesToCache (resources);
+  database::config::general::set_resources_to_cache (resources);
 
   sendreceive_resources_done ();
   
@@ -231,7 +231,7 @@ void sendreceive_resources_clear_all ()
 {
   sendreceive_resources_interrupt = true;
   Database_Logs::log ("Interrupting resource installation", Filter_Roles::consultant ());
-  Database_Config_General::setResourcesToCache ({});
+  database::config::general::set_resources_to_cache ({});
 }
 
 

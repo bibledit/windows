@@ -63,20 +63,20 @@ std::string collaboration_settings (Webserver_Request& webserver_request)
   if (webserver_request.post.count ("url")) {
     if (!object.empty ()) {
       std::string url = webserver_request.post["url"];
-      Database_Config_Bible::setRemoteRepositoryUrl (object, url);
+      database::config::bible::set_remote_repository_url (object, url);
       std::string source = webserver_request.post["source"];
       std::string readwrite = webserver_request.post["readwrite"];
-      Database_Config_Bible::setReadFromGit (object, readwrite == "sendreceive");
+      database::config::bible::set_read_from_git (object, readwrite == "sendreceive");
       Database_Jobs database_jobs = Database_Jobs ();
       int jobId = database_jobs.get_new_id ();
       database_jobs.set_level (jobId, Filter_Roles::admin ());
       database_jobs.set_start (jobId, collaboration_link_header ());
-      tasks_logic_queue (LINKGITREPOSITORY, {object, filter::strings::convert_to_string (jobId), source});
-      redirect_browser (webserver_request, jobs_index_url () + "?id=" + filter::strings::convert_to_string (jobId));
+      tasks_logic_queue (LINKGITREPOSITORY, {object, std::to_string (jobId), source});
+      redirect_browser (webserver_request, jobs_index_url () + "?id=" + std::to_string (jobId));
       return std::string();
     }
   }
-  std::string url = Database_Config_Bible::getRemoteRepositoryUrl (object);
+  std::string url = database::config::bible::get_remote_repository_url (object);
   view.set_variable ("url", url);
   
   

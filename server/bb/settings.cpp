@@ -28,6 +28,7 @@
 #include <database/books.h>
 #include <database/config/bible.h>
 #include <database/mappings.h>
+#include <database/check.h>
 #include <locale/translate.h>
 #include <dialog/entry.h>
 #include <dialog/yes.h>
@@ -99,7 +100,7 @@ std::string bible_settings (Webserver_Request& webserver_request)
   
   
   // Whether the user has the privilege to change the stylesheet.
-  const std::string current_user = webserver_request.session_logic()->currentUser ();
+  const std::string& current_user = webserver_request.session_logic ()->get_username ();
   bool privilege_stylesheet = access_logic::privilege_set_stylesheets (webserver_request, current_user);
   if (privilege_stylesheet) view.enable_zone ("privilege_stylesheet");
 
@@ -123,10 +124,10 @@ std::string bible_settings (Webserver_Request& webserver_request)
       page += dialog_list.run ();
       return page;
     } else {
-      if (write_access) Database_Config_Bible::setVersificationSystem (bible, versification);
+      if (write_access) database::config::bible::set_versification_system (bible, versification);
     }
   }
-  const std::string versification = Database_Config_Bible::getVersificationSystem (bible);
+  const std::string versification = database::config::bible::get_versification_system (bible);
   view.set_variable ("versification", versification);
 
   
@@ -134,7 +135,7 @@ std::string bible_settings (Webserver_Request& webserver_request)
   if (webserver_request.query.count ("createbook")) {
     const std::string createbook = webserver_request.query["createbook"];
     if (createbook.empty()) {
-      Dialog_Books dialog_books = Dialog_Books ("settings", translate("Create book"), "", "", "createbook", {}, webserver_request.database_bibles()->get_books (bible));
+      Dialog_Books dialog_books = Dialog_Books ("settings", translate("Create book"), "", "", "createbook", {}, database::bibles::get_books (bible));
       dialog_books.add_query ("bible", bible);
       page += dialog_books.run ();
       return page;
@@ -196,7 +197,7 @@ std::string bible_settings (Webserver_Request& webserver_request)
   }
 
   
-  const int level = webserver_request.session_logic ()->currentLevel ();
+  const int level = webserver_request.session_logic ()->get_level ();
   const bool manager_level = (level >= Filter_Roles::manager ());
   if (manager_level) view.enable_zone ("manager");
 
@@ -211,7 +212,7 @@ std::string bible_settings (Webserver_Request& webserver_request)
     if (manager_level) {
       a_or_span_node = book_document.append_child("a");
       std::string href = filter_url_build_http_query ("book", "bible", bible);
-      href = filter_url_build_http_query (href, "book", filter::strings::convert_to_string (book));
+      href = filter_url_build_http_query (href, "book", std::to_string (book));
       a_or_span_node.append_attribute("href") = href.c_str();
     } else {
       a_or_span_node = book_document.append_child("span");
@@ -223,14 +224,14 @@ std::string bible_settings (Webserver_Request& webserver_request)
   std::stringstream bookblock2 {};
   book_document.print (bookblock2, "", pugi::format_raw);
   view.set_variable ("bookblock", bookblock2.str());
-  view.set_variable ("book_count", filter::strings::convert_to_string (static_cast<int>(book_ids.size())));
+  view.set_variable ("book_count", std::to_string (static_cast<int>(book_ids.size())));
 
 
   // Public feedback.
   if (checkbox == "public") {
-    if (write_access) Database_Config_Bible::setPublicFeedbackEnabled (bible, checked);
+    if (write_access) database::config::bible::set_public_feedback_enabled (bible, checked);
   }
-  view.set_variable ("public", filter::strings::get_checkbox_status (Database_Config_Bible::getPublicFeedbackEnabled (bible)));
+  view.set_variable ("public", filter::strings::get_checkbox_status (database::config::bible::get_public_feedback_enabled (bible)));
 
   
  
@@ -238,11 +239,11 @@ std::string bible_settings (Webserver_Request& webserver_request)
 #ifdef HAVE_CLOUD
   if (checkbox == "rss") {
     if (write_access) {
-      Database_Config_Bible::setSendChangesToRSS (bible, checked);
+      database::config::bible::set_send_changes_to_rss (bible, checked);
       rss_logic_feed_on_off ();
     }
   }
-  view.set_variable ("rss", filter::strings::get_checkbox_status (Database_Config_Bible::getSendChangesToRSS (bible)));
+  view.set_variable ("rss", filter::strings::get_checkbox_status (database::config::bible::get_send_changes_to_rss (bible)));
 #endif
 
   
@@ -260,10 +261,10 @@ std::string bible_settings (Webserver_Request& webserver_request)
       page += dialog_list.run ();
       return page;
     } else {
-      if (write_access) Database_Config_Bible::setEditorStylesheet (bible, stylesheet);
+      if (write_access) database::config::bible::set_editor_stylesheet (bible, stylesheet);
     }
   }
-  std::string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
+  std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
   view.set_variable ("stylesheetediting", stylesheet);
 
   
@@ -281,10 +282,10 @@ std::string bible_settings (Webserver_Request& webserver_request)
       page += dialog_list.run ();
       return page;
     } else {
-      if (write_access) Database_Config_Bible::setExportStylesheet (bible, export_stylesheet);
+      if (write_access) database::config::bible::set_export_stylesheet (bible, export_stylesheet);
     }
   }
-  stylesheet = Database_Config_Bible::getExportStylesheet (bible);
+  stylesheet = database::config::bible::get_export_stylesheet (bible);
   view.set_variable ("stylesheetexport", stylesheet);
   
   
@@ -292,15 +293,14 @@ std::string bible_settings (Webserver_Request& webserver_request)
 #ifdef HAVE_CLOUD
   if (checkbox == "checks") {
     if (write_access) {
-      Database_Config_Bible::setDailyChecksEnabled (bible, checked);
+      database::config::bible::set_daily_checks_enabled (bible, checked);
       if (!checked) {
         // If checking is switched off, also remove any existing checking results for this Bible.
-        Database_Check database_check;
-        database_check.truncateOutput(bible);
+        database::check::truncate_output(bible);
       }
     }
   }
-  view.set_variable ("checks", filter::strings::get_checkbox_status (Database_Config_Bible::getDailyChecksEnabled (bible)));
+  view.set_variable ("checks", filter::strings::get_checkbox_status (database::config::bible::get_daily_checks_enabled (bible)));
 #endif
 
   

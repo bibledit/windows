@@ -27,21 +27,65 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/url.h>
 #include <filter/date.h>
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wswitch-enum"
-#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
-#include <mbedtls/entropy.h>
-#include <mbedtls/ctr_drbg.h>
-#include <mbedtls/certs.h>
-#include <mbedtls/x509.h>
-#include <mbedtls/x509_crt.h>
-#include <mbedtls/ssl.h>
-// #include <mbedtls/ssl_tls.h>
-#include <mbedtls/net_sockets.h>
-#include <mbedtls/error.h>
-#include <mbedtls/ssl_cache.h>
+#pragma clang diagnostic ignored "-Wc99-extensions"
+#include <mbedtls/build_info.h>
+#include <mbedtls/platform.h>
+#include "mbedtls/entropy.h"
+#include "mbedtls/ctr_drbg.h"
+#include "mbedtls/x509.h"
+#include "mbedtls/ssl.h"
+#include "mbedtls/net_sockets.h"
+#include "mbedtls/error.h"
+#include "mbedtls/debug.h"
+#include "mbedtls/ssl_cache.h"
 #pragma GCC diagnostic pop
 #ifdef HAVE_WINDOWS
 #include <io.h>
+#endif
+
+
+// Static check on required definitions, taken from the ssl_server.c example.
+#ifndef MBEDTLS_BIGNUM_C
+static_assert (false, "MBEDTLS_BIGNUM_C should be defined");
+#endif
+#ifndef MBEDTLS_PEM_PARSE_C
+static_assert (false, "MBEDTLS_PEM_PARSE_C should be defined");
+#endif
+#ifndef MBEDTLS_ENTROPY_C
+static_assert (false, "MBEDTLS_ENTROPY_C should be defined");
+#endif
+#ifndef MBEDTLS_SSL_TLS_C
+static_assert (false, "MBEDTLS_SSL_TLS_C should be defined");
+#endif
+#ifndef MBEDTLS_SSL_CLI_C
+static_assert (false, "MBEDTLS_SSL_CLI_C should be defined");
+#endif
+#ifndef MBEDTLS_SSL_SRV_C
+static_assert (false, "MBEDTLS_SSL_SRV_C should be defined");
+#endif
+#ifndef MBEDTLS_NET_C
+static_assert (false, "MBEDTLS_NET_C should be defined");
+#endif
+#ifndef MBEDTLS_RSA_C
+static_assert (false, "MBEDTLS_RSA_C should be defined");
+#endif
+#ifndef MBEDTLS_PEM_PARSE_C
+static_assert (false, "MBEDTLS_PEM_PARSE_C should be defined");
+#endif
+#ifndef MBEDTLS_CTR_DRBG_C
+static_assert (false, "MBEDTLS_CTR_DRBG_C should be defined");
+#endif
+#ifndef MBEDTLS_X509_CRT_PARSE_C
+static_assert (false, "MBEDTLS_X509_CRT_PARSE_C should be defined");
+#endif
+#ifndef MBEDTLS_FS_IO
+static_assert (false, "MBEDTLS_FS_IO should be defined");
+#endif
+//#ifndef MBEDTLS_USE_PSA_CRYPTO
+//static_assert (false, "MBEDTLS_USE_PSA_CRYPTO should be defined");
+//#endif
+#ifdef MBEDTLS_X509_REMOVE_INFO
+static_assert (false, "MBEDTLS_X509_REMOVE_INFO should not be defined");
 #endif
 
 
@@ -62,15 +106,9 @@ static int get_line (const int sock, char *buf, const int size)
   char character {'\0'};
   int n {0};
   while ((i < size - 1) && (character != '\n')) {
-    n = static_cast<int> (recv (sock, &character, 1, 0));
+    n = static_cast<int> (::recv (sock, &character, 1, 0));
     if (n > 0) {
       if (character == '\r') {
-        /*
-        // Work around MSG_PEEK failure in nacl_io library.
-        // On Chrome OS the order is \r\n.
-        // So it's safe to throw the \r away, as we're sure the \n follows.
-        continue;
-        */
         n = static_cast<int> (recv (sock, &character, 1, MSG_PEEK));
         if ((n > 0) && (character == '\n')) {
           recv (sock, &character, 1, 0);
@@ -97,7 +135,8 @@ static void convert_ipv6_notation_to_pure_ipv4_notation (std::string& address)
   // Example IPv4 address: ::ffff:127.0.0.1
   // Example IPv6 address: ::1
   // Clean the IP address up so it's a clear IPv4 or IPv6 notation.
-  if (size_t pos = address.find("."); pos != std::string::npos) {
+  if (size_t pos = address.find(".");
+      pos != std::string::npos) {
     pos = address.find_last_of(":");
     address.erase (0, ++pos);
   }
@@ -108,7 +147,7 @@ static void convert_ipv6_notation_to_pure_ipv4_notation (std::string& address)
 static void webserver_process_request (const int connfd, const std::string& clientaddress)
 {
   // The environment for this request.
-  // A pointer to it gets passed around from function to function during the entire request.
+  // It reference to this object gets passed around from function to function during the entire request.
   // This provides thread-safety to the request.
   Webserver_Request request {};
   
@@ -771,9 +810,10 @@ void https_server ()
 #ifdef RUN_SECURE_SERVER
 
   // The https network port to listen on.
-  // Port 0..9 means this:: Don't run the secure web server.
+  // Port 0..9 means: Don't run the secure web server.
   const std::string network_port = config::logic::https_network_port ();
-  if (network_port.length() <= 1) return;
+  if (network_port.length() <= 1) 
+    return;
   
   // Check whether all the certificates are there and can be read.
   // If not, log some feedback and don't run the secure web server.
@@ -830,10 +870,16 @@ void https_server ()
   mbedtls_ctr_drbg_context ctr_drbg;
   mbedtls_ctr_drbg_init (&ctr_drbg);
 
+  const psa_status_t psa_status = psa_crypto_init();
+  if (psa_status != PSA_SUCCESS) {
+    Database_Logs::log("Failure to run PSA crypto initialization: Not running the secure server");
+    return;
+  }
+
   // Load the private RSA server key.
   mbedtls_pk_context pkey;
   mbedtls_pk_init (&pkey);
-  int ret = mbedtls_pk_parse_keyfile (&pkey, server_key_path.c_str (), nullptr);
+  int ret = mbedtls_pk_parse_keyfile (&pkey, server_key_path.c_str (), nullptr, mbedtls_ctr_drbg_random, &ctr_drbg);
   if (ret != 0) {
     filter_url_display_mbed_tls_error (ret, nullptr, true, std::string());
     Database_Logs::log("Invalid " + server_key_path + " so not running secure server");
@@ -934,6 +980,7 @@ void https_server ()
   mbedtls_ssl_cache_free (&cache);
   mbedtls_ctr_drbg_free (&ctr_drbg);
   mbedtls_entropy_free (&entropy);
+  mbedtls_psa_crypto_free();
 #endif
 }
 

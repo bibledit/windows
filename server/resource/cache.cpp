@@ -67,7 +67,7 @@ std::string resource_cache (Webserver_Request& webserver_request)
   if (webserver_request.query.count ("clear")) {
     sendreceive_resources_clear_all ();
   }
-  std::vector <std::string> resources = Database_Config_General::getResourcesToCache ();
+  std::vector <std::string> resources = database::config::general::get_resources_to_cache ();
   if (!resources.empty ()) {
     view.enable_zone ("scheduled");
     view.set_variable ("scheduled", filter::strings::implode (resources, " | "));
@@ -153,7 +153,7 @@ std::string resource_cache (Webserver_Request& webserver_request)
   
   
   // Generate html block with the resources.
-  std::vector <std::string> bibles = webserver_request.database_bibles()->get_bibles ();
+  std::vector <std::string> bibles = database::bibles::get_bibles ();
   std::string block;
   for (auto & resource2 : listed_resources) {
     // Skip internal Bibles and dividers.

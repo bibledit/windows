@@ -102,7 +102,7 @@ void sprint_burndown ([[maybe_unused]] std::string bible,
   
   std::vector <std::string> bibles = {bible};
   if (bible.empty()) {
-    bibles = request.database_bibles()->get_bibles ();
+    bibles = database::bibles::get_bibles ();
   }
   
 
@@ -130,7 +130,7 @@ void sprint_burndown ([[maybe_unused]] std::string bible,
     if (email) {
       if (task_count) {
         // Only mail if the current sprint contains tasks.
-        std::string scategories = Database_Config_Bible::getSprintTaskCompletionCategories (bible2);
+        std::string scategories = database::config::bible::get_sprint_task_completion_categories (bible2);
         std::vector <std::string> categories = filter::strings::explode (scategories, '\n');
         int category_count = static_cast<int>(categories.size());
         int category_percentage = static_cast<int>(round (100 / category_count));
@@ -242,7 +242,7 @@ std::string sprint_create_burndown_chart ([[maybe_unused]] std::string bible,
   lines.push_back ("<tr>");
   for (auto element : data) {
     int day = element.first;
-    lines.push_back ("<td class='day'>" + filter::strings::convert_to_string (day) + "</td>");
+    lines.push_back ("<td class='day'>" + std::to_string (day) + "</td>");
   }
   lines.push_back ("</tr>");
                                       
@@ -250,7 +250,7 @@ std::string sprint_create_burndown_chart ([[maybe_unused]] std::string bible,
   lines.push_back ("<tr>");
   int columncount = static_cast<int>(data.size ());
   std::string text = translate("days");
-  lines.push_back ("<td colspan=\"" + filter::strings::convert_to_string (columncount) + "\">" + text + "</td>");
+  lines.push_back ("<td colspan=\"" + std::to_string (columncount) + "\">" + text + "</td>");
   lines.push_back ("</tr>");
                                     
   lines.push_back ("</table>");

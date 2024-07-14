@@ -59,7 +59,7 @@ bool edit_index_acl (Webserver_Request& webserver_request)
 
 std::string edit_index (Webserver_Request& webserver_request)
 {
-  const bool touch = webserver_request.session_logic ()->touchEnabled ();
+  const bool touch = webserver_request.session_logic ()->get_touch_enabled ();
 
   
   if (webserver_request.query.count ("switchbook") && webserver_request.query.count ("switchchapter")) {
@@ -79,7 +79,7 @@ std::string edit_index (Webserver_Request& webserver_request)
     webserver_request.database_config_user ()->setBible (bibleselect);
     // Going to another Bible, ensure that the focused book exists there.
     int book = Ipc_Focus::getBook (webserver_request);
-    const std::vector <int> books = webserver_request.database_bibles()->get_books (bibleselect);
+    const std::vector <int> books = database::bibles::get_books (bibleselect);
     if (find (books.begin(), books.end(), book) == books.end()) {
       if (!books.empty ()) book = books [0];
       else book = 0;
@@ -136,7 +136,7 @@ std::string edit_index (Webserver_Request& webserver_request)
   script_stream << "var editorChapterRetrying = " << std::quoted(locale_logic_text_retrying ()) << ";\n";
   script_stream << "var editorChapterVerseUpdatedLoaded = " << std::quoted(locale_logic_text_reload ()) << ";\n";
   script_stream << "var verticalCaretPosition = " << webserver_request.database_config_user ()->getVerticalCaretPosition () << ";\n";
-  script_stream << "var verseSeparator = " << std::quoted(Database_Config_General::getNotesVerseSeparator ()) << ";\n";
+  script_stream << "var verseSeparator = " << std::quoted(database::config::general::get_notes_verse_separator ()) << ";\n";
   std::string script = script_stream.str();
   config::logic::swipe_enabled (webserver_request, script);
   view.set_variable ("script", script);
@@ -145,9 +145,9 @@ std::string edit_index (Webserver_Request& webserver_request)
   const std::string clss = Filter_Css::getClass (bible);
   const std::string font = fonts::logic::get_text_font (bible);
   const int current_theme_index = webserver_request.database_config_user ()->getCurrentTheme ();
-  const int direction = Database_Config_Bible::getTextDirection (bible);
-  const int lineheight = Database_Config_Bible::getLineHeight (bible);
-  const int letterspacing = Database_Config_Bible::getLetterSpacing (bible);
+  const int direction = database::config::bible::get_text_direction (bible);
+  const int lineheight = database::config::bible::get_line_height (bible);
+  const int letterspacing = database::config::bible::get_letter_spacing (bible);
   std::string versebeam_current_theme = Filter_Css::theme_picker (current_theme_index, 5);
   if (versebeam_current_theme.empty())
     versebeam_current_theme = "versebeam";

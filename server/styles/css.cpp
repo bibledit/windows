@@ -194,7 +194,7 @@ void Styles_Css::add (void * database_styles_item, bool paragraph, bool keepwith
     float percents {points * 100 / 12};
     int fontsize = filter::strings::convert_to_int (percents);
     if (fontsize != 100) {
-      m_code.push_back ("font-size: " + filter::strings::convert_to_string (fontsize) + "%;");
+      m_code.push_back ("font-size: " + std::to_string (fontsize) + "%;");
     }
   }
   
@@ -364,7 +364,7 @@ void Styles_Css::customize (const std::string& bible)
   std::string font = fonts::logic::get_text_font (bible);
   bool uploaded_font = fonts::logic::font_exists (font);
   font = fonts::logic::get_font_path (font);
-  int direction = Database_Config_Bible::getTextDirection (bible);
+  int direction = database::config::bible::get_text_direction (bible);
   std::string css = Filter_Css::get_css (cls, font, direction);
   if (uploaded_font) css = filter::strings::replace ("../fonts/", "", css);
   m_code.push_back (css);

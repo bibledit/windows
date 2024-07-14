@@ -58,8 +58,8 @@ std::string edit_navigate (Webserver_Request& webserver_request)
   const size_t offset = static_cast<size_t> (filter::strings::convert_to_int (webserver_request.query ["offset"]));
 
   
-  const std::string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
-  const std::string usfm = webserver_request.database_bibles()->get_chapter (bible, book, chapter);
+  const std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
+  const std::string usfm = database::bibles::get_chapter (bible, book, chapter);
   
   
   Editor_Usfm2Html editor_usfm2html;
@@ -142,7 +142,7 @@ std::string edit_navigate (Webserver_Request& webserver_request)
     }
     // The editor should scroll the verse into view,
     // because the caret is in the Bible text.
-    return filter::strings::convert_to_string (verse);
+    return std::to_string (verse);
     // If the caret were in the notes area,
     // then the editor should not scroll the verse into view.
   }

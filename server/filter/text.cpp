@@ -49,8 +49,8 @@ passage_marker_value::passage_marker_value (int book, int chapter, std::string v
 Filter_Text::Filter_Text (std::string bible)
 {
   m_bible = bible;
-  space_type_after_verse = Database_Config_Bible::getOdtSpaceAfterVerse (m_bible);
-  odt_left_align_verse_in_poetry_styles = Database_Config_Bible::getOdtPoetryVersesLeft (m_bible);
+  space_type_after_verse = database::config::bible::get_odt_space_after_verse (m_bible);
+  odt_left_align_verse_in_poetry_styles = database::config::bible::get_odt_poetry_verses_left (m_bible);
 }
 
 
@@ -291,7 +291,7 @@ void Filter_Text::pre_process_usfm ()
               {
                 const std::string fragment = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
                 const int number = filter::strings::convert_to_int (fragment);
-                m_current_verse_number = filter::strings::convert_to_string (number);
+                m_current_verse_number = std::to_string (number);
                 break;
               }
               case StyleTypeFootEndNote:
@@ -731,7 +731,7 @@ void Filter_Text::process_usfm ()
               }
               // Deal with the case of a pending chapter number.
               if (!m_output_chapter_text_at_first_verse.empty()) {
-                if (!Database_Config_Bible::getExportChapterDropCapsFrames (m_bible)) {
+                if (!database::config::bible::get_export_chapter_drop_caps_frames (m_bible)) {
                   int dropCapsLength = static_cast<int>( filter::strings::unicode_string_length (m_output_chapter_text_at_first_verse));
                   applyDropCapsToCurrentParagraph (dropCapsLength);
                   if (odf_text_standard) odf_text_standard->add_text (m_output_chapter_text_at_first_verse);
@@ -1387,7 +1387,7 @@ void Filter_Text::produceInfoDocument (std::string path)
   // Number of chapters per book.
   information.new_heading1 (translate("Number of chapters per book"));
   for (const auto& element : m_number_of_chapters_per_book) {
-    const std::string line = database::books::get_english_from_id (static_cast<book_id>(element.first)) + " => " + filter::strings::convert_to_string (element.second);
+    const std::string line = database::books::get_english_from_id (static_cast<book_id>(element.first)) + " => " + std::to_string (element.second);
     information.new_paragraph ();
     information.add_text (line);
   }
@@ -1545,7 +1545,7 @@ void Filter_Text::create_paragraph_style (const Database_Styles_Item & style, bo
 {
   std::string marker = style.marker;
   if (find (createdStyles.begin(), createdStyles.end(), marker) == createdStyles.end()) {
-    std::string fontname = Database_Config_Bible::getExportFont (m_bible);
+    std::string fontname = database::config::bible::get_export_font (m_bible);
     float fontsize = style.fontsize;
     int italic = style.italic;
     int bold = style.bold;
@@ -1595,10 +1595,10 @@ void Filter_Text::applyDropCapsToCurrentParagraph (int dropCapsLength)
   // To name a style according to the number of characters to put in drop caps,
   // e.g. a style name like p_c1 or p_c2 or p_c3.
   if (odf_text_standard) {
-    std::string combined_style = odf_text_standard->m_current_paragraph_style + "_" + chapterMarker + filter::strings::convert_to_string (dropCapsLength);
+    std::string combined_style = odf_text_standard->m_current_paragraph_style + "_" + chapterMarker + std::to_string (dropCapsLength);
     if (find (createdStyles.begin(), createdStyles.end(), combined_style) == createdStyles.end()) {
       Database_Styles_Item style = styles[odf_text_standard->m_current_paragraph_style];
-      std::string fontname = Database_Config_Bible::getExportFont (m_bible);
+      std::string fontname = database::config::bible::get_export_font (m_bible);
       float fontsize = style.fontsize;
       int italic = style.italic;
       int bold = style.bold;
@@ -1670,7 +1670,7 @@ std::string Filter_Text::getNoteCitation (const Database_Styles_Item & style)
 void Filter_Text::ensureNoteParagraphStyle (std::string marker, const Database_Styles_Item & style)
 {
   if (find (createdStyles.begin(), createdStyles.end(), marker) == createdStyles.end()) {
-    std::string fontname = Database_Config_Bible::getExportFont (m_bible);
+    std::string fontname = database::config::bible::get_export_font (m_bible);
     float fontsize = style.fontsize;
     int italic = style.italic;
     int bold = style.bold;

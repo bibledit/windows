@@ -31,8 +31,7 @@
 
 void export_index ()
 {
-  Database_Bibles database_bibles;
-  std::vector <std::string> bibles = database_bibles.get_bibles ();
+  std::vector <std::string> bibles = database::bibles::get_bibles ();
   
   
   // Go through all sub directories of the exports directory.
@@ -52,7 +51,7 @@ void export_index ()
     if (Database_State::getExport (bible, 0, export_logic::export_needed)) {
       
       Database_State::clearExport (bible, 0, export_logic::export_needed);
-      std::vector <int> books = database_bibles.get_books (bible);
+      std::vector <int> books = database::bibles::get_books (bible);
       // Book 0 flags export of the whole Bible (this is not relevant to all export types).
       books.push_back (0);
       for (auto book : books) {
@@ -63,36 +62,36 @@ void export_index ()
 
       Database_Logs::log ("Exporting Bible " + bible, Filter_Roles::translator ());
 
-      if (Database_Config_Bible::getExportWebDuringNight (bible)) {
+      if (database::config::bible::get_export_web_during_night (bible)) {
         export_logic::schedule_web (bible, false);
         export_logic::schedule_web_index (bible, false);
       }
 
-      if (Database_Config_Bible::getExportHtmlDuringNight (bible)) {
+      if (database::config::bible::get_export_hml_during_night (bible)) {
         export_logic::schedule_html (bible, false);
       }
       
-      if (Database_Config_Bible::getExportUsfmDuringNight (bible)) {
+      if (database::config::bible::get_export_usfm_during_night (bible)) {
         export_logic::schedule_usfm (bible, false);
       }
       
-      if (Database_Config_Bible::getExportTextDuringNight (bible)) {
+      if (database::config::bible::get_export_text_during_night (bible)) {
         export_logic::schedule_text_and_basic_usfm (bible, false);
       }
       
-      if (Database_Config_Bible::getExportOdtDuringNight (bible)) {
+      if (database::config::bible::get_export_odt_during_night (bible)) {
         export_logic::schedule_open_document (bible, false);
       }
       
-      if (Database_Config_Bible::getGenerateInfoDuringNight (bible)) {
+      if (database::config::bible::get_generate_info_during_night (bible)) {
         export_logic::schedule_info (bible, false);
       }
       
-      if (Database_Config_Bible::getExportESwordDuringNight (bible)) {
+      if (database::config::bible::get_export_e_sword_during_night (bible)) {
         export_logic::schedule_e_sword (bible, false);
       }
 
-      if (Database_Config_Bible::getExportOnlineBibleDuringNight (bible)) {
+      if (database::config::bible::get_export_online_bible_during_night (bible)) {
         export_logic::schedule_online_bible (bible, false);
       }
       

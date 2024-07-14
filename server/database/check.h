@@ -20,12 +20,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma once
 
 #include <config/libraries.h>
-#include <filter/passage.h>
 
+class Passage;
 
-class Database_Check_Hit
+namespace database::check {
+
+struct Hit
 {
-public:
   int rowid {0};
   std::string bible {};
   int book {0};
@@ -35,20 +36,16 @@ public:
 };
 
 
-class Database_Check
-{
-public:
-  void create ();
-  void optimize ();
-  void truncateOutput (std::string bible);
-  void recordOutput (std::string bible, int book, int chapter, int verse, std::string data);
-  std::vector <Database_Check_Hit> getHits ();
-  void approve (int id);
-  void erase (int id);
-  Passage getPassage (int id);
-  std::vector <Database_Check_Hit> getSuppressions ();
-  void release (int id);
-private:
-  const char * filename ();
-};
+void create ();
+void optimize ();
+void truncate_output (const std::string& bible);
+void record_output (const std::string& bible, int book, int chapter, int verse, std::string data);
+std::vector <Hit> get_hits ();
+void approve (int id);
+void erase (int id);
+Passage get_passage (int id);
+std::vector <Hit> get_suppressions ();
+void release (int id);
 
+
+}

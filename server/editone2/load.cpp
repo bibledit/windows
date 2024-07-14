@@ -54,9 +54,9 @@ std::string editone2_load (Webserver_Request& webserver_request)
   int verse = filter::strings::convert_to_int (webserver_request.query ["verse"]);
   std::string unique_id = webserver_request.query ["id"];
   
-  const std::string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
+  const std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
 
-  std::string chapter_usfm = webserver_request.database_bibles()->get_chapter (bible, book, chapter);
+  std::string chapter_usfm = database::bibles::get_chapter (bible, book, chapter);
 
   std::vector <int> verses = filter::usfm::get_verse_numbers (chapter_usfm);
   int highest_verse = 0;
@@ -96,7 +96,7 @@ std::string editone2_load (Webserver_Request& webserver_request)
   // for easier text entry in the verse.
   std::string plain_text = filter::strings::html2text (focused_verse_html);
   plain_text = filter::strings::trim (plain_text);
-  std::string vs = filter::strings::convert_to_string (verse);
+  std::string vs = std::to_string (verse);
   bool editable_verse_is_empty = plain_text == vs;
   if (editable_verse_is_empty) {
     std::string search = "<span> </span></p>";
@@ -114,7 +114,7 @@ std::string editone2_load (Webserver_Request& webserver_request)
   data.append ("#_be_#");
   data.append (suffix_html);
   
-  std::string user = webserver_request.session_logic ()->currentUser ();
+  const std::string& user = webserver_request.session_logic ()->get_username ();
   bool write = access_bible::book_write (webserver_request, user, bible, book);
   data = checksum_logic::send (data, write);
 

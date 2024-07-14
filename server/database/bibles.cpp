@@ -33,66 +33,72 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // Because no real database is used, no database can get corrupted.
 
 
-std::string Database_Bibles::main_folder ()
+namespace database::bibles {
+
+
+static const std::string& main_folder ()
 {
-  return filter_url_create_root_path ({"bibles"});
+  static std::string folder {filter_url_create_root_path ({"bibles"})};
+  return folder;
 }
 
 
-std::string Database_Bibles::bible_folder (const std::string& bible)
+std::string bible_folder (const std::string& bible)
 {
   return filter_url_create_path ({main_folder (), bible});
 }
 
 
-std::string Database_Bibles::book_folder (const std::string& bible, int book)
+static std::string book_folder (const std::string& bible, const int book)
 {
-  return filter_url_create_path ({bible_folder (bible), filter::strings::convert_to_string (book)});
+  return filter_url_create_path ({bible_folder (bible), std::to_string (book)});
 }
 
 
-std::string Database_Bibles::chapter_folder (const std::string& bible, int book, int chapter)
+static std::string chapter_folder (const std::string& bible, const int book, const int chapter)
 {
-  return filter_url_create_path ({book_folder (bible, book), filter::strings::convert_to_string (chapter)});
+  return filter_url_create_path ({book_folder (bible, book), std::to_string (chapter)});
 }
 
 
-// Returns an array with the available Bibles.
-std::vector <std::string> Database_Bibles::get_bibles ()
+// Returns a list of available Bibles.
+std::vector <std::string> get_bibles ()
 {
-  const std::vector <std::string> bibles {filter_url_scandir (main_folder ())};
-  return bibles;
+  return filter_url_scandir (main_folder ());
 }
 
 
 // Creates a new empty Bible. Returns its ID.
-void Database_Bibles::create_bible (const std::string& name)
+void create_bible (const std::string& name)
 {
   // Create the empty system.
-  const std::string folder = bible_folder (name);
+  const std::string& folder = bible_folder (name);
   filter_url_mkdir (folder);
+  // Handle exporting it.
   Database_State::setExport (name, 0, export_logic::export_needed);
 }
 
 
 // Deletes a Bible.
-void Database_Bibles::delete_bible (const std::string& name)
+void delete_bible (const std::string& name)
 {
-  const std::string path = bible_folder (name);
+  const std::string& path = bible_folder (name);
   // Delete directory.
   filter_url_rmdir (path);
-  // Just in case it was a regular file: Delete it.
+  // Just in case it was a regular file: Delete it too.
   filter_url_unlink (path);
+  // Handle exporting it.
   Database_State::setExport (name, 0, export_logic::export_needed);
 }
 
 
-// Stores data of one chapter in Bible $name,
-void Database_Bibles::store_chapter (const std::string& name, int book, int chapter_number, std::string chapter_text)
+// Stores data of one chapter in Bible $name.
+void store_chapter (const std::string& name, const int book, const int chapter_number, std::string chapter_text)
 {
-  const std::string folder = chapter_folder (name, book, chapter_number);
-  if (!file_or_dir_exists (folder)) filter_url_mkdir (folder);
-
+  const std::string& folder = chapter_folder (name, book, chapter_number);
+  if (!file_or_dir_exists (folder))
+    filter_url_mkdir (folder);
+  
   // Ensure that the data to be stored ends with a new line.
   if (!chapter_text.empty ()) {
     const size_t pos = chapter_text.length () - 1;
@@ -100,27 +106,29 @@ void Database_Bibles::store_chapter (const std::string& name, int book, int chap
       chapter_text.append ("\n");
     }
   }
+
   // Increase the chapter identifier, and store the chapter data.
   int id = get_chapter_id (name, book, chapter_number);
   id++;
-  const std::string file = filter_url_create_path ({folder, filter::strings::convert_to_string (id)});
+  const std::string file = filter_url_create_path ({folder, std::to_string (id)});
   filter_url_file_put_contents (file, chapter_text);
-
+  
   // Update search fields.
   update_search_fields (name, book, chapter_number);
-  
+
+  // Set flag for the exporter.
   Database_State::setExport (name, 0, export_logic::export_needed);
 }
 
 
-void Database_Bibles::update_search_fields (const std::string& name, int book, int chapter)
+void update_search_fields (const std::string& name, const int book, const int chapter)
 {
   search_logic_index_chapter (name, book, chapter);
 }
 
 
 // Returns an array with the available books in a Bible.
-std::vector <int> Database_Bibles::get_books (const std::string& bible)
+std::vector <int> get_books (const std::string& bible)
 {
   // Read the books from the database.
   const std::string folder = bible_folder (bible);
@@ -131,21 +139,21 @@ std::vector <int> Database_Bibles::get_books (const std::string& bible)
       books.push_back (filter::strings::convert_to_int (book));
     }
   }
-
+  
   // Sort the books according to the order defined in the books database.
   std::vector <int> order {};
-  for (auto book_number : books) {
+  for (const auto book_number : books) {
     const book_id book_enum = static_cast<book_id>(book_number);
     order.push_back (database::books::get_order_from_id (book_enum));
   }
   filter::strings::quick_sort (order, books, 0, static_cast<unsigned>(order.size()));
-
+  
   // Result.
   return books;
 }
 
 
-void Database_Bibles::delete_book (const std::string& bible, int book)
+void delete_book (const std::string& bible, int book)
 {
   const std::string folder = book_folder (bible, book);
   filter_url_rmdir (folder);
@@ -154,7 +162,7 @@ void Database_Bibles::delete_book (const std::string& bible, int book)
 
 
 // Returns an array with the available chapters in a $book in a Bible.
-std::vector <int> Database_Bibles::get_chapters (const std::string& bible, int book)
+std::vector <int> get_chapters (const std::string& bible, const int book)
 {
   // Read the chapters from the database.
   const std::string folder = book_folder (bible, book);
@@ -168,7 +176,7 @@ std::vector <int> Database_Bibles::get_chapters (const std::string& bible, int b
 }
 
 
-void Database_Bibles::delete_chapter (const std::string& bible, int book, int chapter)
+void delete_chapter (const std::string& bible, int book, int chapter)
 {
   const std::string folder = chapter_folder (bible, book, chapter);
   filter_url_rmdir (folder);
@@ -177,7 +185,7 @@ void Database_Bibles::delete_chapter (const std::string& bible, int book, int ch
 
 
 // Gets the chapter data as a string.
-std::string Database_Bibles::get_chapter (const std::string& bible, int book, int chapter)
+std::string get_chapter (const std::string& bible, const int book, const int chapter)
 {
   // Read the chapter data from the database.
   const std::string folder = chapter_folder (bible, book, chapter);
@@ -194,7 +202,7 @@ std::string Database_Bibles::get_chapter (const std::string& bible, int book, in
 
 
 // Gets the chapter id.
-int Database_Bibles::get_chapter_id (const std::string& bible, int book, int chapter)
+int get_chapter_id (const std::string& bible, const int book, const int chapter)
 {
   const std::string folder = chapter_folder (bible, book, chapter);
   const std::vector <std::string> files = filter_url_scandir (folder);
@@ -207,7 +215,7 @@ int Database_Bibles::get_chapter_id (const std::string& bible, int book, int cha
 
 
 // Gets the chapter's time stamp in seconds since the Epoch.
-int Database_Bibles::get_chapter_age (const std::string& bible, int book, int chapter)
+int get_chapter_age (const std::string& bible, const int book, const int chapter)
 {
   const std::string folder = chapter_folder (bible, book, chapter);
   const std::vector <std::string> files = filter_url_scandir (folder);
@@ -222,15 +230,15 @@ int Database_Bibles::get_chapter_age (const std::string& bible, int book, int ch
 }
 
 
-void Database_Bibles::optimize ()
+void optimize ()
 {
   // Go through all chapters in all books and all Ḃibles.
   const std::vector <std::string> bibles = get_bibles ();
   for (const auto& bible : bibles) {
     const std::vector <int> books = get_books (bible);
-    for (int book : books) {
+    for (const int book : books) {
       const std::vector <int> chapters = get_chapters (bible, book);
-      for (int chapter : chapters) {
+      for (const int chapter : chapters) {
         const std::string folder = chapter_folder (bible, book, chapter);
         // Read the files in the folder.
         const std::vector <std::string> files = filter_url_scandir (folder);
@@ -245,7 +253,7 @@ void Database_Bibles::optimize ()
           }
           else files2.push_back (file);
         }
-        // Remove the three most recent files from the array, so they don't get deleted.
+        // Remove the three most recent files from the list, so they don't get deleted.
         // Because scandir sorts the files, the files to be kept are at the end.
         if (!files2.empty()) files2.pop_back ();
         if (!files2.empty()) files2.pop_back ();
@@ -260,3 +268,5 @@ void Database_Bibles::optimize ()
   }
 }
 
+
+}

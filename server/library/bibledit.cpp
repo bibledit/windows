@@ -68,7 +68,7 @@ const char * bibledit_get_network_port ()
   std::vector <int> ports = { 9876, 9987, 9998 };
   for (auto port : ports) {
     if (!filter_url_port_can_connect ("localhost", port)) {
-      config_globals_negotiated_port_number = filter::strings::convert_to_string(port);
+      config_globals_negotiated_port_number = std::to_string(port);
       break;
     }
   }
@@ -124,7 +124,7 @@ void bibledit_initialize_library (const char * package, const char * webroot)
 
 #ifdef HAVE_CLIENT
   // Set local timezone offset in the library on Windows.
-  int hours = 0;
+  int hours {0};
 #ifdef HAVE_WINDOWS
   TIME_ZONE_INFORMATION tzi;
   [[maybe_unused]] auto dwRet = GetTimeZoneInformation (&tzi);
@@ -137,7 +137,7 @@ void bibledit_initialize_library (const char * package, const char * webroot)
   hours = static_cast<int>(round (lt.tm_gmtoff / 3600));
 #endif
   config_globals_timezone_offset_utc = hours;
-  Database_Logs::log ("Timezone offset in hours: " + filter::strings::convert_to_string (hours));
+  Database_Logs::log ("Timezone offset in hours: " + std::to_string(hours));
 #endif
 
   // Initialize obfuscation data.
@@ -195,7 +195,7 @@ void bibledit_start_library ()
   
 #ifdef HAVE_CLOUD
   // Indicate that the Cloud has started just now.
-  Database_Config_General::setJustStarted (true);
+  database::config::general::setJustStarted (true);
 #endif
 
   
@@ -225,7 +225,7 @@ void bibledit_start_library ()
 // Gets the last page that was opened via the menu.
 const char * bibledit_get_last_page ()
 {
-  static std::string href = Database_Config_General::getLastMenuClick ();
+  static std::string href = database::config::general::get_last_menu_click ();
   return href.c_str();
 }
 
@@ -283,7 +283,7 @@ const char * bibledit_get_external_url ()
 // Returns the pages the calling app should open.
 const char * bibledit_get_pages_to_open ()
 {
-  config_globals_pages_to_open = Database_Config_General::getMenuInTabbedViewJSON ();
+  config_globals_pages_to_open = database::config::general::get_menu_in_tabbed_view_json ();
   return config_globals_pages_to_open.c_str ();
 }
 
@@ -389,7 +389,7 @@ void bibledit_run_on_chrome_os ()
 // See https://github.com/bibledit/cloud/issues/282
 const char * bibledit_disable_selection_popup_chrome_os ()
 {
-  if (Database_Config_General::getDisableSelectionPopupChromeOS ()) {
+  if (database::config::general::get_disable_selection_popup_chrome_os ()) {
     return "true";
   }
   return "false";
@@ -412,14 +412,14 @@ const char * bibledit_get_reference_for_accordance ()
   if (!config_globals_data_initialized) return reference.c_str();
 
   // Get the username on this client device.
-  std::string user = client_logic_get_username ();
+  const std::string& user = client_logic_get_username ();
 
   // Get the active Bible and its versification system.
   Webserver_Request webserver_request;
   webserver_request.session_logic()->set_username(user);
   Database_Config_User database_config_user (webserver_request);
   std::string bible = webserver_request.database_config_user ()->getBible ();
-  std::string versification = Database_Config_Bible::getVersificationSystem (bible);
+  std::string versification = database::config::bible::get_versification_system (bible);
 
   int book = Ipc_Focus::getBook (webserver_request);
   int chapter = Ipc_Focus::getChapter (webserver_request);
@@ -431,7 +431,7 @@ const char * bibledit_get_reference_for_accordance ()
   if ((versification != filter::strings::english()) && !versification.empty ()) {
     passages = database_mappings.translate (versification, filter::strings::english (), book, chapter, verse);
   } else {
-    passages.push_back (Passage ("", book, chapter, filter::strings::convert_to_string (verse)));
+    passages.push_back (Passage ("", book, chapter, std::to_string(verse)));
   }
   if (passages.empty()) return "";
 
@@ -440,7 +440,7 @@ const char * bibledit_get_reference_for_accordance ()
   chapter = passages[0].m_chapter;
   std::string verse_s = passages[0].m_verse;
   std::string usfm_id = database::books::get_usfm_from_id (static_cast<book_id>(book));
-  reference = usfm_id + " " + filter::strings::convert_to_string (chapter) + ":" + filter::strings::convert_to_string (verse_s);
+  reference = usfm_id + " " + std::to_string(chapter) + ":" + filter::strings::convert_to_string (verse_s);
 
   // Return the reference.
   return reference.c_str ();
@@ -454,7 +454,7 @@ const char * bibledit_get_reference_for_accordance ()
 void bibledit_put_reference_from_accordance (const char * reference)
 {
   // Get and set the user name on this client device.
-  std::string user = client_logic_get_username ();
+  const std::string& user = client_logic_get_username ();
   Webserver_Request webserver_request;
   webserver_request.session_logic()->set_username(user);
 
@@ -475,7 +475,7 @@ void bibledit_put_reference_from_accordance (const char * reference)
   // Get the active Bible and its versification system.
   Database_Config_User database_config_user (webserver_request);
   std::string bible = webserver_request.database_config_user ()->getBible ();
-  std::string versification = Database_Config_Bible::getVersificationSystem (bible);
+  std::string versification = database::config::bible::get_versification_system (bible);
 
   // Accordance expects a verse reference in the English versification system.
   std::vector <Passage> passages;
@@ -483,7 +483,7 @@ void bibledit_put_reference_from_accordance (const char * reference)
   if ((versification != filter::strings::english()) && !versification.empty ()) {
     passages = database_mappings.translate (filter::strings::english (), versification, book, chapter, verse);
   } else {
-    passages.push_back (Passage ("", book, chapter, filter::strings::convert_to_string (verse)));
+    passages.push_back (Passage ("", book, chapter, std::to_string(verse)));
   }
   if (passages.empty()) return;
 

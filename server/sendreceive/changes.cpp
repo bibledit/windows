@@ -82,13 +82,12 @@ void sendreceive_changes ()
 
   Webserver_Request webserver_request;
   Sync_Logic sync_logic (webserver_request);
-  Database_Modifications database_modifications;
   
   
-  if (!database_modifications.healthy ()) {
+  if (!database::modifications::healthy ()) {
     Database_Logs::log (sendreceive_changes_text () + translate("Recreate damaged modifications database"), Filter_Roles::translator ());
-    database_modifications.erase ();
-    database_modifications.create ();
+    database::modifications::erase ();
+    database::modifications::create ();
   }
   
   
@@ -118,7 +117,7 @@ void sendreceive_changes ()
   std::map <std::string, std::string> post;
   post ["u"] = filter::strings::bin2hex (user);
   post ["p"] = password;
-  post ["l"] = filter::strings::convert_to_string (webserver_request.database_users ()->get_level (user));
+  post ["l"] = std::to_string (webserver_request.database_users ()->get_level (user));
   
   
   // Error variables.
@@ -127,17 +126,17 @@ void sendreceive_changes ()
   
   
   // Server URL to call.
-  std::string address = Database_Config_General::getServerAddress ();
-  int port = Database_Config_General::getServerPort ();
+  std::string address = database::config::general::get_server_address ();
+  int port = database::config::general::get_server_port ();
   std::string url = client_logic_url (address, port, sync_changes_url ());
   
   
   // Send the removed change notifications to the server.
   std::vector <int> ids = webserver_request.database_config_user ()->getRemovedChanges ();
-  if (!ids.empty ()) Database_Logs::log (sendreceive_changes_text () + "Sending removed notifications: " + filter::strings::convert_to_string (ids.size()), Filter_Roles::translator ());
+  if (!ids.empty ()) Database_Logs::log (sendreceive_changes_text () + "Sending removed notifications: " + std::to_string (ids.size()), Filter_Roles::translator ());
   for (auto & id : ids) {
-    post ["a"] = filter::strings::convert_to_string (Sync_Logic::changes_delete_modification);
-    post ["i"] = filter::strings::convert_to_string (id);
+    post ["a"] = std::to_string (Sync_Logic::changes_delete_modification);
+    post ["i"] = std::to_string (id);
     response = sync_logic.post (post, url, error);
     if (!error.empty ()) {
       communication_errors = true;
@@ -165,7 +164,7 @@ void sendreceive_changes ()
     webserver_request.database_config_user ()->setChangeNotificationsChecksum (client_checksum);
   }
   std::string server_checksum;
-  post ["a"] = filter::strings::convert_to_string (Sync_Logic::changes_get_checksum);
+  post ["a"] = std::to_string (Sync_Logic::changes_get_checksum);
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
     Database_Logs::log (sendreceive_changes_text () + "Failure receiving checksum: " + error, Filter_Roles::translator ());
@@ -183,9 +182,9 @@ void sendreceive_changes ()
   // Get all identifiers for the notifications on the server for the user.
   // Get the identifiers on the client.
   std::string any_bible = "";
-  std::vector <int> client_identifiers = database_modifications.getNotificationIdentifiers (user, any_bible);
+  std::vector <int> client_identifiers = database::modifications::getNotificationIdentifiers (user, any_bible);
   std::vector <int> server_identifiers;
-  post ["a"] = filter::strings::convert_to_string (Sync_Logic::changes_get_identifiers);
+  post ["a"] = std::to_string (Sync_Logic::changes_get_identifiers);
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
     Database_Logs::log (sendreceive_changes_text () + "Failure receiving identifiers: " + error, Filter_Roles::translator ());
@@ -201,9 +200,9 @@ void sendreceive_changes ()
   // Any identifiers on the client, but not on the server, remove them from the client.
   std::vector <int> remove_identifiers = filter::strings::array_diff (client_identifiers, server_identifiers);
   for (auto & id : remove_identifiers) {
-    database_modifications.deleteNotification (id);
+    database::modifications::deleteNotification (id);
     webserver_request.database_config_user ()->setChangeNotificationsChecksum ("");
-    Database_Logs::log (sendreceive_changes_text () + "Removing notification: " + filter::strings::convert_to_string (id), Filter_Roles::translator ());
+    Database_Logs::log (sendreceive_changes_text () + "Removing notification: " + std::to_string (id), Filter_Roles::translator ());
   }
 
   
@@ -211,9 +210,9 @@ void sendreceive_changes ()
   std::vector <int> download_identifiers = filter::strings::array_diff (server_identifiers, client_identifiers);
   for (auto & id : download_identifiers) {
     sendreceive_changes_kick_watchdog ();
-    Database_Logs::log (sendreceive_changes_text () + "Downloading notification: " + filter::strings::convert_to_string (id), Filter_Roles::translator ());
-    post ["a"] = filter::strings::convert_to_string (Sync_Logic::changes_get_modification);
-    post ["i"] = filter::strings::convert_to_string (id);
+    Database_Logs::log (sendreceive_changes_text () + "Downloading notification: " + std::to_string (id), Filter_Roles::translator ());
+    post ["a"] = std::to_string (Sync_Logic::changes_get_modification);
+    post ["i"] = std::to_string (id);
     response = sync_logic.post (post, url, error);
     if (!error.empty ()) {
       Database_Logs::log (sendreceive_changes_text () + "Failure downloading notification: " + error, Filter_Roles::translator ());
@@ -261,7 +260,7 @@ void sendreceive_changes ()
         newtext = lines [0];
         lines.erase (lines.begin ());
       }
-      database_modifications.storeClientNotification (id, user, category, bible, book, chapter, verse, oldtext, modification, newtext);
+      database::modifications::storeClientNotification (id, user, category, bible, book, chapter, verse, oldtext, modification, newtext);
       webserver_request.database_config_user ()->setChangeNotificationsChecksum ("");
     }
   }

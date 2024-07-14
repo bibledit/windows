@@ -55,7 +55,7 @@ bool edit_preview_acl (Webserver_Request& webserver_request)
 
 std::string edit_preview (Webserver_Request& webserver_request)
 {
-  bool touch = webserver_request.session_logic ()->touchEnabled ();
+  bool touch = webserver_request.session_logic ()->get_touch_enabled ();
   bool timeout = webserver_request.query.count ("timeout");
   std::string caller = webserver_request.query ["caller"];
 
@@ -77,9 +77,9 @@ std::string edit_preview (Webserver_Request& webserver_request)
   
   std::string cls = Filter_Css::getClass (bible);
   std::string font = fonts::logic::get_text_font (bible);
-  int direction = Database_Config_Bible::getTextDirection (bible);
-  int lineheight = Database_Config_Bible::getLineHeight (bible);
-  int letterspacing = Database_Config_Bible::getLetterSpacing (bible);
+  int direction = database::config::bible::get_text_direction (bible);
+  int lineheight = database::config::bible::get_line_height (bible);
+  int letterspacing = database::config::bible::get_letter_spacing (bible);
   view.set_variable ("custom_class", cls);
   view.set_variable ("custom_css", Filter_Css::get_css (cls,
                                                        fonts::logic::get_font_path (font),
@@ -90,9 +90,9 @@ std::string edit_preview (Webserver_Request& webserver_request)
   int book = Ipc_Focus::getBook (webserver_request);
   int chapter = Ipc_Focus::getChapter (webserver_request);
   
-  const std::string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
+  const std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
   
-  std::string usfm = webserver_request.database_bibles()->get_chapter (bible, book, chapter);
+  std::string usfm = database::bibles::get_chapter (bible, book, chapter);
   
   Editor_Usfm2Html editor_usfm2html;
   editor_usfm2html.load (usfm);

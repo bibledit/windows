@@ -46,8 +46,8 @@ bool read (Webserver_Request& webserver_request, const std::string& bible, std::
   int role_level { 0 };
   if (user.empty ()) {
     // Current user.
-    user = webserver_request.session_logic ()->currentUser ();
-    role_level = webserver_request.session_logic ()->currentLevel ();
+    user = webserver_request.session_logic ()->get_username ();
+    role_level = webserver_request.session_logic ()->get_level ();
   } else {
     // Take level belonging to user.
     role_level = webserver_request.database_users ()->get_level (user);
@@ -91,8 +91,8 @@ bool write (Webserver_Request& webserver_request, const std::string& bible, std:
 
   int level {0};
   if (user.empty ()) {
-    user = webserver_request.session_logic ()->currentUser ();
-    level = webserver_request.session_logic ()->currentLevel ();
+    user = webserver_request.session_logic ()->get_username ();
+    level = webserver_request.session_logic ()->get_level ();
   }
   if (level == 0) {
     // Take level belonging to user.
@@ -140,8 +140,8 @@ bool book_write (Webserver_Request& webserver_request, std::string user, const s
   // Get the user level (role).
   int level {0};
   if (user.empty ()) {
-    user = webserver_request.session_logic ()->currentUser ();
-    level = webserver_request.session_logic ()->currentLevel ();
+    user = webserver_request.session_logic ()->get_username ();
+    level = webserver_request.session_logic ()->get_level ();
   }
   if (level == 0) {
     // Take level belonging to user.
@@ -177,7 +177,7 @@ bool book_write (Webserver_Request& webserver_request, std::string user, const s
 // If no user is given, it takes the currently logged-in user.
 std::vector <std::string> bibles (Webserver_Request& webserver_request, std::string user)
 {
-  std::vector <std::string> allbibles = webserver_request.database_bibles()->get_bibles ();
+  std::vector <std::string> allbibles = database::bibles::get_bibles ();
   std::vector <std::string> bibles {};
   for (const auto& bible : allbibles) {
     if (read (webserver_request, bible, user)) {
@@ -210,7 +210,7 @@ std::tuple<bool, bool> any (Webserver_Request& webserver_request)
 {
   bool read {false};
   bool write {false};
-  std::vector <std::string> bibles = webserver_request.database_bibles()->get_bibles ();
+  std::vector <std::string> bibles = database::bibles::get_bibles ();
   for (const auto& bible : bibles) {
     if (access_bible::read (webserver_request, bible)) read = true;
     if (access_bible::write (webserver_request, bible)) write = true;

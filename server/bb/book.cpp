@@ -73,7 +73,7 @@ std::string bible_book (Webserver_Request& webserver_request)
   
   // The book.
   const int book = filter::strings::convert_to_int (webserver_request.query ["book"]);
-  view.set_variable ("book", filter::strings::convert_to_string (book));
+  view.set_variable ("book", std::to_string (book));
   const std::string book_name = database::books::get_english_from_id (static_cast<book_id>(book));
   view.set_variable ("book_name", filter::strings::escape_special_xml_characters (book_name));
   
@@ -88,7 +88,7 @@ std::string bible_book (Webserver_Request& webserver_request)
     if (confirm.empty()) {
       Dialog_Yes dialog_yes = Dialog_Yes ("book", translate("Would you like to delete this chapter?"));
       dialog_yes.add_query ("bible", bible);
-      dialog_yes.add_query ("book", filter::strings::convert_to_string (book));
+      dialog_yes.add_query ("book", std::to_string (book));
       dialog_yes.add_query ("deletechapter", deletechapter);
       page += dialog_yes.run ();
       return page;
@@ -101,13 +101,13 @@ std::string bible_book (Webserver_Request& webserver_request)
   if (webserver_request.query.count ("createchapter")) {
     Dialog_Entry dialog_entry = Dialog_Entry ("book", translate("Please enter the number for the new chapter"), "", "createchapter", "");
     dialog_entry.add_query ("bible", bible);
-    dialog_entry.add_query ("book", filter::strings::convert_to_string (book));
+    dialog_entry.add_query ("book", std::to_string (book));
     page += dialog_entry.run ();
     return page;
   }
   if (webserver_request.post.count ("createchapter")) {
     const int createchapter = filter::strings::convert_to_int (webserver_request.post ["entry"]);
-    const std::vector <int> chapters = webserver_request.database_bibles()->get_chapters (bible, book);
+    const std::vector <int> chapters = database::bibles::get_chapters (bible, book);
     // Only create the chapters if it does not yet exist.
     if (find (chapters.begin(), chapters.end(), createchapter) == chapters.end()) {
       std::vector <std::string> feedback{};
@@ -122,17 +122,17 @@ std::string bible_book (Webserver_Request& webserver_request)
   }
   
   // Available chapters.
-  const std::vector <int> chapters = webserver_request.database_bibles()->get_chapters (bible, book);
+  const std::vector <int> chapters = database::bibles::get_chapters (bible, book);
   std::string chapterblock {};
   for (const auto& chapter : chapters) {
     chapterblock.append (R"(<a href="chapter?bible=)");
     chapterblock.append (bible);
     chapterblock.append ("&book=");
-    chapterblock.append (filter::strings::convert_to_string (book));
+    chapterblock.append (std::to_string (book));
     chapterblock.append ("&chapter=");
-    chapterblock.append (filter::strings::convert_to_string (chapter));
+    chapterblock.append (std::to_string (chapter));
     chapterblock.append (R"(">)");
-    chapterblock.append (filter::strings::convert_to_string (chapter));
+    chapterblock.append (std::to_string (chapter));
     chapterblock.append ("</a>\n");
   }
   view.set_variable ("chapterblock", chapterblock);

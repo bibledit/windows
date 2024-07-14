@@ -63,59 +63,50 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
+constexpr const auto database_notes {"notes"};
+constexpr const auto database_notes_checksums {"notes_checksums"};
+
+
 Database_Notes::Database_Notes (Webserver_Request& webserver_request):
 m_webserver_request (webserver_request)
 {
 }
 
 
-sqlite3 * Database_Notes::connect ()
-{
-  return database_sqlite_connect ("notes");
-}
-
-
-sqlite3 * Database_Notes::connect_checksums ()
-{
-  return database_sqlite_connect ("notes_checksums");
-}
-
-
 void Database_Notes::create ()
 {
   // Create the main database and table.
-  sqlite3 * db = connect ();
-  std::string sql;
-  sql = 
-    "CREATE TABLE IF NOT EXISTS notes ("
-    " id integer primary key autoincrement,"
-    " identifier integer NOT NULL,"
-    " modified integer NOT NULL,"
-    " assigned text,"
-    " subscriptions text,"
-    " bible text,"
-    " passage text,"
-    " status text,"
-    " severity integer,"
-    " summary text,"
-    " contents text,"
-    " cleantext text"
-    ");";
-  database_sqlite_exec (db, sql);
-  database_sqlite_disconnect (db);
+  {
+    SqliteDatabase sql (database_notes);
+    sql.set_sql ("CREATE TABLE IF NOT EXISTS notes ("
+                 " id integer primary key autoincrement,"
+                 " identifier integer NOT NULL,"
+                 " modified integer NOT NULL,"
+                 " assigned text,"
+                 " subscriptions text,"
+                 " bible text,"
+                 " passage text,"
+                 " status text,"
+                 " severity integer,"
+                 " summary text,"
+                 " contents text,"
+                 " cleantext text"
+                 ");");
+    sql.execute ();
+  }
 
   // Create the database and table for the checksums.
   // A general reason for having this separate is robustness.
   // A specific reason for this is that when the main notes database is being repaired,
   // and several clients keep reading it, it may disrupt the repair.
-  db = connect_checksums ();
-  sql = 
-    "CREATE TABLE IF NOT EXISTS checksums ("
-    " identifier integer,"
-    " checksum checksum"
-    ");";
-  database_sqlite_exec (db, sql);
-  database_sqlite_disconnect (db);
+  {
+    SqliteDatabase sql (database_notes_checksums);
+    sql.set_sql ("CREATE TABLE IF NOT EXISTS checksums ("
+                 " identifier integer,"
+                 " checksum checksum"
+                 ");");
+    sql.execute ();
+  }
 
   // Enter the standard statuses in the list of translatable strings.
 #ifdef NONE
@@ -153,14 +144,14 @@ std::string Database_Notes::checksums_database_path ()
 // Returns whether the notes database is healthy, as a boolean.
 bool Database_Notes::healthy ()
 {
-  return database_sqlite_healthy (database_path ());
+  return database::sqlite::healthy (database_path ());
 }
 
 
 // Returns whether the notes checksums database is healthy, as a boolean.
 bool Database_Notes::checksums_healthy ()
 {
-  return database_sqlite_healthy (checksums_database_path ());
+  return database::sqlite::healthy (checksums_database_path ());
 }
 
 
@@ -169,7 +160,8 @@ bool Database_Notes::checksums_healthy ()
 // Returns true if to be synced, else false.
 bool Database_Notes::checkup ()
 {
-  if (healthy ()) return false;
+  if (healthy ()) 
+    return false;
   filter_url_unlink (database_path ());
   create ();
   return true;
@@ -181,7 +173,8 @@ bool Database_Notes::checkup ()
 // Returns true if to synced, else false.
 bool Database_Notes::checkup_checksums ()
 {
-  if (checksums_healthy ()) return false;
+  if (checksums_healthy ()) 
+    return false;
   filter_url_unlink (checksums_database_path ());
   create ();
   return true;
@@ -234,9 +227,9 @@ void Database_Notes::trim_server ()
 
 void Database_Notes::optimize ()
 {
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, "VACUUM;");
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (database_notes);
+  sql.set_sql ("VACUUM;");
+  sql.execute();
 }
 
 
@@ -279,13 +272,13 @@ void Database_Notes::sync ()
   }
 
   // Get all identifiers in the main notes index.
-  sqlite3 * db = connect ();
+  SqliteDatabase sql_notes (database_notes);
   std::vector <int> database_identifiers;
-  std::vector <std::string> result = database_sqlite_query (db, "SELECT identifier FROM notes;") ["identifier"];
+  sql_notes.set_sql ("SELECT identifier FROM notes;");
+  std::vector <std::string> result = sql_notes.query () ["identifier"];
   for (auto & id : result) {
     database_identifiers.push_back (filter::strings::convert_to_int (id));
   }
-  database_sqlite_disconnect (db);
 
   // Any note identifiers in the main index, and not in the filesystem, remove them.
   for (auto id : database_identifiers) {
@@ -296,13 +289,13 @@ void Database_Notes::sync ()
   }
   
   // Get all identifiers in the checksums database.
-  db = connect_checksums ();
+  SqliteDatabase sql_checksums (database_notes_checksums);
   database_identifiers.clear ();
-  result = database_sqlite_query (db, "SELECT identifier FROM checksums;") ["identifier"];
-  for (auto & id : result) {
+  sql_checksums.set_sql ("SELECT identifier FROM checksums;");
+  result = sql_checksums.query () ["identifier"];
+  for (const auto& id : result) {
     database_identifiers.push_back (filter::strings::convert_to_int (id));
   }
-  database_sqlite_disconnect (db);
 
   // Any note identifiers in the checksums database, and not in the filesystem, remove them.
   for (auto id : database_identifiers) {
@@ -310,7 +303,6 @@ void Database_Notes::sync ()
       delete_checksum (id);
     }
   }
-  
 }
 
 
@@ -338,24 +330,22 @@ void Database_Notes::update_database_internal (int identifier, int modified, std
   // If all the values in the database are the same as the values in the filesystem,
   // it means that the database is already in sync with the filesystem.
   // Bail out in that case.
-  sqlite3 * db = connect ();
+  SqliteDatabase sql (database_notes);
   bool database_in_sync = true;
   bool record_in_database = false;
-  SqliteSQL sql;
   sql.add ("SELECT modified, assigned, subscriptions, bible, passage, status, severity, summary, contents FROM notes WHERE identifier =");
   sql.add (identifier);
   sql.add (";");
-  std::map <std::string, std::vector <std::string> > result = database_sqlite_query (db, sql.sql);
-  database_sqlite_disconnect (db);
-  std::vector <std::string> vmodified = result ["modified"];
-  std::vector <std::string> vassigned = result ["assigned"];
-  std::vector <std::string> vsubscriptions = result ["subscriptions"];
-  std::vector <std::string> vbible = result ["bible"];
-  std::vector <std::string> vpassage = result ["passage"];
-  std::vector <std::string> vstatus = result ["status"];
-  std::vector <std::string> vseverity = result ["severity"];
-  std::vector <std::string> vsummary = result ["summary"];
-  std::vector <std::string> vcontents = result ["contents"];
+  std::map <std::string, std::vector <std::string> > result = sql.query ();
+  const std::vector <std::string> vmodified = result ["modified"];
+  const std::vector <std::string> vassigned = result ["assigned"];
+  const std::vector <std::string> vsubscriptions = result ["subscriptions"];
+  const std::vector <std::string> vbible = result ["bible"];
+  const std::vector <std::string> vpassage = result ["passage"];
+  const std::vector <std::string> vstatus = result ["status"];
+  const std::vector <std::string> vseverity = result ["severity"];
+  const std::vector <std::string> vsummary = result ["summary"];
+  const std::vector <std::string> vcontents = result ["contents"];
   for (unsigned int i = 0; i < vmodified.size(); i++) {
     record_in_database = true;
     if (modified != filter::strings::convert_to_int (vmodified[i])) database_in_sync = false;
@@ -371,13 +361,12 @@ void Database_Notes::update_database_internal (int identifier, int modified, std
   if (database_in_sync && record_in_database) return;
   
   // At this stage, the index needs to be brought in sync with the filesystem.
-  db = connect ();
   
   sql.clear ();
   sql.add ("DELETE FROM notes WHERE identifier =");
   sql.add (identifier);
   sql.add (";");
-  database_sqlite_exec (db, sql.sql);
+  sql.execute ();
   
   sql.clear ();
   sql.add ("INSERT INTO notes (identifier, modified, assigned, subscriptions, bible, passage, status, severity, summary, contents) VALUES (");
@@ -401,9 +390,7 @@ void Database_Notes::update_database_internal (int identifier, int modified, std
   sql.add (",");
   sql.add (contents);
   sql.add (")");
-  database_sqlite_exec (db, sql.sql);
-  
-  database_sqlite_disconnect (db);
+  sql.execute ();
 }
 
 
@@ -417,7 +404,7 @@ std::string Database_Notes::note_file (int identifier)
 {
   // The maximum number of folders a folder may contain is constrained by the filesystem.
   // To overcome this, the notes will be stored in a folder structure.
-  std::string sidentifier = filter::strings::convert_to_string (identifier);
+  std::string sidentifier = std::to_string (identifier);
   std::string folder = sidentifier.substr (0, 3);
   std::string file = sidentifier.substr (3, 6) + ".json";
   return filter_url_create_path ({main_folder_path (), folder, file});
@@ -448,26 +435,26 @@ void Database_Notes::set_identifier (int identifier, int new_identifier)
   filter_url_file_put_contents (path, json);
   
   // Update main notes database.
-  sqlite3 * db = connect ();
-  SqliteSQL sql;
-  sql.add ("UPDATE notes SET identifier =");
-  sql.add (new_identifier);
-  sql.add ("WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  {
+    SqliteDatabase sql (database_notes);
+    sql.add ("UPDATE notes SET identifier =");
+    sql.add (new_identifier);
+    sql.add ("WHERE identifier =");
+    sql.add (identifier);
+    sql.add (";");
+    sql.execute ();
+  }
   
   // Update checksums database.
-  db = connect_checksums ();
-  sql.clear ();
-  sql.add ("UPDATE checksums SET identifier =");
-  sql.add (new_identifier);
-  sql.add ("WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  {
+    SqliteDatabase sql (database_notes_checksums);
+    sql.add ("UPDATE checksums SET identifier =");
+    sql.add (new_identifier);
+    sql.add ("WHERE identifier =");
+    sql.add (identifier);
+    sql.add (";");
+    sql.execute ();
+  }
   
   // Update the range-based checksum also.
   Database_State::eraseNoteChecksum (identifier);
@@ -491,13 +478,13 @@ int Database_Notes::get_new_unique_identifier ()
 
 std::vector <int> Database_Notes::get_identifiers ()
 {
-  sqlite3 * db = connect ();
+  SqliteDatabase sql (database_notes);
+  sql.set_sql ("SELECT identifier FROM notes;");
   std::vector <int> identifiers;
-  std::vector <std::string> result = database_sqlite_query (db, "SELECT identifier FROM notes;") ["identifier"];
-  for (auto & id : result) {
+  const std::vector <std::string> result = sql.query () ["identifier"];
+  for (const auto& id : result) {
     identifiers.push_back (filter::strings::convert_to_int (id));
   }
-  database_sqlite_disconnect (db);
   return identifiers;
 }
 
@@ -506,7 +493,7 @@ std::string Database_Notes::assemble_contents (int identifier, std::string conte
 {
   std::string new_contents = get_contents (identifier);
   std::string datetime = filter::date::localized_date_format (m_webserver_request);
-  std::string user = m_webserver_request.session_logic ()->currentUser ();
+  const std::string& user = m_webserver_request.session_logic ()->get_username ();
   // To make the notes more readable, add whitespace between the comments.
   bool is_initial_comment = new_contents.empty ();
   if (!is_initial_comment) {
@@ -570,32 +557,32 @@ int Database_Notes::store_new_note (const std::string& bible, int book, int chap
   note << bible_key () << bible;
   note << passage_key () << passage;
   note << status_key () << status;
-  note << severity_key () << filter::strings::convert_to_string (severity);
+  note << severity_key () << std::to_string (severity);
   note << summary_key () << summary;
   note << contents_key () << contents;
   std::string json = note.json ();
   filter_url_file_put_contents (path, json);
   
   // Store new default note into the database.
-  sqlite3 * db = connect ();
-  SqliteSQL sql;
-  sql.add ("INSERT INTO notes (identifier, modified, assigned, subscriptions, bible, passage, status, severity, summary, contents) VALUES (");
-  sql.add (identifier);
-  sql.add (", 0, '', '',");
-  sql.add (bible);
-  sql.add (",");
-  sql.add (passage);
-  sql.add (",");
-  sql.add (status);
-  sql.add (",");
-  sql.add (severity);
-  sql.add (",");
-  sql.add (summary);
-  sql.add (",");
-  sql.add (contents);
-  sql.add (")");
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  {
+    SqliteDatabase sql (database_notes);
+    sql.add ("INSERT INTO notes (identifier, modified, assigned, subscriptions, bible, passage, status, severity, summary, contents) VALUES (");
+    sql.add (identifier);
+    sql.add (", 0, '', '',");
+    sql.add (bible);
+    sql.add (",");
+    sql.add (passage);
+    sql.add (",");
+    sql.add (status);
+    sql.add (",");
+    sql.add (severity);
+    sql.add (",");
+    sql.add (summary);
+    sql.add (",");
+    sql.add (contents);
+    sql.add (")");
+    sql.execute ();
+  }
   
   // Updates.
   update_search_fields (identifier);
@@ -621,7 +608,7 @@ int Database_Notes::store_new_note (const std::string& bible, int book, int chap
 // limit: If >= 0, it indicates the starting limit for the selection.
 std::vector <int> Database_Notes::select_notes (std::vector <std::string> bibles, int book, int chapter, int verse, int passage_selector, int edit_selector, int non_edit_selector, const std::string& status_selector, std::string bible_selector, std::string assignment_selector, bool subscription_selector, int severity_selector, int text_selector, const std::string& search_text, int limit)
 {
-  std::string username = m_webserver_request.session_logic ()->currentUser ();
+  const std::string& username = m_webserver_request.session_logic ()->get_username ();
   std::vector <int> identifiers;
   // SQL SELECT statement.
   std::string query = notes_select_identifier ();
@@ -684,7 +671,7 @@ std::vector <int> Database_Notes::select_notes (std::vector <std::string> bibles
   }
   if (time != 0) {
     query.append (" AND modified >= ");
-    query.append (filter::strings::convert_to_string (time));
+    query.append (std::to_string (time));
     query.append (" ");
   }
   // Consider non-edit selector.
@@ -718,13 +705,13 @@ std::vector <int> Database_Notes::select_notes (std::vector <std::string> bibles
   }
   if (nonedit != 0) {
     query.append (" AND modified <= ");
-    query.append (filter::strings::convert_to_string (nonedit));
+    query.append (std::to_string (nonedit));
     query.append (" ");
   }
   // Consider status constraint.
   if (status_selector != "") {
     query.append (" AND status = '");
-    query.append (database_sqlite_no_sql_injection (status_selector));
+    query.append (database::sqlite::no_sql_injection (status_selector));
     query.append ("' ");
   }
   // Consider two different Bible constraints:
@@ -741,7 +728,7 @@ std::vector <int> Database_Notes::select_notes (std::vector <std::string> bibles
   if (!bibles.empty ()) {
     query.append (" AND (bible = '' ");
     for (auto bible : bibles) {
-      bible = database_sqlite_no_sql_injection (bible);
+      bible = database::sqlite::no_sql_injection (bible);
       query.append (" OR bible = '");
       query.append (bible);
       query.append ("' ");
@@ -750,7 +737,7 @@ std::vector <int> Database_Notes::select_notes (std::vector <std::string> bibles
   }
   // Consider note assignment constraints.
   if (assignment_selector != "") {
-    assignment_selector = database_sqlite_no_sql_injection (assignment_selector);
+    assignment_selector = database::sqlite::no_sql_injection (assignment_selector);
     query.append (" AND assigned LIKE '% ");
     query.append (assignment_selector);
     query.append (" %' ");
@@ -764,7 +751,7 @@ std::vector <int> Database_Notes::select_notes (std::vector <std::string> bibles
   // Consider the note severity.
   if (severity_selector != -1) {
     query.append (" AND severity = ");
-    query.append (filter::strings::convert_to_string (severity_selector));
+    query.append (std::to_string (severity_selector));
     query.append (" ");
   }
   // Consider text contained in notes.
@@ -781,15 +768,15 @@ std::vector <int> Database_Notes::select_notes (std::vector <std::string> bibles
   // Limit the selection if a limit is given.
   if (limit >= 0) {
     query.append (" LIMIT ");
-    query.append (filter::strings::convert_to_string (limit));
+    query.append (std::to_string (limit));
     query.append (", 50 ");
   }
   query.append (";");
 
-  sqlite3 * db = connect ();
-  std::vector <std::string> result = database_sqlite_query (db, query) ["identifier"];
-  database_sqlite_disconnect (db);
-  for (auto & id : result) {
+  SqliteDatabase sql (database_notes);
+  sql.set_sql (query);
+  const std::vector <std::string> result = sql.query () ["identifier"];
+  for (const auto& id : result) {
     identifiers.push_back (filter::strings::convert_to_int (id));
   }
   return identifiers;
@@ -807,15 +794,15 @@ void Database_Notes::set_summary (int identifier, const std::string& summary)
   // Store authoritative copy in the filesystem.
   set_field (identifier, summary_key (), summary);
   // Update the shadow database.
-  SqliteSQL sql;
-  sql.add ("UPDATE notes SET summary =");
-  sql.add (summary);
-  sql.add ("WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  {
+    SqliteDatabase sql (database_notes);
+    sql.add ("UPDATE notes SET summary =");
+    sql.add (summary);
+    sql.add ("WHERE identifier =");
+    sql.add (identifier);
+    sql.add (";");
+    sql.execute ();
+  }
   // Update the search data in the database.
   update_search_fields (identifier);
   // Update checksum.
@@ -839,16 +826,16 @@ void Database_Notes::set_contents (int identifier, const std::string& contents)
 {
   // Store in file system.
   set_raw_contents (identifier, contents);
-  // Update database.
-  SqliteSQL sql;
-  sql.add ("UPDATE notes SET contents =");
-  sql.add (contents);
-  sql.add ("WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  {
+    // Update database.
+    SqliteDatabase sql (database_notes);
+    sql.add ("UPDATE notes SET contents =");
+    sql.add (contents);
+    sql.add ("WHERE identifier =");
+    sql.add (identifier);
+    sql.add (";");
+    sql.execute ();
+  }
   // Update search system.
   update_search_fields (identifier);
   // Update checksum.
@@ -860,17 +847,15 @@ void Database_Notes::set_contents (int identifier, const std::string& contents)
 void Database_Notes::erase (int identifier)
 {
   // Delete new storage from filesystem.
-  std::string path = note_file (identifier);
+  const std::string path = note_file (identifier);
   filter_url_unlink (path);
   // Update databases as well.
   delete_checksum (identifier);
-  SqliteSQL sql;
+  SqliteDatabase sql (database_notes);
   sql.add ("DELETE FROM notes WHERE identifier =");
   sql.add (identifier);
   sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  sql.execute ();
 }
 
 
@@ -879,7 +864,7 @@ void Database_Notes::add_comment (int identifier, const std::string& comment)
 {
   // Assemble the new content and store it.
   // This updates the search database also.
-  std::string contents = assemble_contents (identifier, comment);
+  const std::string contents = assemble_contents (identifier, comment);
   set_contents (identifier, contents);
   
   // Some triggers.
@@ -887,22 +872,20 @@ void Database_Notes::add_comment (int identifier, const std::string& comment)
   unmark_for_deletion (identifier);
   
   // Update shadow database.
-  SqliteSQL sql;
+  SqliteDatabase sql (database_notes);
   sql.add ("UPDATE notes SET contents =");
   sql.add (contents);
   sql.add ("WHERE identifier =");
   sql.add (identifier);
   sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  sql.execute ();
 }
 
 
 // Subscribe the current user to the note identified by identifier.
 void Database_Notes::subscribe (int identifier)
 {
-  std::string user = m_webserver_request.session_logic ()->currentUser ();
+  const std::string& user = m_webserver_request.session_logic ()->get_username ();
   subscribe_user (identifier, user);
 }
 
@@ -922,10 +905,10 @@ void Database_Notes::subscribe_user (int identifier, const std::string& user)
 // Returns an array with the subscribers to the note identified by identifier.
 std::vector <std::string> Database_Notes::get_subscribers (int identifier)
 {
-  std::string contents = get_raw_subscriptions (identifier);
+  const std::string contents = get_raw_subscriptions (identifier);
   if (contents.empty()) return {};
   std::vector <std::string> subscribers = filter::strings::explode (contents, '\n');
-  for (auto & subscriber : subscribers) {
+  for (auto& subscriber : subscribers) {
     subscriber = filter::strings::trim (subscriber);
   }
   return subscribers;
@@ -944,15 +927,13 @@ void Database_Notes::set_raw_subscriptions (int identifier, const std::string& s
   set_field (identifier, subscriptions_key (), subscriptions);
   
   // Store them in the database as well.
-  SqliteSQL sql;
+  SqliteDatabase sql (database_notes);
   sql.add ("UPDATE notes SET subscriptions =");
   sql.add (subscriptions);
   sql.add ("WHERE identifier =");
   sql.add (identifier);
   sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  sql.execute ();
 }
 
 
@@ -984,7 +965,7 @@ bool Database_Notes::is_subscribed (int identifier, const std::string& user)
 // Unsubscribes the currently logged in user from the note identified by identifier.
 void Database_Notes::unsubscribe (int identifier)
 {
-  std::string user = m_webserver_request.session_logic ()->currentUser ();
+  const std::string& user = m_webserver_request.session_logic ()->get_username ();
   unsubscribe_user (identifier, user);
 }
 
@@ -1014,15 +995,13 @@ void Database_Notes::set_raw_assigned (int identifier, const std::string& assign
   set_field (identifier, assigned_key (), assigned);
   
   // Store the assignees in the database also.
-  SqliteSQL sql;
+  SqliteDatabase sql (database_notes);
   sql.add ("UPDATE notes SET assigned =");
   sql.add (assigned);
   sql.add ("WHERE identifier =");
   sql.add (identifier);
   sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  sql.execute ();
 }
 
 
@@ -1036,24 +1015,22 @@ void Database_Notes::set_raw_assigned (int identifier, const std::string& assign
 std::vector <std::string> Database_Notes::get_all_assignees (const std::vector <std::string>& bibles)
 {
   std::set <std::string> unique_assignees;
-  SqliteSQL sql;
+  SqliteDatabase sql (database_notes);
   sql.add ("SELECT DISTINCT assigned FROM notes WHERE bible = ''");
-  for (auto & bible : bibles) {
+  for (const auto& bible : bibles) {
     sql.add ("OR bible =");
     sql.add (bible);
   }
   sql.add (";");
-  sqlite3 * db = connect ();
-  std::vector <std::string> result = database_sqlite_query (db, sql.sql) ["assigned"];
-  for (auto & item : result) {
+  const std::vector <std::string> result = sql.query () ["assigned"];
+  for (const auto& item : result) {
     if (item.empty ()) continue;
     std::vector <std::string> names = filter::strings::explode (item, '\n');
-    for (auto & name : names) unique_assignees.insert (name);
+    for (const auto& name : names) unique_assignees.insert (name);
   }
-  database_sqlite_disconnect (db);
   
   std::vector <std::string> assignees (unique_assignees.begin(), unique_assignees.end());
-  for (auto & assignee : assignees) {
+  for (auto& assignee : assignees) {
     assignee = filter::strings::trim (assignee);
   }
   return assignees;
@@ -1142,15 +1119,13 @@ void Database_Notes::set_bible (int identifier, const std::string& bible)
   set_field (identifier, bible_key (), bible);
   
   // Update the database also.
-  SqliteSQL sql;
+  SqliteDatabase sql (database_notes);
   sql.add ("UPDATE notes SET bible =");
   sql.add (bible);
   sql.add ("WHERE identifier =");
   sql.add (identifier);
   sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  sql.execute ();
   
   note_modified_actions (identifier);
 }
@@ -1159,14 +1134,14 @@ void Database_Notes::set_bible (int identifier, const std::string& bible)
 std::vector <std::string> Database_Notes::get_all_bibles ()
 {
   std::vector <std::string> bibles;
-  sqlite3 * db = connect ();
+  SqliteDatabase sql (database_notes);
+  sql.set_sql ("SELECT DISTINCT bible FROM notes;");
   std::vector <int> identifiers;
-  std::vector <std::string> result = database_sqlite_query (db, "SELECT DISTINCT bible FROM notes;") ["bible"];
+  const std::vector <std::string> result = sql.query () ["bible"];
   for (auto & bible : result) {
     if (bible.empty ()) continue;
     bibles.push_back (bible);
   }
-  database_sqlite_disconnect (db);
   return bibles;
 }
 
@@ -1180,15 +1155,15 @@ std::string Database_Notes::encode_passage (int book, int chapter, int verse)
   // Special way of encoding, as done below, is to enable note selection on book / chapter / verse.
   std::string passage;
   passage.append (" ");
-  passage.append (filter::strings::convert_to_string (book));
+  passage.append (std::to_string (book));
   passage.append (".");
   // Whether to include the chapter number.
   if (chapter >= 0) {
-    passage.append (filter::strings::convert_to_string (chapter));
+    passage.append (std::to_string (chapter));
     passage.append (".");
     // Inclusion of verse, also depends on chapter inclusion.
     if (verse >= 0) {
-      passage.append (filter::strings::convert_to_string (verse));
+      passage.append (std::to_string (verse));
       passage.append (" ");
     }
   }
@@ -1280,16 +1255,13 @@ void Database_Notes::set_raw_passage (int identifier, const std::string& passage
 void Database_Notes::index_raw_passage (int identifier, const std::string& passage)
 {
   // Update the search index database.
-  SqliteSQL sql;
+  SqliteDatabase sql (database_notes);
   sql.add ("UPDATE notes SET passage =");
   sql.add (passage);
   sql.add ("WHERE identifier =");
   sql.add (identifier);
   sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
-  
+  sql.execute ();
 }
 
 
@@ -1324,15 +1296,13 @@ void Database_Notes::set_status (int identifier, const std::string& status, bool
   if (!import) note_modified_actions (identifier);
   
   // Store a copy in the database also.
-  SqliteSQL sql;
+  SqliteDatabase sql (database_notes);
   sql.add ("UPDATE notes SET status =");
   sql.add (status);
   sql.add ("WHERE identifier =");
   sql.add (identifier);
   sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  sql.execute ();
 }
 
 
@@ -1341,10 +1311,10 @@ void Database_Notes::set_status (int identifier, const std::string& status, bool
 std::vector <Database_Notes_Text> Database_Notes::get_possible_statuses ()
 {
   // Get an array with the statuses used in the database, ordered by occurrence, most often used ones first.
-  std::string query = "SELECT status, COUNT(status) AS occurrences FROM notes GROUP BY status ORDER BY occurrences DESC;";
-  sqlite3 * db = connect ();
-  std::vector <std::string> statuses = database_sqlite_query (db, query) ["status"];
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (database_notes);
+  sql.set_sql ("SELECT status, COUNT(status) AS occurrences FROM notes GROUP BY status ORDER BY occurrences DESC;");
+  std::vector <std::string> statuses = sql.query () ["status"];
+  sql.disconnect ();
   // Ensure the standard statuses are there too.
   std::vector <std::string> standard_statuses = {"New", "Pending", "In progress", "Done", "Reopened"};
   for (auto & standard_status : standard_statuses) {
@@ -1375,7 +1345,7 @@ std::vector <std::string> Database_Notes::standard_severities ()
 // Returns the severity of a note as a number.
 int Database_Notes::get_raw_severity (int identifier)
 {
-  std::string severity = get_field (identifier, severity_key ());
+  const std::string severity = get_field (identifier, severity_key ());
   if (severity.empty ()) return 2;
   return filter::strings::convert_to_int (severity);
 }
@@ -1399,20 +1369,18 @@ std::string Database_Notes::get_severity (int identifier)
 void Database_Notes::set_raw_severity (int identifier, int severity)
 {
   // Update the file system.
-  set_field (identifier, severity_key (), filter::strings::convert_to_string (severity));
+  set_field (identifier, severity_key (), std::to_string (severity));
   
   note_modified_actions (identifier);
   
   // Update the database also.
-  SqliteSQL sql;
+  SqliteDatabase sql (database_notes);
   sql.add ("UPDATE notes SET severity =");
   sql.add (severity);
   sql.add ("WHERE identifier =");
   sql.add (identifier);
   sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  sql.execute ();
 }
 
 
@@ -1423,7 +1391,7 @@ std::vector <Database_Notes_Text> Database_Notes::get_possible_severities ()
   std::vector <Database_Notes_Text> severities;
   for (size_t i = 0; i < standard.size(); i++) {
     Database_Notes_Text severity;
-    severity.raw = filter::strings::convert_to_string (i);
+    severity.raw = std::to_string (i);
     severity.localized = translate (standard[i].c_str());
     severities.push_back (severity);
   }
@@ -1442,17 +1410,16 @@ int Database_Notes::get_modified (int identifier)
 void Database_Notes::set_modified (int identifier, int time)
 {
   // Update the filesystem.
-  set_field (identifier, modified_key (), filter::strings::convert_to_string (time));
+  set_field (identifier, modified_key (), std::to_string (time));
   // Update the database.
-  SqliteSQL sql;
+  SqliteDatabase sql (database_notes);
   sql.add ("UPDATE notes SET modified =");
   sql.add (time);
   sql.add ("WHERE identifier =");
   sql.add (identifier);
   sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  sql.execute ();
+  sql.disconnect();
   // Update checksum.
   update_checksum (identifier);
 }
@@ -1460,7 +1427,7 @@ void Database_Notes::set_modified (int identifier, int time)
 
 bool Database_Notes::get_public (int identifier)
 {
-  std::string value = get_field (identifier, public_key ());
+  const std::string value = get_field (identifier, public_key ());
   return filter::strings::convert_to_bool (value);
 }
 
@@ -1489,27 +1456,23 @@ void Database_Notes::update_search_fields (int identifier)
   // Bail out if the search field is already up to date.
   if (cleanText == get_search_field (identifier)) return;
   // Update the field.
-  SqliteSQL sql;
+  SqliteDatabase sql (database_notes);
   sql.add ("UPDATE notes SET cleantext =");
   sql.add (cleanText);
   sql.add ("WHERE identifier =");
   sql.add (identifier);
   sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  sql.execute ();
 }
 
 
 std::string Database_Notes::get_search_field (int identifier)
 {
-  SqliteSQL sql;
+  SqliteDatabase sql (database_notes);
   sql.add ("SELECT cleantext FROM notes WHERE identifier =");
   sql.add (identifier);
   sql.add (";");
-  sqlite3 * db = connect ();
-  std::vector <std::string> result = database_sqlite_query (db, sql.sql) ["cleantext"];
-  database_sqlite_disconnect (db);
+  const std::vector <std::string> result = sql.query () ["cleantext"];
   std::string value;
   for (auto & cleantext : result) {
     value = cleantext;
@@ -1547,7 +1510,7 @@ std::vector <int> Database_Notes::search_notes (std::string search, const std::v
   //   Select such notes also.
   query.append (" AND (bible = '' ");
   for (std::string bible : bibles) {
-    bible = database_sqlite_no_sql_injection (bible);
+    bible = database::sqlite::no_sql_injection (bible);
     query.append (" OR bible = '");
     query.append (bible);
     query.append ("' ");
@@ -1560,10 +1523,10 @@ std::vector <int> Database_Notes::search_notes (std::string search, const std::v
   // Complete query.
   query.append (";");
   
-  sqlite3 * db = connect ();
-  std::vector <std::string> result = database_sqlite_query (db, query) ["identifier"];
-  database_sqlite_disconnect (db);
-  for (auto & id : result) {
+  SqliteDatabase sql (database_notes);
+  sql.set_sql (query);
+  const std::vector <std::string> result = sql.query () ["identifier"];
+  for (const auto & id : result) {
     identifiers.push_back (filter::strings::convert_to_int (id));
   }
 
@@ -1599,7 +1562,7 @@ void Database_Notes::touch_marked_for_deletion ()
       std::string expiry = get_field (identifier, expiry_key ());
       int days = filter::strings::convert_to_int (expiry);
       days--;
-      set_field (identifier, expiry_key (), filter::strings::convert_to_string (days));
+      set_field (identifier, expiry_key (), std::to_string (days));
     }
   }
 }
@@ -1629,30 +1592,26 @@ void Database_Notes::set_checksum (int identifier, const std::string& checksum)
   if (checksum == get_checksum (identifier)) return;
   // Write the checksum to the database.
   delete_checksum (identifier);
-  SqliteSQL sql;
+  SqliteDatabase sql (database_notes_checksums);
   sql.add ("INSERT INTO checksums VALUES (");
   sql.add (identifier);
   sql.add (",");
   sql.add (checksum);
   sql.add (");");
-  sqlite3 * db = connect_checksums ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  sql.execute ();
 }
 
 
 // Reads the checksum for note identifier from the database.
 std::string Database_Notes::get_checksum (int identifier)
 {
-  SqliteSQL sql;
+  SqliteDatabase sql (database_notes_checksums);
   sql.add ("SELECT checksum FROM checksums WHERE identifier =");
   sql.add (identifier);
   sql.add (";");
-  sqlite3 * db = connect_checksums ();
-  std::vector <std::string> result = database_sqlite_query (db, sql.sql) ["checksum"];
-  database_sqlite_disconnect (db);
+  const std::vector <std::string> result = sql.query () ["checksum"];
   std::string value;
-  for (auto & row : result) {
+  for (const auto& row : result) {
     value = row;
   }
   return value;
@@ -1662,13 +1621,13 @@ std::string Database_Notes::get_checksum (int identifier)
 // Deletes the checksum for note identifier from the database.
 void Database_Notes::delete_checksum (int identifier)
 {
-  SqliteSQL sql;
-  sql.add ("DELETE FROM checksums WHERE identifier =");
-  sql.add (identifier);
-  sql.add (";");
-  sqlite3 * db = connect_checksums ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  {
+    SqliteDatabase sql (database_notes_checksums);
+    sql.add ("DELETE FROM checksums WHERE identifier =");
+    sql.add (identifier);
+    sql.add (";");
+    sql.execute ();
+  }
   // Delete from range-based checksums.
   Database_State::eraseNoteChecksum (identifier);
 }
@@ -1706,21 +1665,20 @@ void Database_Notes::update_checksum (int identifier)
 // Queries the database for the checksum for the notes given in the list of $identifiers.
 std::string Database_Notes::get_multiple_checksum (const std::vector <int> & identifiers)
 {
-  sqlite3 * db = connect_checksums ();
+  SqliteDatabase sql (database_notes_checksums);
   std::string checksum;
   for (auto & identifier : identifiers) {
-    SqliteSQL sql;
+    sql.clear();
     sql.add ("SELECT checksum FROM checksums WHERE identifier =");
     sql.add (identifier);
     sql.add (";");
-    std::vector <std::string> result = database_sqlite_query (db, sql.sql) ["checksum"];
+    const std::vector <std::string> result = sql.query () ["checksum"];
     std::string value = "";
-    for (auto & row : result) {
+    for (const auto& row : result) {
       value = row;
     }
     checksum.append (value);
   }
-  database_sqlite_disconnect (db);
   checksum = md5 (checksum);
   return checksum;
 }
@@ -1735,15 +1693,15 @@ std::vector <int> Database_Notes::get_notes_in_range_for_bibles (int lowId, int 
   std::vector <int> identifiers;
   
   std::string query = "SELECT identifier FROM notes WHERE identifier >= ";
-  query.append (filter::strings::convert_to_string (lowId));
+  query.append (std::to_string (lowId));
   query.append (" AND identifier <= ");
-  query.append (filter::strings::convert_to_string (highId));
+  query.append (std::to_string (highId));
   query.append (" ");
   if (!anybible) {
     bibles.push_back (""); // Select general note also
     std::string bibleSelector = " AND (";
     for (unsigned int i = 0; i < bibles.size(); i++) {
-      bibles[i] = database_sqlite_no_sql_injection (bibles[i]);
+      bibles[i] = database::sqlite::no_sql_injection (bibles[i]);
       if (i > 0) bibleSelector.append (" OR ");
       bibleSelector.append (" bible = '");
       bibleSelector.append (bibles[i]);
@@ -1754,10 +1712,10 @@ std::vector <int> Database_Notes::get_notes_in_range_for_bibles (int lowId, int 
   }
   query.append (" ORDER BY identifier;");
 
-  sqlite3 * db = connect ();
-  std::vector <std::string> result = database_sqlite_query (db, query) ["identifier"];
-  database_sqlite_disconnect (db);
-  for (auto & row : result) {
+  SqliteDatabase sql (database_notes);
+  sql.set_sql (query);
+  const std::vector <std::string> result = sql.query () ["identifier"];
+  for (const auto& row : result) {
     identifiers.push_back (filter::strings::convert_to_int (row));
   }
   
@@ -1799,7 +1757,7 @@ std::string Database_Notes::notes_optional_fulltext_search_relevance_statement (
 {
   if (search == "") return std::string();
   search = filter::strings::replace (",", "", search);
-  search = database_sqlite_no_sql_injection (search);
+  search = database::sqlite::no_sql_injection (search);
   std::string query = "";
   return query;
 }
@@ -1815,7 +1773,7 @@ std::string Database_Notes::notes_optional_fulltext_search_statement (std::strin
 {
   if (search == "") return std::string();
   search = filter::strings::replace (",", "", search);
-  search = database_sqlite_no_sql_injection (search);
+  search = database::sqlite::no_sql_injection (search);
   std::string query = " AND cleantext LIKE '%" + search + "%' ";
   return query;
 }
@@ -1903,12 +1861,12 @@ std::vector <std::string> Database_Notes::set_bulk (std::string json)
     note2 << assigned_key () << assigned;
     note2 << bible_key () << bible;
     note2 << contents_key () << contents;
-    note2 << modified_key () << filter::strings::convert_to_string (modified);
+    note2 << modified_key () << std::to_string (modified);
     note2 << passage_key () << passage;
     note2 << subscriptions_key () << subscriptions;
     note2 << summary_key () << summary;
     note2 << status_key () << status;
-    note2 << severity_key () << filter::strings::convert_to_string (severity);
+    note2 << severity_key () << std::to_string (severity);
     std::string json2 = note2.json ();
     filter_url_file_put_contents (path, json2);
     

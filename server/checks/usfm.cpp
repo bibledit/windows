@@ -32,7 +32,7 @@
 Checks_Usfm::Checks_Usfm (const std::string& bible)
 {
   Database_Styles database_styles {};
-  const std::string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
+  const std::string stylesheet = database::config::bible::get_export_stylesheet (bible);
   markers_stylesheet = database_styles.getMarkers (stylesheet);
   for (const auto & marker : markers_stylesheet) {
     Database_Styles_Item style = database_styles.getMarkerData (stylesheet, marker);
@@ -386,8 +386,7 @@ void Checks_Usfm::figure ()
     if (src.empty()) {
       add_result (translate ("Empty figure source:") + " " + usfm, display_nothing);
     } else {
-      Database_BibleImages database_bibleimages;
-      const std::string image_contents = database_bibleimages.get (src);
+      const std::string image_contents = database::bible_images::get (src);
       if (image_contents.empty()) {
         add_result (translate ("Could not find Bible image:") + " " + src, display_nothing);
       }

@@ -39,7 +39,7 @@ bool client_logic_client_enabled ()
 #ifndef HAVE_CLIENT
   return false;
 #endif
-  return Database_Config_General::getClientMode ();
+  return database::config::general::get_client_mode ();
 }
 
 
@@ -47,7 +47,7 @@ bool client_logic_client_enabled ()
 // $enable: boolean: true or false.
 void client_logic_enable_client (bool enable)
 {
-  Database_Config_General::setClientMode (enable);
+  database::config::general::set_client_mode (enable);
 }
 
 
@@ -57,7 +57,7 @@ void client_logic_enable_client (bool enable)
 // $path is the path after the website.
 std::string client_logic_url (const std::string& address, int port, const std::string& path)
 {
-  return address + ":" + filter::strings::convert_to_string (port) + "/" + path;
+  return address + ":" + std::to_string (port) + "/" + path;
 }
 
 
@@ -78,8 +78,8 @@ std::string client_logic_connection_setup (std::string user, std::string hash)
   
   std::string encoded_user = filter::strings::bin2hex (user);
   
-  std::string address = Database_Config_General::getServerAddress ();
-  int port = Database_Config_General::getServerPort ();
+  std::string address = database::config::general::get_server_address ();
+  int port = database::config::general::get_server_port ();
   
   std::string url = client_logic_url (address, port, sync_setup_url ()) + "?user=" + encoded_user + "&pass=" + hash;
   
@@ -122,9 +122,9 @@ std::string client_logic_create_note_encode (const std::string& bible, int book,
 {
   std::vector <std::string> data {};
   data.push_back (bible);
-  data.push_back (filter::strings::convert_to_string (book));
-  data.push_back (filter::strings::convert_to_string (chapter));
-  data.push_back (filter::strings::convert_to_string (verse));
+  data.push_back (std::to_string (book));
+  data.push_back (std::to_string (chapter));
+  data.push_back (std::to_string (verse));
   data.push_back (summary);
   data.push_back (filter::strings::convert_to_string (raw));
   data.push_back (contents);
@@ -172,9 +172,9 @@ std::string client_logic_link_to_cloud (std::string path, std::string linktext)
   std::string url {};
   std::string external {};
   if (client_logic_client_enabled ()) {
-    std::string address = Database_Config_General::getServerAddress ();
-    int port = Database_Config_General::getServerPort ();
-    url = address + ":" + filter::strings::convert_to_string (port);
+    std::string address = database::config::general::get_server_address ();
+    int port = database::config::general::get_server_port ();
+    url = address + ":" + std::to_string (port);
     if (!path.empty ()) {
       url.append ("/");
       url.append (path);

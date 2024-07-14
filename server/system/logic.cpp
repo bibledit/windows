@@ -54,7 +54,6 @@ std::string system_logic_bibles_file_name ()
 void system_logic_produce_bibles_file (int jobid)
 {
   Database_Jobs database_jobs;
-  Database_Bibles database_bibles;
 
   
   // Generate the initial page.
@@ -82,18 +81,18 @@ void system_logic_produce_bibles_file (int jobid)
   
 
   // Iterate over the Bibles, the books, the chapters.
-  std::vector <std::string> bibles = database_bibles.get_bibles ();
+  std::vector <std::string> bibles = database::bibles::get_bibles ();
   for (auto bible : bibles) {
-    std::vector <int> books = database_bibles.get_books (bible);
+    std::vector <int> books = database::bibles::get_books (bible);
     for (auto book : books) {
       std::string book_usfm;
-      std::vector <int> chapters = database_bibles.get_chapters (bible, book);
+      std::vector <int> chapters = database::bibles::get_chapters (bible, book);
       for (auto chapter : chapters) {
-        std::string usfm = database_bibles.get_chapter (bible, book, chapter);
+        std::string usfm = database::bibles::get_chapter (bible, book, chapter);
         book_usfm.append (filter::strings::trim (usfm));
         book_usfm.append ("\n");
       }
-      std::string file = bible + "_" + filter::strings::convert_to_string (book) + ".usfm";
+      std::string file = bible + "_" + std::to_string (book) + ".usfm";
       std::string path = filter_url_create_path ({directory, file});
       filter_url_file_put_contents (path, book_usfm);
       files.push_back (file);
@@ -131,8 +130,6 @@ void system_logic_import_bibles_file (std::string tarball)
 {
   Database_Logs::log ("Importing Bibles from " + tarball);
 
-  Database_Bibles database_bibles;
-  
   // Unpack the tarball into a directory.
   std::string directory = filter_url_tempfile ();
   filter_url_mkdir (directory);
@@ -165,9 +162,9 @@ void system_logic_import_bibles_file (std::string tarball)
         // This does not trigger the client to send it to the Cloud.
         // Reason is that the Cloud is authoritative,
         // so importing outdated Bibles would not affect the authoritative copy in the Cloud.
-        database_bibles.store_chapter (bible, book_chapter_data.m_book, book_chapter_data.m_chapter, book_chapter_data.m_data);
+        database::bibles::store_chapter (bible, book_chapter_data.m_book, book_chapter_data.m_chapter, book_chapter_data.m_data);
         std::string bookname = database::books::get_english_from_id (static_cast<book_id>(book_chapter_data.m_book));
-        Database_Logs::log ("Imported " + bible + " " + bookname + " " + filter::strings::convert_to_string (book_chapter_data.m_chapter));
+        Database_Logs::log ("Imported " + bible + " " + bookname + " " + std::to_string (book_chapter_data.m_chapter));
       } else {
         // Import error.
         Database_Logs::log ("Could not import this file: " + file);
@@ -180,7 +177,7 @@ void system_logic_import_bibles_file (std::string tarball)
   filter_url_unlink (tarball);
 
   // Since new Bibles may have been imported, index them all.
-  Database_Config_General::setIndexBibles (true);
+  database::config::general::set_index_bibles (true);
   tasks_logic_queue (REINDEXBIBLES, {"1"});
 
   // Ready, hallelujah!
@@ -271,7 +268,7 @@ void system_logic_import_notes_file (std::string tarball)
   filter_url_unlink (tarball);
 
   // Since notes may have been imported or updated, index them all.
-  Database_Config_General::setIndexNotes (true);
+  database::config::general::setIndexNotes (true);
   tasks_logic_queue (REINDEXNOTES);
 
   // Ready, hallelujah!
@@ -314,7 +311,7 @@ void system_logic_produce_resources_file (int jobid)
   std::vector <std::string> resources;
   std::vector <std::string> rawfiles = filter_url_scandir (directory);
   for (auto filename : rawfiles) {
-    if (filename.find (Database_Cache::fragment()) != std::string::npos) {
+    if (filename.find (database::cache::sql::fragment()) != std::string::npos) {
       resources.push_back (filename);
     }
   }
@@ -330,7 +327,7 @@ void system_logic_produce_resources_file (int jobid)
     // Sample filename: cache_resource_[CrossWire][LXX]_62.sqlite
     // Look for the last underscore.
     // This indicates which resource it is, by leaving the book number out.
-    if (filename.find (Database_Cache::fragment()) != std::string::npos) {
+    if (filename.find (database::cache::sql::fragment()) != std::string::npos) {
       size_t pos = filename.find_last_of ("_");
       if (pos != std::string::npos) {
         std::string resource = filename.substr (0, pos);
@@ -379,7 +376,7 @@ void system_logic_produce_resources_file (int jobid)
         html_text.add_text (" ");
         html_text.add_text (translate ("Amount of resources:"));
         html_text.add_text (" ");
-        html_text.add_text (filter::strings::convert_to_string (single_resources.size()));
+        html_text.add_text (std::to_string (single_resources.size()));
         html_text.add_text (".");
         html_text.new_paragraph ();
         html_text.add_link (html_text.current_p_node, "/" + system_logic_resources_file_name (), "", "", "", translate ("Download the archive with all installed resources."));

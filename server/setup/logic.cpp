@@ -38,6 +38,7 @@
 #include <database/privileges.h>
 #include <database/git.h>
 #include <database/statistics.h>
+#include <database/check.h>
 #include <styles/sheets.h>
 #include <filter/string.h>
 #include <filter/url.h>
@@ -61,7 +62,7 @@ void setup_conditionally (const char * package)
   if (p == config_globals_document_root) setup_wait_till_main_folders_present ();
   
   // Run the setup if the versions differ.
-  if (config::logic::version () != Database_Config_General::getInstalledDatabaseVersion ()) {
+  if (config::logic::version () != database::config::general::getInstalledDatabaseVersion ()) {
     
     std::vector <std::string> messages {};
 
@@ -89,10 +90,10 @@ void setup_conditionally (const char * package)
 #endif
     
     // Update installed version.
-    Database_Config_General::setInstalledDatabaseVersion (config::logic::version ());
+    database::config::general::setInstalledDatabaseVersion (config::logic::version ());
   };
 
-  if (config::logic::version () != Database_Config_General::getInstalledInterfaceVersion ()) {
+  if (config::logic::version () != database::config::general::get_installed_interface_version ()) {
     
     // In client mode or in demo mode do not display the page for entering the admin's details.
 #ifdef HAVE_CLIENT
@@ -222,16 +223,14 @@ void setup_initialize_data ()
   config_globals_setup_message = "styles";
   webserver_request.database_styles ()->create ();
   config_globals_setup_message = "bible actions";
-  Database_BibleActions database_bibleactions;
-  database_bibleactions.create ();
+  database::bible_actions::create ();
   config_globals_setup_message = "checks";
-  webserver_request.database_check ()->create ();
+  database::check::create ();
   setup_generate_locale_databases (false);
 #ifdef HAVE_CLOUD
   config_globals_setup_message = "confirmations";
-  Database_Confirm database_confirm;
-  database_confirm.create ();
-  database_confirm.upgrade();
+  database::confirm::create ();
+  database::confirm::upgrade();
 #endif
   config_globals_setup_message = "jobs";
   Database_Jobs database_jobs = Database_Jobs ();
@@ -255,8 +254,7 @@ void setup_initialize_data ()
   config_globals_setup_message = "versifications";
   setup_generate_versification_databases ();
   config_globals_setup_message = "modifications";
-  Database_Modifications database_modifications;
-  database_modifications.create ();
+  database::modifications::create ();
   config_globals_setup_message = "notes";
   Database_Notes database_notes (webserver_request);
   database_notes.create ();
@@ -271,7 +269,7 @@ void setup_initialize_data ()
   DatabasePrivileges::optimize ();
 #ifdef HAVE_CLOUD
   config_globals_setup_message = "git";
-  Database_Git::create ();
+  database::git::create ();
   config_globals_setup_message = "statistics";
   Database_Statistics::create ();
   Database_Statistics::optimize ();
@@ -288,7 +286,7 @@ void setup_initialize_data ()
   // The installation times were so long that user were tempted to think
   // that the install process was stuck.
   // To make installation fast, the creation of the sample Bible is now done in the background.
-  const std::vector <std::string> bibles = webserver_request.database_bibles()->get_bibles ();
+  const std::vector <std::string> bibles = database::bibles::get_bibles ();
   if (bibles.empty ()) {
     tasks_logic_queue (CREATESAMPLEBIBLE);
   }
@@ -299,7 +297,7 @@ void setup_initialize_data ()
    because it takes quite a while on low power devices,
    and the reason for the re-indexing is not clear.
   config_globals_setup_message = "indexes";
-  Database_Config_General::setIndexBibles (true);
+  database::config::general::set_index_bibles (true);
   tasks_logic_queue (REINDEXBIBLES);
   */
 }
@@ -317,7 +315,7 @@ void setup_set_admin_details (const std::string& username, const std::string& pa
 // Set the GUI setup status as completed.
 void setup_complete_gui ()
 {
-  Database_Config_General::setInstalledInterfaceVersion (config::logic::version ());
+  database::config::general::set_installed_interface_version (config::logic::version ());
 }
 
 

@@ -35,10 +35,9 @@
 bool book_create (const std::string & bible, const book_id book, const int chapter,
                   std::vector<std::string>& feedback)
 {
-  Database_Bibles database_bibles {};
   Database_Versifications database_versifications {};
 
-  const std::vector <std::string> bibles = database_bibles.get_bibles ();
+  const std::vector <std::string> bibles = database::bibles::get_bibles ();
   if (!in_array (bible, bibles)) {
     feedback.push_back (translate("Bible bible does not exist: Cannot create book"));
     return false;
@@ -65,17 +64,17 @@ bool book_create (const std::string & bible, const book_id book, const int chapt
   
   
   // Subsequent chapters.
-  const std::string versification = Database_Config_Bible::getVersificationSystem (bible);
+  const std::string versification = database::config::bible::get_versification_system (bible);
   const std::vector <Passage> versification_data = database_versifications.getBooksChaptersVerses (versification);
   for (const auto& row : versification_data) {
     if (book == static_cast<book_id>(row.m_book)) {
       const int ch = row.m_chapter;
       const int verse = filter::strings::convert_to_int (row.m_verse);
       if ((chapter < 0) || (chapter == ch)) {
-        data  = "\\c " + filter::strings::convert_to_string (ch) + "\n";
+        data  = "\\c " + std::to_string (ch) + "\n";
         data += "\\p\n";
         for (int i = 1; i <= verse; i++) {
-          data += "\\v " + filter::strings::convert_to_string (i) + "\n";
+          data += "\\v " + std::to_string (i) + "\n";
         }
         bible_logic::store_chapter (bible, static_cast<int>(book), ch, data);
         chapters_created.push_back (ch);
@@ -91,7 +90,7 @@ bool book_create (const std::string & bible, const book_id book, const int chapt
   std::string created;
   for (const auto& chapter_created : chapters_created) {
     if (!created.empty ()) created.append (" ");
-    created.append (filter::strings::convert_to_string (chapter_created));
+    created.append (std::to_string (chapter_created));
   }
   feedback.push_back (translate("The following chapters have been created:") + " " + created);
   return true;

@@ -129,25 +129,24 @@ void changes_clear_notifications_user (std::string jobid, std::string username)
 {
   Database_Logs::log (translate ("Start clearing change notifications") + " " + username);
   
-  Database_Modifications database_modifications {};
   Database_Jobs database_jobs {};
 
   // Get the total amount of change notifications to clear for the user.
   std::string any_bible {};
-  std::vector <int> identifiers = database_modifications.getNotificationIdentifiers (username, any_bible);
+  std::vector <int> identifiers = database::modifications::getNotificationIdentifiers (username, any_bible);
   
   // Total notes cleared.
   int total_cleared {0};
   
   // Feedback.
   database_jobs.set_percentage (filter::strings::convert_to_int (jobid), 0);
-  database_jobs.set_progress (filter::strings::convert_to_int (jobid), translate ("Total:") + " " + filter::strings::convert_to_string (identifiers.size()));
+  database_jobs.set_progress (filter::strings::convert_to_int (jobid), translate ("Total:") + " " + std::to_string (identifiers.size()));
 
 
   // The amount of notifications it clears in the next iteration.
   int cleared_count_in_one_go {0};
   do {
-    cleared_count_in_one_go = database_modifications.clearNotificationsUser (username);
+    cleared_count_in_one_go = database::modifications::clearNotificationsUser (username);
     total_cleared += cleared_count_in_one_go;
     if (!identifiers.empty ()) {
       database_jobs.set_percentage (filter::strings::convert_to_int (jobid), 100 * total_cleared / static_cast<int> (identifiers.size()));

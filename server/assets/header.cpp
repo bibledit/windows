@@ -76,7 +76,7 @@ void Assets_Header::set_navigator ()
 void Assets_Header::set_stylesheet ()
 {
   const std::string bible = m_webserver_request.database_config_user()->getBible ();
-  const std::string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
+  const std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
   m_included_stylesheet = std::move(stylesheet);
 }
 
@@ -85,7 +85,7 @@ void Assets_Header::set_stylesheet ()
 void Assets_Header::set_editor_stylesheet ()
 {
   const std::string bible = m_webserver_request.database_config_user()->getBible ();
-  const std::string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
+  const std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
   m_included_editor_stylesheet = std::move(stylesheet);
 }
 
@@ -105,7 +105,7 @@ bool Assets_Header::display_topbar ()
 // Sets the page to refresh after "seconds".
 void Assets_Header::refresh (int seconds, const std::string& url)
 {
-  std::string content = filter::strings::convert_to_string (seconds);
+  std::string content = std::to_string (seconds);
   if (!url.empty ()) content.append (";URL=" + url);
   std::stringstream ss{};
   ss << "<META HTTP-EQUIV=" << std::quoted("refresh") << " CONTENT=" << std::quoted(content) << ">";
@@ -140,10 +140,10 @@ std::string Assets_Header::run ()
     m_view->enable_zone ("include_jquery_touch");
   }
 
-  if (m_webserver_request.session_logic ()->touchEnabled ()) {
+  if (m_webserver_request.session_logic ()->get_touch_enabled ()) {
     touch_css_on();
   }
-  if (!m_webserver_request.session_logic ()->loggedIn ()) {
+  if (!m_webserver_request.session_logic ()->get_logged_in ()) {
     touch_css_on();
   }
   if (m_touch_css_on) {
@@ -190,7 +190,7 @@ std::string Assets_Header::run ()
     bool start_button = true;
     
     // Whether tabbed mode is on.
-    bool tabbed_mode_on = menu_logic_can_do_tabbed_mode () && Database_Config_General::getMenuInTabbedViewOn ();
+    bool tabbed_mode_on = menu_logic_can_do_tabbed_mode () && database::config::general::get_menu_in_tabbed_view_on ();
     
     std::string menublock {};
     const std::string item = m_webserver_request.query ["item"];
@@ -241,7 +241,7 @@ std::string Assets_Header::run ()
     if (!m_fading_menu.empty ()) {
       m_view->enable_zone ("fading_menu");
       m_view->set_variable ("fadingmenu", m_fading_menu);
-      std::string delay = filter::strings::convert_to_string (m_webserver_request.database_config_user ()->getWorkspaceMenuFadeoutDelay ()) + "000";
+      std::string delay = std::to_string (m_webserver_request.database_config_user ()->getWorkspaceMenuFadeoutDelay ()) + "000";
       m_view->set_variable ("fadingmenudelay", delay);
       m_fading_menu.clear ();
     }
@@ -258,37 +258,33 @@ std::string Assets_Header::run ()
   std::vector <std::string> embedded_css {};
   int fontsize = m_webserver_request.database_config_user ()->getGeneralFontSize ();
   if (fontsize != 100) {
-    embedded_css.push_back ("body { font-size: " + filter::strings::convert_to_string (fontsize) + "%; }");
+    embedded_css.push_back ("body { font-size: " + std::to_string (fontsize) + "%; }");
   }
   fontsize = m_webserver_request.database_config_user ()->getMenuFontSize ();
-  std::string filename = menu_font_size_filebased_cache_filename (m_webserver_request.session_identifier);
   if (fontsize != 100) {
-    embedded_css.push_back (".menu-advanced, .menu-basic { font-size: " + filter::strings::convert_to_string (fontsize) + "%; }");
+    embedded_css.push_back (".menu-advanced, .menu-basic { font-size: " + std::to_string (fontsize) + "%; }");
   }
   fontsize = m_webserver_request.database_config_user ()->getBibleEditorsFontSize ();
   if (fontsize != 100) {
-    embedded_css.push_back (".bibleeditor { font-size: " + filter::strings::convert_to_string (fontsize) + "% !important; }");
+    embedded_css.push_back (".bibleeditor { font-size: " + std::to_string (fontsize) + "% !important; }");
   }
   fontsize = m_webserver_request.database_config_user ()->getResourcesFontSize ();
-  filename = resource_font_size_filebased_cache_filename (m_webserver_request.session_identifier);
   if (fontsize != 100) {
-    embedded_css.push_back (".resource { font-size: " + filter::strings::convert_to_string (fontsize) + "% !important; }");
+    embedded_css.push_back (".resource { font-size: " + std::to_string (fontsize) + "% !important; }");
   }
   fontsize = m_webserver_request.database_config_user ()->getHebrewFontSize ();
   if (fontsize != 100) {
-    embedded_css.push_back (".hebrew { font-size: " + filter::strings::convert_to_string (fontsize) + "%!important; }");
+    embedded_css.push_back (".hebrew { font-size: " + std::to_string (fontsize) + "%!important; }");
   }
   fontsize = m_webserver_request.database_config_user ()->getGreekFontSize ();
-  filename = greek_font_size_filebased_cache_filename (m_webserver_request.session_identifier);
   if (fontsize != 100) {
-    embedded_css.push_back (".greek { font-size: " + filter::strings::convert_to_string (fontsize) + "%!important; }");
+    embedded_css.push_back (".greek { font-size: " + std::to_string (fontsize) + "%!important; }");
   }
   if (!embedded_css.empty ()) {
     m_view->set_variable ("embedded_css", filter::strings::implode (embedded_css, "\n"));
   }
 
   int current_theme_index = m_webserver_request.database_config_user ()->getCurrentTheme ();
-  filename = current_theme_filebased_cache_filename (m_webserver_request.session_identifier);
   // Add the theme color css class selector name on the body element,..
   m_view->set_variable ("body_theme_color", Filter_Css::theme_picker (current_theme_index, 0));
   // ..workspacewrapper div element..

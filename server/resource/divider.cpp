@@ -89,10 +89,10 @@ std::string resource_divider (Webserver_Request& webserver_request)
   if (webserver_request.query.count ("background2")) clean_divider = false;
   if (webserver_request.post.count ("entry")) clean_divider = false;
   if (webserver_request.query.count ("add")) clean_divider = false;
-  if (clean_divider) Database_Volatile::setValue (userid, key, resource_logic_rich_divider());
+  if (clean_divider) database::volatile_::set_value (userid, key, resource_logic_rich_divider());
  
 
-  std::string divider = Database_Volatile::getValue (userid, key);
+  std::string divider = database::volatile_::get_value (userid, key);
   std::string title;
   std::string link;
   std::string foreground;
@@ -176,16 +176,16 @@ std::string resource_divider (Webserver_Request& webserver_request)
   // Get and optionally save the new divider.
   divider = resource_logic_assemble_rich_divider (title, link, foreground, background);
   if (divider_edited) {
-    Database_Volatile::setValue (userid, key, divider);
+    database::volatile_::set_value (userid, key, divider);
   }
 
   
   // Add it to the existing resources.
   if (webserver_request.query.count ("add")) {
     std::vector <std::string> resources = webserver_request.database_config_user()->getActiveResources ();
-    if (is_def) resources = Database_Config_General::getDefaultActiveResources ();
+    if (is_def) resources = database::config::general::get_default_active_resources ();
     resources.push_back (divider);
-    if (is_def) Database_Config_General::setDefaultActiveResources (resources);
+    if (is_def) database::config::general::set_default_active_resources (resources);
     else webserver_request.database_config_user()->setActiveResources (resources);
     if (!is_def) webserver_request.database_config_user()->addUpdatedSetting (Sync_Logic::settings_send_resources_organization);
     redirect_browser (webserver_request, resource_organize_url ());

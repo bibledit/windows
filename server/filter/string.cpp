@@ -84,7 +84,7 @@ namespace filter::strings {
 
 // Split a string on a delimiter.
 // Return a vector of strings.
-std::vector <std::string> explode (std::string value, char delimiter)
+std::vector <std::string> explode (const std::string& value, char delimiter)
 {
   std::vector <std::string> result;
   std::istringstream iss (value);
@@ -97,7 +97,7 @@ std::vector <std::string> explode (std::string value, char delimiter)
 
 
 // Explodes an input string on multiple delimiters.
-std::vector <std::string> explode (std::string value, std::string delimiters)
+std::vector <std::string> explode (std::string value, const std::string& delimiters)
 {
   std::vector <std::string> result {};
   while (!value.empty ()) {
@@ -106,8 +106,9 @@ std::vector <std::string> explode (std::string value, std::string delimiters)
       result.push_back (value);
       value.clear ();
     } else {
-      std::string s {value.substr (0, pos)};
-      if (!s.empty()) result.push_back (s);
+      const std::string s {value.substr (0, pos)};
+      if (!s.empty())
+        result.push_back (s);
       pos++;
       value.erase (0, pos);
     }
@@ -118,13 +119,14 @@ std::vector <std::string> explode (std::string value, std::string delimiters)
 
 // Join a vector of string, with delimiters, into a string.
 // Return this string.
-std::string implode (std::vector <std::string>& values, std::string delimiter)
+std::string implode (const std::vector <std::string>& values, std::string delimiter)
 {
   std::string full {};
-  for (std::vector<std::string>::iterator it = values.begin (); it != values.end (); ++it)
+  for (auto iter = values.cbegin (); iter != values.cend (); ++iter)
   {
-    full += (*it);
-    if (it != values.end ()-1) full += delimiter;
+    full.append(*iter);
+    if (iter != values.cend ()-1)
+      full.append (delimiter);
   }
   return full;
 }
@@ -157,29 +159,6 @@ bool replace_between (std::string& line, const std::string& start, const std::st
     replacements_done = true;
   }
   return replacements_done;
-}
-
-
-// On some platforms the sizeof (unsigned int) is equal to the sizeof (size_t).
-// Then compilation would fail if there were two functions "convert_to_string",
-// one taking the unsigned int, and the other taking the size_t.
-// Therefore there is now one function doing both.
-// This may lead to embiguity errors for the C++ compiler.
-// In such case the ambiguity can be removed by changing the type to be passed
-// to this function to "size_t", possibly via a static_cast.
-std::string convert_to_string (const size_t i)
-{
-  std::ostringstream r;
-  r << i;
-  return r.str();
-}
-
-
-std::string convert_to_string (const int i)
-{
-  std::ostringstream r;
-  r << i;
-  return r.str();
 }
 
 
@@ -1422,7 +1401,7 @@ std::vector <std::string> search_needles (const std::string& search, const std::
 // Returns an integer identifier based on the name of the current user.
 int user_identifier (Webserver_Request& webserver_request)
 {
-  const std::string username = webserver_request.session_logic()->currentUser ();
+  const std::string& username = webserver_request.session_logic()->get_username ();
   const std::string hash = md5 (username).substr (0, 5);
   const int identifier = std::stoi (hash, nullptr, 36);
   return identifier;
@@ -1559,9 +1538,9 @@ std::string encrypt_decrypt (std::string key, std::string data)
 // Gets a new random string for sessions, encryption, you name it.
 std::string get_new_random_string ()
 {
-  const std::string u = filter::strings::convert_to_string (filter::date::numerical_microseconds ());
-  const std::string s = filter::strings::convert_to_string (filter::date::seconds_since_epoch ());
-  const std::string r = filter::strings::convert_to_string (config_globals_int_distribution (config_globals_random_engine));
+  const std::string u = std::to_string (filter::date::numerical_microseconds ());
+  const std::string s = std::to_string (filter::date::seconds_since_epoch ());
+  const std::string r = std::to_string (config_globals_int_distribution (config_globals_random_engine));
   return md5 (u + s + r);
 }
 

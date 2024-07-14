@@ -89,9 +89,9 @@ std::string demo_client_warning ()
 {
   std::string warning {};
   if (client_logic_client_enabled ()) {
-    std::string address = Database_Config_General::getServerAddress ();
+    std::string address = database::config::general::get_server_address ();
     if (address == demo_address () || address == demo_address_secure ()) {
-      int port = Database_Config_General::getServerPort ();
+      int port = database::config::general::get_server_port ();
       if (port == demo_port () || port == demo_port_secure ()) {
         warning.append (translate("You are connected to a public demo of Bibledit Cloud."));
         warning.append (" ");
@@ -126,10 +126,10 @@ void demo_clean_data ()
   
   
   // Set both stylesheets to "Standard" for all Bibles.
-  std::vector <std::string> bibles = webserver_request.database_bibles()->get_bibles ();
+  std::vector <std::string> bibles = database::bibles::get_bibles ();
   for (const auto & bible : bibles) {
-    Database_Config_Bible::setExportStylesheet (bible, styles_logic_standard_sheet ());
-    Database_Config_Bible::setEditorStylesheet (bible, styles_logic_standard_sheet ());
+    database::config::bible::set_export_stylesheet (bible, styles_logic_standard_sheet ());
+    database::config::bible::set_editor_stylesheet (bible, styles_logic_standard_sheet ());
   }
   
   
@@ -138,7 +138,7 @@ void demo_clean_data ()
 
   
   // Set the site language to "Default"
-  Database_Config_General::setSiteLanguage (std::string());
+  database::config::general::set_site_language (std::string());
 
 
   // Ensure the default users are there.
@@ -219,9 +219,8 @@ void demo_create_sample_bible ()
   Database_Logs::log ("Creating sample Bible");
   
   // Remove and create the sample Bible.
-  Database_Bibles database_bibles {};
-  database_bibles.delete_bible (demo_sample_bible_name ());
-  database_bibles.create_bible (demo_sample_bible_name ());
+  database::bibles::delete_bible (demo_sample_bible_name ());
+  database::bibles::create_bible (demo_sample_bible_name ());
   
   // Remove index for the sample Bible.
   search_logic_delete_bible (demo_sample_bible_name ());
@@ -264,13 +263,12 @@ void demo_create_sample_bible ()
 // This way it is fast even on low power devices.
 void demo_prepare_sample_bible ()
 {
-  Database_Bibles database_bibles {};
   Database_Sample::create ();
   // Remove the sample Bible plus all related data.
-  database_bibles.delete_bible (demo_sample_bible_name ());
+  database::bibles::delete_bible (demo_sample_bible_name ());
   search_logic_delete_bible (demo_sample_bible_name ());
   // Create a new sample Bible.
-  database_bibles.create_bible (demo_sample_bible_name ());
+  database::bibles::create_bible (demo_sample_bible_name ());
   // Location of the source USFM files for the sample Bible.
   std::string directory = filter_url_create_root_path ({"demo"});
   std::vector <std::string> files = filter_url_scandir (directory);
@@ -297,7 +295,7 @@ void demo_prepare_sample_bible ()
     }
   }
   // Copy the Bible data to the sample database.
-  directory = database_bibles.bible_folder (demo_sample_bible_name ());
+  directory = database::bibles::bible_folder (demo_sample_bible_name ());
   files.clear ();
   filter_url_recursive_scandir (directory, files);
   for (const auto & file : files) {
@@ -317,7 +315,7 @@ void demo_prepare_sample_bible ()
     }
   }
   // The sample Bible is now in the standard location and editable by the users: Remove it.
-  database_bibles.delete_bible (demo_sample_bible_name ());
+  database::bibles::delete_bible (demo_sample_bible_name ());
   // Same for the search index.
   search_logic_delete_bible (demo_sample_bible_name ());
   // Clean up the remaining artifacts that were created along the way.
@@ -337,7 +335,7 @@ void demo_create_sample_notes (Webserver_Request& webserver_request)
   std::vector <int> identifiers = database_notes.get_identifiers ();
   if (identifiers.size () < 10) {
     for (int i = 1; i <= 10; i++) {
-      database_notes.store_new_note (demo_sample_bible_name (), i, i, i, "Sample Note " + filter::strings::convert_to_string (i), "Sample Contents for note " + filter::strings::convert_to_string (i), false);
+      database_notes.store_new_note (demo_sample_bible_name (), i, i, i, "Sample Note " + std::to_string (i), "Sample Contents for note " + std::to_string (i), false);
     }
   }
 }

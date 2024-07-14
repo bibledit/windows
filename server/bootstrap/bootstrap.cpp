@@ -297,19 +297,19 @@ void bootstrap_index (Webserver_Request& webserver_request)
   }
 
   // Serve resource downloads.
-  if ((extension == "sqlite") && (webserver_request.get.find (Database_Cache::fragment ()) != std::string::npos)) {
+  if ((extension == "sqlite") && (webserver_request.get.find (database::cache::sql::fragment ()) != std::string::npos)) {
     http_stream_file (webserver_request, false);
     return;
   }
   
   // Serve initialization notice.
-  if (config::logic::version () != Database_Config_General::getInstalledDatabaseVersion ()) {
+  if (config::logic::version () != database::config::general::getInstalledDatabaseVersion ()) {
     webserver_request.reply = setup_initialization_notice ();
     return;
   }
   
   // Force setup.
-  if (config::logic::version () != Database_Config_General::getInstalledInterfaceVersion ()) {
+  if (config::logic::version () != database::config::general::get_installed_interface_version ()) {
     webserver_request.reply = setup_index (webserver_request);
     return;
   }

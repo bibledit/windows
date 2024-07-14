@@ -67,7 +67,7 @@ std::string compare_index (Webserver_Request& webserver_request)
   header.add_bread_crumb (bible_manage_url (), menu_logic_bible_manage_text ());
   page = header.run ();
   
-  Assets_View view;
+  Assets_View view {};
   
   const std::string bible = webserver_request.query ["bible"];
   view.set_variable ("bible", bible);
@@ -77,16 +77,16 @@ std::string compare_index (Webserver_Request& webserver_request)
     Database_Jobs database_jobs = Database_Jobs ();
     const int job_id = database_jobs.get_new_id ();
     database_jobs.set_level (job_id, Filter_Roles::consultant ());
-    tasks_logic_queue (COMPAREUSFM, {bible, compare, filter::strings::convert_to_string (job_id)});
-    redirect_browser (webserver_request, jobs_index_url () + "?id=" + filter::strings::convert_to_string (job_id));
+    tasks_logic_queue (COMPAREUSFM, {bible, compare, std::to_string (job_id)});
+    redirect_browser (webserver_request, jobs_index_url () + "?id=" + std::to_string (job_id));
     return std::string();
   }
 
   // Names of the Bibles and the USFM Resources.
-  std::vector <std::string> names = webserver_request.database_bibles()->get_bibles ();
+  std::vector <std::string> names = database::bibles::get_bibles ();
 
   Database_UsfmResources database_usfmresources;
-  std::vector <std::string> usfm_resources = database_usfmresources.getResources ();
+  const std::vector <std::string> usfm_resources = database_usfmresources.getResources ();
   names.insert (names.end (), usfm_resources.begin(), usfm_resources.end ());
 
   sort (names.begin (), names.end ());
@@ -103,9 +103,9 @@ std::string compare_index (Webserver_Request& webserver_request)
   document.print(ss, "", pugi::format_raw);
   view.set_variable ("bibleblock", ss.str());
 
-  page += view.render ("compare", "index");
+  page.append (view.render ("compare", "index"));
   
-  page += assets_page::footer ();
+  page.append (assets_page::footer ());
   
   return page;
 }

@@ -89,7 +89,7 @@ std::string notes_bulk (Webserver_Request& webserver_request)
   
   
   // The admin disables notes selection on Bibles, so the admin sees all notes, even notes referring to non-existing Bibles.
-  if (webserver_request.session_logic ()->currentLevel () == Filter_Roles::admin ()) bibles.clear ();
+  if (webserver_request.session_logic ()->get_level () == Filter_Roles::admin ()) bibles.clear ();
 
   
   
@@ -127,8 +127,8 @@ std::string notes_bulk (Webserver_Request& webserver_request)
                                               search_text,
                                               -1);
     std::vector <std::string> sids;
-    for (auto id : identifiers) sids.push_back (filter::strings::convert_to_string (id));
-    Database_Volatile::setValue (userid, "identifiers", filter::strings::implode (sids, " "));
+    for (auto id : identifiers) sids.push_back (std::to_string (id));
+    database::volatile_::set_value (userid, "identifiers", filter::strings::implode (sids, " "));
   }
 
 
@@ -136,7 +136,7 @@ std::string notes_bulk (Webserver_Request& webserver_request)
   // Get the stored note identifiers from the database.
   std::vector <int> identifiers;
   {
-    std::vector <std::string> sids = filter::strings::explode (Database_Volatile::getValue (userid, "identifiers"), ' ');
+    std::vector <std::string> sids = filter::strings::explode (database::volatile_::get_value (userid, "identifiers"), ' ');
     for (auto id : sids) identifiers.push_back (filter::strings::convert_to_int (id));
   }
   
@@ -144,7 +144,7 @@ std::string notes_bulk (Webserver_Request& webserver_request)
   std::string identifierlist;
   for (auto identifier : identifiers) {
     identifierlist.append (" ");
-    identifierlist.append (filter::strings::convert_to_string (identifier));
+    identifierlist.append (std::to_string (identifier));
   }
   
   
@@ -167,7 +167,7 @@ std::string notes_bulk (Webserver_Request& webserver_request)
   
   if (assign) {
     std::string assignee = webserver_request.query["assign"];
-    std::string user = webserver_request.session_logic ()->currentUser ();
+    const std::string& user = webserver_request.session_logic ()->get_username ();
     std::vector <std::string> assignees = database_noteassignment.assignees (user);
     if (in_array (assignee, assignees)) {
       for (auto identifier : identifiers) {
@@ -194,7 +194,7 @@ std::string notes_bulk (Webserver_Request& webserver_request)
 
   
   if (unassignme) {
-    std::string username = webserver_request.session_logic()->currentUser ();
+    const std::string& username = webserver_request.session_logic ()->get_username ();
     for (auto identifier : identifiers) {
       if (database_notes.is_assigned (identifier, username)) {
         notes_logic.unassignUser (identifier, username);
@@ -258,7 +258,7 @@ std::string notes_bulk (Webserver_Request& webserver_request)
   }
   
   
-  view.set_variable ("notescount", filter::strings::convert_to_string (identifiers.size()));
+  view.set_variable ("notescount", std::to_string (identifiers.size()));
 
   
   bool manager = Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());

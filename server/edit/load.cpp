@@ -57,9 +57,9 @@ std::string edit_load (Webserver_Request& webserver_request)
   // Store a copy of the USFM loaded in the editor for later reference.
   storeLoadedUsfm2 (webserver_request, bible, book, chapter, unique_id);
   
-  const std::string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
+  const std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
   
-  const std::string usfm = webserver_request.database_bibles()->get_chapter (bible, book, chapter);
+  const std::string usfm = database::bibles::get_chapter (bible, book, chapter);
   
   Editor_Usfm2Html editor_usfm2html;
   editor_usfm2html.load (usfm);
@@ -75,7 +75,7 @@ std::string edit_load (Webserver_Request& webserver_request)
     html = filter::strings::replace (search, replace, html);
   }
   
-  const std::string user = webserver_request.session_logic ()->currentUser ();
+  const std::string& user = webserver_request.session_logic ()->get_username ();
   const bool write = access_bible::book_write (webserver_request, user, bible, book);
   
   return checksum_logic::send (html, write);

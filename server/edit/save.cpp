@@ -93,7 +93,7 @@ std::string edit_save (Webserver_Request& webserver_request)
     return translate("No write access");
   }
 
-  const std::string stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
+  const std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
   
   Editor_Html2Usfm editor_export;
   editor_export.load (html);
@@ -114,14 +114,14 @@ std::string edit_save (Webserver_Request& webserver_request)
   user_usfm = book_chapter_text[0].m_data;
   bool chapter_ok = (((book_number == book) || (book_number == 0)) && (chapter_number == chapter));
   if (!chapter_ok) {
-    return translate("Incorrect chapter") + " " + filter::strings::convert_to_string (chapter_number);
+    return translate("Incorrect chapter") + " " + std::to_string (chapter_number);
   }
   
   // Collect some data about the changes for this user
   // and for a possible merge of the user's data with the server's data.
-  std::string username = webserver_request.session_logic()->currentUser ();
-  [[maybe_unused]] int oldID = webserver_request.database_bibles()->get_chapter_id (bible, book, chapter);
-  std::string server_usfm = webserver_request.database_bibles()->get_chapter (bible, book, chapter);
+  const std::string& username = webserver_request.session_logic ()->get_username ();
+  [[maybe_unused]] int oldID = database::bibles::get_chapter_id (bible, book, chapter);
+  std::string server_usfm = database::bibles::get_chapter (bible, book, chapter);
   std::string newText = user_usfm;
   std::string oldText = ancestor_usfm;
   
@@ -164,11 +164,10 @@ std::string edit_save (Webserver_Request& webserver_request)
 
   // In server configuration, store details for the user's changes.
 #ifdef HAVE_CLOUD
-  int newID = webserver_request.database_bibles()->get_chapter_id (bible, book, chapter);
-  Database_Modifications database_modifications;
-  database_modifications.recordUserSave (username, bible, book, chapter, oldID, oldText, newID, newText);
+  int newID = database::bibles::get_chapter_id (bible, book, chapter);
+  database::modifications::recordUserSave (username, bible, book, chapter, oldID, oldText, newID, newText);
   if (sendreceive_git_repository_linked (bible)) {
-    Database_Git::store_chapter (username, bible, book, chapter, oldText, newText);
+    database::git::store_chapter (username, bible, book, chapter, oldText, newText);
   }
   rss_logic_schedule_update (username, bible, book, chapter, oldText, newText);
 #endif

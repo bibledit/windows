@@ -48,11 +48,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 void rss_logic_feed_on_off ()
 {
   // See whether there's Bibles that send their changes to the RSS feed.
-  Database_Bibles database_bibles;
-  std::vector <std::string> bibles = database_bibles.get_bibles ();
+  std::vector <std::string> bibles = database::bibles::get_bibles ();
   bool rss_enabled = false;
   for (auto bible : bibles) {
-    if (Database_Config_Bible::getSendChangesToRSS (bible)) {
+    if (database::config::bible::get_send_changes_to_rss (bible)) {
       rss_enabled = true;
     }
   }
@@ -79,7 +78,7 @@ void rss_logic_schedule_update (std::string user, std::string bible, int book, i
                                 std::string oldusfm, std::string newusfm)
 {
   // If the RSS feed system is off, bail out.
-  if (!Database_Config_Bible::getSendChangesToRSS (bible)) return;
+  if (!database::config::bible::get_send_changes_to_rss (bible)) return;
   
   // Mould the USFM into one line.
   oldusfm = filter::strings::replace ("\n", rss_logic_new_line (), oldusfm);
@@ -89,8 +88,8 @@ void rss_logic_schedule_update (std::string user, std::string bible, int book, i
   std::vector <std::string> parameters;
   parameters.push_back (user);
   parameters.push_back (bible);
-  parameters.push_back (filter::strings::convert_to_string (book));
-  parameters.push_back (filter::strings::convert_to_string (chapter));
+  parameters.push_back (std::to_string (book));
+  parameters.push_back (std::to_string (chapter));
   parameters.push_back (oldusfm);
   parameters.push_back (newusfm);
   tasks_logic_queue (RSSFEEDUPDATECHAPTER, parameters);
@@ -111,13 +110,13 @@ void rss_logic_execute_update (std::string user, std::string bible, int book, in
   // For security reasons this can be set off.
   // This way the author does not get exposed,
   // and no information is revealed that facilitates a brute-force login attack.
-  bool include_author = Database_Config_General::getAuthorInRssFeed ();
+  bool include_author = database::config::general::get_author_in_rss_feed ();
   if (!include_author) user.clear ();
   
   // Storage for the feed update.
   std::vector <std::string> titles, authors, descriptions;
   
-  const std::string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
+  const std::string stylesheet = database::config::bible::get_export_stylesheet (bible);
 
   // Get the combined verse numbers in old and new USFM.
   std::vector <int> old_verse_numbers = filter::usfm::get_verse_numbers (oldusfm);
@@ -143,7 +142,7 @@ void rss_logic_execute_update (std::string user, std::string bible, int book, in
       std::string new_text = filter_text_new.text_text->get ();
       if (old_text != new_text) {
         std::string modification = filter_diff_diff (old_text, new_text);
-        titles.push_back (filter_passage_display (book, chapter, filter::strings::convert_to_string (verse)));
+        titles.push_back (filter_passage_display (book, chapter, std::to_string (verse)));
         authors.push_back (user);
         descriptions.push_back ("<div>" + modification + "</div>");
       }
@@ -165,7 +164,7 @@ void rss_logic_update_xml (std::vector <std::string> titles, std::vector <std::s
 {
   int seconds = filter::date::seconds_since_epoch ();
   std::string rfc822time = filter::date::rfc822 (seconds);
-  std::string guid = filter::strings::convert_to_string (seconds);
+  std::string guid = std::to_string (seconds);
   bool document_updated = false;
   pugi::xml_document document;
   std::string path = rss_logic_xml_path ();
@@ -182,13 +181,13 @@ void rss_logic_update_xml (std::vector <std::string> titles, std::vector <std::s
     node.text () = translate ("Bibledit").c_str();
     // Link to website.
     node = channel.append_child ("link");
-    node.text () = Database_Config_General::getSiteURL().c_str();
+    node.text () = database::config::general::get_site_url().c_str();
     // Description.
     node = channel.append_child ("description");
     node.text () = translate ("Recent changes in the Bible texts").c_str ();
     // Feed's URL.
     node = channel.append_child ("atom:link");
-    std::string link = Database_Config_General::getSiteURL() + rss_feed_url ();
+    std::string link = database::config::general::get_site_url() + rss_feed_url ();
     node.append_attribute ("href") = link.c_str();
     node.append_attribute ("rel") = "self";
     node.append_attribute ("type") = "application/rss+xml";
@@ -198,7 +197,7 @@ void rss_logic_update_xml (std::vector <std::string> titles, std::vector <std::s
   pugi::xml_node channel = rss_node.child ("channel");
   for (size_t i = 0; i < titles.size(); i++) {
     pugi::xml_node item = channel.append_child ("item");
-    std::string guid2 = guid + filter::strings::convert_to_string (i);
+    std::string guid2 = guid + std::to_string (i);
     pugi::xml_node guid_node = item.append_child ("guid");
     guid_node.append_attribute ("isPermaLink") = "false";
     guid_node.text () = guid2.c_str();

@@ -62,7 +62,7 @@ bool editone2_index_acl (Webserver_Request& webserver_request)
 
 std::string editone2_index (Webserver_Request& webserver_request)
 {
-  const bool touch = webserver_request.session_logic ()->touchEnabled ();
+  const bool touch = webserver_request.session_logic ()->get_touch_enabled ();
   
   if (webserver_request.query.count ("switchbook") && webserver_request.query.count ("switchchapter")) {
     const int switchbook = filter::strings::convert_to_int (webserver_request.query ["switchbook"]);
@@ -121,7 +121,7 @@ std::string editone2_index (Webserver_Request& webserver_request)
   script_stream << "var oneverseEditorVerseUpdatedLoaded = " << std::quoted(locale_logic_text_reload ()) << ";\n";
   int verticalCaretPosition = webserver_request.database_config_user ()->getVerticalCaretPosition ();
   script_stream << "var verticalCaretPosition = " << verticalCaretPosition << ";\n";
-  script_stream << "var verseSeparator = " << std::quoted(Database_Config_General::getNotesVerseSeparator ()) << ";\n";
+  script_stream << "var verseSeparator = " << std::quoted(database::config::general::get_notes_verse_separator ()) << ";\n";
   std::string script {script_stream.str()};
   config::logic::swipe_enabled (webserver_request, script);
   view.set_variable ("script", script);
@@ -129,9 +129,9 @@ std::string editone2_index (Webserver_Request& webserver_request)
   const std::string custom_class = Filter_Css::getClass (bible);
   const std::string font = fonts::logic::get_text_font (bible);
   const int current_theme_index = webserver_request.database_config_user ()->getCurrentTheme ();
-  const int direction = Database_Config_Bible::getTextDirection (bible);
-  const int lineheight = Database_Config_Bible::getLineHeight (bible);
-  const int letterspacing = Database_Config_Bible::getLetterSpacing (bible);
+  const int direction = database::config::bible::get_text_direction (bible);
+  const int lineheight = database::config::bible::get_line_height (bible);
+  const int letterspacing = database::config::bible::get_letter_spacing (bible);
   view.set_variable ("editor_theme_color", Filter_Css::theme_picker (current_theme_index, 2));
   view.set_variable ("active_editor_theme_color", Filter_Css::theme_picker (current_theme_index, 3));
   view.set_variable ("custom_class", custom_class);

@@ -48,23 +48,18 @@ std::map <std::string, std::map <std::string, Database_Styles_Item>> database_st
 std::mutex database_styles_cache_mutex;
 
 
-sqlite3 * Database_Styles::connect ()
-{
-  return database_sqlite_connect ("styles");
-}
+constexpr const auto database_name {"styles"};
 
 
 void Database_Styles::create ()
 {
   // Create database.
-  sqlite3 * db = connect ();
-  std::string sql;
-  sql = "CREATE TABLE IF NOT EXISTS users ("
-        "user text,"
-        "sheet text"
-        ");";
-  database_sqlite_exec (db, sql);
-  database_sqlite_disconnect (db);
+  SqliteDatabase sql (database_name);
+  sql.set_sql ("CREATE TABLE IF NOT EXISTS users ("
+               "user text,"
+               "sheet text"
+               ");");
+  sql.execute ();
 }
 
 
@@ -407,15 +402,13 @@ void Database_Styles::updateBackgroundColor (std::string sheet, std::string mark
 // Grant $user write access to stylesheet $sheet.
 void Database_Styles::grantWriteAccess (std::string user, std::string sheet)
 {
-  SqliteSQL sql;
+  SqliteDatabase sql (database_name);
   sql.add ("INSERT INTO users VALUES (");
   sql.add (user);
   sql.add (",");
   sql.add (sheet);
   sql.add (");");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  sql.execute ();
 }
 
 
@@ -423,7 +416,7 @@ void Database_Styles::grantWriteAccess (std::string user, std::string sheet)
 // If the $user is empty, then revoke write access of anybody to that $sheet.
 void Database_Styles::revokeWriteAccess (std::string user, std::string sheet)
 {
-  SqliteSQL sql;
+  SqliteDatabase sql (database_name);
   sql.add ("DELETE FROM users WHERE");
   if (!user.empty ()) {
     sql.add ("user =");
@@ -433,24 +426,20 @@ void Database_Styles::revokeWriteAccess (std::string user, std::string sheet)
   sql.add ("sheet =");
   sql.add (sheet);
   sql.add (";");
-  sqlite3 * db = connect ();
-  database_sqlite_exec (db, sql.sql);
-  database_sqlite_disconnect (db);
+  sql.execute ();
 }
 
 
 // Returns true or false depending on whether $user has write access to $sheet.
 bool Database_Styles::hasWriteAccess (std::string user, std::string sheet)
 {
-  SqliteSQL sql;
+  SqliteDatabase sql (database_name);
   sql.add ("SELECT rowid FROM users WHERE user =");
   sql.add (user);
   sql.add ("AND sheet =");
   sql.add (sheet);
   sql.add (";");
-  sqlite3 * db = connect ();
-  std::map <std::string, std::vector <std::string> > result = database_sqlite_query (db, sql.sql);
-  database_sqlite_disconnect (db);
+  std::map <std::string, std::vector <std::string> > result = sql.query ();
   return !result["rowid"].empty ();
 }
 
@@ -583,15 +572,15 @@ void Database_Styles::write_item (std::string sheet, Database_Styles_Item & item
   lines.push_back (item.name);
   lines.push_back (item.info);
   lines.push_back (item.category);
-  lines.push_back (filter::strings::convert_to_string (item.type));
-  lines.push_back (filter::strings::convert_to_string (item.subtype));
+  lines.push_back (std::to_string (item.type));
+  lines.push_back (std::to_string (item.subtype));
   lines.push_back (filter::strings::convert_to_string (item.fontsize));
-  lines.push_back (filter::strings::convert_to_string (item.italic));
-  lines.push_back (filter::strings::convert_to_string (item.bold));
-  lines.push_back (filter::strings::convert_to_string (item.underline));
-  lines.push_back (filter::strings::convert_to_string (item.smallcaps));
-  lines.push_back (filter::strings::convert_to_string (item.superscript));
-  lines.push_back (filter::strings::convert_to_string (item.justification));
+  lines.push_back (std::to_string (item.italic));
+  lines.push_back (std::to_string (item.bold));
+  lines.push_back (std::to_string (item.underline));
+  lines.push_back (std::to_string (item.smallcaps));
+  lines.push_back (std::to_string (item.superscript));
+  lines.push_back (std::to_string (item.justification));
   lines.push_back (filter::strings::convert_to_string (item.spacebefore));
   lines.push_back (filter::strings::convert_to_string (item.spaceafter));
   lines.push_back (filter::strings::convert_to_string (item.leftmargin));
@@ -603,9 +592,9 @@ void Database_Styles::write_item (std::string sheet, Database_Styles_Item & item
   lines.push_back (filter::strings::convert_to_string (item.userbool1));
   lines.push_back (filter::strings::convert_to_string (item.userbool2));
   lines.push_back (filter::strings::convert_to_string (item.userbool3));
-  lines.push_back (filter::strings::convert_to_string (item.userint1));
-  lines.push_back (filter::strings::convert_to_string (item.userint2));
-  lines.push_back (filter::strings::convert_to_string (item.userint3));
+  lines.push_back (std::to_string (item.userint1));
+  lines.push_back (std::to_string (item.userint2));
+  lines.push_back (std::to_string (item.userint3));
   lines.push_back (item.userstring1);
   lines.push_back (item.userstring2);
   lines.push_back (item.userstring3);

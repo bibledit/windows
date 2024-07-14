@@ -69,29 +69,28 @@ void client_index_enable_client (Webserver_Request& webserver_request, const std
   
   // Update the username and the level in the current session.
   webserver_request.session_logic ()->set_username (username);
-  webserver_request.session_logic ()->currentLevel (true);
+  webserver_request.session_logic ()->get_level (true);
   
   // If there's pending Bible updates, send them off to the user.
   bible_logic::client_mail_pending_bible_updates (username);
   
   // Clear all pending note actions and Bible actions and settings updates.
   Database_NoteActions database_noteactions;
-  Database_BibleActions database_bibleactions;
   database_noteactions.clear ();
   database_noteactions.create ();
-  database_bibleactions.clear ();
-  database_bibleactions.create ();
+  database::bible_actions::clear ();
+  database::bible_actions::create ();
   webserver_request.session_logic ()->set_username (username);
   webserver_request.database_config_user()->setUpdatedSettings ({});
-  Database_Config_General::setUnsentBibleDataTime (0);
-  Database_Config_General::setUnreceivedBibleDataTime (filter::date::seconds_since_epoch ());
+  database::config::general::set_unsent_bible_data_time (0);
+  database::config::general::set_unreceived_bible_data_time (filter::date::seconds_since_epoch ());
   
   // Set flag for first run after connecting.
-  Database_Config_General::setJustConnectedToCloud (true);
+  database::config::general::set_just_connected_to_cloud (true);
   
   // Set it to repeat sync every so often.
-  if (Database_Config_General::getRepeatSendReceive () == 0) {
-    Database_Config_General::setRepeatSendReceive (2);
+  if (database::config::general::get_repeat_send_receive () == 0) {
+    database::config::general::set_repeat_send_receive (2);
   }
   
   // Schedule a sync operation straightaway.
@@ -106,10 +105,10 @@ std::string client_index (Webserver_Request& webserver_request)
   if (webserver_request.query.count ("disable")) {
     client_logic_enable_client (false);
     client_index_remove_all_users (webserver_request);
-    Database_Config_General::setRepeatSendReceive (0);
-    Database_Config_General::setUnsentBibleDataTime (0);
-    Database_Config_General::setUnreceivedBibleDataTime (0);
-    Database_Config_General::setJustConnectedToCloud (false);
+    database::config::general::set_repeat_send_receive (0);
+    database::config::general::set_unsent_bible_data_time (0);
+    database::config::general::set_unreceived_bible_data_time (0);
+    database::config::general::set_just_connected_to_cloud (false);
   }
   
   bool connect = webserver_request.post.count ("connect");
@@ -142,7 +141,7 @@ std::string client_index (Webserver_Request& webserver_request)
       }
     }
     // Store the address.
-    Database_Config_General::setServerAddress (address);
+    database::config::general::set_server_address (address);
     
     int port = filter::strings::convert_to_int (config::logic::http_network_port ());
     if (proceed) port = filter::strings::convert_to_int (webserver_request.post ["port"]);
@@ -151,7 +150,7 @@ std::string client_index (Webserver_Request& webserver_request)
       view.set_variable ("error", translate ("Supply a port number"));
       proceed = false;
     }
-    Database_Config_General::setServerPort (port);
+    database::config::general::set_server_port (port);
     
     std::string user {};
     if (proceed) user = webserver_request.post ["user"];
@@ -186,11 +185,11 @@ std::string client_index (Webserver_Request& webserver_request)
   if (client_logic_client_enabled ()) view.enable_zone ("clienton");
   else view.enable_zone ("clientoff");
   
-  const std::string address {Database_Config_General::getServerAddress ()};
+  const std::string address {database::config::general::get_server_address ()};
   view.set_variable ("address", address);
   
-  const int port {Database_Config_General::getServerPort ()};
-  view.set_variable ("port", filter::strings::convert_to_string (port));
+  const int port {database::config::general::get_server_port ()};
+  view.set_variable ("port", std::to_string (port));
   
   view.set_variable ("url", client_logic_link_to_cloud ("", ""));
   

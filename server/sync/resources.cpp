@@ -77,17 +77,17 @@ std::string sync_resources (Webserver_Request& webserver_request)
       case Sync_Logic::resources_request_database:
       {
         // If the cache is ready, return its file size.
-        if (Database_Cache::exists (resource, book)) {
-          if (Database_Cache::ready (resource, book)) {
-            return filter::strings::convert_to_string (Database_Cache::size (resource, book));
+        if (database::cache::sql::exists (resource, book)) {
+          if (database::cache::sql::ready (resource, book)) {
+            return std::to_string (database::cache::sql::size (resource, book));
           }
         }
         // Schedule this resource for caching if that's not yet the case.
-        std::vector <std::string> signatures = Database_Config_General::getResourcesToCache ();
-        std::string signature = resource + " " + filter::strings::convert_to_string (book);
+        std::vector <std::string> signatures = database::config::general::get_resources_to_cache ();
+        std::string signature = resource + " " + std::to_string (book);
         if (!in_array (signature, signatures)) {
           signatures.push_back (signature);
-          Database_Config_General::setResourcesToCache (signatures);
+          database::config::general::set_resources_to_cache (signatures);
         }
         if (!tasks_logic_queued (CACHERESOURCES)) {
           tasks_logic_queue (CACHERESOURCES);
@@ -97,7 +97,7 @@ std::string sync_resources (Webserver_Request& webserver_request)
       
       case Sync_Logic::resources_request_download:
       {
-        return Database_Cache::path (resource, book);
+        return database::cache::sql::path (resource, book);
       }
       
       default: {};

@@ -68,7 +68,7 @@ Developer_Logic_Tracer::Developer_Logic_Tracer(Webserver_Request& webserver_requ
     request_query.append("=");
     request_query.append(element.second);
   }
-  username = webserver_request.session_logic()->currentUser();
+  username = webserver_request.session_logic ()->get_username();
 }
 
 
@@ -77,7 +77,7 @@ Developer_Logic_Tracer::~Developer_Logic_Tracer()
   int seconds2 = filter::date::seconds_since_epoch();
   int microseconds2 = filter::date::numerical_microseconds();
   int microseconds = (seconds2 - seconds1) * 1000000 + microseconds2 - microseconds1;
-  std::vector <std::string> bits = {rfc822, filter::strings::convert_to_string (microseconds), request_get, request_query, username};
+  std::vector <std::string> bits = {rfc822, std::to_string (microseconds), request_get, request_query, username};
   std::string entry = filter::strings::implode(bits, ",");
   log_network_mutex.lock();
   log_network_cache.push_back(entry);
@@ -110,8 +110,7 @@ void developer_logic_import_changes ()
   const std::string file_path = filter_url_create_path ({home_path, "Desktop", "changes.usfm"});
   const std::string bible = "test";
   Database_Logs::log ("Import changes from " + file_path + " into Bible " + bible);
-  Database_Bibles database_bibles {};
-  const std::vector <std::string> bibles = database_bibles.get_bibles ();
+  const std::vector <std::string> bibles = database::bibles::get_bibles ();
   if (!in_array(bible, bibles)) {
     Database_Logs::log ("Cannot locate Bible " + bible);
     return;
@@ -165,7 +164,7 @@ void developer_logic_import_changes ()
     // 2. Update the passage to point to the new one.
     if (passage_found) {
       developer_logic_import_changes_save (passage.m_bible, passage.m_book, passage.m_chapter, filter::strings::convert_to_int (passage.m_verse), text);
-      passage = Passage(bible, static_cast<int>(book), chapter, filter::strings::convert_to_string(verse));
+      passage = Passage(bible, static_cast<int>(book), chapter, std::to_string(verse));
     }
     // Accumulate the text.
     if (!text.empty()) text.append ("\n");

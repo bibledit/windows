@@ -146,21 +146,21 @@ std::string edit_update (Webserver_Request& webserver_request)
 
   std::string stylesheet;
   if (good2go) {
-    stylesheet = Database_Config_Bible::getEditorStylesheet (bible);
+    stylesheet = database::config::bible::get_editor_stylesheet (bible);
   }
 
   
   // Collect some data about the changes for this user.
-  std::string username = webserver_request.session_logic()->currentUser ();
+  const std::string& username = webserver_request.session_logic ()->get_username ();
 #ifdef HAVE_CLOUD
   int oldID = 0;
   if (good2go) {
-    oldID = webserver_request.database_bibles()->get_chapter_id (bible, book, chapter);
+    oldID = database::bibles::get_chapter_id (bible, book, chapter);
   }
 #endif
   std::string old_chapter_usfm;
   if (good2go) {
-    old_chapter_usfm = webserver_request.database_bibles()->get_chapter (bible, book, chapter);
+    old_chapter_usfm = database::bibles::get_chapter (bible, book, chapter);
   }
 
   
@@ -201,7 +201,7 @@ std::string edit_update (Webserver_Request& webserver_request)
     edited_chapter_usfm = book_chapter_text[0].m_data;
     bool chapter_ok = (((book_number == book) || (book_number == 0)) && (chapter_number == chapter));
     if (!chapter_ok) {
-      messages.push_back (translate("Incorrect chapter") + " " + filter::strings::convert_to_string (chapter_number));
+      messages.push_back (translate("Incorrect chapter") + " " + std::to_string (chapter_number));
     }
   }
 
@@ -271,10 +271,10 @@ std::string edit_update (Webserver_Request& webserver_request)
 
   
   // The new chapter identifier and new chapter USFM.
-  int newID = webserver_request.database_bibles()->get_chapter_id (bible, book, chapter);
+  int newID = database::bibles::get_chapter_id (bible, book, chapter);
   std::string new_chapter_usfm;
   if (good2go) {
-    new_chapter_usfm = webserver_request.database_bibles()->get_chapter (bible, book, chapter);
+    new_chapter_usfm = database::bibles::get_chapter (bible, book, chapter);
   }
 
   
@@ -283,10 +283,9 @@ std::string edit_update (Webserver_Request& webserver_request)
     if (message.empty ()) {
 #ifdef HAVE_CLOUD
       // The Cloud stores details of the user's changes.
-      Database_Modifications database_modifications;
-      database_modifications.recordUserSave (username, bible, book, chapter, oldID, old_chapter_usfm, newID, new_chapter_usfm);
+      database::modifications::recordUserSave (username, bible, book, chapter, oldID, old_chapter_usfm, newID, new_chapter_usfm);
       if (sendreceive_git_repository_linked (bible)) {
-        Database_Git::store_chapter (username, bible, book, chapter, old_chapter_usfm, new_chapter_usfm);
+        database::git::store_chapter (username, bible, book, chapter, old_chapter_usfm, new_chapter_usfm);
       }
       rss_logic_schedule_update (username, bible, book, chapter, old_chapter_usfm, new_chapter_usfm);
 #endif
@@ -314,7 +313,7 @@ std::string edit_update (Webserver_Request& webserver_request)
   
   // Add separator and the new chapter identifier to the response.
   response.append (separator);
-  response.append (filter::strings::convert_to_string (newID));
+  response.append (std::to_string (newID));
 
   
   // The main purpose of the following block of code is this:
@@ -343,7 +342,7 @@ std::string edit_update (Webserver_Request& webserver_request)
     // Encode the condensed differences for the response to the Javascript editor.
     for (size_t i = 0; i < positions.size(); i++) {
       response.append ("#_be_#");
-      response.append (filter::strings::convert_to_string (positions[i]));
+      response.append (std::to_string (positions[i]));
       response.append ("#_be_#");
       std::string operation = operators[i];
       response.append (operation);
@@ -358,14 +357,14 @@ std::string edit_update (Webserver_Request& webserver_request)
         response.append (format);
         // Also add the size of the character in UTF-16 format, 2-bytes or 4 bytes, as size 1 or 2.
         response.append ("#_be_#");
-        response.append (filter::strings::convert_to_string (sizes[i]));
+        response.append (std::to_string (sizes[i]));
       }
       else if (operation == bible_logic::delete_operator ()) {
         // When deleting a UTF-16 character encoded in 4 bytes,
         // then the size in Quilljs is 2 instead of 1.
         // So always give the size when deleting a character.
         response.append ("#_be_#");
-        response.append (filter::strings::convert_to_string (sizes[i]));
+        response.append (std::to_string (sizes[i]));
       }
       else if (operation == bible_logic::format_paragraph_operator ()) {
         response.append ("#_be_#");

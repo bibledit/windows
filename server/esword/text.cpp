@@ -33,7 +33,7 @@ Esword_Text::Esword_Text (std::string bible)
   currentChapter = 0;
   currentVerse = 0;
   currentText.clear();
-  bible = database_sqlite_no_sql_injection (bible);
+  bible = database::sqlite::no_sql_injection (bible);
   sql.push_back ("PRAGMA foreign_keys=OFF;");
   sql.push_back ("PRAGMA synchronous=OFF;");
   sql.push_back ("CREATE TABLE Details (Description NVARCHAR(255), Abbreviation NVARCHAR(50), Comments TEXT, Version INT, Font NVARCHAR(50), Unicode BOOL, RightToLeft BOOL, OT BOOL, NT BOOL, Apocrypha BOOL, Strong BOOL);");
@@ -51,12 +51,12 @@ void Esword_Text::flushCache ()
     for (size_t pos = 0; pos < length; pos++) {
       std::string s = filter::strings::unicode_string_substr (text, pos, 1);
       int codepoint = filter::strings::unicode_string_convert_to_codepoint (s);
-      unicode.append ("\\u" + filter::strings::convert_to_string (codepoint) + "?");
+      unicode.append ("\\u" + std::to_string (codepoint) + "?");
     }
     int book = currentBook;
     int chapter = currentChapter;
     int verse = currentVerse;
-    std::string statement = "INSERT INTO Bible VALUES (" + filter::strings::convert_to_string (book) + ", " + filter::strings::convert_to_string (chapter) + ", " + filter::strings::convert_to_string (verse) + ", '" + unicode + "');";
+    std::string statement = "INSERT INTO Bible VALUES (" + std::to_string (book) + ", " + std::to_string (chapter) + ", " + std::to_string (verse) + ", '" + unicode + "');";
     sql.push_back (statement);
   }
   currentText.clear ();
@@ -106,11 +106,11 @@ void Esword_Text::finalize ()
 void Esword_Text::createModule (std::string filename)
 {
   flushCache ();
-  sqlite3 * db = database_sqlite_connect_file (filename);
+  sqlite3 * db = database::sqlite::connect_file (filename);
   for (std::string statement : sql) {
-    database_sqlite_exec (db, statement);
+    database::sqlite::exec (db, statement);
   }
-  database_sqlite_disconnect (db);
+  database::sqlite::disconnect (db);
 }
 
 

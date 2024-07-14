@@ -1,180 +1,170 @@
 /*
-Copyright (©) 2003-2024 Teus Benschop.
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ Copyright (©) 2003-2024 Teus Benschop.
+ 
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 3 of the License, or
+ (at your option) any later version.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 
 #pragma once
 
 #include <config/libraries.h>
 
-class Database_Config_Bible
-{
-public:
-  static void remove (std::string bible);
-  static std::string getRemoteRepositoryUrl (std::string bible);
-  static void setRemoteRepositoryUrl (std::string bible, std::string url);
-  static bool getCheckDoubleSpacesUsfm (std::string bible);
-  static void setCheckDoubleSpacesUsfm (std::string bible, bool value);
-  static bool getCheckFullStopInHeadings (std::string bible);
-  static void setCheckFullStopInHeadings (std::string bible, bool value);
-  static bool getCheckSpaceBeforePunctuation (std::string bible);
-  static void setCheckSpaceBeforePunctuation (std::string bible, bool value);
-  static bool getCheckSpaceBeforeFinalNoteMarker (std::string bible);
-  static void setCheckSpaceBeforeFinalNoteMarker (std::string bible, bool value);
-  static bool getCheckSentenceStructure (std::string bible);
-  static void setCheckSentenceStructure (std::string bible, bool value);
-  static bool getCheckParagraphStructure (std::string bible);
-  static void setCheckParagraphStructure (std::string bible, bool value);
-  static bool getCheckBooksVersification (std::string bible);
-  static void setCheckBooksVersification (std::string bible, bool value);
-  static bool getCheckChaptesVersesVersification (std::string bible);
-  static void setCheckChaptesVersesVersification (std::string bible, bool value);
-  static bool getCheckWellFormedUsfm (std::string bible);
-  static void setCheckWellFormedUsfm (std::string bible, bool value);
-  static bool getCheckMissingPunctuationEndVerse (std::string bible);
-  static void setCheckMissingPunctuationEndVerse (std::string bible, bool value);
-  static bool getCheckPatterns (std::string bible);
-  static void setCheckPatterns (std::string bible, bool value);
-  static std::string getCheckingPatterns (std::string bible);
-  static void setCheckingPatterns (std::string bible, std::string value);
-  static std::string getSentenceStructureCapitals (std::string bible);
-  static void setSentenceStructureCapitals (std::string bible, std::string value);
-  static std::string getSentenceStructureSmallLetters (std::string bible);
-  static void setSentenceStructureSmallLetters (std::string bible, std::string value);
-  static std::string getSentenceStructureEndPunctuation (std::string bible);
-  static void setSentenceStructureEndPunctuation (std::string bible, std::string value);
-  static std::string getSentenceStructureMiddlePunctuation (std::string bible);
-  static void setSentenceStructureMiddlePunctuation (std::string bible, std::string value);
-  static std::string getSentenceStructureDisregards (std::string bible);
-  static void setSentenceStructureDisregards (std::string bible, std::string value);
-  static std::string getSentenceStructureNames (std::string bible);
-  static void setSentenceStructureNames (std::string bible, std::string value);
-  static std::string getSentenceStructureWithinSentenceMarkers (std::string bible);
-  static void setSentenceStructureWithinSentenceMarkers (std::string bible, std::string value);
-  static bool getCheckMatchingPairs (std::string bible);
-  static void setCheckMatchingPairs (std::string bible, bool value);
-  static std::string getMatchingPairs (std::string bible);
-  static void setMatchingPairs (std::string bible, std::string value);
-  static bool getCheckSpaceEndVerse (std::string bible);
-  static void setCheckSpaceEndVerse (std::string bible, bool value);
-  static bool getCheckFrenchPunctuation (std::string bible);
-  static void setCheckFrenchPunctuation (std::string bible, bool value);
-  static bool getCheckFrenchCitationStyle (std::string bible);
-  static void setCheckFrenchCitationStyle (std::string bible, bool value);
-  static bool getTransposeFixSpacesNotes (std::string bible);
-  static void setTransposeFixSpacesNotes (std::string bible, bool value);
-  static bool getCheckValidUTF8Text (std::string bible);
-  static void setCheckValidUTF8Text (std::string bible, bool value);
-  static std::string getSprintTaskCompletionCategories (std::string bible);
-  static void setSprintTaskCompletionCategories (std::string bible, std::string value);
-  static int getRepeatSendReceive (std::string bible);
-  static void setRepeatSendReceive (std::string bible, int value);
-  static bool getExportChapterDropCapsFrames (std::string bible);
-  static void setExportChapterDropCapsFrames (std::string bible, bool value);
-  static std::string getPageWidth (std::string bible);
-  static void setPageWidth  (std::string bible, std::string value);
-  static std::string getPageHeight (std::string bible);
-  static void setPageHeight  (std::string bible, std::string value);
-  static std::string getInnerMargin (std::string bible);
-  static void setInnerMargin  (std::string bible, std::string value);
-  static std::string getOuterMargin (std::string bible);
-  static void setOuterMargin  (std::string bible, std::string value);
-  static std::string getTopMargin (std::string bible);
-  static void setTopMargin  (std::string bible, std::string value);
-  static std::string getBottomMargin (std::string bible);
-  static void setBottomMargin  (std::string bible, std::string value);
-  static bool getDateInHeader (std::string bible);
-  static void setDateInHeader  (std::string bible, bool value);
-  static std::string getHyphenationFirstSet (std::string bible);
-  static void setHyphenationFirstSet (std::string bible, std::string value);
-  static std::string getHyphenationSecondSet (std::string bible);
-  static void setHyphenationSecondSet (std::string bible, std::string value);
-  static std::string getEditorStylesheet (std::string bible);
-  static void setEditorStylesheet (std::string bible, std::string value);
-  static std::string getExportStylesheet (std::string bible);
-  static void setExportStylesheet (std::string bible, std::string value);
-  static std::string getVersificationSystem (std::string bible);
-  static void setVersificationSystem (std::string bible, std::string value);
-  static bool getExportWebDuringNight (std::string bible);
-  static void setExportWebDuringNight (std::string bible, bool value);
-  static bool getExportHtmlDuringNight (std::string bible);
-  static void setExportHtmlDuringNight (std::string bible, bool value);
-  static bool getExportHtmlNotesOnHover (std::string bible);
-  static void setExportHtmlNotesOnHover (std::string bible, bool value);
-  static bool getExportUsfmDuringNight (std::string bible);
-  static void setExportUsfmDuringNight (std::string bible, bool value);
-  static bool getExportTextDuringNight (std::string bible);
-  static void setExportTextDuringNight (std::string bible, bool value);
-  static bool getExportOdtDuringNight (std::string bible);
-  static void setExportOdtDuringNight (std::string bible, bool value);
-  static bool getGenerateInfoDuringNight (std::string bible);
-  static void setGenerateInfoDuringNight (std::string bible, bool value);
-  static bool getExportESwordDuringNight (std::string bible);
-  static void setExportESwordDuringNight (std::string bible, bool value);
-  static bool getExportOnlineBibleDuringNight (std::string bible);
-  static void setExportOnlineBibleDuringNight (std::string bible, bool value);
-  static std::string getExportPassword (std::string bible);
-  static void setExportPassword (std::string bible, std::string value);
-  static bool getSecureUsfmExport (std::string bible);
-  static void setSecureUsfmExport (std::string bible, bool value);
-  static bool getSecureOdtExport (std::string bible);
-  static void setSecureOdtExport (std::string bible, bool value);
-  static std::string getExportFont (std::string bible);
-  static void setExportFont (std::string bible, std::string value);
-  static std::string getExportFeedbackEmail (std::string bible);
-  static void setExportFeedbackEmail (std::string bible, std::string value);
-  static std::string getBookOrder (std::string bible);
-  static void setBookOrder (std::string bible, std::string value);
-  static int getTextDirection (std::string bible);
-  static void setTextDirection (std::string bible, int value);
-  static std::string getTextFont (std::string bible);
-  static void setTextFont (std::string bible, std::string value);
-  static std::string getTextFontClient (std::string bible);
-  static void setTextFontClient (std::string bible, std::string value);
-  static std::string getParatextProject (std::string bible);
-  static void setParatextProject (std::string bible, std::string value);
-  static bool getParatextCollaborationEnabled (std::string bible);
-  static void setParatextCollaborationEnabled (std::string bible, bool value);
-  static int getLineHeight (std::string bible);
-  static void setLineHeight (std::string bible, int value);
-  static int getLetterSpacing (std::string bible);
-  static void setLetterSpacing (std::string bible, int value);
-  static bool getPublicFeedbackEnabled (std::string bible);
-  static void setPublicFeedbackEnabled (std::string bible, bool value);
-  static bool getReadFromGit (std::string bible);
-  static void setReadFromGit (std::string bible, bool value);
-  static bool getSendChangesToRSS (std::string bible);
-  static void setSendChangesToRSS (std::string bible, bool value);
-  static std::string getOdtSpaceAfterVerse (std::string bible);
-  static void setOdtSpaceAfterVerse (std::string bible, std::string value);
-  static bool getDailyChecksEnabled (std::string bible);
-  static void setDailyChecksEnabled (std::string bible, bool value);
-  static bool getOdtPoetryVersesLeft (std::string bible);
-  static void setOdtPoetryVersesLeft (std::string bible, bool value);
-  static bool getOdtAutomaticNoteCaller (std::string bible);
-  static void setOdtAutomaticNoteCaller (std::string bible, bool value);
-private:
-  static std::string file (std::string bible);
-  static std::string file (std::string bible, const char * key);
-  static std::string mapkey (std::string bible, const char * key);
-  static std::string getValue (std::string bible, const char * key, const char * default_value);
-  static void setValue (std::string bible, const char * key, std::string value);
-  static bool getBValue (std::string bible, const char * key, bool default_value);
-  static void setBValue (std::string bible, const char * key, bool value);
-  static int getIValue (std::string bible, const char * key, int default_value);
-  static void setIValue (std::string bible, const char * key, int value);
-};
+namespace database::config::bible {
+
+void remove (const std::string& bible);
+std::string get_remote_repository_url (const std::string& bible);
+void set_remote_repository_url (const std::string& bible, const std::string& url);
+bool get_check_double_spaces_usfm (const std::string& bible);
+void set_check_double_spaces_usfm (const std::string& bible, bool value);
+bool get_check_full_stop_in_headings (const std::string& bible);
+void set_check_full_stop_in_headings (const std::string& bible, bool value);
+bool get_check_space_before_punctuation (const std::string& bible);
+void set_check_space_before_punctuation (const std::string& bible, bool value);
+bool get_check_space_before_final_note_marker (const std::string& bible);
+void set_check_space_before_final_note_marker (const std::string& bible, bool value);
+bool get_check_sentence_structure (const std::string& bible);
+void set_check_sentence_structure (const std::string& bible, bool value);
+bool get_check_paragraph_structure (const std::string& bible);
+void set_check_paragraph_structure (const std::string& bible, bool value);
+bool get_check_books_versification (const std::string& bible);
+void set_check_books_versification (const std::string& bible, bool value);
+bool get_check_chaptes_verses_versification (const std::string& bible);
+void set_check_chaptes_verses_versification (const std::string& bible, bool value);
+bool get_check_well_formed_usfm (const std::string& bible);
+void set_check_well_formed_usfm (const std::string& bible, bool value);
+bool get_check_missing_punctuation_end_verse (const std::string& bible);
+void set_check_missing_punctuation_end_verse (const std::string& bible, bool value);
+bool get_check_patterns (const std::string& bible);
+void set_check_patterns (const std::string& bible, bool value);
+std::string get_checking_patterns (const std::string& bible);
+void set_checking_patterns (const std::string& bible, const std::string& value);
+std::string get_sentence_structure_capitals (const std::string& bible);
+void set_sentence_structure_capitals (const std::string& bible, const std::string& value);
+std::string get_sentence_structure_small_letters (const std::string& bible);
+void set_sentence_structure_small_letters (const std::string& bible, const std::string& value);
+std::string get_sentence_structure_end_punctuation (const std::string& bible);
+void set_sentence_structure_end_punctuation (const std::string& bible, const std::string& value);
+std::string get_sentence_structure_middle_punctuation (const std::string& bible);
+void set_sentence_structure_middle_punctuation (const std::string& bible, const std::string& value);
+std::string get_sentence_structure_disregards (const std::string& bible);
+void set_sentence_structure_disregards (const std::string& bible, const std::string& value);
+std::string get_sentence_structure_names (const std::string& bible);
+void set_sentence_structure_names (const std::string& bible, const std::string& value);
+std::string get_sentence_structure_within_sentence_markers (const std::string& bible);
+void set_sentence_structure_within_sentence_markers (const std::string& bible, const std::string& value);
+bool get_check_matching_pairs (const std::string& bible);
+void set_check_matching_pairs (const std::string& bible, bool value);
+std::string get_matching_pairs (const std::string& bible);
+void set_matching_pairs (const std::string& bible, const std::string& value);
+bool get_check_space_end_verse (const std::string& bible);
+void set_check_space_end_verse (const std::string& bible, bool value);
+bool get_check_french_punctuation (const std::string& bible);
+void set_check_french_punctuation (const std::string& bible, bool value);
+bool get_check_french_citation_style (const std::string& bible);
+void set_check_french_citation_style (const std::string& bible, bool value);
+bool get_transpose_fix_spaces_notes (const std::string& bible);
+void set_transpose_fix_spaces_notes (const std::string& bible, bool value);
+bool get_check_valid_utf8_text (const std::string& bible);
+void set_check_valid_utf8_text (const std::string& bible, bool value);
+std::string get_sprint_task_completion_categories (const std::string& bible);
+void set_sprint_task_completion_categories (const std::string& bible, const std::string& value);
+int get_repeat_send_receive (const std::string& bible);
+void set_repeat_send_receive (const std::string& bible, int value);
+bool get_export_chapter_drop_caps_frames (const std::string& bible);
+void set_export_chapter_drop_caps_frames (const std::string& bible, bool value);
+std::string get_page_width (const std::string& bible);
+void set_page_width  (const std::string& bible, const std::string& value);
+std::string get_page_height (const std::string& bible);
+void set_page_height  (const std::string& bible, const std::string& value);
+std::string get_inner_margin (const std::string& bible);
+void set_inner_margin  (const std::string& bible, const std::string& value);
+std::string get_outer_margin (const std::string& bible);
+void set_outer_margin  (const std::string& bible, const std::string& value);
+std::string get_top_margin (const std::string& bible);
+void set_top_margin  (const std::string& bible, const std::string& value);
+std::string get_bottom_margin (const std::string& bible);
+void set_bottom_margin  (const std::string& bible, const std::string& value);
+bool get_date_in_header (const std::string& bible);
+void set_date_in_header  (const std::string& bible, bool value);
+std::string get_hyphenation_first_set (const std::string& bible);
+void set_hyphenation_first_set (const std::string& bible, const std::string& value);
+std::string get_hyphenation_second_set (const std::string& bible);
+void set_hyphenation_second_set (const std::string& bible, const std::string& value);
+std::string get_editor_stylesheet (const std::string& bible);
+void set_editor_stylesheet (const std::string& bible, const std::string& value);
+std::string get_export_stylesheet (const std::string& bible);
+void set_export_stylesheet (const std::string& bible, const std::string& value);
+std::string get_versification_system (const std::string& bible);
+void set_versification_system (const std::string& bible, const std::string& value);
+bool get_export_web_during_night (const std::string& bible);
+void set_export_web_during_night (const std::string& bible, bool value);
+bool get_export_hml_during_night (const std::string& bible);
+void set_export_hml_during_night (const std::string& bible, bool value);
+bool get_export_html_notes_on_hover (const std::string& bible);
+void set_export_html_notes_on_hover (const std::string& bible, bool value);
+bool get_export_usfm_during_night (const std::string& bible);
+void set_export_usfm_during_night (const std::string& bible, bool value);
+bool get_export_text_during_night (const std::string& bible);
+void set_export_text_during_night (const std::string& bible, bool value);
+bool get_export_odt_during_night (const std::string& bible);
+void set_export_odt_during_night (const std::string& bible, bool value);
+bool get_generate_info_during_night (const std::string& bible);
+void set_generate_info_during_night (const std::string& bible, bool value);
+bool get_export_e_sword_during_night (const std::string& bible);
+void set_export_e_sword_during_night (const std::string& bible, bool value);
+bool get_export_online_bible_during_night (const std::string& bible);
+void set_export_online_bible_during_night (const std::string& bible, bool value);
+std::string get_export_password (const std::string& bible);
+void set_export_password (const std::string& bible, const std::string& value);
+bool get_secure_usfm_export (const std::string& bible);
+void set_secure_usfm_export (const std::string& bible, bool value);
+bool get_secure_odt_export (const std::string& bible);
+void set_secure_odt_export (const std::string& bible, bool value);
+std::string get_export_font (const std::string& bible);
+void set_export_font (const std::string& bible, const std::string& value);
+std::string get_export_feedback_email (const std::string& bible);
+void set_export_feedback_email (const std::string& bible, const std::string& value);
+std::string get_book_order (const std::string& bible);
+void set_book_order (const std::string& bible, const std::string& value);
+int get_text_direction (const std::string& bible);
+void set_text_direction (const std::string& bible, int value);
+std::string get_text_font (const std::string& bible);
+void set_text_font (const std::string& bible, const std::string& value);
+std::string get_text_font_client (const std::string& bible);
+void set_text_font_client (const std::string& bible, const std::string& value);
+std::string get_paratext_project (const std::string& bible);
+void set_paratext_project (const std::string& bible, const std::string& value);
+bool get_paratext_collaboration_enabled (const std::string& bible);
+void set_paratext_collaboration_enabled (const std::string& bible, bool value);
+int get_line_height (const std::string& bible);
+void set_line_height (const std::string& bible, int value);
+int get_letter_spacing (const std::string& bible);
+void set_letter_spacing (const std::string& bible, int value);
+bool get_public_feedback_enabled (const std::string& bible);
+void set_public_feedback_enabled (const std::string& bible, bool value);
+bool get_read_from_git (const std::string& bible);
+void set_read_from_git (const std::string& bible, bool value);
+bool get_send_changes_to_rss (const std::string& bible);
+void set_send_changes_to_rss (const std::string& bible, bool value);
+std::string get_odt_space_after_verse (const std::string& bible);
+void set_odt_space_after_verse (const std::string& bible, const std::string& value);
+bool get_daily_checks_enabled (const std::string& bible);
+void set_daily_checks_enabled (const std::string& bible, bool value);
+bool get_odt_poetry_verses_left (const std::string& bible);
+void set_odt_poetry_verses_left (const std::string& bible, bool value);
+bool get_odt_automatic_note_caller (const std::string& bible);
+void set_odt_automatic_note_caller (const std::string& bible, bool value);
+
+}

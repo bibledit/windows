@@ -64,8 +64,8 @@ std::string notes_actions (Webserver_Request& webserver_request)
   std::string success, error;
 
   
-  std::string user = webserver_request.session_logic()->currentUser ();
-  int level = webserver_request.session_logic()->currentLevel ();
+  const std::string& user = webserver_request.session_logic ()->get_username ();
+  int level = webserver_request.session_logic()->get_level ();
 
   
   int id = filter::strings::convert_to_int (webserver_request.query ["id"]);
@@ -121,7 +121,7 @@ std::string notes_actions (Webserver_Request& webserver_request)
   }
 
   
-  view.set_variable ("id", filter::strings::convert_to_string (id));
+  view.set_variable ("id", std::to_string (id));
   
                       
   std::string summary = database_notes.get_summary (id);
@@ -138,7 +138,7 @@ std::string notes_actions (Webserver_Request& webserver_request)
   for (auto & assignee : assignees) {
     assigneeblock << assignee;
     if (level >= Filter_Roles::manager ()) {
-      assigneeblock << "<a href=" << std::quoted ("?id=" + filter::strings::convert_to_string (id) + "&unassign=" + assignee) << "> [" << translate("unassign") << "]</a>";
+      assigneeblock << "<a href=" << std::quoted ("?id=" + std::to_string (id) + "&unassign=" + assignee) << "> [" << translate("unassign") << "]</a>";
       assigneeblock << " | ";
     }
   }

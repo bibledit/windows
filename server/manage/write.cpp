@@ -61,17 +61,17 @@ std::string manage_write (Webserver_Request& webserver_request)
   std::string user {};
   if (webserver_request.query.count ("user")) {
     user = webserver_request.query["user"];
-    Database_Volatile::setValue (userid, "manage_write_user", user);
+    database::volatile_::set_value (userid, "manage_write_user", user);
   }
-  user = Database_Volatile::getValue (userid, "manage_write_user");
+  user = database::volatile_::get_value (userid, "manage_write_user");
   view.set_variable ("user", user);
   
   std::string bible {};
   if (webserver_request.query.count ("bible")) {
     bible = webserver_request.query["bible"];
-    Database_Volatile::setValue (userid, "manage_write_bible", bible);
+    database::volatile_::set_value (userid, "manage_write_bible", bible);
   }
-  bible = Database_Volatile::getValue (userid, "manage_write_bible");
+  bible = database::volatile_::get_value (userid, "manage_write_bible");
   view.set_variable ("bible", bible);
 
   auto [ bible_read_access, bible_write_access ] = DatabasePrivileges::get_bible (user, bible);
@@ -97,7 +97,7 @@ std::string manage_write (Webserver_Request& webserver_request)
   if (!testament.empty ()) {
     // Count the majority 'write' access situation for the Bible.
     int majority = 0;
-    std::vector <int> books = webserver_request.database_bibles()->get_books (bible);
+    std::vector <int> books = database::bibles::get_books (bible);
     for (auto & book : books) {
       std::string type = database::books::book_type_to_string (database::books::get_type (static_cast<book_id>(book)));
       if (type == testament) {
@@ -120,11 +120,11 @@ std::string manage_write (Webserver_Request& webserver_request)
   }
   
   // Read or write access to display.
-  std::vector <int> books = webserver_request.database_bibles()->get_books (bible);
+  std::vector <int> books = database::bibles::get_books (bible);
   for (size_t i = 0; i < books.size (); i++) {
     int book = books[i];
     std::string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
-    std::string checkboxname = "book" + filter::strings::convert_to_string (book);
+    std::string checkboxname = "book" + std::to_string (book);
     bool read, write;
     DatabasePrivileges::get_bible_book (user, bible, book, read, write);
     std::string checked = filter::strings::get_checkbox_status (write);

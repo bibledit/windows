@@ -73,22 +73,22 @@ std::string manage_users (Webserver_Request& webserver_request)
   Assets_View view;
 
 
-  int myLevel = webserver_request.session_logic ()->currentLevel ();
+  int myLevel = webserver_request.session_logic ()->get_level ();
 
 
   // Set the default new user role.
   if (webserver_request.post.count ("defaultacl")) {
     int defaultacl = filter::strings::convert_to_int (webserver_request.post ["defaultacl"]);
-    Database_Config_General::setDefaultNewUserAccessLevel(defaultacl);
+    database::config::general::set_default_new_user_access_level(defaultacl);
     assets_page::success (translate("The default new user is changed."));
   }
 
 
   // Set the chosen default new user role on the option HTML tag.
-  std::string default_acl = filter::strings::convert_to_string (Database_Config_General::getDefaultNewUserAccessLevel ());
+  std::string default_acl = std::to_string (database::config::general::get_default_new_user_access_level ());
   std::string default_acl_html;
-  default_acl_html = Options_To_Select::add_selection ("Guest", filter::strings::convert_to_string(Filter_Roles::guest()), default_acl_html);
-  default_acl_html = Options_To_Select::add_selection ("Member", filter::strings::convert_to_string(Filter_Roles::member()), default_acl_html);
+  default_acl_html = Options_To_Select::add_selection ("Guest", std::to_string(Filter_Roles::guest()), default_acl_html);
+  default_acl_html = Options_To_Select::add_selection ("Member", std::to_string(Filter_Roles::member()), default_acl_html);
   view.set_variable ("defaultacloptags", Options_To_Select::mark_selected (default_acl, default_acl_html));
   view.set_variable ("defaultacl", default_acl);
   
@@ -107,7 +107,7 @@ std::string manage_users (Webserver_Request& webserver_request)
 
       // Set the role of the new created user, it is set as member if no
       // default has been set by an administrator.
-      int role = Database_Config_General::getDefaultNewUserAccessLevel ();
+      int role = database::config::general::get_default_new_user_access_level ();
       webserver_request.database_users ()->add_user(user, user, role, "");
 
       // Set default privileges on new created user.
@@ -170,7 +170,7 @@ std::string manage_users (Webserver_Request& webserver_request)
       dialog_list.add_query ("user", objectUsername);
       for (int i = Filter_Roles::lowest (); i <= Filter_Roles::highest (); i++) {
         if (i <= myLevel) {
-          dialog_list.add_row (Filter_Roles::text (i), "level", filter::strings::convert_to_string (i));
+          dialog_list.add_row (Filter_Roles::text (i), "level", std::to_string (i));
         }
       }
       page += dialog_list.run ();
@@ -207,7 +207,7 @@ std::string manage_users (Webserver_Request& webserver_request)
   
   
   // Fetch all available Bibles.
-  std::vector <std::string> allbibles = webserver_request.database_bibles()->get_bibles ();
+  std::vector <std::string> allbibles = database::bibles::get_bibles ();
   
   
   // Add Bible to user account.
@@ -330,7 +330,7 @@ std::string manage_users (Webserver_Request& webserver_request)
             tbody << "<a href=" << std::quoted("/bible/settings?bible=" + bible) << ">" << bible << "</a>";
             tbody << "<a href=" << std::quoted("write?user=" + username + "&bible=" + bible) << ">";
             int readwritebooks = 0;
-            std::vector <int> books = webserver_request.database_bibles()->get_books (bible);
+            std::vector <int> books = database::bibles::get_books (bible);
             for (auto book : books) {
               DatabasePrivileges::get_bible_book (username, bible, book, read, write);
               if (write) readwritebooks++;
@@ -400,7 +400,7 @@ std::string manage_users (Webserver_Request& webserver_request)
     view.enable_zone ("local");
   }
 
-  if (webserver_request.session_logic()->currentLevel () == Filter_Roles::highest ()) view.enable_zone ("admin_settings");
+  if (webserver_request.session_logic()->get_level () == Filter_Roles::highest ()) view.enable_zone ("admin_settings");
 
   page += view.render ("manage", "users");
 

@@ -94,7 +94,7 @@ std::string manage_accounts (Webserver_Request& webserver_request)
   // Get the account creation times.
   std::map <std::string, int> account_creation_times;
   {
-    std::vector <std::string> lines = Database_Config_General::getAccountCreationTimes ();
+    std::vector <std::string> lines = database::config::general::get_account_creation_times ();
     for (auto line : lines) {
       std::vector <std::string> bits = filter::strings::explode(line, '|');
       if (bits.size() != 2) continue;
@@ -113,7 +113,7 @@ std::string manage_accounts (Webserver_Request& webserver_request)
     const std::string role = Filter_Roles::text (user_level);
     const std::string email = webserver_request.database_users ()->get_email (username);
     const int seconds = filter::date::seconds_since_epoch() - account_creation_times[username];
-    const std::string days = filter::strings::convert_to_string (seconds / (3600 * 24));
+    const std::string days = std::to_string (seconds / (3600 * 24));
     
     // Pass information about this user to the flate engine for display.
     view.add_iteration ("tbody", {

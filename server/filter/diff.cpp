@@ -340,8 +340,7 @@ int filter_diff_word_similarity (std::string oldstring, std::string newstring)
 void filter_diff_produce_verse_level (std::string bible, std::string directory)
 {
   Webserver_Request request;
-  Database_Modifications database_modifications;
-  const std::string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
+  const std::string stylesheet = database::config::bible::get_export_stylesheet (bible);
   
   std::vector <std::string> old_vs_usfm;
   std::vector <std::string> new_vs_usfm;
@@ -353,14 +352,14 @@ void filter_diff_produce_verse_level (std::string bible, std::string directory)
   filter_text_new.html_text_standard = new HtmlText (translate("Bible"));
   filter_text_new.text_text = new Text_Text ();
   
-  std::vector <int> books = database_modifications.getTeamDiffBooks (bible);
+  std::vector <int> books = database::modifications::getTeamDiffBooks (bible);
   for (auto book : books) {
     std::string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
-    std::vector <int> chapters = database_modifications.getTeamDiffChapters (bible, book);
+    std::vector <int> chapters = database::modifications::getTeamDiffChapters (bible, book);
     for (auto chapter : chapters) {
       // Go through the combined verse numbers in the old and new chapter.
-      std::string old_chapter_usfm = database_modifications.getTeamDiff (bible, book, chapter);
-      std::string new_chapter_usfm = request.database_bibles()->get_chapter (bible, book, chapter);
+      std::string old_chapter_usfm = database::modifications::getTeamDiff (bible, book, chapter);
+      std::string new_chapter_usfm = database::bibles::get_chapter (bible, book, chapter);
       std::vector <int> old_verse_numbers = filter::usfm::get_verse_numbers (old_chapter_usfm);
       std::vector <int> new_verse_numbers = filter::usfm::get_verse_numbers (new_chapter_usfm);
       std::vector <int> verses = old_verse_numbers;
@@ -371,10 +370,10 @@ void filter_diff_produce_verse_level (std::string bible, std::string directory)
         std::string old_verse_text = filter::usfm::get_verse_text (old_chapter_usfm, verse);
         std::string new_verse_text = filter::usfm::get_verse_text (new_chapter_usfm, verse);
         if (old_verse_text != new_verse_text) {
-          std::string usfmCode = "\\p " + bookname + " " + filter::strings::convert_to_string (chapter) + "." + filter::strings::convert_to_string (verse) + ": " + old_verse_text;
+          std::string usfmCode = "\\p " + bookname + " " + std::to_string(chapter) + "." + std::to_string(verse) + ": " + old_verse_text;
           old_vs_usfm.push_back (usfmCode);
           filter_text_old.add_usfm_code (usfmCode);
-          usfmCode = "\\p " + bookname + " " + filter::strings::convert_to_string (chapter) + "." + filter::strings::convert_to_string (verse) + ": " + new_verse_text;
+          usfmCode = "\\p " + bookname + " " + std::to_string(chapter) + "." + std::to_string(verse) + ": " + new_verse_text;
           new_vs_usfm.push_back (usfmCode);
           filter_text_new.add_usfm_code (usfmCode);
         }

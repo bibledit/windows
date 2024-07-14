@@ -50,9 +50,6 @@ bool checks_index_acl (Webserver_Request& webserver_request)
 
 std::string checks_index (Webserver_Request& webserver_request)
 {
-  Database_Check database_check {};
-
-  
   std::string page {};
   Assets_Header header = Assets_Header (translate("Checks"), webserver_request);
   header.add_bread_crumb (menu_logic_tools_menu (), menu_logic_tools_text ());
@@ -62,14 +59,14 @@ std::string checks_index (Webserver_Request& webserver_request)
 
   if (webserver_request.query.count ("approve")) {
     const int approve = filter::strings::convert_to_int (webserver_request.query["approve"]);
-    database_check.approve (approve);
+    database::check::approve (approve);
     view.set_variable ("success", translate("The entry was suppressed."));
   }
   
                         
   if (webserver_request.query.count ("delete")) {
     const int erase = filter::strings::convert_to_int (webserver_request.query["delete"]);
-    database_check.erase (erase);
+    database::check::erase (erase);
     view.set_variable ("success", translate("The entry was deleted for just now."));
   }
 
@@ -77,7 +74,7 @@ std::string checks_index (Webserver_Request& webserver_request)
   // Get the Bibles the user has write-access to.
   std::vector <std::string> bibles {};
   {
-    const std::vector <std::string>& all_bibles = webserver_request.database_bibles()->get_bibles ();
+    const std::vector <std::string>& all_bibles = database::bibles::get_bibles ();
     for (const auto& bible : all_bibles) {
       if (access_bible::write (webserver_request, bible)) {
         bibles.push_back (bible);
@@ -87,7 +84,7 @@ std::string checks_index (Webserver_Request& webserver_request)
   
   
   std::stringstream resultblock {};
-  const std::vector <Database_Check_Hit>& hits = database_check.getHits ();
+  const std::vector <database::check::Hit>& hits = database::check::get_hits ();
   for (const auto& hit : hits) {
     std::string bible = hit.bible;
     if (find (bibles.begin(), bibles.end (), bible) != bibles.end ()) {
@@ -96,11 +93,11 @@ std::string checks_index (Webserver_Request& webserver_request)
       int book = hit.book;
       int chapter = hit.chapter;
       int verse = hit.verse;
-      const std::string link = filter_passage_link_for_opening_editor_at (book, chapter, filter::strings::convert_to_string (verse));
+      const std::string link = filter_passage_link_for_opening_editor_at (book, chapter, std::to_string (verse));
       const std::string information = filter::strings::escape_special_xml_characters (hit.data);
       resultblock << "<p>\n";
-      resultblock << "<a href=" << std::quoted("index?approve=" + filter::strings::convert_to_string (id)) << "> ✔ </a>\n";
-      resultblock << "<a href=" << std::quoted ("index?delete=" + filter::strings::convert_to_string (id)) << ">" << filter::strings::emoji_wastebasket () << "</a>\n";
+      resultblock << "<a href=" << std::quoted("index?approve=" + std::to_string (id)) << "> ✔ </a>\n";
+      resultblock << "<a href=" << std::quoted ("index?delete=" + std::to_string (id)) << ">" << filter::strings::emoji_wastebasket () << "</a>\n";
       resultblock << bible;
       resultblock << " ";
       resultblock << link;

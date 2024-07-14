@@ -83,7 +83,7 @@ std::string https_network_port ()
     // The secure port is the plain http port plus one.
     int iport = filter::strings::convert_to_int (config::logic::http_network_port ());
     iport++;
-    port = filter::strings::convert_to_string (iport);
+    port = std::to_string (iport);
   }
   return port;
 }
@@ -151,7 +151,7 @@ std::string site_url (Webserver_Request& webserver_request)
   // No URL found yet.
   // This occurs during scheduled tasks that require the URL to add it to emails sent out.
   // Take the URL stored on login.
-  url = Database_Config_General::getSiteURL ();
+  url = database::config::general::get_site_url ();
   return url;
 }
 
@@ -232,7 +232,7 @@ void swipe_enabled (Webserver_Request& webserver_request, std::string& script)
 {
   bool swipe_operations {false};
   std::string true_false {"false"};
-  if (webserver_request.session_logic ()->touchEnabled ()) {
+  if (webserver_request.session_logic ()->get_touch_enabled ()) {
     if (webserver_request.database_config_user ()->getSwipeActionsAvailable ()) {
       true_false = "true";
       swipe_operations = true;

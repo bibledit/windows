@@ -51,10 +51,6 @@
 void checks_run (std::string bible)
 {
   Webserver_Request webserver_request {};
-  Database_Check database_check {};
-#ifndef HAVE_CLIENT
-  Database_Modifications database_modifications {};
-#endif
 
   
   if (bible.empty()) return;
@@ -63,41 +59,41 @@ void checks_run (std::string bible)
   Database_Logs::log ("Check " + bible + ": Start", Filter_Roles::translator ());
   
   
-  database_check.truncateOutput (bible);
+  database::check::truncate_output (bible);
   
   
-  const std::string stylesheet = Database_Config_Bible::getExportStylesheet (bible);
+  const std::string stylesheet = database::config::bible::get_export_stylesheet (bible);
   
   
-  bool check_double_spaces_usfm = Database_Config_Bible::getCheckDoubleSpacesUsfm (bible);
-  bool check_full_stop_in_headings = Database_Config_Bible::getCheckFullStopInHeadings (bible);
-  bool check_space_before_punctuation = Database_Config_Bible::getCheckSpaceBeforePunctuation (bible);
-  bool check_space_before_final_note_marker = Database_Config_Bible::getCheckSpaceBeforeFinalNoteMarker (bible);
-  bool check_sentence_structure = Database_Config_Bible::getCheckSentenceStructure (bible);
-  bool check_paragraph_structure = Database_Config_Bible::getCheckParagraphStructure (bible);
+  bool check_double_spaces_usfm = database::config::bible::get_check_double_spaces_usfm (bible);
+  bool check_full_stop_in_headings = database::config::bible::get_check_full_stop_in_headings (bible);
+  bool check_space_before_punctuation = database::config::bible::get_check_space_before_punctuation (bible);
+  bool check_space_before_final_note_marker = database::config::bible::get_check_space_before_final_note_marker (bible);
+  bool check_sentence_structure = database::config::bible::get_check_sentence_structure (bible);
+  bool check_paragraph_structure = database::config::bible::get_check_paragraph_structure (bible);
   Checks_Sentences checks_sentences;
-  checks_sentences.enter_capitals (Database_Config_Bible::getSentenceStructureCapitals (bible));
-  checks_sentences.enter_small_letters (Database_Config_Bible::getSentenceStructureSmallLetters (bible));
-  std::string end_marks = Database_Config_Bible::getSentenceStructureEndPunctuation (bible);
+  checks_sentences.enter_capitals (database::config::bible::get_sentence_structure_capitals (bible));
+  checks_sentences.enter_small_letters (database::config::bible::get_sentence_structure_small_letters (bible));
+  std::string end_marks = database::config::bible::get_sentence_structure_end_punctuation (bible);
   checks_sentences.enter_end_marks (end_marks);
-  std::string center_marks = Database_Config_Bible::getSentenceStructureMiddlePunctuation (bible);
+  std::string center_marks = database::config::bible::get_sentence_structure_middle_punctuation (bible);
   checks_sentences.enter_center_marks (center_marks);
-  std::string disregards = Database_Config_Bible::getSentenceStructureDisregards (bible);
+  std::string disregards = database::config::bible::get_sentence_structure_disregards (bible);
   checks_sentences.enter_disregards (disregards);
-  checks_sentences.enter_names (Database_Config_Bible::getSentenceStructureNames (bible));
-  std::vector <std::string> within_sentence_paragraph_markers = filter::strings::explode (Database_Config_Bible::getSentenceStructureWithinSentenceMarkers (bible), ' ');
-  bool check_books_versification = Database_Config_Bible::getCheckBooksVersification (bible);
-  bool check_chapters_verses_versification = Database_Config_Bible::getCheckChaptesVersesVersification (bible);
-  bool check_well_formed_usfm = Database_Config_Bible::getCheckWellFormedUsfm (bible);
+  checks_sentences.enter_names (database::config::bible::get_sentence_structure_names (bible));
+  std::vector <std::string> within_sentence_paragraph_markers = filter::strings::explode (database::config::bible::get_sentence_structure_within_sentence_markers (bible), ' ');
+  bool check_books_versification = database::config::bible::get_check_books_versification (bible);
+  bool check_chapters_verses_versification = database::config::bible::get_check_chaptes_verses_versification (bible);
+  bool check_well_formed_usfm = database::config::bible::get_check_well_formed_usfm (bible);
   Checks_Usfm checks_usfm = Checks_Usfm (bible);
-  bool check_missing_punctuation_end_verse = Database_Config_Bible::getCheckMissingPunctuationEndVerse (bible);
-  bool check_patterns = Database_Config_Bible::getCheckPatterns (bible);
-  std::string s_checking_patterns = Database_Config_Bible::getCheckingPatterns (bible);
+  bool check_missing_punctuation_end_verse = database::config::bible::get_check_missing_punctuation_end_verse (bible);
+  bool check_patterns = database::config::bible::get_check_patterns (bible);
+  std::string s_checking_patterns = database::config::bible::get_checking_patterns (bible);
   std::vector <std::string> checking_patterns = filter::strings::explode (s_checking_patterns, '\n');
-  bool check_matching_pairs = Database_Config_Bible::getCheckMatchingPairs (bible);
+  bool check_matching_pairs = database::config::bible::get_check_matching_pairs (bible);
   std::vector <std::pair <std::string, std::string> > matching_pairs;
   {
-    const std::string fragment = Database_Config_Bible::getMatchingPairs (bible);
+    const std::string fragment = database::config::bible::get_matching_pairs (bible);
     std::vector <std::string> pairs = filter::strings::explode (fragment, ' ');
     for (auto& pair : pairs) {
       pair = filter::strings::trim (pair);
@@ -109,26 +105,26 @@ void checks_run (std::string bible)
       }
     }
   }
-  bool check_space_end_verse = Database_Config_Bible::getCheckSpaceEndVerse (bible);
-  bool check_french_punctuation = Database_Config_Bible::getCheckFrenchPunctuation (bible);
-  bool check_french_citation_style = Database_Config_Bible::getCheckFrenchCitationStyle (bible);
-  bool transpose_fix_space_in_notes = Database_Config_Bible::getTransposeFixSpacesNotes (bible);
-  bool check_valid_utf8_text = Database_Config_Bible::getCheckValidUTF8Text (bible);
+  bool check_space_end_verse = database::config::bible::get_check_space_end_verse (bible);
+  bool check_french_punctuation = database::config::bible::get_check_french_punctuation (bible);
+  bool check_french_citation_style = database::config::bible::get_check_french_citation_style (bible);
+  bool transpose_fix_space_in_notes = database::config::bible::get_transpose_fix_spaces_notes (bible);
+  bool check_valid_utf8_text = database::config::bible::get_check_valid_utf8_text (bible);
 
   
-  const std::vector <int> books = webserver_request.database_bibles()->get_books (bible);
+  const std::vector <int> books = database::bibles::get_books (bible);
   if (check_books_versification) checks_versification::books (bible, books);
   
   
   for (auto book : books) {
     
     
-    const std::vector <int> chapters = webserver_request.database_bibles()->get_chapters (bible, book);
+    const std::vector <int> chapters = database::bibles::get_chapters (bible, book);
     if (check_chapters_verses_versification) checks_versification::chapters (bible, book, chapters);
     
     
     for (auto chapter : chapters) {
-      std::string chapterUsfm = webserver_request.database_bibles()->get_chapter (bible, book, chapter);
+      std::string chapterUsfm = database::bibles::get_chapter (bible, book, chapter);
     
       
       // Transpose and fix spacing around certain markers in footnotes and cross references.
@@ -137,15 +133,15 @@ void checks_run (std::string bible)
         const bool transposed = checks::space::transpose_note_space (chapterUsfm);
         if (transposed) {
 #ifndef HAVE_CLIENT
-          const int oldID = webserver_request.database_bibles()->get_chapter_id (bible, book, chapter);
+          const int oldID = database::bibles::get_chapter_id (bible, book, chapter);
 #endif
-          webserver_request.database_bibles()->store_chapter(bible, book, chapter, chapterUsfm);
+          database::bibles::store_chapter(bible, book, chapter, chapterUsfm);
 #ifndef HAVE_CLIENT
-          const int newID = webserver_request.database_bibles()->get_chapter_id (bible, book, chapter);
+          const int newID = database::bibles::get_chapter_id (bible, book, chapter);
           const std::string username = "Bibledit";
-          database_modifications.recordUserSave (username, bible, book, chapter, oldID, old_usfm, newID, chapterUsfm);
+          database::modifications::recordUserSave (username, bible, book, chapter, oldID, old_usfm, newID, chapterUsfm);
           if (sendreceive_git_repository_linked (bible)) {
-            Database_Git::store_chapter (username, bible, book, chapter, old_usfm, chapterUsfm);
+            database::git::store_chapter (username, bible, book, chapter, old_usfm, chapterUsfm);
           }
           rss_logic_schedule_update (username, bible, book, chapter, old_usfm, chapterUsfm);
 #endif
@@ -166,7 +162,7 @@ void checks_run (std::string bible)
         if (check_valid_utf8_text) {
           if (!filter::strings::unicode_string_is_valid (verseUsfm)) {
             const std::string msg = "Invalid UTF-8 Unicode in verse text";
-            database_check.recordOutput (bible, book, chapter, verse, msg);
+            database::check::record_output (bible, book, chapter, verse, msg);
           }
         }
         if (check_space_before_final_note_marker) {
@@ -202,7 +198,7 @@ void checks_run (std::string bible)
         for (const auto& result : results) {
           const int verse = result.first;
           const std::string msg = result.second;
-          database_check.recordOutput (bible, book, chapter, verse, msg);
+          database::check::record_output (bible, book, chapter, verse, msg);
         }
       }
 
@@ -214,7 +210,7 @@ void checks_run (std::string bible)
         for (const auto& element : results) {
           const int verse = element.first;
           const std::string msg = element.second;
-          database_check.recordOutput (bible, book, chapter, verse, msg);
+          database::check::record_output (bible, book, chapter, verse, msg);
         }
       }
 
@@ -249,10 +245,10 @@ void checks_run (std::string bible)
   
   // Create an email with the checking results for this bible.
   std::vector <std::string> emailBody;
-  std::vector <Database_Check_Hit> hits = database_check.getHits ();
+  std::vector <database::check::Hit> hits = database::check::get_hits ();
   for (const auto & hit : hits) {
     if (hit.bible == bible) {
-      const std::string passage = filter_passage_display_inline ({Passage ("", hit.book, hit.chapter, filter::strings::convert_to_string (hit.verse))});
+      const std::string passage = filter_passage_display_inline ({Passage ("", hit.book, hit.chapter, std::to_string (hit.verse))});
       const std::string data = filter::strings::escape_special_xml_characters (hit.data);
       const std::string result = "<p>" + passage + " " + data + "</p>";
       emailBody.push_back (result);

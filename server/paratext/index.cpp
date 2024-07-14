@@ -63,7 +63,7 @@ std::string paratext_index (Webserver_Request& webserver_request)
     if (select == "") {
       Dialog_List dialog_list = Dialog_List ("index", translate("Which Bible are you going to use?"), "", "");
       dialog_list.add_query ("bible", bible);
-      std::vector <std::string> bibles = webserver_request.database_bibles()->get_bibles();
+      std::vector <std::string> bibles = database::bibles::get_bibles();
       for (auto & value : bibles) {
         dialog_list.add_row (value, "selectbible", value);
       }
@@ -76,8 +76,8 @@ std::string paratext_index (Webserver_Request& webserver_request)
   
   
   if (webserver_request.query.count ("disable")) {
-    Database_Config_Bible::setParatextProject (bible, "");
-    Database_Config_Bible::setParatextCollaborationEnabled (bible, false);
+    database::config::bible::set_paratext_project (bible, "");
+    database::config::bible::set_paratext_collaboration_enabled (bible, false);
     filter_url_rmdir (Paratext_Logic::ancestorPath (bible, 0));
     bible.clear ();
   }
@@ -88,7 +88,7 @@ std::string paratext_index (Webserver_Request& webserver_request)
   
   
   // Paratext Projects folder.
-  std::string paratext_folder = Database_Config_General::getParatextProjectsFolder ();
+  std::string paratext_folder = database::config::general::get_paratext_projects_folder ();
   if (!file_or_dir_exists (paratext_folder)) paratext_folder.clear ();
   
   if (webserver_request.query.count ("paratextfolder")) {
@@ -110,7 +110,7 @@ std::string paratext_index (Webserver_Request& webserver_request)
 
   if (paratext_folder.empty ()) paratext_folder = Paratext_Logic::searchProjectsFolder ();
 
-  Database_Config_General::setParatextProjectsFolder (paratext_folder);
+  database::config::general::set_paratext_projects_folder (paratext_folder);
   view.set_variable ("paratextfolder", paratext_folder);
   if (paratext_folder.empty ()) {
     view.set_variable ("paratextfolder", translate ("not found"));
@@ -120,7 +120,7 @@ std::string paratext_index (Webserver_Request& webserver_request)
 
   
   // Paratext Project.
-  std::string paratext_project = Database_Config_Bible::getParatextProject (bible);
+  std::string paratext_project = database::config::bible::get_paratext_project (bible);
   if (!file_or_dir_exists (filter_url_create_path ({paratext_folder, paratext_project}))) paratext_project.clear ();
   
   if (webserver_request.query.count ("paratextproject")) {
@@ -139,7 +139,7 @@ std::string paratext_index (Webserver_Request& webserver_request)
     }
   }
   
-  Database_Config_Bible::setParatextProject (bible, paratext_project);
+  database::config::bible::set_paratext_project (bible, paratext_project);
   view.set_variable ("paratextproject", paratext_project);
   if (!paratext_project.empty ()) view.enable_zone ("paratextprojectactive");
 
@@ -158,8 +158,8 @@ std::string paratext_index (Webserver_Request& webserver_request)
       // Set collaboration up.
       tasks_logic_queue (SETUPPARATEXT, { bible, master });
       success = translate ("The collaboration will be set up");
-      if (Database_Config_General::getRepeatSendReceive () == 0) {
-        Database_Config_General::setRepeatSendReceive (2);
+      if (database::config::general::get_repeat_send_receive () == 0) {
+        database::config::general::set_repeat_send_receive (2);
       }
       view.set_variable ("master", master);
       view.enable_zone ("setuprunning");
