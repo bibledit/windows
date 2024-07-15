@@ -551,8 +551,6 @@
 /mbedtls/0readme.txt
 /mbedtls_2.x
 /mbedtls_2.x/0readme.txt
-/mbedtls.old
-/mbedtls.old/0readme.txt
 /menu
 /microtar
 /microtar/LICENSE
