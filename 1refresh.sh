@@ -18,6 +18,7 @@ echo Build the core library once more
 # There were cases that an inconsistent system
 # led to this script failing.
 cd $WINDOWSDIR
+if [ $? != 0 ]; then exit; fi
 cd ../cloud
 if [ $? != 0 ]; then exit; fi
 make --jobs=4
