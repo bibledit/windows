@@ -90,10 +90,19 @@ sed -i.bak '/HAVE_UTF8PROC/d' config.h
 if [ $? != 0 ]; then exit; fi
 
 
-# Disable threading in mbedTLS on Windows.
-sed -i.bak '/#define MBEDTLS_THREADING_C/d' mbedtls/mbedtls_config.h
+# Since Windows did have a few build problem on mbedTLS 3.x,
+# use mbedTLS 2.x just now.
+rm -rf mbedtls
 if [ $? != 0 ]; then exit; fi
-sed -i.bak '/#define MBEDTLS_THREADING_PTHREAD/d' mbedtls/mbedtls_config.h
+mv mbedtls2windows mbedtls
+if [ $? != 0 ]; then exit; fi
+
+# Disable threading in mbedTLS on Windows.
+# sed -i.bak '/#define MBEDTLS_THREADING_C/d' mbedtls/mbedtls_config.h
+sed -i.bak '/#define MBEDTLS_THREADING_C/d' mbedtls/config.h
+if [ $? != 0 ]; then exit; fi
+# sed -i.bak '/#define MBEDTLS_THREADING_PTHREAD/d' mbedtls/mbedtls_config.h
+sed -i.bak '/#define MBEDTLS_THREADING_PTHREAD/d' mbedtls/config.h
 if [ $? != 0 ]; then exit; fi
 
 
