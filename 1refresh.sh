@@ -90,11 +90,11 @@ sed -i.bak '/HAVE_UTF8PROC/d' config.h
 if [ $? != 0 ]; then exit; fi
 
 
-# Since Windows did have a few build problem on mbedTLS 3.x,
-# use mbedTLS 2.x just now.
+# Windows has a few build problems on mbedTLS 3.x.
+# Use mbedTLS 2.x just now.
 rm -rf mbedtls
 if [ $? != 0 ]; then exit; fi
-mv mbedtls2windows mbedtls
+mv mbedtls2 mbedtls
 if [ $? != 0 ]; then exit; fi
 
 # Disable threading in mbedTLS on Windows.

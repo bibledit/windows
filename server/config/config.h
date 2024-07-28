@@ -95,5 +95,3 @@
 #define HAVE_TINY_JOURNAL 1
 #undef RUN_SECURE_SERVER
 #endif
-
-
