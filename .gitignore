@@ -75,3 +75,6 @@ gui/bibledit/bin/Release/*
 packages/cef*
 server/x64/*
 *.xcuserstate
+*.vsidx
+.vs/gui/v17
+.vs/server/v17
