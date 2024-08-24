@@ -597,9 +597,6 @@
     <ClCompile Include="manage\write.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="export\bibledropbox.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="export\esword.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -322,7 +322,6 @@
     <ClCompile Include="email\send.cpp" />
     <ClCompile Include="esword\text.cpp" />
     <ClCompile Include="executable\bibledit.cpp" />
-    <ClCompile Include="export\bibledropbox.cpp" />
     <ClCompile Include="export\esword.cpp" />
     <ClCompile Include="export\html.cpp" />
     <ClCompile Include="export\index.cpp" />
