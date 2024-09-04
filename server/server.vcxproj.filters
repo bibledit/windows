@@ -1158,10 +1158,10 @@
     <ClCompile Include="mbedtls\aes.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mbedtls\aesni.c">
+    <ClCompile Include="mbedtls\aesce.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mbedtls\arc4.c">
+    <ClCompile Include="mbedtls\aesni.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\aria.c">
@@ -1179,16 +1179,22 @@
     <ClCompile Include="mbedtls\bignum.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mbedtls\blowfish.c">
+    <ClCompile Include="mbedtls\bignum_core.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\bignum_mod.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\bignum_mod_raw.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\block_cipher.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\camellia.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\ccm.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="mbedtls\certs.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\chacha20.c">
@@ -1204,6 +1210,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\cmac.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\constant_time.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\ctr_drbg.c">
@@ -1233,6 +1242,9 @@
     <ClCompile Include="mbedtls\ecp_curves.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="mbedtls\ecp_curves_new.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="mbedtls\entropy.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1245,31 +1257,31 @@
     <ClCompile Include="mbedtls\gcm.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mbedtls\havege.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="mbedtls\hkdf.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\hmac_drbg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="mbedtls\lmots.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\lms.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="mbedtls\md.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="mbedtls\md_wrap.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="mbedtls\md2.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="mbedtls\md4.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\md5.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\memory_buffer_alloc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\mps_reader.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\mps_trace.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\net_sockets.c">
@@ -1290,13 +1302,16 @@
     <ClCompile Include="mbedtls\pk.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="mbedtls\pk_ecc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="mbedtls\pk_wrap.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\pkcs5.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mbedtls\pkcs11.c">
+    <ClCompile Include="mbedtls\pkcs7.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\pkcs12.c">
@@ -1317,16 +1332,67 @@
     <ClCompile Include="mbedtls\poly1305.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="mbedtls\psa_crypto.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\psa_crypto_aead.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\psa_crypto_cipher.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\psa_crypto_client.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\psa_crypto_driver_wrappers_no_static.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\psa_crypto_ecp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\psa_crypto_ffdh.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\psa_crypto_hash.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\psa_crypto_mac.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\psa_crypto_pake.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\psa_crypto_rsa.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\psa_crypto_se.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\psa_crypto_slot_management.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\psa_crypto_storage.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\psa_its_file.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\psa_util.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="mbedtls\ripemd160.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\rsa.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mbedtls\rsa_internal.c">
+    <ClCompile Include="mbedtls\rsa_alt_helpers.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\sha1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\sha3.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\sha256.c">
@@ -1341,19 +1407,40 @@
     <ClCompile Include="mbedtls\ssl_ciphersuites.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mbedtls\ssl_cli.c">
+    <ClCompile Include="mbedtls\ssl_client.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\ssl_cookie.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mbedtls\ssl_srv.c">
+    <ClCompile Include="mbedtls\ssl_debug_helpers_generated.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ssl_msg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\ssl_ticket.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\ssl_tls.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ssl_tls12_client.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ssl_tls12_server.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ssl_tls13_client.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ssl_tls13_generic.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ssl_tls13_keys.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mbedtls\ssl_tls13_server.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\threading.c">
@@ -1383,13 +1470,13 @@
     <ClCompile Include="mbedtls\x509_csr.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="mbedtls\x509write.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="mbedtls\x509write_crt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mbedtls\x509write_csr.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="mbedtls\xtea.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
