@@ -175,7 +175,7 @@ std::string sync_bibles (Webserver_Request& webserver_request)
       // and returns this checksum to the client.
       const std::string& username = webserver_request.session_logic ()->get_username ();
       std::vector <std::string> bibles = access_bible::bibles (webserver_request, username);
-      std::string server_checksum = checksum_logic::get_bibles (webserver_request, bibles);
+      std::string server_checksum = checksum_logic::get_bibles (bibles);
       return server_checksum;
     }
     case Sync_Logic::bibles_get_bibles:
@@ -191,7 +191,7 @@ std::string sync_bibles (Webserver_Request& webserver_request)
     case Sync_Logic::bibles_get_bible_checksum:
     {
       // The server responds with the checksum for the whole Bible.
-      return checksum_logic::get_bible (webserver_request, bible);
+      return checksum_logic::get_bible (bible);
     }
     case Sync_Logic::bibles_get_books:
     {
@@ -206,7 +206,7 @@ std::string sync_bibles (Webserver_Request& webserver_request)
     case Sync_Logic::bibles_get_book_checksum:
     {
       // The server responds with the checksum of the whole book.
-      return checksum_logic::get_book (webserver_request, bible, book);
+      return checksum_logic::get_book (bible, book);
     }
     case Sync_Logic::bibles_get_chapters:
     {
@@ -221,7 +221,7 @@ std::string sync_bibles (Webserver_Request& webserver_request)
     case Sync_Logic::bibles_get_chapter_checksum:
     {
       // The server responds with the checksum of the whole chapter.
-      return checksum_logic::get_chapter (webserver_request, bible, book, chapter);
+      return checksum_logic::get_chapter (bible, book, chapter);
     }
     case Sync_Logic::bibles_send_chapter:
     {

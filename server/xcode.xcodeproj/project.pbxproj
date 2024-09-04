@@ -20,6 +20,7 @@
 		CA104BB6277B96B300BD2E7C /* libmimetic.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmimetic.0.dylib; path = ../../../../usr/local/lib/libmimetic.0.dylib; sourceTree = "<group>"; };
 		CA1B741925F54DC90030846D /* confirm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = confirm.h; sourceTree = "<group>"; };
 		CA1B741A25F54DC90030846D /* confirm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = confirm.cpp; sourceTree = "<group>"; };
+		CA1E933D2C845FE90063C62E /* entropy_poll.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = entropy_poll.c; sourceTree = "<group>"; };
 		CA23A6F92781ED8E00A7A23B /* readme.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
 		CA23A6FA2781EE5500A7A23B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		CA29E745292C07BE003AC875 /* language_zh_cn.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = language_zh_cn.h; sourceTree = "<group>"; };
@@ -1894,8 +1895,6 @@
 		CAECA50825EFDE1E00650B41 /* divider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = divider.cpp; sourceTree = "<group>"; };
 		CAECA50925EFDE1E00650B41 /* divider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = divider.h; sourceTree = "<group>"; };
 		CAECA50A25EFDE1E00650B41 /* divider.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = divider.html; sourceTree = "<group>"; };
-		CAEF232E28D75DC600618C35 /* logic.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = logic.h; sourceTree = "<group>"; };
-		CAEF232F28D75DC600618C35 /* logic.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = logic.cpp; sourceTree = "<group>"; };
 		CAF563462729364E0093614C /* jquery.longpress.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = jquery.longpress.js; sourceTree = "<group>"; };
 		CAFA33C329269F1100474A52 /* libpugixml.1.12.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpugixml.1.12.dylib; path = ../../../../opt/local/lib/libpugixml.1.12.dylib; sourceTree = "<group>"; };
 		CAFD9257280DAD2C00345F1D /* coloris */ = {isa = PBXFileReference; lastKnownFileType = folder; path = coloris; sourceTree = "<group>"; };
@@ -3036,8 +3035,6 @@
 			children = (
 				CADE3AAA24F17424003165BB /* i18n.cpp */,
 				CADE3AA924F17424003165BB /* i18n.sh */,
-				CAEF232F28D75DC600618C35 /* logic.cpp */,
-				CAEF232E28D75DC600618C35 /* logic.h */,
 			);
 			path = i18n;
 			sourceTree = "<group>";
@@ -3584,9 +3581,10 @@
 			children = (
 				CADE3D7F24F17471003165BB /* 0readme.txt */,
 				CAD8ED092C3972A8006DF2D6 /* build_info.h */,
+				CA1E933D2C845FE90063C62E /* entropy_poll.c */,
 				CAD8ED0A2C3972D4006DF2D6 /* mbedtls_config.h */,
-				CAD8ED0C2C397957006DF2D6 /* net_sockets.h */,
 				CAD8ED0B2C3978BA006DF2D6 /* net_sockets.c */,
+				CAD8ED0C2C397957006DF2D6 /* net_sockets.h */,
 				CAD8ED0D2C397CED006DF2D6 /* ssl.h */,
 			);
 			path = mbedtls;

@@ -56,7 +56,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  In older versions the notes were stored as a bundle of separate files.
  In newer versions each note is stored as one JSON file.
  This uses less space on disk.
- In older versions, on a Linux server, one notes took 32 kbytes.
+ In older versions, on a Linux server, one note took 32 kbytes.
  A lot of that space is wasted.
  In newer versions one notes takes only 4 kbytes.
  That is a difference of 8 times.
@@ -184,21 +184,21 @@ bool Database_Notes::checkup_checksums ()
 void Database_Notes::trim ()
 {
   // Clean empty directories.
-  std::string message = "Deleting empty notes folder ";
-  std::string main_folder = main_folder_path ();
-  std::vector <std::string> bits1 = filter_url_scandir (main_folder);
-  for (auto bit1 : bits1) {
+  const std::string message = "Deleting empty notes folder ";
+  const std::string main_folder = main_folder_path ();
+  const std::vector <std::string> bits1 = filter_url_scandir (main_folder);
+  for (const auto& bit1 : bits1) {
     if (bit1.length () == 3) {
-      std::string folder1 = filter_url_create_path ({main_folder, bit1});
-      std::vector <std::string> bits2 = filter_url_scandir (folder1);
+      const std::string folder1 = filter_url_create_path ({main_folder, bit1});
+      const std::vector <std::string> bits2 = filter_url_scandir (folder1);
       if (bits2.empty ()) {
         Database_Logs::log (message + folder1);
         remove (folder1.c_str ());
       }
-      for (auto bit2 : bits2) {
+      for (const auto& bit2 : bits2) {
         if (bit2.length () == 3) {
-          std::string folder2 = filter_url_create_path ({main_folder, bit1, bit2});
-          std::vector <std::string> bits3 = filter_url_scandir (folder2);
+          const std::string folder2 = filter_url_create_path ({main_folder, bit1, bit2});
+          const std::vector <std::string> bits3 = filter_url_scandir (folder2);
           if (bits3.empty ()) {
             Database_Logs::log (message + folder2);
             remove (folder2.c_str());
@@ -214,11 +214,9 @@ void Database_Notes::trim_server ()
 {
   // Notes expiry.
   touch_marked_for_deletion ();
-  /// Storage for notes to be deleted.
-  std::vector <int> identifiers;
-  // Deal with new notes storage in JSON.
-  identifiers = get_due_for_deletion ();
-  for (auto & identifier : identifiers) {
+  // Storage for notes to be deleted.
+  const std::vector <int> identifiers = get_due_for_deletion ();
+  for (const auto identifier : identifiers) {
     trash_consultation_note (m_webserver_request, identifier);
     erase (identifier);
   }
@@ -235,34 +233,39 @@ void Database_Notes::optimize ()
 
 void Database_Notes::sync ()
 {
-  std::string main_folder = main_folder_path ();
+  const std::string main_folder = main_folder_path ();
 
-  // List of notes in the filesystem.
-  std::vector <int> identifiers;
+  // The good notes in the filesystem.
+  std::vector <int> good_note_ids;
 
-  std::vector <std::string> bits1 = filter_url_scandir (main_folder);
-  for (auto & bit1 : bits1) {
+  // Gather the notes from the filesystem and update indices.
+  const std::vector <std::string> bits1 = filter_url_scandir (main_folder);
+  for (const auto& bit1 : bits1) {
     // Bit 1 / 2 / 3 may start with a 0, so conversion to int cannot be used, rather use a length of 3.
     // It used conversion to int before to determine it was a real note,
     // with the result that it missed 10% of the notes, which subsequently got deleted, oops!
     if (bit1.length () == 3) {
-      std::vector <std::string> bits2 = filter_url_scandir (filter_url_create_path ({main_folder, bit1}));
-      for (auto & bit2 : bits2) {
+      const std::vector <std::string> bits2 = filter_url_scandir (filter_url_create_path ({main_folder, bit1}));
+      for (const auto& bit2 : bits2) {
         // Old storage mechanism, e.g. folder "425".
         if (bit2.length () == 3) {
-          std::vector <std::string> bits3 = filter_url_scandir (filter_url_create_path ({main_folder, bit1, bit2}));
-          for (auto & bit3 : bits3) {
+          const std::vector <std::string> bits3 = filter_url_scandir (filter_url_create_path ({main_folder, bit1, bit2}));
+          for (const auto& bit3 : bits3) {
             if (bit3.length () == 3) {
-              int identifier = filter::strings::convert_to_int (bit1 + bit2 + bit3);
-              identifiers.push_back (identifier);
+              const int identifier = filter::strings::convert_to_int (bit1 + bit2 + bit3);
+              good_note_ids.push_back (identifier);
               update_search_fields (identifier);
             }
           }
         }
         // New JSON storage mechanism, e.g. file "894093.json".
         if ((bit2.length () == 11) && bit2.find (".json") != std::string::npos) {
-          int identifier = filter::strings::convert_to_int (bit1 + bit2.substr (0,6));
-          identifiers.push_back (identifier);
+          const int identifier = filter::strings::convert_to_int (bit1 + bit2.substr (0,6));
+          if (get_raw_passage (identifier).empty()) {
+            Database_Logs::log ("Damaged consultation note found");
+            continue;
+          }
+          good_note_ids.push_back (identifier);
           update_database (identifier);
           update_search_fields (identifier);
           update_checksum (identifier);
@@ -281,8 +284,8 @@ void Database_Notes::sync ()
   }
 
   // Any note identifiers in the main index, and not in the filesystem, remove them.
-  for (auto id : database_identifiers) {
-    if (find (identifiers.begin(), identifiers.end(), id) == identifiers.end()) {
+  for (const auto id : database_identifiers) {
+    if (std::find (good_note_ids.cbegin(), good_note_ids.cend(), id) == good_note_ids.cend()) {
       trash_consultation_note (m_webserver_request, id);
       erase (id);
     }
@@ -298,8 +301,8 @@ void Database_Notes::sync ()
   }
 
   // Any note identifiers in the checksums database, and not in the filesystem, remove them.
-  for (auto id : database_identifiers) {
-    if (find (identifiers.begin(), identifiers.end(), id) == identifiers.end()) {
+  for (const auto id : database_identifiers) {
+    if (std::find (good_note_ids.cbegin(), good_note_ids.cend(), id) == good_note_ids.end()) {
       delete_checksum (id);
     }
   }
@@ -309,15 +312,15 @@ void Database_Notes::sync ()
 void Database_Notes::update_database (int identifier)
 {
   // Read the relevant values from the filesystem.
-  int modified = get_modified (identifier);
-  std::string assigned = get_field (identifier, assigned_key ());
-  std::string subscriptions = get_field (identifier, subscriptions_key ());
-  std::string bible = get_bible (identifier);
-  std::string passage = get_raw_passage (identifier);
-  std::string status = get_raw_status (identifier);
-  int severity = get_raw_severity (identifier);
-  std::string summary = get_summary (identifier);
-  std::string contents = get_contents (identifier);
+  const int modified = get_modified (identifier);
+  const std::string assigned = get_field (identifier, assigned_key ());
+  const std::string subscriptions = get_field (identifier, subscriptions_key ());
+  const std::string bible = get_bible (identifier);
+  const std::string passage = get_raw_passage (identifier);
+  const std::string status = get_raw_status (identifier);
+  const int severity = get_raw_severity (identifier);
+  const std::string summary = get_summary (identifier);
+  const std::string contents = get_contents (identifier);
   
   // Sync the values to the database.
   update_database_internal (identifier, modified, assigned, subscriptions, bible, passage, status, severity, summary, contents);
@@ -404,9 +407,9 @@ std::string Database_Notes::note_file (int identifier)
 {
   // The maximum number of folders a folder may contain is constrained by the filesystem.
   // To overcome this, the notes will be stored in a folder structure.
-  std::string sidentifier = std::to_string (identifier);
-  std::string folder = sidentifier.substr (0, 3);
-  std::string file = sidentifier.substr (3, 6) + ".json";
+  const std::string id_path = std::to_string (identifier);
+  const std::string folder = id_path.substr (0, 3);
+  const std::string file = id_path.substr (3, 6) + ".json";
   return filter_url_create_path ({main_folder_path (), folder, file});
 }
 
@@ -1882,15 +1885,15 @@ std::vector <std::string> Database_Notes::set_bulk (std::string json)
 
 
 // Gets a field from a note in JSON format.
-std::string Database_Notes::get_field (int identifier, std::string key)
+std::string Database_Notes::get_field (int identifier, const std::string& key)
 {
-  std::string file = note_file (identifier);
-  std::string json = filter_url_file_get_contents (file);
+  const std::string file = note_file (identifier);
+  const std::string json = filter_url_file_get_contents (file);
   jsonxx::Object note;
   note.parse (json);
-  std::string value;
-  if (note.has<jsonxx::String> (key)) value = note.get<jsonxx::String> (key);
-  return value;
+  if (note.has<jsonxx::String> (key))
+    return note.get<jsonxx::String> (key);
+  return std::string();
 }
 
 

@@ -211,9 +211,10 @@ private:
   
 private:
   friend void test_database_notes ();
+  friend void test_indexing_fixes_damaged_note ();
 
 private:
-  std::string get_field (int identifier, std::string key);
+  std::string get_field (int identifier, const std::string& key);
   void set_field (int identifier, std::string key, std::string value);
 
 };
