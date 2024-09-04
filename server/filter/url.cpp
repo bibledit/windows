@@ -35,6 +35,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #endif
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wc99-extensions"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wswitch-enum"
 #include <mbedtls/version.h>
 #include <mbedtls/platform.h>
 #include "mbedtls/net_sockets.h"
@@ -44,8 +47,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/error.h"
 #pragma GCC diagnostic pop
+#ifdef HAVE_WINDOWS
 #pragma comment(lib, "bcrypt.lib")
-
+#endif
 
 // Static check on required definitions, taken from the ssl_client1.c example.
 #ifndef MBEDTLS_BIGNUM_C
@@ -99,7 +103,7 @@ static mbedtls_ctr_drbg_context ctr_drbg_context;
 static mbedtls_entropy_context entropy_context;
 
 
-static std::vector <std::string> filter_url_scandir_internal (std::string folder) // Todo Windows part out?
+static std::vector <std::string> filter_url_scandir_internal (std::string folder)
 {
   std::vector <std::string> files;
   
@@ -790,7 +794,7 @@ int filter_url_file_modification_time (std::string filename)
 {
   struct stat attributes;
   stat (filename.c_str (), &attributes);
-  return (int) attributes.st_mtime;
+  return static_cast<int> (attributes.st_mtime);
 }
 #endif
 
@@ -972,6 +976,7 @@ static void filter_url_curl_debug_dump (const char *text, FILE *stream, unsigned
 
 // The trace function for libcurl.
 #ifdef HAVE_CLOUD
+[[maybe_unused]]
 static int filter_url_curl_trace (CURL *handle, curl_infotype type, char *data, size_t size, void *userp)
 {
   const char* text { nullptr };
