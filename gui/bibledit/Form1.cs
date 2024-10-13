@@ -16,11 +16,17 @@ namespace Bibledit
 
     public partial class Form1 : Form
     {
+        // The file to save and retrieve the state of the main window.
         string windowstate = "windowstate.txt";
+        // The server process, that is, the Bibledit core.
         Process BibleditCore;
+        // Timer for checking on whether to open a URL in the external browser.
         private System.Timers.Timer externalUrlTimer;
+        // Timer for checking on a focused reference from Paratext.
         private System.Timers.Timer focusedReferenceTimer;
+        // Timer for initializing the browser once.
         private DispatcherTimer dispatcherTimer = null;
+        // The port number to navigate to, determined by the Bibldit core.
         String portNumber = String.Empty;
 
 
@@ -146,15 +152,6 @@ namespace Bibledit
                 }
             });
             BibleditCore.Start();
-            // Set the server to run on one processor only. 
-            // That gives a huge boost to the speed of the Cygwin library.
-            // The difference in speed is clear: It runs times faster.
-            // When a background task runs in Bibledit, the GUI takes a long time to respond without this processor affinity.
-            // http://zachsaw.blogspot.nl/2012/10/multithreading-under-cygwin.html
-            // http://stackoverflow.com/questions/2510593/how-can-i-set-processor-affinity-in-net
-            // What works well too: PsExec.exe -a 1 server.exe
-            // After the C++ code was compiled through Visual Studio, the processor limit is no longer relevant.
-            // BibleditCore.ProcessorAffinity = (IntPtr)1;
 
             // Asynchronously read the standard output of the spawned process.
             // This raises OutputDataReceived events for each line of output.
@@ -306,8 +303,15 @@ namespace Bibledit
 
         private void WebviewLoaderTick(object sender, EventArgs e)
         {
-            if (String.IsNullOrEmpty(portNumber)) return;
+            // It could be that the kernel has not yet decided which port number to serve.
+            // Handle that situation here.
+            if (String.IsNullOrEmpty(portNumber)) 
+                return;
+
+            // Navigate to the port nuber that the Bibledit core is serving.
             webView.CoreWebView2.Navigate("http://localhost:" + portNumber);
+
+            // No next cycle anymore.
             dispatcherTimer.Stop();
         }
 
@@ -333,7 +337,7 @@ namespace Bibledit
         {
             // Await EnsureCoreWebView2Async, because the initialization of CoreWebView2 is asynchronous.
             await webView.EnsureCoreWebView2Async(null);
-            // After the webview has been initilized, next start a timer to start the process of navigating to the local server.
+            // After the webview has been initialized, start a timer to start the process of navigating to the local server.
             dispatcherTimer = new DispatcherTimer();
             dispatcherTimer.Tick += new EventHandler(WebviewLoaderTick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 50);
