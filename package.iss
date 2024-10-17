@@ -9,9 +9,9 @@ AppId={{C414BE13-5F10-48B7-AF92-9E4E7265D720}
 AppName=Bibledit
 AppVersion=5.1.019
 AppPublisher=Teus Benschop
-AppPublisherURL=http://bibledit.org
-AppSupportURL=http://bibledit.org
-AppUpdatesURL=http://bibledit.org
+AppPublisherURL=https://bibledit.org
+AppSupportURL=https://bibledit.org
+AppUpdatesURL=https://bibledit.org
 ; Spaces in paths have not been tested on Windows.
 ; Therefore install Bibledit in C:\bibledit and do not allow the user to change the location.
 DefaultDirName=C:\bibledit
@@ -50,7 +50,6 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Bibledit"; Filenam
 Filename: "{app}\bibledit.exe"; Description: "{cm:LaunchProgram,Bibledit}"; Flags: nowait postinstall skipifsilent
 ; The server.exe needs C++ 2015, 2017, 2019, 2022.
 Filename: "{app}\VC2022_redist.x64.exe"; Parameters: "/install /passive /norestart"; Description: "Install Visual C++ Redistributable 2015, 2017, 2019, 2022"; Flags: runhidden skipifsilent
-
 
 [Code]
 
