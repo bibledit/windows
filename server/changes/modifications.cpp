@@ -137,8 +137,21 @@ void changes_process_identifiers (Webserver_Request& webserver_request,
 }
 
 
+// This mutex ensures that only one single process can generate the changes modifications at any time.
+std::timed_mutex mutex;
+
+
 void changes_modifications ()
 {
+  // Ensure only one process at any time generates the changes,
+  // even if multiple order to generate then were given by the user.
+  std::unique_lock<std::timed_mutex> lock (mutex, std::defer_lock);
+  if (!lock.try_lock_for(std::chrono::milliseconds(200))) {
+    Database_Logs::log ("Change notifications: Skipping just now because another process is already generating them", Filter_Roles::translator ());
+    return;
+  }
+  
+
   Database_Logs::log ("Change notifications: Generating", Filter_Roles::translator ());
 
   
@@ -192,7 +205,6 @@ void changes_modifications ()
   // At the same time, produce change statistics per user.
 
   std::vector <std::string> users = database::modifications::getUserUsernames ();
-  if (!users.empty ()) Database_Logs::log ("Change notifications: Per user", Filter_Roles::translator ());
   for (const auto& user : users) {
 
     // Total changes made by this user.
@@ -213,7 +225,9 @@ void changes_modifications ()
         // Go through the chapters in that book.
         const std::vector <int> chapters = database::modifications::getUserChapters (user, bible, book);
         for (auto chapter : chapters) {
-          
+
+          Database_Logs::log ("Change notifications: User " + user + " - Bible " + bible + " " + filter_passage_display (book, chapter, ""), Filter_Roles::translator ());
+
           // Get the sets of identifiers for that chapter, and set some variables.
           const std::vector <database::modifications::id_bundle> IdSets = database::modifications::getUserIdentifiers (user, bible, book, chapter);
           int reference_new_id {0};

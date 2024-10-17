@@ -32,7 +32,7 @@
 
 void sendreceive_queue_bible (std::string bible)
 {
-  tasks_logic_queue (SENDRECEIVEBIBLES, {bible});
+  tasks_logic_queue (task::send_receive_bibles, {bible});
 }
 
 
@@ -84,35 +84,35 @@ void sendreceive_queue_sync (int minute, int second)
 
     // Only queue a sync task if it is not running at the moment.
     if (sync_bibles) {
-      if (tasks_logic_queued (SYNCBIBLES)) {
+      if (tasks_logic_queued (task::sync_bibles)) {
         Database_Logs::log ("About to start synchronizing Bibles");
       } else {
-        tasks_logic_queue (SYNCBIBLES);
+        tasks_logic_queue (task::sync_bibles);
       }
     }
     if (sync_rest) {
-      if (tasks_logic_queued (SYNCNOTES)) {
+      if (tasks_logic_queued (task::sync_notes)) {
         Database_Logs::log ("About to start synchronizing Notes");
       } else {
-        tasks_logic_queue (SYNCNOTES);
+        tasks_logic_queue (task::sync_notes);
       }
-      if (tasks_logic_queued (SYNCSETTINGS)) {
+      if (tasks_logic_queued (task::sync_settings)) {
         Database_Logs::log ("About to start synchronizing Settings");
       } else {
-        tasks_logic_queue (SYNCSETTINGS);
+        tasks_logic_queue (task::sync_settings);
       }
-      if (tasks_logic_queued (SYNCCHANGES)) {
+      if (tasks_logic_queued (task::sync_changes)) {
         Database_Logs::log ("About to start synchronizing Changes");
       } else {
-        tasks_logic_queue (SYNCCHANGES);
+        tasks_logic_queue (task::sync_changes);
       }
-      if (tasks_logic_queued (SYNCFILES)) {
+      if (tasks_logic_queued (task::sync_files)) {
         Database_Logs::log ("About to start synchronizing Files");
       } else {
-        tasks_logic_queue (SYNCFILES);
+        tasks_logic_queue (task::sync_files);
       }
       // Sync resources always, because it checks on its own whether to do something.
-      tasks_logic_queue (SYNCRESOURCES);
+      tasks_logic_queue (task::sync_resources);
     }
 
     if (sync_bibles || sync_rest) {
@@ -127,11 +127,11 @@ void sendreceive_queue_sync (int minute, int second)
 // Returns the result as a boolean.
 bool sendreceive_sync_queued ()
 {
-  if (tasks_logic_queued (SYNCNOTES)) return true;
-  if (tasks_logic_queued (SYNCBIBLES)) return true;
-  if (tasks_logic_queued (SYNCSETTINGS)) return true;
-  if (tasks_logic_queued (SYNCCHANGES)) return true;
-  if (tasks_logic_queued (SYNCFILES)) return true;
+  if (tasks_logic_queued (task::sync_notes)) return true;
+  if (tasks_logic_queued (task::sync_bibles)) return true;
+  if (tasks_logic_queued (task::sync_settings)) return true;
+  if (tasks_logic_queued (task::sync_changes)) return true;
+  if (tasks_logic_queued (task::sync_files)) return true;
   return false;
 }
 
@@ -143,7 +143,7 @@ void sendreceive_queue_paratext (tasks::enums::paratext_sync method)
   if (sendreceive_paratext_queued ()) {
     Database_Logs::log ("About to start synchronizing with Paratext");
   } else {
-    tasks_logic_queue (SYNCPARATEXT, { std::to_string(static_cast<int>(method)) });
+    tasks_logic_queue (task::sync_paratext, { std::to_string(static_cast<int>(method)) });
   }
 #endif
   (void) method;
@@ -154,7 +154,7 @@ void sendreceive_queue_paratext (tasks::enums::paratext_sync method)
 // Returns the result as a boolean.
 bool sendreceive_paratext_queued ()
 {
-  if (tasks_logic_queued (SYNCPARATEXT)) return true;
+  if (tasks_logic_queued (task::sync_paratext)) return true;
   return false;
 }
 
