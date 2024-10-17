@@ -35,7 +35,7 @@ It was installed from innosetup-5.5.9-unicode.exe.
 Free legal Windows virtual images for testing are available from https://dev.modern.ie/tools/vms/windows/
 
 
-The server.exe needs the Visual C++ Redistributable Package for Visual Studio 2015. 
+The server.exe needs the Visual C++ Redistributable Package for Visual Studio 2022. 
 Inno Setup installs it.
 
 
@@ -49,3 +49,6 @@ $ openssl pkcs12 -export -out CommonName.pfx -inkey codesign.key -in CommonName.
 Copy the .pfx file to the Windows developer machine.
 
 
+Tutorial for using Microsoft's embedded webcontrol:
+https://learn.microsoft.com/en-us/microsoft-edge/webview2/get-started/winforms
+https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp
