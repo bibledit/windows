@@ -501,8 +501,6 @@
     <ClCompile Include="navigation\passage.cpp" />
     <ClCompile Include="navigation\poll.cpp" />
     <ClCompile Include="navigation\update.cpp" />
-    <ClCompile Include="nmt\index.cpp" />
-    <ClCompile Include="nmt\logic.cpp" />
     <ClCompile Include="notes\actions.cpp" />
     <ClCompile Include="notes\assign-1.cpp" />
     <ClCompile Include="notes\assign-n.cpp" />
