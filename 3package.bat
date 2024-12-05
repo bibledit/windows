@@ -6,7 +6,7 @@ echo This will package Bibledit
 
 echo Setting environment
 setlocal
-SET PATH=%PATH%;C:\Program Files (x86)\Inno Setup 5
+SET PATH=%PATH%;C:\Program Files (x86)\Inno Setup 6
 if %errorlevel% neq 0 ( pause; exit /b %errorlevel% )
 
 

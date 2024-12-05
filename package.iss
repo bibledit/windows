@@ -26,7 +26,7 @@ SolidCompression=yes
 ; To find the location: Search %temp% in the Programs and Folders.
 SetupLogging=yes
 ; Requires Microsoft Vista or higher.
-MinVersion=0,6.0.6000
+MinVersion=0,6.1.0
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
