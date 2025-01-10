@@ -1041,12 +1041,6 @@
     <ClCompile Include="filter\html.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="nmt\index.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="nmt\logic.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="editone2\index.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
