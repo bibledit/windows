@@ -1,7 +1,8 @@
-Building Bibledit for Windows through Visual Studio.
+Building Bibledit for Windows through Visual Studio
+===================================================
 
 
-There is a git repository on Windows 10 and there's one on on macOS. 
+There is a git repository on Windows 11 and there's one on on macOS. 
 Keep both repositories in sync. 
 This ensures that the data on both operating systems are in sync.
 Visual Studio is used on Windows for building Bibledit for Windows.
@@ -52,3 +53,25 @@ Copy the .pfx file to the Windows developer machine.
 Tutorial for using Microsoft's embedded webcontrol:
 https://learn.microsoft.com/en-us/microsoft-edge/webview2/get-started/winforms
 https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp
+
+
+Native arm64 version
+====================
+
+Creating a native ARM64 Bibledit app
+
+Install Visual Studio 2022 for ARM.
+
+Open the Configuration Manager and create a coonfiguration for Release / ARM64, and use that.
+
+Open Project Properties, go to C/C++ / Language. Set the C++ Language Standard to C++17.
+
+The modifications for arm64 are kept in branch arm64 in git.
+Rebase this branch regularly on the master branch.
+$ git fetch
+$ git checkout master
+$ git pull
+$ git checkout arm64
+$ git rebase master
+$ git push --force
+

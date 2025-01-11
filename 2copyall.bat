@@ -16,6 +16,7 @@ if %errorlevel% neq 0 ( pause; exit /b %errorlevel% )
 
 
 echo Copying kernel binary into staging directory
+
 if exist "x64\Release\server.exe" (
     echo Copy x64
     copy x64\Release\server.exe C:\bibledit-windows /Y
@@ -37,8 +38,25 @@ exit /b 1
 
 
 echo Copying GUI binaries into staging directory
-xcopy gui\bibledit\bin\Release\* C:\bibledit-windows /E /I /Y /Q
-if %errorlevel% neq 0 ( pause; exit /b %errorlevel% )
+
+if exist "gui\bibledit\bin\Release\bibledit.exe" (
+    echo Copy x64
+    xcopy gui\bibledit\bin\Release\* C:\bibledit-windows /E /I /Y /Q
+    if %errorlevel% neq 0 ( pause; exit /b %errorlevel% )
+    goto guiready
+)
+
+if exist "gui\bibledit\bin\ARM64\Release\bibledit.exe" (
+    echo Copy arm64
+    xcopy gui\bibledit\bin\ARM64\Release\* C:\bibledit-windows /E /I /Y /Q
+    if %errorlevel% neq 0 ( pause; exit /b %errorlevel% )
+    goto guiready
+)
+
+echo Cannot find bibledit.exe
+exit /b 1
+
+:guiready
 
 
 echo Cleaning unwanted files from staging directory
