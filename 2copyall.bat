@@ -60,8 +60,12 @@ exit /b 1
 
 
 echo Cleaning unwanted files from staging directory
-rmdir /S /Q C:\bibledit-windows\Debug
-rmdir /S /Q C:\bibledit-windows\x64
+if exist "C:\bibledit-windows\Debug" (
+    rmdir /S /Q C:\bibledit-windows\Debug
+)
+if exist "C:\bibledit-windows\x64" (
+    rmdir /S /Q C:\bibledit-windows\x64
+)
 
 
 echo If the script gets here, all went well
