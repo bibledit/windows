@@ -8,3 +8,5 @@ Open Project Properties, go to C/C++ / Language. Set the C++ Language Standard t
 
 The modifications for arm64 are kept in branch arm64 in git.
 Rebase this branch regularly on the master branch.
+$ git fetch
+$ git rebase master
