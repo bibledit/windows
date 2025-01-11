@@ -1,0 +1,10 @@
+Creating a native ARM64 Bibledit app
+
+Install Visual Studio 2022 for ARM.
+
+Open the Configuration Manager and create a coonfiguration for Release / ARM64, and use that.
+
+Open Project Properties, go to C/C++ / Language. Set the C++ Language Standard to C++17.
+
+The modifications for arm64 are kept in branch arm64 in git.
+Rebase this branch regularly on the master branch.
