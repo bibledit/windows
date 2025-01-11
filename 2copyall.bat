@@ -11,7 +11,7 @@ if %errorlevel% neq 0 ( pause; exit /b %errorlevel% )
 
 
 echo Copying Bibledit supporting data into staging directory
-xcopy server\* C:\bibledit-windows /E /I /Y /Q
+xcopy server\* C:\bibledit-windows /E /I /Y /Q /EXCLUDE:exclude.txt
 if %errorlevel% neq 0 ( pause; exit /b %errorlevel% )
 
 
