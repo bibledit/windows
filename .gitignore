@@ -80,3 +80,4 @@ server/x64/*
 .vs/server/v17
 /packages/Microsoft.Web.WebView2.1.0.2792.45
 /server/ARM64
+/gui/bibledit/bin/ARM64
