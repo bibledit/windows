@@ -92,7 +92,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -272,11 +272,11 @@
     <ClCompile Include="database\statistics.cpp" />
     <ClCompile Include="database\strong.cpp" />
     <ClCompile Include="database\styles.cpp" />
+    <ClCompile Include="database\temporal.cpp" />
     <ClCompile Include="database\userresources.cpp" />
     <ClCompile Include="database\users.cpp" />
     <ClCompile Include="database\usfmresources.cpp" />
     <ClCompile Include="database\versifications.cpp" />
-    <ClCompile Include="database\volatile.cpp" />
     <ClCompile Include="demo\logic.cpp" />
     <ClCompile Include="developer\delay.cpp" />
     <ClCompile Include="developer\index.cpp" />
@@ -288,12 +288,12 @@
     <ClCompile Include="dialog\list2.cpp" />
     <ClCompile Include="dialog\upload.cpp" />
     <ClCompile Include="dialog\yes.cpp" />
-    <ClCompile Include="editone2\index.cpp" />
-    <ClCompile Include="editone2\load.cpp" />
-    <ClCompile Include="editone2\logic.cpp" />
-    <ClCompile Include="editone2\save.cpp" />
-    <ClCompile Include="editone2\update.cpp" />
-    <ClCompile Include="editone2\verse.cpp" />
+    <ClCompile Include="editone\index.cpp" />
+    <ClCompile Include="editone\load.cpp" />
+    <ClCompile Include="editone\logic.cpp" />
+    <ClCompile Include="editone\save.cpp" />
+    <ClCompile Include="editone\update.cpp" />
+    <ClCompile Include="editone\verse.cpp" />
     <ClCompile Include="editor\html2format.cpp" />
     <ClCompile Include="editor\html2usfm.cpp" />
     <ClCompile Include="editor\id.cpp" />
@@ -546,7 +546,6 @@
     <ClCompile Include="read\index.cpp" />
     <ClCompile Include="read\load.cpp" />
     <ClCompile Include="read\verse.cpp" />
-    <ClCompile Include="redirect\index.cpp" />
     <ClCompile Include="related\logic.cpp" />
     <ClCompile Include="resource\bb2resource.cpp" />
     <ClCompile Include="resource\bbgateway.cpp" />
@@ -620,12 +619,14 @@
     <ClCompile Include="sprint\index.cpp" />
     <ClCompile Include="sqlite\sqlite3.c" />
     <ClCompile Include="statistics\statistics.cpp" />
+    <ClCompile Include="stylesv2\logic.cpp" />
     <ClCompile Include="styles\css.cpp" />
     <ClCompile Include="styles\indexm.cpp" />
     <ClCompile Include="styles\logic.cpp" />
     <ClCompile Include="styles\sheetm.cpp" />
     <ClCompile Include="styles\sheets.cpp" />
     <ClCompile Include="styles\view.cpp" />
+    <ClCompile Include="styles\view2.cpp" />
     <ClCompile Include="sword\logic.cpp" />
     <ClCompile Include="sync\bibles.cpp" />
     <ClCompile Include="sync\changes.cpp" />
@@ -642,7 +643,6 @@
     <ClCompile Include="system\logic.cpp" />
     <ClCompile Include="tasks\logic.cpp" />
     <ClCompile Include="tasks\run.cpp" />
-    <ClCompile Include="tbsx\text.cpp" />
     <ClCompile Include="text\text.cpp" />
     <ClCompile Include="timer\index.cpp" />
     <ClCompile Include="tmp\tmp.cpp" />
