@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -761,7 +761,7 @@ input#cancel,
 /* END OF GLOBAL STYLING: Workspace Page */
 
 
-/* II. b. GLOBAL STYLING: Editone2, edit, and editusfm page */
+/* II. b. GLOBAL STYLING: Editone, edit, and editusfm page */
 
 #stylebutton {
   font: 1rem "Montserrat Regular";
@@ -773,7 +773,7 @@ input#cancel,
   margin: .5rem !important;
 }
 
-/* END OF GLOBAL STYLING: Editone2, edit, and editusfm page */
+/* END OF GLOBAL STYLING: Editone, edit, and editusfm page */
 
 
 /* II. c. GLOBAL STYLING: Preference page */

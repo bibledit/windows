@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2024 Teus Benschop.
+Copyright (©) 2003-2025 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ std::string filter_archive_zip_folder_shell_internal (std::string folder)
 #ifdef HAVE_CLOUD
   std::string logfile = filter_url_tempfile () + ".log";
   folder = filter_url_escape_shell_argument (folder);
-  std::string command = "cd " + folder + " && zip -r " + zippedfile + " * > " + logfile + " 2>&1";
+  std::string command = "cd " + folder + " && " + filter::shell::get_executable(filter::shell::Executable::zip) + " -r " + zippedfile + " * > " + logfile + " 2>&1";\
   int return_var;
   // Run the command.
   return_var = system (command.c_str());
@@ -125,9 +125,9 @@ std::string filter_archive_unzip_shell_internal ([[maybe_unused]] std::string fi
 #ifdef HAVE_CLOUD
   filter_url_mkdir (folder);
   folder.append (DIRECTORY_SEPARATOR);
-  std::string logfile = filter_url_tempfile () + ".log";
+  const std::string logfile = filter_url_tempfile () + ".log";
   file = filter_url_escape_shell_argument (file);
-  std::string command = "unzip -o -d " + folder + " " + file + " > " + logfile + " 2>&1";
+  std::string command = std::string(filter::shell::get_executable(filter::shell::Executable::unzip)) + " -o -d " + folder + " " + file + " > " + logfile + " 2>&1";
   // Run the command.
   int return_var = system (command.c_str());
   if (return_var != 0) {
@@ -137,7 +137,7 @@ std::string filter_archive_unzip_shell_internal ([[maybe_unused]] std::string fi
     Database_Logs::log (errors);
   } else {
     // Set free permissions after unzipping.
-    command = "chmod -R 0777 " + folder;
+    command = std::string(filter::shell::get_executable(filter::shell::Executable::chmod)) + " -R 0777 " + folder;
     [[maybe_unused]] int result = system (command.c_str ());
   }
 #endif
@@ -241,10 +241,10 @@ std::string filter_archive_unzip_miniz_internal (std::string zipfile)
 std::string filter_archive_tar_gzip_file (std::string filename)
 {
   std::string tarball = filter_url_tempfile () + ".tar.gz";
-  std::string dirname = filter_url_escape_shell_argument (filter_url_dirname (filename));
-  std::string basename = filter_url_escape_shell_argument (filter_url_basename (filename));
-  std::string logfile = filter_url_tempfile () + ".log";
-  std::string command = "cd " + dirname + " && tar -czf " + tarball + " " + basename + " > " + logfile + " 2>&1";
+  const std::string dirname = filter_url_escape_shell_argument (filter_url_dirname (filename));
+  const std::string basename = filter_url_escape_shell_argument (filter_url_basename (filename));
+  const std::string logfile = filter_url_tempfile () + ".log";
+  const std::string command = "cd " + dirname + " && " + std::string(filter::shell::get_executable(filter::shell::Executable::tar)) + " -czf " + tarball + " " + basename + " > " + logfile + " 2>&1";
   int return_var;
 #ifdef HAVE_IOS
   // Crashes on iOS.
@@ -270,7 +270,7 @@ std::string filter_archive_tar_gzip_folder (std::string folder)
   std::string tarball = filter_url_tempfile () + ".tar.gz";
   folder = filter_url_escape_shell_argument (folder);
   std::string logfile = filter_url_tempfile () + ".log";
-  std::string command = "cd " + folder + " && tar -czf " + tarball + " . > " + logfile + " 2>&1";
+  std::string command = "cd " + folder + " && " + std::string(filter::shell::get_executable(filter::shell::Executable::tar)) + " -czf " + tarball + " . > " + logfile + " 2>&1";
   int return_var;
 #ifdef HAVE_IOS
   // Crashes on iOS.
@@ -298,7 +298,7 @@ std::string filter_archive_untar_gzip (std::string file)
   filter_url_mkdir (folder);
   folder.append (DIRECTORY_SEPARATOR);
   std::string logfile = filter_url_tempfile () + ".log";
-  std::string command = "cd " + folder + " && tar zxf " + file + " > " + logfile + " 2>&1";
+  std::string command = "cd " + folder + " && " + std::string(filter::shell::get_executable(filter::shell::Executable::tar)) + " zxf " + file + " > " + logfile + " 2>&1";
   int return_var;
 #ifdef HAVE_IOS
   // Crashes on iOS.

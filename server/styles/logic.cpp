@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2024 Teus Benschop.
+Copyright (©) 2003-2025 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -78,10 +78,7 @@ std::string styles_logic_type_text (int type)
 std::string styles_logic_subtype_text (int type, int subtype)
 {
   if (type == StyleTypeIdentifier) {
-    if (subtype == IdentifierSubtypeBook                  ) return translate ("identifies the book");
-    if (subtype == IdentifierSubtypeEncoding              ) return translate ("identifies the encoding");
-    if (subtype == IdentifierSubtypeComment               ) return translate ("is a comment");
-    if (subtype == IdentifierSubtypeRunningHeader         ) return translate ("is a running header");
+    if (subtype == IdentifierSubtypeRunningHeader         ) return translate ("is a running header"); // Todo out.
     if (subtype == IdentifierSubtypeLongTOC               ) return translate ("is long table of contents text");
     if (subtype == IdentifierSubtypeShortTOC              ) return translate ("is short table of contents text");
     if (subtype == IdentifierSubtypeBookAbbrev            ) return translate ("is the book abbreviation");
@@ -419,10 +416,6 @@ int styles_logic_get_userbool1_function (int type, int subtype)
   if (type == StyleTypeChapterNumber) {
     return UserBool1PrintChapterAtFirstVerse;
   }
-  if (type == StyleTypeIdentifier) {
-    if (subtype == IdentifierSubtypeBook)
-      return UserBool1IdStartsNewPage;
-  }
   if (type == StyleTypeFootEndNote) {
     if ((subtype != FootEndNoteSubtypeFootnote) && (subtype == FootEndNoteSubtypeEndnote))
       return UserBool1NoteAppliesToApocrypha;
@@ -443,7 +436,6 @@ std::string styles_logic_get_userbool1_text (int function)
 {
   switch (function) {
     case UserBool1PrintChapterAtFirstVerse: return translate ("Print chapter number at first verse");
-    case UserBool1IdStartsNewPage: return translate ("Start on a new page");
     case UserBool1NoteAppliesToApocrypha: return translate ("Refers to the Apocrypha");
     case UserBool1VerseRestartsParagraph: return translate ("Restart paragraph");
     default: return "--";
@@ -456,7 +448,7 @@ std::string styles_logic_get_userbool1_text (int function)
 int styles_logic_get_userbool2_function (int type, int subtype)
 {
   if (type == StyleTypeIdentifier) {
-    if (subtype == IdentifierSubtypeRunningHeader)
+    if (subtype == IdentifierSubtypeRunningHeader) // Todo out.
       return UserBool2RunningHeaderLeft;
   }
   if (type == StyleTypeChapterNumber) {
@@ -472,7 +464,7 @@ std::string styles_logic_get_userbool2_text (int function)
   switch (function) {
     case UserBool2IdStartsOddPage: return translate ("New page starts with an odd number (not implemented due to limitations in OpenDocument)");
     case UserBool2ChapterInLeftRunningHeader: return translate ("Print chapter number in the running header of the left page");
-    case UserBool2RunningHeaderLeft: return translate ("Print this in the running header of the left page");
+    case UserBool2RunningHeaderLeft: return translate ("Print this in the running header of the left page"); // Todo out.
     default: return std::string();
   }
   return std::string();
@@ -483,7 +475,7 @@ std::string styles_logic_get_userbool2_text (int function)
 int styles_logic_get_userbool3_function (int type, int subtype)
 {
   if (type == StyleTypeIdentifier) {
-    if (subtype == IdentifierSubtypeRunningHeader)
+    if (subtype == IdentifierSubtypeRunningHeader) // Todo out.
       return UserBool3RunningHeaderRight;
   }
   if (type == StyleTypeChapterNumber) {
@@ -498,7 +490,7 @@ std::string styles_logic_get_userbool3_text (int function)
 {
   switch (function) {
     case UserBool3ChapterInRightRunningHeader: return translate ("Print chapter number in the running header of the right page");
-    case UserBool3RunningHeaderRight: return translate ("Print this in the running header of the right page");
+    case UserBool3RunningHeaderRight: return translate ("Print this in the running header of the right page"); // Todo out.
     default: return std::string();
   }
   return std::string();

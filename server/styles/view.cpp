@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -72,14 +72,13 @@ std::string styles_view (Webserver_Request& webserver_request)
   view.set_variable ("style", filter::strings::escape_special_xml_characters (style));
 
   
-  Database_Styles database_styles {};
-  Database_Styles_Item marker_data = database_styles.getMarkerData (sheet, style);
+  database::styles1::Item marker_data = database::styles1::get_marker_data (sheet, style);
   
   
   // Whether the logged-in user has write access to the stylesheet.
   const std::string& username = webserver_request.session_logic ()->get_username ();
   const int userlevel = webserver_request.session_logic ()->get_level ();
-  bool write = database_styles.hasWriteAccess (username, sheet);
+  bool write = database::styles::has_write_access (username, sheet);
   if (userlevel >= Filter_Roles::admin ()) write = true;
   
   
@@ -99,7 +98,7 @@ std::string styles_view (Webserver_Request& webserver_request)
   if (webserver_request.post.count ("name")) {
     name = webserver_request.post["entry"];
     if (write) {
-      database_styles.updateName (sheet, style, name);
+      database::styles1::update_name (sheet, style, name);
       style_is_edited = true;
     }
   }
@@ -118,7 +117,7 @@ std::string styles_view (Webserver_Request& webserver_request)
   if (webserver_request.post.count("info")) {
     info = webserver_request.post["entry"];
     if (write) {
-      database_styles.updateInfo (sheet, style, info);
+      database::styles1::update_info (sheet, style, info);
       style_is_edited = true;
     }
   }
@@ -156,7 +155,7 @@ std::string styles_view (Webserver_Request& webserver_request)
       return page;
     } else {
       if (write) {
-        database_styles.updateCategory (sheet, style, category);
+        database::styles1::update_category (sheet, style, category);
         style_is_edited = true;
       }
     }
@@ -183,7 +182,7 @@ std::string styles_view (Webserver_Request& webserver_request)
       return page;
     } else {
       if (write) {
-        database_styles.updateType (sheet, style, type);
+        database::styles1::update_type (sheet, style, type);
         style_is_edited = true;
       }
     }
@@ -201,7 +200,7 @@ std::string styles_view (Webserver_Request& webserver_request)
       Dialog_List dialog_list = Dialog_List ("view", translate("Would you like to change the sub type of this style?"), std::string(), std::string());
       dialog_list.add_query ("sheet", sheet);
       dialog_list.add_query ("style", style);
-      Database_Styles_Item style_data = database_styles.getMarkerData (sheet, style);
+      database::styles1::Item style_data = database::styles1::get_marker_data (sheet, style);
       int type2 = style_data.type;
       for (int i = 0; i < 99; i++) {
         std::string text = styles_logic_subtype_text (type2, i);
@@ -213,7 +212,7 @@ std::string styles_view (Webserver_Request& webserver_request)
       return page;
     } else {
       if (write) {
-        database_styles.updateSubType (sheet, style, subtype);
+        database::styles1::update_sub_type (sheet, style, subtype);
         style_is_edited = true;
       }
     }
@@ -239,7 +238,7 @@ std::string styles_view (Webserver_Request& webserver_request)
     if ((fs >= 5) && (fs <= 60)) {
       fontsize = fs;
       if (write) {
-        database_styles.updateFontsize (sheet, style, fontsize);
+        database::styles1::update_fontsize (sheet, style, fontsize);
         style_is_edited = true;
       }
     }
@@ -261,7 +260,7 @@ std::string styles_view (Webserver_Request& webserver_request)
       Dialog_List dialog_list = Dialog_List ("view", translate("Would you like to change whether this style is in italics?"), std::string(), std::string());
       dialog_list.add_query ("sheet", sheet);
       dialog_list.add_query ("style", style);
-      Database_Styles_Item style_item = database_styles.getMarkerData (sheet, style);
+      database::styles1::Item style_item = database::styles1::get_marker_data (sheet, style);
       int last_value {ooitOn};
       if (styles_logic_italic_bold_underline_smallcaps_are_full (style_item.type, style_item.subtype))
         last_value = ooitToggle;
@@ -273,7 +272,7 @@ std::string styles_view (Webserver_Request& webserver_request)
     } else {
       italic = filter::strings::convert_to_int (s);
       if (write) {
-        database_styles.updateItalic (sheet, style, italic);
+        database::styles1::update_italic (sheet, style, italic);
         style_is_edited = true;
       }
     }
@@ -289,7 +288,7 @@ std::string styles_view (Webserver_Request& webserver_request)
       Dialog_List dialog_list = Dialog_List ("view", translate("Would you like to change whether this style is in bold?"), std::string(), std::string());
       dialog_list.add_query ("sheet", sheet);
       dialog_list.add_query ("style", style);
-      Database_Styles_Item style_data = database_styles.getMarkerData (sheet, style);
+      database::styles1::Item style_data = database::styles1::get_marker_data (sheet, style);
       int last_value {ooitOn};
       if (styles_logic_italic_bold_underline_smallcaps_are_full (style_data.type, style_data.subtype))
         last_value = ooitToggle;
@@ -301,7 +300,7 @@ std::string styles_view (Webserver_Request& webserver_request)
     } else {
       bold = filter::strings::convert_to_int (s);
       if (write) {
-        database_styles.updateBold (sheet, style, bold);
+        database::styles1::update_bold (sheet, style, bold);
         style_is_edited = true;
       }
     }
@@ -317,7 +316,7 @@ std::string styles_view (Webserver_Request& webserver_request)
       Dialog_List dialog_list = Dialog_List ("view", translate("Would you like to change whether this style is underlined?"), std::string(), std::string());
       dialog_list.add_query ("sheet", sheet);
       dialog_list.add_query ("style", style);
-      Database_Styles_Item style_data = database_styles.getMarkerData (sheet, style);
+      database::styles1::Item style_data = database::styles1::get_marker_data (sheet, style);
       int last_value {ooitOn};
       if (styles_logic_italic_bold_underline_smallcaps_are_full (type, subtype))
         last_value = ooitToggle;
@@ -329,7 +328,7 @@ std::string styles_view (Webserver_Request& webserver_request)
     } else {
       underline = filter::strings::convert_to_int (s);
       if (write) {
-        database_styles.updateUnderline (sheet, style, underline);
+        database::styles1::update_underline (sheet, style, underline);
         style_is_edited = true;
       }
     }
@@ -345,7 +344,7 @@ std::string styles_view (Webserver_Request& webserver_request)
       Dialog_List dialog_list = Dialog_List ("view", translate("Would you like to change whether this style is in small caps?"), std::string(), std::string());
       dialog_list.add_query ("sheet", sheet);
       dialog_list.add_query ("style", style);
-      Database_Styles_Item style_data = database_styles.getMarkerData (sheet, style);
+      database::styles1::Item style_data = database::styles1::get_marker_data (sheet, style);
       int last_value {ooitOn};
       if (styles_logic_italic_bold_underline_smallcaps_are_full (style_data.type, style_data.subtype))
         last_value = ooitToggle;
@@ -357,7 +356,7 @@ std::string styles_view (Webserver_Request& webserver_request)
     } else {
       smallcaps = filter::strings::convert_to_int (s);
       if (write) {
-        database_styles.updateSmallcaps (sheet, style, smallcaps);
+        database::styles1::update_smallcaps (sheet, style, smallcaps);
         style_is_edited = true;
       }
     }
@@ -371,7 +370,7 @@ std::string styles_view (Webserver_Request& webserver_request)
   if (webserver_request.query.count ("superscript")) {
     superscript = filter::strings::convert_to_int (webserver_request.query["superscript"]);
     if (write) {
-      database_styles.updateSuperscript (sheet, style, superscript);
+      database::styles1::update_superscript (sheet, style, superscript);
       style_is_edited = true;
     }
   }
@@ -398,7 +397,7 @@ std::string styles_view (Webserver_Request& webserver_request)
   if (webserver_request.query.count ("justification")) {
     justification = filter::strings::convert_to_int (webserver_request.query["justification"]);
     if (write) {
-      database_styles.updateJustification (sheet, style, justification);
+      database::styles1::update_justification (sheet, style, justification);
       style_is_edited = true;
     }
   }
@@ -419,7 +418,7 @@ std::string styles_view (Webserver_Request& webserver_request)
     if (spacebefore < 0) spacebefore = 0;
     if (spacebefore > 100) spacebefore = 100;
     if (write) {
-      database_styles.updateSpaceBefore (sheet, style, spacebefore);
+      database::styles1::update_space_before (sheet, style, spacebefore);
       style_is_edited = true;
     }
   }
@@ -440,7 +439,7 @@ std::string styles_view (Webserver_Request& webserver_request)
     if (spaceafter < 0) spaceafter = 0;
     if (spaceafter > 100) spaceafter = 100;
     if (write) {
-      database_styles.updateSpaceAfter (sheet, style, spaceafter);
+      database::styles1::update_space_after (sheet, style, spaceafter);
       style_is_edited = true;
     }
   }
@@ -461,7 +460,7 @@ std::string styles_view (Webserver_Request& webserver_request)
     if (leftmargin < 0) leftmargin = 0;
     if (leftmargin > 100) leftmargin = 100;
     if (write) {
-      database_styles.updateLeftMargin (sheet, style, leftmargin);
+      database::styles1::update_left_margin (sheet, style, leftmargin);
       style_is_edited = true;
     }
   }
@@ -482,7 +481,7 @@ std::string styles_view (Webserver_Request& webserver_request)
     if (rightmargin < -100) rightmargin = -100;
     if (rightmargin > 100) rightmargin = 100;
     if (write) {
-      database_styles.updateRightMargin (sheet, style, rightmargin);
+      database::styles1::update_right_margin (sheet, style, rightmargin);
       style_is_edited = true;
     }
   }
@@ -503,7 +502,7 @@ std::string styles_view (Webserver_Request& webserver_request)
     if (firstlineindent < -100) firstlineindent = -100;
     if (firstlineindent > 100) firstlineindent = 100;
     if (write) {
-      database_styles.updateFirstLineIndent (sheet, style, firstlineindent);
+      database::styles1::update_first_line_indent (sheet, style, firstlineindent);
       style_is_edited = true;
     }
   }
@@ -535,7 +534,7 @@ std::string styles_view (Webserver_Request& webserver_request)
     if (color.find ("#") == std::string::npos) color.insert (0, "#");
     if (color.length () != 7) color = "#000000";
     if (write) {
-      database_styles.updateColor (sheet, style, color);
+      database::styles1::update_color (sheet, style, color);
       style_is_edited = true;
       if (style_is_edited) {};
     }
@@ -549,7 +548,7 @@ std::string styles_view (Webserver_Request& webserver_request)
     if (color.find ("#") == std::string::npos) color.insert (0, "#");
     if (color.length () != 7) color = "#FFFFFF";
     if (write) {
-      database_styles.updateBackgroundColor (sheet, style, color);
+      database::styles1::update_background_color (sheet, style, color);
       style_is_edited = true;
       if (style_is_edited) {};
     }
@@ -564,7 +563,7 @@ std::string styles_view (Webserver_Request& webserver_request)
   if (webserver_request.query.count ("print")) {
     print = filter::strings::convert_to_bool (webserver_request.query["print"]);
     if (write) {
-      database_styles.updatePrint (sheet, style, print);
+      database::styles1::update_print (sheet, style, print);
       style_is_edited = true;
     }
   }
@@ -580,7 +579,7 @@ std::string styles_view (Webserver_Request& webserver_request)
   if (webserver_request.query.count ("userbool1")) {
     userbool1 = filter::strings::convert_to_bool (webserver_request.query["userbool1"]);
     if (write) {
-      database_styles.updateUserbool1 (sheet, style, userbool1);
+      database::styles1::update_userbool1 (sheet, style, userbool1);
       style_is_edited = true;
     }
   }
@@ -596,7 +595,7 @@ std::string styles_view (Webserver_Request& webserver_request)
   if (webserver_request.query.count ("userbool2")) {
     userbool2 = filter::strings::convert_to_bool (webserver_request.query["userbool2"]);
     if (write) {
-      database_styles.updateUserbool2 (sheet, style, userbool2);
+      database::styles1::update_userbool2 (sheet, style, userbool2);
       style_is_edited = true;
     }
   }
@@ -612,7 +611,7 @@ std::string styles_view (Webserver_Request& webserver_request)
   if (webserver_request.query.count ("userbool3")) {
     userbool3 = filter::strings::convert_to_bool (webserver_request.query["userbool3"]);
     if (write) {
-      database_styles.updateUserbool3 (sheet, style, userbool3);
+      database::styles1::update_userbool3 (sheet, style, userbool3);
       style_is_edited = true;
     }
   }
@@ -640,7 +639,7 @@ std::string styles_view (Webserver_Request& webserver_request)
       if (webserver_request.query.count ("userint1")) {
         userint1 = filter::strings::convert_to_int (webserver_request.query["userint1"]);
         if (write) {
-          database_styles.updateUserint1 (sheet, style, userint1);
+          database::styles1::update_userint1 (sheet, style, userint1);
           style_is_edited = true;
         }
       }
@@ -660,7 +659,7 @@ std::string styles_view (Webserver_Request& webserver_request)
         if ((value >= 1) && (value <= 4)) {
           userint1 = value;
           if (write) {
-            database_styles.updateUserint1 (sheet, style, userint1);
+            database::styles1::update_userint1 (sheet, style, userint1);
             style_is_edited = true;
           }
         }
@@ -691,7 +690,7 @@ std::string styles_view (Webserver_Request& webserver_request)
       if (webserver_request.query.count ("userint2")) {
         userint2 = filter::strings::convert_to_int (webserver_request.query["userint2"]);
         if (write) {
-          database_styles.updateUserint2 (sheet, style, userint2);
+          database::styles1::update_userint2 (sheet, style, userint2);
           style_is_edited = true;
         }
       }
@@ -712,7 +711,7 @@ std::string styles_view (Webserver_Request& webserver_request)
       if (webserver_request.query.count ("userint2")) {
         userint2 = filter::strings::convert_to_int (webserver_request.query["userint2"]);
         if (write) {
-          database_styles.updateUserint2 (sheet, style, userint2);
+          database::styles1::update_userint2 (sheet, style, userint2);
           style_is_edited = true;
         }
       }
@@ -756,7 +755,7 @@ std::string styles_view (Webserver_Request& webserver_request)
   if (webserver_request.post.count ("userstring1")) {
     userstring1 = webserver_request.post["entry"];
     if (write) {
-      database_styles.updateUserstring1 (sheet, style, userstring1);
+      database::styles1::update_userstring1 (sheet, style, userstring1);
       style_is_edited = true;
     }
   }
@@ -790,7 +789,7 @@ std::string styles_view (Webserver_Request& webserver_request)
   if (webserver_request.post.count("userstring2")) {
     userstring2 = webserver_request.post["entry"];
     if (write) {
-      database_styles.updateUserstring2 (sheet, style, userstring2);
+      database::styles1::update_userstring2 (sheet, style, userstring2);
       style_is_edited = true;
     }
   }

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -253,8 +253,7 @@ std::string bible_settings (Webserver_Request& webserver_request)
     if (stylesheet.empty()) {
       Dialog_List dialog_list = Dialog_List ("settings", translate("Would you like to change the stylesheet for editing?"), translate ("The stylesheet affects how the Bible text in the editor looks.") + " " + translate ("Please make your choice below."), "");
       dialog_list.add_query ("bible", bible);
-      Database_Styles database_styles = Database_Styles();
-      const std::vector <std::string> sheets = database_styles.getSheets();
+      const std::vector <std::string> sheets = database::styles::get_sheets();
       for (const auto& name : sheets) {
         dialog_list.add_row (name, "stylesheetediting", name);
       }
@@ -274,8 +273,7 @@ std::string bible_settings (Webserver_Request& webserver_request)
     if (export_stylesheet.empty()) {
       Dialog_List dialog_list = Dialog_List ("settings", translate("Would you like to change the stylesheet for export?"), translate ("The stylesheet affects how the Bible text looks when exported.") + " " + translate ("Please make your choice below."), "");
       dialog_list.add_query ("bible", bible);
-      Database_Styles database_styles = Database_Styles();
-      const std::vector <std::string> sheets = database_styles.getSheets();
+      const std::vector <std::string> sheets = database::styles::get_sheets();
       for (const auto& name : sheets) {
         dialog_list.add_row (name, "stylesheetexport", name);
       }

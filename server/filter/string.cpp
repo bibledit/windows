@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2024 Teus Benschop.
+Copyright (©) 2003-2025 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -43,9 +43,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <utf8proc/utf8proc.h>
 #endif
 #include <config/globals.h>
-#ifdef HAVE_WINDOWS
-#include <codecvt>
-#endif
 #ifdef HAVE_ICU
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -67,7 +64,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #ifdef HAVE_CLOUD
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"
-#include <gumbo.h>
+#include "gumbo/gumbo.h"
 #pragma clang diagnostic pop
 #endif
 #ifdef HAVE_CLOUD
@@ -133,6 +130,17 @@ std::string implode (const std::vector <std::string>& values, std::string delimi
       full.append (delimiter);
   }
   return full;
+}
+
+
+// Get a container with n parts, and join the first parts to remain with maximum n last parts.
+// Example input {1, 2, 3, 4}, max three last bits, the output will be [12, 3, 4}.
+void implode_from_beginning_remain_with_max_n_bits (std::vector<std::string>& input, const int n, const std::string& joiner)
+{
+  while (input.size() > n) {
+    input[1].insert(0, input.at(0) + joiner);
+    input.erase(input.cbegin());
+  }
 }
 
 
@@ -247,8 +255,11 @@ std::string convert_to_true_false (const bool b)
 
 std::u16string convert_to_u16string (const std::string& s)
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   std::wstring_convert <std::codecvt_utf8_utf16 <char16_t>, char16_t> utf16conv;
   std::u16string utf16 = utf16conv.from_bytes (s);
+#pragma clang diagnostic pop
   // utf16.length()
   return utf16;
 }
@@ -1489,10 +1500,6 @@ std::string convert_xml_character_entities_to_characters (std::string data)
     std::stringstream ss {};
     ss << std::hex << entity;
     ss >> codepoint;
-    
-    // The following is not available in GNU libstdc++.
-    // wstring_convert <codecvt_utf8 <char32_t>, char32_t> conv1;
-    // string u8str = conv1.to_bytes (codepoint);
     
     int cp = codepoint;
     // Adapted from: http://www.zedwood.com/article/cpp-utf8-char-to-codepoint.

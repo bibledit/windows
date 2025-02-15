@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -110,25 +110,25 @@ void export_odt_book (std::string bible, int book, bool log)
   std::string basefile = filter_url_basename (standardFilename);
   filter_url_unlink (standardFilename + ".zip");
   if (secure) {
-    filter_shell_run (directory, "zip", {"-P", password, basefile + ".zip", basefile}, nullptr, nullptr);
+    filter::shell::run (directory, filter::shell::get_executable(filter::shell::Executable::zip), {"-P", password, basefile + ".zip", basefile}, nullptr, nullptr);
     filter_url_unlink (standardFilename);
   }
   basefile = filter_url_basename (textOnlyFilename);
   filter_url_unlink (textOnlyFilename + ".zip");
   if (secure) {
-    filter_shell_run (directory, "zip", {"-P", password, basefile + ".zip", basefile}, nullptr, nullptr);
+    filter::shell::run (directory, filter::shell::get_executable(filter::shell::Executable::zip), {"-P", password, basefile + ".zip", basefile}, nullptr, nullptr);
     filter_url_unlink (textOnlyFilename);
   }
   basefile = filter_url_basename (textAndCitationsFilename);
   filter_url_unlink (textAndCitationsFilename + ".zip");
   if (secure) {
-    filter_shell_run (directory, "zip", {"-P", password, basefile + ".zip", basefile}, nullptr, nullptr);
+    filter::shell::run (directory, filter::shell::get_executable(filter::shell::Executable::zip), {"-P", password, basefile + ".zip", basefile}, nullptr, nullptr);
     filter_url_unlink (textAndCitationsFilename);
   }
   basefile = filter_url_basename (notesFilename);
   filter_url_unlink (notesFilename + ".zip");
   if (secure) {
-    filter_shell_run (directory, "zip", {"-P", password, basefile + ".zip", basefile}, nullptr, nullptr);
+    filter::shell::run (directory, filter::shell::get_executable(filter::shell::Executable::zip), {"-P", password, basefile + ".zip", basefile}, nullptr, nullptr);
     filter_url_unlink (notesFilename);
   }
   

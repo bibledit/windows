@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,17 @@
 #include <menu/logic.h>
 #include <styles/indexm.h>
 #include <database/logic.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#ifndef HAVE_PUGIXML
+#include <pugixml/pugixml.hpp>
+#endif
+#ifdef HAVE_PUGIXML
+#include <pugixml.hpp>
+#endif
+#pragma GCC diagnostic pop
 
 
 std::string styles_sheetm_url ()
@@ -59,26 +70,26 @@ std::string styles_sheetm (Webserver_Request& webserver_request)
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   header.add_bread_crumb (styles_indexm_url (), menu_logic_styles_indexm_text ());
   page = header.run ();
-
+  
   Assets_View view;
   
-  std::string name = webserver_request.query["name"];
+  // The name of the stylesheet.
+  const std::string name = webserver_request.query["name"];
   view.set_variable ("name", filter::strings::escape_special_xml_characters (name));
-
-  Database_Styles database_styles;
   
+  // Whether this user has write access to the stylesheet.
   const std::string& username = webserver_request.session_logic ()->get_username ();
-  int userlevel = webserver_request.session_logic ()->get_level ();
-  bool write = database_styles.hasWriteAccess (username, name);
+  const int userlevel = webserver_request.session_logic ()->get_level ();
+  bool write = database::styles::has_write_access (username, name);
   if (userlevel >= Filter_Roles::admin ()) write = true;
-
+  
   if (webserver_request.post.count ("new")) {
     std::string newstyle = webserver_request.post["entry"];
-    std::vector <std::string> existing_markers = database_styles.getMarkers (name);
+    std::vector <std::string> existing_markers = database::styles1::get_markers (name);
     if (find (existing_markers.begin(), existing_markers.end(), newstyle) != existing_markers.end()) {
       page += assets_page::error (translate("This style already exists"));
     } else {
-      database_styles.addMarker (name, newstyle);
+      database::styles1::add_marker (name, newstyle);
       styles_sheets_create_all ();
       page += assets_page::success (translate("The style has been created"));
     }
@@ -90,28 +101,70 @@ std::string styles_sheetm (Webserver_Request& webserver_request)
     return page;
   }
   
-  std::string del = webserver_request.query["delete"];
-  if (del != "") {
-    if (write) database_styles.deleteMarker (name, del);
-  }
+  const std::string del = webserver_request.query["delete"];
+  if (!del.empty())
+    if (write) {
+      database::styles1::delete_marker (name, del);
+      database::styles2::delete_marker (name, del);
+    }
 
-  std::stringstream markerblock;
-  std::map <std::string, std::string> markers_names = database_styles.getMarkersAndNames (name);
-  for (auto & item : markers_names) {
-    std::string marker = item.first;
-    std::string marker_name = item.second;
-    marker_name = translate (marker_name);
-    markerblock << "<tr>";
-    markerblock << R"(<td><a href=")" << "view?sheet=" << name << "&style=" << marker << R"(">)"  << marker << "</a></td>";
-    markerblock << "<td>" << marker_name << "</td>";
-    markerblock << R"(<td>[<a href=")" << "?name=" << name << "&delete=" << marker << R"(">)" << translate("delete") << "]</a></td>";
-    markerblock << "</tr>";
+  pugi::xml_document html_block {};
+
+  const auto process_markers = [&html_block, &name](const std::map <std::string, std::string>& markers_names, const bool v2) {
+    for (const auto& item : markers_names) {
+      const std::string marker = item.first;
+      const std::string marker_name = translate(item.second);
+      pugi::xml_node tr_node = html_block.append_child("tr");
+      {
+        pugi::xml_node td_node = tr_node.append_child("td");
+        pugi::xml_node a_node = td_node.append_child("a");
+        const std::string view {v2 ? "view2" : "view"};
+        const std::string href = view + "?sheet=" + name + "&style=" + marker;
+        a_node.append_attribute("href") = href.c_str();
+        a_node.text().set(marker.c_str());
+      }
+      {
+        pugi::xml_node td_node = tr_node.append_child("td");
+        td_node.text().set(marker_name.c_str());
+      }
+      {
+        pugi::xml_node td_node = tr_node.append_child("td");
+        td_node.append_child("span").text().set("[");
+        pugi::xml_node a_node = td_node.append_child("a");
+        const std::string href = "?name=" + name + "&delete=" + marker;
+        a_node.append_attribute("href") = href.c_str();
+        a_node.text().set(translate("delete").c_str());
+        td_node.append_child("span").text().set("]");
+      }
+    }
+  };
+
+  // Get the markers and names for styles v2.
+  // Same for styles v1.
+  // Any markers v2 marked as implemented, remove those from the styles v1 in the list.
+  std::map<std::string,std::string> markers_names_v1 {database::styles1::get_markers_and_names (name)};
+  const std::map<std::string,std::string> markers_names_v2 {database::styles2::get_markers_and_names (name)};
+  for (const auto& [markerv2, name] : markers_names_v2) {
+    const stylesv2::Style* style {database::styles2::get_marker_data (name, markerv2)};
+    if (style->implemented)
+      markers_names_v1.erase(markerv2);
   }
-  view.set_variable ("markerblock", markerblock.str());
+  process_markers (markers_names_v1, false);
+  {
+    pugi::xml_node tr_node = html_block.append_child("tr");
+    for (int i{0}; i < 3; i++)
+      tr_node.append_child("td").text().set("--");
+  }
+  process_markers (markers_names_v2, true);
   
-  std::string folder = filter_url_create_root_path ({database_logic_databases (), "styles", name});
+  // Generate the html and set it on the page.
+  std::stringstream ss {};
+  html_block.print (ss, "", pugi::format_raw);
+  view.set_variable ("markerblock", ss.str());
+  
+  const std::string folder = filter_url_create_root_path ({database_logic_databases (), "styles", name});
   view.set_variable ("folder", folder);
-
+  
   page += view.render ("styles", "sheetm");
   
   page += assets_page::footer ();

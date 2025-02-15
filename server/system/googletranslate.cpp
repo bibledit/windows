@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2024 Teus Benschop.
+Copyright (©) 2003-2025 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ std::string system_googletranslate (Webserver_Request& webserver_request)
 
   // Check whether gcloud has been installed on the server.
   if (error.empty()) {
-    bool gcloud_present = filter_shell_is_present ("gcloud");
+    const bool gcloud_present = filter::shell::is_present (filter::shell::get_executable(filter::shell::Executable::gcloud));
     if (!gcloud_present) {
       error.assign("The gcloud CLI was not found on the server.");
     }

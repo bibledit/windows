@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2024 Teus Benschop.
+Copyright (©) 2003-2025 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,7 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <config/libraries.h>
 
 
-#define StyleTypeIdentifier            0 
+// Todo old styles logic, to be replaced one by one.
+
+#define StyleTypeIdentifier            0
 #define StyleTypeNotUsedComment        1 
 #define StyleTypeNotUsedRunningHeader  2 
 #define StyleTypeStartsParagraph       3 
@@ -39,10 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #define StyleTypeWordlistElement       13 
 
 
-#define IdentifierSubtypeBook                     0 
-#define IdentifierSubtypeEncoding                 1 
-#define IdentifierSubtypeComment                  2 
-#define IdentifierSubtypeRunningHeader            3 
+#define IdentifierSubtypeRunningHeader            3 // Todo out.
 #define IdentifierSubtypeLongTOC                  4 
 #define IdentifierSubtypeShortTOC                 5 
 #define IdentifierSubtypeBookAbbrev               6 
@@ -109,7 +108,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #define UserBool1None                      0 
 #define UserBool1PrintChapterAtFirstVerse  1 
-#define UserBool1IdStartsNewPage           2 
 #define UserBool1NoteAppliesToApocrypha    3 
 #define UserBool1VerseRestartsParagraph    4 
 
@@ -117,12 +115,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #define UserBool2None                        0 
 #define UserBool2IdStartsOddPage             1  // \id: whether to start an odd page number. Not implemented due to limitations in OpenDocument.
 #define UserBool2ChapterInLeftRunningHeader  2  // Chapter number (\c): Whether to include it in the left running header.
-#define UserBool2RunningHeaderLeft           3  // Running header (\h(#): Whether to include it in the left running header.
+#define UserBool2RunningHeaderLeft           3  // Running header (\h(#): Whether to include it in the left running header. // Todo out
 
 
 #define UserBool3None                          0 
 #define UserBool3ChapterInRightRunningHeader   1  // Chapter number (\c): Whether to include it in the right running header.
-#define UserBool3RunningHeaderRight            2  // Running header (\h(#): Whether to include it in the right running header.
+#define UserBool3RunningHeaderRight            2  // Running header (\h(#): Whether to include it in the right running header. Todo out.
 
 
 #define UserInt1None               0 

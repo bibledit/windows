@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 #include <access/bible.h>
 #include <menu/logic.h>
 #include <edit/index.h>
-#include <editone2/index.h>
+#include <editone/index.h>
 #include <editusfm/index.h>
 #include <webserver/request.h>
 
@@ -41,8 +41,9 @@ std::string editor_select_url ()
 
 bool editor_select_acl (Webserver_Request& webserver_request)
 {
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) return true;
-  auto [ read, write ] = access_bible::any (webserver_request);
+  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ()))
+    return true;
+  const auto [ read, write ] = access_bible::any (webserver_request);
   return write;
 }
 
@@ -65,10 +66,10 @@ std::string editor_select (Webserver_Request& webserver_request)
     }
   }
   
-  if (editone2_index_acl (webserver_request)) {
+  if (editone_index_acl (webserver_request)) {
     if (menu_logic_editor_enabled (webserver_request, true, false)) {
       const std::string label = menu_logic_editor_menu_text (true, false);
-      const std::string url = editone2_index_url ();
+      const std::string url = editone_index_url ();
       view.add_iteration ("editor", { std::pair ("url", url), std::pair ("label", label) } );
       urls.push_back (url);
     }
@@ -81,6 +82,14 @@ std::string editor_select (Webserver_Request& webserver_request)
       view.add_iteration ("editor", { std::pair ("url", url), std::pair ("label", label) } );
       urls.push_back (url);
     }
+  }
+  
+  // Check on whether the Bible was passed.
+  // If so, write that to the active Bible in the user configuration.
+  // More info: https://github.com/bibledit/cloud/issues/1003
+  const std::string bible = webserver_request.query ["bible"];
+  if (!bible.empty()) {
+    webserver_request.database_config_user()->setBible(bible);
   }
   
   // Checking on whether to switch to another editor, through the keyboard shortcut.

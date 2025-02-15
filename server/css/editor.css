@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -62,6 +62,20 @@
 .light-background .b-notes {
   background: #171717 !important;
 }
+
+.b-wordlevelattributes {
+  height: 1px;
+  width: 25%;
+  margin: 0.5em;
+  background: black;
+}
+.dark-background .b-wordlevelattributes {
+  background: #efefef !important;
+}
+.light-background .b-wordlevelattributes {
+  background: #171717 !important;
+}
+
 [class^='i-note'] {
   cursor: pointer;
 }

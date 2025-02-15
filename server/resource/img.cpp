@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 #include <resource/logic.h>
 #include <database/imageresources.h>
 #include <database/books.h>
-#include <database/volatile.h>
+#include <database/temporal.h>
 #include <journal/index.h>
 #include <dialog/yes.h>
 #include <dialog/entry.h>
@@ -110,7 +110,7 @@ std::string resource_img (Webserver_Request& webserver_request)
 
     database_imageresources.assign (name, image, static_cast<int>(book1), chapter1, verse1, static_cast<int>(book2), chapter2, verse2);
     
-    database::volatile_::set_value (userid, "imageresources", std::to_string (end));
+    database::temporal::set_value (userid, "imageresources", std::to_string (end));
 
     error = filter::strings::implode (errors, " ");
     if (errors.empty ()) {
@@ -129,7 +129,7 @@ std::string resource_img (Webserver_Request& webserver_request)
     book2 = static_cast<book_id>(ibook2);
   }
   if ((book1 == book_id::_unknown) || (book2 == book_id::_unknown)) {
-    std::string end = database::volatile_::get_value (userid, "imageresources");
+    std::string end = database::temporal::get_value (userid, "imageresources");
     Passage passage = filter_integer_to_passage (filter::strings::convert_to_int (end));
     book1 = book2 = static_cast<book_id>(passage.m_book);
     chapter1 = chapter2 = passage.m_chapter;

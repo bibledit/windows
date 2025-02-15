@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include <editor/usfm2html.h>
 #include <config/globals.h>
 #include <access/bible.h>
-#include <read/logic.h>
+#include <editone/logic.h>
 #include <edit/logic.h>
 #include <database/config/bible.h>
 
@@ -77,7 +77,7 @@ std::string read_load (Webserver_Request& webserver_request)
   // 2. It updates the chapter snapshot.
   // 3. It loads the other verse.
   // 4. It updates the chapter snapshot.
-  storeLoadedUsfm2 (webserver_request, bible, book, chapter, unique_id);
+  store_loaded_usfm (webserver_request, bible, book, chapter, unique_id);
   
   std::string prefix_html;
   std::string not_used;
@@ -88,7 +88,7 @@ std::string read_load (Webserver_Request& webserver_request)
   // This is helpful for editing the verse and note.
   std::string focused_verse_html;
   editone_logic_editable_html (editable_usfm, stylesheet, focused_verse_html);
-  
+
   std::string suffix_html;
   editone_logic_suffix_html ("", suffix_usfm, stylesheet, suffix_html);
   
@@ -105,7 +105,7 @@ std::string read_load (Webserver_Request& webserver_request)
   }
 
   // Moves any notes from the prefix to the suffix.
-  editone_logic_move_notes_v2 (prefix_html, suffix_html);
+  editone_logic_move_notes (prefix_html, suffix_html);
   
   std::string data;
   data.append (prefix_html);

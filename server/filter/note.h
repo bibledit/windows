@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2024 Teus Benschop.
+Copyright (©) 2003-2025 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ private:
 class citations
 {
 public:
-  void evaluate_style (const Database_Styles_Item & style);
+  void evaluate_style (const database::styles1::Item & style);
   std::string get (const std::string & marker, const std::string & citation);
   void restart (const std::string & moment);
 private:

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include <filter/usfm.h>
 #include <filter/url.h>
 #include <filter/string.h>
+#include <filter/shell.h>
 #include <database/config/general.h>
 #include <database/config/bible.h>
 #include <database/logs.h>
@@ -36,7 +37,7 @@
 #include <locale/logic.h>
 #include <bb/logic.h>
 #include <editusfm/index.h>
-#include <editone2/index.h>
+#include <editone/index.h>
 #include <resource/index.h>
 #include <resource/external.h>
 #include <resource/logic.h>
@@ -120,8 +121,8 @@ void demo_clean_data ()
   
   
   // Delete empty stylesheet that may have been there.
-  webserver_request.database_styles()->revokeWriteAccess ("", styles_logic_standard_sheet ());
-  webserver_request.database_styles()->deleteSheet ("");
+  database::styles::revoke_write_access ("", styles_logic_standard_sheet ());
+  database::styles::delete_sheet ("");
   styles_sheets_create_all ();
   
   
@@ -321,9 +322,15 @@ void demo_prepare_sample_bible ()
   // Clean up the remaining artifacts that were created along the way.
 #ifdef HAVE_CLOUD
   [[maybe_unused]] int result;
-  result = system ("find . -path '*logbook/15*' -delete");
-  result = system ("find . -name state.sqlite -delete");
-  result = system ("find . -name 'Sample.*' -delete");
+  std::string command;
+  command = std::string(filter::shell::get_executable(filter::shell::Executable::find)) + " . -path '*logbook/1*' -delete";
+  result = system (command.c_str());
+  command = std::string(filter::shell::get_executable(filter::shell::Executable::find)) + " . -path '*logbook/2*' -delete";
+  result = system (command.c_str());
+  command = std::string(filter::shell::get_executable(filter::shell::Executable::find)) + " . -name state.sqlite -delete";
+  result = system (command.c_str());
+  command = std::string(filter::shell::get_executable(filter::shell::Executable::find)) + " . -name 'Sample.*' -delete";
+  result = system (command.c_str());
 #endif
 }
 
@@ -376,7 +383,7 @@ void demo_create_sample_workspaces (Webserver_Request& webserver_request)
   workspace_set_widths (webserver_request, widths);
   workspace_set_heights (webserver_request, row_heights);
   
-  urls[0] = editone2_index_url ();
+  urls[0] = editone_index_url ();
   urls[1] = resource_index_url ();
   
   webserver_request.database_config_user()->setActiveWorkspace (demo_workspace ());

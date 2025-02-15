@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ std::string editusfm_save (Webserver_Request& webserver_request)
             std::string chapter_data_to_save = data.m_data;
             if (((book_number == book) || (book_number == 0)) && (chapter_number == chapter)) {
               // The USFM loaded into the editor.
-              std::string ancestor_usfm = getLoadedUsfm2 (webserver_request, bible, book, chapter, unique_id);
+              std::string ancestor_usfm = get_loaded_usfm (webserver_request, bible, book, chapter, unique_id);
               // Collect some data about the changes for this user.
               const std::string& username = webserver_request.session_logic ()->get_username ();
               [[maybe_unused]] int oldID = database::bibles::get_chapter_id (bible, book, chapter);
@@ -133,7 +133,7 @@ std::string editusfm_save (Webserver_Request& webserver_request)
                   rss_logic_schedule_update (username, bible, book, chapter, oldText, newText);
 #endif
                   // Store a copy of the USFM loaded in the editor for later reference.
-                  storeLoadedUsfm2 (webserver_request, bible, book, chapter, unique_id);
+                  store_loaded_usfm (webserver_request, bible, book, chapter, unique_id);
                   return locale_logic_text_saved ();
                 }
                 return message;

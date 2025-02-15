@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -28,6 +28,25 @@
 #include <quill/logic.h>
 
 
+// This function returns a pair of:
+// 1. Normal classes, like "add", "nd", and so on.
+// 2. A string with the word-level attributes class, like "wla2" for example
+static std::pair<std::vector<std::string>, std::string>const get_standard_classes_and_wla_class (const std::string& class_name)
+{
+  constexpr char separator = '0';
+  std::vector <std::string> classes = filter::strings::explode (class_name, separator);
+  std::string wla{};
+  for (auto iter = classes.cbegin(); iter != classes.cend(); iter++) {
+    if (iter->find(quill_word_level_attribute_class_prefix) == 0) {
+      wla = *iter;
+      classes.erase(iter);
+      break;
+    }
+  }
+  return {classes, wla};
+};
+
+
 void Editor_Html2Usfm::load (std::string html)
 {
   // The web editor may insert non-breaking spaces. Convert them to normal spaces.
@@ -37,7 +56,7 @@ void Editor_Html2Usfm::load (std::string html)
   // but the pugixml XML parser needs <hr/> and similar elements.
   html = filter::strings::html2xml (html);
 
-  std::string xml = "<body>" + html + "</body>";
+  const std::string xml = "<body>" + std::move(html) + "</body>";
   // Parse document such that all whitespace is put in the DOM tree.
   // See http://pugixml.org/docs/manual.html for more information.
   // It is not enough to only parse with parse_ws_pcdata_single, it really needs parse_ws_pcdata.
@@ -48,60 +67,70 @@ void Editor_Html2Usfm::load (std::string html)
 }
 
 
-void Editor_Html2Usfm::stylesheet (std::string stylesheet)
+void Editor_Html2Usfm::stylesheet (const std::string& stylesheet)
 {
   styles.clear ();
-  noteOpeners.clear ();
-  characterStyles.clear ();
-  Database_Styles database_styles;
-  std::vector <std::string> markers = database_styles.getMarkers (stylesheet);
+  note_openers.clear ();
+  character_styles.clear ();
+  const std::vector <std::string> markers = database::styles1::get_markers (stylesheet);
   // Load the style information into the object.
-  for (std::string & marker : markers) {
-    Database_Styles_Item style = database_styles.getMarkerData (stylesheet, marker);
+  for (const std::string& marker : markers) {
+    database::styles1::Item style = database::styles1::get_marker_data (stylesheet, marker);
     styles [marker] = style;
     // Get markers that should not have endmarkers.
     bool suppress = false;
-    int type = style.type;
-    int subtype = style.subtype;
-    if (type == StyleTypeVerseNumber) suppress = true;
+    const int type = style.type;
+    const int subtype = style.subtype;
+    if (type == StyleTypeVerseNumber)
+      suppress = true;
     if (type == StyleTypeFootEndNote) {
       suppress = true;
-      if (subtype == FootEndNoteSubtypeFootnote) noteOpeners.insert (marker);
-      if (subtype == FootEndNoteSubtypeEndnote) noteOpeners.insert (marker);
-      if (subtype == FootEndNoteSubtypeContentWithEndmarker) suppress = false;
-      if (subtype == FootEndNoteSubtypeParagraph) suppress = false;
+      if (subtype == FootEndNoteSubtypeFootnote)
+        note_openers.insert (marker);
+      if (subtype == FootEndNoteSubtypeEndnote)
+        note_openers.insert (marker);
+      if (subtype == FootEndNoteSubtypeContentWithEndmarker)
+        suppress = false;
+      if (subtype == FootEndNoteSubtypeParagraph)
+        suppress = false;
     }
     if (type == StyleTypeCrossreference) {
       suppress = true;
-      if (subtype == CrossreferenceSubtypeCrossreference) noteOpeners.insert (marker);
-      if (subtype == CrossreferenceSubtypeContentWithEndmarker) suppress = false;
+      if (subtype == CrossreferenceSubtypeCrossreference)
+        note_openers.insert (marker);
+      if (subtype == CrossreferenceSubtypeContentWithEndmarker)
+        suppress = false;
     }
-    if (type == StyleTypeTableElement) suppress = true;
-    if (suppress) suppressEndMarkers.insert (marker);
+    if (type == StyleTypeTableElement)
+      suppress = true;
+    if (suppress)
+      suppress_end_markers.insert (marker);
   }
 }
 
 
 void Editor_Html2Usfm::run ()
 {
-  preprocess ();
-  process ();
-  postprocess ();
+  pre_process ();
+  main_process ();
+  post_process ();
 }
 
 
-void Editor_Html2Usfm::process ()
+void Editor_Html2Usfm::main_process ()
 {
   // Iterate over the children to retrieve the "p" elements, then process them.
-  pugi::xml_node body = document.first_child ();
-  for (pugi::xml_node node : body.children()) {
-    // Do not process the notes <div> or <p> and beyond
+  const pugi::xml_node body = document.first_child ();
+  for (pugi::xml_node& node : body.children()) {
+    // Do not process the notes <p> and beyond
     // because it is at the end of the text body,
     // and note-related data has already been extracted from it.
-    std::string classs = update_quill_class (node.attribute ("class").value ());
-    if (classs == "notes") break;
+    const std::string classs = update_quill_class (node.attribute ("class").value ());
+    if (classs == quill_notes_class) {
+      break;
+    }
     // Process the node.
-    processNode (node);
+    process_node(node);
   }
 }
 
@@ -109,36 +138,38 @@ void Editor_Html2Usfm::process ()
 std::string Editor_Html2Usfm::get ()
 {
   // Generate the USFM as one string.
-  std::string usfm = filter::strings::implode (output, "\n");
-  
-  usfm = cleanUSFM (usfm);
-  
-  return usfm;
+  const std::string usfm = filter::strings::implode (output, "\n");
+  return clean_usfm (usfm);
 }
 
 
-void Editor_Html2Usfm::processNode (pugi::xml_node node)
+void Editor_Html2Usfm::process_node(pugi::xml_node& node)
 {
   switch (node.type ()) {
     case pugi::node_element:
     {
-      // Skip a note with class "ql-cursor" because that is an internal Quill node.
+      const std::string classs = node.attribute("class").value();
+      // Skip a node with class "ql-cursor" because that is an internal Quill node.
       // The user didn't insert it.
-      std::string classs = node.attribute("class").value();
-      if (classs == "ql-cursor") break;
+      if (classs == quill_caret_class)
+        break;
+      // Skip a node that is for the word-level attributes since it is just there for visual appearance.
+      // The user didn't insert it.
+      if (classs.find(quill_word_level_attributes_class) != std::string::npos)
+        break;
       // Process this node.
-      openElementNode (node);
-      for (pugi::xml_node child : node.children()) {
-        processNode (child);
+      open_element_node (node);
+      for (pugi::xml_node& child : node.children()) {
+        process_node(child);
       }
-      closeElementNode (node);
+      close_element_node (node);
       break;
     }
     case pugi::node_pcdata:
     {
       // Add the text to the current USFM line.
-      std::string text = node.text ().get ();
-      currentLine += text;
+      m_last_added_text_fragment = node.text ().get ();
+      current_line.append(m_last_added_text_fragment);
       break;
     }
     case pugi::node_null:
@@ -150,155 +181,180 @@ void Editor_Html2Usfm::processNode (pugi::xml_node node)
     case pugi::node_cdata:
     default:
     {
-      std::string nodename = node.name ();
-      Database_Logs::log ("XML node " + nodename + " not handled while saving editor text");
+      Database_Logs::log ("XML node " + std::string(node.name ()) + " not handled while saving editor text");
       break;
     }
   }
 }
 
 
-void Editor_Html2Usfm::openElementNode (pugi::xml_node node)
+void Editor_Html2Usfm::open_element_node (pugi::xml_node& node)
 {
   // The tag and class names of this element node.
-  std::string tagName = node.name ();
-  std::string className = update_quill_class (node.attribute ("class").value ());
+  const std::string tag_name = node.name ();
+  std::string class_name = update_quill_class (node.attribute ("class").value ());
   
-  if (tagName == "p")
+  if (tag_name == "p")
   {
     // While editing, it may occur that the p element does not have a class.
     // Use the 'p' class in such cases.
-    if (className.empty ()) className = "p";
-    if (className == "mono") {
+    if (class_name.empty ())
+      class_name = "p";
+    if (class_name == "mono") {
       // Class 'mono': The editor has the full USFM in the text.
       mono = true;
     } else {
       // Start the USFM line with a marker with the class name.
-      currentLine += filter::usfm::get_opening_usfm (className);
+      current_line.append(filter::usfm::get_opening_usfm (class_name));
     }
   }
   
-  if (tagName == "span")
+  if (tag_name == "span")
   {
-    if (className == "v")  {
+    if (class_name == "v")  {
       // Handle the verse.
-      flushLine ();
-      openInline (className);
+      flush_line ();
+      open_inline (class_name);
     }
-    else if (className.empty ()) {
+    else if (class_name.empty ()) {
       // Normal text is wrapped in elements without a class attribute.
-    } else if (className.substr (0, 8) == "notecall") {
+    }
+    else if (class_name.substr (0, quill_note_caller_class.size()) == quill_note_caller_class) {
       // Note in Quill-based editor.
-      processNoteCitation (node);
-    } else {
+      process_note_citation (node);
+    }
+    else {
       // Handle remaining class attributes for inline text.
-      openInline (className);
+      open_inline (class_name);
     }
   }
   
-  if (tagName == "a")
+  if (tag_name == "a")
   {
-    processNoteCitation (node);
+    process_note_citation (node);
   }
 }
 
 
-void Editor_Html2Usfm::closeElementNode (pugi::xml_node node)
+void Editor_Html2Usfm::close_element_node (const pugi::xml_node& node)
 {
-  // The tag and class names of this element node.
-  std::string tagName = node.name ();
-  std::string className = update_quill_class (node.attribute ("class").value ());
-  
-  if (tagName == "p")
+  // Get the tag name of this node.
+  const std::string tag_name = node.name ();
+  // Get the class names of this node.
+  // Get the word-level attributes class name / identifier.
+  std::string class_name = update_quill_class (node.attribute ("class").value ());
+  auto [classes, wla_class] = get_standard_classes_and_wla_class (class_name);
+
+  if (tag_name == "p")
   {
     // While editing it happens that the p element does not have a class.
     // Use the 'p' class in such cases.
-    if (className == "") className = "p";
+    if (class_name.empty())
+      class_name = "p";
     
-    if (noteOpeners.find (className) != noteOpeners.end()) {
+    if (note_openers.find (class_name) != note_openers.end()) {
       // Deal with note closers.
-      currentLine += filter::usfm::get_closing_usfm (className);
+      current_line.append(filter::usfm::get_closing_usfm (class_name));
     } else {
       // Normally a p element closes the USFM line.
-      flushLine ();
+      flush_line ();
       mono = false;
       // Clear active character styles.
-      characterStyles.clear();
+      character_styles.clear();
     }
   }
   
-  if (tagName == "span")
+  if (tag_name == "span")
   {
     // Do nothing for monospace elements, because the USFM would be the text nodes only.
-    if (mono) return;
+    if (mono)
+      return;
     // Do nothing without a class.
-    if (className.empty()) return;
+    if (class_name.empty())
+      return;
     // Do nothing with a note caller.
-    if (className.substr (0, 8) == "notecall") return;
+    if (class_name.substr (0, quill_note_caller_class.size()) == quill_note_caller_class)
+      return;
     // Do nothing if no endmarkers are supposed to be produced.
-    if (suppressEndMarkers.find (className) != suppressEndMarkers.end()) return;
+    // There's two exceptions:
+    // 1. If a word-level attributes ID was found: This needs an endmarker.
+    // 2. If the last added text fragment contains the vertical bar, as that indicates word-level attributes.
+    if (suppress_end_markers.find (class_name) != suppress_end_markers.end()) {
+      if ((wla_class.empty()) && (m_last_added_text_fragment.find("|") == std::string::npos))
+        return;
+    }
+    // Check for and get and handle word-level attributes.
+    if (!wla_class.empty()) {
+      const std::string contents = m_word_level_attributes[wla_class];
+      m_word_level_attributes.erase(wla_class);
+      if (!contents.empty()) {
+        // The vertical bar separates the canonical word from the attribute(s) following it.
+        current_line.append("|");
+        current_line.append(contents);
+      }
+    }
     // Add closing USFM, optionally closing embedded tags in reverse order.
-    char separator = '0';
-    std::vector <std::string> classes = filter::strings::explode (className, separator);
-    characterStyles = filter::strings::array_diff (characterStyles, classes);
+    character_styles = filter::strings::array_diff (character_styles, classes);
     reverse (classes.begin(), classes.end());
     for (unsigned int offset = 0; offset < classes.size(); offset++) {
       bool embedded = (classes.size () > 1) && (offset == 0);
-      if (!characterStyles.empty ()) embedded = true;
-      currentLine += filter::usfm::get_closing_usfm (classes [offset], embedded);
-      lastNoteStyle.clear();
+      if (!character_styles.empty ()) embedded = true;
+      current_line.append (filter::usfm::get_closing_usfm (classes [offset], embedded));
+      last_note_style.clear();
     }
   }
   
-  if (tagName == "a")
+  if (tag_name == "a")
   {
     // Do nothing for note citations in the text.
   }
 }
 
 
-void Editor_Html2Usfm::openInline (std::string className)
+void Editor_Html2Usfm::open_inline (const std::string& class_name)
 {
   // It has been observed that the <span> elements of the character styles may be embedded, like so:
   // The <span class="add">
   //   <span class="nd">Lord God</span>
   // is calling</span> you</span><span>.</span>
-  char separator = '0';
-  std::vector <std::string> classes = filter::strings::explode (className, separator);
+  const auto [classes, wla] = get_standard_classes_and_wla_class(class_name);
   for (unsigned int offset = 0; offset < classes.size(); offset++) {
-    bool embedded = (characterStyles.size () + offset) > 0;
-    std::string marker = classes[offset];
+    const bool embedded = (character_styles.size () + offset) > 0;
+    const std::string marker = classes[offset];
     bool add_opener = true;
-    if (processingNote) {
+    if (processing_note) {
       // If the style within the note has already been opened before,
       // do not open the same style again.
       // https://github.com/bibledit/cloud/issues/353
-      if (marker == lastNoteStyle) add_opener = false;
-      lastNoteStyle = marker;
+      if (marker == last_note_style) add_opener = false;
+      last_note_style = marker;
     } else {
-      lastNoteStyle.clear ();
+      last_note_style.clear ();
     }
-    if (add_opener)
-      currentLine += filter::usfm::get_opening_usfm (marker, embedded);
+    if (add_opener) {
+      current_line.append (filter::usfm::get_opening_usfm (marker, embedded));
+    }
   }
   // Store active character styles in some cases.
   bool store = true;
-  if (suppressEndMarkers.find (className) != suppressEndMarkers.end ()) store = false;
-  if (processingNote) store = false;
+  if (suppress_end_markers.find (class_name) != suppress_end_markers.end ())
+    store = false;
+  if (processing_note)
+    store = false;
   if (store) {
-    characterStyles.insert (characterStyles.end(), classes.begin(), classes.end());
+    character_styles.insert (character_styles.end(), classes.begin(), classes.end());
   }
 }
 
 
-void Editor_Html2Usfm::processNoteCitation (pugi::xml_node node)
+void Editor_Html2Usfm::process_note_citation (pugi::xml_node& node)
 {
   // Remove the note citation from the main text body.
   // It means that this:
   //   <span class="i-notecall1">1</span>
   // becomes this:
   //   <span class="i-notecall1" />
-  pugi::xml_node child = node.first_child ();
+  const pugi::xml_node child = node.first_child ();
   node.remove_child (child);
 
   // Get more information about the note to retrieve.
@@ -336,16 +392,16 @@ void Editor_Html2Usfm::processNoteCitation (pugi::xml_node node)
     }
 
     // Preserve active character styles in the main text, and reset them for the note.
-    std::vector <std::string> preservedCharacterStyles = characterStyles;
-    characterStyles.clear();
+    std::vector <std::string> preserved_character_styles = std::move(character_styles);
+    character_styles.clear();
     
     // Process this 'p' element.
-    processingNote = true;
-    processNode (note_p_element);
-    processingNote = false;
+    processing_note = true;
+    process_node(note_p_element);
+    processing_note = false;
     
     // Restore the active character styles for the main text.
-    characterStyles = preservedCharacterStyles;
+    character_styles = std::move(preserved_character_styles);
     
     // Remove this element so it can't be processed again.
     pugi::xml_node parent = note_p_element.parent ();
@@ -357,11 +413,11 @@ void Editor_Html2Usfm::processNoteCitation (pugi::xml_node node)
 }
 
 
-std::string Editor_Html2Usfm::cleanUSFM (std::string usfm)
+std::string Editor_Html2Usfm::clean_usfm (std::string usfm)
 {
   // Replace a double space after a note opener.
-  for (std::string noteOpener : noteOpeners) {
-    std::string opener = filter::usfm::get_opening_usfm (noteOpener);
+  for (const std::string& noteOpener : note_openers) {
+    const std::string opener = filter::usfm::get_opening_usfm (noteOpener);
     usfm = filter::strings::replace (opener + " ", opener, usfm);
   }
   
@@ -373,47 +429,76 @@ std::string Editor_Html2Usfm::cleanUSFM (std::string usfm)
 }
 
 
-void Editor_Html2Usfm::preprocess ()
+void Editor_Html2Usfm::pre_process ()
 {
   output.clear ();
-  currentLine.clear ();
+  current_line.clear ();
   mono = false;
-}
-
-
-void Editor_Html2Usfm::flushLine ()
-{
-  if (!currentLine.empty ()) {
-    // Trim so that '\p ' becomes '\p', for example.
-    currentLine = filter::strings::trim (currentLine);
-    // No longer doing the above
-    // because it would remove a space intentionally added to the end of a line.
-    // Instead it now only does a left trim instead of the full trim.
-    // currentLine = filter::strings::ltrim (currentLine);
-    output.push_back (currentLine);
-    currentLine.clear ();
+  m_word_level_attributes.clear();
+  
+  // Remove the node for word-level attributes that was there only for visual appearance in the editors.
+  // Store the word-level attributes themsselves in a container ready for use.
+  // And remove those nodes too from the XML tree.
+  std::vector<pugi::xml_node> delete_nodes{};
+  pugi::xml_node body = document.first_child ();
+  for (pugi::xml_node& node : body.children()) {
+    const std::string classs = update_quill_class (node.attribute ("class").value ());
+    if (classs == quill_word_level_attributes_class) {
+      delete_nodes.push_back(node);
+    }
+    // The classs could be "wla1", and the prefix is "wla", so check on the match.
+    if (classs.find(quill_word_level_attribute_class_prefix) == 0) {
+      delete_nodes.push_back(node);
+      const std::string text = node.text().get();
+      m_word_level_attributes.insert({classs, text});
+    }
+  }
+  for (auto& node : delete_nodes) {
+    body.remove_child(node);
   }
 }
 
 
-void Editor_Html2Usfm::postprocess ()
+void Editor_Html2Usfm::flush_line ()
+{
+  if (!current_line.empty ()) {
+    // Trim so that '\p ' becomes '\p', for example.
+    current_line = filter::strings::trim (std::move(current_line));
+    // No longer doing the above
+    // because it would remove a space intentionally added to the end of a line.
+    // Instead it now only does a left trim instead of the full trim.
+    // current_line = filter::strings::ltrim (current_line);
+    output.push_back (std::move(current_line));
+    current_line.clear ();
+  }
+}
+
+
+void Editor_Html2Usfm::post_process ()
 {
   // Flush any last USFM line being built.
-  flushLine ();
+  flush_line ();
+  
+  // Log any word-level attributes that have not been integrated into the USFM.
+  for (const auto& element : m_word_level_attributes) {
+    Database_Logs::log ("Discarding unprocessed word-level attribute with key: " + element.first + " and value: " + element.second);
+  }
 }
 
 
 // Retrieves a pointer to a relevant footnote element in the XML.
-pugi::xml_node Editor_Html2Usfm::get_note_pointer (pugi::xml_node body, std::string id)
+pugi::xml_node Editor_Html2Usfm::get_note_pointer (const pugi::xml_node& body, const std::string& id)
 {
   // The note wrapper node to look for.
   pugi::xml_node p_note_wrapper;
 
   // Check that there's a node to start with.
-  if (!body) return p_note_wrapper;
+  if (!body)
+    return p_note_wrapper;
 
   // Assert that the <body> node is given.
-  if (std::string(body.name ()) != "body") return p_note_wrapper;
+  if (std::string(body.name ()) != "body")
+    return p_note_wrapper;
 
   // Some of the children of the <body> node will be the note wrappers.
   // Consider this XML:
@@ -444,7 +529,7 @@ pugi::xml_node Editor_Html2Usfm::get_note_pointer (pugi::xml_node body, std::str
       name = span_notebody.name();
     }
     if (name == "span") {
-      std::string classs = span_notebody.attribute ("class").value ();
+      const std::string classs = span_notebody.attribute ("class").value ();
       if (classs.substr (0, 10) == id.substr(0, 10)) {
         if (classs == id) {
           within_matching_p_node = true;
@@ -472,8 +557,8 @@ pugi::xml_node Editor_Html2Usfm::get_note_pointer (pugi::xml_node body, std::str
 
 std::string Editor_Html2Usfm::update_quill_class (std::string classname)
 {
-  classname = filter::strings::replace (quill_logic_class_prefix_block (), "", classname);
-  classname = filter::strings::replace (quill_logic_class_prefix_inline (), "", classname);
+  classname = filter::strings::replace (quill_class_prefix_block, std::string(), classname);
+  classname = filter::strings::replace (quill_class_prefix_inline, std::string(), classname);
   return classname;
 }
 
@@ -481,14 +566,14 @@ std::string Editor_Html2Usfm::update_quill_class (std::string classname)
 // This function takes the html from a Quill-based editor that edits one verse,
 // and converts it to USFM.
 // It properly deals with cases when a verse does not start a new paragraph.
-std::string editor_export_verse_quill (std::string stylesheet, std::string html)
+std::string editor_export_verse_quill (const std::string& stylesheet, std::string html)
 {
   // When the $html starts with a paragraph without a style,
   // put a recognizable style there.
-  std::string style = "oneversestyle";
-  size_t pos = html.find ("<p>");
+  const std::string one_verse_style = "oneversestyle";
+  const size_t pos = html.find ("<p>");
   if (pos == 0) {
-    html.insert (2, R"( class=")" + quill_logic_class_prefix_block () + style + R"(")");
+    html.insert (2, R"( class=")" + std::string(quill_class_prefix_block) + one_verse_style + R"(")");
   }
 
   // Convert html to USFM.
@@ -499,7 +584,7 @@ std::string editor_export_verse_quill (std::string stylesheet, std::string html)
   std::string usfm = editor_export.get ();
   
   // Remove that recognizable style converted to USFM.
-  usfm = filter::strings::replace (R"(\)" + style, std::string(), usfm);
+  usfm = filter::strings::replace (R"(\)" + one_verse_style, std::string(), usfm);
   usfm = filter::strings::trim (usfm);
 
   return usfm;

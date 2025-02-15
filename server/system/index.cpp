@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2024 Teus Benschop.
+Copyright (©) 2003-2025 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -345,7 +345,7 @@ std::string system_index (Webserver_Request& webserver_request)
 #endif
 
   
-  // Handle the setting whether to keep the resource caches for an extended period of time.
+  // Handle the setting whether to keep available OSIS content in the SWORD resources.
 #ifdef HAVE_CLOUD
   if (checkbox == "keeposis") {
     database::config::general::set_keep_osis_content_in_sword_resources (checked);

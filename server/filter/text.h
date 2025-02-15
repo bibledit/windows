@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2024 Teus Benschop.
+Copyright (©) 2003-2025 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <html/text.h>
 #include <text/text.h>
 #include <esword/text.h>
-#include <tbsx/text.h>
 #include <filter/note.h>
 
 
@@ -68,24 +67,24 @@ private:
   void get_usfm_next_chapter ();
   
 public:
-  void run (std::string stylesheet);
+  void run (const std::string& stylesheet);
 private:
   // Container holding a chapter of USFM code, alternating between USFM and text.
   std::vector <std::string> chapter_usfm_markers_and_text {};
   unsigned int chapter_usfm_markers_and_text_pointer {0};
 
 public:
-  void get_styles (std::string stylesheet);
+  void get_styles (const std::string& stylesheet);
 private:
   // A map of marker -> object with style information.
-  std::map <std::string, Database_Styles_Item> styles {};
+  std::map <std::string, database::styles1::Item> styles {};
   // Usually this is: c
   std::string chapterMarker {};
   // Array holding styles created in Odf_Text class.
   std::vector <std::string> createdStyles {};
 
 public:
-  void pre_process_usfm ();
+  void pre_process_usfm (const std::string& stylesheet);
 private:
   // Book identifier, e.g. 1, 2, 3, and so on.
   int m_current_book_identifier {0};
@@ -96,15 +95,15 @@ private:
   std::string getCurrentPassageText ();
   // Map of (book, chapter number).
   std::map <int, int> m_number_of_chapters_per_book {};
-  void process_usfm ();
+  void process_usfm (const std::string& stylesheet);
   void processNote ();
   // Opening a new paragraph.
-  void create_paragraph_style (const Database_Styles_Item & style, bool keepWithNext);
-  void new_paragraph (const Database_Styles_Item & style, bool keepWithNext);
+  void create_paragraph_style (const database::styles1::Item & style, bool keepWithNext);
+  void new_paragraph (const database::styles1::Item & style, bool keepWithNext);
   void applyDropCapsToCurrentParagraph (int dropCapsLength);
   void putChapterNumberInFrame (std::string chapterText);
-  std::string getNoteCitation (const Database_Styles_Item & style);
-  void ensureNoteParagraphStyle (std::string marker, const Database_Styles_Item & style);
+  std::string getNoteCitation (const database::styles1::Item & style);
+  void ensureNoteParagraphStyle (std::string marker, const database::styles1::Item & style);
 
 public:
   // Container with objects (book, chapter, verse, marker, header value).
@@ -143,7 +142,7 @@ public:
   std::vector <std::string> info {};
   std::vector <std::string> fallout {};
 private:
-  void addToInfo (std::string text, bool next = false);
+  void add_to_info (std::string text, bool next = false);
   void addToFallout (std::string text, bool next = false);
   void addToWordList (std::vector <std::string> & list);
   std::vector <std::string> wordListGlossaryDictionary {};
@@ -176,10 +175,6 @@ public:
   // Object for exporting to plain text.
   Text_Text * text_text { nullptr };
 
-public:
-  // Object for exporting to TBS online bible format.
-  Tbsx_Text * tbsx_text { nullptr };
-  
 public:
   void initializeHeadingsAndTextPerVerse (bool start_text_now);
   std::map <int, std::string> getVersesText ();
@@ -234,4 +229,5 @@ private:
 public:
 private:
   void set_to_zero (std::string& value);
+  void close_text_style_all();
 };

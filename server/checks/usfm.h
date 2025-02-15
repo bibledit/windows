@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ private:
   
   // Stylesheet.
   std::vector <std::string> markers_stylesheet {};
-  std::map <std::string, Database_Styles_Item> style_items {};
+  std::map <std::string, database::styles1::Item> style_items {};
   
   // Matching markers.
   std::vector <std::string> markers_requiring_endmarkers {};

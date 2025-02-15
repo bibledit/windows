@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ void Editor_Html2Format::processNode (pugi::xml_node node)
       // Skip a note with class "ql-cursor" because that is an internal Quill node.
       // The user didn't insert it.
       std::string classs = node.attribute("class").value();
-      if (classs == "ql-cursor") break;
+      if (classs == quill_caret_class) break;
       // Process node normally.
       openElementNode (node);
       for (pugi::xml_node child : node.children()) {
@@ -176,7 +176,7 @@ void Editor_Html2Format::postprocess ()
 
 std::string Editor_Html2Format::update_quill_class (std::string classname)
 {
-  classname = filter::strings::replace (quill_logic_class_prefix_block (), "", classname);
-  classname = filter::strings::replace (quill_logic_class_prefix_inline (), "", classname);
+  classname = filter::strings::replace (quill_class_prefix_block, std::string(), classname);
+  classname = filter::strings::replace (quill_class_prefix_inline, std::string(), classname);
   return classname;
 }

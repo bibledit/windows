@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -61,5 +61,5 @@ std::string edit_edit (Webserver_Request& webserver_request)
   if (alive) 
     return translate ("The passage has been opened in the existing Bible editor");
   
-  return R"(<a href="../editone2/index">)" + translate ("Open a Bible editor to edit the passage") + "</a>";
+  return R"(<a href="../editone/index">)" + translate ("Open a Bible editor to edit the passage") + "</a>";
 }

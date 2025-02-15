@@ -2,8 +2,8 @@
 <table>
   <thead>
     <tr>
-      <td>translate("Style")</td>
-      <td>translate("Name")</td>
+      <td><b>translate("Style")</b></td>
+      <td><b>translate("Name")</b></td>
       <td></td>
     </tr>
   </thead>
@@ -13,7 +13,6 @@
 </table>
 <br>
 <p><a href="?name=##name##&new=">translate("Add a style to the stylesheet.")</a></p>
-<p><a href="indext?sheet=##name##">translate("Select this stylesheet.")</a></p>
 <p><a href="indexm?delete=##name##">translate("Delete the entire stylesheet.")</a></p>
 <p>
 translate("You can copy or backup this stylesheet.")

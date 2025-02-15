@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2024 Teus Benschop.
+Copyright (©) 2003-2025 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,8 +20,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma once
 
 #include <config/libraries.h>
+#include <stylesv2/logic.h>
 
-struct Database_Styles_Item
+namespace database::styles {
+
+void create_database ();
+void create_sheet (const std::string& sheet);
+std::vector <std::string> get_sheets ();
+void delete_sheet (const std::string& sheet);
+void grant_write_access (const std::string& user, const std::string& sheet);
+void revoke_write_access (const std::string& user, const std::string& sheet);
+bool has_write_access (const std::string& user, const std::string& sheet);
+
+} // End namespace styles
+
+
+namespace database::styles1 {
+
+struct Item
 {
   std::string marker {};
   std::string name {};
@@ -57,55 +73,55 @@ struct Database_Styles_Item
 };
 
 
-class Database_Styles
-{
-public:
-  void create ();
-  void createSheet (std::string sheet);
-  std::vector <std::string> getSheets ();
-  void deleteSheet (std::string sheet);
-  void addMarker (std::string sheet, std::string marker);
-  void deleteMarker (std::string sheet, std::string marker);
-  std::map <std::string, std::string> getMarkersAndNames (std::string sheet);
-  std::vector <std::string> getMarkers (std::string sheet);
-  Database_Styles_Item getMarkerData (std::string sheet, std::string marker);
-  void updateName (std::string sheet, std::string marker, std::string name);
-  void updateInfo (std::string sheet, std::string marker, std::string info);
-  void updateCategory (std::string sheet, std::string marker, std::string category);
-  void updateType (std::string sheet, std::string marker, int type);
-  void updateSubType (std::string sheet, std::string marker, int subtype);
-  void updateFontsize (std::string sheet, std::string marker, float fontsize);
-  void updateItalic (std::string sheet, std::string marker, int italic);
-  void updateBold (std::string sheet, std::string marker, int bold);
-  void updateUnderline (std::string sheet, std::string marker, int underline);
-  void updateSmallcaps (std::string sheet, std::string marker, int smallcaps);
-  void updateSuperscript (std::string sheet, std::string marker, int superscript);
-  void updateJustification (std::string sheet, std::string marker, int justification);
-  void updateSpaceBefore (std::string sheet, std::string marker, float spacebefore);
-  void updateSpaceAfter (std::string sheet, std::string marker, float spaceafter);
-  void updateLeftMargin (std::string sheet, std::string marker, float leftmargin);
-  void updateRightMargin (std::string sheet, std::string marker, float rightmargin);
-  void updateFirstLineIndent (std::string sheet, std::string marker, float firstlineindent);
-  void updateSpanColumns (std::string sheet, std::string marker, bool spancolumns);
-  void updateColor (std::string sheet, std::string marker, std::string color);
-  void updatePrint (std::string sheet, std::string marker, bool print);
-  void updateUserbool1 (std::string sheet, std::string marker, bool userbool1);
-  void updateUserbool2 (std::string sheet, std::string marker, bool userbool2);
-  void updateUserbool3 (std::string sheet, std::string marker, bool userbool3);
-  void updateUserint1 (std::string sheet, std::string marker, int userint1);
-  void updateUserint2 (std::string sheet, std::string marker, int userint2);
-  void updateUserstring1 (std::string sheet, std::string marker, std::string userstring1);
-  void updateUserstring2 (std::string sheet, std::string marker, std::string userstring2);
-  void updateUserstring3 (std::string sheet, std::string marker, std::string userstring3);
-  void updateBackgroundColor (std::string sheet, std::string marker, std::string color);
-  void grantWriteAccess (std::string user, std::string sheet);
-  void revokeWriteAccess (std::string user, std::string sheet);
-  bool hasWriteAccess (std::string user, std::string sheet);
-private:
-  std::string databasefolder ();
-  std::string sheetfolder (std::string sheet);
-  std::string stylefile (std::string sheet, std::string marker);
-  Database_Styles_Item read_item (std::string sheet, std::string marker);
-  void write_item (std::string sheet, Database_Styles_Item & item);
-  void cache_defaults ();
-};
+void add_marker (const std::string& sheet, const std::string& marker);
+void delete_marker (const std::string& sheet, const std::string& marker);
+std::map <std::string, std::string> get_markers_and_names (const std::string& sheet);
+std::vector <std::string> get_markers (const std::string& sheet);
+Item get_marker_data (const std::string& sheet, const std::string& marker);
+void update_name (const std::string& sheet, const std::string& marker, const std::string& name);
+void update_info (const std::string& sheet, const std::string& marker, const std::string& info);
+void update_category (const std::string& sheet, const std::string& marker, const std::string& category);
+void update_type (const std::string& sheet, const std::string& marker, int type);
+void update_sub_type (const std::string& sheet, const std::string& marker, int subtype);
+void update_fontsize (const std::string& sheet, const std::string& marker, float fontsize);
+void update_italic (const std::string& sheet, const std::string& marker, int italic);
+void update_bold (const std::string& sheet, const std::string& marker, int bold);
+void update_underline (const std::string& sheet, const std::string& marker, int underline);
+void update_smallcaps (const std::string& sheet, const std::string& marker, int smallcaps);
+void update_superscript (const std::string& sheet, const std::string& marker, int superscript);
+void update_justification (const std::string& sheet, const std::string& marker, int justification);
+void update_space_before (const std::string& sheet, const std::string& marker, float spacebefore);
+void update_space_after (const std::string& sheet, const std::string& marker, float spaceafter);
+void update_left_margin (const std::string& sheet, const std::string& marker, float leftmargin);
+void update_right_margin (const std::string& sheet, const std::string& marker, float rightmargin);
+void update_first_line_indent (const std::string& sheet, const std::string& marker, float firstlineindent);
+void update_span_columns (const std::string& sheet, const std::string& marker, bool spancolumns);
+void update_color (const std::string& sheet, const std::string& marker, const std::string& color);
+void update_print (const std::string& sheet, const std::string& marker, bool print);
+void update_userbool1 (const std::string& sheet, const std::string& marker, bool userbool1);
+void update_userbool2 (const std::string& sheet, const std::string& marker, bool userbool2);
+void update_userbool3 (const std::string& sheet, const std::string& marker, bool userbool3);
+void update_userint1 (const std::string& sheet, const std::string& marker, int userint1);
+void update_userint2 (const std::string& sheet, const std::string& marker, int userint2);
+void update_userstring1 (const std::string& sheet, const std::string& marker, const std::string& userstring1);
+void update_userstring2 (const std::string& sheet, const std::string& marker, const std::string& userstring2);
+void update_userstring3 (const std::string& sheet, const std::string& marker, const std::string& userstring3);
+void update_background_color (const std::string& sheet, const std::string& marker, const std::string& color);
+
+} // End namespace styles1
+
+
+namespace database::styles2 {
+
+void add_marker (const std::string& sheet, const std::string& marker);
+void delete_marker (const std::string& sheet, const std::string& marker);
+void reset_marker (const std::string& sheet, const std::string& marker);
+const std::list<stylesv2::Style>& get_styles(const std::string& sheet);
+std::vector <std::string> get_markers (const std::string& sheet);
+std::map <std::string, std::string> get_markers_and_names (const std::string& sheet);
+const stylesv2::Style* get_marker_data (const std::string& sheet, const std::string& marker);
+void save_style(const std::string& sheet, const stylesv2::Style& style);
+std::optional<stylesv2::Style> load_style(const std::string& sheet, const std::string& marker);
+
+
+} // End namespace styles2

@@ -1,0 +1,40 @@
+<h1>translate("Style")</h1>
+
+<table>
+
+<tr><td>translate("Stylesheet")</td><td><a href="sheetm?name=##sheet##">##sheet##</a></td></tr>
+
+<tr><td>translate("Style")</td><td>##style## (##type##)</td></tr>
+
+<tr><td>translate("Name")</td><td><a href="view2?sheet=##sheet##&style=##style##&name=">##name##</a></td></tr>
+
+<tr><td>translate("Description")</td><td><a href="view2?sheet=##sheet##&style=##style##&info=">##info##</a></td></tr>
+
+<!-- #BEGINZONE starts_new_page -->
+<tr>
+  <td>translate("Capability")</td>
+  <td>
+    <input type="checkbox" name="starts_new_page" onchange="checkbox_v2(this, '##sheet##', '##style##')" ##starts_new_page## />
+    translate("Start a new page")
+  </td>
+</tr>
+<!-- #ENDZONE starts_new_page -->
+
+</table>
+
+<link rel="stylesheet" type="text/css" href="../coloris/coloris.min.css">
+<style type="text/css">
+.clr-field button {
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  border-style: solid;
+}
+</style>
+<script type="text/javascript" src="../coloris/coloris.min.js"></script>
+<script type="text/javascript" src="view2.js?##VERSION##"></script>
+<script type="text/javascript" src="../assets/checkbox.js?##VERSION##"></script>
+<script type="text/javascript">
+var sheet = "##sheet##";
+var style = "##style##";
+</script>

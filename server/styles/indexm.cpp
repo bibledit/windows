@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -61,8 +61,6 @@ std::string styles_indexm (Webserver_Request& webserver_request)
   
   Assets_View view {};
   
-  Database_Styles database_styles {};
-  
   const std::string& username {webserver_request.session_logic ()->get_username ()};
   int userlevel {webserver_request.session_logic ()->get_level ()};
   
@@ -72,12 +70,12 @@ std::string styles_indexm (Webserver_Request& webserver_request)
     // Because predictive keyboards can add a space to the name,
     // and the stylesheet system is not built for whitespace at the start / end of the name of the stylesheet.
     name = filter::strings::trim (name);
-    std::vector <std::string> existing {database_styles.getSheets ()};
+    std::vector <std::string> existing {database::styles::get_sheets ()};
     if (find (existing.begin(), existing.end (), name) != existing.end ()) {
       page += assets_page::error (translate("This stylesheet already exists"));
     } else {
-      database_styles.createSheet (name);
-      database_styles.grantWriteAccess (username, name);
+      database::styles::create_sheet (name);
+      database::styles::grant_write_access (username, name);
       styles_sheets_create_all ();
       page += assets_page::success (translate("The stylesheet has been created"));
     }
@@ -93,11 +91,11 @@ std::string styles_indexm (Webserver_Request& webserver_request)
     if (!del.empty()) {
       std::string confirm {webserver_request.query ["confirm"]};
       if (confirm == "yes") {
-        bool write = database_styles.hasWriteAccess (username, del);
+        bool write = database::styles::has_write_access (username, del);
         if (userlevel >= Filter_Roles::admin ()) write = true;
         if (write) {
-          database_styles.deleteSheet (del);
-          database_styles.revokeWriteAccess (std::string(), del);
+          database::styles::delete_sheet (del);
+          database::styles::revoke_write_access (std::string(), del);
           page += assets_page::success (translate("The stylesheet has been deleted"));
         }
       } if (confirm.empty()) {
@@ -110,14 +108,14 @@ std::string styles_indexm (Webserver_Request& webserver_request)
   }
  
   // Delete empty sheet that may have been there.
-  database_styles.deleteSheet (std::string());
+  database::styles::delete_sheet (std::string());
 
-  std::vector <std::string> sheets = database_styles.getSheets();
+  std::vector <std::string> sheets = database::styles::get_sheets();
   std::stringstream sheetblock {};
   for (auto & sheet : sheets) {
     sheetblock << "<p>";
     sheetblock << sheet;
-    bool editable = database_styles.hasWriteAccess (username, sheet);
+    bool editable = database::styles::has_write_access (username, sheet);
     if (userlevel >= Filter_Roles::admin ()) editable = true;
     // Cannot edit the Standard stylesheet.
     if (sheet == styles_logic_standard_sheet ()) editable = false;

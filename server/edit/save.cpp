@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -64,20 +64,20 @@ std::string edit_save (Webserver_Request& webserver_request)
     return translate("Insufficient information");
   }
 
-  std::string bible = webserver_request.post["bible"];
-  int book = filter::strings::convert_to_int (webserver_request.post["book"]);
-  int chapter = filter::strings::convert_to_int (webserver_request.post["chapter"]);
+  const std::string bible = webserver_request.post["bible"];
+  const int book = filter::strings::convert_to_int (webserver_request.post["book"]);
+  const int chapter = filter::strings::convert_to_int (webserver_request.post["chapter"]);
   std::string html = webserver_request.post["html"];
-  std::string checksum = webserver_request.post["checksum"];
-  std::string unique_id = webserver_request.post ["id"];
+  const std::string checksum = webserver_request.post["checksum"];
+  const std::string unique_id = webserver_request.post ["id"];
 
   if (checksum_logic::get (html) != checksum) {
     webserver_request.response_code = 409;
     return translate("Checksum error");
   }
 
-  html = filter_url_tag_to_plus (html);
-  html = filter::strings::trim (html);
+  html = filter_url_tag_to_plus (std::move(html));
+  html = filter::strings::trim (std::move(html));
 
   if (html.empty ()) {
     Database_Logs::log (translate ("There was no text.") + " " + translate ("Nothing was saved.") + " " + translate ("The original text of the chapter was reloaded."));
@@ -94,14 +94,14 @@ std::string edit_save (Webserver_Request& webserver_request)
   }
 
   const std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
-  
+
   Editor_Html2Usfm editor_export;
   editor_export.load (html);
   editor_export.stylesheet (stylesheet);
   editor_export.run ();
   std::string user_usfm = editor_export.get ();
   
-  std::string ancestor_usfm = getLoadedUsfm2 (webserver_request, bible, book, chapter, unique_id);
+  std::string ancestor_usfm = get_loaded_usfm (webserver_request, bible, book, chapter, unique_id);
   
   std::vector <filter::usfm::BookChapterData> book_chapter_text = filter::usfm::usfm_import (user_usfm, stylesheet);
   if (book_chapter_text.size () != 1) {
@@ -173,7 +173,7 @@ std::string edit_save (Webserver_Request& webserver_request)
 #endif
 
   // Store a copy of the USFM loaded in the editor for later reference.
-  storeLoadedUsfm2 (webserver_request, bible, book, chapter, unique_id);
+  store_loaded_usfm (webserver_request, bible, book, chapter, unique_id);
 
   // Convert the stored USFM to html.
   // This converted html should be the same as the saved html.

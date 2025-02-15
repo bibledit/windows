@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -60,9 +60,9 @@ void Styles_Css::generate ()
   if (editor_enabled) {
     add_editor_styles ();
   }
-  std::vector <std::string> markers = m_webserver_request.database_styles ()->getMarkers (m_stylesheet);
+  const std::vector <std::string> markers = database::styles1::get_markers (m_stylesheet);
   for (const auto& marker : markers) {
-    Database_Styles_Item style = m_webserver_request.database_styles ()->getMarkerData (m_stylesheet, marker);
+    database::styles1::Item style = database::styles1::get_marker_data (m_stylesheet, marker);
     evaluate (&style);
   }
 }
@@ -71,7 +71,7 @@ void Styles_Css::generate ()
 // Evaluates the style so as to decide how it should look.
 void Styles_Css::evaluate (void * database_styles_item)
 {
-  Database_Styles_Item* style = static_cast<Database_Styles_Item*> (database_styles_item);
+  database::styles1::Item* style = static_cast<database::styles1::Item*> (database_styles_item);
   
   switch (style->type)
   {
@@ -171,16 +171,16 @@ void Styles_Css::evaluate (void * database_styles_item)
 // $keepwithnext: Keep text in this style together with the next paragraph.
 void Styles_Css::add (void * database_styles_item, bool paragraph, bool keepwithnext)
 {
-  Database_Styles_Item* style = static_cast<Database_Styles_Item*> (database_styles_item);
+  database::styles1::Item* style = static_cast<database::styles1::Item*> (database_styles_item);
 
   std::string class_name {style->marker};
 
   // The name of the class as used in a Quill-based editor.
   std::string quill_class {", ."};
   if (paragraph) {
-    quill_class.append (quill_logic_class_prefix_block ());
+    quill_class.append (quill_class_prefix_block);
   } else {
-    quill_class.append (quill_logic_class_prefix_inline ());
+    quill_class.append (quill_class_prefix_inline);
   }
   quill_class.append (class_name);
   

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2024 Teus Benschop.
+Copyright (©) 2003-2025 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -135,7 +135,7 @@ void HtmlText::new_page_break ()
 // $embed: boolean: Whether to embed the new text style in an existing text style.
 //                  true: add the new style to the existing style.
 //                  false: close any existing text style, and open the new style.
-void HtmlText::open_text_style (const Database_Styles_Item& style, const bool note, const bool embed)
+void HtmlText::open_text_style (const database::styles1::Item& style, const bool note, const bool embed)
 {
   const std::string& marker {style.marker};
   if (note) {

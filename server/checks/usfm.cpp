@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -31,11 +31,10 @@
 
 Checks_Usfm::Checks_Usfm (const std::string& bible)
 {
-  Database_Styles database_styles {};
   const std::string stylesheet = database::config::bible::get_export_stylesheet (bible);
-  markers_stylesheet = database_styles.getMarkers (stylesheet);
+  markers_stylesheet = database::styles1::get_markers (stylesheet);
   for (const auto & marker : markers_stylesheet) {
-    Database_Styles_Item style = database_styles.getMarkerData (stylesheet, marker);
+    database::styles1::Item style = database::styles1::get_marker_data (stylesheet, marker);
     style_items [marker] = style;
     int styleType = style.type;
     int styleSubtype = style.subtype;
@@ -507,7 +506,7 @@ void Checks_Usfm::note ()
   const std::string current_marker = filter::usfm::get_marker (usfm_item);
   
   // Get this style's properties.
-  Database_Styles_Item style = style_items [current_marker];
+  database::styles1::Item style = style_items [current_marker];
   
   // Set a flag if this USFM starts a footnote or an endnote or a crossreference.
   // Clear this flag if it ends the note or xref.

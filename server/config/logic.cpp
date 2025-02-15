@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2024 Teus Benschop.
+Copyright (©) 2003-2025 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -130,7 +130,7 @@ bool basic_mode (Webserver_Request& webserver_request)
 
 
 // This returns the URL of Bibledit Cloud that faces the user.
-std::string site_url (Webserver_Request& webserver_request)
+std::string site_url (const Webserver_Request& webserver_request)
 {
   // When the administrator has entered a fixed value for the user-facing URL, take that.
   // It overrides everything.

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ std::string edit_load (Webserver_Request& webserver_request)
   const std::string unique_id = webserver_request.query ["id"];
 
   // Store a copy of the USFM loaded in the editor for later reference.
-  storeLoadedUsfm2 (webserver_request, bible, book, chapter, unique_id);
+  store_loaded_usfm (webserver_request, bible, book, chapter, unique_id);
   
   const std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
   

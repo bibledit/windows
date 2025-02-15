@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2024 Teus Benschop.
+Copyright (©) 2003-2025 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -60,6 +60,9 @@ public:
   int content_length {0};
    // The raw POST data from the browser, item by item.
   std::map <std::string, std::string> post {};
+  // If the POSTed data contains multiple identical keys, store the extra keys here.
+  // Ideally the above container, "post" should be redesigned to be able to contain multiple identical keys.
+  std::map <std::string, std::vector<std::string>> post_multiple{};
    // Header as received from the browser.
   std::string if_none_match {};
    // Extra header to be sent back to the browser.
@@ -78,12 +81,10 @@ public:
   Session_Logic * session_logic ();
   Database_Config_User * database_config_user ();
   Database_Users * database_users ();
-  Database_Styles * database_styles ();
   Database_Ipc * database_ipc ();
 private:
   Session_Logic * session_logic_instance { nullptr };
   Database_Config_User * database_config_user_instance { nullptr };
   Database_Users * database_users_instance { nullptr };
-  Database_Styles * database_styles_instance { nullptr };
   Database_Ipc * database_ipc_instance { nullptr };
 };

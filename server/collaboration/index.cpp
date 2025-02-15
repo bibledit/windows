@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -102,7 +102,7 @@ std::string collaboration_index (Webserver_Request& webserver_request)
   // So the following is used instead.
   if (!object.empty ()) {
     std::string statusoutput, statuserror;
-    filter_shell_run (repositoryfolder, "git", {"status"}, &statusoutput, &statuserror);
+    filter::shell::run (repositoryfolder, filter::shell::get_executable(filter::shell::Executable::git), {"status"}, &statusoutput, &statuserror);
     view.set_variable ("status", statusoutput + " " + statuserror);
   }
 

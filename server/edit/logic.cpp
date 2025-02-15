@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2024 Teus Benschop.
+Copyright (©) 2003-2025 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,13 +20,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <edit/logic.h>
 #include <filter/string.h>
 #include <database/bibles.h>
-#include <database/volatile.h>
+#include <database/temporal.h>
 #include <webserver/request.h>
 
 
-std::string edit2_logic_volatile_key (std::string bible, int book, int chapter, std::string editor)
+static std::string usfm_key (const std::string& bible, const int book, const int chapter,
+                             const std::string& editor)
 {
-  std::string key;
+  std::string key {"usfm"};
+  key.append (" ");
   key.append (bible);
   key.append (" ");
   key.append (filter::strings::fill (std::to_string (book), 2, '0'));
@@ -38,25 +40,39 @@ std::string edit2_logic_volatile_key (std::string bible, int book, int chapter, 
 }
 
 
-void storeLoadedUsfm2 (Webserver_Request& webserver_request, std::string bible, int book, int chapter, std::string editor, [[maybe_unused]] const char * message)
+static std::string word_level_attributes_key (const std::string& bible, const int book, const int chapter,
+                                              const std::string& editor)
 {
-  const int userid = filter::strings::user_identifier (webserver_request);
-  
-  const std::string key = edit2_logic_volatile_key (bible, book, chapter, editor);
-  
-  const std::string usfm = database::bibles::get_chapter (bible, book, chapter);
-  
-  database::volatile_::set_value (userid, key, usfm);
+  std::string key {"wla"};
+  key.append (" ");
+  key.append (bible);
+  key.append (" ");
+  key.append (filter::strings::fill (std::to_string (book), 2, '0'));
+  key.append (" ");
+  key.append (filter::strings::fill (std::to_string (chapter), 3, '0'));
+  key.append (" ");
+  key.append (editor);
+  return key;
 }
 
 
-std::string getLoadedUsfm2 (Webserver_Request& webserver_request, std::string bible, int book, int chapter, std::string editor)
+void store_loaded_usfm (Webserver_Request& webserver_request,
+                        const std::string& bible, const int book, const int chapter,
+                        const std::string& editor)
 {
   const int userid = filter::strings::user_identifier (webserver_request);
-  
-  const std::string key = edit2_logic_volatile_key (bible, book, chapter, editor);
-  
-  const std::string usfm = database::volatile_::get_value (userid, key);
-  
+  const std::string key = usfm_key (bible, book, chapter, editor);
+  const std::string usfm = database::bibles::get_chapter (bible, book, chapter);
+  database::temporal::set_value (userid, key, usfm);
+}
+
+
+std::string get_loaded_usfm (Webserver_Request& webserver_request,
+                             const std::string& bible, const int book, const int chapter,
+                             const std::string& editor)
+{
+  const int userid = filter::strings::user_identifier (webserver_request);
+  const std::string key = usfm_key (bible, book, chapter, editor);
+  const std::string usfm = database::temporal::get_value (userid, key);
   return usfm;
 }

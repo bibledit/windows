@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -104,7 +104,7 @@ std::string workspace_index (Webserver_Request& webserver_request)
   
   std::map <int, std::string> urls = workspace_get_urls (webserver_request, true);
   std::map <int, std::string> widths = workspace_get_widths (webserver_request);
-  // The Bible editor number, starting from 1, going up.
+  // The Bible editor number, starting from 1, increasing.
   std::map <int, int> editor_numbers = workspace_add_bible_editor_number (urls);
   for (int key = 0; key < 15; key++) {
     const std::string url = urls [key];
@@ -140,6 +140,16 @@ std::string workspace_index (Webserver_Request& webserver_request)
     workspacewidth.append (";");
   }
   view.set_variable ("workspacewidth", workspacewidth);
+  
+  
+  // When the URLs loaded specify a Bible, then set this as the active Bible.
+  // Extract the first Bible, if any, to do that.
+  // See https://github.com/bibledit/cloud/issues/1004 for more info.
+  {
+    std::optional<std::string> bible = get_first_bible_from_urls (urls);
+    if (bible)
+      webserver_request.database_config_user()->setBible(bible.value());
+  }
   
   
   // The rendered template disables framekillers through the "sandbox" attribute on the iframe elements.

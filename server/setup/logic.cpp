@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2024 Teus Benschop.
+ Copyright (©) 2003-2025 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -57,7 +57,7 @@ void setup_conditionally (const char * package)
   
   // When the package folder is the same as the document root folder,
   // it may mean that another program installs the data for us.
-  // This is the case on Android.
+  // This is the case on Android and on iOS.
   // In that case, wait till the most important data has been installed.
   if (p == config_globals_document_root) setup_wait_till_main_folders_present ();
   
@@ -193,7 +193,7 @@ void setup_initialize_data ()
   webserver_request.database_users ()->create ();
   webserver_request.database_users ()->upgrade ();
   config_globals_setup_message = "styles";
-  webserver_request.database_styles ()->create ();
+  database::styles::create_database ();
   config_globals_setup_message = "bible actions";
   database::bible_actions::create ();
   config_globals_setup_message = "checks";
