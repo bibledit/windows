@@ -295,7 +295,7 @@ std::string resource_logic_get_verse (Webserver_Request& webserver_request, std:
       chapter_usfm = database::bibles::get_chapter (resource, book, chapter);
     if (isLocalUsfm) chapter_usfm = database_usfmresources.getUsfm (resource, book, chapter);
     std::string verse_usfm = filter::usfm::get_verse_text (chapter_usfm, verse);
-    std::string stylesheet = styles_logic_standard_sheet ();
+    std::string stylesheet = stylesv2::standard_sheet ();
     Filter_Text filter_text = Filter_Text (resource);
     filter_text.html_text_standard = new HtmlText ("");
     filter_text.add_usfm_code (verse_usfm);
@@ -480,7 +480,7 @@ std::string resource_logic_get_contents_for_client (std::string resource, int bo
     Database_UsfmResources database_usfmresources;
     std::string chapter_usfm = database_usfmresources.getUsfm (resource, book, chapter);
     std::string verse_usfm = filter::usfm::get_verse_text (chapter_usfm, verse);
-    std::string stylesheet = styles_logic_standard_sheet ();
+    std::string stylesheet = stylesv2::standard_sheet ();
     Filter_Text filter_text = Filter_Text (resource);
     filter_text.html_text_standard = new HtmlText ("");
     filter_text.add_usfm_code (verse_usfm);
@@ -1281,7 +1281,7 @@ std::string resource_logic_study_light_module_list_refresh ()
   Database_Logs::log ("Refresh StudyLight resources");
   std::string path {resource_logic_study_light_module_list_path ()};
   std::string error {};
-  std::string html = filter_url_http_get ("http://www.studylight.org/commentaries", error, false);
+  std::string html = filter_url_http_get ("https://www.studylight.org/commentaries", error, false);
   if (error.empty ()) {
     std::vector <std::string> resources;
     // Example commentary fragment:
@@ -1356,7 +1356,7 @@ std::string resource_logic_study_light_get (std::string resource, int book, int 
   
   // Example URL: https://www.studylight.org/commentaries/eng/acc/revelation-1.html
   std::string url {};
-  url.append ("http://www.studylight.org/commentaries/");
+  url.append ("https://www.studylight.org/commentaries/");
   url.append (resource + "/");
   url.append (resource_external_convert_book_studylight (book));
   url.append ("-" + std::to_string (chapter) + ".html");

@@ -85,11 +85,11 @@ std::string styles_sheetm (Webserver_Request& webserver_request)
   
   if (webserver_request.post.count ("new")) {
     std::string newstyle = webserver_request.post["entry"];
-    std::vector <std::string> existing_markers = database::styles1::get_markers (name);
+    std::vector <std::string> existing_markers = database::styles::get_markers (name);
     if (find (existing_markers.begin(), existing_markers.end(), newstyle) != existing_markers.end()) {
       page += assets_page::error (translate("This style already exists"));
     } else {
-      database::styles1::add_marker (name, newstyle);
+      database::styles::add_marker (name, newstyle);
       styles_sheets_create_all ();
       page += assets_page::success (translate("The style has been created"));
     }
@@ -104,28 +104,51 @@ std::string styles_sheetm (Webserver_Request& webserver_request)
   const std::string del = webserver_request.query["delete"];
   if (!del.empty())
     if (write) {
-      database::styles1::delete_marker (name, del);
-      database::styles2::delete_marker (name, del);
+      database::styles::delete_marker (name, del);
     }
 
   pugi::xml_document html_block {};
 
-  const auto process_markers = [&html_block, &name](const std::map <std::string, std::string>& markers_names, const bool v2) {
-    for (const auto& item : markers_names) {
-      const std::string marker = item.first;
-      const std::string marker_name = translate(item.second);
+  // List the styles v2 in the overview.
+  {
+    const auto get_and_sort_markers_v2 = [] (const auto& name) {
+      std::vector<std::string> markers {database::styles::get_markers (name)};
+      std::vector<std::string> sorted_markers{};
+      for (const stylesv2::Style& style : stylesv2::styles) {
+        const std::string& marker = style.marker;
+        if (const auto iter = std::find(markers.cbegin(), markers.cend(), marker); iter != markers.cend()) {
+          sorted_markers.push_back(marker);
+          markers.erase(iter);
+        }
+      }
+      sorted_markers.insert(sorted_markers.cend(), markers.cbegin(), markers.cend());
+      return sorted_markers;
+    };
+    const std::vector<std::string> markers_v2 {get_and_sort_markers_v2 (name)};
+    auto previous_category {stylesv2::Category::unknown};
+    for (const auto& marker : markers_v2) {
+      const stylesv2::Style* style {database::styles::get_marker_data (name, marker)};
+      if (style->category != previous_category) {
+        pugi::xml_node tr_node = html_block.append_child("tr");
+        tr_node.append_child("td");
+        pugi::xml_node td_node = tr_node.append_child("td");
+        pugi::xml_node h_node = td_node.append_child("h3");
+        std::stringstream ss {};
+        ss << style->category;
+        h_node.text().set(ss.str().c_str());
+        previous_category = style->category;
+      }
       pugi::xml_node tr_node = html_block.append_child("tr");
       {
         pugi::xml_node td_node = tr_node.append_child("td");
         pugi::xml_node a_node = td_node.append_child("a");
-        const std::string view {v2 ? "view2" : "view"};
-        const std::string href = view + "?sheet=" + name + "&style=" + marker;
+        const std::string href = "view2?sheet=" + name + "&style=" + marker;
         a_node.append_attribute("href") = href.c_str();
         a_node.text().set(marker.c_str());
       }
       {
         pugi::xml_node td_node = tr_node.append_child("td");
-        td_node.text().set(marker_name.c_str());
+        td_node.text().set(style->name.c_str());
       }
       {
         pugi::xml_node td_node = tr_node.append_child("td");
@@ -137,25 +160,7 @@ std::string styles_sheetm (Webserver_Request& webserver_request)
         td_node.append_child("span").text().set("]");
       }
     }
-  };
-
-  // Get the markers and names for styles v2.
-  // Same for styles v1.
-  // Any markers v2 marked as implemented, remove those from the styles v1 in the list.
-  std::map<std::string,std::string> markers_names_v1 {database::styles1::get_markers_and_names (name)};
-  const std::map<std::string,std::string> markers_names_v2 {database::styles2::get_markers_and_names (name)};
-  for (const auto& [markerv2, name] : markers_names_v2) {
-    const stylesv2::Style* style {database::styles2::get_marker_data (name, markerv2)};
-    if (style->implemented)
-      markers_names_v1.erase(markerv2);
   }
-  process_markers (markers_names_v1, false);
-  {
-    pugi::xml_node tr_node = html_block.append_child("tr");
-    for (int i{0}; i < 3; i++)
-      tr_node.append_child("td").text().set("--");
-  }
-  process_markers (markers_names_v2, true);
   
   // Generate the html and set it on the page.
   std::stringstream ss {};

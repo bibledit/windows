@@ -48,11 +48,11 @@ public:
   void set_preview ();
 private:
   // Strings alternating between USFM and text.
-  std::vector <std::string> m_markers_and_text {};
+  std::vector<std::string> m_markers_and_text {};
   unsigned int m_markers_and_text_pointer {0};
   
   // All the style information.
-  std::map <std::string, database::styles1::Item> m_styles {};
+  std::string m_stylesheet{};
   
   // XML nodes.
   pugi::xml_document m_document {};
@@ -60,10 +60,6 @@ private:
   pugi::xml_node m_notes_node {};
   pugi::xml_node m_word_level_attributes_node {};
   
-  // Standard content markers for notes.
-  std::string m_standard_content_marker_foot_end_note {};
-  std::string m_standard_content_marker_cross_reference {};
-
   pugi::xml_node m_current_p_node {}; // The current p node.
   bool m_current_p_open {false};
   std::vector <std::string> m_current_text_styles {};
@@ -90,7 +86,7 @@ private:
   void output_as_is (const std::string& marker, const bool is_opening_marker);
   void new_paragraph (std::string style = std::string());
   void close_paragraph ();
-  void open_text_style (const database::styles1::Item& style, const bool embed);
+  void open_text_style (const std::string& marker, const bool embed);
   void close_text_style (const bool embed);
   void add_text (const std::string& text);
   void add_note (const std::string& citation, const std::string& style);
@@ -106,3 +102,7 @@ private:
   void extract_word_level_attributes();
   void add_word_level_attributes(const std::string id);
 };
+
+bool road_is_clear(const std::vector<std::string>& markers_and_text,
+                   const unsigned int markers_and_text_pointer,
+                   const std::string& stylesheet);

@@ -135,9 +135,15 @@ void HtmlText::new_page_break ()
 // $embed: boolean: Whether to embed the new text style in an existing text style.
 //                  true: add the new style to the existing style.
 //                  false: close any existing text style, and open the new style.
-void HtmlText::open_text_style (const database::styles1::Item& style, const bool note, const bool embed)
+void HtmlText::open_text_style (const stylesv2::Style* stylev2,
+                                const bool note, const bool embed)
 {
-  const std::string& marker {style.marker};
+  const auto get_marker = [stylev2]() {
+    if (stylev2)
+      return stylev2->marker;
+    return std::string();
+  };
+  const std::string marker = get_marker();
   if (note) {
     if (!embed) 
       current_note_text_style.clear();

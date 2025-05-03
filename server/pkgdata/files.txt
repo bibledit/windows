@@ -5481,6 +5481,7 @@
 /styles/sheetm.html
 /stylesv2
 /styles/view2.html
+/styles/view2.js
 /styles/view.html
 /styles/view.js
 /sword
@@ -5625,7 +5626,6 @@
 /unittests/tests/changed_verses.html
 /unittests/tests/chapters_new.usfm
 /unittests/tests/chapters_old.usfm
-/unittests/tests/css.css
 /unittests/tests/diff.txt
 /unittests/tests/editone01.html
 /unittests/tests/editone01prefix.usfm
@@ -5833,9 +5833,11 @@
 /unittests/tests/odf2txt
 /unittests/tests/odf2txt/odf2txt.py
 /unittests/tests/odf2txt/out.txt
+/unittests/tests/odt2.txt
 /unittests/tests/onlinebible1.exp
 /unittests/tests/onlinebible2.exp
 /unittests/tests/ShonaNumbers23.usfm
+/unittests/tests/text2.txt
 /unittests/tests/usfm01.usfm
 /unittests/tests/verses_new.txt
 /unittests/tests/verses_new.usfm

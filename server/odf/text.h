@@ -39,26 +39,29 @@ class odf_text
 public:
   odf_text (std::string bible);
   ~odf_text ();
-  void new_paragraph (std::string style = styles_logic_standard_sheet ());
+  void new_paragraph (std::string style = stylesv2::standard_sheet ());
   void add_text (std::string text);
   void new_heading1 (std::string text, bool hide = false);
   void create_page_break_style ();
   void new_page_break ();
-  void create_paragraph_style (std::string name,
-                               std::string fontname,
-                               float fontsize,
-                               int italic, int bold, int underline,
-                               int smallcaps,
-                               int alignment,
-                               float spacebefore, float spaceafter,
-                               float leftmargin, float rightmargin,
-                               float firstlineindent,
-                               bool keep_with_next,
-                               int dropcaps);
+  void create_paragraph_style (const std::string& name,
+                               std::string font_name,
+                               const float font_size,
+                               const stylesv2::TwoState italic,
+                               const stylesv2::TwoState bold,
+                               const stylesv2::TwoState underline,
+                               const stylesv2::TwoState smallcaps,
+                               const stylesv2::TextAlignment text_alignment,
+                               const float space_before, const float space_after,
+                               const float left_margin, const float right_margin,
+                               const float first_line_indent,
+                               const bool keep_with_next,
+                               const int dropcaps);
   void update_current_paragraph_style (std::string name);
-  void open_text_style (database::styles1::Item style, bool note, bool embed);
+  void open_text_style (const stylesv2::Style* stylev2, bool note, bool embed);
   void close_text_style (bool note, bool embed);
-  void place_text_in_frame (std::string text, std::string style, float fontsize, int italic, int bold);
+  void place_text_in_frame (const std::string& text, const std::string& style,
+                            const float fontsize, const stylesv2::TwoState italic, const stylesv2::TwoState bold);
   void create_superscript_style ();
   void add_note (std::string caller, std::string style, bool endnote = false);
   void add_note_text (std::string text);

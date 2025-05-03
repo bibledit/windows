@@ -37,7 +37,7 @@
 #pragma GCC diagnostic pop
 
 
-std::string Editor_Styles::getRecentlyUsed (Webserver_Request& webserver_request)
+std::string Editor_Styles::get_recently_used (Webserver_Request& webserver_request)
 {
   const std::string bible = webserver_request.database_config_user()->getBible ();
   const std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
@@ -47,11 +47,13 @@ std::string Editor_Styles::getRecentlyUsed (Webserver_Request& webserver_request
   const std::vector <std::string> styles = filter::strings::explode (s_styles, ' ');
   std::string fragment = translate("Select style") + ": ";
   for (const auto& marker : styles) {
-    if (!fragment.empty()) fragment.append (" | ");
-    database::styles1::Item data = database::styles1::get_marker_data (stylesheet, marker);
-    if (data.marker.empty ()) continue;
-    const std::string name = translate(data.name) + " (" + marker + ")";
-    const std::string info = translate(data.info);
+    if (!fragment.empty())
+      fragment.append (" | ");
+    const stylesv2::Style* style = database::styles::get_marker_data (stylesheet, marker);
+    if (!style)
+      continue;
+    const std::string name = translate(style->name) + " (" + marker + ")";
+    const std::string info = translate(style->info);
     pugi::xml_document document;
     pugi::xml_node a_node = document.append_child("a");
     a_node.append_attribute("href") = marker.c_str();
@@ -75,13 +77,13 @@ std::string Editor_Styles::getRecentlyUsed (Webserver_Request& webserver_request
 }
 
 
-std::string Editor_Styles::getAll (Webserver_Request& webserver_request)
+std::string Editor_Styles::get_all (Webserver_Request& webserver_request)
 {
   const std::string bible = webserver_request.database_config_user()->getBible ();
   const std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
   
   // The styles.
-  const std::map <std::string, std::string> data = database::styles1::get_markers_and_names (stylesheet);
+  const std::map <std::string, std::string> data = database::styles::get_markers_and_names (stylesheet);
   
   std::vector <std::string> lines{};
   
@@ -94,10 +96,12 @@ std::string Editor_Styles::getAll (Webserver_Request& webserver_request)
     const std::string& marker = item.first;
     std::string name = item.second;
     name = translate (name);
-    database::styles1::Item marker_data = database::styles1::get_marker_data (stylesheet, marker);
-    std::string category = marker_data.category;
-    category = styles_logic_category_text (category);
-    const std::string line2 = marker + " " + name + " (" + category + ")";
+    const stylesv2::Style* style = database::styles::get_marker_data (stylesheet, marker);
+    if (!style)
+      continue;
+    std::stringstream category{};
+    category << style->category;
+    const std::string line2 = marker + " " + name + " (" + category.str() + ")";
     lines.push_back ("<option>" + line2 + "</option>");
   }
   
@@ -113,7 +117,7 @@ std::string Editor_Styles::getAll (Webserver_Request& webserver_request)
 }
 
 
-void Editor_Styles::recordUsage (Webserver_Request& webserver_request, const std::string& style)
+void Editor_Styles::record_usage (Webserver_Request& webserver_request, const std::string& style)
 {
   if (style.empty()) return;
   std::string s_styles = webserver_request.database_config_user()->getRecentlyAppliedStyles ();
@@ -131,96 +135,78 @@ void Editor_Styles::recordUsage (Webserver_Request& webserver_request, const std
 }
 
 
-std::string Editor_Styles::getAction (Webserver_Request& webserver_request, const std::string& style)
+std::string Editor_Styles::get_action (Webserver_Request& webserver_request, const std::string& marker)
 {
   const std::string bible = webserver_request.database_config_user()->getBible ();
   const std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
-  database::styles1::Item data = database::styles1::get_marker_data (stylesheet, style);
-  int type = data.type;
-  int subtype = data.subtype;
   
-  switch (type)
+  if (const stylesv2::Style* style {database::styles::get_marker_data (stylesheet, marker)}; style)
   {
-    case StyleTypeIdentifier:
-      switch (subtype)
-      {
-        case IdentifierSubtypePublishedVerseMarker:
-          return character ();
-        default:
-          return mono ();
-      }
-      break;
-    case StyleTypeNotUsedComment:
-      return mono ();
-    case StyleTypeNotUsedRunningHeader:
-      return mono ();
-    case StyleTypeStartsParagraph:
-      return paragraph ();
-    case StyleTypeInlineText:
-      return character ();
-    case StyleTypeChapterNumber:
-      return paragraph ();
-    case StyleTypeVerseNumber:
-      return character ();
-    case StyleTypeFootEndNote:
-    {
-      switch (subtype)
-      {
-        case FootEndNoteSubtypeFootnote:
-        case FootEndNoteSubtypeEndnote:
-          return note ();
-        case FootEndNoteSubtypeContent:
-        case FootEndNoteSubtypeContentWithEndmarker:
-          return character ();
-        case FootEndNoteSubtypeStandardContent:
-        case FootEndNoteSubtypeParagraph:
-          return character ();
-        default:
-          return unknown ();
-      }
-      break;
+    switch (style->type) {
+      case stylesv2::Type::book_id:
+      case stylesv2::Type::usfm_version:
+      case stylesv2::Type::file_encoding:
+      case stylesv2::Type::remark:
+      case stylesv2::Type::running_header:
+      case stylesv2::Type::long_toc_text:
+      case stylesv2::Type::short_toc_text:
+      case stylesv2::Type::book_abbrev:
+        return mono();
+      case stylesv2::Type::introduction_end:
+        return mono();
+      case stylesv2::Type::title:
+      case stylesv2::Type::heading:
+      case stylesv2::Type::paragraph:
+      case stylesv2::Type::chapter:
+        return paragraph();
+      case stylesv2::Type::chapter_label:
+      case stylesv2::Type::published_chapter_marker:
+      case stylesv2::Type::alternate_chapter_number:
+        return mono();
+      case stylesv2::Type::verse:
+        return character();
+      case stylesv2::Type::published_verse_marker:
+      case stylesv2::Type::alternate_verse_marker:
+        return character();
+      case stylesv2::Type::table_row:
+      case stylesv2::Type::table_heading:
+      case stylesv2::Type::table_cell:
+        return mono();
+      case stylesv2::Type::footnote_wrapper:
+      case stylesv2::Type::endnote_wrapper:
+        return note();
+      case stylesv2::Type::note_standard_content:
+      case stylesv2::Type::note_content:
+      case stylesv2::Type::note_content_with_endmarker:
+      case stylesv2::Type::note_paragraph:
+        return character();
+      case stylesv2::Type::crossreference_wrapper:
+        return note();
+      case stylesv2::Type::crossreference_standard_content:
+      case stylesv2::Type::crossreference_content:
+      case stylesv2::Type::crossreference_content_with_endmarker:
+        return character();
+      case stylesv2::Type::character:
+        return character ();
+      case stylesv2::Type::page_break:
+        return unknown();
+      case stylesv2::Type::figure:
+        return mono();
+      case stylesv2::Type::word_list:
+        return character();
+      case stylesv2::Type::sidebar_begin:
+      case stylesv2::Type::sidebar_end:
+        return mono();
+      case stylesv2::Type::peripheral:
+        return mono();
+      case stylesv2::Type::starting_boundary:
+      case stylesv2::Type::stopping_boundary:
+      case stylesv2::Type::none:
+      default:
+        return unknown();
     }
-    case StyleTypeCrossreference:
-    {
-      switch (subtype)
-      {
-        case CrossreferenceSubtypeCrossreference:
-          return note ();
-        case CrossreferenceSubtypeContent:
-        case CrossreferenceSubtypeContentWithEndmarker:
-          return character ();
-        case CrossreferenceSubtypeStandardContent:
-          return character ();
-        default:
-          return unknown ();
-      }
-      break;
-    }
-    case StyleTypePeripheral:
-      return mono ();
-    case StyleTypePicture:
-      return mono ();
-    case StyleTypePageBreak:
-      return unknown ();
-    case StyleTypeTableElement:
-    {
-      switch (subtype)
-      {
-        case TableElementSubtypeRow:
-        case TableElementSubtypeHeading:
-        case TableElementSubtypeCell:
-        default:
-          return mono ();
-      }
-      break;
-    }
-    case StyleTypeWordlistElement:
-    {
-      return character ();
-    }
-    default:
-      return unknown ();
   }
+  return unknown();
 }
 
 

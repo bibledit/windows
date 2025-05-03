@@ -32,9 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 namespace filter::text {
 
-class passage_marker_value
+struct passage_marker_value
 {
-public:
   passage_marker_value (int book, int chapter, std::string verse, std::string marker, std::string value);
   int m_book {0};
   int m_chapter {0};
@@ -69,22 +68,20 @@ private:
 public:
   void run (const std::string& stylesheet);
 private:
+  // The stylesheet.
+  std::string m_stylesheet{};
   // Container holding a chapter of USFM code, alternating between USFM and text.
   std::vector <std::string> chapter_usfm_markers_and_text {};
   unsigned int chapter_usfm_markers_and_text_pointer {0};
 
 public:
-  void get_styles (const std::string& stylesheet);
+  void get_styles ();
 private:
-  // A map of marker -> object with style information.
-  std::map <std::string, database::styles1::Item> styles {};
-  // Usually this is: c
-  std::string chapterMarker {};
   // Array holding styles created in Odf_Text class.
-  std::vector <std::string> createdStyles {};
+  std::vector <std::string> created_styles {};
 
 public:
-  void pre_process_usfm (const std::string& stylesheet);
+  void pre_process_usfm ();
 private:
   // Book identifier, e.g. 1, 2, 3, and so on.
   int m_current_book_identifier {0};
@@ -92,18 +89,18 @@ private:
   int m_current_chapter_number {0};
   // Verse number, e.g. "0", "1", "2", and so on.
   std::string m_current_verse_number {};
-  std::string getCurrentPassageText ();
+  std::string get_current_passage_text ();
   // Map of (book, chapter number).
   std::map <int, int> m_number_of_chapters_per_book {};
-  void process_usfm (const std::string& stylesheet);
+  void process_usfm ();
   void processNote ();
   // Opening a new paragraph.
-  void create_paragraph_style (const database::styles1::Item & style, bool keepWithNext);
-  void new_paragraph (const database::styles1::Item & style, bool keepWithNext);
-  void applyDropCapsToCurrentParagraph (int dropCapsLength);
-  void putChapterNumberInFrame (std::string chapterText);
-  std::string getNoteCitation (const database::styles1::Item & style);
-  void ensureNoteParagraphStyle (std::string marker, const database::styles1::Item & style);
+  void create_paragraph_style (const stylesv2::Style* style, bool keep_with_next);
+  void new_paragraph (const stylesv2::Style* style, bool keep_with_next);
+  void apply_drop_caps_to_current_paragraph (const int drop_caps_length);
+  void put_chapter_number_in_frame (std::string chapter_text);
+  std::string get_note_citation (const std::string& marker);
+  void ensure_note_paragraph_style (std::string marker, const stylesv2::Style* style);
 
 public:
   // Container with objects (book, chapter, verse, marker, header value).
@@ -116,12 +113,11 @@ public:
   std::vector <filter::text::passage_marker_value> bookAbbreviations {};
 
 public:
-  // Vector with objects (book, chapter, verse, marker, label value).
-  std::vector <filter::text::passage_marker_value> chapterLabels {};
-  // Vector with object (book, chapter, verse, marker, marker value).
-  std::vector <filter::text::passage_marker_value> publishedChapterMarkers {};
-  // Vector with object (book, chapter, verse, marker, marker value).
-  std::vector <filter::text::passage_marker_value> publishedVerseMarkers {};
+  // The following four containers are vectors of object (book, chapter, verse, marker, label value).
+  std::vector <filter::text::passage_marker_value> chapter_labels {};
+  std::vector <filter::text::passage_marker_value> published_chapter_markers {};
+  std::vector <filter::text::passage_marker_value> alternate_chapter_numbers {};
+  std::vector <filter::text::passage_marker_value> published_verse_markers {};
 private:
   // std::string holding the chapter number or text to output at the first verse.
   std::string m_output_chapter_text_at_first_verse {};
@@ -137,18 +133,15 @@ public:
   odf_text * odf_text_notes {nullptr};
 
 public:
-  void produceInfoDocument (std::string path);
+  void produce_info_document (std::string path);
   void produceFalloutDocument (std::string path);
   std::vector <std::string> info {};
   std::vector <std::string> fallout {};
 private:
   void add_to_info (std::string text, bool next = false);
-  void addToFallout (std::string text, bool next = false);
-  void addToWordList (std::vector <std::string> & list);
-  std::vector <std::string> wordListGlossaryDictionary {};
-  std::vector <std::string> hebrewWordList {};
-  std::vector <std::string> greekWordList {};
-  std::vector <std::string> subjectIndex {};
+  void add_to_fallout (std::string text, bool next = false);
+  void add_to_word_list (const std::string& marker);
+  std::map<std::string,std::vector<std::string>> word_lists{};
 
 private:
   // Information for the citations for the notes.

@@ -210,24 +210,23 @@ std::vector <BookChapterData> usfm_import (std::string input, std::string styles
         chapter_data = filter::strings::trim (chapter_data);
         if (!chapter_data.empty()) result.push_back ( { static_cast<int>(bookid), chapter_number, chapter_data } );
         chapter_number = 0;
-        chapter_data = "";
+        chapter_data.clear();
         store_chapter_data = false;
       }
-      database::styles1::Item marker_data = database::styles1::get_marker_data (stylesheet, marker);
-      int type = marker_data.type;
-      int subtype = marker_data.subtype;
       // Only opening markers can start on a new line.
       // Closing markers never do.
       if (opener) {
-        if (styles_logic_starts_new_line_in_usfm (type, subtype)) {
-          chapter_data.append ("\n");
+        if (const stylesv2::Style* style {database::styles::get_marker_data (stylesheet, marker)}; style) {
+          if (stylesv2::starts_new_line_in_usfm (style))
+            chapter_data.append ("\n");
         }
       }
     }
-    chapter_data += marker_or_text;
+    chapter_data.append(marker_or_text);
   }
   chapter_data = filter::strings::trim (chapter_data);
-  if (!chapter_data.empty()) result.push_back (BookChapterData (static_cast<int>(bookid), chapter_number, chapter_data));
+  if (!chapter_data.empty())
+    result.push_back (BookChapterData (static_cast<int>(bookid), chapter_number, chapter_data));
   return result;
 }
 
@@ -558,14 +557,13 @@ std::string get_book_identifier (const std::vector <std::string>& usfm, unsigned
 // Returns the text that follows a USFM marker.
 // $usfm: array of strings alternating between USFM code and subsequent text.
 // $pointer: should point to the marker in $usfm. It gets increased by one.
-std::string get_text_following_marker (const std::vector <std::string>& usfm, unsigned int & pointer)
+std::string get_text_following_marker (const std::vector <std::string>& usfm, unsigned int& pointer)
 {
-  std::string text = ""; // Fallback value.
-  ++pointer;
+  pointer++;
   if (pointer < usfm.size()) {
-    text = usfm [pointer];
+    return usfm [pointer];
   }
-  return text;
+  return std::string();
 }
 
 

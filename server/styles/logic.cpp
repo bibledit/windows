@@ -20,668 +20,550 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <styles/logic.h>
 #include <locale/translate.h>
 #include <filter/string.h>
+#include <filter/usfm.h>
+
+
+namespace stylesv2 {
+
+
+std::string type_enum_to_value (const Type type, const bool describe)
+{
+  switch (type) {
+    case Type::starting_boundary:
+      return "starting_boundary";
+    case Type::none:
+      return "none";
+    case Type::book_id:
+      if (describe)
+        return "book id";
+      return "book_id";
+    case Type::usfm_version:
+      if (describe)
+        return "usfm version";
+      return "usfm_version";
+    case Type::file_encoding:
+      if (describe)
+        return "file encoding";
+      return "file_encoding";
+    case Type::remark:
+      return "remark";
+    case Type::running_header:
+      if (describe)
+        return "running header";
+      return "running_header";
+    case Type::long_toc_text:
+      if (describe)
+        return "long toc text";
+      return "long_toc_text";
+    case Type::short_toc_text:
+      if (describe)
+        return "short toc text";
+      return "short_toc_text";
+    case Type::book_abbrev:
+      if (describe)
+        return "book abbrev";
+      return "book_abbrev";
+    case Type::introduction_end:
+      if (describe)
+        return "introduction end";
+      return "introduction_end";
+    case Type::title:
+      return "title";
+    case Type::heading:
+      return "heading";
+    case Type::paragraph:
+      return "paragraph";
+    case Type::chapter:
+      return "chapter";
+    case Type::chapter_label:
+      if (describe)
+        return "chapter label";
+      return "chapter_label";
+    case Type::published_chapter_marker:
+      if (describe)
+        return "published chapter marker";
+      return "published_chapter_marker";
+    case Type::alternate_chapter_number:
+      if (describe)
+        return "alternate chapter number";
+      return "alternate_chapter_number";
+    case Type::verse:
+      return "verse";
+    case Type::published_verse_marker:
+      if (describe)
+        return "published verse marker";
+      return "published_verse_marker";
+    case Type::alternate_verse_marker:
+      if (describe)
+        return "alternate verse marker";
+      return "alternate_verse_marker";
+    case Type::table_row:
+      if (describe)
+        return "table row";
+      return "table_row";
+    case Type::table_heading:
+      if (describe)
+        return "table heading";
+      return "table_heading";
+    case Type::table_cell:
+      if (describe)
+        return "table cell";
+      return "table_cell";
+    case Type::footnote_wrapper:
+      if (describe)
+        return "footnote wrapper";
+      return "footnote_wrapper";
+    case Type::endnote_wrapper:
+      if (describe)
+        return "endnote wrapper";
+      return "endnote_wrapper";
+    case Type::note_standard_content:
+      if (describe)
+        return "note standard content";
+      return "note_standard_content";
+    case Type::note_content:
+      if (describe)
+        return "note content";
+      return "note_content";
+    case Type::note_content_with_endmarker:
+      if (describe)
+        return "note content with endmarker";
+      return "note_content_with_endmarker";
+    case Type::note_paragraph:
+      if (describe)
+        return "note paragraph";
+      return "note_paragraph";
+    case Type::crossreference_wrapper:
+      if (describe)
+        return "crossreference wrapper";
+      return "crossreference_wrapper";
+    case Type::crossreference_standard_content:
+      if (describe)
+        return "crossreference standard content";
+      return "crossreference_standard_content";
+    case Type::crossreference_content:
+      if (describe)
+        return "crossreference content";
+      return "crossreference_content";
+    case Type::crossreference_content_with_endmarker:
+      if (describe)
+        return "crossreference content with endmarker";
+      return "crossreference_content_with_endmarker";
+    case Type::character:
+      return "character";
+    case Type::page_break:
+      if (describe)
+        return "page break";
+      return "page_break";
+    case Type::figure:
+      return "figure";
+    case Type::word_list:
+      if (describe)
+        return "word list";
+      return "word_list";
+    case Type::sidebar_begin:
+      if (describe)
+        return "sidebar begin";
+      return "sidebar_begin";
+    case Type::sidebar_end:
+      if (describe)
+        return "sidebar end";
+      return "sidebar_end";
+    case Type::peripheral:
+      return "peripheral";
+    case Type::stopping_boundary:
+      return "stopping_boundary";
+    default:
+      return "unknown";
+  }
+}
+
+
+Type type_value_to_enum (const std::string& value)
+{
+  // Iterate over the enum values and if a match is found, return the matching enum value.
+  for (int i {static_cast<int>(Type::starting_boundary)+1};
+       i < static_cast<int>(Type::stopping_boundary); i++)
+    if (value == type_enum_to_value(static_cast<Type>(i)))
+      return static_cast<Type>(i);
+  // No match found.
+  return Type::none;
+}
+
+
+std::string property_enum_to_value (const Property property)
+{
+  switch (property) {
+    case Property::starting_boundary:
+      return "starting_boundary";
+    case Property::none:
+      return "none";
+    case Property::starts_new_page:
+      return "starts_new_page";
+    case Property::deprecated:
+      return "deprecated";
+    case Property::on_left_page:
+      return "on_left_page";
+    case Property::on_right_page:
+      return "on_right_page";
+    case Property::has_endmarker:
+      return "has_endmarker";
+    case Property::at_first_verse:
+      return "at_first_verse";
+    case Property::restart_paragraph:
+      return "restart_paragraph";
+    case Property::note_numbering_sequence:
+      return "note_numbering_sequence";
+    case Property::note_numbering_restart:
+      return "note_numbering_restart";
+    case Property::notes_dump:
+      return "notes_dump";
+    case Property::numerical_test:
+      return "numerical_test";
+    case Property::stopping_boundary:
+      return "stopping_boundary";
+    default:
+      return "unknown";
+  }
+}
+
+
+Property property_value_to_enum (const std::string& value)
+{
+  // Iterate over the enum values and if a match is found, return the matching enum value.
+  for (int i {static_cast<int>(Property::starting_boundary)+1};
+       i < static_cast<int>(Property::stopping_boundary); i++)
+    if (value == property_enum_to_value(static_cast<Property>(i)))
+      return static_cast<Property>(i);
+  // No match found.
+  return Property::none;
+}
+
+
+Variant property_to_variant (const Property property)
+{
+  switch (property) {
+    case Property::starting_boundary:
+    case Property::none:
+      return Variant::none;
+    case Property::starts_new_page:
+      return Variant::boolean;
+    case Property::deprecated:
+      return Variant::none;
+    case Property::on_left_page:
+    case Property::on_right_page:
+    case Property::has_endmarker:
+    case Property::at_first_verse:
+    case Property::restart_paragraph:
+      return Variant::boolean;
+    case Property::note_numbering_sequence:
+    case Property::note_numbering_restart:
+    case Property::notes_dump:
+      return Variant::text;
+    case Property::numerical_test:
+      return Variant::number;
+    case Property::stopping_boundary:
+    default:
+      return Variant::none;
+  }
+}
+
+
+std::ostream& operator<<(std::ostream& os, const Parameter& parameter)
+{
+  if (std::holds_alternative<bool>(parameter))
+    os << filter::strings::convert_to_string(std::get<bool>(parameter));
+  if (std::holds_alternative<int>(parameter))
+    os << std::get<int>(parameter);
+  if (std::holds_alternative<std::string>(parameter))
+    os << std::get<std::string>(parameter);
+  return os;
+}
+
+
+std::ostream& operator<<(std::ostream& os, const Category category)
+{
+  switch (category) {
+    case Category::identification:
+      os << "Identification";
+      break;
+    case Category::introductions:
+      os << "Introductions";
+      break;
+    case Category::titles_headings_labels:
+      os << "Titles, Headings, Labels";
+      break;
+    case Category::chapters_verses:
+      os << "Chapters, Verses";
+      break;
+    case Category::paragraphs:
+      os << "Paragraphs";
+      break;
+    case Category::poetry:
+      os << "Poetry";
+      break;
+    case Category::lists:
+      os << "Lists";
+      break;
+    case Category::tables:
+      os << "Tables";
+      break;
+    case Category::footnotes:
+      os << "Footnotes";
+      break;
+    case Category::cross_references:
+      os << "Cross References";
+      break;
+    case Category::words_characters:
+      os << "Words, Characters";
+      break;
+    case Category::extended_study_content:
+      os << "Extended Study Content";
+      break;
+    case Category::peripherals:
+      os << "Peripherals";
+      break;
+    case Category::unknown:
+    default:
+      os << "Unknown";
+      break;
+  }
+  return os;
+}
+
+
+std::string fourstate_enum_to_value(const FourState state)
+{
+  switch (state) {
+    case FourState::off: return "off";
+    case FourState::on: return "on";
+    case FourState::inherit: return "inherit";
+    case FourState::toggle: return "toggle";
+    default: return "unknown";
+  }
+}
+
+
+FourState fourstate_value_to_enum(const std::string& value)
+{
+  for (const auto fourstate : get_four_states()) {
+    if (value == fourstate_enum_to_value(fourstate))
+      return fourstate;
+  }
+  return FourState::off;
+}
+
+
+std::list<FourState> get_four_states()
+{
+  return {FourState::on, FourState::off, FourState::inherit, FourState::toggle};
+}
+
+
+std::string twostate_enum_to_value(const TwoState state)
+{
+  switch (state) {
+    case TwoState::off: return "off";
+    case TwoState::on: return "on";
+    default: return "unknown";
+  }
+}
+
+
+TwoState twostate_value_to_enum(const std::string& value)
+{
+  for (const auto twostate : get_two_states()) {
+    if (value == twostate_enum_to_value(twostate))
+      return twostate;
+  }
+  return TwoState::off;
+}
+
+
+std::list<TwoState> get_two_states()
+{
+  return {TwoState::on, TwoState::off};
+}
+
+
+std::string textalignment_enum_to_value(const TextAlignment alignment)
+{
+  switch (alignment) {
+    case TextAlignment::left: return "left";
+    case TextAlignment::center: return "center";
+    case TextAlignment::right: return "right";
+    case TextAlignment::justify: return "justify";
+    default: return "unknown";
+  }
+}
+
+
+TextAlignment textalignment_value_to_enum(const std::string& value)
+{
+  for (const auto alignment : get_text_alignments()) {
+    if (value == textalignment_enum_to_value(alignment))
+      return alignment;
+  }
+  return TextAlignment::left;
+}
+
+
+std::list<TextAlignment> get_text_alignments()
+{
+  return {TextAlignment::left, TextAlignment::center, TextAlignment::right, TextAlignment::justify};
+}
+
+
+std::ostream& operator<<(std::ostream& os, const Character character)
+{
+  os << "character:" << std::endl;
+  os << "  italic: " << fourstate_enum_to_value(character.italic) << std::endl;
+  os << "  bold: " << fourstate_enum_to_value(character.bold) << std::endl;
+  os << "  underline: " << fourstate_enum_to_value(character.underline) << std::endl;
+  os << "  smallcaps: " << fourstate_enum_to_value(character.smallcaps) << std::endl;
+  os << "  superscript: " << twostate_enum_to_value(character.superscript) << std::endl;
+  os << "  foreground_color: " << character.foreground_color << std::endl;
+  os << "  background_color: " << character.background_color << std::endl;
+  return os;
+}
+
+
+std::ostream& operator<<(std::ostream& os, const Paragraph paragraph)
+{
+  os << "paragraph:" << std::endl;
+  os << "  font_size: " << paragraph.font_size << std::endl;
+  os << "  italic: " << twostate_enum_to_value(paragraph.italic) << std::endl;
+  os << "  bold: " << twostate_enum_to_value(paragraph.bold) << std::endl;
+  os << "  underline: " << twostate_enum_to_value(paragraph.underline) << std::endl;
+  os << "  smallcaps: " << twostate_enum_to_value(paragraph.smallcaps) << std::endl;
+  os << "  text_alignment: " << textalignment_enum_to_value(paragraph.text_alignment) << std::endl;
+  os << "  space_before: " << paragraph.space_before << std::endl;
+  os << "  space_after: " << paragraph.space_after << std::endl;
+  os << "  left_margin: " << paragraph.left_margin << std::endl;
+  os << "  right_margin: " << paragraph.right_margin << std::endl;
+  os << "  first_line_indent: " << paragraph.first_line_indent << std::endl;
+  return os;
+}
+
+
+std::ostream& operator<<(std::ostream& os, const Style& style)
+{
+  os << "marker: " << style.marker << std::endl;
+  os << "type: " << type_enum_to_value(style.type) << std::endl;
+  os << "name: " << style.name << std::endl;
+  os << "info: " << style.info << std::endl;
+  if (style.paragraph)
+    os << style.paragraph.value();
+  if (style.character)
+    os << style.character.value();
+  for (const auto& [property, parameter] : style.properties) {
+    os << "capability: " << property_enum_to_value(property) << ": ";
+    if (std::holds_alternative<bool>(parameter))
+      os << std::get<bool>(parameter);
+    if (std::holds_alternative<int>(parameter))
+      os << std::get<int>(parameter);
+    if (std::holds_alternative<std::string>(parameter))
+      os << std::get<std::string>(parameter);
+    os << std::endl;
+  }
+  return os;
+}
+
+
+bool has_property (const Style* style, const Property property)
+{
+  return (style->properties.find(property) != style->properties.cend());
+}
+
+
+// Insert the style definitions here.
+#include "definitions.hpp"
+
+
+// Whether this style starts a new line in USFM.
+bool starts_new_line_in_usfm (const Style* style)
+{
+  switch (style->type) {
+    case Type::starting_boundary:
+    case Type::none:
+    case Type::book_id:
+    case Type::usfm_version:
+    case Type::file_encoding:
+    case Type::remark:
+    case Type::running_header:
+    case Type::long_toc_text:
+    case Type::short_toc_text:
+    case Type::book_abbrev:
+    case Type::introduction_end:
+    case Type::title:
+    case Type::heading:
+    case Type::paragraph:
+    case Type::chapter:
+    case Type::chapter_label:
+    case Type::published_chapter_marker:
+    case Type::alternate_chapter_number:
+      return true;
+    case Type::verse:
+      return true;
+    case Type::published_verse_marker:
+    case Type::alternate_verse_marker:
+      return false;
+    case Type::table_row:
+      return true;
+    case Type::table_heading:
+    case Type::table_cell:
+      return false;
+    case Type::footnote_wrapper:
+    case Type::endnote_wrapper:
+    case Type::note_standard_content:
+    case Type::note_content:
+    case Type::note_content_with_endmarker:
+    case Type::note_paragraph:
+      return false;
+    case Type::crossreference_wrapper:
+    case Type::crossreference_standard_content:
+    case Type::crossreference_content:
+    case Type::crossreference_content_with_endmarker:
+      return false;
+    case Type::character:
+      return false;
+    case Type::page_break:
+      return true;
+    case Type::figure:
+      return true;
+    case Type::word_list:
+      return false;
+    case Type::sidebar_begin:
+    case Type::sidebar_end:
+      return true;
+    case Type::peripheral:
+      return true;
+    case Type::stopping_boundary:
+    default:
+      return true;
+  }
+}
+
+
+std::string validate_notes_dump (const std::string& input)
+{
+  // Validate the input.
+  if (input == "book")
+    return input;
+  if (input == "end")
+    return input;
+  if (filter::usfm::is_usfm_marker(input))
+    return input;
+  // On validation failure, return default notes dump location.
+  return "book";
+}
 
 
 // The name of the "Standard" stylesheet.
-std::string styles_logic_standard_sheet ()
+std::string standard_sheet ()
 {
   return "Standard";
 }
 
 
-// This contains the styles logic.
-// categoryText - Returns the $category as human readable text.
-std::string styles_logic_category_text (std::string category)
-{
-  if (category == "id")  return translate ("Identification information");
-  if (category == "ith") return translate ("Introduction titles and headings");
-  if (category == "ipp") return translate ("Introduction paragraphs and poetry");
-  if (category == "ioe") return translate ("Introduction other elements");
-  if (category == "t"  ) return translate ("Titles");
-  if (category == "h"  ) return translate ("Headings");
-  if (category == "cv" ) return translate ("Chapters and verses");
-  if (category == "p"  ) return translate ("Paragraphs");
-  if (category == "l"  ) return translate ("Lists");
-  if (category == "pe" ) return translate ("Poetry elements");
-  if (category == "te" ) return translate ("Table elements");
-  if (category == "f"  ) return translate ("Footnotes");
-  if (category == "x"  ) return translate ("Crossreferences");
-  if (category == "st" ) return translate ("Special text");
-  if (category == "cs" ) return translate ("Character styles");
-  if (category == "sb" ) return translate ("Spacings and breaks");
-  if (category == "sf" ) return translate ("Special features");
-  if (category == "pm" ) return translate ("Peripheral materials");
-  return translate ("Extra styles");
-}
-
-
-// Returns the $type as human readable text.
-std::string styles_logic_type_text (int type)
-{
-  if (type == StyleTypeIdentifier     ) return translate ("is an identifier");
-  if (type == StyleTypeStartsParagraph) return translate ("starts a new paragraph");
-  if (type == StyleTypeInlineText     ) return translate ("is inline text with endmarker");
-  if (type == StyleTypeChapterNumber  ) return translate ("is a chapter number");
-  if (type == StyleTypeVerseNumber    ) return translate ("is a verse number");
-  if (type == StyleTypeFootEndNote    ) return translate ("is a footnote or endnote");
-  if (type == StyleTypeCrossreference ) return translate ("is a crossreference");
-  if (type == StyleTypePeripheral     ) return translate ("is a peripheral element");
-  if (type == StyleTypePicture        ) return translate ("is a picture");
-  if (type == StyleTypePageBreak      ) return translate ("starts a new page");
-  if (type == StyleTypeTableElement   ) return translate ("is a table element");
-  if (type == StyleTypeWordlistElement) return translate ("is a word list element");
-  return "--";
-}
-
-
-// This returns the $subtype as human readable text.
-std::string styles_logic_subtype_text (int type, int subtype)
-{
-  if (type == StyleTypeIdentifier) {
-    if (subtype == IdentifierSubtypeRunningHeader         ) return translate ("is a running header"); // Todo out.
-    if (subtype == IdentifierSubtypeLongTOC               ) return translate ("is long table of contents text");
-    if (subtype == IdentifierSubtypeShortTOC              ) return translate ("is short table of contents text");
-    if (subtype == IdentifierSubtypeBookAbbrev            ) return translate ("is the book abbreviation");
-    if (subtype == IdentifierSubtypeChapterLabel          ) return translate ("is the chapter label");
-    if (subtype == IdentifierSubtypePublishedChapterMarker) return translate ("is the published chapter marker");
-    if (subtype == IdentifierSubtypeCommentWithEndmarker  ) return translate ("is a comment with an endmarker");
-    if (subtype == IdentifierSubtypePublishedVerseMarker  ) return translate ("is the published verse marker");
-  }
-  if (type == StyleTypeStartsParagraph) {
-    if (subtype == ParagraphSubtypeMainTitle)       return translate ("is a main title");
-    if (subtype == ParagraphSubtypeSubTitle)        return translate ("is a subtitle");
-    if (subtype == ParagraphSubtypeSectionHeading)  return translate ("is a section heading");
-    if (subtype == ParagraphSubtypeNormalParagraph) return translate ("is a normal paragraph");
-  }
-  if (type == StyleTypeInlineText) {
-  }
-  if (type == StyleTypeChapterNumber) {
-  }
-  if (type == StyleTypeVerseNumber) {
-  }
-  if (type == StyleTypeFootEndNote) {
-    if (subtype == FootEndNoteSubtypeFootnote            ) return translate ("starts a footnote");
-    if (subtype == FootEndNoteSubtypeEndnote             ) return translate ("starts an endnote");
-    if (subtype == FootEndNoteSubtypeStandardContent     ) return translate ("is standard content");
-    if (subtype == FootEndNoteSubtypeContent             ) return translate ("is content");
-    if (subtype == FootEndNoteSubtypeContentWithEndmarker) return translate ("is content with endmarker");
-    if (subtype == FootEndNoteSubtypeParagraph           ) return translate ("starts another paragraph");
-  }
-  if (type == StyleTypeCrossreference) {
-    if (subtype == ParagraphSubtypeMainTitle      ) return translate ("starts a crossreference");
-    if (subtype == ParagraphSubtypeSubTitle       ) return translate ("is standard content");
-    if (subtype == ParagraphSubtypeSectionHeading ) return translate ("is content");
-    if (subtype == ParagraphSubtypeNormalParagraph) return translate ("is content with endmarker");
-  }
-  if (type == StyleTypePeripheral) {
-    if (subtype == PeripheralSubtypePublication    ) return translate ("starts publication data");
-    if (subtype == PeripheralSubtypeTableOfContents) return translate ("starts table of contents");
-    if (subtype == PeripheralSubtypePreface        ) return translate ("starts preface");
-    if (subtype == PeripheralSubtypeIntroduction   ) return translate ("starts introduction");
-    if (subtype == PeripheralSubtypeGlossary       ) return translate ("starts concordance");
-    if (subtype == PeripheralSubtypeConcordance    ) return translate ("starts glossary");
-    if (subtype == PeripheralSubtypeIndex          ) return translate ("starts index");
-    if (subtype == PeripheralSubtypeMapIndex       ) return translate ("starts map index");
-    if (subtype == PeripheralSubtypeCover          ) return translate ("starts cover");
-    if (subtype == PeripheralSubtypeSpine          ) return translate ("starts spine");
-    if (subtype == PeripheralSubtypeGeneral        ) return translate ("starts general peripheral content");
-  }
-  if (type == StyleTypePicture) {
-  }
-  if (type == StyleTypePageBreak) {
-  }
-  if (type == StyleTypeTableElement) {
-    if (subtype == TableElementSubtypeRow    ) return translate ("starts a new row");
-    if (subtype == TableElementSubtypeHeading) return translate ("is a column heading");
-    if (subtype == TableElementSubtypeCell   ) return translate ("is cell data");
-  }
-  if (type == StyleTypeWordlistElement) {
-    if (subtype == WorListElementSubtypeWordlistGlossaryDictionary) return translate ("is a wordlist / glossary / dictionary entry");
-    if (subtype == WorListElementSubtypeHebrewWordlistEntry       ) return translate ("is a Hebrew wordlist entry");
-    if (subtype == WorListElementSubtypeGreekWordlistEntry        ) return translate ("is a Greek wordlist entry");
-    if (subtype == WorListElementSubtypeSubjectIndexEntry         ) return translate ("is a subject index entry");
-  }
-  return "--";
-}
-
-
-// Returns true if the fontsize is relevant for $type and $subtype.
-bool styles_logic_fontsize_is_relevant (int type, int subtype)
-{
-  switch (type) {
-    case StyleTypeStartsParagraph : return true;
-    case StyleTypeChapterNumber   : return true;
-    case StyleTypeFootEndNote :
-    {
-      switch (subtype) {
-        case FootEndNoteSubtypeStandardContent : return true;
-        case FootEndNoteSubtypeParagraph : return true;
-        default: return false;
-      }
-      break;
-    }
-    case StyleTypeCrossreference :
-    {
-      switch (subtype) {
-        case CrossreferenceSubtypeStandardContent : return true;
-        default: return false;
-      }
-      break;
-    }
-    case StyleTypePicture :
-    {
-      return true;
-    }
-    case StyleTypeTableElement :
-    {
-      switch (subtype) {
-        case TableElementSubtypeHeading : return true;
-        case TableElementSubtypeCell    : return true;
-        default: return false;
-      }
-      break;
-    }
-    default: return false;
-  }
-  return false;
-}
-
-
-// Returns true if the italic, bold, etc. settings are relevant for $type and $subtype.
-bool styles_logic_italic_bold_underline_smallcaps_are_relevant (int type, int subtype)
-{
-  switch (type) {
-    case StyleTypeStartsParagraph : return true;
-    case StyleTypeInlineText      : return true;
-    case StyleTypeChapterNumber   : return true;
-    case StyleTypeVerseNumber     : return true;
-    case StyleTypeFootEndNote     : return true;
-    case StyleTypeCrossreference  : return true;
-    case StyleTypePicture         : return true;
-    case StyleTypeTableElement :
-    {
-      switch (subtype) {
-        case TableElementSubtypeHeading : return true;
-        case TableElementSubtypeCell    : return true;
-        default: return false;
-      }
-      break;
-    }
-    default: return false;
-  }
-  return false;
-}
-
-
-// Returns true if the italic, bold, etc. settings are fully applicable for $type and $subtype. Full means it also has inherit and toggle values.
-bool styles_logic_italic_bold_underline_smallcaps_are_full (int type, int subtype)
-{
-  switch (type) {
-    case StyleTypeInlineText: return true;
-    case StyleTypeVerseNumber: return true;
-    case StyleTypeFootEndNote:
-    {
-      switch (subtype) {
-        case FootEndNoteSubtypeFootnote: return true;
-        case FootEndNoteSubtypeEndnote: return true;
-        case FootEndNoteSubtypeContent: return true;
-        case FootEndNoteSubtypeContentWithEndmarker: return true;
-        default: return false;
-      }
-      break;
-    }
-    case StyleTypeCrossreference:
-    {
-      switch (subtype) {
-        case CrossreferenceSubtypeCrossreference: return true;
-        case CrossreferenceSubtypeContent: return true;
-        case CrossreferenceSubtypeContentWithEndmarker: return true;
-        default: return false;
-      }
-      break;
-    }
-    default: return false;
-  }
-  return false;
-}
-
-
-// Returns the $value as human readable text.
-std::string styles_logic_off_on_inherit_toggle_text (int value)
-{
-  if (value == ooitOff    ) return translate ("Off");
-  if (value == ooitOn     ) return translate ("On");
-  if (value == ooitInherit) return translate ("Inherit");
-  if (value == ooitToggle ) return translate ("Toggle");
-  return "--";
-}
-
-
-// Returns true if the superscript setting is relevant for $type and $subtype
-bool styles_logic_superscript_is_relevant (int type, int subtype)
-{
-  switch (type) {
-    case StyleTypeInlineText  : return true;
-    case StyleTypeVerseNumber : return true;
-    case StyleTypeFootEndNote :
-    {
-      switch (subtype) {
-        case FootEndNoteSubtypeFootnote        : return true;
-        case FootEndNoteSubtypeEndnote         : return true;
-        case FootEndNoteSubtypeStandardContent : return true;
-        case FootEndNoteSubtypeParagraph       : return true;
-        default: return false;
-      }
-      break;
-    }
-    case StyleTypeCrossreference :
-    {
-      switch (subtype) {
-        case CrossreferenceSubtypeCrossreference        : return true;
-        case CrossreferenceSubtypeStandardContent       : return true;
-        default: return false;
-      }
-      break;
-    }
-    default: return false;
-  }
-  return false;
-}
-
-
-// Returns true if the paragraph treats are relevant for $type and $subtype
-bool styles_logic_paragraph_treats_are_relevant (int type, int subtype)
-{
-  switch (type) {
-    case StyleTypeStartsParagraph : return true;
-    case StyleTypeChapterNumber   : return true;
-    case StyleTypeFootEndNote :
-    {
-      switch (subtype) {
-        case FootEndNoteSubtypeStandardContent : return true;
-        case FootEndNoteSubtypeParagraph       : return true;
-        default: return false;
-      }
-      break;
-    }
-    case StyleTypeCrossreference :
-    {
-      switch (subtype) {
-        case CrossreferenceSubtypeStandardContent : return true;
-        default: return false;
-      }
-      break;
-    }
-    case StyleTypePicture : return true;
-    case StyleTypeTableElement :
-    {
-      switch (subtype) {
-        case TableElementSubtypeHeading : return true;
-        case TableElementSubtypeCell    : return true;
-        default: return false;
-      }
-      break;
-    }
-    default: return false;
-  }
-  return false;
-}
-
-
-// Returns the $value as human readable text.
-std::string styles_logic_alignment_text (int value)
-{
-  if (value == AlignmentLeft   ) return translate ("Left align");
-  if (value == AlignmentCenter ) return translate ("Center");
-  if (value == AlignmentRight  ) return translate ("Right align");
-  if (value == AlignmentJustify) return translate ("Justify");
-  return "--";
-}
-
-
-// Returns true if the columns are relevant for $type and $subtype
-bool styles_logic_columns_are_relevant (int type, int subtype)
-{
-  if (subtype) {};
-  switch (type) {
-    case StyleTypeStartsParagraph : return true;
-    case StyleTypeChapterNumber   : return true;
-    default: return false;
-  }
-  return false;
-}
-
-
-// Returns true if the color is relevant for $type and $subtype
-bool styles_logic_color_is_relevant (int type, int subtype)
-{
-  switch (type) {
-    case StyleTypeInlineText  : return true;
-    case StyleTypeVerseNumber : return true;
-    case StyleTypeFootEndNote :
-    {
-      switch (subtype) {
-        case FootEndNoteSubtypeContent              : return true;
-        case FootEndNoteSubtypeContentWithEndmarker : return true;
-        default: return false;
-      }
-      break;
-    }
-    case StyleTypeCrossreference :
-    {
-      switch (subtype) {
-        case CrossreferenceSubtypeContent              : return true;
-        case CrossreferenceSubtypeContentWithEndmarker : return true;
-        default: return false;
-      }
-      break;
-    }
-    default: return false;
-  }
-  return false;
-}
-
-
-// Returns true if the print setting is relevant for $type and $subtype
-bool styles_logic_print_is_relevant (int type, int subtype)
-{
-  switch (type) {
-    case StyleTypeVerseNumber : return true;
-    case StyleTypeFootEndNote :
-    {
-      switch (subtype) {
-        case FootEndNoteSubtypeFootnote : return true;
-        case FootEndNoteSubtypeEndnote  : return true;
-        default: return false;
-      }
-      break;
-    }
-    case StyleTypeCrossreference :
-    {
-      switch (subtype) {
-        case CrossreferenceSubtypeCrossreference  : return true;
-        default: return false;
-      }
-      break;
-    }
-    default: return false;
-  }
-  return false;
-}
-
-
-// Returns the function of userbool1 for type and subtype
-int styles_logic_get_userbool1_function (int type, int subtype)
-{
-  if (type == StyleTypeChapterNumber) {
-    return UserBool1PrintChapterAtFirstVerse;
-  }
-  if (type == StyleTypeFootEndNote) {
-    if ((subtype != FootEndNoteSubtypeFootnote) && (subtype == FootEndNoteSubtypeEndnote))
-      return UserBool1NoteAppliesToApocrypha;
-  }
-  if (type == StyleTypeCrossreference) {
-    if (subtype != CrossreferenceSubtypeCrossreference)
-      return UserBool1NoteAppliesToApocrypha;
-  }
-  if (type == StyleTypeVerseNumber) {
-    return UserBool1VerseRestartsParagraph;
-  }
-  return UserBool1None;
-}
-
-
-// Returns the text of userbool1's function.
-std::string styles_logic_get_userbool1_text (int function)
-{
-  switch (function) {
-    case UserBool1PrintChapterAtFirstVerse: return translate ("Print chapter number at first verse");
-    case UserBool1NoteAppliesToApocrypha: return translate ("Refers to the Apocrypha");
-    case UserBool1VerseRestartsParagraph: return translate ("Restart paragraph");
-    default: return "--";
-  }
-  return std::string();
-}
-
-
-// Returns the function of userbool2 for type and subtype
-int styles_logic_get_userbool2_function (int type, int subtype)
-{
-  if (type == StyleTypeIdentifier) {
-    if (subtype == IdentifierSubtypeRunningHeader) // Todo out.
-      return UserBool2RunningHeaderLeft;
-  }
-  if (type == StyleTypeChapterNumber) {
-    return UserBool2ChapterInLeftRunningHeader;
-  }
-  return UserBool2None;
-}
-
-
-// Returns the text of userbool2's function.
-std::string styles_logic_get_userbool2_text (int function)
-{
-  switch (function) {
-    case UserBool2IdStartsOddPage: return translate ("New page starts with an odd number (not implemented due to limitations in OpenDocument)");
-    case UserBool2ChapterInLeftRunningHeader: return translate ("Print chapter number in the running header of the left page");
-    case UserBool2RunningHeaderLeft: return translate ("Print this in the running header of the left page"); // Todo out.
-    default: return std::string();
-  }
-  return std::string();
-}
-
-
-// Returns the function of userbool3 for type and subtype
-int styles_logic_get_userbool3_function (int type, int subtype)
-{
-  if (type == StyleTypeIdentifier) {
-    if (subtype == IdentifierSubtypeRunningHeader) // Todo out.
-      return UserBool3RunningHeaderRight;
-  }
-  if (type == StyleTypeChapterNumber) {
-    return UserBool3ChapterInRightRunningHeader;
-  }
-  return UserBool3None;
-}
-
-
-// Returns the text of userbool3's function.
-std::string styles_logic_get_userbool3_text (int function)
-{
-  switch (function) {
-    case UserBool3ChapterInRightRunningHeader: return translate ("Print chapter number in the running header of the right page");
-    case UserBool3RunningHeaderRight: return translate ("Print this in the running header of the right page"); // Todo out.
-    default: return std::string();
-  }
-  return std::string();
-}
-
-
-// Returns the function of userint1 for type and subtype
-int styles_logic_get_userint1_function (int type, int subtype)
-{
-  if (type == StyleTypeFootEndNote) {
-    if (subtype == FootEndNoteSubtypeFootnote)
-      return UserInt1NoteNumbering;
-    if (subtype == FootEndNoteSubtypeEndnote)
-      return UserInt1NoteNumbering;
-  }
-  if (type == StyleTypeCrossreference) {
-    if (subtype == CrossreferenceSubtypeCrossreference)
-      return UserInt1NoteNumbering;
-  }
-  if (type == StyleTypeTableElement) {
-    if (subtype == TableElementSubtypeHeading)
-      return UserInt1TableColumnNumber;
-    if (subtype == TableElementSubtypeCell)
-      return UserInt1TableColumnNumber;
-  }
-  return UserInt1None;
-}
-
-
-// Returns the value as human readable text for note numbering.
-std::string styles_logic_note_numbering_text (int value)
-{
-  if (value == NoteNumbering123 ) return "1, 2, 3 ...";
-  if (value == NoteNumberingAbc ) return "a, b, c ...";
-  if (value == NoteNumberingUser) return translate ("User defined sequence");
-  return std::to_string (value);
-}
-
-
-// Returns the function of userint2 for type and subtype
-int styles_logic_get_userint2_function (int type, int subtype)
-{
-  if (type == StyleTypeFootEndNote) {
-    if (subtype == FootEndNoteSubtypeFootnote)
-      return UserInt2NoteNumberingRestart;
-    if (subtype == FootEndNoteSubtypeEndnote)
-      return UserInt2EndnotePosition;
-  }
-  if (type == StyleTypeCrossreference) {
-    if (subtype == CrossreferenceSubtypeCrossreference)
-      return UserInt2NoteNumberingRestart;
-  }
-  return UserInt2None;
-}
-
-
-// Returns the value as human readable text for when to restart the note numbering.
-std::string styles_logic_note_restart_numbering_text (int value)
-{
-  if (value == NoteRestartNumberingNever       ) return translate ("Never");
-  if (value == NoteRestartNumberingEveryBook   ) return translate ("Every book");
-  if (value == NoteRestartNumberingEveryChapter) return translate ("Every chapter");
-  return std::to_string (value);
-}
-
-
-// Returns the value as human readable text for the position of the endnotes.
-std::string styles_logic_end_note_position_text (int value)
-{
-  if (value == EndNotePositionAfterBook) return translate ("After each book");
-  if (value == EndNotePositionVeryEnd  ) return translate ("After everything else");
-  if (value == EndNotePositionAtMarker ) return translate ("Upon encountering a certain marker");
-  return std::to_string (value);
-}
-
-
-// Returns the function of userint3 for type and subtype
-int styles_logic_get_userint3_function (int type, int subtype)
-{
-  if (type) {};
-  if (subtype) {};
-  return UserInt3None;
-}
-
-
-// Returns the function of userstring1 for type and subtype
-int styles_logic_get_userstring1_function (int type, int subtype)
-{
-  if (type == StyleTypeFootEndNote) {
-    if (subtype == FootEndNoteSubtypeFootnote)
-      return UserString1NoteNumberingSequence;
-    if (subtype == FootEndNoteSubtypeEndnote)
-      return UserString1NoteNumberingSequence;
-  }
-  if (type == StyleTypeCrossreference) {
-    if (subtype == CrossreferenceSubtypeCrossreference)
-      return UserString1NoteNumberingSequence;
-  }
-  if (type == StyleTypeWordlistElement) {
-    return UserString1WordListEntryAddition;
-  }
-  return UserString1None;
-}
-
-
-// Returns the function of userstring2 for type and subtype
-int styles_logic_get_userstring2_function (int type, int subtype)
-{
-  if (type == StyleTypeFootEndNote) {
-    if (subtype == FootEndNoteSubtypeEndnote)
-      return UserString2DumpEndnotesHere;
-  }
-  return UserString2None;
-}
-
-
-// Returns the function of userstring3 for type and subtype
-int styles_logic_get_userstring3_function (int type, int subtype)
-{
-  if (type) {};
-  if (subtype) {};
-  return UserString3None;
-}
-
-
-// It returns true if the combination of type and subtype start a new line in well-formed USFM.
-// Otherwise it returns false.
-bool styles_logic_starts_new_line_in_usfm (int type, int subtype)
-{
-  switch (type) {
-    case StyleTypeIdentifier :
-    {
-      if (subtype == IdentifierSubtypePublishedVerseMarker) return false;
-      return true;
-    }
-    case StyleTypeNotUsedComment :
-    {
-      return true;
-    }
-    case StyleTypeNotUsedRunningHeader :
-    {
-      return true;
-    }
-    case StyleTypeStartsParagraph :
-    {
-      return true;
-    }
-    case StyleTypeInlineText :
-    {
-      return false;
-    }
-    case StyleTypeChapterNumber :
-    {
-      return true;
-    }
-    case StyleTypeVerseNumber :
-    {
-      return true;
-    }
-    case StyleTypeFootEndNote :
-    {
-      return false;
-    }
-    case StyleTypeCrossreference :
-    {
-      return false;
-    }
-    case StyleTypePeripheral :
-    {
-      return true;
-    }
-    case StyleTypePicture :
-    {
-      return true;
-    }
-    case StyleTypePageBreak :
-    {
-      return true;
-    }
-    case StyleTypeTableElement :
-    {
-      if (subtype == TableElementSubtypeRow) return true;
-      return false;
-    }
-    case StyleTypeWordlistElement :
-    {
-      return false;
-    }
-    default:
-      return false;
-  }
-  return true;
-}
-
+} // Namespace.

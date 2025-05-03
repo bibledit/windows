@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2021 Aranggi Toar.
+Copyright (©) 2003-2025 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,17 +17,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#pragma once
+#include <filter/number.h>
 
-#include <config/libraries.h>
+namespace filter::number {
 
-class Options_To_Select
-{
-public:
-  static std::string add_selection (std::string text, std::string value, std::string html);
-  static std::string mark_selected (std::string value, std::string html);
-};
-
-std::string dialog_list2_create_options(const std::vector<std::string>& values,
-                                        const std::vector<std::string>& displayed,
-                                        const std::string& selected);
+}

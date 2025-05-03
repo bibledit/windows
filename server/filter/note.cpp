@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/note.h>
 #include <styles/logic.h>
 #include <filter/string.h>
+#include <database/styles.h>
 
 
 namespace filter::note {
@@ -30,38 +31,31 @@ citation::citation ()
   pointer = 0;
 }
 
-void citation::set_sequence (int numbering, const std::string& usersequence)
+void citation::set_sequence (std::string sequence_in)
 {
-  if (numbering == NoteNumbering123) {
-    this->sequence.clear();
-  }
-  else if (numbering == NoteNumberingAbc) {
-    this->sequence = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
-  }
-  else if (numbering == NoteNumberingUser) {
-    if (!usersequence.empty()) this->sequence = filter::strings::explode (usersequence, ' ');
-  }
-  else {
-    this->sequence = {"1", "2", "3", "4", "5", "6", "7", "8", "9"}; // Fallback sequence.
-  }
-  // How the above works:
+  sequence = filter::strings::explode (std::move(sequence_in), ' ');
   // The note will be numbered as follows:
   // If a sequence is given, then this sequence is followed for the citations.
-  // If no sequence is given, then the note gets numerical citations.
+  // If an empty sequence is given, then the note gets ever increasing numerical citations.
 }
 
-void citation::set_restart (int setting)
+void citation::set_restart (const std::string& setting)
 {
-  if (setting == NoteRestartNumberingNever) this->restart = "never";
-  else if (setting == NoteRestartNumberingEveryBook) this->restart = "book";
-  else this->restart = "chapter";
+  // Check if the input is valid, if so, store it, else store default restart moment.
+  using namespace stylesv2;
+  if (setting == notes_numbering_restart_never)
+    restart = notes_numbering_restart_never;
+  else if (setting == notes_numbering_restart_book)
+    restart = notes_numbering_restart_book;
+  else
+    restart = notes_numbering_restart_chapter;
 }
 
 std::string citation::get (std::string citation_in)
 {
   // Handle USFM automatic note citation.
   if (citation_in == "+") {
-    // If the sequence is empty, then the note citation starts at 1 and increases each time.
+    // If the sequence is empty, then the note citation starts at 1 and keeps increasing each time.
     if (sequence.empty()) {
       pointer++;
       citation_in = std::to_string (pointer);
@@ -72,7 +66,8 @@ std::string citation::get (std::string citation_in)
     else {
       citation_in = sequence [pointer];
       pointer++;
-      if (pointer >= sequence.size ()) pointer = 0;
+      if (pointer >= sequence.size ())
+        pointer = 0;
     }
   }
 
@@ -81,36 +76,40 @@ std::string citation::get (std::string citation_in)
     citation_in.clear();
   }
   
-  // Done.
+  // If no update is made on the citation input, it is passed on as i.
   return citation_in;
 }
 
-void citation::run_restart (const std::string& moment)
+void citation::run_restart(const std::string& moment)
 {
   if (restart == moment) {
     pointer = 0;
   }
 }
 
-void citations::evaluate_style (const database::styles1::Item & style)
+
+void citations::evaluate_style (const stylesv2::Style& style)
 {
   // Evaluate the style to find out whether to create a note citation for it.
-  bool create = false;
-  if (style.type == StyleTypeFootEndNote) {
-    if (style.subtype == FootEndNoteSubtypeFootnote) create = true;
-    if (style.subtype == FootEndNoteSubtypeEndnote) create = true;
-  }
-  if (style.type == StyleTypeCrossreference) {
-    if (style.subtype == CrossreferenceSubtypeCrossreference) create = true;
-  }
-  if (!create) return;
-
+  const auto create = [&style] () {
+    if (style.type == stylesv2::Type::footnote_wrapper)
+      return true;
+    if (style.type == stylesv2::Type::endnote_wrapper)
+      return true;
+    if (style.type == stylesv2::Type::crossreference_wrapper)
+      return true;
+    return false;
+  };
+  if (!create())
+    return;
+  
   // Create a new note citation at this point.
   citation citation;
   // Handle caller sequence.
-  citation.set_sequence(style.userint1, style.userstring1);
+  std::string sequence = stylesv2::get_parameter<std::string>(&style, stylesv2::Property::note_numbering_sequence);
+  citation.set_sequence(std::move(sequence));
   // Handle note caller restart moment.
-  citation.set_restart(style.userint2);
+  citation.set_restart(stylesv2::get_parameter<std::string>(&style, stylesv2::Property::note_numbering_restart));
   // Store the citation for later use.
   cache [style.marker] = citation;
 }
@@ -125,10 +124,10 @@ std::string citations::get (const std::string& marker, const std::string& citati
 // This resets the note citations data.
 // Resetting means that the note citations start to count afresh.
 // $moment: what type of reset to apply, e.g. 'chapter' or 'book'.
-void citations::restart (const std::string& moment)
+void citations::restart(const std::string& moment)
 {
   for (auto & notecitation : cache) {
-    notecitation.second.run_restart (moment);
+    notecitation.second.run_restart(moment);
   }
 }
 

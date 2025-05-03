@@ -324,7 +324,7 @@ void odf_text::initialize_styles_xml ()
   }
   {
     pugi::xml_node style_style = office_styles_node.append_child ("style:style");
-    style_style.append_attribute ("style:name") = styles_logic_standard_sheet ().c_str();
+    style_style.append_attribute ("style:name") = stylesv2::standard_sheet ().c_str();
     style_style.append_attribute ("style:family") = "paragraph";
     style_style.append_attribute ("style:class") = "text";
   }
@@ -332,7 +332,7 @@ void odf_text::initialize_styles_xml ()
     pugi::xml_node style_style = office_styles_node.append_child ("style:style");
     style_style.append_attribute ("style:name") = "Heading";
     style_style.append_attribute ("style:family") = "paragraph";
-    style_style.append_attribute ("style:parent-style-name") = styles_logic_standard_sheet ().c_str();
+    style_style.append_attribute ("style:parent-style-name") = stylesv2::standard_sheet ().c_str();
     style_style.append_attribute ("style:next-style-name") = "Text_20_body";
     style_style.append_attribute ("style:class") = "text";
     {
@@ -347,7 +347,7 @@ void odf_text::initialize_styles_xml ()
     style_style.append_attribute ("style:name") = "Text_20_body";
     style_style.append_attribute ("style:display-name") = "Text body";
     style_style.append_attribute ("style:family") = "paragraph";
-    style_style.append_attribute ("style:parent-style-name") = styles_logic_standard_sheet ().c_str();
+    style_style.append_attribute ("style:parent-style-name") = stylesv2::standard_sheet ().c_str();
     style_style.append_attribute ("style:class") = "text";
     {
       pugi::xml_node style_paragraph_properties = style_style.append_child ("style:paragraph-properties");
@@ -359,7 +359,7 @@ void odf_text::initialize_styles_xml ()
     pugi::xml_node style_style = office_styles_node.append_child ("style:style");
     style_style.append_attribute ("style:name") = "Header";
     style_style.append_attribute ("style:family") = "paragraph";
-    style_style.append_attribute ("style:parent-style-name") = styles_logic_standard_sheet ().c_str();
+    style_style.append_attribute ("style:parent-style-name") = stylesv2::standard_sheet ().c_str();
     style_style.append_attribute ("style:class") = "extra";
   }
   {
@@ -367,7 +367,7 @@ void odf_text::initialize_styles_xml ()
     style_style.append_attribute ("style:name") = "Header_20_left";
     style_style.append_attribute ("style:display-name") = "Header left";
     style_style.append_attribute ("style:family") = "paragraph";
-    style_style.append_attribute ("style:parent-style-name") = styles_logic_standard_sheet ().c_str();
+    style_style.append_attribute ("style:parent-style-name") = stylesv2::standard_sheet ().c_str();
     style_style.append_attribute ("style:class") = "extra";
   }
 
@@ -494,7 +494,7 @@ void odf_text::initialize_styles_xml ()
   pugi::xml_node office_master_styles = rootnode.append_child ("office:master-styles");
   {
     pugi::xml_node style_master_page = office_master_styles.append_child ("style:master-page");
-    style_master_page.append_attribute ("style:name") = styles_logic_standard_sheet ().c_str();
+    style_master_page.append_attribute ("style:name") = stylesv2::standard_sheet ().c_str();
     style_master_page.append_attribute ("style:page-layout-name") = "Mpm1";
     {
       pugi::xml_node style_header = style_master_page.append_child ("style:header");
@@ -654,16 +654,19 @@ void odf_text::new_page_break ()
 // $name: the name of the style, e.g. 'p'.
 // $dropcaps: If 0, there are no drop caps.
 //            If greater than 0, it the number of characters in drop caps style.
-void odf_text::create_paragraph_style (std::string name,
-                                       std::string fontname,
-                                       float fontsize,
-                                       int italic, int bold, int underline, int smallcaps,
-                                       int alignment,
-                                       float spacebefore, float spaceafter,
-                                       float leftmargin, float rightmargin,
-                                       float firstlineindent,
-                                       bool keep_with_next,
-                                       int dropcaps)
+void odf_text::create_paragraph_style (const std::string& name,
+                                       std::string font_name,
+                                       const float font_size,
+                                       const stylesv2::TwoState italic,
+                                       const stylesv2::TwoState bold,
+                                       const stylesv2::TwoState underline,
+                                       const stylesv2::TwoState smallcaps,
+                                       const stylesv2::TextAlignment text_alignment,
+                                       const float space_before, const float space_after,
+                                       const float left_margin, const float right_margin,
+                                       const float first_line_indent,
+                                       const bool keep_with_next,
+                                       const int dropcaps)
 {
   // Whether to align verse numbers in poetry to the left of the margin,
   // and if so, whether this is one of the defined poetry styles.
@@ -683,79 +686,85 @@ void odf_text::create_paragraph_style (std::string name,
   style_style_node.append_attribute ("style:name") = convert_style_name (name).c_str();
   style_style_node.append_attribute ("style:display-name") = name.c_str();
   style_style_node.append_attribute ("style:family") = "paragraph";
-
+  
   pugi::xml_node style_paragraph_properties_node = style_style_node.append_child ("style:paragraph-properties");
-
+  
   pugi::xml_node style_text_properties_node = style_style_node.append_child ("style:text-properties");
-
-  style_paragraph_properties_node.append_attribute ("style:font-name") = fontname.c_str();
-  fontname.insert (0, "'");
-  fontname.append ("'");
-  style_text_properties_node.append_attribute ("fo:font-family") = fontname.c_str();
-
-  std::string sfontsize = filter::strings::convert_to_string (fontsize) + "pt";
+  
+  style_paragraph_properties_node.append_attribute ("style:font-name") = font_name.c_str();
+  font_name.insert (0, "'");
+  font_name.append ("'");
+  style_text_properties_node.append_attribute ("fo:font-family") = font_name.c_str();
+  
+  const std::string sfontsize = filter::strings::convert_to_string (font_size) + "pt";
   style_text_properties_node.append_attribute ("fo:font-size") = sfontsize.c_str();
   style_text_properties_node.append_attribute ("style:font-size-asian") = sfontsize.c_str();
   style_text_properties_node.append_attribute ("style:font-size-complex") = sfontsize.c_str();
-
-  // Italics, bold, underline, small caps can be either ooitOff or ooitOn for a paragraph.
-  if (italic != ooitOff) {
+  
+  // Italics, bold, underline, small caps can be either off or on for a paragraph.
+  if (italic != stylesv2::TwoState::off) {
     style_text_properties_node.append_attribute ("fo:font-style") = "italic";
     style_text_properties_node.append_attribute ("style:font-style-asian") = "italic";
     style_text_properties_node.append_attribute ("style:font-style-complex") = "italic";
   }
-  if (bold != ooitOff) {
+  if (bold != stylesv2::TwoState::off) {
     style_text_properties_node.append_attribute ("fo:font-weight") = "bold";
     style_text_properties_node.append_attribute ("style:font-weight-asian") = "bold";
     style_text_properties_node.append_attribute ("style:font-weight-complex") = "bold";
   }
-  if (underline != ooitOff) {
+  if (underline != stylesv2::TwoState::off) {
     style_text_properties_node.append_attribute ("style:text-underline-style") = "solid";
     style_text_properties_node.append_attribute ("style:text-underline-width") = "auto";
     style_text_properties_node.append_attribute ("style:text-underline-color") = "font-color";
   }
-  if (smallcaps != ooitOff) {
+  if (smallcaps != stylesv2::TwoState::off) {
     style_text_properties_node.append_attribute ("fo:font-variant") = "small-caps";
   }
-
-  // Text alignment can be: AlignmentLeft, AlignmentCenter, AlignmentRight, AlignmentJustify.
-  std::string alignmenttext {};
-  switch (alignment) {
-    case AlignmentLeft:    alignmenttext = "start";   break;
-    case AlignmentCenter:  alignmenttext = "center";  break;
-    case AlignmentRight:   alignmenttext = "end";     break;
-    case AlignmentJustify: alignmenttext = "justify"; break;
-    default: break;
-  }
-  style_paragraph_properties_node.append_attribute ("fo:text-align") = alignmenttext.c_str();
+  
+  // Text alignment can be left, center, right, or justify.
+  const auto get_alignment_text = [] (const auto ta) {
+    switch (ta) {
+      case stylesv2::TextAlignment::left:
+        return "start";
+      case stylesv2::TextAlignment::center:
+        return "center";
+      case stylesv2::TextAlignment::right:
+        return "end";
+      case stylesv2::TextAlignment::justify:
+      default:
+        return "justify";
+    }
+  };
+  style_paragraph_properties_node.append_attribute ("fo:text-align") = get_alignment_text(text_alignment);
   style_paragraph_properties_node.append_attribute ("style:justify-single-word") = "false";
-
+  
   // Deal with the paragraph dimensions.
   // The values are given in millimeters.
   // First the top and bottom margins.
-  std::string space_before_mm = filter::strings::convert_to_string (spacebefore) + "mm";
+  const std::string space_before_mm = filter::strings::convert_to_string (space_before) + "mm";
   style_paragraph_properties_node.append_attribute ("fo:margin-top") = space_before_mm.c_str();
-  std::string space_after_mm = filter::strings::convert_to_string (spaceafter) + "mm";
+  const std::string space_after_mm = filter::strings::convert_to_string (space_after) + "mm";
   style_paragraph_properties_node.append_attribute ("fo:margin-bottom") = space_after_mm.c_str();
-  std::string left_margin_mm = filter::strings::convert_to_string (leftmargin) + "mm";
+  const std::string left_margin_mm = filter::strings::convert_to_string (left_margin) + "mm";
   style_paragraph_properties_node.append_attribute ("fo:margin-left") = left_margin_mm.c_str();
-  std::string right_margin_mm = filter::strings::convert_to_string (rightmargin) + "mm";
+  const std::string right_margin_mm = filter::strings::convert_to_string (right_margin) + "mm";
   style_paragraph_properties_node.append_attribute ("fo:margin-right") = right_margin_mm.c_str();
   // In a normal paragraph the first line indent is as given in the stylesheet.
   // In a poetry paragraph the first line indent is the negative left margin.
   // The goal is that the left is at a 0 left margin,
   // and that the verse is aligned at the very left of the column.
   // (And then a tab puts the text at the desired first line indent space.)
-  int millimeters = static_cast<int>(firstlineindent);
-  if (is_poetry_q_style) millimeters = static_cast <int> (0 - leftmargin);
-  std::string first_lineindent_mm = std::to_string (millimeters) + "mm";
+  int millimeters = static_cast<int>(first_line_indent);
+  if (is_poetry_q_style)
+    millimeters = static_cast <int> (0 - left_margin);
+  const std::string first_lineindent_mm = std::to_string (millimeters) + "mm";
   style_paragraph_properties_node.append_attribute ("fo:text-indent") = first_lineindent_mm.c_str();
-
+  
   if (keep_with_next) {
     style_paragraph_properties_node.append_attribute ("fo:keep-together") = "always";
     style_paragraph_properties_node.append_attribute ("fo:keep-with-next") = "always";
   }
-
+  
   if (dropcaps > 0) {
     // E.g.: <style:drop-cap style:lines="2" style:length="2" style:distance="0.15cm"/>
     std::string length = std::to_string (dropcaps);
@@ -775,10 +784,10 @@ void odf_text::create_paragraph_style (std::string name,
   // See issue https://github.com/bibledit/cloud/issues/671
   if (is_poetry_q_style) {
     pugi::xml_node style_tab_stops = style_paragraph_properties_node.append_child("style:tab-stops");
-    int tab_indent = static_cast<int> (firstlineindent);
+    int tab_indent = static_cast<int> (first_line_indent);
     for (int i = 0; i < 10; i++) {
       pugi::xml_node style_tab_stop = style_tab_stops.append_child("style:tab-stop");
-      std::string tab_stop = std::to_string(tab_indent) + "mm";
+      const std::string tab_stop = std::to_string(tab_indent) + "mm";
       style_tab_stop.append_attribute("style:position") = tab_stop.c_str();
       tab_indent++;
     }
@@ -801,18 +810,21 @@ void odf_text::update_current_paragraph_style (std::string name)
 // $style: the object with the style variables.
 // $note: Whether this refers to notes.
 // $embed: boolean: Whether nest $style in an existing character style.
-void odf_text::open_text_style (database::styles1::Item style, bool note, bool embed)
+void odf_text::open_text_style (const stylesv2::Style* stylev2, bool note, bool embed)
 {
-  std::string marker = style.marker;
+  const auto get_marker = [stylev2]() {
+    if (stylev2)
+      return stylev2->marker;
+    return std::string();
+  };
+  const std::string marker = get_marker();
+
   if (find (created_styles.begin(), created_styles.end(), marker) == created_styles.end()) {
-    int italic = style.italic;
-    int bold = style.bold;
-    int underline = style.underline;
-    int smallcaps = style.smallcaps;
-    int superscript = style.superscript;
-    std::string color = style.color;
-    std::string backgroundcolor = style.backgroundcolor;
     created_styles.push_back (marker);
+
+    const auto get_on_v2 = [](const stylesv2::FourState state) {
+      return ((state == stylesv2::FourState::on) || (state == stylesv2::FourState::toggle));
+    };
 
     // The style entry looks like this in styles.xml, e.g., for italic:
     // <style:style style:name="T1" style:family="text">
@@ -827,50 +839,94 @@ void odf_text::open_text_style (database::styles1::Item style, bool note, bool e
 
     // Italics, bold, underline, small caps can be ooitOff or ooitOn or ooitInherit or ooitToggle.
     // Not all features are implemented.
-    if ((italic == ooitOn) || (italic == ooitToggle)) {
+    const auto get_italic = [stylev2, &get_on_v2]() {
+      if (stylev2)
+        if (stylev2->character)
+          return get_on_v2 (stylev2->character.value().italic);
+      return false;
+    };
+    if (get_italic()) {
       style_text_properties_dom_element.append_attribute ("fo:font-style") = "italic";
       style_text_properties_dom_element.append_attribute ("style:font-style-asian") = "italic";
       style_text_properties_dom_element.append_attribute ("style:font-style-complex") = "italic";
     }
-    if ((bold == ooitOn) || (bold == ooitToggle)) {
+
+    const auto get_bold = [stylev2, &get_on_v2]() {
+      if (stylev2)
+        if (stylev2->character)
+          return get_on_v2 (stylev2->character.value().bold);
+      return false;
+    };
+    if (get_bold()) {
       style_text_properties_dom_element.append_attribute ("fo:font-weight") = "bold";
       style_text_properties_dom_element.append_attribute ("style:font-weight-asian") = "bold";
       style_text_properties_dom_element.append_attribute ("style:font-weight-complex") = "bold";
     }
-    if ((underline == ooitOn) || (underline == ooitToggle)) {
+
+    const auto get_underline = [stylev2, &get_on_v2]() {
+      if (stylev2)
+        if (stylev2->character)
+          return get_on_v2 (stylev2->character.value().underline);
+      return false;
+    };
+    if (get_underline()) {
       style_text_properties_dom_element.append_attribute ("style:text-underline-style") = "solid";
       style_text_properties_dom_element.append_attribute ("style:text-underline-width") = "auto";
       style_text_properties_dom_element.append_attribute ("style:text-underline-color") = "font-color";
     }
-    if ((smallcaps == ooitOn) || (smallcaps == ooitToggle)) {
+    
+    const auto get_smallcaps = [stylev2, &get_on_v2]() {
+      if (stylev2)
+        if (stylev2->character)
+          return get_on_v2 (stylev2->character.value().smallcaps);
+      return false;
+    };
+    if (get_smallcaps()) {
       style_text_properties_dom_element.append_attribute ("fo:font-variant") = "small-caps";
     }
 
-    if (superscript) {
-      //$styleTextPropertiesDomElement->setAttribute ("style:text-position", "super 58%");
+    const auto get_superscript = [stylev2] () {
+      if (stylev2)
+        if (stylev2->character)
+          return (stylev2->character.value().superscript == stylesv2::TwoState::on);
+      return false;
+    };
+    if (get_superscript()) {
       // If the percentage is not specified, an appropriate font height is used.
+      // Setting the superscript makes the font size smaller. No need to set it manually.
       style_text_properties_dom_element.append_attribute ("style:text-position") = "super";
-      // The mere setting of the superscript value makes the font smaller. No need to set it manually.
-      //$styleTextPropertiesDomElement->setAttribute ("fo:font-size", "87%";
-      //$styleTextPropertiesDomElement->setAttribute ("style:font-size-asian", "87%";
-      //$styleTextPropertiesDomElement->setAttribute ("style:font-size-complex", "87%";
     }
 
-    if (color != "#000000") {
-      style_text_properties_dom_element.append_attribute ("fo:color") = color.c_str();
+    const auto get_foreground_color = [stylev2] () {
+      if (stylev2)
+        if (stylev2->character)
+        return stylev2->character.value().foreground_color;
+      return std::string();
+    };
+    const std::string foreground_color {get_foreground_color()};
+    if (foreground_color != "#000000") {
+      style_text_properties_dom_element.append_attribute ("fo:color") = foreground_color.c_str();
     }
 
-    if (backgroundcolor != "#FFFFFF") {
-      style_text_properties_dom_element.append_attribute ("fo:background-color") = backgroundcolor.c_str();
+    const auto get_background_color = [stylev2] () {
+      if (stylev2)
+        if (stylev2->character)
+        return stylev2->character.value().background_color;
+      return std::string();
+    };
+    const std::string background_color {get_background_color()};
+    if (background_color != "#FFFFFF") {
+      style_text_properties_dom_element.append_attribute ("fo:background-color") = background_color.c_str();
     }
-
   }
 
   if (note) {
-    if (!embed) m_current_note_text_style.clear();
+    if (!embed)
+      m_current_note_text_style.clear();
     m_current_note_text_style.push_back (marker);
   } else {
-    if (!embed) m_current_text_style.clear ();
+    if (!embed)
+      m_current_text_style.clear ();
     m_current_text_style.push_back (marker);
   }
 }
@@ -897,7 +953,8 @@ void odf_text::close_text_style (bool note, bool embed)
 // $style - the name of the style of the $text.
 // $fontsize - given in points.
 // $italic, $bold - integer values.
-void odf_text::place_text_in_frame (std::string text, std::string style, float fontsize, int italic, int bold)
+void odf_text::place_text_in_frame (const std::string& text, const std::string& style,
+                                    const float fontsize, const stylesv2::TwoState italic, const stylesv2::TwoState bold)
 {
   // Empty text is discarded.
   if (text.empty ()) return;
@@ -952,12 +1009,12 @@ void odf_text::place_text_in_frame (std::string text, std::string style, float f
       style_text_properties_dom_element.append_attribute ("fo:font-size") = sfontsize.c_str();
       style_text_properties_dom_element.append_attribute ("style:font-size-asian") = sfontsize.c_str();
       style_text_properties_dom_element.append_attribute ("style:font-size-complex") = sfontsize.c_str();
-      if (italic != ooitOff) {
+      if (italic != stylesv2::TwoState::off) {
         style_text_properties_dom_element.append_attribute ("fo:font-style") = "italic";
         style_text_properties_dom_element.append_attribute ("style:font-style-asian") = "italic";
         style_text_properties_dom_element.append_attribute ("style:font-style-complex") = "italic";
       }
-      if (bold != ooitOff) {
+      if (bold != stylesv2::TwoState::off) {
         style_text_properties_dom_element.append_attribute ("fo:font-weight") = "bold";
         style_text_properties_dom_element.append_attribute ("style:font-weight-asian") = "bold";
         style_text_properties_dom_element.append_attribute ("style:font-weight-complex") = "bold";

@@ -31,53 +31,98 @@
 
 Checks_Usfm::Checks_Usfm (const std::string& bible)
 {
-  const std::string stylesheet = database::config::bible::get_export_stylesheet (bible);
-  markers_stylesheet = database::styles1::get_markers (stylesheet);
-  for (const auto & marker : markers_stylesheet) {
-    database::styles1::Item style = database::styles1::get_marker_data (stylesheet, marker);
-    style_items [marker] = style;
-    int styleType = style.type;
-    int styleSubtype = style.subtype;
-
+  m_stylesheet = database::config::bible::get_export_stylesheet (bible);
+  markers_stylesheet = database::styles::get_markers (m_stylesheet);
+  for (const stylesv2::Style& style : stylesv2::styles) {
     // Find out which markers require an endmarker.
     // And which markers are embeddable.
     bool required_endmarker {false};
     bool embeddable_marker {false};
-    if (styleType == StyleTypeIdentifier) {
-      if (styleSubtype == IdentifierSubtypePublishedVerseMarker) {
+    switch (style.type) {
+      case stylesv2::Type::book_id:
+      case stylesv2::Type::usfm_version:
+      case stylesv2::Type::file_encoding:
+      case stylesv2::Type::remark:
+      case stylesv2::Type::running_header:
+        break;
+      case stylesv2::Type::long_toc_text:
+        long_toc1_marker = style.marker;
+        break;
+      case stylesv2::Type::short_toc_text:
+        short_toc2_marker = style.marker;
+        break;
+      case stylesv2::Type::book_abbrev:
+        abbrev_toc3_marker = style.marker;
+        break;
+      case stylesv2::Type::introduction_end:
+      case stylesv2::Type::title:
+      case stylesv2::Type::heading:
+      case stylesv2::Type::paragraph:
+      case stylesv2::Type::chapter:
+      case stylesv2::Type::chapter_label:
+      case stylesv2::Type::published_chapter_marker:
+        break;
+      case stylesv2::Type::alternate_chapter_number:
         required_endmarker = true;
-      }
-    }
-    if (styleType == StyleTypeFootEndNote) {
-      if ((styleSubtype == FootEndNoteSubtypeFootnote) || (styleSubtype == FootEndNoteSubtypeEndnote)) {
+        break;
+      case stylesv2::Type::verse:
+        break;
+      case stylesv2::Type::published_verse_marker:
+      case stylesv2::Type::alternate_verse_marker:
         required_endmarker = true;
-      }
-    }
-    if (styleType == StyleTypeCrossreference) {
-      if (styleSubtype == CrossreferenceSubtypeCrossreference) {
+        break;
+      case stylesv2::Type::table_row:
+      case stylesv2::Type::table_heading:
+      case stylesv2::Type::table_cell:
+        break;
+      case stylesv2::Type::footnote_wrapper:
+      case stylesv2::Type::endnote_wrapper:
         required_endmarker = true;
-      }
-    }
-    if (styleType == StyleTypeInlineText) {
-      required_endmarker = true;
-      embeddable_marker = true;
-    }
-    if (styleType == StyleTypeWordlistElement) {
-      required_endmarker = true;
-      embeddable_marker = true;
+        break;
+      case stylesv2::Type::note_standard_content:
+      case stylesv2::Type::note_content:
+        break;
+      case stylesv2::Type::note_content_with_endmarker:
+        required_endmarker = true;
+        break;
+      case stylesv2::Type::note_paragraph:
+        break;
+      case stylesv2::Type::crossreference_wrapper:
+        required_endmarker = true;
+        break;
+      case stylesv2::Type::crossreference_standard_content:
+      case stylesv2::Type::crossreference_content:
+        break;
+      case stylesv2::Type::crossreference_content_with_endmarker:
+        required_endmarker = true;
+        break;
+      case stylesv2::Type::character:
+        required_endmarker = true;
+        embeddable_marker = true;
+        break;
+      case stylesv2::Type::page_break:
+        break;
+      case stylesv2::Type::figure:
+        required_endmarker = true;
+        break;
+      case stylesv2::Type::word_list:
+        required_endmarker = true;
+        embeddable_marker = true;
+        break;
+      case stylesv2::Type::sidebar_begin:
+      case stylesv2::Type::sidebar_end:
+      case stylesv2::Type::peripheral:
+      case stylesv2::Type::starting_boundary:
+      case stylesv2::Type::stopping_boundary:
+      case stylesv2::Type::none:
+      default:
+        break;
     }
     if (required_endmarker) {
-      markers_requiring_endmarkers.push_back (marker);
+      markers_requiring_endmarkers.push_back (style.marker);
     }
     if (embeddable_marker) {
-      embeddable_markers.push_back (marker);
-    }
-    
-    // Look for the \toc[1-3] markers.
-    if (styleType == StyleTypeIdentifier) {
-      if (styleSubtype == IdentifierSubtypeLongTOC) long_toc1_marker = marker;
-      if (styleSubtype == IdentifierSubtypeShortTOC) short_toc2_marker = marker;
-      if (styleSubtype == IdentifierSubtypeBookAbbrev) abbrev_toc3_marker = marker;
+      embeddable_markers.push_back (style.marker);
     }
   }
 }
@@ -262,12 +307,14 @@ void Checks_Usfm::matching_endmarker ()
   // Remove the initial backslash, e.g. '\add' becomes 'add'.
   marker = marker.substr (1);
   marker = filter::strings::trim (marker);
-  bool isOpener = filter::usfm::is_opening_marker (marker);
-  if (!isOpener) {
-   if (!marker.empty ()) marker = marker.substr (0, marker.length () - 1);
+  bool is_opener = filter::usfm::is_opening_marker (marker);
+  if (!is_opener) {
+    if (!marker.empty ())
+      marker.pop_back();
   }
-  if (!in_array (marker, markers_requiring_endmarkers)) return;
-  if (isOpener) {
+  if (!in_array (marker, markers_requiring_endmarkers))
+    return;
+  if (is_opener) {
     if (in_array (marker, open_matching_markers)) {
       add_result (translate ("Repeating opening marker"), Checks_Usfm::display_current);
     } else {
@@ -406,7 +453,7 @@ std::vector <std::pair<int, std::string>> Checks_Usfm::get_results ()
 
 void Checks_Usfm::add_result (std::string text, int modifier)
 {
-  std::string current = usfm_item;
+  const std::string current = usfm_item;
   std::string next = filter::usfm::peek_text_following_marker (usfm_markers_and_text, usfm_markers_and_text_pointer);
   next = next.substr (0, 20);
   switch (modifier) {
@@ -418,7 +465,7 @@ void Checks_Usfm::add_result (std::string text, int modifier)
     case display_next:
       text += ": " + next;
       break;
-    case Checks_Usfm::display_full:
+    case display_full:
       text += ": " + current + next;
       break;
     default:
@@ -499,24 +546,26 @@ void Checks_Usfm::note ()
   }
 
   // If the current item is text, then do no further checks on that.
-  if (current_is_text) return;
+  if (current_is_text)
+    return;
   // From here on it is assumed that the current item is USFM, not text.
 
   // Get the plain marker, e.g. '\f ' becomes "f".
   const std::string current_marker = filter::usfm::get_marker (usfm_item);
   
   // Get this style's properties.
-  database::styles1::Item style = style_items [current_marker];
+  const stylesv2::Style* stylev2 = database::styles::get_marker_data(m_stylesheet, current_marker);
   
   // Set a flag if this USFM starts a footnote or an endnote or a crossreference.
   // Clear this flag if it ends the note or xref.
   bool note_border_marker {false};
-  if (style.type == StyleTypeFootEndNote) {
-    if (style.subtype == FootEndNoteSubtypeFootnote) note_border_marker = true;
-    if (style.subtype == FootEndNoteSubtypeEndnote) note_border_marker = true;
-  }
-  if (style.type == StyleTypeCrossreference) {
-    if (style.subtype == CrossreferenceSubtypeCrossreference) note_border_marker = true;
+  if (stylev2) {
+    if (stylev2->type == stylesv2::Type::footnote_wrapper)
+      note_border_marker = true;
+    if (stylev2->type == stylesv2::Type::endnote_wrapper)
+      note_border_marker = true;
+    if (stylev2->type == stylesv2::Type::crossreference_wrapper)
+      note_border_marker = true;
   }
   if (note_border_marker) {
     if (current_is_opener) within_note = true;
@@ -525,7 +574,8 @@ void Checks_Usfm::note ()
 
   // If the current location is not within a footnote / endnote / cross reference,
   // then there is nothing to check for.
-  if (!within_note) return;
+  if (!within_note)
+    return;
 
   // Get the next item, that is the item following the current item.
   const std::string next_item = filter::usfm::peek_text_following_marker (usfm_markers_and_text, usfm_markers_and_text_pointer);

@@ -19,177 +19,238 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #pragma once
 
-
 #include <config/libraries.h>
 
 
-// Todo old styles logic, to be replaced one by one.
-
-#define StyleTypeIdentifier            0
-#define StyleTypeNotUsedComment        1 
-#define StyleTypeNotUsedRunningHeader  2 
-#define StyleTypeStartsParagraph       3 
-#define StyleTypeInlineText            4 
-#define StyleTypeChapterNumber         5 
-#define StyleTypeVerseNumber           6 
-#define StyleTypeFootEndNote           7 
-#define StyleTypeCrossreference        8 
-#define StyleTypePeripheral            9 
-#define StyleTypePicture               10 
-#define StyleTypePageBreak             11 
-#define StyleTypeTableElement          12 
-#define StyleTypeWordlistElement       13 
+namespace stylesv2 {
 
 
-#define IdentifierSubtypeRunningHeader            3 // Todo out.
-#define IdentifierSubtypeLongTOC                  4 
-#define IdentifierSubtypeShortTOC                 5 
-#define IdentifierSubtypeBookAbbrev               6 
-#define IdentifierSubtypeChapterLabel             7
-#define IdentifierSubtypePublishedChapterMarker   8
-#define IdentifierSubtypeCommentWithEndmarker     9 
-#define IdentifierSubtypePublishedVerseMarker    10
+enum class Type : int {
+  starting_boundary, // Should be the first always.
+  none,
+  book_id,
+  usfm_version,
+  file_encoding,
+  remark,
+  running_header,
+  long_toc_text,
+  short_toc_text,
+  book_abbrev,
+  introduction_end,
+  title,
+  heading,
+  paragraph,
+  chapter,
+  chapter_label,
+  published_chapter_marker,
+  alternate_chapter_number,
+  verse,
+  published_verse_marker,
+  alternate_verse_marker,
+  table_row,
+  table_heading,
+  table_cell,
+  footnote_wrapper,
+  endnote_wrapper,
+  note_standard_content,
+  note_content,
+  note_content_with_endmarker,
+  note_paragraph,
+  crossreference_wrapper,
+  crossreference_standard_content,
+  crossreference_content,
+  crossreference_content_with_endmarker,
+  character,
+  page_break,
+  figure,
+  word_list,
+  sidebar_begin,
+  sidebar_end,
+  peripheral,
+  stopping_boundary // Should be the last always.
+};
 
 
-#define FootEndNoteSubtypeFootnote                 0 
-#define FootEndNoteSubtypeEndnote                  1 
-#define FootEndNoteSubtypeStandardContent          2 
-#define FootEndNoteSubtypeContent                  3 
-#define FootEndNoteSubtypeContentWithEndmarker     4 
-#define FootEndNoteSubtypeParagraph                5 
+std::string type_enum_to_value (const Type type, const bool describe = false);
+Type type_value_to_enum (const std::string& value);
 
 
-#define CrossreferenceSubtypeCrossreference        0 
-#define CrossreferenceSubtypeStandardContent       1 
-#define CrossreferenceSubtypeContent               2 
-#define CrossreferenceSubtypeContentWithEndmarker  3 
+enum class Property : int {
+  // Should be the first always.
+  starting_boundary,
+  
+  none,
+  
+  // Whether this marker starts a new page (with no matter an even or odd page number).
+  starts_new_page,
+  
+  // Whether this marker starts a new page with an odd page number.
+  // Not implemented due to limitations in OpenDocument.
+  // starts_odd_page,
+  
+  // Whether the marker has been deprecated in the newest USFM specification.
+  deprecated,
+  
+  // Whether to output the marker on the left and/or the right page.
+  on_left_page,
+  on_right_page,
+  
+  // Whether this style, normally without an endmarker, should have the endmarker.
+  has_endmarker,
+  
+  // Whether to ouotput this marker at the first verse.
+  at_first_verse,
+  
+  // Whether to restart a paragraph.
+  restart_paragraph,
+  
+  // The note numbering sequence.
+  note_numbering_sequence,
+  
+  // The note numbering restart trigger.
+  note_numbering_restart,
+  
+  // The place where to dump the notes.
+  notes_dump,
+  
+  // Testing value, can go out once a numerical property is in use.
+  numerical_test,
+  
+  // Should be the last always.
+  stopping_boundary
+};
 
 
-#define ParagraphSubtypeMainTitle                  0 
-#define ParagraphSubtypeSubTitle                   1 
-#define ParagraphSubtypeSectionHeading             2 
-#define ParagraphSubtypeNormalParagraph            3 
+std::string property_enum_to_value (const Property property);
+Property property_value_to_enum (const std::string& value);
 
 
-#define PeripheralSubtypePublication     0
-#define PeripheralSubtypeTableOfContents 1
-#define PeripheralSubtypePreface         2
-#define PeripheralSubtypeIntroduction    3
-#define PeripheralSubtypeGlossary        4
-#define PeripheralSubtypeConcordance     5
-#define PeripheralSubtypeIndex           6
-#define PeripheralSubtypeMapIndex        7
-#define PeripheralSubtypeCover           8
-#define PeripheralSubtypeSpine           9
-#define PeripheralSubtypeGeneral        10
+enum class Variant { none, boolean, number, text };
 
-#define TableElementSubtypeRow             0 
-#define TableElementSubtypeHeading         1 
-#define TableElementSubtypeCell            2 
+Variant property_to_variant (const Property property);
+
+using Parameter = std::variant<std::monostate,bool,int,std::string>;
+
+std::ostream& operator<<(std::ostream& os, const Parameter& parameter);
 
 
-#define WorListElementSubtypeWordlistGlossaryDictionary  0 
-#define WorListElementSubtypeHebrewWordlistEntry         1 
-#define WorListElementSubtypeGreekWordlistEntry          2 
-#define WorListElementSubtypeSubjectIndexEntry           3 
+enum class Category {
+  unknown,
+  identification,
+  introductions,
+  titles_headings_labels,
+  chapters_verses,
+  paragraphs,
+  poetry,
+  lists,
+  tables,
+  footnotes,
+  cross_references,
+  words_characters,
+  extended_study_content,
+  peripherals,
+};
+
+std::ostream& operator<<(std::ostream& os, const Category category);
 
 
-#define ooitOff      0 
-#define ooitOn       1 
-#define ooitInherit  2 
-#define ooitToggle   3 
+enum class FourState { off, on, inherit, toggle };
+std::string fourstate_enum_to_value(const FourState state);
+FourState fourstate_value_to_enum(const std::string& value);
+std::list<FourState> get_four_states();
+
+enum class TwoState { off, on };
+std::string twostate_enum_to_value(const TwoState state);
+TwoState twostate_value_to_enum(const std::string& value);
+std::list<TwoState> get_two_states();
+
+enum class TextAlignment { left, center, right, justify };
+std::string textalignment_enum_to_value(const TextAlignment alignment);
+TextAlignment textalignment_value_to_enum(const std::string& value);
+std::list<TextAlignment> get_text_alignments();
 
 
-#define AlignmentLeft      0 
-#define AlignmentCenter    1 
-#define AlignmentRight     2 
-#define AlignmentJustify   3 
+constexpr const char* white {"#FFFFFF"};
+constexpr const char* black {"#000000"};
 
 
-#define UserBool1None                      0 
-#define UserBool1PrintChapterAtFirstVerse  1 
-#define UserBool1NoteAppliesToApocrypha    3 
-#define UserBool1VerseRestartsParagraph    4 
+struct Paragraph {
+  int font_size {12};
+  TwoState italic {TwoState::off};
+  TwoState bold {TwoState::off};
+  TwoState underline {TwoState::off};
+  TwoState smallcaps {TwoState::off};
+  TextAlignment text_alignment {TextAlignment::left};
+  float space_before {0};
+  float space_after {0};
+  float left_margin {0};
+  float right_margin {0};
+  float first_line_indent{0};
+};
+
+std::ostream& operator<<(std::ostream& os, const Paragraph paragraph);
 
 
-#define UserBool2None                        0 
-#define UserBool2IdStartsOddPage             1  // \id: whether to start an odd page number. Not implemented due to limitations in OpenDocument.
-#define UserBool2ChapterInLeftRunningHeader  2  // Chapter number (\c): Whether to include it in the left running header.
-#define UserBool2RunningHeaderLeft           3  // Running header (\h(#): Whether to include it in the left running header. // Todo out
+struct Character {
+  FourState italic {FourState::off};
+  FourState bold {FourState::off};
+  FourState underline {FourState::off};
+  FourState smallcaps {FourState::off};
+  TwoState superscript {TwoState::off};
+  std::string foreground_color {black};
+  std::string background_color {white};
+};
+
+std::ostream& operator<<(std::ostream& os, const Character character);
 
 
-#define UserBool3None                          0 
-#define UserBool3ChapterInRightRunningHeader   1  // Chapter number (\c): Whether to include it in the right running header.
-#define UserBool3RunningHeaderRight            2  // Running header (\h(#): Whether to include it in the right running header. Todo out.
+struct Style final {
+  std::string marker {};
+  Type type {Type::none};
+  std::string name {};
+  std::string info {};
+  std::optional<Paragraph> paragraph {};
+  std::optional<Character> character {};
+  // The parameters indicate the enabled capabilities beyond the capabilities implied in the style type.
+  std::map<Property,Parameter> properties{};
+  std::string doc {};
+  Category category {};
+};
 
 
-#define UserInt1None               0 
-#define UserInt1NoteNumbering      1  // Applies to footnote, endnote, crossreference.
-#define UserInt1TableColumnNumber  2 
+inline bool operator==(const Style& style, const std::string& marker) noexcept { return style.marker == marker; }
+std::ostream& operator<<(std::ostream& os, const Style& style);
+bool has_property (const Style* style, const Property property);
+
+template<typename T>
+const T get_parameter(const Style* style, const Property property)
+{
+  if (style) {
+    const auto iter = style->properties.find(property);
+    if (iter != style->properties.cend()) {
+      const Parameter& parameter = iter->second;
+      if (std::holds_alternative<T>(parameter)) {
+        return std::get<T>(parameter);
+      }
+    }
+  }
+  T not_found {};
+  return not_found;
+}
 
 
-#define UserInt2None                   0 
-#define UserInt2NoteNumberingRestart   1  // Applies to footnote, crossreference.
-#define UserInt2EndnotePosition        2 
+extern const std::list<Style> styles;
 
 
-#define UserInt3None                   0 
+constexpr const char* notes_numbering_restart_never {"never"}; // Never restart the notes numbering.
+constexpr const char* notes_numbering_restart_book {"book"}; // Restart notes numbering every book.
+constexpr const char* notes_numbering_restart_chapter {"chapter"}; // Restart notes numbering every chapter.
+constexpr const char* notes_dump_book {"book"}; // Dump the endnotes at the end of each book.
+constexpr const char* notes_dump_end {"end"}; // Dump the endnotes at the very end of everything.
+
+bool starts_new_line_in_usfm (const Style* style);
+std::string validate_notes_dump (const std::string& input);
+std::string standard_sheet ();
 
 
-#define UserString1None                    0 
-#define UserString1NoteNumberingSequence   1 
-#define UserString1WordListEntryAddition   2  // Word list entries: text to add after entry.
-
-
-#define UserString2None              0 
-#define UserString2DumpEndnotesHere  1  // Endnotes: dump notes upon encountering this marker.
-
-
-#define UserString3None  0 
-
-
-#define NoteNumbering123   0 
-#define NoteNumberingAbc   1 
-#define NoteNumberingUser  2 
-
-
-#define NoteRestartNumberingNever         0 
-#define NoteRestartNumberingEveryBook     1 
-#define NoteRestartNumberingEveryChapter  2 
-
-
-#define EndNotePositionAfterBook  0 
-#define EndNotePositionVeryEnd    1 
-#define EndNotePositionAtMarker   2 
-
-
-std::string styles_logic_standard_sheet ();
-std::string styles_logic_category_text (std::string category);
-std::string styles_logic_type_text (int type);
-std::string styles_logic_subtype_text (int type, int subtype);
-bool styles_logic_fontsize_is_relevant (int type, int subtype);
-bool styles_logic_italic_bold_underline_smallcaps_are_relevant (int type, int subtype);
-bool styles_logic_italic_bold_underline_smallcaps_are_full (int type, int subtype);
-std::string styles_logic_off_on_inherit_toggle_text (int value);
-bool styles_logic_superscript_is_relevant (int type, int subtype);
-bool styles_logic_paragraph_treats_are_relevant (int type, int subtype);
-std::string styles_logic_alignment_text (int value);
-bool styles_logic_columns_are_relevant (int type, int subtype);
-bool styles_logic_color_is_relevant (int type, int subtype);
-bool styles_logic_print_is_relevant (int type, int subtype);
-int styles_logic_get_userbool1_function (int type, int subtype);
-std::string styles_logic_get_userbool1_text (int function);
-int styles_logic_get_userbool2_function (int type, int subtype);
-std::string styles_logic_get_userbool2_text (int function);
-int styles_logic_get_userbool3_function (int type, int subtype);
-std::string styles_logic_get_userbool3_text (int function);
-int styles_logic_get_userint1_function (int type, int subtype);
-std::string styles_logic_note_numbering_text (int value);
-int styles_logic_get_userint2_function (int type, int subtype);
-std::string styles_logic_note_restart_numbering_text (int value);
-std::string styles_logic_end_note_position_text (int value);
-int styles_logic_get_userint3_function (int type, int subtype);
-int styles_logic_get_userstring1_function (int type, int subtype);
-int styles_logic_get_userstring2_function (int type, int subtype);
-int styles_logic_get_userstring3_function (int type, int subtype);
-bool styles_logic_starts_new_line_in_usfm (int type, int subtype);
+} // Namespace.

@@ -46,6 +46,9 @@ passage_marker_value::passage_marker_value (int book, int chapter, std::string v
 // This class filters USFM text, converting it into other formats.
 
 
+const std::string chapter_marker {"c"};
+
+
 Filter_Text::Filter_Text (std::string bible)
 {
   m_bible = bible;
@@ -93,14 +96,17 @@ void Filter_Text::add_usfm_code (std::string usfm)
 // $stylesheet - The stylesheet to use.
 void Filter_Text::run (const std::string& stylesheet)
 {
+  // Save sthlesheet.
+  m_stylesheet = stylesheet;
+  
   // Get the styles.
-  get_styles (stylesheet);
+  get_styles();
 
   // Preprocess.
-  pre_process_usfm (stylesheet);
+  pre_process_usfm();
 
   // Process data.
-  process_usfm (stylesheet);
+  process_usfm ();
 
   store_verses_paragraphs ();
   
@@ -109,9 +115,7 @@ void Filter_Text::run (const std::string& stylesheet)
   usfm_markers_and_text_ptr = 0;
   chapter_usfm_markers_and_text.clear();
   chapter_usfm_markers_and_text_pointer = 0;
-  styles.clear();
-  chapterMarker.clear();
-  createdStyles.clear();
+  created_styles.clear();
 }
 
 
@@ -133,23 +137,11 @@ void Filter_Text::get_usfm_next_chapter ()
   chapter_usfm_markers_and_text_pointer = 0;
   bool firstLine = true;
 
-  // Obtain the standard marker for the chapter number.
-  // Deal with the unlikely case that the chapter marker is non-standard.
-  if (chapterMarker.empty()) {
-    chapterMarker = "c";
-    for (const auto & style : styles) {
-      if (style.second.type == StyleTypeChapterNumber) {
-        chapterMarker = style.second.marker;
-        break;
-      }
-    }
-  }
-
   // Load the USFM code till the next chapter marker.
   while (unprocessed_usfm_code_available ()) {
     std::string item = m_usfm_markers_and_text [usfm_markers_and_text_ptr];
     if (!firstLine) {
-      if (filter::strings::trim (item) == (R"(\)" + chapterMarker)) {
+      if (filter::strings::trim (item) == (R"(\)" + chapter_marker)) {
         return;
       }
     }
@@ -163,35 +155,29 @@ void Filter_Text::get_usfm_next_chapter ()
 
 // This function gets the styles from the database,
 // and stores them in the object for quicker access.
-void Filter_Text::get_styles (const std::string& stylesheet)
+void Filter_Text::get_styles ()
 {
-  styles.clear();
   // Get the relevant styles information included.
-  if (odf_text_standard) odf_text_standard->create_page_break_style ();
-  if (odf_text_text_only) odf_text_text_only->create_page_break_style ();
-  if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->create_page_break_style ();
-  if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->create_superscript_style ();
-  std::vector <std::string> markers = database::styles1::get_markers (stylesheet);
-  for (const auto& marker : markers) {
-    database::styles1::Item style = database::styles1::get_marker_data (stylesheet, marker);
-    styles [marker] = style;
-    if (style.type == StyleTypeFootEndNote) {
-      if (style.subtype == FootEndNoteSubtypeStandardContent) {
-        standard_content_marker_foot_end_note = style.marker;
-      }
-    }
-    if (style.type == StyleTypeCrossreference) {
-      if (style.subtype == CrossreferenceSubtypeStandardContent) {
-        standard_content_marker_cross_reference = style.marker;
-      }
-    }
+  if (odf_text_standard)
+    odf_text_standard->create_page_break_style ();
+  if (odf_text_text_only)
+    odf_text_text_only->create_page_break_style ();
+  if (odf_text_text_and_note_citations)
+    odf_text_text_and_note_citations->create_page_break_style ();
+  if (odf_text_text_and_note_citations)
+    odf_text_text_and_note_citations->create_superscript_style ();
+  for (const stylesv2::Style& style : database::styles::get_styles(m_stylesheet)) {
+    if (style.type == stylesv2::Type::note_standard_content)
+      standard_content_marker_foot_end_note = style.marker;
+    if (style.type == stylesv2::Type::crossreference_standard_content)
+      standard_content_marker_cross_reference = style.marker;
   }
 }
 
 
 // This function does the preprocessing of the USFM code
 // extracting a variety of information, creating note citations, etc.
-void Filter_Text::pre_process_usfm (const std::string& stylesheet)
+void Filter_Text::pre_process_usfm ()
 {
   usfm_markers_and_text_ptr = 0;
   while (unprocessed_usfm_code_available ()) {
@@ -202,118 +188,11 @@ void Filter_Text::pre_process_usfm (const std::string& stylesheet)
         std::string marker = filter::strings::trim (currentItem); // Change, e.g. '\id ' to '\id'.
         marker = marker.substr (1); // Remove the initial backslash, e.g. '\id' becomes 'id'.
         if (filter::usfm::is_opening_marker (marker)) {
-          if ((styles.find (marker) != styles.end()) && (!stylesv2::marker_moved_to_v2(marker, ""))) {
-            database::styles1::Item style = styles [marker];
-            note_citations.evaluate_style(style);
-            switch (style.type) {
-              case StyleTypeIdentifier:
-                switch (style.subtype) {
-                  case IdentifierSubtypeRunningHeader: // Todo move to v2
-                  {
-                    const std::string runningHeader = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-                    runningHeaders.push_back (filter::text::passage_marker_value (m_current_book_identifier, m_current_chapter_number, m_current_verse_number, marker, runningHeader));
-                    break;
-                  }
-                  case IdentifierSubtypeLongTOC:
-                  {
-                    const std::string longTOC = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-                    longTOCs.push_back (filter::text::passage_marker_value (m_current_book_identifier, m_current_chapter_number, m_current_verse_number, marker, longTOC));
-                    break;
-                  }
-                  case IdentifierSubtypeShortTOC:
-                  {
-                    const std::string shortTOC = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-                    shortTOCs.push_back (filter::text::passage_marker_value (m_current_book_identifier, m_current_chapter_number, m_current_verse_number, marker, shortTOC));
-                    break;
-                  }
-                  case IdentifierSubtypeBookAbbrev:
-                  {
-                    const std::string bookAbbreviation = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-                    bookAbbreviations.push_back (filter::text::passage_marker_value (m_current_book_identifier, m_current_chapter_number, m_current_verse_number, marker, bookAbbreviation));
-                    break;
-                  }
-                  case IdentifierSubtypeChapterLabel:
-                  {
-                    // Store the chapter label for this book and chapter.
-                    const std::string chapterLabel = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-                    chapterLabels.push_back (filter::text::passage_marker_value (m_current_book_identifier, m_current_chapter_number, m_current_verse_number, marker, chapterLabel));
-                    // If a chapter label is in the book, there's no drop caps output of the chapter number.
-                    book_has_chapter_label [m_current_book_identifier] = true;
-                    // Done.
-                    break;
-                  }
-                  case IdentifierSubtypePublishedChapterMarker:
-                  {
-                    const std::string publishedChapterMarker = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-                    publishedChapterMarkers.push_back (filter::text::passage_marker_value (m_current_book_identifier, m_current_chapter_number, m_current_verse_number, marker, publishedChapterMarker));
-                    break;
-                  }
-                  case IdentifierSubtypePublishedVerseMarker:
-                  {
-                    // It gets the published verse markup.
-                    // The marker looks like: ... \vp ၁။\vp* ...
-                    // It stores this markup in the object for later reference.
-                    const std::string publishedVerseMarker = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-                    publishedVerseMarkers.push_back (filter::text::passage_marker_value (m_current_book_identifier, m_current_chapter_number, m_current_verse_number, marker, publishedVerseMarker));
-                    break;
-                  }
-                  default: {
-                    break;
-                  }
-                }
-                break;
-              case StyleTypeChapterNumber:
-              {
-                const std::string number = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-                m_current_chapter_number = filter::strings::convert_to_int (number);
-                m_number_of_chapters_per_book[m_current_book_identifier] = m_current_chapter_number;
-                set_to_zero(m_current_verse_number);
-                break;
-              }
-              case StyleTypeVerseNumber:
-              {
-                const std::string fragment = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-                const int number = filter::strings::convert_to_int (fragment);
-                m_current_verse_number = std::to_string (number);
-                break;
-              }
-              case StyleTypeFootEndNote:
-              {
-                switch (style.subtype)
-                {
-                  case FootEndNoteSubtypeFootnote:
-                  case FootEndNoteSubtypeEndnote:
-                  case FootEndNoteSubtypeStandardContent:
-                  case FootEndNoteSubtypeContent:
-                  case FootEndNoteSubtypeContentWithEndmarker:
-                  case FootEndNoteSubtypeParagraph:
-                  default: {
-                    break;
-                  }
-                }
-                break;
-              }
-              case StyleTypeCrossreference:
-              {
-                switch (style.subtype)
-                {
-                  case CrossreferenceSubtypeCrossreference:
-                  case CrossreferenceSubtypeStandardContent:
-                  case CrossreferenceSubtypeContent:
-                  case CrossreferenceSubtypeContentWithEndmarker:
-                  default: {
-                    break;
-                  }
-                }
-                break;
-              }
-              default: {
-                break;
-              }
-            }
-          }
-          else if (const stylesv2::Style* style {database::styles2::get_marker_data (stylesheet, marker)}; style) {
+          if (const stylesv2::Style* style {database::styles::get_marker_data (m_stylesheet, marker)}; style) {
             switch (style->type) {
+              case stylesv2::Type::starting_boundary:
+              case stylesv2::Type::none:
+                break;
               case stylesv2::Type::book_id:
               {
                 // Get book number.
@@ -329,11 +208,129 @@ void Filter_Text::pre_process_usfm (const std::string& stylesheet)
                 // Done.
                 break;
               }
-              case stylesv2::Type::starting_boundary:
-              case stylesv2::Type::none:
+              case stylesv2::Type::usfm_version:
+              case stylesv2::Type::file_encoding:
+              case stylesv2::Type::remark:
+                break;
+              case stylesv2::Type::running_header:
+              {
+                const std::string running_header = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
+                runningHeaders.push_back (filter::text::passage_marker_value (m_current_book_identifier, m_current_chapter_number, m_current_verse_number, marker, running_header));
+                break;
+              }
+              case stylesv2::Type::long_toc_text:
+              {
+                const std::string long_toc = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
+                longTOCs.push_back (filter::text::passage_marker_value (m_current_book_identifier, m_current_chapter_number, m_current_verse_number, marker, long_toc));
+                break;
+              }
+              case stylesv2::Type::short_toc_text:
+              {
+                const std::string short_toc = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
+                shortTOCs.push_back (filter::text::passage_marker_value (m_current_book_identifier, m_current_chapter_number, m_current_verse_number, marker, short_toc));
+                break;
+              }
+              case stylesv2::Type::book_abbrev:
+              {
+                const std::string book_bbreviation = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
+                bookAbbreviations.push_back (filter::text::passage_marker_value (m_current_book_identifier, m_current_chapter_number, m_current_verse_number, marker, book_bbreviation));
+                break;
+              }
+              case stylesv2::Type::introduction_end:
+                break;
+              case stylesv2::Type::title:
+              case stylesv2::Type::heading:
+              case stylesv2::Type::paragraph:
+              {
+                break;
+              }
+              case stylesv2::Type::chapter:
+              {
+                const std::string number = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
+                m_current_chapter_number = filter::strings::convert_to_int (number);
+                m_number_of_chapters_per_book[m_current_book_identifier] = m_current_chapter_number;
+                set_to_zero(m_current_verse_number);
+                break;
+              }
+              case stylesv2::Type::chapter_label:
+              {
+                // Store the chapter label for this book and chapter.
+                const std::string chapter_label = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
+                chapter_labels.push_back (filter::text::passage_marker_value (m_current_book_identifier, m_current_chapter_number, m_current_verse_number, marker, chapter_label));
+                // If a chapter label is in the book, there's no drop caps output of the chapter number.
+                book_has_chapter_label [m_current_book_identifier] = true;
+                // Done.
+                break;
+              }
+              case stylesv2::Type::published_chapter_marker:
+              {
+                const std::string published_chapter_marker = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
+                published_chapter_markers.push_back (filter::text::passage_marker_value (m_current_book_identifier, m_current_chapter_number, m_current_verse_number, marker, published_chapter_marker));
+                break;
+              }
+              case stylesv2::Type::alternate_chapter_number:
+              {
+                const std::string alternate_chapter_number = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
+                alternate_chapter_numbers.push_back (filter::text::passage_marker_value (m_current_book_identifier, m_current_chapter_number, m_current_verse_number, marker, alternate_chapter_number));
+                break;
+              }
+              case stylesv2::Type::verse:
+              {
+                const std::string fragment = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
+                const int number = filter::strings::convert_to_int (fragment);
+                m_current_verse_number = std::to_string (number);
+                break;
+              }
+              case stylesv2::Type::published_verse_marker:
+              {
+                // It gets the published verse markup.
+                // The marker looks like: ... \vp ၁။\vp* ...
+                // It stores this markup in the object for later reference.
+                const std::string published_verse_marker = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
+                published_verse_markers.push_back (filter::text::passage_marker_value (m_current_book_identifier, m_current_chapter_number, m_current_verse_number, marker, published_verse_marker));
+                break;
+              }
+              case stylesv2::Type::alternate_verse_marker:
+                break;
+              case stylesv2::Type::table_row:
+              case stylesv2::Type::table_heading:
+              case stylesv2::Type::table_cell:
+                break;
+              case stylesv2::Type::footnote_wrapper:
+              case stylesv2::Type::endnote_wrapper:
+                note_citations.evaluate_style(*style);
+                break;
+              case stylesv2::Type::note_standard_content:
+              case stylesv2::Type::note_content:
+              case stylesv2::Type::note_content_with_endmarker:
+              case stylesv2::Type::note_paragraph:
+                break;
+              case stylesv2::Type::crossreference_wrapper:
+                note_citations.evaluate_style(*style);
+                break;
+              case stylesv2::Type::crossreference_standard_content:
+              case stylesv2::Type::crossreference_content:
+              case stylesv2::Type::crossreference_content_with_endmarker:
+                break;
+              case stylesv2::Type::character:
+                break;
+              case stylesv2::Type::page_break:
+                break;
+              case stylesv2::Type::figure:
+                break;
+              case stylesv2::Type::word_list:
+                break;
+              case stylesv2::Type::sidebar_begin:
+              case stylesv2::Type::sidebar_end:
+                break;
+              case stylesv2::Type::peripheral:
+                break;
               case stylesv2::Type::stopping_boundary:
               default:
                 break;
+            }
+            if (stylesv2::has_property(style,stylesv2::Property::deprecated)) {
+              add_to_info (R"(Deprecated marker: \)" + marker, false);
             }
           }
         }
@@ -346,7 +343,7 @@ void Filter_Text::pre_process_usfm (const std::string& stylesheet)
 
 // This function does the processing of the USFM code,
 // formatting the document and extracting other useful information.
-void Filter_Text::process_usfm (const std::string& stylesheet)
+void Filter_Text::process_usfm ()
 {
   // Go through the USFM code.
   int processed_books_count {0};
@@ -364,195 +361,190 @@ void Filter_Text::process_usfm (const std::string& stylesheet)
         const std::string marker = filter::usfm::get_marker (current_item);
         // Strip word-level attributes.
         if (is_opening_marker) filter::usfm::remove_word_level_attributes (marker, chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-        if ((styles.find (marker) != styles.end()) && (!stylesv2::marker_moved_to_v2(marker, ""))) // Todo
-        {
-          // Deal with a known style.
-          const database::styles1::Item& style = styles.at(marker);
-          switch (style.type)
-          {
-            case StyleTypeIdentifier:
+        if (const stylesv2::Style* style {database::styles::get_marker_data (m_stylesheet, marker)}; style) {
+          switch (style->type) {
+            case stylesv2::Type::starting_boundary:
+            case stylesv2::Type::none:
+              break;
+            case stylesv2::Type::book_id:
             {
-              switch (style.subtype)
-              {
-                case IdentifierSubtypeRunningHeader: // Todo move to v2.
-                {
-                  close_text_style_all();
-                  // This information was processed during the preprocessing stage.
-                  std::string runningHeader = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-                  // Ideally this information should be inserted in the headers of the standard text document.
-                  // UserBool2RunningHeaderLeft:
-                  // UserBool3RunningHeaderRight:
-                  break;
-                }
-                case IdentifierSubtypeLongTOC:
-                {
-                  close_text_style_all();
-                  // This information already went into the Info document. Remove it from the USFM stream.
-                  filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-                  break;
-                }
-                case IdentifierSubtypeShortTOC:
-                {
-                  close_text_style_all();
-                  // This information already went into the Info document. Remove it from the USFM stream.
-                  filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-                  break;
-                }
-                case IdentifierSubtypeBookAbbrev:
-                {
-                  close_text_style_all();
-                  // This information already went into the Info document. Remove it from the USFM stream.
-                  filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-                  break;
-                }
-                case IdentifierSubtypeChapterLabel:
-                {
-                  close_text_style_all();
-                  // This information is already in the object. Remove it from the USFM stream.
-                  filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-                  break;
-                }
-                case IdentifierSubtypePublishedChapterMarker:
-                {
-                  close_text_style_all();
-                  // This information is already in the object.
-                  // Remove it from the USFM stream.
-                  filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-                  break;
-                }
-                case IdentifierSubtypeCommentWithEndmarker:
-                {
-                  close_text_style_all();
-                  if (is_opening_marker) {
-                    add_to_info (R"(Comment: \)" + marker, true);
-                  }
-                  break;
-                }
-                case IdentifierSubtypePublishedVerseMarker:
-                {
-                  close_text_style_all();
-                  if (is_opening_marker) {
-                    // This information is already in the object.
-                    // Remove it from the USFM stream at the opening marker.
-                    filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-                  } else {
-                    // USFM allows the closing marker \vp* to be followed by a space.
-                    // But this space should not be converted to text output.
-                    // https://github.com/bibledit/cloud/issues/311
-                    // It is going to be removed here.
-                    const size_t pointer = chapter_usfm_markers_and_text_pointer + 1;
-                    if (pointer < chapter_usfm_markers_and_text.size()) {
-                      std::string text = chapter_usfm_markers_and_text[pointer];
-                      text = filter::strings::ltrim (text);
-                      chapter_usfm_markers_and_text[pointer] = text;
-                    }
-                  }
-                  break;
-                }
-                default:
-                {
-                  close_text_style_all();
-                  addToFallout (R"(Unknown markup: \)" + marker, true);
-                  break;
+              close_text_style_all();
+              // Get book number.
+              std::string usfm_id = filter::usfm::get_book_identifier (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
+              usfm_id = filter::strings::replace (filter::strings::soft_hyphen_u00AD (), "", usfm_id); // Remove possible soft hyphen.
+              m_current_book_identifier = static_cast<int>(database::books::get_id_from_usfm (usfm_id));
+              // Reset chapter and verse numbers.
+              m_current_chapter_number = 0;
+              set_to_zero(m_current_verse_number);
+              // Throw away whatever follows the \id, e.g. 'GEN xxx xxx'.
+              filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
+              // Whether to insert a new page before the book. But never before the first book.
+              if (stylesv2::get_parameter<bool>(style, stylesv2::Property::starts_new_page)) {
+                if (processed_books_count) {
+                  if (odf_text_standard) odf_text_standard->new_page_break ();
+                  if (odf_text_text_only) odf_text_text_only->new_page_break ();
+                  if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->new_page_break ();
+                  if (html_text_standard) html_text_standard->new_page_break ();
+                  if (html_text_linked) html_text_linked->new_page_break ();
                 }
               }
-              break;
-            }
-            case StyleTypeNotUsedComment:
-            {
-              addToFallout (R"(Unknown markup: \)" + marker, true);
-              break;
-            }
-            case StyleTypeNotUsedRunningHeader:
-            {
-              addToFallout (R"(Unknown markup: \)" + marker, true);
-              break;
-            }
-            case StyleTypeStartsParagraph:
-            {
-              if (odf_text_standard) odf_text_standard->close_text_style (false, false);
-              if (odf_text_text_only) odf_text_text_only->close_text_style (false, false);
-              if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->close_text_style (false, false);
-              if (odf_text_notes) odf_text_notes->close_text_style (false, false);
-              if (html_text_standard) html_text_standard->close_text_style (false, false);
-              if (html_text_linked) html_text_linked->close_text_style (false, false);
-              switch (style.subtype)
-              {
-                case ParagraphSubtypeMainTitle:
-                case ParagraphSubtypeSubTitle:
-                case ParagraphSubtypeSectionHeading:
-                {
-                  new_paragraph (style, true);
-                  heading_started = true;
-                  text_started = false;
-                  break;
-                }
-                case ParagraphSubtypeNormalParagraph:
-                default:
-                {
-                  new_paragraph (style, false);
-                  heading_started = false;
-                  text_started = true;
-                  if (headings_text_per_verse_active) {
-                    // If a new paragraph starts within an existing verse,
-                    // add a space to the text already in that verse.
-                    int iverse = filter::strings::convert_to_int (m_current_verse_number);
-                    if (m_verses_text.count (iverse) && !m_verses_text [iverse].empty ()) {
-                      m_verses_text [iverse].append (" ");
-                    }
-                    // Record the style that started this new paragraph.
-                    paragraph_starting_markers.push_back (style.marker);
-                    // Store previous paragraph, if any, and start recording the new one.
-                    store_verses_paragraphs ();
-                  }
-                  break;
-                }
-              }
-              break;
-            }
-            case StyleTypeInlineText:
-            {
-              // Support for a normal and an embedded character style.
-              if (is_opening_marker) {
-                if (odf_text_standard) odf_text_standard->open_text_style (style, false, is_embedded_marker);
-                if (odf_text_text_only) odf_text_text_only->open_text_style (style, false, is_embedded_marker);
-                if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->open_text_style (style, false, is_embedded_marker);
-                if (html_text_standard) html_text_standard->open_text_style (style, false, is_embedded_marker);
-                if (html_text_linked) html_text_linked->open_text_style (style, false, is_embedded_marker);
-              } else {
-                if (odf_text_standard) odf_text_standard->close_text_style (false, is_embedded_marker);
-                if (odf_text_text_only) odf_text_text_only->close_text_style (false, is_embedded_marker);
-                if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->close_text_style (false, is_embedded_marker);
-                if (html_text_standard) html_text_standard->close_text_style (false, is_embedded_marker);
-                if (html_text_linked) html_text_linked->close_text_style (false, is_embedded_marker);
-              }
-              break;
-            }
-            case StyleTypeChapterNumber:
-            {
-              if (odf_text_standard) odf_text_standard->close_text_style (false, false);
-              if (odf_text_text_only) odf_text_text_only->close_text_style (false, false);
-              if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->close_text_style (false, false);
-              if (odf_text_notes) odf_text_notes->close_text_style (false, false);
-              if (html_text_standard) html_text_standard->close_text_style (false, false);
-              if (html_text_linked) html_text_linked->close_text_style (false, false);
-
+              processed_books_count++;
+              // Reset notes.
+              note_citations.restart(stylesv2::notes_numbering_restart_book);
+              // Online Bible.
               if (onlinebible_text) onlinebible_text->storeData ();
-
+              // eSword.
+              if (esword_text) esword_text->newBook (m_current_book_identifier);
+              // The hidden header in the text normally displays in the running header.
+              // It does this only when it's the first header on the page.
+              // The book starts here.
+              // So create a correct hidden header for displaying in the running header.
+              std::string runningHeader = database::books::get_english_from_id (static_cast<book_id>(m_current_book_identifier));
+              for (const auto& item : runningHeaders) {
+                if (item.m_book == m_current_book_identifier) {
+                  runningHeader = item.m_value;
+                }
+              }
+              if (odf_text_standard) odf_text_standard->new_heading1 (runningHeader, true);
+              if (odf_text_text_only) odf_text_text_only->new_heading1 (runningHeader, true);
+              if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->new_heading1 (runningHeader, true);
+              if (odf_text_notes) odf_text_notes->new_heading1 (runningHeader, false);
+              // Done.
+              break;
+            }
+            case stylesv2::Type::usfm_version:
+            {
+              close_text_style_all();
+              add_to_info (R"(USFM version: \)" + marker, true);
+              break;
+            }
+            case stylesv2::Type::file_encoding:
+            {
+              close_text_style_all();
+              add_to_info (R"(Text encoding: \)" + marker, true);
+              break;
+            }
+            case stylesv2::Type::remark:
+            {
+              close_text_style_all();
+              add_to_info (R"(Comment: \)" + marker, true);
+              break;
+            }
+            case stylesv2::Type::running_header:
+              // The running header has properties about wheter to output the running header,
+              // on the left page, on the right page, or on both.
+              // This has not been implemented here.
+              // It were better if this had been implemented.
+            case stylesv2::Type::long_toc_text:
+            case stylesv2::Type::short_toc_text:
+            case stylesv2::Type::book_abbrev:
+            {
+              close_text_style_all();
+              // This information already is preprocessed. Remove it from the USFM stream.
+              filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
+              break;
+            }
+            case stylesv2::Type::introduction_end:
+            {
+              close_text_style_all();
+              add_to_info (R"(Introduction end: \)" + marker, false);
+              break;
+            }
+            case stylesv2::Type::title:
+            case stylesv2::Type::heading:
+            {
+              if (is_opening_marker) {
+                if (odf_text_standard)
+                  odf_text_standard->close_text_style (false, false);
+                if (odf_text_text_only)
+                  odf_text_text_only->close_text_style (false, false);
+                if (odf_text_text_and_note_citations)
+                  odf_text_text_and_note_citations->close_text_style (false, false);
+                if (odf_text_notes)
+                  odf_text_notes->close_text_style (false, false);
+                if (html_text_standard)
+                  html_text_standard->close_text_style (false, false);
+                if (html_text_linked)
+                  html_text_linked->close_text_style (false, false);
+                new_paragraph (style, true);
+                heading_started = true;
+                text_started = false;
+              }
+              break;
+            }
+            case stylesv2::Type::paragraph:
+            {
+              if (is_opening_marker) {
+                if (odf_text_standard)
+                  odf_text_standard->close_text_style (false, false);
+                if (odf_text_text_only)
+                  odf_text_text_only->close_text_style (false, false);
+                if (odf_text_text_and_note_citations)
+                  odf_text_text_and_note_citations->close_text_style (false, false);
+                if (odf_text_notes)
+                  odf_text_notes->close_text_style (false, false);
+                if (html_text_standard)
+                  html_text_standard->close_text_style (false, false);
+                if (html_text_linked)
+                  html_text_linked->close_text_style (false, false);
+                new_paragraph (style, false);
+                heading_started = false;
+                text_started = true;
+                if (headings_text_per_verse_active) {
+                  // If a new paragraph starts within an existing verse,
+                  // add a space to the text already in that verse.
+                  int iverse = filter::strings::convert_to_int (m_current_verse_number);
+                  if (m_verses_text.count (iverse) && !m_verses_text [iverse].empty ()) {
+                    m_verses_text [iverse].append (" ");
+                  }
+                  // Record the style that started this new paragraph.
+                  paragraph_starting_markers.push_back (marker);
+                  // Store previous paragraph, if any, and start recording the new one.
+                  store_verses_paragraphs ();
+                }
+              }
+              break;
+            }
+            case stylesv2::Type::chapter:
+            {
+              if (odf_text_standard)
+                odf_text_standard->close_text_style (false, false);
+              if (odf_text_text_only)
+                odf_text_text_only->close_text_style (false, false);
+              if (odf_text_text_and_note_citations)
+                odf_text_text_and_note_citations->close_text_style (false, false);
+              if (odf_text_notes)
+                odf_text_notes->close_text_style (false, false);
+              if (html_text_standard)
+                html_text_standard->close_text_style (false, false);
+              if (html_text_linked)
+                html_text_linked->close_text_style (false, false);
+              if (onlinebible_text)
+                onlinebible_text->storeData ();
+              
               // Get the chapter number.
               std::string usfm_c_fragment = filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-              int chapter_number = filter::strings::convert_to_int (usfm_c_fragment);
-
+              
               // Update this object.
-              m_current_chapter_number = chapter_number;
+              m_current_chapter_number = filter::strings::convert_to_int (usfm_c_fragment);
               set_to_zero(m_current_verse_number);
-
+              
               // If there is a published chapter character, the chapter number takes that value.
-              for (const auto& published_chapter_marker : publishedChapterMarkers) {
+              for (const auto& published_chapter_marker : published_chapter_markers) {
                 if (published_chapter_marker.m_book == m_current_book_identifier) {
                   if (published_chapter_marker.m_chapter == m_current_chapter_number) {
                     usfm_c_fragment = published_chapter_marker.m_value;
-                    chapter_number = filter::strings::convert_to_int (usfm_c_fragment);
+                  }
+                }
+              }
+
+              // If there's an alternate chapter number, append this to the chapter number fragment.
+              for (const auto& alternate_chapter_number : alternate_chapter_numbers) {
+                if (alternate_chapter_number.m_book == m_current_book_identifier) {
+                  if (alternate_chapter_number.m_chapter == m_current_chapter_number) {
+                    usfm_c_fragment.append(" (");
+                    usfm_c_fragment.append (alternate_chapter_number.m_value);
+                    usfm_c_fragment.append(")");
                   }
                 }
               }
@@ -564,15 +556,20 @@ void Filter_Text::process_usfm (const std::string& stylesheet)
                   running_header = item.m_value;
                 }
               }
-              running_header += (" " + usfm_c_fragment);
-              if (odf_text_standard) odf_text_standard->new_heading1 (running_header, true);
-              if (odf_text_text_only) odf_text_text_only->new_heading1 (running_header, true);
-              if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->new_heading1 (running_header, true);
-              if (odf_text_notes) odf_text_notes->new_heading1 (running_header, false);
-
+              running_header.append(" ");
+              running_header.append(usfm_c_fragment);
+              if (odf_text_standard)
+                odf_text_standard->new_heading1 (running_header, true);
+              if (odf_text_text_only)
+                odf_text_text_only->new_heading1 (running_header, true);
+              if (odf_text_text_and_note_citations)
+                odf_text_text_and_note_citations->new_heading1 (running_header, true);
+              if (odf_text_notes)
+                odf_text_notes->new_heading1 (running_header, false);
+              
               // This is the phase of outputting the chapter number in the text body.
               // It always outputs the chapter number to the clear text export.
-              if (text_text) { 
+              if (text_text) {
                 text_text->paragraph (usfm_c_fragment);
               }
               // The chapter number is only output when there is more than one chapter in a book.
@@ -583,7 +580,7 @@ void Filter_Text::process_usfm (const std::string& stylesheet)
                 // Putting the chapter number at the first verse is determined by the style of the \c marker.
                 // But if a chapter label (\cl) is found in the current book, that disables the above.
                 const bool cl_found = book_has_chapter_label[m_current_book_identifier];
-                if (style.userbool1 && !cl_found) {
+                if (stylesv2::get_parameter<bool>(style, stylesv2::Property::at_first_verse) && !cl_found) {
                   // Output the chapter number at the first verse, not here.
                   // Store it for later processing.
                   m_output_chapter_text_at_first_verse = usfm_c_fragment;
@@ -596,13 +593,13 @@ void Filter_Text::process_usfm (const std::string& stylesheet)
                   // (usually done if numbers are being presented as words, not numerals).
                   std::string labelEntireBook {};
                   std::string labelCurrentChapter {};
-                  for (const auto& pchapterLabel : chapterLabels) {
-                    if (pchapterLabel.m_book == m_current_book_identifier) {
-                      if (pchapterLabel.m_chapter == 0) {
-                        labelEntireBook = pchapterLabel.m_value;
+                  for (const auto& chapter_label : chapter_labels) {
+                    if (chapter_label.m_book == m_current_book_identifier) {
+                      if (chapter_label.m_chapter == 0) {
+                        labelEntireBook = chapter_label.m_value;
                       }
-                      if (pchapterLabel.m_chapter == m_current_chapter_number) {
-                        labelCurrentChapter = pchapterLabel.m_value;
+                      if (chapter_label.m_chapter == m_current_chapter_number) {
+                        labelCurrentChapter = chapter_label.m_value;
                       }
                     }
                   }
@@ -615,42 +612,76 @@ void Filter_Text::process_usfm (const std::string& stylesheet)
                   // The chapter number shows in a new paragraph.
                   // Keep it together with the next paragraph.
                   new_paragraph (style, true);
-                  if (odf_text_standard) odf_text_standard->add_text (usfm_c_fragment);
-                  if (odf_text_text_only) odf_text_text_only->add_text (usfm_c_fragment);
-                  if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->add_text (usfm_c_fragment);
-                  if (html_text_standard) html_text_standard->add_text (usfm_c_fragment);
-                  if (html_text_linked) html_text_linked->add_text (usfm_c_fragment);
+                  if (odf_text_standard)
+                    odf_text_standard->add_text (usfm_c_fragment);
+                  if (odf_text_text_only)
+                    odf_text_text_only->add_text (usfm_c_fragment);
+                  if (odf_text_text_and_note_citations)
+                    odf_text_text_and_note_citations->add_text (usfm_c_fragment);
+                  if (html_text_standard)
+                    html_text_standard->add_text (usfm_c_fragment);
+                  if (html_text_linked)
+                    html_text_linked->add_text (usfm_c_fragment);
                 }
               }
-
+              
               // Output chapter number for other formats.
-              if (esword_text) esword_text->newChapter (m_current_chapter_number);
-
+              if (esword_text)
+                esword_text->newChapter (m_current_chapter_number);
+              
               // Open a paragraph for the notes.
               // It takes the style of the footnote content marker, usually 'ft'.
               // This is done specifically for the version that has the notes only.
-              ensureNoteParagraphStyle (standard_content_marker_foot_end_note, styles[standard_content_marker_foot_end_note]);
-              if (odf_text_notes) odf_text_notes->new_paragraph (standard_content_marker_foot_end_note);
-              // UserBool2ChapterInLeftRunningHeader -> no headings implemented yet.
-              // UserBool3ChapterInRightRunningHeader -> no headings implemented yet.
-
+              const stylesv2::Style* ft_style = database::styles::get_marker_data(m_stylesheet, standard_content_marker_foot_end_note);
+              ensure_note_paragraph_style (standard_content_marker_foot_end_note, ft_style);
+              if (odf_text_notes)
+                odf_text_notes->new_paragraph (standard_content_marker_foot_end_note);
+              // Property::on_left_page -> no headings implemented yet.
+              // Property::on_right_page -> no headings implemented yet.
+              
               // Reset.
-              note_citations.restart("chapter");
-
+              note_citations.restart(stylesv2::notes_numbering_restart_chapter);
+              
               // Done.
               break;
             }
-            case StyleTypeVerseNumber:
+
+            case stylesv2::Type::chapter_label:
+            case stylesv2::Type::published_chapter_marker:
             {
-              if (odf_text_standard) odf_text_standard->close_text_style (false, false);
-              if (odf_text_text_only) odf_text_text_only->close_text_style (false, false);
-              if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->close_text_style (false, false);
-              if (odf_text_notes) odf_text_notes->close_text_style (false, false);
-              if (html_text_standard) html_text_standard->close_text_style (false, false);
-              if (html_text_linked) html_text_linked->close_text_style (false, false);
-              if (onlinebible_text) onlinebible_text->storeData ();
+              close_text_style_all();
+              // This information already is preprocessed. Remove it from the USFM stream.
+              filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
+              break;
+            }
+            case stylesv2::Type::alternate_chapter_number:
+            {
+              close_text_style_all();
+              if (is_opening_marker) {
+                // This information is already in the object.
+                // Remove it from the USFM stream at the opening marker.
+                filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
+              }
+              // Do nothing with the closing marker.
+            }
+            case stylesv2::Type::verse:
+            {
+              if (odf_text_standard)
+                odf_text_standard->close_text_style (false, false);
+              if (odf_text_text_only)
+                odf_text_text_only->close_text_style (false, false);
+              if (odf_text_text_and_note_citations)
+                odf_text_text_and_note_citations->close_text_style (false, false);
+              if (odf_text_notes)
+                odf_text_notes->close_text_style (false, false);
+              if (html_text_standard)
+                html_text_standard->close_text_style (false, false);
+              if (html_text_linked)
+                html_text_linked->close_text_style (false, false);
+              if (onlinebible_text)
+                onlinebible_text->storeData ();
               // Handle a situation that a verse number starts a new paragraph.
-              if (style.userbool1) {
+              if (stylesv2::get_parameter<bool>(style, stylesv2::Property::restart_paragraph)) {
                 if (odf_text_standard) {
                   if (!odf_text_standard->m_current_paragraph_content.empty()) {
                     odf_text_standard->new_paragraph (odf_text_standard->m_current_paragraph_style);
@@ -677,26 +708,26 @@ void Filter_Text::process_usfm (const std::string& stylesheet)
                   }
                 }
                 if (text_text) {
-                  text_text->paragraph (); 
+                  text_text->paragraph ();
                 }
               }
               // Deal with the case of a pending chapter number.
               if (!m_output_chapter_text_at_first_verse.empty()) {
                 if (!database::config::bible::get_export_chapter_drop_caps_frames (m_bible)) {
-                  int dropCapsLength = static_cast<int>( filter::strings::unicode_string_length (m_output_chapter_text_at_first_verse));
-                  applyDropCapsToCurrentParagraph (dropCapsLength);
+                  const int drop_caps_length = static_cast<int>( filter::strings::unicode_string_length (m_output_chapter_text_at_first_verse));
+                  apply_drop_caps_to_current_paragraph (drop_caps_length);
                   if (odf_text_standard) odf_text_standard->add_text (m_output_chapter_text_at_first_verse);
                   if (odf_text_text_only) odf_text_text_only->add_text (m_output_chapter_text_at_first_verse);
                   if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->add_text (m_output_chapter_text_at_first_verse);
                 } else {
-                  putChapterNumberInFrame (m_output_chapter_text_at_first_verse);
+                  put_chapter_number_in_frame (m_output_chapter_text_at_first_verse);
                 }
-                database::styles1::Item styleItem = database::styles1::Item ();
-                styleItem.marker = "dropcaps";
-                if (html_text_standard) html_text_standard->open_text_style (styleItem, false, false);
+                stylesv2::Style dropcaps_style{};
+                dropcaps_style.marker = "dropcaps";
+                if (html_text_standard) html_text_standard->open_text_style (&dropcaps_style, false, false);
                 if (html_text_standard) html_text_standard->add_text (m_output_chapter_text_at_first_verse);
                 if (html_text_standard) html_text_standard->close_text_style (false, false);
-                if (html_text_linked) html_text_linked->open_text_style (styleItem, false, false);
+                if (html_text_linked) html_text_linked->open_text_style (&dropcaps_style, false, false);
                 if (html_text_linked) html_text_linked->add_text (m_output_chapter_text_at_first_verse);
                 if (html_text_linked) html_text_linked->close_text_style (false, false);
               }
@@ -707,7 +738,7 @@ void Filter_Text::process_usfm (const std::string& stylesheet)
               m_current_verse_number = v_number;
               // In case there was a published verse marker, use that markup for publishing.
               std::string v_vp_number = v_number;
-              for (const auto& publishedVerseMarker : publishedVerseMarkers) {
+              for (const auto& publishedVerseMarker : published_verse_markers) {
                 if (publishedVerseMarker.m_book == m_current_book_identifier) {
                   if (publishedVerseMarker.m_chapter == m_current_chapter_number) {
                     if (publishedVerseMarker.m_verse == m_current_verse_number) {
@@ -744,24 +775,39 @@ void Filter_Text::process_usfm (const std::string& stylesheet)
                     html_text_linked->add_text (" ");
                   }
                 }
-                if (odf_text_standard) odf_text_standard->open_text_style (style, false, false);
-                if (odf_text_text_only) odf_text_text_only->open_text_style (style, false, false);
-                if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->open_text_style (style, false, false);
-                if (html_text_standard) html_text_standard->open_text_style (style, false, false);
-                if (html_text_linked) html_text_linked->open_text_style (style, false, false);
-                if (odf_text_standard) odf_text_standard->add_text (v_vp_number);
-                if (odf_text_text_only) odf_text_text_only->add_text (v_vp_number);
-                if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->add_text (v_vp_number);
-                if (html_text_standard) html_text_standard->add_text (v_vp_number);
-                if (html_text_linked) html_text_linked->add_text (v_vp_number);
-                if (odf_text_standard) odf_text_standard->close_text_style (false, false);
-                if (odf_text_text_only) odf_text_text_only->close_text_style (false, false);
-                if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->close_text_style (false, false);
-                if (html_text_standard) html_text_standard->close_text_style (false, false);
-                if (html_text_linked) html_text_linked->close_text_style (false, false);
+                if (odf_text_standard)
+                  odf_text_standard->open_text_style (style, false, false);
+                if (odf_text_text_only)
+                  odf_text_text_only->open_text_style (style, false, false);
+                if (odf_text_text_and_note_citations)
+                  odf_text_text_and_note_citations->open_text_style (style, false, false);
+                if (html_text_standard)
+                  html_text_standard->open_text_style (style, false, false);
+                if (html_text_linked)
+                  html_text_linked->open_text_style (style, false, false);
+                if (odf_text_standard)
+                  odf_text_standard->add_text (v_vp_number);
+                if (odf_text_text_only)
+                  odf_text_text_only->add_text (v_vp_number);
+                if (odf_text_text_and_note_citations)
+                  odf_text_text_and_note_citations->add_text (v_vp_number);
+                if (html_text_standard)
+                  html_text_standard->add_text (v_vp_number);
+                if (html_text_linked)
+                  html_text_linked->add_text (v_vp_number);
+                if (odf_text_standard)
+                  odf_text_standard->close_text_style (false, false);
+                if (odf_text_text_only)
+                  odf_text_text_only->close_text_style (false, false);
+                if (odf_text_text_and_note_citations)
+                  odf_text_text_and_note_citations->close_text_style (false, false);
+                if (html_text_standard)
+                  html_text_standard->close_text_style (false, false);
+                if (html_text_linked)
+                  html_text_linked->close_text_style (false, false);
               }
               // Plain text output.
-              if (text_text) { 
+              if (text_text) {
                 if (!text_text->line ().empty()) {
                   text_text->addtext (" ");
                 }
@@ -820,58 +866,147 @@ void Filter_Text::process_usfm (const std::string& stylesheet)
               // Done.
               break;
             }
-            case StyleTypeFootEndNote:
+            case stylesv2::Type::published_verse_marker:
             {
-              processNote (); 
+              close_text_style_all();
+              if (is_opening_marker) {
+                // This information is already in the object.
+                // Remove it from the USFM stream at the opening marker.
+                filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
+              } else {
+                // USFM allows the closing marker \vp* to be followed by a space.
+                // But this space should not be converted to text output.
+                // https://github.com/bibledit/cloud/issues/311
+                // It is going to be removed here.
+                const size_t pointer = chapter_usfm_markers_and_text_pointer + 1;
+                if (pointer < chapter_usfm_markers_and_text.size()) {
+                  std::string text = chapter_usfm_markers_and_text[pointer];
+                  text = filter::strings::ltrim (text);
+                  chapter_usfm_markers_and_text[pointer] = text;
+                }
+              }
               break;
             }
-            case StyleTypeCrossreference:
+            case stylesv2::Type::alternate_verse_marker:
+            {
+              if (is_opening_marker) {
+                add_to_info("Alternate verse marker:", true);
+              }
+              break;
+            }
+            case stylesv2::Type::table_row:
+            {
+              if (odf_text_standard)
+                odf_text_standard->close_text_style (false, false);
+              if (odf_text_text_only)
+                odf_text_text_only->close_text_style (false, false);
+              if (odf_text_text_and_note_citations)
+                odf_text_text_and_note_citations->close_text_style (false, false);
+              if (odf_text_notes)
+                odf_text_notes->close_text_style (false, false);
+              if (html_text_standard)
+                html_text_standard->close_text_style (false, false);
+              if (html_text_linked)
+                html_text_linked->close_text_style (false, false);
+              add_to_fallout ("Table elements not implemented", false);
+              break;
+            }
+            case stylesv2::Type::table_heading:
+            case stylesv2::Type::table_cell:
+            {
+              if (odf_text_standard)
+                odf_text_standard->close_text_style (false, false);
+              if (odf_text_text_only)
+                odf_text_text_only->close_text_style (false, false);
+              if (odf_text_text_and_note_citations)
+                odf_text_text_and_note_citations->close_text_style (false, false);
+              if (odf_text_notes)
+                odf_text_notes->close_text_style (false, false);
+              if (html_text_standard)
+                html_text_standard->close_text_style (false, false);
+              if (html_text_linked)
+                html_text_linked->close_text_style (false, false);
+              new_paragraph (style, false);
+              break;
+            }
+              
+            case stylesv2::Type::footnote_wrapper:
+            case stylesv2::Type::endnote_wrapper:
+            case stylesv2::Type::note_standard_content:
+            case stylesv2::Type::note_content:
+            case stylesv2::Type::note_content_with_endmarker:
+            case stylesv2::Type::note_paragraph:
             {
               processNote ();
               break;
             }
-            case StyleTypePeripheral:
+
+            case stylesv2::Type::crossreference_wrapper:
+            case stylesv2::Type::crossreference_standard_content:
+            case stylesv2::Type::crossreference_content:
+            case stylesv2::Type::crossreference_content_with_endmarker:
             {
-              if (odf_text_standard) odf_text_standard->close_text_style (false, false);
-              if (odf_text_text_only) odf_text_text_only->close_text_style (false, false);
-              if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->close_text_style (false, false);
-              if (odf_text_notes) odf_text_notes->close_text_style (false, false);
-              if (html_text_standard) html_text_standard->close_text_style (false, false);
-              if (html_text_linked) html_text_linked->close_text_style (false, false);
-              switch (style.subtype)
-              {
-                case PeripheralSubtypePublication:
-                case PeripheralSubtypeTableOfContents:
-                case PeripheralSubtypePreface:
-                case PeripheralSubtypeIntroduction:
-                case PeripheralSubtypeGlossary:
-                case PeripheralSubtypeConcordance:
-                case PeripheralSubtypeIndex:
-                case PeripheralSubtypeMapIndex:
-                case PeripheralSubtypeCover:
-                case PeripheralSubtypeSpine:
-                {
-                  addToFallout (R"(Unknown pheripheral marker \)" + marker, false);
-                  break;
-                }
-                case PeripheralSubtypeGeneral:
-                {
-                  add_to_info(R"(Pheripheral markup: \)" + marker, true);
-                  // To start peripheral material o a new page.
-                  // https://ubsicap.github.io/usfm/peripherals/index.html
-                  if (odf_text_standard) odf_text_standard->new_page_break ();
-                  if (odf_text_text_only) odf_text_text_only->new_page_break ();
-                  if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->new_page_break ();
-                  if (html_text_standard) html_text_standard->new_page_break ();
-                  if (html_text_linked) html_text_linked->new_page_break ();
-                  // Done.
-                  break;
-                }
-                default: break;
+              processNote ();
+              break;
+            }
+              
+            case stylesv2::Type::character:
+            {
+              // Support for a normal and an embedded character style.
+              if (is_opening_marker) {
+                if (odf_text_standard)
+                  odf_text_standard->open_text_style (style, false, is_embedded_marker);
+                if (odf_text_text_only)
+                  odf_text_text_only->open_text_style (style, false, is_embedded_marker);
+                if (odf_text_text_and_note_citations)
+                  odf_text_text_and_note_citations->open_text_style (style, false, is_embedded_marker);
+                if (html_text_standard)
+                  html_text_standard->open_text_style (style, false, is_embedded_marker);
+                if (html_text_linked)
+                  html_text_linked->open_text_style (style, false, is_embedded_marker);
+              } else {
+                if (odf_text_standard)
+                  odf_text_standard->close_text_style (false, is_embedded_marker);
+                if (odf_text_text_only)
+                  odf_text_text_only->close_text_style (false, is_embedded_marker);
+                if (odf_text_text_and_note_citations)
+                  odf_text_text_and_note_citations->close_text_style (false, is_embedded_marker);
+                if (html_text_standard)
+                  html_text_standard->close_text_style (false, is_embedded_marker);
+                if (html_text_linked)
+                  html_text_linked->close_text_style (false, is_embedded_marker);
               }
               break;
             }
-            case StyleTypePicture:
+            case stylesv2::Type::page_break:
+            {
+              if (odf_text_standard)
+                odf_text_standard->close_text_style (false, false);
+              if (odf_text_text_only)
+                odf_text_text_only->close_text_style (false, false);
+              if (odf_text_text_and_note_citations)
+                odf_text_text_and_note_citations->close_text_style (false, false);
+              if (odf_text_notes)
+                odf_text_notes->close_text_style (false, false);
+              if (html_text_standard)
+                html_text_standard->close_text_style (false, false);
+              if (html_text_linked)
+                html_text_linked->close_text_style (false, false);
+              if (odf_text_standard)
+                odf_text_standard->new_page_break ();
+              if (odf_text_text_only)
+                odf_text_text_only->new_page_break ();
+              if (odf_text_text_and_note_citations)
+                odf_text_text_and_note_citations->new_page_break ();
+              if (html_text_standard)
+                html_text_standard->new_page_break ();
+              if (html_text_linked)
+                html_text_linked->new_page_break ();
+              if (text_text)
+                text_text->paragraph ();
+              break;
+            }
+            case stylesv2::Type::figure:
             {
               if (is_opening_marker) {
                 // Set a flag that the parser is going to be within figure markup and save the style.
@@ -880,12 +1015,18 @@ void Filter_Text::process_usfm (const std::string& stylesheet)
                 // Create the style for the figure because it is used within the ODT generator.
                 create_paragraph_style (style, false);
                 // At the start of the \fig marker, close all text styles that might be open.
-                if (odf_text_standard) odf_text_standard->close_text_style (false, false);
-                if (odf_text_text_only) odf_text_text_only->close_text_style (false, false);
-                if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->close_text_style (false, false);
-                if (odf_text_notes) odf_text_notes->close_text_style (false, false);
-                if (html_text_standard) html_text_standard->close_text_style (false, false);
-                if (html_text_linked) html_text_linked->close_text_style (false, false);
+                if (odf_text_standard)
+                  odf_text_standard->close_text_style (false, false);
+                if (odf_text_text_only)
+                  odf_text_text_only->close_text_style (false, false);
+                if (odf_text_text_and_note_citations)
+                  odf_text_text_and_note_citations->close_text_style (false, false);
+                if (odf_text_notes)
+                  odf_text_notes->close_text_style (false, false);
+                if (html_text_standard)
+                  html_text_standard->close_text_style (false, false);
+                if (html_text_linked)
+                  html_text_linked->close_text_style (false, false);
               } else {
                 // Closing the \fig* markup.
                 // Clear the flag since the parser is no longer within figure markup.
@@ -893,165 +1034,49 @@ void Filter_Text::process_usfm (const std::string& stylesheet)
               }
               break;
             }
-            case StyleTypePageBreak:
+            case stylesv2::Type::word_list:
             {
-              if (odf_text_standard) odf_text_standard->close_text_style (false, false);
-              if (odf_text_text_only) odf_text_text_only->close_text_style (false, false);
-              if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->close_text_style (false, false);
-              if (odf_text_notes) odf_text_notes->close_text_style (false, false);
-              if (html_text_standard) html_text_standard->close_text_style (false, false);
-              if (html_text_linked) html_text_linked->close_text_style (false, false);
-              if (odf_text_standard) odf_text_standard->new_page_break ();
-              if (odf_text_text_only) odf_text_text_only->new_page_break ();
-              if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->new_page_break ();
-              if (html_text_standard) html_text_standard->new_page_break ();
-              if (html_text_linked) html_text_linked->new_page_break ();
-              if (text_text) text_text->paragraph (); 
-              break;
-            }
-            case StyleTypeTableElement:
-            {
-              if (odf_text_standard) odf_text_standard->close_text_style (false, false);
-              if (odf_text_text_only) odf_text_text_only->close_text_style (false, false);
-              if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->close_text_style (false, false);
-              if (odf_text_notes) odf_text_notes->close_text_style (false, false);
-              if (html_text_standard) html_text_standard->close_text_style (false, false);
-              if (html_text_linked) html_text_linked->close_text_style (false, false);
-              switch (style.subtype)
-              {
-                case TableElementSubtypeRow:
-                {
-                  addToFallout ("Table elements not implemented", false);
-                  break;
-                }
-                case TableElementSubtypeHeading:
-                case TableElementSubtypeCell:
-                {
-                  new_paragraph (style, false);
-                  break;
-                }
-                default:
-                {
-                  break;
-                }
+              if (is_opening_marker) {
+                add_to_word_list (marker);
               }
-              // UserInt1TableColumnNumber:
               break;
             }
-            case StyleTypeWordlistElement:
-            {
-              switch (style.subtype)
-              {
-                case WorListElementSubtypeWordlistGlossaryDictionary:
-                {
-                  if (is_opening_marker) {
-                    addToWordList (wordListGlossaryDictionary);
-                  }
-                  break;
-                }
-                case WorListElementSubtypeHebrewWordlistEntry:
-                {
-                  if (is_opening_marker) {
-                    addToWordList (hebrewWordList);
-                  }
-                  break;
-                }
-                case WorListElementSubtypeGreekWordlistEntry:
-                {
-                  if (is_opening_marker) {
-                    addToWordList (greekWordList);
-                  }
-                  break;
-                }
-                case WorListElementSubtypeSubjectIndexEntry:
-                {
-                  if (is_opening_marker) {
-                    addToWordList (subjectIndex);
-                  }
-                  break;
-                }
-                default:
-                {
-                  if (is_opening_marker) {
-                    addToFallout (R"(Unknown word list marker \)" + marker, false);
-                  }
-                  break;
-                }
-              }
-              // UserString1WordListEntryAddition:
-              break;
-            }
-            default:
-            {
-              // This marker is not yet implemented.
-              // Add it to the fallout, plus any text that follows the marker.
-              addToFallout (R"(Marker not yet implemented \)" + marker + ", possible formatting error:", true);
-              break;
-            }
-          }
-        }
-        else if (const stylesv2::Style* style {database::styles2::get_marker_data (stylesheet, marker)}; style) { // Todo v2
-          switch (style->type) {
-            case stylesv2::Type::book_id:
+            case stylesv2::Type::sidebar_begin:
+            case stylesv2::Type::sidebar_end:
             {
               close_text_style_all();
-              // Get book number.
-              std::string usfm_id = filter::usfm::get_book_identifier (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-              usfm_id = filter::strings::replace (filter::strings::soft_hyphen_u00AD (), "", usfm_id); // Remove possible soft hyphen.
-              m_current_book_identifier = static_cast<int>(database::books::get_id_from_usfm (usfm_id));
-              // Reset chapter and verse numbers.
-              m_current_chapter_number = 0;
-              set_to_zero(m_current_verse_number);
-              // Throw away whatever follows the \id, e.g. 'GEN xxx xxx'.
-              filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
-              // Whether to insert a new page before the book. But never before the first book.
-              if (stylesv2::get_bool_parameter(style, stylesv2::Property::starts_new_page)) {
-                if (processed_books_count) {
-                  if (odf_text_standard) odf_text_standard->new_page_break ();
-                  if (odf_text_text_only) odf_text_text_only->new_page_break ();
-                  if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->new_page_break ();
-                  if (html_text_standard) html_text_standard->new_page_break ();
-                  if (html_text_linked) html_text_linked->new_page_break ();
-                }
-              }
-              processed_books_count++;
-              // Reset notes.
-              note_citations.restart("book");
-              // Online Bible.
-              if (onlinebible_text) onlinebible_text->storeData ();
-              // eSword.
-              if (esword_text) esword_text->newBook (m_current_book_identifier);
-              // The hidden header in the text normally displays in the running header.
-              // It does this only when it's the first header on the page.
-              // The book starts here.
-              // So create a correct hidden header for displaying in the running header.
-              std::string runningHeader = database::books::get_english_from_id (static_cast<book_id>(m_current_book_identifier));
-              for (const auto& item : runningHeaders) {
-                if (item.m_book == m_current_book_identifier) {
-                  runningHeader = item.m_value;
-                }
-              }
-              if (odf_text_standard) odf_text_standard->new_heading1 (runningHeader, true);
-              if (odf_text_text_only) odf_text_text_only->new_heading1 (runningHeader, true);
-              if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->new_heading1 (runningHeader, true);
-              if (odf_text_notes) odf_text_notes->new_heading1 (runningHeader, false);
-              // Done.
+              add_to_info (R"(Sidebar marker: \)" + marker, false);
               break;
             }
-            case stylesv2::Type::file_encoding:
+            case stylesv2::Type::peripheral:
             {
-              close_text_style_all();
-              add_to_info (R"(Text encoding: \)" + marker, true);
+              if (odf_text_standard)
+                odf_text_standard->close_text_style (false, false);
+              if (odf_text_text_only)
+                odf_text_text_only->close_text_style (false, false);
+              if (odf_text_text_and_note_citations)
+                odf_text_text_and_note_citations->close_text_style (false, false);
+              if (odf_text_notes)
+                odf_text_notes->close_text_style (false, false);
+              if (html_text_standard)
+                html_text_standard->close_text_style (false, false);
+              if (html_text_linked)
+                html_text_linked->close_text_style (false, false);
+              add_to_info(R"(Pheripheral markup: \)" + marker, true);
+              // To start peripheral material on a new page.
+              // https://ubsicap.github.io/usfm/peripherals/index.html
+              if (odf_text_standard)
+                odf_text_standard->new_page_break ();
+              if (odf_text_text_only)
+                odf_text_text_only->new_page_break ();
+              if (odf_text_text_and_note_citations)
+                odf_text_text_and_note_citations->new_page_break ();
+              if (html_text_standard)
+                html_text_standard->new_page_break ();
+              if (html_text_linked)
+                html_text_linked->new_page_break ();
               break;
             }
-            case stylesv2::Type::remark:
-            {
-              close_text_style_all();
-              add_to_info (R"(Comment: \)" + marker, true);
-              break;
-            }
-            case stylesv2::Type::starting_boundary:
-            case stylesv2::Type::none:
             case stylesv2::Type::stopping_boundary:
             default:
               break;
@@ -1060,7 +1085,7 @@ void Filter_Text::process_usfm (const std::string& stylesheet)
         else {
           // Here is an unknown marker.
           // Add it to the fallout, plus any text that follows the marker.
-          addToFallout (R"(Unknown marker \)" + marker + ", formatting error:", true);
+          add_to_fallout (R"(Unknown marker \)" + marker + ", formatting error:", true);
         }
       } else {
         // Here is no marker, just text.
@@ -1143,222 +1168,285 @@ void Filter_Text::processNote ()
 {
   for ( ; chapter_usfm_markers_and_text_pointer < chapter_usfm_markers_and_text.size(); chapter_usfm_markers_and_text_pointer++)
   {
-    std::string currentItem = chapter_usfm_markers_and_text[chapter_usfm_markers_and_text_pointer];
+    const std::string currentItem = chapter_usfm_markers_and_text[chapter_usfm_markers_and_text_pointer];
     if (filter::usfm::is_usfm_marker (currentItem))
     {
       // Flags about the nature of the marker.
       bool is_opening_marker = filter::usfm::is_opening_marker (currentItem);
       bool isEmbeddedMarker = filter::usfm::is_embedded_marker (currentItem);
       // Clean up the marker, so we remain with the basic version, e.g. 'f'.
-      std::string marker = filter::usfm::get_marker (currentItem);
-      if (styles.find (marker) != styles.end())
+      const std::string marker = filter::usfm::get_marker (currentItem);
+      if (const stylesv2::Style* stylev2 {database::styles::get_marker_data (m_stylesheet, marker)}; stylev2)
       {
-        database::styles1::Item style = styles[marker];
-        switch (style.type)
-        {
-          case StyleTypeVerseNumber:
+        switch (stylev2->type) {
+          case stylesv2::Type::starting_boundary:
+          case stylesv2::Type::none:
+          case stylesv2::Type::book_id:
+          case stylesv2::Type::usfm_version:
+          case stylesv2::Type::file_encoding:
+          case stylesv2::Type::remark:
+          case stylesv2::Type::running_header:
+          case stylesv2::Type::long_toc_text:
+          case stylesv2::Type::short_toc_text:
+          case stylesv2::Type::book_abbrev:
+          case stylesv2::Type::introduction_end:
+          case stylesv2::Type::title:
+          case stylesv2::Type::heading:
+          case stylesv2::Type::paragraph:
+          case stylesv2::Type::chapter:
+          case stylesv2::Type::chapter_label:
+          case stylesv2::Type::published_chapter_marker:
+          case stylesv2::Type::alternate_chapter_number:
+            break;
+          case stylesv2::Type::verse:
           {
             // Verse found. The note should have stopped here. Incorrect note markup.
-            addToFallout ("The note did not close at the end of the verse. The text is not correct.", false);
+            add_to_fallout ("The note did not close at the end of the verse. The text is not correct.", false);
             goto noteDone;
-          }
-          case StyleTypeFootEndNote:
-          {
-            switch (style.subtype)
-            {
-              case FootEndNoteSubtypeFootnote:
-              {
-                if (is_opening_marker) {
-                  ensureNoteParagraphStyle (marker, styles [standard_content_marker_foot_end_note]);
-                  std::string citation = getNoteCitation (style);
-                  if (odf_text_standard) odf_text_standard->add_note (citation, marker);
-                  // Note citation in superscript in the document with text and note citations.
-                  if (odf_text_text_and_note_citations) {
-                    std::vector <std::string> current_text_styles = odf_text_text_and_note_citations->m_current_text_style;
-                    odf_text_text_and_note_citations->m_current_text_style = {"superscript"};
-                    odf_text_text_and_note_citations->add_text (citation);
-                    odf_text_text_and_note_citations->m_current_text_style = current_text_styles;
-                  }
-                  // Add space if the paragraph has text already.
-                  if (odf_text_notes) {
-                    if (odf_text_notes->m_current_paragraph_content != "") {
-                      odf_text_notes->add_text (" ");
-                    }
-                  }
-                  // Add the note citation. And a no-break space after it.
-                  if (odf_text_notes) odf_text_notes->add_text (citation + filter::strings::non_breaking_space_u00A0());
-                  // Open note in the web pages.
-                  if (html_text_standard) html_text_standard->add_note (citation, standard_content_marker_foot_end_note);
-                  if (html_text_linked) html_text_linked->add_note (citation, standard_content_marker_foot_end_note);
-                  // Online Bible. Footnotes do not seem to behave as they ought in the Online Bible compiler. Just leave them out.
-                  //if ($this->onlinebible_text) $this->onlinebible_text->addNote ();
-                  if (text_text) text_text->note (); 
-                  // Handle opening notes in plain text.
-                  notes_plain_text_handler ();
-                  // Set flag.
-                  note_open_now = true;
-                } else {
-                  goto noteDone;
-                }
-                break;
-              }
-              case FootEndNoteSubtypeEndnote:
-              {
-                if (is_opening_marker) {
-                  ensureNoteParagraphStyle (marker, styles[standard_content_marker_foot_end_note]);
-                  std::string citation = getNoteCitation (style);
-                  if (odf_text_standard) odf_text_standard->add_note (citation, marker, true);
-                  // Note citation in superscript in the document with text and note citations.
-                  if (odf_text_text_and_note_citations) {
-                    std::vector <std::string> current_text_styles = odf_text_text_and_note_citations->m_current_text_style;
-                    odf_text_text_and_note_citations->m_current_text_style = {"superscript"};
-                    odf_text_text_and_note_citations->add_text (citation);
-                    odf_text_text_and_note_citations->m_current_text_style = current_text_styles;
-                  }
-                  // Open note in the web page.
-                  if (html_text_standard) html_text_standard->add_note (citation, standard_content_marker_foot_end_note, true);
-                  if (html_text_linked) html_text_linked->add_note (citation, standard_content_marker_foot_end_note, true);
-                  // Online Bible: Leave note out.
-                  //if ($this->onlinebible_text) $this->onlinebible_text->addNote ();
-                  if (text_text) text_text->note (); 
-                  // Handle opening notes in plain text.
-                  notes_plain_text_handler ();
-                  // Set flag.
-                  note_open_now = true;
-                } else {
-                  goto noteDone;
-                }
-                break;
-              }
-              case FootEndNoteSubtypeStandardContent:
-              {
-                // The style of the standard content is already used in the note's body.
-                // If means that the text style should be cleared
-                // in order to return to the correct style for the paragraph.
-                if (odf_text_standard) odf_text_standard->close_text_style (true, false);
-                if (odf_text_notes) odf_text_notes->close_text_style (false, false);
-                if (html_text_standard) html_text_standard->close_text_style (true, false);
-                if (html_text_linked) html_text_linked->close_text_style (true, false);
-                break;
-              }
-              case FootEndNoteSubtypeContent:
-              case FootEndNoteSubtypeContentWithEndmarker:
-              {
-                if (is_opening_marker) {
-                  if (odf_text_standard) odf_text_standard->open_text_style (style, true, isEmbeddedMarker);
-                  if (odf_text_notes) odf_text_notes->open_text_style (style, false, isEmbeddedMarker);
-                  if (html_text_standard) html_text_standard->open_text_style (style, true, isEmbeddedMarker);
-                  if (html_text_linked) html_text_linked->open_text_style (style, true, isEmbeddedMarker);
-                } else {
-                  if (odf_text_standard) odf_text_standard->close_text_style (true, isEmbeddedMarker);
-                  if (odf_text_notes) odf_text_notes->close_text_style (false, isEmbeddedMarker);
-                  if (html_text_standard) html_text_standard->close_text_style (true, isEmbeddedMarker);
-                  if (html_text_linked) html_text_linked->close_text_style (true, isEmbeddedMarker);
-                }
-                break;
-              }
-              case FootEndNoteSubtypeParagraph:
-              {
-                // The style of this is not yet implemented.
-                if (odf_text_standard) odf_text_standard->close_text_style (true, false);
-                if (odf_text_notes) odf_text_notes->close_text_style (false, false);
-                if (html_text_standard) html_text_standard->close_text_style (true, false);
-                if (html_text_linked) html_text_linked->close_text_style (true, false);
-                if (text_text) text_text->note ();
-                break;
-              }
-              default:
-              {
-                break;
-              }
-            }
-            // UserBool1NoteAppliesToApocrypha: For xref too?
             break;
           }
-          case StyleTypeCrossreference:
+          case stylesv2::Type::published_verse_marker:
+          case stylesv2::Type::alternate_verse_marker:
+          case stylesv2::Type::table_row:
+          case stylesv2::Type::table_heading:
+          case stylesv2::Type::table_cell:
+            break;
+          case stylesv2::Type::footnote_wrapper:
           {
-            switch (style.subtype)
-            {
-              case CrossreferenceSubtypeCrossreference:
-              {
-                if (is_opening_marker) {
-                  ensureNoteParagraphStyle (marker, styles[standard_content_marker_cross_reference]);
-                  std::string citation = getNoteCitation (style);
-                  if (odf_text_standard) odf_text_standard->add_note (citation, marker);
-                  // Note citation in superscript in the document with text and note citations.
-                  if (odf_text_text_and_note_citations) {
-                    std::vector <std::string> current_text_styles = odf_text_text_and_note_citations->m_current_text_style;
-                    odf_text_text_and_note_citations->m_current_text_style = {"superscript"};
-                    odf_text_text_and_note_citations->add_text (citation);
-                    odf_text_text_and_note_citations->m_current_text_style = current_text_styles;
-                  }
-                  // Add a space if the paragraph has text already.
-                  if (odf_text_notes) {
-                    if (odf_text_notes->m_current_paragraph_content != "") {
-                      odf_text_notes->add_text (" ");
-                    }
-                  }
-                  // Add the note citation. And a no-break space (NBSP) after it.
-                  if (odf_text_notes) odf_text_notes->add_text (citation + filter::strings::non_breaking_space_u00A0());
-                  // Open note in the web page.
-                  ensureNoteParagraphStyle (standard_content_marker_cross_reference, styles[standard_content_marker_cross_reference]);
-                  if (html_text_standard) html_text_standard->add_note (citation, standard_content_marker_cross_reference);
-                  if (html_text_linked) html_text_linked->add_note (citation, standard_content_marker_cross_reference);
-                  // Online Bible: Skip notes.
-                  //if ($this->onlinebible_text) $this->onlinebible_text->addNote ();
-                  if (text_text) text_text->note (); 
-                  // Handle opening notes in plain text.
-                  notes_plain_text_handler ();
-                  // Set flag.
-                  note_open_now = true;
-                } else {
-                  goto noteDone;
+            if (is_opening_marker) {
+              const stylesv2::Style* ft_style = database::styles::get_marker_data(m_stylesheet, standard_content_marker_foot_end_note);
+              ensure_note_paragraph_style (marker, ft_style);
+              const std::string citation = get_note_citation (marker);
+              if (odf_text_standard)
+                odf_text_standard->add_note (citation, marker);
+              // Note citation in superscript in the document with text and note citations.
+              if (odf_text_text_and_note_citations) {
+                std::vector <std::string> current_text_styles = odf_text_text_and_note_citations->m_current_text_style;
+                odf_text_text_and_note_citations->m_current_text_style = {"superscript"};
+                odf_text_text_and_note_citations->add_text (citation);
+                odf_text_text_and_note_citations->m_current_text_style = current_text_styles;
+              }
+              // Add space if the paragraph has text already.
+              if (odf_text_notes) {
+                if (odf_text_notes->m_current_paragraph_content != "") {
+                  odf_text_notes->add_text (" ");
                 }
-                break;
               }
-              case CrossreferenceSubtypeStandardContent:
-              {
-                // The style of the standard content is already used in the note's body.
-                // If means that the text style should be cleared
-                // in order to return to the correct style for the paragraph.
-                if (odf_text_standard) odf_text_standard->close_text_style (true, false);
-                if (odf_text_notes) odf_text_notes->close_text_style (false, false);
-                if (html_text_standard) html_text_standard->close_text_style (true, false);
-                if (html_text_linked) html_text_linked->close_text_style (true, false);
-                break;
-              }
-              case CrossreferenceSubtypeContent:
-              case CrossreferenceSubtypeContentWithEndmarker:
-              {
-                if (is_opening_marker) {
-                  if (odf_text_standard) odf_text_standard->open_text_style (style, true, isEmbeddedMarker);
-                  if (odf_text_notes) odf_text_notes->open_text_style (style, false, isEmbeddedMarker);
-                  if (html_text_standard) html_text_standard->open_text_style (style, true, isEmbeddedMarker);
-                  if (html_text_linked) html_text_linked->open_text_style (style, true, isEmbeddedMarker);
-                } else {
-                  if (odf_text_standard) odf_text_standard->close_text_style (true, isEmbeddedMarker);
-                  if (odf_text_notes) odf_text_notes->close_text_style (false, isEmbeddedMarker);
-                  if (html_text_standard) html_text_standard->close_text_style (true, isEmbeddedMarker);
-                  if (html_text_linked) html_text_linked->close_text_style (true, isEmbeddedMarker);
-                }
-                break;
-              }
-              default:
-              {
-                break;
-              }
+              // Add the note citation. And a no-break space after it.
+              if (odf_text_notes)
+                odf_text_notes->add_text (citation + filter::strings::non_breaking_space_u00A0());
+              // Open note in the web pages.
+              if (html_text_standard)
+                html_text_standard->add_note (citation, standard_content_marker_foot_end_note);
+              if (html_text_linked)
+                html_text_linked->add_note (citation, standard_content_marker_foot_end_note);
+              // Online Bible. Footnotes do not seem to behave as they ought in the Online Bible compiler. Just leave them out.
+              //if ($this->onlinebible_text) $this->onlinebible_text->addNote ();
+              if (text_text)
+                text_text->note ();
+              // Handle opening notes in plain text.
+              notes_plain_text_handler ();
+              // Set flag.
+              note_open_now = true;
+            } else {
+              goto noteDone;
             }
             break;
           }
+          case stylesv2::Type::endnote_wrapper:
+          {
+            if (is_opening_marker) {
+              const stylesv2::Style* ft_style = database::styles::get_marker_data(m_stylesheet, standard_content_marker_foot_end_note);
+              ensure_note_paragraph_style (marker, ft_style);
+              const std::string citation = get_note_citation (marker);
+              if (odf_text_standard)
+                odf_text_standard->add_note (citation, marker, true);
+              // Note citation in superscript in the document with text and note citations.
+              if (odf_text_text_and_note_citations) {
+                std::vector <std::string> current_text_styles = odf_text_text_and_note_citations->m_current_text_style;
+                odf_text_text_and_note_citations->m_current_text_style = {"superscript"};
+                odf_text_text_and_note_citations->add_text (citation);
+                odf_text_text_and_note_citations->m_current_text_style = current_text_styles;
+              }
+              // Open note in the web page.
+              if (html_text_standard)
+                html_text_standard->add_note (citation, standard_content_marker_foot_end_note, true);
+              if (html_text_linked)
+                html_text_linked->add_note (citation, standard_content_marker_foot_end_note, true);
+              // Online Bible: Leave note out.
+              //if ($this->onlinebible_text) $this->onlinebible_text->addNote ();
+              if (text_text)
+                text_text->note ();
+              // Handle opening notes in plain text.
+              notes_plain_text_handler ();
+              // Set flag.
+              note_open_now = true;
+            } else {
+              goto noteDone;
+            }
+            break;
+          }
+          case stylesv2::Type::note_standard_content:
+          {
+            // The style of the standard content is already used in the note's body.
+            // If means that the text style should be cleared
+            // in order to return to the correct style for the paragraph.
+            if (odf_text_standard)
+              odf_text_standard->close_text_style (true, false);
+            if (odf_text_notes)
+              odf_text_notes->close_text_style (false, false);
+            if (html_text_standard)
+              html_text_standard->close_text_style (true, false);
+            if (html_text_linked)
+              html_text_linked->close_text_style (true, false);
+            break;
+          }
+          case stylesv2::Type::note_content:
+          case stylesv2::Type::note_content_with_endmarker:
+          {
+            if (is_opening_marker) {
+              if (odf_text_standard)
+                odf_text_standard->open_text_style (stylev2, true, isEmbeddedMarker);
+              if (odf_text_notes)
+                odf_text_notes->open_text_style (stylev2, false, isEmbeddedMarker);
+              if (html_text_standard)
+                html_text_standard->open_text_style (stylev2, true, isEmbeddedMarker);
+              if (html_text_linked)
+                html_text_linked->open_text_style (stylev2, true, isEmbeddedMarker);
+            } else {
+              if (odf_text_standard)
+                odf_text_standard->close_text_style (true, isEmbeddedMarker);
+              if (odf_text_notes)
+                odf_text_notes->close_text_style (false, isEmbeddedMarker);
+              if (html_text_standard)
+                html_text_standard->close_text_style (true, isEmbeddedMarker);
+              if (html_text_linked)
+                html_text_linked->close_text_style (true, isEmbeddedMarker);
+            }
+            break;
+          }
+          case stylesv2::Type::note_paragraph:
+          {
+            // The style of this is not yet implemented properly: It does not yet open a new paragraph.
+            if (is_opening_marker) {
+              if (odf_text_standard)
+                odf_text_standard->open_text_style (stylev2, true, isEmbeddedMarker);
+              if (odf_text_notes)
+                odf_text_notes->open_text_style (stylev2, false, isEmbeddedMarker);
+              if (html_text_standard)
+                html_text_standard->open_text_style (stylev2, true, isEmbeddedMarker);
+              if (html_text_linked)
+                html_text_linked->open_text_style (stylev2, true, isEmbeddedMarker);
+            } else {
+              if (odf_text_standard)
+                odf_text_standard->close_text_style (true, false);
+              if (odf_text_notes)
+                odf_text_notes->close_text_style (false, false);
+              if (html_text_standard)
+                html_text_standard->close_text_style (true, false);
+              if (html_text_linked)
+                html_text_linked->close_text_style (true, false);
+//              if (text_text)
+//                text_text->note ();
+            }
+            break;
+          }
+            
+          case stylesv2::Type::crossreference_wrapper:
+          {
+            if (is_opening_marker) {
+              const stylesv2::Style* xt_style = database::styles::get_marker_data(m_stylesheet, standard_content_marker_cross_reference);
+              ensure_note_paragraph_style (marker, xt_style);
+              std::string citation = get_note_citation (stylev2->marker);
+              if (odf_text_standard)
+                odf_text_standard->add_note (citation, marker);
+              // Note citation in superscript in the document with text and note citations.
+              if (odf_text_text_and_note_citations) {
+                std::vector <std::string> current_text_styles = odf_text_text_and_note_citations->m_current_text_style;
+                odf_text_text_and_note_citations->m_current_text_style = {"superscript"};
+                odf_text_text_and_note_citations->add_text (citation);
+                odf_text_text_and_note_citations->m_current_text_style = current_text_styles;
+              }
+              // Add a space if the paragraph has text already.
+              if (odf_text_notes) {
+                if (!odf_text_notes->m_current_paragraph_content.empty()) {
+                  odf_text_notes->add_text (" ");
+                }
+              }
+              // Add the note citation. And a no-break space (NBSP) after it.
+              if (odf_text_notes)
+                odf_text_notes->add_text (citation + filter::strings::non_breaking_space_u00A0());
+              // Open note in the web page.
+              ensure_note_paragraph_style (standard_content_marker_cross_reference, xt_style);
+              if (html_text_standard)
+                html_text_standard->add_note (citation, standard_content_marker_cross_reference);
+              if (html_text_linked)
+                html_text_linked->add_note (citation, standard_content_marker_cross_reference);
+              // Online Bible: Skip notes.
+              //if ($this->onlinebible_text) $this->onlinebible_text->addNote ();
+              if (text_text)
+                text_text->note ();
+              // Handle opening notes in plain text.
+              notes_plain_text_handler ();
+              // Set flag.
+              note_open_now = true;
+            } else {
+              goto noteDone;
+            }
+            break;
+          }
+          case stylesv2::Type::crossreference_standard_content:
+          {
+            // The style of the standard content is already used in the note's body.
+            // If means that the text style should be cleared
+            // in order to return to the correct style for the paragraph.
+            if (odf_text_standard) odf_text_standard->close_text_style (true, false);
+            if (odf_text_notes) odf_text_notes->close_text_style (false, false);
+            if (html_text_standard) html_text_standard->close_text_style (true, false);
+            if (html_text_linked) html_text_linked->close_text_style (true, false);
+            break;
+          }
+          case stylesv2::Type::crossreference_content:
+          case stylesv2::Type::crossreference_content_with_endmarker:
+          {
+            if (is_opening_marker) {
+              if (odf_text_standard)
+                odf_text_standard->open_text_style (stylev2, true, isEmbeddedMarker);
+              if (odf_text_notes)
+                odf_text_notes->open_text_style (stylev2, false, isEmbeddedMarker);
+              if (html_text_standard)
+                html_text_standard->open_text_style (stylev2, true, isEmbeddedMarker);
+              if (html_text_linked)
+                html_text_linked->open_text_style (stylev2, true, isEmbeddedMarker);
+            } else {
+              if (odf_text_standard)
+                odf_text_standard->close_text_style (true, isEmbeddedMarker);
+              if (odf_text_notes)
+                odf_text_notes->close_text_style (false, isEmbeddedMarker);
+              if (html_text_standard)
+                html_text_standard->close_text_style (true, isEmbeddedMarker);
+              if (html_text_linked)
+                html_text_linked->close_text_style (true, isEmbeddedMarker);
+            }
+            break;
+          }
+            
+          case stylesv2::Type::character:
+          case stylesv2::Type::page_break:
+          case stylesv2::Type::figure:
+          case stylesv2::Type::word_list:
+          case stylesv2::Type::sidebar_begin:
+          case stylesv2::Type::sidebar_end:
+          case stylesv2::Type::peripheral:
+          case stylesv2::Type::stopping_boundary:
           default:
-          {
-            addToFallout (R"(Marker not suitable in note context \)" + marker, false);
             break;
-          }
         }
-      } else {
+        
+      }
+      else {
         // Here is an unknown marker. Add the marker to fallout, plus any text that follows.
-        addToFallout (R"(Unknown marker \)" + marker, true);
+        add_to_fallout (R"(Unknown marker \)" + marker, true);
       }
     } else {
       // Here is no marker. Treat it as text.
@@ -1394,7 +1482,7 @@ void Filter_Text::processNote ()
 // This creates and saves the information document.
 // It contains formatting information, collected from the USFM code.
 // $path: Path to the document.
-void Filter_Text::produceInfoDocument (std::string path)
+void Filter_Text::produce_info_document (std::string path)
 {
   HtmlText information (translate("Information"));
 
@@ -1438,38 +1526,27 @@ void Filter_Text::produceInfoDocument (std::string path)
 
   // Chapter specials.
   information.new_heading1 (translate("Publishing chapter labels"));
-  for (const auto& item : chapterLabels) {
+  for (const auto& item : chapter_labels) {
     const std::string line = database::books::get_english_from_id (static_cast<book_id>(item.m_book)) + " (USFM " + item.m_marker + ") => " + item.m_value;
     information.new_paragraph ();
     information.add_text (line);
   }
-  information.new_heading1 (translate("Publishing alternate chapter numbers"));
-  for (const auto& item : publishedChapterMarkers) {
+  information.new_heading1 (translate("Publishing chapter markers"));
+  for (const auto& item : published_chapter_markers) {
     const std::string line = database::books::get_english_from_id (static_cast<book_id>(item.m_book)) + " (USFM " + item.m_marker + ") => " + item.m_value;
     information.new_paragraph ();
     information.add_text (line);
   }
 
-  // Word lists.
-  information.new_heading1 (translate("Word list, glossary, dictionary entries"));
-  for (const auto& item : wordListGlossaryDictionary) {
-    information.new_paragraph ();
-    information.add_text (item);
-  }
-  information.new_heading1 (translate("Hebrew word list entries"));
-  for (const auto& item : hebrewWordList) {
-    information.new_paragraph ();
-    information.add_text (item);
-  }
-  information.new_heading1 (translate("Greek word list entries"));
-  for (const auto& item : greekWordList) {
-    information.new_paragraph ();
-    information.add_text (item);
-  }
-  information.new_heading1 (translate("Subject index entries"));
-  for (const auto& item : subjectIndex) {
-    information.new_paragraph ();
-    information.add_text (item);
+  // Output the word lists.
+  for (const auto& word_list : word_lists) {
+    const std::string& marker = word_list.first;
+    information.new_heading1 (translate("Word list for marker") + " " + marker);
+    const std::vector<std::string>& words = word_list.second;
+    for (const auto& item : words) {
+      information.new_paragraph ();
+      information.add_text (item);
+    }
   }
 
   // Other info.
@@ -1486,7 +1563,7 @@ void Filter_Text::produceInfoDocument (std::string path)
 
 // This function produces the text of the current passage, e.g.: Genesis 1:1.
 // Returns: The passage text
-std::string Filter_Text::getCurrentPassageText ()
+std::string Filter_Text::get_current_passage_text ()
 {
   return filter_passage_display (m_current_book_identifier, m_current_chapter_number, m_current_verse_number);
 }
@@ -1499,7 +1576,7 @@ std::string Filter_Text::getCurrentPassageText ()
 // and removes this text from the USFM input stream.
 void Filter_Text::add_to_info (std::string text, bool next)
 {
-  text = getCurrentPassageText() + " " + text;
+  text = get_current_passage_text() + " " + text;
   if (next) {
     text.append (" " + filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer));
   }
@@ -1512,9 +1589,9 @@ void Filter_Text::add_to_info (std::string text, bool next)
 // $text: String to add to the Fallout array.
 // $next: If true, it also adds the text following the marker to the fallout,
 // and removes this text from the USFM input stream.
-void Filter_Text::addToFallout (std::string text, bool next)
+void Filter_Text::add_to_fallout (std::string text, bool next)
 {
-  text = getCurrentPassageText () + " " + text;
+  text = get_current_passage_text () + " " + text;
   if (next) {
     text.append (" " + filter::usfm::get_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer));
   }
@@ -1523,17 +1600,17 @@ void Filter_Text::addToFallout (std::string text, bool next)
 
 
 
-// This function adds something to a word list array, prefixed by the current passage.
-// $list: which list to add the text to.
-// The word is extracted from the input USFM. The Usfm pointer points to the current marker,
+// This function adds something to a word list array, followed by the current passage.
+// $marker: Which list to add the text to.
+// The word is extracted from the input USFM. The USFM input pointer points to the current marker,
 // and the text following that marker is added to the word list array.
-void Filter_Text::addToWordList (std::vector <std::string>  & list)
+void Filter_Text::add_to_word_list (const std::string& marker)
 {
   std::string text = filter::usfm::peek_text_following_marker (chapter_usfm_markers_and_text, chapter_usfm_markers_and_text_pointer);
   text.append (" (");
-  text.append (getCurrentPassageText ());
+  text.append (get_current_passage_text ());
   text.append (")");
-  list.push_back (text);
+  word_lists[marker].push_back (std::move(text));
 }
 
 
@@ -1555,30 +1632,36 @@ void Filter_Text::produceFalloutDocument (std::string path)
 // This function ensures that a certain paragraph style is in the OpenDocument.
 // $style: The style to use.
 // $keepWithNext: Whether to keep this paragraph with the next one.
-void Filter_Text::create_paragraph_style (const database::styles1::Item & style, bool keepWithNext)
+void Filter_Text::create_paragraph_style (const stylesv2::Style* style, bool keep_with_next)
 {
-  std::string marker = style.marker;
-  if (find (createdStyles.begin(), createdStyles.end(), marker) == createdStyles.end()) {
-    std::string fontname = database::config::bible::get_export_font (m_bible);
-    float fontsize = style.fontsize;
-    int italic = style.italic;
-    int bold = style.bold;
-    int underline = style.underline;
-    int smallcaps = style.smallcaps;
-    int alignment = style.justification;
-    float spacebefore = style.spacebefore;
-    float spaceafter = style.spaceafter;
-    float leftmargin = style.leftmargin;
-    float rightmargin = style.rightmargin;
-    float firstlineindent = style.firstlineindent;
-    // Columns are not implemented at present. Reason:
-    // Copying and pasting sections with columns between documents in LibreOffice failed to work.
-    // int spancolumns = style.spancolumns;
-    int dropcaps = 0;
-    if (odf_text_standard) odf_text_standard->create_paragraph_style (marker, fontname, fontsize, italic, bold, underline, smallcaps, alignment, spacebefore, spaceafter, leftmargin, rightmargin, firstlineindent, keepWithNext, dropcaps);
-    if (odf_text_text_only) odf_text_text_only->create_paragraph_style (marker, fontname, fontsize, italic, bold, underline, smallcaps, alignment, spacebefore, spaceafter, leftmargin, rightmargin, firstlineindent, keepWithNext, dropcaps);
-    if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->create_paragraph_style (marker, fontname, fontsize, italic, bold, underline, smallcaps, alignment, spacebefore, spaceafter, leftmargin, rightmargin, firstlineindent, keepWithNext, dropcaps);
-    createdStyles.push_back (marker);
+  const std::string marker = style->marker;
+  if (find (created_styles.begin(), created_styles.end(), marker) == created_styles.end()) {
+    const std::string font_name = database::config::bible::get_export_font (m_bible);
+    if (style->paragraph) {
+      const auto& paragraph = style->paragraph.value();
+      const float font_size = paragraph.font_size;
+      const stylesv2::TwoState italic = paragraph.italic;
+      const stylesv2::TwoState bold = paragraph.bold;
+      const stylesv2::TwoState underline = paragraph.underline;
+      const stylesv2::TwoState smallcaps = paragraph.smallcaps;
+      const stylesv2::TextAlignment text_alignment = paragraph.text_alignment;
+      const float space_before = paragraph.space_before;
+      const float space_after = paragraph.space_after;
+      const float left_margin = paragraph.left_margin;
+      const float right_margin = paragraph.right_margin;
+      const float first_line_indent = paragraph.first_line_indent;
+      // Columns are not implemented at present. Reason:
+      // Copying and pasting sections with columns between documents in LibreOffice failed to work.
+      // int spancolumns = style.spancolumns;
+      constexpr const int drop_caps {0};
+      if (odf_text_standard)
+        odf_text_standard->create_paragraph_style (marker, font_name, font_size, italic, bold, underline, smallcaps, text_alignment, space_before, space_after, left_margin, right_margin, first_line_indent, keep_with_next, drop_caps);
+      if (odf_text_text_only)
+        odf_text_text_only->create_paragraph_style (marker, font_name, font_size, italic, bold, underline, smallcaps, text_alignment, space_before, space_after, left_margin, right_margin, first_line_indent, keep_with_next, drop_caps);
+      if (odf_text_text_and_note_citations)
+        odf_text_text_and_note_citations->create_paragraph_style (marker, font_name, font_size, italic, bold, underline, smallcaps, text_alignment, space_before, space_after, left_margin, right_margin, first_line_indent, keep_with_next, drop_caps);
+    }
+    created_styles.push_back (marker);
   }
 }
 
@@ -1586,17 +1669,22 @@ void Filter_Text::create_paragraph_style (const database::styles1::Item & style,
 // This function ensures that a certain paragraph style is in the OpenDocument,
 // and then opens a paragraph with that style.
 // $style: The style to use.
-// $keepWithNext: Whether to keep this paragraph with the next one.
-void Filter_Text::new_paragraph (const database::styles1::Item & style, bool keepWithNext)
+// $keep_with_next: Whether to keep this paragraph with the next one.
+void Filter_Text::new_paragraph (const stylesv2::Style* style, bool keep_with_next)
 {
-  create_paragraph_style(style, keepWithNext);
-  std::string marker = style.marker;
-  if (odf_text_standard) odf_text_standard->new_paragraph (marker);
-  if (odf_text_text_only) odf_text_text_only->new_paragraph (marker);
-  if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->new_paragraph (marker);
-  if (html_text_standard) html_text_standard->new_paragraph (marker);
-  if (html_text_linked) html_text_linked->new_paragraph (marker);
-  if (text_text) text_text->paragraph (); 
+  create_paragraph_style(style, keep_with_next);
+  if (odf_text_standard)
+    odf_text_standard->new_paragraph (style->marker);
+  if (odf_text_text_only)
+    odf_text_text_only->new_paragraph (style->marker);
+  if (odf_text_text_and_note_citations)
+    odf_text_text_and_note_citations->new_paragraph (style->marker);
+  if (html_text_standard)
+    html_text_standard->new_paragraph (style->marker);
+  if (html_text_linked)
+    html_text_linked->new_paragraph (style->marker);
+  if (text_text)
+    text_text->paragraph ();
 }
 
 
@@ -1604,36 +1692,47 @@ void Filter_Text::new_paragraph (const database::styles1::Item & style, bool kee
 // This applies the drop caps setting to the current paragraph style.
 // This is for the chapter number to appear in drop caps in the OpenDocument.
 // $dropCapsLength: Number of characters to put in drop caps.
-void Filter_Text::applyDropCapsToCurrentParagraph (int dropCapsLength)
+void Filter_Text::apply_drop_caps_to_current_paragraph (int drop_caps_length)
 {
   // To name a style according to the number of characters to put in drop caps,
   // e.g. a style name like p_c1 or p_c2 or p_c3.
   if (odf_text_standard) {
-    std::string combined_style = odf_text_standard->m_current_paragraph_style + "_" + chapterMarker + std::to_string (dropCapsLength);
-    if (find (createdStyles.begin(), createdStyles.end(), combined_style) == createdStyles.end()) {
-      database::styles1::Item style = styles[odf_text_standard->m_current_paragraph_style];
-      std::string fontname = database::config::bible::get_export_font (m_bible);
-      float fontsize = style.fontsize;
-      int italic = style.italic;
-      int bold = style.bold;
-      int underline = style.underline;
-      int smallcaps = style.smallcaps;
-      int alignment = style.justification;
-      float spacebefore = style.spacebefore;
-      float spaceafter = style.spaceafter;
-      float leftmargin = style.leftmargin;
-      float rightmargin = style.rightmargin;
-      float firstlineindent = 0; // First line that contains the chapter number in drop caps is not indented.
+    std::string combined_style = odf_text_standard->m_current_paragraph_style + "_" + chapter_marker + std::to_string (drop_caps_length);
+    if (find (created_styles.begin(), created_styles.end(), combined_style) == created_styles.end()) {
+      const stylesv2::Style* style = database::styles::get_marker_data(m_stylesheet, odf_text_standard->m_current_paragraph_style);
+      if (!style)
+        return;
+      if (!style->paragraph)
+        return;
+      const std::string font_name = database::config::bible::get_export_font (m_bible);
+      const float font_size = style->paragraph.value().font_size;
+      const auto italic = style->paragraph.value().italic;
+      const auto bold = style->paragraph.value().bold;
+      const auto underline = style->paragraph.value().underline;
+      const auto smallcaps = style->paragraph.value().smallcaps;
+      const auto text_alignment = style->paragraph.value().text_alignment;
+      const float space_before = style->paragraph.value().space_before;
+      const float space_after = style->paragraph.value().space_after;
+      const float left_margin = style->paragraph.value().left_margin;
+      const float right_margin = style->paragraph.value().right_margin;
+      // First line that contains the chapter number in drop caps is not indented.
+      constexpr float first_line_indent {0};
       //int spancolumns = style.spancolumns;
-      bool keepWithNext = false;
-      if (odf_text_standard) odf_text_standard->create_paragraph_style (combined_style, fontname, fontsize, italic, bold, underline, smallcaps, alignment, spacebefore, spaceafter, leftmargin, rightmargin, firstlineindent, keepWithNext, dropCapsLength);
-      if (odf_text_text_only) odf_text_text_only->create_paragraph_style (combined_style, fontname, fontsize, italic, bold, underline, smallcaps, alignment, spacebefore, spaceafter, leftmargin, rightmargin, firstlineindent, keepWithNext, dropCapsLength);
-      if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->create_paragraph_style (combined_style, fontname, fontsize, italic, bold, underline, smallcaps, alignment, spacebefore, spaceafter, leftmargin, rightmargin, firstlineindent, keepWithNext, dropCapsLength);
-      createdStyles.push_back (combined_style);
+      constexpr bool keep_with_next {false};
+      if (odf_text_standard)
+        odf_text_standard->create_paragraph_style (combined_style, font_name, font_size, italic, bold, underline, smallcaps, text_alignment, space_before, space_after, left_margin, right_margin, first_line_indent, keep_with_next, drop_caps_length);
+      if (odf_text_text_only)
+        odf_text_text_only->create_paragraph_style (combined_style, font_name, font_size, italic, bold, underline, smallcaps, text_alignment, space_before, space_after, left_margin, right_margin, first_line_indent, keep_with_next, drop_caps_length);
+      if (odf_text_text_and_note_citations)
+        odf_text_text_and_note_citations->create_paragraph_style (combined_style, font_name, font_size, italic, bold, underline, smallcaps, text_alignment, space_before, space_after, left_margin, right_margin, first_line_indent, keep_with_next, drop_caps_length);
+      created_styles.push_back (combined_style);
     }
-    if (odf_text_standard) odf_text_standard->update_current_paragraph_style (combined_style);
-    if (odf_text_text_only) odf_text_text_only->update_current_paragraph_style (combined_style);
-    if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->update_current_paragraph_style (combined_style);
+    if (odf_text_standard)
+      odf_text_standard->update_current_paragraph_style (combined_style);
+    if (odf_text_text_only)
+      odf_text_text_only->update_current_paragraph_style (combined_style);
+    if (odf_text_text_and_note_citations)
+      odf_text_text_and_note_citations->update_current_paragraph_style (combined_style);
   }
 }
 
@@ -1642,12 +1741,20 @@ void Filter_Text::applyDropCapsToCurrentParagraph (int dropCapsLength)
 // This puts the chapter number in a frame in the current paragraph.
 // This is to put the chapter number in a frame so it looks like drop caps in the OpenDocument.
 // $chapterText: The text of the chapter indicator to put.
-void Filter_Text::putChapterNumberInFrame (std::string chapterText)
+void Filter_Text::put_chapter_number_in_frame (std::string chapter_text)
 {
-  database::styles1::Item style = styles[chapterMarker];
-  if (odf_text_standard) odf_text_standard->place_text_in_frame (chapterText, this->chapterMarker, style.fontsize, style.italic, style.bold);
-  if (odf_text_text_only) odf_text_text_only->place_text_in_frame (chapterText, this->chapterMarker, style.fontsize, style.italic, style.bold);
-  if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->place_text_in_frame (chapterText, this->chapterMarker, style.fontsize, style.italic, style.bold);
+  // Get the chapter marker, that is \c.
+  const stylesv2::Style* style {database::styles::get_marker_data (m_stylesheet, chapter_marker)};
+  // In the unlikely case the chapter style is not valid, take defaults as fallback options.
+  const float font_size = style->paragraph ? style->paragraph.value().font_size : 12;
+  const auto italic = style->paragraph ? style->paragraph.value().italic : stylesv2::TwoState::off;
+  const auto bold = style->paragraph ? style->paragraph.value().bold : stylesv2::TwoState::off;
+  if (odf_text_standard)
+    odf_text_standard->place_text_in_frame (chapter_text, chapter_marker, font_size, italic, bold);
+  if (odf_text_text_only)
+    odf_text_text_only->place_text_in_frame (chapter_text, chapter_marker, font_size, italic, bold);
+  if (odf_text_text_and_note_citations)
+    odf_text_text_and_note_citations->place_text_in_frame (chapter_text, chapter_marker, font_size, italic, bold);
 }
 
 
@@ -1659,20 +1766,21 @@ void Filter_Text::putChapterNumberInFrame (std::string chapterText)
 // The note citation is the character that is put in superscript in the main body of Bible text.
 // $style: array with values for the note opening marker.
 // Returns: The character for the note citation.
-std::string Filter_Text::getNoteCitation (const database::styles1::Item & style)
+std::string Filter_Text::get_note_citation (const std::string& marker)
 {
-  bool end_of_text_reached = (chapter_usfm_markers_and_text_pointer + 1) >= chapter_usfm_markers_and_text.size ();
-  if (end_of_text_reached) return std::string();
+  const bool end_of_text_reached = (chapter_usfm_markers_and_text_pointer + 1) >= chapter_usfm_markers_and_text.size ();
+  if (end_of_text_reached)
+    return std::string();
 
   // Extract the raw note citation from the USFM. This could be, e.g. '+'.
-  std::string nextText = chapter_usfm_markers_and_text [chapter_usfm_markers_and_text_pointer + 1];
-  std::string citation = nextText.substr (0, 1);
-  nextText = filter::strings::ltrim (nextText.substr (1));
-  chapter_usfm_markers_and_text [chapter_usfm_markers_and_text_pointer + 1] = nextText;
+  std::string next_text = chapter_usfm_markers_and_text [chapter_usfm_markers_and_text_pointer + 1];
+  std::string citation = next_text.substr (0, 1);
+  next_text = filter::strings::ltrim (next_text.substr (1));
+  chapter_usfm_markers_and_text [chapter_usfm_markers_and_text_pointer + 1] = next_text;
   citation = filter::strings::trim (citation);
   
   // Get the rendered note citation.
-  citation = note_citations.get(style.marker, citation);
+  citation = note_citations.get(marker, citation);
   return citation;
 }
 
@@ -1681,29 +1789,37 @@ std::string Filter_Text::getNoteCitation (const database::styles1::Item & style)
 // This function ensures that a certain paragraph style for a note is present in the OpenDocument.
 // $marker: Which note, e.g. 'f' or 'x' or 'fe'.
 // $style: The style to use.
-void Filter_Text::ensureNoteParagraphStyle (std::string marker, const database::styles1::Item & style)
+void Filter_Text::ensure_note_paragraph_style (std::string marker, const stylesv2::Style* style)
 {
-  if (find (createdStyles.begin(), createdStyles.end(), marker) == createdStyles.end()) {
-    std::string fontname = database::config::bible::get_export_font (m_bible);
-    float fontsize = style.fontsize;
-    int italic = style.italic;
-    int bold = style.bold;
-    int underline = style.underline;
-    int smallcaps = style.smallcaps;
-    int alignment = style.justification;
-    float spacebefore = style.spacebefore;
-    float spaceafter = style.spaceafter;
-    float leftmargin = style.leftmargin;
-    float rightmargin = style.rightmargin;
-    float firstlineindent = style.firstlineindent;
+  if (find (created_styles.begin(), created_styles.end(), marker) == created_styles.end()) {
+    if (!style)
+      return;
+    if (!style->paragraph)
+      return;
+    const std::string font_name = database::config::bible::get_export_font (m_bible);
+    const float font_size = style->paragraph.value().font_size;
+    const auto italic = style->paragraph.value().italic;
+    const auto bold = style->paragraph.value().bold;
+    const auto underline = style->paragraph.value().underline;
+    const auto smallcaps = style->paragraph.value().smallcaps;
+    const auto text_alignment = style->paragraph.value().text_alignment;
+    const float space_before = style->paragraph.value().space_before;
+    const float space_after = style->paragraph.value().space_after;
+    const float left_margin = style->paragraph.value().left_margin;
+    const float right_margin = style->paragraph.value().right_margin;
+    const float first_line_indent = style->paragraph.value().first_line_indent;
     //bool spancolumns = false;
-    bool keepWithNext = false;
-    int dropcaps = 0;
-    if (odf_text_standard) odf_text_standard->create_paragraph_style (marker, fontname, fontsize, italic, bold, underline, smallcaps, alignment, spacebefore, spaceafter, leftmargin, rightmargin, firstlineindent, keepWithNext, dropcaps);
-    if (odf_text_text_only) odf_text_text_only->create_paragraph_style (marker, fontname, fontsize, italic, bold, underline, smallcaps, alignment, spacebefore, spaceafter, leftmargin, rightmargin, firstlineindent, keepWithNext, dropcaps);
-    if (odf_text_text_and_note_citations) odf_text_text_and_note_citations->create_paragraph_style (marker, fontname, fontsize, italic, bold, underline, smallcaps, alignment, spacebefore, spaceafter, leftmargin, rightmargin, firstlineindent, keepWithNext, dropcaps);
-    if (odf_text_notes) odf_text_notes->create_paragraph_style (marker, fontname, fontsize, italic, bold, underline, smallcaps, alignment, 0, 0, 0, 0, 0, keepWithNext, dropcaps);
-    createdStyles.push_back (marker);
+    constexpr const bool keep_with_next = false;
+    constexpr const int dropcaps = 0;
+    if (odf_text_standard)
+      odf_text_standard->create_paragraph_style (marker, font_name, font_size, italic, bold, underline, smallcaps, text_alignment, space_before, space_after, left_margin, right_margin, first_line_indent, keep_with_next, dropcaps);
+    if (odf_text_text_only)
+      odf_text_text_only->create_paragraph_style (marker, font_name, font_size, italic, bold, underline, smallcaps, text_alignment, space_before, space_after, left_margin, right_margin, first_line_indent, keep_with_next, dropcaps);
+    if (odf_text_text_and_note_citations)
+      odf_text_text_and_note_citations->create_paragraph_style (marker, font_name, font_size, italic, bold, underline, smallcaps, text_alignment, space_before, space_after, left_margin, right_margin, first_line_indent, keep_with_next, dropcaps);
+    if (odf_text_notes)
+      odf_text_notes->create_paragraph_style (marker, font_name, font_size, italic, bold, underline, smallcaps, text_alignment, 0, 0, 0, 0, 0, keep_with_next, dropcaps);
+    created_styles.push_back (marker);
   }
 }
 

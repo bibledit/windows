@@ -41,22 +41,9 @@ void Editor_Usfm2Html::load (std::string usfm)
 
 void Editor_Usfm2Html::stylesheet (const std::string& stylesheet)
 {
-  m_styles.clear();
-  const std::vector <std::string> markers = database::styles1::get_markers (stylesheet);
-  // Load the style information into the object.
-  for (const auto& marker : markers) {
-    database::styles1::Item style = database::styles1::get_marker_data (stylesheet, marker);
-    m_styles [marker] = style;
-    if (style.type == StyleTypeFootEndNote) {
-      if (style.subtype == FootEndNoteSubtypeStandardContent) {
-        m_standard_content_marker_foot_end_note = style.marker;
-      }
-    }
-    if (style.type == StyleTypeCrossreference) {
-      if (style.subtype == CrossreferenceSubtypeStandardContent) {
-        m_standard_content_marker_cross_reference = style.marker;
-      }
-    }
+  m_stylesheet = stylesheet;
+  // Load style version 2 information into the object.
+  for (const stylesv2::Style& style : database::styles::get_styles(stylesheet)) {
     m_note_citations.evaluate_style(style);
   }
 }
@@ -138,9 +125,6 @@ void Editor_Usfm2Html::preprocess ()
   m_current_p_open = false;
   m_note_p_open = false;
 
-  // XPath crashes on Android with libxml2 2.9.2 compiled through the Android NDK.
-  // After the move to pugixml, this no longer applies.
-
   m_body_node = m_document.append_child ("body");
   
   // Create the xml node for the notes container.
@@ -166,8 +150,7 @@ void Editor_Usfm2Html::preprocess ()
 void Editor_Usfm2Html::process ()
 {
   m_markers_and_text_pointer = 0;
-  const size_t markers_and_text_count = m_markers_and_text.size();
-  for (m_markers_and_text_pointer = 0; m_markers_and_text_pointer < markers_and_text_count; m_markers_and_text_pointer++) {
+  for (m_markers_and_text_pointer = 0; m_markers_and_text_pointer < m_markers_and_text.size(); m_markers_and_text_pointer++) {
     const std::string current_item = m_markers_and_text[m_markers_and_text_pointer];
     if (filter::usfm::is_usfm_marker (current_item))
     {
@@ -181,65 +164,73 @@ void Editor_Usfm2Html::process ()
       if (m_preview)
         if (is_opening_marker)
           filter::usfm::remove_word_level_attributes (marker, m_markers_and_text, m_markers_and_text_pointer);
-
-      if (m_styles.count (marker))
+      if (const stylesv2::Style* style {database::styles::get_marker_data (m_stylesheet, marker)}; style)
       {
-        const database::styles1::Item& style = m_styles.at(marker);
-        switch (style.type)
-        {
-          case StyleTypeIdentifier:
+        switch (style->type) {
+          case stylesv2::Type::starting_boundary:
+          case stylesv2::Type::none:
+          case stylesv2::Type::book_id:
+          case stylesv2::Type::usfm_version:
+          case stylesv2::Type::file_encoding:
+          case stylesv2::Type::remark:
+          case stylesv2::Type::running_header:
+          case stylesv2::Type::long_toc_text:
+          case stylesv2::Type::short_toc_text:
+          case stylesv2::Type::book_abbrev:
           {
-            if (style.subtype == IdentifierSubtypePublishedVerseMarker) {
-              // Treat the \vp ...\vp* marker as inline text.
-              if (is_opening_marker) {
-                open_text_style (style, is_embedded_marker);
-              } else {
-                close_text_style (is_embedded_marker);
-              }
-            } else {
-              // Any other identifier: Plain text.
-              close_text_style (false);
-              output_as_is (marker, is_opening_marker);
-            }
+            // Output as plain text.
+            close_text_style (false);
+            output_as_is (marker, is_opening_marker);
             break;
           }
-          case StyleTypeNotUsedComment:
-          case StyleTypeNotUsedRunningHeader:
+          case stylesv2::Type::introduction_end:
+          {
+            // Output as plain text.
+            close_text_style (false);
+            output_as_is (marker, is_opening_marker);
+            break;
+          }
+          case stylesv2::Type::title:
+          case stylesv2::Type::heading:
+          case stylesv2::Type::paragraph:
+          {
+            // Output as a paragraph.
+            close_text_style (false);
+            close_paragraph ();
+            if (is_opening_marker)
+              new_paragraph (marker);
+            break;
+          }
+          case stylesv2::Type::chapter:
+          {
+            close_text_style (false);
+            close_paragraph ();
+            new_paragraph (marker);
+            break;
+          }
+          case stylesv2::Type::chapter_label:
+          case stylesv2::Type::published_chapter_marker:
+          case stylesv2::Type::alternate_chapter_number:
+          {
+            // Output as plain text.
+            close_text_style (false);
+            output_as_is (marker, is_opening_marker);
+            break;
+          }
+          case stylesv2::Type::table_row:
           {
             close_text_style (false);
             output_as_is (marker, is_opening_marker);
             break;
           }
-          case StyleTypeStartsParagraph:
+          case stylesv2::Type::table_heading:
+          case stylesv2::Type::table_cell:
           {
             close_text_style (false);
-            close_paragraph ();
-            new_paragraph (marker);
+            open_text_style (style->marker, false);
             break;
           }
-          case StyleTypeInlineText:
-          {
-            if (is_opening_marker) {
-              // Be sure the road ahead is clear.
-              if (road_is_clear ()) {
-                open_text_style (style, is_embedded_marker);
-                extract_word_level_attributes();
-              } else {
-                add_text (filter::usfm::get_opening_usfm (marker));
-              }
-            } else {
-              close_text_style (is_embedded_marker);
-            }
-            break;
-          }
-          case StyleTypeChapterNumber:
-          {
-            close_text_style (false);
-            close_paragraph ();
-            new_paragraph (marker);
-            break;
-          }
-          case StyleTypeVerseNumber:
+          case stylesv2::Type::verse:
           {
             // Close any existing text style.
             close_text_style (false);
@@ -248,7 +239,7 @@ void Editor_Usfm2Html::process ()
               add_text (" ");
             }
             // Open verse style, record verse/length, add verse number, close style again, and add a space.
-            open_text_style (style, false);
+            open_text_style (style->marker, false);
             std::string text_following_marker = filter::usfm::get_text_following_marker (m_markers_and_text, m_markers_and_text_pointer);
             const std::string number = filter::usfm::peek_verse_number (text_following_marker);
             m_verse_start_offsets [filter::strings::convert_to_int (number)] = static_cast<int>(m_text_tength);
@@ -268,148 +259,132 @@ void Editor_Usfm2Html::process ()
             }
             break;
           }
-          case StyleTypeFootEndNote:
+          case stylesv2::Type::published_verse_marker:
+          case stylesv2::Type::alternate_verse_marker:
           {
-            switch (style.subtype)
-            {
-              case FootEndNoteSubtypeFootnote:
-              case FootEndNoteSubtypeEndnote:
-              {
-                close_text_style (false);
-                if (is_opening_marker) {
-                  const std::string caller = m_note_citations.get (style.marker, "+");
-                  add_note (caller, marker);
-                } else {
-                  close_current_note ();
-                }
-                break;
-              }
-              case FootEndNoteSubtypeStandardContent:
-              case FootEndNoteSubtypeContent:
-              case FootEndNoteSubtypeContentWithEndmarker:
-              {
-                if (is_opening_marker) {
-                  open_text_style (style, is_embedded_marker);
-                } else {
-                  close_text_style (is_embedded_marker);
-                }
-                break;
-              }
-              case FootEndNoteSubtypeParagraph:
-              default:
-              {
-                close_text_style (false);
-                break;
-              }
+            // Treat the \vp ...\vp* marker as inline text.
+            // Same for \va ...\va*.
+            if (is_opening_marker) {
+              open_text_style (style->marker, is_embedded_marker);
+            } else {
+              close_text_style (is_embedded_marker);
             }
             break;
           }
-          case StyleTypeCrossreference:
+          case stylesv2::Type::footnote_wrapper:
+          case stylesv2::Type::endnote_wrapper:
           {
-            switch (style.subtype)
-            {
-              case CrossreferenceSubtypeCrossreference:
-              {
-                close_text_style (false);
-                if (is_opening_marker) {
-                  const std::string caller = m_note_citations.get (style.marker, "+");
-                  add_note (caller, marker);
-                } else {
-                  close_current_note ();
-                }
-                break;
-              }
-              case CrossreferenceSubtypeContent:
-              case CrossreferenceSubtypeContentWithEndmarker:
-              case CrossreferenceSubtypeStandardContent:
-              {
-                if (is_opening_marker) {
-                  open_text_style (style, is_embedded_marker);
-                  // Deal in a special way with possible word-level attributes.
-                  // Note open | Extract word-level attributes
-                  //  yes      |  no
-                  //  no       |  yes
-                  //-----------------
-                  // In other words, if a note is open, which is the normal case,
-                  // then don't extract the word-level attributes, but output them as they are.
-                  // But if a note is not open, it is assumed to be a link reference in the main text body.
-                  // In such a case, extract the word-level attributes as usual.
-                  if (!m_note_opened)
-                      extract_word_level_attributes();
-                } else {
-                  close_text_style (is_embedded_marker);
-                }
-                break;
-              }
-              default:
-              {
-                close_text_style (false);
-                break;
-              }
+            close_text_style (false);
+            if (is_opening_marker) {
+              const std::string caller = m_note_citations.get (style->marker, "+");
+              add_note (caller, marker);
+            } else {
+              close_current_note ();
             }
             break;
           }
-          case StyleTypePeripheral:
-          {
-            close_text_style (false);
-            output_as_is (marker, is_opening_marker);
-            break;
-          }
-          case StyleTypePicture:
-          {
-            close_text_style (false);
-            output_as_is (marker, is_opening_marker);
-            break;
-          }
-          case StyleTypePageBreak:
-          {
-            close_text_style (false);
-            output_as_is (marker, is_opening_marker);
-            break;
-          }
-          case StyleTypeTableElement:
-          {
-            close_text_style (false);
-            switch (style.subtype)
-            {
-              case TableElementSubtypeRow:
-              {
-                output_as_is (marker, is_opening_marker);
-                break;
-              }
-              case TableElementSubtypeHeading:
-              case TableElementSubtypeCell:
-              {
-                open_text_style (style, false);
-                break;
-              }
-              default:
-              {
-                open_text_style (style, false);
-                break;
-              }
-            }
-            break;
-          }
-          case StyleTypeWordlistElement:
+          case stylesv2::Type::note_standard_content:
+          case stylesv2::Type::note_content:
+          case stylesv2::Type::note_content_with_endmarker:
+          case stylesv2::Type::note_paragraph:
           {
             if (is_opening_marker) {
-              open_text_style (style, false);
+              open_text_style (style->marker, is_embedded_marker);
+            } else {
+              close_text_style (is_embedded_marker);
+            }
+            break;
+          }
+          case stylesv2::Type::crossreference_wrapper:
+          {
+            close_text_style (false);
+            if (is_opening_marker) {
+              const std::string caller = m_note_citations.get (style->marker, "+");
+              add_note (caller, marker);
+            } else {
+              close_current_note ();
+            }
+            break;
+          }
+          case stylesv2::Type::crossreference_standard_content:
+          case stylesv2::Type::crossreference_content:
+          case stylesv2::Type::crossreference_content_with_endmarker:
+          {
+            if (is_opening_marker) {
+              open_text_style (style->marker, is_embedded_marker);
+              // Deal in a special way with possible word-level attributes.
+              // Note open | Extract word-level attributes
+              //  yes      |  no
+              //  no       |  yes
+              //-----------------
+              // In other words, if a note is open, which is the normal case,
+              // then don't extract the word-level attributes, but output them as they are.
+              // But if a note is not open, it is assumed to be a link reference in the main text body.
+              // In such a case, extract the word-level attributes as usual.
+              if (!m_note_opened)
+                extract_word_level_attributes();
+            } else {
+              close_text_style (is_embedded_marker);
+            }
+            break;
+          }
+          case stylesv2::Type::character:
+          {
+            if (is_opening_marker) {
+              // Be sure the road ahead is clear.
+              if (road_is_clear ()) {
+                open_text_style (style->marker, is_embedded_marker);
+                extract_word_level_attributes();
+              } else {
+                add_text (filter::usfm::get_opening_usfm (marker));
+              }
+            } else {
+              close_text_style (is_embedded_marker);
+            }
+            break;
+          }
+          case stylesv2::Type::page_break:
+          {
+            close_text_style (false);
+            output_as_is (marker, is_opening_marker);
+            break;
+          }
+          case stylesv2::Type::figure:
+          {
+            close_text_style (false);
+            output_as_is (marker, is_opening_marker);
+            break;
+          }
+          case stylesv2::Type::word_list:
+          {
+            if (is_opening_marker) {
+              open_text_style (marker, false);
               extract_word_level_attributes();
             } else {
               close_text_style (false);
             }
             break;
           }
-          default:
+          case stylesv2::Type::sidebar_begin:
+          case stylesv2::Type::sidebar_end:
           {
-            // This marker is known in the stylesheet, but not yet implemented here.
+            // Output as plain text.
             close_text_style (false);
             output_as_is (marker, is_opening_marker);
             break;
           }
+          case stylesv2::Type::peripheral:
+          {
+            close_text_style (false);
+            output_as_is (marker, is_opening_marker);
+            break;
+          }
+          case stylesv2::Type::stopping_boundary:
+          default:
+            break;
         }
-      } else {
+      }
+      else {
         // This is a marker unknown in the stylesheet.
         close_text_style (false);
         output_as_is (marker, is_opening_marker);
@@ -479,9 +454,8 @@ void Editor_Usfm2Html::close_paragraph ()
 // This opens a text style.
 // $style: the array containing the style variables.
 // $embed: boolean: Whether to open embedded / nested style.
-void Editor_Usfm2Html::open_text_style (const database::styles1::Item& style, const bool embed)
+void Editor_Usfm2Html::open_text_style (const std::string& marker, const bool embed)
 {
-  const std::string marker = style.marker;
   if (m_note_opened) {
     if (!embed)
       m_current_note_text_styles.clear();
@@ -662,165 +636,8 @@ void Editor_Usfm2Html::add_notel_link (pugi::xml_node& dom_node, const int ident
 // Returns true if the road ahead is clear for the current marker.
 bool Editor_Usfm2Html::road_is_clear ()
 {
-  // Determine the input.
-  std::string input_marker {};
-  bool input_opener {false};
-  bool input_embedded {false};
-  int input_type {0};
-  int input_subtype {0};
-  {
-    const std::string current_item = m_markers_and_text[m_markers_and_text_pointer];
-    if (!filter::usfm::is_usfm_marker (current_item))
-      return true;
-    input_opener = filter::usfm::is_opening_marker (current_item);
-    input_embedded = filter::usfm::is_embedded_marker (current_item);
-    const std::string marker = filter::usfm::get_marker (current_item);
-    input_marker = marker;
-    if (!m_styles.count (marker))
-      return true;
-    database::styles1::Item style = m_styles [marker];
-    input_type = style.type;
-    input_subtype = style.subtype;
-  }
-  
-  // Determine the road ahead.
-  std::vector <std::string> markers {};
-  std::vector <int> types {};
-  std::vector <int> subtypes {};
-  std::vector <bool> openers {};
-  std::vector <bool> embeddeds {};
-
-  bool end_chapter_reached {false};
-  {
-    bool done {false};
-    const size_t markers_and_text_count = m_markers_and_text.size();
-    for (size_t pointer = m_markers_and_text_pointer + 1; pointer < markers_and_text_count; pointer++) {
-      if (done)
-        continue;
-      const std::string& current_item = m_markers_and_text.at(pointer);
-      if (filter::usfm::is_usfm_marker (current_item))
-      {
-        const std::string marker = filter::usfm::get_marker (current_item);
-        if (m_styles.count (marker))
-        {
-          database::styles1::Item& style = m_styles.at(marker);
-          markers.push_back (marker);
-          types.push_back (style.type);
-          subtypes.push_back (style.subtype);
-          openers.push_back (filter::usfm::is_opening_marker (current_item));
-          embeddeds.push_back (filter::usfm::is_embedded_marker (current_item));
-          // Don't go beyond the next verse marker.
-          if (style.type == StyleTypeVerseNumber)
-            done = true;
-        }
-      }
-    }
-    if (!done)
-      end_chapter_reached = true;
-  }
-  
-  // Go through the road ahead, and assess it.
-  for (size_t i {0}; i < types.size (); i++) {
-    
-    const std::string& marker = markers.at(i);
-    const int type = types [i];
-    const int subtype = subtypes [i];
-    const bool opener = openers [i];
-    [[maybe_unused]] const bool embedded = embeddeds [i];
-    
-    // The input is a note opener.
-    if (input_type == StyleTypeFootEndNote) {
-      if (input_opener) {
-        if ((input_subtype == FootEndNoteSubtypeFootnote) || (input_subtype == FootEndNoteSubtypeEndnote)) {
-          // Encounters note closer: road is clear.
-          // Encounters another note opener: blocker.
-          if (type == StyleTypeFootEndNote) {
-            if ((subtype == FootEndNoteSubtypeFootnote) || (subtype == FootEndNoteSubtypeEndnote)) {
-              if (opener)
-                return false;
-              else
-                return true;
-            }
-          }
-          // Encounters a verse: blocker.
-          if (type == StyleTypeVerseNumber)
-            return false;
-          // Encounters cross reference opener: blocker.
-          // Other \x.. markup is allowed.
-          if (type == StyleTypeCrossreference) {
-            if (subtype == CrossreferenceSubtypeCrossreference) {
-              return false;
-            }
-          }
-        }
-      }
-    }
-    
-    // The input is a cross reference opener.
-    if (input_type == StyleTypeCrossreference) {
-      if (input_opener) {
-        if (input_subtype == CrossreferenceSubtypeCrossreference) {
-          // Encounters xref closer: road is clear.
-          // Encounters another xref opener: blocker.
-          if (type == StyleTypeCrossreference) {
-            if (subtype == CrossreferenceSubtypeCrossreference) {
-              if (opener)
-                return false;
-              else
-                return true;
-            }
-          }
-          // Encounters a verse: blocker.
-          if (type == StyleTypeVerseNumber)
-            return false;
-          // Encounters foot- or endnote opener: blocker.
-          // Other \f.. markup is allowed.
-          if (type == StyleTypeFootEndNote) {
-            if ((subtype == FootEndNoteSubtypeFootnote) || (subtype == FootEndNoteSubtypeEndnote)) {
-              return false;
-            }
-          }
-        }
-      }
-    }
-    
-    // The input to check the road ahead for is an inline text opener, non-embedded, like "\add ".
-    if (input_type == StyleTypeInlineText) {
-      // If the input is embedded, declare the road ahead to be clear.
-      if (input_embedded)
-        return true;
-      if (input_opener && !input_embedded) {
-        if (type == StyleTypeInlineText) {
-          if (embedded) {
-            // An embedded inline marker is OK: Road ahead is clear.
-            return true;
-          } else {
-            // It it encounters another non-embedded inline opening marker, that's a blocker.
-            if (opener)
-              return false;
-            // If it finds a matching closing marker: OK.
-            if (input_marker == marker) {
-              if (!opener)
-                return true;
-            }
-          }
-        }
-        // The inline text opener encounters a verse: blocker.
-        if (type == StyleTypeVerseNumber)
-          return false;
-        // The inline text opener encounters a paragraph: blocker.
-        if (type == StyleTypeStartsParagraph)
-          return false;
-      }
-    }
-  }
-
-  // Nothing clearing the way was found, and if it reached the end of the chapter, that's a blocker.
-  if (end_chapter_reached)
-    return false;
-  
-  // No blockers found: The road is clear.
-  return true;
+  // Call a unit testable function to do the work.
+  return ::road_is_clear (m_markers_and_text, m_markers_and_text_pointer, m_stylesheet);
 }
 
 
@@ -891,4 +708,236 @@ void Editor_Usfm2Html::add_word_level_attributes(const std::string id)
 
   // Add the word-level attributes as text.
   p_node.text ().set (m_pending_word_level_attributes.value().c_str());
+}
+
+
+// Returns true if the road ahead is clear for the current marker.
+bool road_is_clear(const std::vector<std::string>& markers_and_text,
+                   const unsigned int markers_and_text_pointer,
+                   const std::string& stylesheet)
+{
+  // Section 1: Functions to find marker properties.
+  
+  // Function to determine whether it is starting a paragraph.
+  const auto starts_paragraph = [](const stylesv2::Style* style_v2) {
+    if (style_v2) {
+      if (style_v2->type == stylesv2::Type::title)
+        return true;
+      if (style_v2->type == stylesv2::Type::heading)
+        return true;
+      if (style_v2->type == stylesv2::Type::paragraph)
+        return true;
+    }
+    return false;
+  };
+  
+  // Function to determine whether it is inline text.
+  const auto is_inline_text = [](const stylesv2::Style* style_v2) {
+    if (style_v2) {
+      if (style_v2->type == stylesv2::Type::character)
+        return true;
+    }
+    return false;
+  };
+  
+  // Function to determine whether it is a verse number markup.
+  const auto is_verse_number = [](const stylesv2::Style* style) {
+    if (style)
+      if (style->type == stylesv2::Type::verse)
+        return true;
+    return false;
+  };
+
+  // Function to determine whether the type is a footnote / endnote.
+  const auto is_note_type = [](const stylesv2::Style* style_v2) {
+    if (style_v2) {
+      if (style_v2->type == stylesv2::Type::footnote_wrapper)
+        return true;
+      if (style_v2->type == stylesv2::Type::endnote_wrapper)
+        return true;
+      if (style_v2->type == stylesv2::Type::note_standard_content)
+        return true;
+      if (style_v2->type == stylesv2::Type::note_content)
+        return true;
+      if (style_v2->type == stylesv2::Type::note_content_with_endmarker)
+        return true;
+      if (style_v2->type == stylesv2::Type::note_paragraph)
+        return true;
+    }
+    return false;
+  };
+  
+  // Function to determine whether the style is a footnote / endnote wrapper.
+  const auto is_footnote_endnote_wrapper = [](const stylesv2::Style* style_v2) {
+    if (style_v2) {
+      if (style_v2->type == stylesv2::Type::footnote_wrapper)
+        return true;
+      if (style_v2->type == stylesv2::Type::endnote_wrapper)
+        return true;
+    }
+    return false;
+  };
+
+  // Function to determine whether the type is a footnote / endnote.
+  const auto is_xref_type = [](const stylesv2::Style* style_v2) {
+    if (style_v2) {
+      if (style_v2->type == stylesv2::Type::crossreference_wrapper)
+        return true;
+      if (style_v2->type == stylesv2::Type::crossreference_standard_content)
+        return true;
+      if (style_v2->type == stylesv2::Type::crossreference_content)
+        return true;
+      if (style_v2->type == stylesv2::Type::crossreference_content_with_endmarker)
+        return true;
+    }
+    return false;
+  };
+  
+  // Function to determine whether the subtype is a footnote / endnote.
+  const auto is_xref_subtype = [](const stylesv2::Style* style_v2) {
+    if (style_v2) {
+      if (style_v2->type == stylesv2::Type::crossreference_wrapper)
+        return true;
+    }
+    return false;
+  };
+
+  // Section 2: Implementation code.
+
+  // If the input is not a marker, the road ahead is clear.
+  const std::string input_item = markers_and_text[markers_and_text_pointer];
+  if (!filter::usfm::is_usfm_marker (input_item))
+    return true;
+
+  // The marker. If not in stylesheet v2, the road is clear.
+  const std::string input_marker {filter::usfm::get_marker (input_item)};
+  const stylesv2::Style* input_style_v2 {database::styles::get_marker_data (stylesheet, input_marker)};
+  if (!input_style_v2)
+    return true;
+
+  // Determine the input markup properties.
+  const bool input_opener {filter::usfm::is_opening_marker (input_item)};
+  const bool input_embedded {filter::usfm::is_embedded_marker (input_item)};
+
+  // If the imput markup is embedded inline text, the road ahead is clear.
+  if (is_inline_text(input_style_v2))
+    if (input_embedded)
+      return true;
+  
+  // Determine the road ahead that follows the input markup.
+  bool verse_boundary_reached {false};
+  for (size_t pointer {markers_and_text_pointer + 1}; pointer < markers_and_text.size(); pointer++) {
+    
+    // If ready, skip the rest of the markup.
+    if (verse_boundary_reached)
+      continue;
+    
+    // Gather data about the current marker.
+    const std::string& current_item = markers_and_text.at(pointer);
+    if (filter::usfm::is_usfm_marker (current_item))
+    {
+      const std::string marker = filter::usfm::get_marker (current_item);
+      const stylesv2::Style* style_v2 {database::styles::get_marker_data (stylesheet, marker)};
+      if (style_v2)
+      {
+        const bool opener {filter::usfm::is_opening_marker (current_item)};
+        const bool embedded {filter::usfm::is_embedded_marker (current_item)};
+        
+        // Take the next verse marker in account but don't go beyond it.
+        if (is_verse_number(style_v2))
+            verse_boundary_reached = true;
+        
+        // The input is a note opener.
+        if (is_note_type(input_style_v2)) {
+          if (input_opener) {
+            if (is_footnote_endnote_wrapper(input_style_v2)) {
+              // Encounters note closer: road is clear.
+              // Encounters another note opener: blocker.
+              if (is_note_type(style_v2)) {
+                if (is_footnote_endnote_wrapper(style_v2)) {
+                  if (opener)
+                    return false;
+                  else
+                    return true;
+                }
+              }
+              // Encounters a verse: blocker.
+              if (is_verse_number(style_v2))
+                return false;
+              // Encounters cross reference opener or closer: blocker.
+              // Other \x.. markup is allowed.
+              if (is_xref_type(style_v2)) {
+                if (is_xref_subtype(style_v2)) {
+                  return false;
+                }
+              }
+            }
+          }
+        }
+
+        // The input is a cross reference opener.
+        if (is_xref_type(input_style_v2)) {
+          if (input_opener) {
+            if (is_xref_subtype(input_style_v2)) {
+              // Encounters xref closer: road is clear.
+              // Encounters another xref opener: blocker.
+              if (is_xref_type(style_v2)) {
+                if (is_xref_subtype(style_v2)) {
+                  if (opener)
+                    return false;
+                  else
+                    return true;
+                }
+              }
+              // Encounters a verse: blocker.
+              if (is_verse_number(style_v2))
+                return false;
+              // Encounters foot- or endnote opener: blocker.
+              // Other \f.. markup is allowed.
+              if (is_note_type(style_v2)) {
+                if (is_footnote_endnote_wrapper(style_v2)) {
+                  return false;
+                }
+              }
+            }
+          }
+        }
+
+        // The input to check the road ahead for is an inline text opener, non-embedded, like "\add ".
+        if (is_inline_text(input_style_v2)) {
+          if (input_opener && !input_embedded) {
+            if (is_inline_text(style_v2)) {
+              if (embedded) {
+                // An embedded inline marker is OK: Road ahead is clear.
+                return true;
+              }
+              // If it encounters another non-embedded inline opening marker, that's a blocker.
+              if (opener)
+                return false;
+              // If it finds a matching closing marker: OK.
+              if (input_marker == marker) {
+                if (!opener)
+                  return true;
+              }
+            }
+            // The inline text opener encounters a verse: blocker.
+            if (is_verse_number(style_v2))
+              return false;
+            // The inline text opener encounters a paragraph: blocker.
+            if (starts_paragraph(style_v2))
+              return false;
+          }
+        }
+        
+      }
+    }
+  }
+  
+  // If it didn't find the verse markup, it follows that the end of the chapter was reached.
+  // That is a blocker.
+  if (!verse_boundary_reached)
+    return false;
+  
+  // No blockers found: The road is clear.
+  return true;
 }

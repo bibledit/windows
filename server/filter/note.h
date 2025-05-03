@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma once
 
 #include <config/libraries.h>
-#include <database/styles.h>
+namespace stylesv2 { struct Style; }
 
 namespace filter::note {
 
@@ -28,10 +28,10 @@ class citation
 {
 public:
   citation ();
-  void set_sequence (int numbering, const std::string & usersequence);
-  void set_restart (int setting);
+  void set_sequence (std::string sequence_in);
+  void set_restart (const std::string& setting);
   std::string get (std::string citation_in);
-  void run_restart (const std::string & moment);
+  void run_restart(const std::string & moment);
 private:
   std::string restart {};
   unsigned int pointer {0};
@@ -41,10 +41,11 @@ private:
 class citations
 {
 public:
-  void evaluate_style (const database::styles1::Item & style);
-  std::string get (const std::string & marker, const std::string & citation);
-  void restart (const std::string & moment);
+  void evaluate_style (const stylesv2::Style& style);
+  std::string get (const std::string& marker, const std::string& citation);
+  void restart(const std::string& moment);
 private:
+  // Container [marker] = citation.
   std::map <std::string, citation> cache {};
 };
 
