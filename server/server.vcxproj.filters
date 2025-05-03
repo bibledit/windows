@@ -267,9 +267,6 @@
     <ClCompile Include="styles\sheets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="styles\view.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dialog\books.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1467,10 +1464,10 @@
     <ClCompile Include="styles\view2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stylesv2\logic.cpp">
+    <ClCompile Include="database\temporal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="database\temporal.cpp">
+    <ClCompile Include="filter\number.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

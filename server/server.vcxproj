@@ -135,6 +135,7 @@
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -343,6 +344,7 @@
     <ClCompile Include="filter\md5.cpp" />
     <ClCompile Include="filter\merge.cpp" />
     <ClCompile Include="filter\note.cpp" />
+    <ClCompile Include="filter\number.cpp" />
     <ClCompile Include="filter\passage.cpp" />
     <ClCompile Include="filter\roles.cpp" />
     <ClCompile Include="filter\shell.cpp" />
@@ -619,13 +621,11 @@
     <ClCompile Include="sprint\index.cpp" />
     <ClCompile Include="sqlite\sqlite3.c" />
     <ClCompile Include="statistics\statistics.cpp" />
-    <ClCompile Include="stylesv2\logic.cpp" />
     <ClCompile Include="styles\css.cpp" />
     <ClCompile Include="styles\indexm.cpp" />
     <ClCompile Include="styles\logic.cpp" />
     <ClCompile Include="styles\sheetm.cpp" />
     <ClCompile Include="styles\sheets.cpp" />
-    <ClCompile Include="styles\view.cpp" />
     <ClCompile Include="styles\view2.cpp" />
     <ClCompile Include="sword\logic.cpp" />
     <ClCompile Include="sync\bibles.cpp" />
