@@ -1,6 +1,3 @@
-@echo off
-
-
 echo This will copy all Bibledit files into a staging directory
 
 
@@ -33,7 +30,7 @@ echo Copying kernel binary into staging directory
 
 if %arch%==AMD64 (
     echo Copy x64
-    copy x64\Release\server.exe C:\bibledit-windows /Y
+    copy Release\server.exe C:\bibledit-windows /Y
     if %errorlevel% neq 0 ( pause; exit /b %errorlevel% )
 )
 
@@ -80,6 +77,7 @@ if %arch%==ARM64 (
 echo Cleaning unwanted files from staging directory
 if %arch%==AMD64 (
     rmdir /S /Q C:\bibledit-windows\Debug
+    rmdir /S /Q C:\bibledit-windows\Release
     rmdir /S /Q C:\bibledit-windows\x64
 )
 
