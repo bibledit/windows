@@ -30,7 +30,7 @@ echo Copying kernel binary into staging directory
 
 if %arch%==AMD64 (
     echo Copy x64
-    copy Release\server.exe C:\bibledit-windows /Y
+    copy x64\Release\server.exe C:\bibledit-windows /Y
     if %errorlevel% neq 0 ( pause; exit /b %errorlevel% )
 )
 
