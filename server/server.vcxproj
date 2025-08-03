@@ -200,6 +200,7 @@
     <ClCompile Include="checks\french.cpp" />
     <ClCompile Include="checks\headers.cpp" />
     <ClCompile Include="checks\index.cpp" />
+    <ClCompile Include="checks\issues.cpp" />
     <ClCompile Include="checks\logic.cpp" />
     <ClCompile Include="checks\pairs.cpp" />
     <ClCompile Include="checks\run.cpp" />
@@ -246,7 +247,6 @@
     <ClCompile Include="database\etcbc4.cpp" />
     <ClCompile Include="database\git.cpp" />
     <ClCompile Include="database\hebrewlexicon.cpp" />
-    <ClCompile Include="database\imageresources.cpp" />
     <ClCompile Include="database\ipc.cpp" />
     <ClCompile Include="database\jobs.cpp" />
     <ClCompile Include="database\kjv.cpp" />
@@ -285,8 +285,7 @@
     <ClCompile Include="dialog\books.cpp" />
     <ClCompile Include="dialog\color.cpp" />
     <ClCompile Include="dialog\entry.cpp" />
-    <ClCompile Include="dialog\list.cpp" />
-    <ClCompile Include="dialog\list2.cpp" />
+    <ClCompile Include="dialog\select.cpp" />
     <ClCompile Include="dialog\upload.cpp" />
     <ClCompile Include="dialog\yes.cpp" />
     <ClCompile Include="editone\index.cpp" />
@@ -346,6 +345,7 @@
     <ClCompile Include="filter\note.cpp" />
     <ClCompile Include="filter\number.cpp" />
     <ClCompile Include="filter\passage.cpp" />
+    <ClCompile Include="filter\quill.cpp" />
     <ClCompile Include="filter\roles.cpp" />
     <ClCompile Include="filter\shell.cpp" />
     <ClCompile Include="filter\string.cpp" />
@@ -378,9 +378,8 @@
     <ClCompile Include="locale\logic.cpp" />
     <ClCompile Include="locale\translate.cpp" />
     <ClCompile Include="manage\accounts.cpp" />
+    <ClCompile Include="manage\bibles.cpp" />
     <ClCompile Include="manage\exports.cpp" />
-    <ClCompile Include="manage\hyphenate.cpp" />
-    <ClCompile Include="manage\hyphenation.cpp" />
     <ClCompile Include="manage\index.cpp" />
     <ClCompile Include="manage\privileges.cpp" />
     <ClCompile Include="manage\users.cpp" />
@@ -544,7 +543,6 @@
     <ClCompile Include="public\notes.cpp" />
     <ClCompile Include="pugixml\pugixml.cpp" />
     <ClCompile Include="pugixml\utils.cpp" />
-    <ClCompile Include="quill\logic.cpp" />
     <ClCompile Include="read\index.cpp" />
     <ClCompile Include="read\load.cpp" />
     <ClCompile Include="read\verse.cpp" />
@@ -560,10 +558,6 @@
     <ClCompile Include="resource\download.cpp" />
     <ClCompile Include="resource\external.cpp" />
     <ClCompile Include="resource\get.cpp" />
-    <ClCompile Include="resource\image.cpp" />
-    <ClCompile Include="resource\imagefetch.cpp" />
-    <ClCompile Include="resource\images.cpp" />
-    <ClCompile Include="resource\img.cpp" />
     <ClCompile Include="resource\index.cpp" />
     <ClCompile Include="resource\logic.cpp" />
     <ClCompile Include="resource\manage.cpp" />
@@ -624,9 +618,10 @@
     <ClCompile Include="styles\css.cpp" />
     <ClCompile Include="styles\indexm.cpp" />
     <ClCompile Include="styles\logic.cpp" />
+    <ClCompile Include="styles\new.cpp" />
     <ClCompile Include="styles\sheetm.cpp" />
     <ClCompile Include="styles\sheets.cpp" />
-    <ClCompile Include="styles\view2.cpp" />
+    <ClCompile Include="styles\view.cpp" />
     <ClCompile Include="sword\logic.cpp" />
     <ClCompile Include="sync\bibles.cpp" />
     <ClCompile Include="sync\changes.cpp" />
