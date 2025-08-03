@@ -46,7 +46,7 @@ const char * index_index_url ()
 
 bool index_index_acl (Webserver_Request& webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::guest ());
+  return roles::access_control (webserver_request, roles::guest);
 }
 
 
@@ -60,7 +60,7 @@ std::string index_index (Webserver_Request& webserver_request)
   const std::string mode = webserver_request.query ["mode"];
   if (!mode.empty ()) {
     const bool basic = (mode == "basic");
-    webserver_request.database_config_user ()->setBasicInterfaceMode (basic);
+    webserver_request.database_config_user ()->set_basic_interface_mode (basic);
     menu_logic_tabbed_mode_save_json (webserver_request);
   }
   

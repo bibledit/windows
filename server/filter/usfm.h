@@ -25,16 +25,15 @@ class Webserver_Request;
 
 namespace filter::usfm {
 
-class BookChapterData
+struct BookChapterData
 {
-public:
-  BookChapterData (int book, int chapter, std::string data);
+  BookChapterData (const int book, const int chapter, std::string data);
   int m_book { 0 };
   int m_chapter { 0 };
   std::string m_data {};
 };
 
-std::string one_string (std::string usfm);
+std::string one_string (const std::string& usfm);
 std::vector <std::string> get_markers_and_text (std::string code);
 std::string get_marker (std::string usfm);
 std::vector <BookChapterData> usfm_import (std::string input, std::string stylesheet);
@@ -44,7 +43,7 @@ std::vector <int> linenumber_to_versenumber (std::string usfm, unsigned int line
 std::vector <int> offset_to_versenumber (std::string usfm, unsigned int offset);
 int versenumber_to_offset (std::string usfm, int verse);
 std::string get_verse_text (std::string usfm, int verse);
-std::string get_verse_text_quill (std::string usfm, int verse_number);
+std::string get_verse_text_quill (const std::optional<int> chapter, const int verse, std::string usfm);
 std::string get_chapter_text (std::string usfm, int chapter_number);
 std::string get_verse_range_text (std::string usfm, int verse_from, int verse_to, const std::string& exclude_usfm, bool quill);
 bool is_usfm_marker (std::string code);
@@ -73,6 +72,7 @@ void remove_word_level_attributes (const std::string& marker,
                                    std::vector <std::string> & container, const unsigned int pointer);
 std::string extract_fig (std::string usfm, std::string & caption, std::string & alt, std::string& src, std::string& size, std::string& loc, std::string& copy, std::string& ref);
 bool is_standard_q_poetry (const std::string & marker);
+std::string remove_milestone (std::vector <std::string>& container, unsigned int& pointer);
 
 }
 

@@ -21,7 +21,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <config/libraries.h>
 
-void email_send ();
-std::string email_send (std::string to_mail, std::string to_name, std::string subject, std::string body, bool verbose = false);
-void email_schedule (std::string to, std::string subject, std::string body, int time = 0);
-std::string email_setup_information (bool require_send, bool require_receive);
+namespace email {
+
+// Maximum email size, on the safe side, that libcurl can send without it crashing.
+constexpr const int max_email_size {100000};
+
+void send ();
+std::string send (std::string to_mail, std::string to_name, std::string subject, std::string body, bool verbose = false);
+void schedule (std::string to, std::string subject, std::string body, int time = 0);
+std::string setup_information (bool require_send, bool require_receive);
+
+}

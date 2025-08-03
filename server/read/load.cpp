@@ -39,7 +39,7 @@ std::string read_load_url ()
 
 bool read_load_acl (Webserver_Request& webserver_request)
 {
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ()))
+  if (roles::access_control (webserver_request, roles::translator))
     return true;
   auto [ read, write ] = access_bible::any (webserver_request);
   return read;
@@ -64,7 +64,7 @@ std::string read_load (Webserver_Request& webserver_request)
   
   // The Quill-based editor removes empty paragraphs at the end.
   // Therefore do not include them.
-  std::string editable_usfm = filter::usfm::get_verse_text_quill (chapter_usfm, verse);
+  std::string editable_usfm = filter::usfm::get_verse_text_quill (chapter, verse, chapter_usfm);
   
   std::string prefix_usfm = filter::usfm::get_verse_range_text (chapter_usfm, 0, verse - 1, editable_usfm, true);
   std::string suffix_usfm = filter::usfm::get_verse_range_text (chapter_usfm, verse + 1, highest_verse, editable_usfm, true);

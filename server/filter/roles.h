@@ -23,19 +23,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 class Webserver_Request;
 
-class Filter_Roles
-{
-public:
-  static int guest ();
-  static int member ();
-  static int consultant ();
-  static int translator ();
-  static int manager ();
-  static int admin ();
-  static int lowest ();
-  static int highest ();
-  static std::string english (int role);
-  static std::string text (int role);
-  static bool access_control (Webserver_Request& webserver_request, int role);
-private:
-};
+namespace roles {
+
+constexpr const int guest {1};
+constexpr const int member {2};
+constexpr const int consultant {3};
+constexpr const int translator {4};
+constexpr const int manager {5};
+constexpr const int admin {6};
+constexpr const int lowest {guest};
+constexpr const int highest {admin};
+std::string english (const int role);
+std::string text (const int role);
+bool access_control (Webserver_Request& webserver_request, const int role);
+
+}

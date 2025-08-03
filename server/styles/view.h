@@ -23,6 +23,6 @@
 
 class Webserver_Request;
 
-std::string resource_img_url ();
-bool resource_img_acl (Webserver_Request& webserver_request);
-std::string resource_img (Webserver_Request& webserver_request);
+std::string styles_view_url ();
+bool styles_view_acl (Webserver_Request& webserver_request);
+std::string styles_view (Webserver_Request& webserver_request);

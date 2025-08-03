@@ -21,7 +21,6 @@
 #include <assets/view.h>
 #include <assets/page.h>
 #include <dialog/entry.h>
-#include <dialog/list.h>
 #include <filter/roles.h>
 #include <filter/url.h>
 #include <filter/string.h>
@@ -58,7 +57,7 @@ std::string styles_sheetm_url ()
 
 bool styles_sheetm_acl (Webserver_Request& webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
+  return roles::access_control (webserver_request, roles::translator);
 }
 
 
@@ -81,25 +80,7 @@ std::string styles_sheetm (Webserver_Request& webserver_request)
   const std::string& username = webserver_request.session_logic ()->get_username ();
   const int userlevel = webserver_request.session_logic ()->get_level ();
   bool write = database::styles::has_write_access (username, name);
-  if (userlevel >= Filter_Roles::admin ()) write = true;
-  
-  if (webserver_request.post.count ("new")) {
-    std::string newstyle = webserver_request.post["entry"];
-    std::vector <std::string> existing_markers = database::styles::get_markers (name);
-    if (find (existing_markers.begin(), existing_markers.end(), newstyle) != existing_markers.end()) {
-      page += assets_page::error (translate("This style already exists"));
-    } else {
-      database::styles::add_marker (name, newstyle);
-      styles_sheets_create_all ();
-      page += assets_page::success (translate("The style has been created"));
-    }
-  }
-  if (webserver_request.query.count("new")) {
-    Dialog_Entry dialog_entry = Dialog_Entry ("sheetm", translate("Please enter the name for the new style"), "", "new", "");
-    dialog_entry.add_query ("name", name);
-    page += dialog_entry.run ();
-    return page;
-  }
+  if (userlevel >= roles::admin) write = true;
   
   const std::string del = webserver_request.query["delete"];
   if (!del.empty())
@@ -142,7 +123,7 @@ std::string styles_sheetm (Webserver_Request& webserver_request)
       {
         pugi::xml_node td_node = tr_node.append_child("td");
         pugi::xml_node a_node = td_node.append_child("a");
-        const std::string href = "view2?sheet=" + name + "&style=" + marker;
+        const std::string href = "view?sheet=" + name + "&style=" + marker;
         a_node.append_attribute("href") = href.c_str();
         a_node.text().set(marker.c_str());
       }

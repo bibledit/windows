@@ -9,43 +9,33 @@ translate("And changes made in Paratext will be transferred to Bibledit.")
 </p>
 
 <br>
-<table>
-  <tr>
-    <td>translate("Bible in Bibledit")</td>
-    <td>:</td>
-    <td>##bible##</td>
-    <td>
-      <a href="?bible=##bible##&selectbible">[translate ("change")]</a>
-      <!-- #BEGINZONE bibleactive -->
-      <a href="?bible=##bible##&disable=">[translate ("disable")]</a>
-      <!-- #ENDZONE bibleactive -->
-    </td>
-  </tr>
-  <!-- #BEGINZONE bibleactive -->
-  <tr>
-    <td>translate("Paratext Projects folder")</td>
-    <td>:</td>
-    <td>##paratextfolder##</td>
-    <td><a href="?bible=##bible##&paratextfolder">[translate ("change")]</a></td>
-  </tr>
-  <!-- #BEGINZONE paratextprojectsactive -->
-  <tr>
-    <td>translate("Paratext project")</td>
-    <td>:</td>
-    <td>##paratextproject##</td>
-    <td><a href="?bible=##bible##&paratextproject">[translate ("change")]</a></td>
-  </tr>
-  <!-- #BEGINZONE paratextprojectactive -->
-  <tr>
-    <td>translate("Take initial data from")</td>
-    <td>:</td>
-    <td>##master##</td>
-    <td><a href="?bible=##bible##&master">[translate ("change")]</a></td>
-  </tr>
-  <!-- #ENDZONE paratextprojectactive -->
-  <!-- #ENDZONE paratextprojectsactive -->
-  <!-- #ENDZONE bibleactive -->
-</table>
+
+<div>
+translate("Bible in Bibledit"):
+##selectbible##
+<!-- #BEGINZONE bibleactive -->
+<a href="?bible=##bible##&disable=">[translate ("disable")]</a>
+</div>
+
+<p>
+  translate("Paratext Projects folder"):
+  ##paratextfolder##
+  <a href="?bible=##bible##&paratextfolder">[translate ("change")]</a>
+</p>
+
+<!-- #BEGINZONE paratextprojectsactive -->
+<div>
+  translate("Paratext project"):
+  ##paratextproject##
+</div>
+<!-- #BEGINZONE paratextprojectactive -->
+<div>
+  translate("Take initial data from"):
+  ##master##
+</div>
+<!-- #ENDZONE paratextprojectactive -->
+<!-- #ENDZONE paratextprojectsactive -->
+<!-- #ENDZONE bibleactive -->
 
 <!-- #BEGINZONE bibleactive -->
 <!-- #BEGINZONE paratextprojectsactive -->

@@ -5,14 +5,9 @@
 
 <!-- #BEGINZONE manager -->
 <p>
-  translate("Versification system"):
-  <!-- #BEGINZONE write_access -->
-    <a href="settings?bible=##bible##&versification=">
-  <!-- #ENDZONE write_access -->
-  ##versification##
-  <!-- #BEGINZONE write_access -->
-  </a>
-  <!-- #ENDZONE write_access -->
+translate("Versification system")
+##versification##
+translate("The number of chapters in a book and the number of verses in a chapter.")
 </p>
 <!-- #ENDZONE manager -->
 
@@ -63,29 +58,19 @@ translate("The public can give feedback")
 <input type="checkbox" name="rss" onchange="checkbox_v2(this, '##bible##')" ##rss## />
 <a href="/##systemindex##">translate("Send the changes to the RSS feed")</a>
 </p>
-<p><a href="?bible=##bible##&resource=">translate("Import text from a resource")</a></p>
+<div>translate("Import text from a resource") ##resource##</div>
 <!-- #ENDZONE server -->
 <!-- #ENDZONE write_access -->
 
 <p>
-translate("Stylesheet for editing"):
-<!-- #BEGINZONE privilege_stylesheet -->
-<a href="settings?bible=##bible##&stylesheetediting=">
-  <!-- #ENDZONE privilege_stylesheet -->
-  ##stylesheetediting##
-  <!-- #BEGINZONE privilege_stylesheet -->
-</a>
-<!-- #ENDZONE privilege_stylesheet -->
+translate("Stylesheet for editing")
+##stylesheetediting##
+translate("This affects how the Bible text looks in the editor.")
 </p>
 <p>
-translate("Stylesheet for export"):
-<!-- #BEGINZONE privilege_stylesheet -->
-<a href="settings?bible=##bible##&stylesheetexport=">
-  <!-- #ENDZONE privilege_stylesheet -->
-  ##stylesheetexport##
-  <!-- #BEGINZONE privilege_stylesheet -->
-</a>
-<!-- #ENDZONE privilege_stylesheet -->
+translate("Stylesheet for export")
+##stylesheetexport##
+translate("This affects how the Bible text looks when exported.")
 </p>
 
 

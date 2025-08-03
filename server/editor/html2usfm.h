@@ -57,6 +57,8 @@ private:
   std::set <std::string> m_note_openers {};
   // Active character styles.
   std::vector <std::string> m_character_styles {};
+  // Milestone markers.
+  std::set <std::string> m_milestone_markers {};
   // Note processing flag.
   bool m_processing_note {false};
   // The most recent style opened inside a note.
@@ -73,8 +75,10 @@ private:
   std::string clean_usfm (std::string usfm);
   pugi::xml_node get_note_pointer (const pugi::xml_node& body, const std::string& id);
   std::string update_quill_class (std::string classname);
-  // Storge fot all the word-level attributes.
+  // Storage fot all the word-level attributes.
   std::map<std::string,std::string> m_word_level_attributes{};
+  // Storage fot all the milestone attributes.
+  std::map<std::string,std::string> m_milestone_attributes{};
   // The last added text fragment, for analysis.
   std::string m_last_added_text_fragment{};
 };

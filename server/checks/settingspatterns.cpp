@@ -41,7 +41,7 @@ bool checks_settingspatterns_acl ([[maybe_unused]] Webserver_Request& webserver_
 #ifdef HAVE_CLIENT
   return true;
 #else
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
+  return roles::access_control (webserver_request, roles::manager);
 #endif
 }
 
@@ -56,7 +56,7 @@ std::string checks_settingspatterns (Webserver_Request& webserver_request)
   Assets_View view {};
   
   
-  const std::string bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->getBible ());
+  const std::string bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->get_bible ());
   
   
   if (webserver_request.post.count ("patterns")) {

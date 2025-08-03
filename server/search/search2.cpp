@@ -33,7 +33,7 @@
 #include <ipc/focus.h>
 #include <search/logic.h>
 #include <menu/logic.h>
-#include <dialog/list2.h>
+#include <dialog/select.h>
 
 
 std::string search_search2_url ()
@@ -44,7 +44,7 @@ std::string search_search2_url ()
 
 bool search_search2_acl (Webserver_Request& webserver_request)
 {
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ()))
+  if (roles::access_control (webserver_request, roles::consultant))
     return true;
   auto [ read, write ] = access_bible::any (webserver_request);
   return read;
@@ -56,7 +56,7 @@ std::string search_search2 (Webserver_Request& webserver_request)
   std::string siteUrl = config::logic::site_url (webserver_request);
   
   
-  std::string bible = webserver_request.database_config_user()->getBible ();
+  std::string bible = webserver_request.database_config_user()->get_bible ();
   if (webserver_request.query.count ("bible")) bible = webserver_request.query ["bible"];
 
   
@@ -199,13 +199,6 @@ std::string search_search2 (Webserver_Request& webserver_request)
   }
 
   
-  // Set the user chosen Bible as the current Bible.
-  if (webserver_request.post.count ("bibleselect")) {
-    std::string bibleselect = webserver_request.post ["bibleselect"];
-    webserver_request.database_config_user ()->setBible (bibleselect);
-    return std::string();
-  }
-  
   // Build the advanced search page.
   std::string page;
   Assets_Header header = Assets_Header (translate("Search"), webserver_request);
@@ -214,14 +207,19 @@ std::string search_search2 (Webserver_Request& webserver_request)
   page = header.run ();
   Assets_View view;
   {
-    std::string bible_html;
-    std::vector <std::string> accessible_bibles = access_bible::bibles (webserver_request);
-    for (auto selectable_bible : accessible_bibles) {
-      bible_html = Options_To_Select::add_selection (selectable_bible, selectable_bible, bible_html);
+    constexpr const char* identification {"bibleselect"};
+    if (webserver_request.post.count (identification)) {
+      bible = webserver_request.post.at(identification);
+      webserver_request.database_config_user ()->set_bible (bible);
     }
-    view.set_variable ("bibleoptags", Options_To_Select::mark_selected (bible, bible_html));
+    dialog::select::Settings settings {
+      .identification = identification,
+      .values = access_bible::bibles (webserver_request),
+      .selected = bible,
+    };
+    dialog::select::Form form { .auto_submit = true };
+    view.set_variable(identification, dialog::select::form(settings, form));
   }
-  view.set_variable ("bible", bible);
   std::stringstream script {};
   script << "var searchBible = " << std::quoted(bible) << ";";
   view.set_variable ("script", script.str());

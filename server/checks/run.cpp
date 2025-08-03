@@ -56,10 +56,10 @@ void checks_run (std::string bible)
   if (bible.empty()) return;
   
   
-  Database_Logs::log ("Check " + bible + ": Start", Filter_Roles::translator ());
+  Database_Logs::log ("Check " + bible + ": Start", roles::translator);
   
   
-  database::check::truncate_output (bible);
+  database::check::delete_output (bible);
   
   
   const std::string stylesheet = database::config::bible::get_export_stylesheet (bible);
@@ -274,10 +274,10 @@ void checks_run (std::string bible)
     const std::string body = filter::strings::implode (emailBody, "\n");
     std::vector <std::string> users = webserver_request.database_users ()->get_users ();
     for (const auto& user : users) {
-      if (webserver_request.database_config_user()->getUserBibleChecksNotification (user)) {
+      if (webserver_request.database_config_user()->get_user_bible_checks_notification (user)) {
         if (access_bible::read (webserver_request, bible, user)) {
           if (!client_logic_client_enabled ()) {
-            email_schedule (user, subject, body);
+            email::schedule (user, subject, body);
           }
         }
       }
@@ -285,5 +285,5 @@ void checks_run (std::string bible)
   }
   
   
-  Database_Logs::log ("Check " + bible + ": Complete", Filter_Roles::translator ());
+  Database_Logs::log ("Check " + bible + ": Complete", roles::translator);
 }

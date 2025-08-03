@@ -21,6 +21,13 @@
 
 #include <config/libraries.h>
 
-void manage_hyphenate (std::string bible, std::string user);
-std::string hyphenate_at_transition (std::vector <std::string>& firstset, std::vector <std::string>& secondset, std::string text);
-bool hyphenate_is_near_white_space (const std::vector <std::string> & characters, int offset);
+namespace checks::space {
+
+void double_space_usfm (const std::string & bible, int book, int chapter, int verse, const std::string & data);
+void space_before_punctuation (const std::string & bible, int book, int chapter, const std::map <int, std::string> & texts);
+void space_end_verse (const std::string & bible, int book, int chapter, const std::string & usfm);
+bool transpose_note_space (std::string & usfm);
+void space_before_final_note_markup (const std::string & bible, int book, int chapter, int verse, const std::string & data);
+
+}
+

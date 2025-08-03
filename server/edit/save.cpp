@@ -37,7 +37,7 @@
 #include <edit/logic.h>
 #include <access/bible.h>
 #include <bb/logic.h>
-#include <quill/logic.h>
+#include <filter/quill.h>
 #include <rss/logic.h>
 #include <sendreceive/logic.h>
 
@@ -50,7 +50,7 @@ std::string edit_save_url ()
 
 bool edit_save_acl (Webserver_Request& webserver_request)
 {
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ()))
+  if (roles::access_control (webserver_request, roles::translator))
     return true;
   auto [ read, write ] = access_bible::any (webserver_request);
   return read;

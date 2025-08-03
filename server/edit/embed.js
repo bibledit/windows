@@ -86,17 +86,28 @@ function editor_determine_character_style (actual, desired)
   // Deal with undefined actual style.
   if (!actual) actual = "";
   
-  // If the desired style is already applied, remove it again.
-  if (desired == actual) return "";
-
-  // If no character style has been applied yet, apply it.
-  if (actual == "") return desired;
-
-  // If the applied style is embedded already, just apply the desired style only.
-  if (actual.indexOf ("0") > 0) return desired;
+  // In most cases there's no embedded styles, so deal with that here.
+  // If the style was already applied, remove it.
+  // If the style was not applied, apply it.
+  if (actual == "")
+    return desired;
+  if (actual == desired)
+    return "";
   
-  // Add the desired style to the one already there.
-  return actual + "0" + desired;
+  // From now on there are embedded styles, put those in a list.
+  var list = actual.split("0");
+
+  // If the desired style is already applied, remove it.
+  // If the desired style is not yet there, add it.
+  if (list.includes(desired)) {
+    list.splice(list.indexOf(desired), 1);
+  } else {
+    list.push(desired);
+  }
+
+  // The new, possibly combined, style.
+  var style = list.join("0");
+  return style;
 }
 
 

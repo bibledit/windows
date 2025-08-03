@@ -1,11 +1,11 @@
 <h2>translate("Manage Checks")</h2>
-<p>
-translate("Bible"): <a href="?bible=">##bible##</a>.
-<!-- #BEGINZONE cloud -->
-translate("It will be checked every night.")
-<!-- #ENDZONE cloud -->
-<a href="?run=">translate("Check it now.")</a>
-</p>
+<div>
+  translate("Bible"): ##bible##
+  <!-- #BEGINZONE cloud -->
+  translate("It will be checked every night.")
+  <!-- #ENDZONE cloud -->
+  <a href="?run=">translate("Check it now.")</a>
+</div>
 <p class="error">##error##</p>
 <p class="success">##success##</p>
 <p>##journal##</p>

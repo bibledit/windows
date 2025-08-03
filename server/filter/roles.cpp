@@ -22,76 +22,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <webserver/request.h>
 
 
-int Filter_Roles::guest ()
+namespace roles {
+
+
+std::string english (const int role)
 {
-  return 1;
-}
-
-
-int Filter_Roles::member ()
-{
-  return 2;
-}
-
-
-int Filter_Roles::consultant ()
-{
-  return 3;
-}
-
-
-int Filter_Roles::translator ()
-{
-  return 4;
-}
-
-
-int Filter_Roles::manager ()
-{
-  return 5;
-}
-
-
-int Filter_Roles::admin ()
-{
-  return 6;
-}
-
-
-int Filter_Roles::lowest ()
-{
-  return guest ();
-}
-
-
-int Filter_Roles::highest ()
-{
-  return admin ();
-}
-
-
-std::string Filter_Roles::english (int role)
-{
-  if (role == admin ()) return "Administrator";
-  if (role == manager ()) return "Manager";
-  if (role == translator ()) return "Translator";
-  if (role == consultant ())return "Consultant";
-  if (role == member ()) return "Member";
+  if (role == admin) return "Administrator";
+  if (role == manager) return "Manager";
+  if (role == translator) return "Translator";
+  if (role == consultant)return "Consultant";
+  if (role == member) return "Member";
   return "Guest";
 }
 
 
-std::string Filter_Roles::text (int role)
+std::string text (const int role)
 {
-  if (role == admin ()) 
+  if (role == admin)
     return translate ("Administrator");
-  if (role == manager ()) 
+  if (role == manager)
     return translate ("Manager");
-  if (role == translator ()) 
+  if (role == translator)
     return translate ("Translator");
-  if (role == consultant ())
+  if (role == consultant)
     return translate ("Consultant");
-  if (role == member ()) 
+  if (role == member)
     return translate ("Member");
   return translate ("Guest");
 }
@@ -99,8 +54,10 @@ std::string Filter_Roles::text (int role)
 
 // This is for access control.
 // The "role" is the role required for the user to have access.
-bool Filter_Roles::access_control (Webserver_Request& webserver_request, int role)
+bool access_control (Webserver_Request& webserver_request, const int role)
 {
-  int level = webserver_request.session_logic ()->get_level ();
+  const int level = webserver_request.session_logic ()->get_level ();
   return level >= role;
+}
+
 }

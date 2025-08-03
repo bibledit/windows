@@ -24,13 +24,6 @@ var verseEditorUniqueID = Math.floor (Math.random() * 100000000);
 
 $ (document).ready (function ()
 {
-  // Listens for bibleselect option tags value change to update the loaded Bible.
-  var bibleSelectionElement = document.querySelector ("#bibleselect");
-  bibleSelectionElement.addEventListener ('change', () => {
-    $.post ("index", { bibleselect: bibleSelectionElement.value })
-      .done (function() { window.location.reload () });
-  });
-
   // Make the editor's menu to never scroll out of view.
   var bar = $ ("#editorheader").remove ();
   $ ("#workspacemenu").append (bar);
@@ -443,7 +436,7 @@ function oneverseActiveStylesFeedback ()
   if (format.character) character = format.character;
   if (character.search ("note") >= 0) character = "";
   var pos = character.indexOf ("wla");
-  character = character.substring(0, pos);
+  if (pos >= 0) character = character.substring(0, pos);
   character = character.split ("0").join (" ");
   var styles = paragraph + " " + character;
   var element = $ ("#oneverseactivestyles");

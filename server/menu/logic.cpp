@@ -46,14 +46,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <journal/index.h>
 #include <locale/translate.h>
 #include <manage/exports.h>
-#include <manage/hyphenation.h>
 #include <manage/users.h>
 #include <mapping/index.h>
 #include <notes/index.h>
 #include <notes/select.h>
 #include <paratext/index.h>
 #include <personalize/index.h>
-#include <resource/images.h>
 #include <resource/index.h>
 #include <resource/manage.h>
 #include <resource/print.h>
@@ -194,7 +192,7 @@ std::string menu_logic_main_categories (Webserver_Request& webserver_request, st
   }
 
   std::string menutooltip;
-  int current_theme_index = webserver_request.database_config_user ()->getCurrentTheme ();
+  int current_theme_index = webserver_request.database_config_user ()->get_current_theme ();
   std::string color = Filter_Css::theme_picker (current_theme_index, 1);
 
   if (!menu_logic_translate_category (webserver_request, &menutooltip).empty ()) {
@@ -247,7 +245,7 @@ std::string menu_logic_main_categories (Webserver_Request& webserver_request, st
 
   // When a user is logged in, and is a guest, put the Logout into the main menu, rather than in a sub menu.
   if (webserver_request.session_logic ()->get_logged_in ()) {
-    if (webserver_request.session_logic ()->get_level () == Filter_Roles::guest ()) {
+    if (webserver_request.session_logic ()->get_level () == roles::guest) {
       if (session_logout_acl (webserver_request)) {
         html.push_back (menu_logic_create_item (session_logout_url (), menu_logic_logout_text (), true, "", ""));
         tooltipbits.push_back (menu_logic_logout_text ());
@@ -288,7 +286,7 @@ std::string menu_logic_basic_categories (Webserver_Request& webserver_request)
 {
   std::vector <std::string> html;
 
-  int current_theme_index = webserver_request.database_config_user ()->getCurrentTheme ();
+  int current_theme_index = webserver_request.database_config_user ()->get_current_theme ();
   std::string color = Filter_Css::theme_picker (current_theme_index, 1);
 
   if (read_index_acl (webserver_request)) {
@@ -304,7 +302,7 @@ std::string menu_logic_basic_categories (Webserver_Request& webserver_request)
   }
   
   if (changes_changes_acl (webserver_request)) {
-    if (webserver_request.database_config_user ()->getMenuChangesInBasicMode ()) {
+    if (webserver_request.database_config_user ()->get_menu_changes_in_basic_mode ()) {
       html.push_back (menu_logic_create_item (changes_changes_url (), menu_logic_changes_text (), true, "", color));
     }
   }
@@ -343,7 +341,7 @@ std::string menu_logic_basic_categories (Webserver_Request& webserver_request)
   // rather than in a sub menu.
 #ifdef HAVE_CLOUD
   if (webserver_request.session_logic ()->get_logged_in ()) {
-    if (webserver_request.session_logic ()->get_level () == Filter_Roles::guest ()) {
+    if (webserver_request.session_logic ()->get_level () == roles::guest) {
       if (session_logout_acl (webserver_request)) {
         html.push_back (menu_logic_create_item (session_logout_url (), menu_logic_logout_text (), true, "", ""));
       }
@@ -365,7 +363,7 @@ std::string menu_logic_workspace_category (Webserver_Request& webserver_request,
   // Add the available configured workspaces to the menu.
   // The user's role should be sufficiently high.
   if (workspace_organize_acl (webserver_request)) {
-    std::string activeWorkspace = webserver_request.database_config_user()->getActiveWorkspace ();
+    std::string activeWorkspace = webserver_request.database_config_user()->get_active_workspace ();
 
     std::vector <std::string> workspaces = workspace_get_names (webserver_request);
     for (size_t i = 0; i < workspaces.size(); i++) {
@@ -531,16 +529,15 @@ std::string menu_logic_search_category (Webserver_Request& webserver_request, st
 std::string menu_logic_tools_category (Webserver_Request& webserver_request, std::string * tooltip)
 {
   // The labels that may end up in the menu.
-  std::string checks = translate ("Checks");
-  std::string consistency = translate ("Consistency");
-  std::string print = translate ("Print");
-  std::string changes = menu_logic_changes_text ();
-  std::string planning = translate ("Planning");
-  std::string send_receive = translate ("Send/receive");
-  std::string hyphenation = translate ("Hyphenate");
-  std::string develop = translate ("Develop");
-  std::string exporting = translate ("Export");
-  std::string journal = translate ("Journal");
+  const std::string checks = translate ("Checks");
+  const std::string consistency = translate ("Consistency");
+  const std::string print = translate ("Print");
+  const std::string changes = menu_logic_changes_text ();
+  const std::string planning = translate ("Planning");
+  const std::string send_receive = translate ("Send/receive");
+  const std::string develop = translate ("Develop");
+  const std::string exporting = translate ("Export");
+  const std::string journal = translate ("Journal");
   std::vector <std::string> labels = {
     checks,
     consistency,
@@ -548,7 +545,6 @@ std::string menu_logic_tools_category (Webserver_Request& webserver_request, std
     changes,
     planning,
     send_receive,
-    hyphenation,
     develop,
     exporting,
     journal
@@ -608,13 +604,6 @@ std::string menu_logic_tools_category (Webserver_Request& webserver_request, std
     if (label == send_receive) {
       if (sendreceive_index_acl (webserver_request)) {
         html.push_back (menu_logic_create_item (sendreceive_index_url (), label, true, "", ""));
-        tiplabels.push_back (label);
-      }
-    }
-    
-    if (label == hyphenation) {
-      if (manage_hyphenation_acl (webserver_request)) {
-        html.push_back (menu_logic_create_item (manage_hyphenation_url (), label, true, "", ""));
         tiplabels.push_back (label);
       }
     }
@@ -842,7 +831,7 @@ std::string menu_logic_settings_category (Webserver_Request& webserver_request, 
       if (!demo) {
         // If logged in, but not as guest, put the Logout menu here.
         if (webserver_request.session_logic ()->get_logged_in ()) {
-          if (webserver_request.session_logic ()->get_level () != Filter_Roles::guest ()) {
+          if (webserver_request.session_logic ()->get_level () != roles::guest) {
             if (session_logout_acl (webserver_request)) {
               html.push_back (menu_logic_create_item (session_logout_url (), menu_logic_logout_text (), true, "", ""));
               tiplabels.push_back (menu_logic_logout_text ());
@@ -874,7 +863,7 @@ std::string menu_logic_settings_category (Webserver_Request& webserver_request, 
 #endif
     
     if (label == basic_mode) {
-      if (webserver_request.session_logic ()->get_level () > Filter_Roles::guest ()) {
+      if (webserver_request.session_logic ()->get_level () > roles::guest) {
         html.push_back (menu_logic_create_item (index_index_url () + filter::strings::convert_to_string ("?mode=basic"), label, true, "", ""));
         tiplabels.push_back (label);
       }
@@ -913,12 +902,6 @@ std::string menu_logic_settings_resources_category ([[maybe_unused]] Webserver_R
 #ifdef HAVE_CLOUD
   if (resource_manage_acl (webserver_request)) {
     html.push_back (menu_logic_create_item (resource_manage_url (), translate ("USFM"), true, "", ""));
-  }
-#endif
-  
-#ifdef HAVE_CLOUD
-  if (resource_images_acl (webserver_request)) {
-    html.push_back (menu_logic_create_item (resource_images_url (), translate ("Images"), true, "", ""));
   }
 #endif
   
@@ -993,7 +976,7 @@ std::string menu_logic_help_category (Webserver_Request& webserver_request)
 bool menu_logic_public_or_guest (Webserver_Request& webserver_request)
 {
   if (webserver_request.session_logic ()->get_username ().empty ()) return true;
-  if (webserver_request.session_logic ()->get_level () == Filter_Roles::guest ()) return true;
+  if (webserver_request.session_logic ()->get_level () == roles::guest) return true;
   return false;
 }
 
@@ -1111,12 +1094,6 @@ std::string menu_logic_resources_text ()
 }
 
 
-std::string menu_logic_resource_images_text ()
-{
-  return translate ("Image resources");
-}
-
-
 std::string menu_logic_manage_users_text ()
 {
   return translate ("Users");
@@ -1189,8 +1166,8 @@ bool menu_logic_editor_enabled (Webserver_Request& webserver_request, bool visua
 {
   // Get the user's preference for the visual or USFM editors.
   int selection = 0;
-  if (visual) selection = webserver_request.database_config_user ()->getFastSwitchVisualEditors ();
-  else selection = webserver_request.database_config_user ()->getFastSwitchUsfmEditors ();
+  if (visual) selection = webserver_request.database_config_user ()->get_fast_switch_visual_editors ();
+  else selection = webserver_request.database_config_user ()->get_fast_switch_usfm_editors ();
 
   if (visual) {
     // Check whether the visual chapter or verse editor is active.
@@ -1253,7 +1230,7 @@ void menu_logic_tabbed_mode_save_json (Webserver_Request& webserver_request)
     bool generate_json = database::config::general::get_menu_in_tabbed_view_on ();
     
     // Tabbed view not possible in advanced mode.
-    if (!webserver_request.database_config_user ()->getBasicInterfaceMode ()) {
+    if (!webserver_request.database_config_user ()->get_basic_interface_mode ()) {
       generate_json = false;
     }
     
@@ -1268,7 +1245,7 @@ void menu_logic_tabbed_mode_save_json (Webserver_Request& webserver_request)
       // Add the consultation notes tab.
       json_array << menu_logic_tabbed_mode_add_tab (notes_index_url (), menu_logic_consultation_notes_text ());
       // Add the change notifications, if enabled.
-      if (webserver_request.database_config_user ()->getMenuChangesInBasicMode ()) {
+      if (webserver_request.database_config_user ()->get_menu_changes_in_basic_mode ()) {
         json_array << menu_logic_tabbed_mode_add_tab (changes_changes_url (), menu_logic_changes_text ());
       }
       // Add the preferences tab.

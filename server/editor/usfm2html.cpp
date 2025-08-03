@@ -24,13 +24,13 @@
 #include <locale/translate.h>
 #include <styles/logic.h>
 #include <database/logs.h>
-#include <quill/logic.h>
+#include <filter/quill.h>
 
 
 void Editor_Usfm2Html::load (std::string usfm)
 {
   // Clean the USFM up.
-  usfm = filter::strings::trim (usfm);
+  usfm = filter::strings::trim (std::move(usfm));
   usfm.append ("\n");
   // Separate the USFM into markers and text fragments.
   // Load it into the object.
@@ -42,7 +42,7 @@ void Editor_Usfm2Html::load (std::string usfm)
 void Editor_Usfm2Html::stylesheet (const std::string& stylesheet)
 {
   m_stylesheet = stylesheet;
-  // Load style version 2 information into the object.
+  // Load style information into the object.
   for (const stylesv2::Style& style : database::styles::get_styles(stylesheet)) {
     m_note_citations.evaluate_style(style);
   }
@@ -60,7 +60,7 @@ std::string Editor_Usfm2Html::get ()
 {
   close_paragraph ();
   
-  // If there are notes, move the notes <p> after everything else.
+  // If there are any notes, move the notes <p> after everything else.
   // (It has the <hr> or <br> as a child).
   {
     const long count = std::distance (m_notes_node.begin (), m_notes_node.end ());
@@ -84,29 +84,42 @@ std::string Editor_Usfm2Html::get ()
   }
 
   // A Quill-based editor does not work with embedded <p> elements.
-  // Move the notes out of their parent and append them to the end of the main body.
+  // Move the word-level attributes out of their parent and append them to the end of the main body.
   while (pugi::xml_node word_level_attribute = m_word_level_attributes_node.first_child ().next_sibling ()) {
     m_body_node.append_move (word_level_attribute);
   }
-  
+
+  // If there are milestone attributes, move the milestone attributes <p> after everything else.
+  {
+    const long count = std::distance (m_milestone_attributes_node.begin (), m_milestone_attributes_node.end ());
+    if (count > 1) {
+      m_body_node.append_move (m_milestone_attributes_node);
+    }
+  }
+
+  // A Quill-based editor does not work with embedded <p> elements.
+  // Move the milestone attributes out of their parent and append them to the end of the main body.
+  while (pugi::xml_node milestone_attribute = m_milestone_attributes_node.first_child ().next_sibling ()) {
+    m_body_node.append_move (milestone_attribute);
+  }
+
   // Get the html code, including body, without head.
   std::stringstream output {};
   m_body_node.print (output, "", pugi::format_raw);
   std::string html = output.str ();
   
   // Remain with the stuff within the <body> elements.
-  size_t pos = html.find ("<body>");
-  if (pos != std::string::npos) {
-    html.erase (0, pos + 6);
-    pos = html.find ("</body>");
-    if (pos != std::string::npos) {
-      html.erase (pos);
+  constexpr const std::string_view body {"<body>"};
+  if (const size_t pos1 = html.find (body); pos1 != std::string::npos) {
+    html.erase (0, pos1 + body.length());
+    if (const size_t pos2 = html.find ("</body>"); pos2 != std::string::npos) {
+      html.erase (pos2);
     }
   }
   
   // Currently the XML library produces hexadecimal character entities.
   // This is unwanted behaviour: Convert them to normal characters.
-  html = filter::strings::convert_xml_character_entities_to_characters (html);
+  html = filter::strings::convert_xml_character_entities_to_characters (std::move(html));
   
   // Result.
   return html;
@@ -124,26 +137,41 @@ void Editor_Usfm2Html::preprocess ()
   m_verse_start_offsets = { std::pair (0, 0) };
   m_current_p_open = false;
   m_note_p_open = false;
-
+  
   m_body_node = m_document.append_child ("body");
   
   // Create the xml node for the notes container.
   // It comes at the start of the document.
   // (Later, it will either be deleted, or moved to the end).
-  std::string notes_class = quill_notes_class;
-  m_notes_node = m_document.append_child ("p");
-  notes_class.insert (0, quill_class_prefix_block);
-  m_notes_node.append_attribute ("class") = notes_class.c_str ();
-  m_notes_node.text().set(filter::strings::non_breaking_space_u00A0().c_str());
-
+  {
+    m_notes_node = m_document.append_child ("p");
+    std::string notes_class = quill::notes_class;
+    notes_class.insert (0, quill::class_prefix_block);
+    m_notes_node.append_attribute ("class") = notes_class.c_str ();
+    m_notes_node.text().set(filter::strings::non_breaking_space_u00A0().c_str());
+  }
+  
   // Create the xml node for the word-level attributes container.
   // It comes near the start of the document.
   // (Later, it will either be deleted, or moved to the end).
-  std::string word_level_attributes_class = quill_word_level_attributes_class;
-  m_word_level_attributes_node = m_document.append_child ("p");
-  word_level_attributes_class.insert (0, quill_class_prefix_block);
-  m_word_level_attributes_node.append_attribute ("class") = word_level_attributes_class.c_str ();
-  m_word_level_attributes_node.text().set(filter::strings::non_breaking_space_u00A0().c_str());
+  {
+    m_word_level_attributes_node = m_document.append_child ("p");
+    std::string word_level_attributes_class = quill::word_level_attributes_class;
+    word_level_attributes_class.insert (0, quill::class_prefix_block);
+    m_word_level_attributes_node.append_attribute ("class") = word_level_attributes_class.c_str ();
+    m_word_level_attributes_node.text().set(filter::strings::non_breaking_space_u00A0().c_str());
+  }
+  
+  // Create the xml node for the milestone attributes container.
+  // It comes near the start of the document.
+  // (Later, it will either be deleted, or moved to the end).
+  {
+    m_milestone_attributes_node = m_document.append_child ("p");
+    std::string milestone_attributes_class = quill::milestone_attributes_class;
+    milestone_attributes_class.insert (0, quill::class_prefix_block);
+    m_milestone_attributes_node.append_attribute ("class") = milestone_attributes_class.c_str ();
+    m_milestone_attributes_node.text().set(filter::strings::non_breaking_space_u00A0().c_str());
+  }
 }
 
 
@@ -162,8 +190,9 @@ void Editor_Usfm2Html::process ()
       // Handle preview mode: Strip word-level attributes.
       // Likely this can be removed from preview since word-level ttributes get extracted.
       if (m_preview)
-        if (is_opening_marker)
+        if (is_opening_marker) {
           filter::usfm::remove_word_level_attributes (marker, m_markers_and_text, m_markers_and_text_pointer);
+        }
       if (const stylesv2::Style* style {database::styles::get_marker_data (m_stylesheet, marker)}; style)
       {
         switch (style->type) {
@@ -276,8 +305,8 @@ void Editor_Usfm2Html::process ()
           {
             close_text_style (false);
             if (is_opening_marker) {
-              const std::string caller = m_note_citations.get (style->marker, "+");
-              add_note (caller, marker);
+              m_last_citation = m_note_citations.get (style->marker, "+");
+              add_note (m_last_citation, marker);
             } else {
               close_current_note ();
             }
@@ -286,8 +315,17 @@ void Editor_Usfm2Html::process ()
           case stylesv2::Type::note_standard_content:
           case stylesv2::Type::note_content:
           case stylesv2::Type::note_content_with_endmarker:
+          {
+            if (is_opening_marker) {
+              open_text_style (style->marker, is_embedded_marker);
+            } else {
+              close_text_style (is_embedded_marker);
+            }
+            break;
+          }
           case stylesv2::Type::note_paragraph:
           {
+            // This should start a new paragraph, but it is implemented like a character style.
             if (is_opening_marker) {
               open_text_style (style->marker, is_embedded_marker);
             } else {
@@ -379,6 +417,25 @@ void Editor_Usfm2Html::process ()
             output_as_is (marker, is_opening_marker);
             break;
           }
+          case stylesv2::Type::milestone:
+          {
+            if (is_opening_marker) {
+              // Check that the road ahead is clear.
+              // Check whether extracting the attributes works.
+              // If anything fails, the text gets added as-is.
+              if (road_is_clear () && extract_milestone_attributes()) {
+                const std::string quill_style = quill::hyphen_to_underscore (style->marker);
+                constexpr const bool embedded {false};
+                open_text_style (quill_style, embedded);
+                if (!m_preview)
+                  add_text(quill::milestone_emoji);
+                close_text_style(embedded);
+              } else {
+                add_text (filter::usfm::get_opening_usfm (marker));
+              }
+            }
+            break;
+          }
           case stylesv2::Type::stopping_boundary:
           default:
             break;
@@ -389,7 +446,15 @@ void Editor_Usfm2Html::process ()
         close_text_style (false);
         output_as_is (marker, is_opening_marker);
       }
-    } else {
+    }
+    else if (current_item == R"(\)") {
+      // Just a backslash.
+      // In the editor, output this in mono font.
+      // See https://github.com/bibledit/cloud/issues/1007
+      close_text_style (false);
+      output_as_is (std::string(), true);
+    }
+    else {
       // Here is no marker. Treat it as text.
       if (m_note_opened) {
         add_note_text (current_item);
@@ -423,7 +488,7 @@ void Editor_Usfm2Html::new_paragraph (std::string style)
   m_current_p_open = true;
   if (!style.empty()) {
     std::string quill_style (style);
-    quill_style.insert (0, quill_class_prefix_block);
+    quill_style.insert (0, quill::class_prefix_block);
     m_current_p_node.append_attribute ("class") = quill_style.c_str();
   }
   m_current_paragraph_style = style;
@@ -519,7 +584,7 @@ void Editor_Usfm2Html::add_text (const std::string& text)
         }
       }
       if (!textstyle.empty())
-        textstyle.insert (0, quill_class_prefix_inline);
+        textstyle.insert (0, quill::class_prefix_inline);
       // If any word-level attributes were extracted, store them here, and empty the container again.
       // Initially the idea was to have a "data-*" attribute and add this to the current <span> element.
       // This works in html, but fails in the Quill editor.
@@ -527,11 +592,19 @@ void Editor_Usfm2Html::add_text (const std::string& text)
       // The word-level attributes are now stored as-is, i.e. in raw format,
       // at the bottom of the html document,
       if (m_pending_word_level_attributes) {
-        const std::string id = std::string(quill_word_level_attribute_class_prefix) + std::to_string(get_word_level_attributes_id(true));
+        const std::string id = std::string(quill::word_level_attribute_class_prefix) + std::to_string(get_word_level_attributes_id(true));
         add_style(id);
         add_word_level_attributes(id);
         m_pending_word_level_attributes.reset();
       }
+      // Same as the above for milestone attributes.
+      if (m_pending_milestone_attributes) {
+        const std::string id = std::string(quill::milestone_attribute_class_prefix) + std::to_string(get_milestone_attributes_id(true));
+        add_style(id);
+        add_milestone_attributes(id);
+        m_pending_milestone_attributes.reset();
+      }
+      // Done.
       return textstyle;
     };
     const std::string textstyle = assemble_text_style();
@@ -546,7 +619,6 @@ void Editor_Usfm2Html::add_text (const std::string& text)
 // This function adds a note to the current paragraph.
 // $citation: The text of the note citation.
 // $style: Style name for the paragraph in the note body.
-// $endnote: Whether this is a footnote and cross reference (false), or an endnote (true).
 void Editor_Usfm2Html::add_note (const std::string& citation, const std::string& style)
 {
   // Be sure that the road ahead is clear.
@@ -564,19 +636,19 @@ void Editor_Usfm2Html::add_note (const std::string& citation, const std::string&
   m_note_opened = true;
   
   // Add the link with all relevant data for the note citation.
-  add_notel_link (m_current_p_node, m_note_count, "call", citation);
+  add_note_link (m_current_p_node, m_note_count, "call", citation);
   
   // Open a paragraph element for the note body.
   m_note_p_node = m_notes_node.append_child ("p");
   m_note_p_open = true;
   std::string class_value (style);
-  class_value.insert (0, quill_class_prefix_block);
+  class_value.insert (0, quill::class_prefix_block);
   m_note_p_node.append_attribute ("class") = class_value.c_str();
   
   close_text_style (false);
   
   // Add the link with all relevant data for the note body.
-  add_notel_link (m_note_p_node, m_note_count, "body", citation);
+  add_note_link (m_note_p_node, m_note_count, "body", citation);
   
   // Add a space.
   add_note_text (" ");
@@ -601,7 +673,7 @@ void Editor_Usfm2Html::add_note_text (const std::string& text)
     // Take character style(s) as specified in this object.
     std::string classs;
     classs = filter::strings::implode (m_current_note_text_styles, "0");
-    classs.insert (0, quill_class_prefix_inline);
+    classs.insert (0, quill::class_prefix_inline);
     span_dom_element.append_attribute ("class") = classs.c_str();
   }
 }
@@ -623,13 +695,13 @@ void Editor_Usfm2Html::close_current_note ()
 // $style: A style for the note citation, and one for the note body.
 // $text: The link's text.
 // It also deals with a Quill-based editor, in a slightly different way.
-void Editor_Usfm2Html::add_notel_link (pugi::xml_node& dom_node, const int identifier,
-                                       const std::string& style, const std::string& text)
+void Editor_Usfm2Html::add_note_link (pugi::xml_node& dom_node, const int identifier,
+                                      const std::string& style, const std::string& text)
 {
-  pugi::xml_node a_dom_element = dom_node.append_child ("span");
-  const std::string class_value = "i-note" + style + std::to_string (identifier);
-  a_dom_element.append_attribute ("class") = class_value.c_str();
-  a_dom_element.text ().set (text.c_str());
+  pugi::xml_node a_dom_element = dom_node.append_child("span");
+  const std::string class_value = "i-note" + style + std::to_string(identifier);
+  a_dom_element.append_attribute("class") = class_value.c_str();
+  a_dom_element.text().set(text.c_str());
 }
 
 
@@ -667,13 +739,13 @@ void Editor_Usfm2Html::extract_word_level_attributes()
   // that also may contain word-level attributes.
   // See USFM 3.x for details.
 
-  // Check the text following this markup whether it contains word-level attribut(s).
+  // Check the text following this markup whether it contains word-level attribute(s).
   std::string possible_markup = filter::usfm::peek_text_following_marker (m_markers_and_text, m_markers_and_text_pointer);
   
-  // The minumum length of the markup is:
+  // The minimum length of the markup is:
   // 1. The canonical word: At least 1 character.
   // 2. The vertical bar: One character.
-  // 3. The attribute: At least character for the default auttribute.
+  // 3. The attribute: At least character for the default attribute.
   // If the markup is too short then bail out.
   if (possible_markup.size() < 3)
     return;
@@ -703,11 +775,93 @@ void Editor_Usfm2Html::add_word_level_attributes(const std::string id)
   pugi::xml_node p_node = m_word_level_attributes_node.append_child ("p");
 
   // Set the correct class in the paragraph. This links it to the correct text fragment in the text body.
-  const std::string class_value {quill_class_prefix_block + id};
+  const std::string class_value {quill::class_prefix_block + id};
   p_node.append_attribute ("class") = class_value.c_str();
 
   // Add the word-level attributes as text.
-  p_node.text ().set (m_pending_word_level_attributes.value().c_str());
+  p_node.text().set (m_pending_word_level_attributes.value().c_str());
+}
+
+
+int Editor_Usfm2Html::get_milestone_attributes_id(const bool next)
+{
+  if (next) {
+    m_milestone_attributes_id++;
+    // The class name for the Quill editor has defined the "0" as class separator.
+    // So make sure that the milestone attribute ID never contains any "0".
+    while (std::to_string(m_milestone_attributes_id).find("0") != std::string::npos) {
+      m_milestone_attributes_id++;
+    }
+  }
+  return m_milestone_attributes_id;
+}
+
+
+bool Editor_Usfm2Html::extract_milestone_attributes()	
+{
+  // The current function is expected to be called on an opening marker of a milestone.
+  // See USFM 3 and later for details.
+
+  // Example milestones:
+  //   \qt-s |sid="sid" who="who"\*
+  //   \qt-e\*
+
+  // Variable indicating how much to increase the pointer to markers and text.
+  unsigned pointer_increase {0};
+  
+  // Check on the location of the milestone end marker.
+  // The correct end marker is "\*".
+  // It may be on the first or the second position after the current positiion.
+  // Store that location in the pointer increase factor.
+  for (const auto increase : {static_cast<unsigned>(1), static_cast<unsigned>(2)}) {
+    const std::string endmarker = filter::usfm::peek_text_following_marker (m_markers_and_text, m_markers_and_text_pointer + increase - 1);
+    if (endmarker == filter::usfm::get_closing_usfm (std::string()))
+      pointer_increase = increase;
+  }
+  
+  // If the pointer increase is still 0, it means no correctly formatted milestone was found.
+  if (!pointer_increase)
+    return false;
+
+  // If the pointer increase is 1, it means there's the endmarker only, without attributes.
+  
+  // If the pointer increase is 2, it means there's attributes. Handle those.
+  if (pointer_increase == 2) {
+    std::string attributes = filter::strings::trim(filter::usfm::peek_text_following_marker (m_markers_and_text, m_markers_and_text_pointer));
+    // Check whether the first character in the milestone data is the vertical bar "|".
+    // If so, remove it.
+    if (attributes.at(0) == '|')
+      attributes.erase(attributes.cbegin());
+    // Remain with the fragment with the milestone attributes.
+    // Store the milestone attributes as-is, as pending item, ready for processing.
+    // Don't store this in preview mode.
+    if (!m_preview)
+      m_pending_milestone_attributes = std::move(attributes);
+  }
+
+  // Everything has passed: Increase the pointer to the USFM input data.
+  m_markers_and_text_pointer += pointer_increase;
+
+  // Everything is OK:
+  return true;
+}
+
+
+void Editor_Usfm2Html::add_milestone_attributes(const std::string id)
+{
+  // If there's no attributes, bail out.
+  if (!m_pending_milestone_attributes)
+    return;
+  
+  // Open a paragraph element for the add_milestone attributes body.
+  pugi::xml_node p_node = m_milestone_attributes_node.append_child ("p");
+  
+  // Set the correct class in the paragraph. This links it to the correct text fragment in the text body.
+  const std::string class_value {quill::class_prefix_block + id};
+  p_node.append_attribute ("class") = class_value.c_str();
+  
+  // Add the word-level attributes as text.
+  p_node.text().set (m_pending_milestone_attributes.value().c_str());
 }
 
 
@@ -719,22 +873,24 @@ bool road_is_clear(const std::vector<std::string>& markers_and_text,
   // Section 1: Functions to find marker properties.
   
   // Function to determine whether it is starting a paragraph.
-  const auto starts_paragraph = [](const stylesv2::Style* style_v2) {
-    if (style_v2) {
-      if (style_v2->type == stylesv2::Type::title)
+  const auto starts_paragraph = [](const stylesv2::Style* style) {
+    if (style) {
+      if (style->type == stylesv2::Type::title)
         return true;
-      if (style_v2->type == stylesv2::Type::heading)
+      if (style->type == stylesv2::Type::heading)
         return true;
-      if (style_v2->type == stylesv2::Type::paragraph)
+      if (style->type == stylesv2::Type::paragraph)
         return true;
     }
     return false;
   };
   
   // Function to determine whether it is inline text.
-  const auto is_inline_text = [](const stylesv2::Style* style_v2) {
-    if (style_v2) {
-      if (style_v2->type == stylesv2::Type::character)
+  const auto is_inline_text = [](const stylesv2::Style* style) {
+    if (style) {
+      if (style->type == stylesv2::Type::character)
+        return true;
+      if (style->type == stylesv2::Type::milestone)
         return true;
     }
     return false;
@@ -749,54 +905,54 @@ bool road_is_clear(const std::vector<std::string>& markers_and_text,
   };
 
   // Function to determine whether the type is a footnote / endnote.
-  const auto is_note_type = [](const stylesv2::Style* style_v2) {
-    if (style_v2) {
-      if (style_v2->type == stylesv2::Type::footnote_wrapper)
+  const auto is_note_type = [](const stylesv2::Style* style) {
+    if (style) {
+      if (style->type == stylesv2::Type::footnote_wrapper)
         return true;
-      if (style_v2->type == stylesv2::Type::endnote_wrapper)
+      if (style->type == stylesv2::Type::endnote_wrapper)
         return true;
-      if (style_v2->type == stylesv2::Type::note_standard_content)
+      if (style->type == stylesv2::Type::note_standard_content)
         return true;
-      if (style_v2->type == stylesv2::Type::note_content)
+      if (style->type == stylesv2::Type::note_content)
         return true;
-      if (style_v2->type == stylesv2::Type::note_content_with_endmarker)
+      if (style->type == stylesv2::Type::note_content_with_endmarker)
         return true;
-      if (style_v2->type == stylesv2::Type::note_paragraph)
+      if (style->type == stylesv2::Type::note_paragraph)
         return true;
     }
     return false;
   };
   
   // Function to determine whether the style is a footnote / endnote wrapper.
-  const auto is_footnote_endnote_wrapper = [](const stylesv2::Style* style_v2) {
-    if (style_v2) {
-      if (style_v2->type == stylesv2::Type::footnote_wrapper)
+  const auto is_footnote_endnote_wrapper = [](const stylesv2::Style* style) {
+    if (style) {
+      if (style->type == stylesv2::Type::footnote_wrapper)
         return true;
-      if (style_v2->type == stylesv2::Type::endnote_wrapper)
+      if (style->type == stylesv2::Type::endnote_wrapper)
         return true;
     }
     return false;
   };
 
   // Function to determine whether the type is a footnote / endnote.
-  const auto is_xref_type = [](const stylesv2::Style* style_v2) {
-    if (style_v2) {
-      if (style_v2->type == stylesv2::Type::crossreference_wrapper)
+  const auto is_xref_type = [](const stylesv2::Style* style) {
+    if (style) {
+      if (style->type == stylesv2::Type::crossreference_wrapper)
         return true;
-      if (style_v2->type == stylesv2::Type::crossreference_standard_content)
+      if (style->type == stylesv2::Type::crossreference_standard_content)
         return true;
-      if (style_v2->type == stylesv2::Type::crossreference_content)
+      if (style->type == stylesv2::Type::crossreference_content)
         return true;
-      if (style_v2->type == stylesv2::Type::crossreference_content_with_endmarker)
+      if (style->type == stylesv2::Type::crossreference_content_with_endmarker)
         return true;
     }
     return false;
   };
   
   // Function to determine whether the subtype is a footnote / endnote.
-  const auto is_xref_subtype = [](const stylesv2::Style* style_v2) {
-    if (style_v2) {
-      if (style_v2->type == stylesv2::Type::crossreference_wrapper)
+  const auto is_xref_subtype = [](const stylesv2::Style* style) {
+    if (style) {
+      if (style->type == stylesv2::Type::crossreference_wrapper)
         return true;
     }
     return false;
@@ -809,10 +965,10 @@ bool road_is_clear(const std::vector<std::string>& markers_and_text,
   if (!filter::usfm::is_usfm_marker (input_item))
     return true;
 
-  // The marker. If not in stylesheet v2, the road is clear.
+  // The marker. If not in stylesheet, the road is clear.
   const std::string input_marker {filter::usfm::get_marker (input_item)};
-  const stylesv2::Style* input_style_v2 {database::styles::get_marker_data (stylesheet, input_marker)};
-  if (!input_style_v2)
+  const stylesv2::Style* input_style {database::styles::get_marker_data (stylesheet, input_marker)};
+  if (!input_style)
     return true;
 
   // Determine the input markup properties.
@@ -820,9 +976,13 @@ bool road_is_clear(const std::vector<std::string>& markers_and_text,
   const bool input_embedded {filter::usfm::is_embedded_marker (input_item)};
 
   // If the imput markup is embedded inline text, the road ahead is clear.
-  if (is_inline_text(input_style_v2))
+  if (is_inline_text(input_style))
     if (input_embedded)
       return true;
+
+  // If the input to check the road for, is a milestone, the road ahead is declared clear.
+  if (input_style->type == stylesv2::Type::milestone)
+    return true;
   
   // Determine the road ahead that follows the input markup.
   bool verse_boundary_reached {false};
@@ -837,24 +997,24 @@ bool road_is_clear(const std::vector<std::string>& markers_and_text,
     if (filter::usfm::is_usfm_marker (current_item))
     {
       const std::string marker = filter::usfm::get_marker (current_item);
-      const stylesv2::Style* style_v2 {database::styles::get_marker_data (stylesheet, marker)};
-      if (style_v2)
+      const stylesv2::Style* style {database::styles::get_marker_data (stylesheet, marker)};
+      if (style)
       {
         const bool opener {filter::usfm::is_opening_marker (current_item)};
         const bool embedded {filter::usfm::is_embedded_marker (current_item)};
         
         // Take the next verse marker in account but don't go beyond it.
-        if (is_verse_number(style_v2))
+        if (is_verse_number(style))
             verse_boundary_reached = true;
         
         // The input is a note opener.
-        if (is_note_type(input_style_v2)) {
+        if (is_note_type(input_style)) {
           if (input_opener) {
-            if (is_footnote_endnote_wrapper(input_style_v2)) {
+            if (is_footnote_endnote_wrapper(input_style)) {
               // Encounters note closer: road is clear.
               // Encounters another note opener: blocker.
-              if (is_note_type(style_v2)) {
-                if (is_footnote_endnote_wrapper(style_v2)) {
+              if (is_note_type(style)) {
+                if (is_footnote_endnote_wrapper(style)) {
                   if (opener)
                     return false;
                   else
@@ -862,12 +1022,12 @@ bool road_is_clear(const std::vector<std::string>& markers_and_text,
                 }
               }
               // Encounters a verse: blocker.
-              if (is_verse_number(style_v2))
+              if (is_verse_number(style))
                 return false;
               // Encounters cross reference opener or closer: blocker.
               // Other \x.. markup is allowed.
-              if (is_xref_type(style_v2)) {
-                if (is_xref_subtype(style_v2)) {
+              if (is_xref_type(style)) {
+                if (is_xref_subtype(style)) {
                   return false;
                 }
               }
@@ -876,13 +1036,13 @@ bool road_is_clear(const std::vector<std::string>& markers_and_text,
         }
 
         // The input is a cross reference opener.
-        if (is_xref_type(input_style_v2)) {
+        if (is_xref_type(input_style)) {
           if (input_opener) {
-            if (is_xref_subtype(input_style_v2)) {
+            if (is_xref_subtype(input_style)) {
               // Encounters xref closer: road is clear.
               // Encounters another xref opener: blocker.
-              if (is_xref_type(style_v2)) {
-                if (is_xref_subtype(style_v2)) {
+              if (is_xref_type(style)) {
+                if (is_xref_subtype(style)) {
                   if (opener)
                     return false;
                   else
@@ -890,12 +1050,12 @@ bool road_is_clear(const std::vector<std::string>& markers_and_text,
                 }
               }
               // Encounters a verse: blocker.
-              if (is_verse_number(style_v2))
+              if (is_verse_number(style))
                 return false;
               // Encounters foot- or endnote opener: blocker.
               // Other \f.. markup is allowed.
-              if (is_note_type(style_v2)) {
-                if (is_footnote_endnote_wrapper(style_v2)) {
+              if (is_note_type(style)) {
+                if (is_footnote_endnote_wrapper(style)) {
                   return false;
                 }
               }
@@ -904,9 +1064,9 @@ bool road_is_clear(const std::vector<std::string>& markers_and_text,
         }
 
         // The input to check the road ahead for is an inline text opener, non-embedded, like "\add ".
-        if (is_inline_text(input_style_v2)) {
+        if (is_inline_text(input_style)) {
           if (input_opener && !input_embedded) {
-            if (is_inline_text(style_v2)) {
+            if (is_inline_text(style)) {
               if (embedded) {
                 // An embedded inline marker is OK: Road ahead is clear.
                 return true;
@@ -921,10 +1081,10 @@ bool road_is_clear(const std::vector<std::string>& markers_and_text,
               }
             }
             // The inline text opener encounters a verse: blocker.
-            if (is_verse_number(style_v2))
+            if (is_verse_number(style))
               return false;
             // The inline text opener encounters a paragraph: blocker.
-            if (starts_paragraph(style_v2))
+            if (starts_paragraph(style))
               return false;
           }
         }
@@ -937,7 +1097,7 @@ bool road_is_clear(const std::vector<std::string>& markers_and_text,
   // That is a blocker.
   if (!verse_boundary_reached)
     return false;
-  
+
   // No blockers found: The road is clear.
   return true;
 }

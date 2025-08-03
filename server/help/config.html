@@ -94,6 +94,12 @@ To set the permissions correct, run the following command as user root:
   $ chmod ugo+r /var/bibledit/bibledit-cloud/config/*.pem
 </pre>
 <p>
+There is a script in the above config directory.
+It assists with steps 3 and 4 above.
+This script is "certificates.sh".
+Run it as the root user to copy the certificates to Bibledit.
+</p>
+<p>
 Step 5: Restart Bibledit Cloud.
 After the certificates have been copied into place,
 restart Bibledit Cloud.
@@ -116,7 +122,7 @@ The Journal within Bibledit Cloud will provide additional diagnostics in this ca
 <br>
 <p>
 Repeating regular step: Renew the certificates.
-The certificates will expire after a couple of month.
+The certificates will expire after a couple of months.
 So every few month or so renew the certificates.
 To do this, run the following command as user root:
 </p>

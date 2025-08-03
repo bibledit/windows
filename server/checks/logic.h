@@ -21,5 +21,16 @@
 
 #include <config/libraries.h>
 
-void checks_logic_start_all ();
-void checks_logic_start (const std::string & bible);
+namespace checks::logic {
+
+void start_all ();
+void start (const std::string & bible);
+
+enum class issue {
+  
+};
+
+std::string text (const issue issue);
+
+
+} // Namespace.

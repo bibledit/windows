@@ -40,16 +40,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <manage/users.h>
 #include <manage/accounts.h>
 #include <manage/exports.h>
-#include <manage/hyphenation.h>
 #include <manage/write.h>
+#include <manage/bibles.h>
 #include <manage/privileges.h>
 #include <system/index.h>
 #include <system/googletranslate.h>
 #include <collaboration/index.h>
 #include <collaboration/settings.h>
 #include <styles/indexm.h>
+#include <styles/new.h>
 #include <styles/sheetm.h>
-#include <styles/view2.h>
+#include <styles/view.h>
 #include <versification/index.h>
 #include <versification/system.h>
 #include <bb/manage.h>
@@ -115,10 +116,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <resource/print.h>
 #include <resource/download.h>
 #include <resource/select.h>
-#include <resource/images.h>
-#include <resource/image.h>
-#include <resource/img.h>
-#include <resource/imagefetch.h>
 #include <resource/sword.h>
 #include <resource/cache.h>
 #include <resource/user9edit.h>
@@ -286,11 +283,6 @@ void bootstrap_index (Webserver_Request& webserver_request)
       || (extension == "webmanifest")
       ) {
     http_stream_file (webserver_request, true);
-    return;
-  }
-
-  if ((url == resource_imagefetch_url ()) && resource_imagefetch_acl (webserver_request)) {
-    webserver_request.reply = resource_imagefetch (webserver_request);
     return;
   }
 
@@ -567,11 +559,6 @@ void bootstrap_index (Webserver_Request& webserver_request)
     return;
   }
   
-  if ((url == resource_images_url ()) && browser_request_security_okay (webserver_request) && resource_images_acl (webserver_request)) {
-    webserver_request.reply = resource_images (webserver_request);
-    return;
-  }
-  
   if ((url == resource_sword_url ()) && browser_request_security_okay (webserver_request) && resource_sword_acl (webserver_request)) {
     webserver_request.reply = resource_sword (webserver_request);
     return;
@@ -659,11 +646,6 @@ void bootstrap_index (Webserver_Request& webserver_request)
     return;
   }
   
-  if ((url == manage_hyphenation_url ()) && browser_request_security_okay (webserver_request) && manage_hyphenation_acl (webserver_request)) {
-    webserver_request.reply = manage_hyphenation (webserver_request);
-    return;
-  }
-  
   if ((url == developer_index_url ()) && browser_request_security_okay (webserver_request) && developer_index_acl (webserver_request)) {
     webserver_request.reply = developer_index (webserver_request);
     return;
@@ -708,14 +690,19 @@ void bootstrap_index (Webserver_Request& webserver_request)
     webserver_request.reply = styles_indexm (webserver_request);
     return;
   }
-  
+
+  if ((url == styles_new_url ()) && browser_request_security_okay (webserver_request) && styles_new_acl (webserver_request)) {
+    webserver_request.reply = styles_new (webserver_request);
+    return;
+  }
+
   if ((url == styles_sheetm_url ()) && browser_request_security_okay (webserver_request) && styles_sheetm_acl (webserver_request)) {
     webserver_request.reply = styles_sheetm (webserver_request);
     return;
   }
   
-  if ((url == styles_view2_url ()) && browser_request_security_okay (webserver_request) && styles_view2_acl (webserver_request)) {
-    webserver_request.reply = styles_view2 (webserver_request);
+  if ((url == styles_view_url ()) && browser_request_security_okay (webserver_request) && styles_view_acl (webserver_request)) {
+    webserver_request.reply = styles_view (webserver_request);
     return;
   }
   
@@ -896,19 +883,14 @@ void bootstrap_index (Webserver_Request& webserver_request)
     webserver_request.reply = manage_write (webserver_request);
     return;
   }
-  
+
+  if ((url == manage_bibles_url ()) && browser_request_security_okay (webserver_request) && manage_bibles_acl (webserver_request)) {
+    webserver_request.reply = manage_bibles (webserver_request);
+    return;
+  }
+
   if ((url == manage_privileges_url ()) && browser_request_security_okay (webserver_request) && manage_privileges_acl (webserver_request)) {
     webserver_request.reply = manage_privileges (webserver_request);
-    return;
-  }
-  
-  if ((url == resource_image_url ()) && browser_request_security_okay (webserver_request) && resource_image_acl (webserver_request)) {
-    webserver_request.reply = resource_image (webserver_request);
-    return;
-  }
-  
-  if ((url == resource_img_url ()) && browser_request_security_okay (webserver_request) && resource_img_acl (webserver_request)) {
-    webserver_request.reply = resource_img (webserver_request);
     return;
   }
   

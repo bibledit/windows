@@ -69,23 +69,23 @@ void sendreceive_settings ()
   if (sendreceive_settings_watchdog) {
     int time = filter::date::seconds_since_epoch ();
     if (time < (sendreceive_settings_watchdog + 900)) {
-      Database_Logs::log ("Settings: " + translate("Still busy"), Filter_Roles::translator ());
+      Database_Logs::log ("Settings: " + translate("Still busy"), roles::translator);
       return;
     }
-    Database_Logs::log ("Settings: " + translate("Watchdog timeout"), Filter_Roles::translator ());
+    Database_Logs::log ("Settings: " + translate("Watchdog timeout"), roles::translator);
   }
   sendreceive_settings_kick_watchdog ();
   config_globals_syncing_settings = true;
   
-  Database_Logs::log (sendreceive_settings_sendreceive_text (), Filter_Roles::translator ());
+  Database_Logs::log (sendreceive_settings_sendreceive_text (), roles::translator);
   
   Webserver_Request webserver_request;
   Sync_Logic sync_logic (webserver_request);
 
   std::string response = client_logic_connection_setup ("", "");
   int iresponse = filter::strings::convert_to_int (response);
-  if (iresponse < Filter_Roles::guest () || iresponse > Filter_Roles::admin ()) {
-    Database_Logs::log (translate("Failure sending and receiving Settings"), Filter_Roles::translator ());
+  if (iresponse < roles::guest || iresponse > roles::admin) {
+    Database_Logs::log (translate("Failure sending and receiving Settings"), roles::translator);
     sendreceive_settings_done ();
     return;
   }
@@ -93,7 +93,7 @@ void sendreceive_settings ()
   // Set the correct user in the session: The sole user on the Client.
   std::vector <std::string> users = webserver_request.database_users ()->get_users ();
   if (users.empty ()) {
-    Database_Logs::log (translate("No user found"), Filter_Roles::translator ());
+    Database_Logs::log (translate("No user found"), roles::translator);
     sendreceive_settings_done ();
     return;
   }
@@ -105,9 +105,9 @@ void sendreceive_settings ()
   std::string url = client_logic_url (address, port, sync_settings_url ());
   
   // Go through all settings flagged as having been updated on this client.
-  std::vector <int> ids = webserver_request.database_config_user()->getUpdatedSettings ();
+  std::vector <int> ids = webserver_request.database_config_user()->get_updated_settings ();
   if (!ids.empty ()) {
-    Database_Logs::log (translate("Sending settings"), Filter_Roles::translator ());
+    Database_Logs::log (translate("Sending settings"), roles::translator);
   }
   
   // The POST request contains the credentials.
@@ -124,17 +124,17 @@ void sendreceive_settings ()
     std::string value {};
     switch (id) {
       case Sync_Logic::settings_send_workspace_urls:
-        value = webserver_request.database_config_user()->getWorkspaceURLs ();
+        value = webserver_request.database_config_user()->get_workspace_urls ();
         break;
       case Sync_Logic::settings_send_workspace_widths:
-        value = webserver_request.database_config_user()->getWorkspaceWidths ();
+        value = webserver_request.database_config_user()->get_workspace_widths ();
         break;
       case Sync_Logic::settings_send_workspace_heights:
-        value = webserver_request.database_config_user()->getWorkspaceHeights ();
+        value = webserver_request.database_config_user()->get_workspace_heights ();
         break;
       case Sync_Logic::settings_send_resources_organization:
       {
-        std::vector <std::string> resources = webserver_request.database_config_user()->getActiveResources ();
+        std::vector <std::string> resources = webserver_request.database_config_user()->get_active_resources ();
         value = filter::strings::implode (resources, "\n");
         break;
       }
@@ -148,9 +148,9 @@ void sendreceive_settings ()
     
     // Handle server's response.
     if (!error.empty ()) {
-      Database_Logs::log ("Failure sending setting to server", Filter_Roles::translator ());
+      Database_Logs::log ("Failure sending setting to server", roles::translator);
     } else {
-      webserver_request.database_config_user()->removeUpdatedSetting (id);
+      webserver_request.database_config_user()->remove_updated_setting (id);
     }
   }
   // All changed settings have now been sent to the server.
@@ -179,14 +179,14 @@ void sendreceive_settings ()
   std::string error;
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
-    Database_Logs::log ("Failure synchronizing Settings while requesting totals", Filter_Roles::translator ());
+    Database_Logs::log ("Failure synchronizing Settings while requesting totals", roles::translator);
     sendreceive_settings_done ();
     return;
   }
   if (post.count ("b")) post.erase (post.find ("b"));
   std::string checksum = sync_logic.settings_checksum (bibles);
   if (response == checksum) {
-    Database_Logs::log (sendreceive_settings_up_to_date_text (), Filter_Roles::translator ());
+    Database_Logs::log (sendreceive_settings_up_to_date_text (), roles::translator);
     sendreceive_settings_done ();
     return;
   }
@@ -197,38 +197,38 @@ void sendreceive_settings ()
   post ["a"] = std::to_string (Sync_Logic::settings_get_workspace_urls);
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
-    Database_Logs::log ("Failure receiving workspace URLS", Filter_Roles::translator ());
+    Database_Logs::log ("Failure receiving workspace URLS", roles::translator);
     sendreceive_settings_done ();
     return;
   }
-  webserver_request.database_config_user()->setWorkspaceURLs (response);
+  webserver_request.database_config_user()->set_workspace_urls (response);
 
   post ["a"] = std::to_string (Sync_Logic::settings_get_workspace_widths);
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
-    Database_Logs::log ("Failure receiving workspace widths", Filter_Roles::translator ());
+    Database_Logs::log ("Failure receiving workspace widths", roles::translator);
     sendreceive_settings_done ();
     return;
   }
-  webserver_request.database_config_user()->setWorkspaceWidths (response);
+  webserver_request.database_config_user()->set_workspace_widths (response);
 
   post ["a"] = std::to_string (Sync_Logic::settings_get_workspace_heights);
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
-    Database_Logs::log ("Failure receiving workspace heights", Filter_Roles::translator ());
+    Database_Logs::log ("Failure receiving workspace heights", roles::translator);
     sendreceive_settings_done ();
     return;
   }
-  webserver_request.database_config_user()->setWorkspaceHeights (response);
+  webserver_request.database_config_user()->set_workspace_heights (response);
 
   post ["a"] = std::to_string (Sync_Logic::settings_get_resources_organization);
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
-    Database_Logs::log ("Failure receiving workspace heights", Filter_Roles::translator ());
+    Database_Logs::log ("Failure receiving workspace heights", roles::translator);
     sendreceive_settings_done ();
     return;
   }
-  webserver_request.database_config_user()->setActiveResources (filter::strings::explode (response, '\n'));
+  webserver_request.database_config_user()->set_active_resources (filter::strings::explode (response, '\n'));
   
   // Fetch values for the Bibles.
   for (auto & bible : bibles) {
@@ -241,7 +241,7 @@ void sendreceive_settings ()
     post ["a"] = std::to_string (Sync_Logic::settings_get_bible_font);
     response = sync_logic.post (post, url, error);
     if (!error.empty ()) {
-      Database_Logs::log ("Failure receiving Bible font", Filter_Roles::translator ());
+      Database_Logs::log ("Failure receiving Bible font", roles::translator);
       sendreceive_settings_done ();
       return;
     }
@@ -251,14 +251,14 @@ void sendreceive_settings ()
   post ["a"] = std::to_string (Sync_Logic::settings_get_privilege_delete_consultation_notes);
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
-    Database_Logs::log ("Failure receiving privilege delete consultation notes", Filter_Roles::translator ());
+    Database_Logs::log ("Failure receiving privilege delete consultation notes", roles::translator);
     sendreceive_settings_done ();
     return;
   }
-  webserver_request.database_config_user()->setPrivilegeDeleteConsultationNotes (filter::strings::convert_to_bool (response));
+  webserver_request.database_config_user()->set_privilege_delete_consultation_notes (filter::strings::convert_to_bool (response));
 
   // Done.
-  Database_Logs::log ("Settings: Updated", Filter_Roles::translator ());
+  Database_Logs::log ("Settings: Updated", roles::translator);
   sendreceive_settings_done ();
 }
 

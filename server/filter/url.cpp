@@ -103,7 +103,7 @@ static mbedtls_ctr_drbg_context ctr_drbg_context;
 static mbedtls_entropy_context entropy_context;
 
 
-static std::vector <std::string> filter_url_scandir_internal (std::string folder)
+static std::vector <std::string> filter_url_scandir_internal (std::string folder, bool include_hidden = false)
 {
   std::vector <std::string> files;
   
@@ -135,15 +135,17 @@ static std::vector <std::string> filter_url_scandir_internal (std::string folder
   if (dir) {
     dirent * direntry;
     while ((direntry = readdir (dir)) != nullptr) {
-      std::string name = direntry->d_name;
+      const std::string name = direntry->d_name;
       // Exclude short-hand directory names.
       if (name == ".") continue;
       if (name == "..") continue;
-      // Exclude developer temporal files.
-      if (name == ".deps") continue;
-      if (name == ".dirstamp") continue;
-      // Exclude macOS files.
-      if (name == ".DS_Store") continue;
+      if (!include_hidden) {
+        // Exclude developer temporal files.
+        if (name == ".deps") continue;
+        if (name == ".dirstamp") continue;
+        // Exclude macOS files.
+        if (name == ".DS_Store") continue;
+      }
       // Store the name.
       files.push_back (name);
     }
@@ -198,9 +200,7 @@ void redirect_browser (Webserver_Request& webserver_request, std::string path)
   // If the page contains the topbar suppressing query,
   // the same query will be appended on the URL of the redirected page.
   if (webserver_request.query.count ("topbar") || webserver_request.post.count ("topbar")) {
-    std::string new_location = filter_url_build_http_query (location, "topbar", "0");
-    location.clear ();
-    location.append (new_location);
+    location = filter_url_build_http_query (location, "topbar", "0");
   }
 
   webserver_request.header = "Location: " + location;
@@ -208,7 +208,7 @@ void redirect_browser (Webserver_Request& webserver_request, std::string path)
 }
 
 
-// C++ equivalent for the dirname function, see http://linux.die.net/man/3/dirname.
+// C++ equivalent for the dirname function, see https://linux.die.net/man/3/dirname.
 // The BSD dirname is not thread-safe, see the implementation notes on $ man 3 dirname,
 // therefore it is not used here.
 // It uses the defined slash as the separator.
@@ -545,8 +545,10 @@ void filter_url_rmdir (const std::string& directory)
 }
 #else
 {
-  std::vector <std::string> files = filter_url_scandir_internal (directory);
-  for (auto path : files) {
+  // List the files in this directory, include the hidden files.
+  // Reason for including hidden files: https://github.com/bibledit/cloud/issues/1002
+  std::vector <std::string> files = filter_url_scandir_internal (directory, true);
+  for (auto& path : files) {
     path = filter_url_create_path ({directory, path});
     if (filter_url_is_dir(path)) {
       filter_url_rmdir(path);

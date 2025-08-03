@@ -26,8 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <webserver/request.h>
 #include <locale/translate.h>
 #include <locale/logic.h>
-#include <dialog/list.h>
-#include <dialog/list2.h>
+#include <dialog/select.h>
 #include <dialog/entry.h>
 #include <dialog/upload.h>
 #include <database/config/general.h>
@@ -62,7 +61,7 @@ bool system_index_acl ([[maybe_unused]] Webserver_Request& webserver_request)
   return true;
 #else
   // Cloud: Manager can make system settings.
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
+  return roles::access_control (webserver_request, roles::manager);
 #endif
 }
 
@@ -74,11 +73,32 @@ std::string system_index (Webserver_Request& webserver_request)
   std::string error {};
 
   
+  Assets_View view;
+
+  
   // User can set the system language.
   // This is to be done before displaying the header.
-  if (webserver_request.post.count ("languageselection")) {
-    std::string languageselection {webserver_request.post ["languageselection"]};
-    database::config::general::set_site_language (languageselection);
+  std::string language = database::config::general::get_site_language ();
+  {
+    constexpr const char* identification {"languageselection"};
+    if (webserver_request.post.count (identification)) {
+      language = webserver_request.post.at(identification);
+      database::config::general::set_site_language (language);
+    }
+    const std::map <std::string, std::string> localizations = locale_logic_localizations ();
+    std::vector<std::string> values, texts;
+    for (const auto& element : localizations) {
+      values.push_back(element.first);
+      texts.push_back(element.second);
+    }
+    dialog::select::Settings settings {
+      .identification = identification,
+      .values = values,
+      .displayed = texts,
+      .selected = language,
+    };
+    dialog::select::Form form { .auto_submit = true };
+    view.set_variable(identification, dialog::select::form(settings, form));
   }
 
   
@@ -87,32 +107,12 @@ std::string system_index (Webserver_Request& webserver_request)
   header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
 
-  
-  Assets_View view;
-
 
   // Get values for setting checkboxes.
   const std::string checkbox = webserver_request.post ["checkbox"];
   [[maybe_unused]] const bool checked = filter::strings::convert_to_bool (webserver_request.post ["checked"]);
 
 
-  // The available localizations.
-  std::map <std::string, std::string> localizations = locale_logic_localizations ();
-
-
-  // Set the language on the page.
-    // Create the option tags for interface language selection.
-  // Also the current selected option.
-  std::string language_html {};
-  for (const auto& element : localizations) {
-    language_html = Options_To_Select::add_selection (element.second, element.first, language_html);
-  }
-  const std::string current_user_preference = database::config::general::get_site_language ();
-  const std::string language = current_user_preference;
-  view.set_variable ("languageselectionoptags", Options_To_Select::mark_selected (language, language_html));
-  view.set_variable ("languageselection", language);
-
-  
   // Entry of time zone offset in hours.
   if (webserver_request.post.count ("timezone")) {
     std::string input = webserver_request.post ["timezone"];
@@ -168,7 +168,7 @@ std::string system_index (Webserver_Request& webserver_request)
   if (producebibles || producenotes || produceresources) {
     Database_Jobs database_jobs;
     const int jobId = database_jobs.get_new_id ();
-    database_jobs.set_level (jobId, Filter_Roles::member ());
+    database_jobs.set_level (jobId, roles::member);
     std::string task {};
     if (producebibles) task = task::produce_bibles_transferfile;
     if (producenotes) task = task::produce_notes_transferfile;

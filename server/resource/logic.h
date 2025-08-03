@@ -38,8 +38,6 @@ std::string resource_logic_client_fetch_cache_from_cloud (std::string resource, 
 
 std::vector <std::string> resource_logic_get_names (Webserver_Request& webserver_request, bool bibles_only);
 
-void resource_logic_import_images (std::string resource, std::string path);
-
 std::string resource_logic_yellow_divider ();
 std::string resource_logic_green_divider ();
 std::string resource_logic_blue_divider ();
@@ -90,7 +88,6 @@ void resource_logic_easy_english_bible_handle_verse_marker (const std::string & 
 bool resource_logic_is_bible (std::string resource);
 bool resource_logic_is_usfm (std::string resource);
 bool resource_logic_is_external (std::string resource);
-bool resource_logic_is_image (std::string resource);
 bool resource_logic_is_lexicon (std::string resource);
 bool resource_logic_is_sword (std::string resource);
 bool resource_logic_is_divider (std::string resource);

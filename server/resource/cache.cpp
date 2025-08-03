@@ -48,7 +48,7 @@ std::string resource_cache_url ()
 
 bool resource_cache_acl (Webserver_Request& webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::member ());
+  return roles::access_control (webserver_request, roles::member);
 }
 
 
@@ -93,7 +93,7 @@ std::string resource_cache (Webserver_Request& webserver_request)
   
 
   std::vector <std::string> active_resources;
-  resources = webserver_request.database_config_user()->getActiveResources ();
+  resources = webserver_request.database_config_user()->get_active_resources ();
   for (auto & resource2 : resources) {
     active_resources.push_back (resource2);
   }

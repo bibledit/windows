@@ -93,7 +93,7 @@ std::string notes_note (Webserver_Request& webserver_request)
       int desired_chapter = passages[0].m_chapter;
       int desired_verse = filter::strings::convert_to_int (passages[0].m_verse);
       Ipc_Focus::set (webserver_request, desired_book, desired_chapter, desired_verse);
-      Navigation_Passage::record_history (webserver_request, desired_book, desired_chapter, desired_verse);
+      navigation_passage::record_history (webserver_request, desired_book, desired_chapter, desired_verse);
     }
   }
   
@@ -108,14 +108,14 @@ std::string notes_note (Webserver_Request& webserver_request)
   view.set_variable ("summary", summary);
 
   
-  bool show_note_status = webserver_request.database_config_user ()->getShowNoteStatus ();
+  bool show_note_status = webserver_request.database_config_user ()->get_show_note_status ();
   if (show_note_status) {
     std::string status = database_notes.get_status (id);
     view.set_variable ("status", status);
   }
   
   
-  if (webserver_request.session_logic ()->get_level () >= Filter_Roles::translator ()) {
+  if (webserver_request.session_logic ()->get_level () >= roles::translator) {
     view.enable_zone ("editlevel");
   }
   
@@ -131,12 +131,12 @@ std::string notes_note (Webserver_Request& webserver_request)
   view.set_variable ("brs", filter_html_android_brs ());
   
 
-  if (webserver_request.database_config_user ()->getQuickNoteEditLink ()) {
+  if (webserver_request.database_config_user ()->get_quick_note_edit_link ()) {
     view.enable_zone ("editcontent");
   }
     
   
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ())) {
+  if (roles::access_control (webserver_request, roles::consultant)) {
     view.enable_zone ("consultant");
   }
   if (access_logic::privilege_create_comment_notes (webserver_request)) {

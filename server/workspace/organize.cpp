@@ -40,7 +40,7 @@ std::string workspace_organize_url ()
 
 bool workspace_organize_acl (Webserver_Request& webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ());
+  return roles::access_control (webserver_request, roles::consultant);
 }
 
 
@@ -52,7 +52,7 @@ std::string workspace_organize (Webserver_Request& webserver_request)
   
   if (webserver_request.post.count ("add")) {
     const std::string add = webserver_request.post["add"];
-    webserver_request.database_config_user()->setActiveWorkspace (add);
+    webserver_request.database_config_user()->set_active_workspace (add);
     workspace_set_urls (webserver_request, workspace_get_default_urls (0));
     workspace_set_widths (webserver_request, workspace_get_default_widths (0));
     workspace_set_heights (webserver_request, workspace_get_default_heights (0));

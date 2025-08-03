@@ -46,34 +46,49 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 namespace filter::usfm {
 
 
-BookChapterData::BookChapterData (int book, int chapter, std::string data)
+BookChapterData::BookChapterData (const int book, const int chapter, std::string data)
 {
   m_book = book;
   m_chapter = chapter;
-  m_data = data;
+  m_data = std::move(data);
 }
 
 
-// Returns the string $usfm as one long string.
-// $usfm may contain new lines, but the resulting long string won't.
-std::string one_string (std::string usfm)
+// Returns the input USFM as one long string.
+// The input USFM may contain new lines, but the resulting long string won't.
+// According to spec, newlines will be normalized to a single space character.
+// https://ubsicap.github.io/usfm/about/syntax.html#syntax-whitespace-normalization
+std::string one_string (const std::string& usfm)
 {
-  std::string long_string = "";
+  std::string output{};
   std::vector <std::string> usfm_lines = filter::strings::explode (usfm, '\n');
-  for (std::string & line : usfm_lines) {
+  for (std::string& line : usfm_lines) {
     line = filter::strings::trim (line);
     // Skip empty line.
-    if (line != "") {
-      // The line will be appended to the output line.
-      // If it does not start with a backslash (\), a space is inserted first.
-      size_t pos = line.find ("\\");
-      if (pos != 0) {
-        if (long_string != "") long_string += " ";
+    if (line.empty())
+      continue;
+
+    // Check whether the line starts with a marker.
+    const std::string marker = get_marker(line);
+    if (!marker.empty()) {
+      // Check whether this marker can be found in the standard styles.
+      const auto iter = std::find(stylesv2::styles.cbegin(), stylesv2::styles.cend(), marker);
+      if (iter != stylesv2::styles.cend()) {
+        // Check whether this marker should start a new line in USFM.
+        // If it does not, insert a space.
+        if (!stylesv2::starts_new_line_in_usfm (&(*iter)))
+          if (!output.empty())
+            output.append(" ");
       }
-      long_string += line;
+    } else {
+      if (!output.empty())
+        output.append(" ");
     }
+
+    // Append the line will to the output.
+    output.append(line);
   }
-  return long_string;
+  return output;
 }
 
 
@@ -86,9 +101,12 @@ std::string one_string (std::string usfm)
 std::vector <std::string> get_markers_and_text (std::string code)
 {
   std::vector <std::string> markers_and_text;
-  code = filter::strings::replace ("\n\\", "\\", code); // New line followed by backslash: leave new line out.
-  code = filter::strings::replace ("\n", " ", code); // New line only: change to space, according to the USFM specification.
-  // No removal of double spaces, because it would remove an opening marker (which already has its own space), followed by a space.
+  // New line followed by backslash: leave new line out.
+  code = filter::strings::replace ("\n\\", "\\", code);
+  // New line only: change to space, according to the USFM specification.
+  code = filter::strings::replace ("\n", " ", code);
+  // No removal of double spaces, because it would remove an opening marker
+  // (which already has its own space), followed by a space.
   code = filter::strings::trim (code);
   while (!code.empty ()) {
     size_t pos = code.find ("\\");
@@ -102,21 +120,25 @@ std::vector <std::string> get_markers_and_text (std::string code)
       // whichever comes first.
       std::vector <size_t> positions;
       pos = code.find (" ");
-      if (pos != std::string::npos) positions.push_back (pos + 1);
+      if (pos != std::string::npos)
+        positions.push_back (pos + 1);
       pos = code.find ("*");
-      if (pos != std::string::npos) positions.push_back (pos + 1);
-      pos = code.find ("\\", 1);
-      if (pos != std::string::npos) positions.push_back (pos);
+      if (pos != std::string::npos)
+        positions.push_back (pos + 1);
+      pos = code.find (R"(\)", 1);
+      if (pos != std::string::npos)
+        positions.push_back (pos);
       positions.push_back (code.length());
       sort (positions.begin (), positions.end());
-      pos = positions[0];
-      std::string marker = code.substr (0, pos);
+      pos = positions.at(0);
+      const std::string marker = code.substr (0, pos);
       markers_and_text.push_back (marker);
       code = code.substr (pos);
     } else {
       // Text found. It ends at the next backslash or at the end of the string.
-      pos = code.find ("\\");
-      if (pos == std::string::npos) pos = code.length();
+      pos = code.find (R"(\)");
+      if (pos == std::string::npos)
+        pos = code.length();
       std::string text = code.substr (0, pos);
       markers_and_text.push_back (text);
       code = code.substr (pos);
@@ -134,7 +156,8 @@ std::vector <std::string> get_markers_and_text (std::string code)
 // "\+add*" -> "add"
 std::string get_marker (std::string usfm)
 {
-  if (usfm.empty ()) return usfm;
+  if (usfm.empty ())
+    return usfm;
   size_t pos = usfm.find ("\\");
   if (pos == 0) {
     // Marker found.
@@ -167,8 +190,8 @@ std::string get_marker (std::string usfm)
 }
 
 
-// This imports USFM $input.
-// It takes raw $input,
+// This imports USFM.
+// It takes raw input,
 // and returns a vector with objects with book_number, chapter_number, chapter_data.
 std::vector <BookChapterData> usfm_import (std::string input, std::string stylesheet)
 {
@@ -183,7 +206,7 @@ std::vector <BookChapterData> usfm_import (std::string input, std::string styles
   bool retrieve_book_number_on_next_iteration = false;
   bool retrieve_chapter_number_on_next_iteration = false;
 
-  for (std::string marker_or_text : markers_and_text) {
+  for (std::string& marker_or_text : markers_and_text) {
     if (retrieve_book_number_on_next_iteration) {
       bookid = database::books::get_id_from_usfm (marker_or_text.substr (0, 3));
       chapter_number = 0;
@@ -193,7 +216,7 @@ std::vector <BookChapterData> usfm_import (std::string input, std::string styles
       retrieve_chapter_number_on_next_iteration = false;
       chapter_number = filter::strings::convert_to_int (marker_or_text);
     }
-    std::string marker = get_marker (marker_or_text);
+    const std::string marker = get_marker (marker_or_text);
     if (!marker.empty()) {
       // USFM marker found.
       bool opener = is_opening_marker (marker_or_text);
@@ -207,8 +230,9 @@ std::vector <BookChapterData> usfm_import (std::string input, std::string styles
         store_chapter_data = true;
       }
       if (store_chapter_data) {
-        chapter_data = filter::strings::trim (chapter_data);
-        if (!chapter_data.empty()) result.push_back ( { static_cast<int>(bookid), chapter_number, chapter_data } );
+        chapter_data = filter::strings::trim (std::move(chapter_data));
+        if (!chapter_data.empty())
+          result.push_back ( { static_cast<int>(bookid), chapter_number, std::move(chapter_data) } );
         chapter_number = 0;
         chapter_data.clear();
         store_chapter_data = false;
@@ -224,9 +248,9 @@ std::vector <BookChapterData> usfm_import (std::string input, std::string styles
     }
     chapter_data.append(marker_or_text);
   }
-  chapter_data = filter::strings::trim (chapter_data);
+  chapter_data = filter::strings::trim (std::move(chapter_data));
   if (!chapter_data.empty())
-    result.push_back (BookChapterData (static_cast<int>(bookid), chapter_number, chapter_data));
+    result.push_back (BookChapterData (static_cast<int>(bookid), chapter_number, std::move(chapter_data)));
   return result;
 }
 
@@ -377,7 +401,8 @@ std::string get_verse_text (std::string usfm, int verse_number)
 // Gets the USFM for the $verse number for a Quill-based verse editor.
 // This means that preceding empty paragraphs will be included also.
 // And that empty paragraphs at the end will be omitted.
-std::string get_verse_text_quill (std::string usfm, int verse)
+// But not in chapter 0.
+std::string get_verse_text_quill (const std::optional<int> chapter, const int verse, std::string usfm)
 {
   // Get the raw USFM for the verse, that is, the bit between the \v... markers.
   std::string raw_verse_usfm = get_verse_text (usfm, verse);
@@ -389,23 +414,36 @@ std::string get_verse_text_quill (std::string usfm, int verse)
 
   // Omit new paragraphs at the end.
   // In this context it is taken as opening USFM markers without content.
+  // Don't do this for chapter 0 to enable typing raw USFM in chapter 0.
+  // See https://github.com/bibledit/cloud/issues/1007
   std::string verse_usfm (raw_verse_usfm);
-  std::vector <std::string> markers_and_text = get_markers_and_text (verse_usfm);
-  while (true) {
-    if (markers_and_text.empty ()) break;
-    std::string code = markers_and_text.back ();
-    markers_and_text.pop_back ();
-    if (!is_usfm_marker (code)) break;
-    if (!is_opening_marker (code)) break;
-    verse_usfm.erase (verse_usfm.size () - code.size ());
-    verse_usfm = filter::strings::trim (verse_usfm);
-    if (verse_usfm.empty ()) break;
+  const auto is_chapter_0 = [&chapter] () {
+    if (chapter)
+      if (chapter.value() == 0)
+        return true;
+    return false;
+  };
+  if (!is_chapter_0()) {
+    std::vector <std::string> markers_and_text = get_markers_and_text (verse_usfm);
+    while (true) {
+      if (markers_and_text.empty ())
+        break;
+      const std::string code = markers_and_text.back ();
+      markers_and_text.pop_back ();
+      if (!is_usfm_marker (code))
+        break;
+      if (!is_opening_marker (code))
+        break;
+      verse_usfm.erase (verse_usfm.size () - code.size ());
+      verse_usfm = filter::strings::trim (verse_usfm);
+      if (verse_usfm.empty ())
+        break;
+    }
   }
 
   // Bail out if empty USFM for the verse.
-  if (verse_usfm.empty ()) {
+  if (verse_usfm.empty ())
     return verse_usfm;
-  }
   
   // Get the raw USFM for the previous verse for verses greater than 0, in the same way.
   // Any empty paragraphs at the end of the previous verse USFM,
@@ -415,7 +453,7 @@ std::string get_verse_text_quill (std::string usfm, int verse)
     // For combined verses: The raw USFM fragments should differ to make sense.
     if (previous_verse_usfm != raw_verse_usfm) {
       if (!previous_verse_usfm.empty ()) {
-        markers_and_text = get_markers_and_text (previous_verse_usfm);
+        std::vector <std::string> markers_and_text = get_markers_and_text (previous_verse_usfm);
         while (true) {
           if (markers_and_text.empty ()) break;
           std::string code = markers_and_text.back ();
@@ -494,7 +532,7 @@ std::string get_verse_range_text (std::string usfm, int verse_from, int verse_to
   std::string previous_usfm;
   for (int vs = verse_from; vs <= verse_to; vs++) {
     std::string verse_usfm;
-    if (quill) verse_usfm = get_verse_text_quill (usfm, vs);
+    if (quill) verse_usfm = get_verse_text_quill (std::nullopt, vs, usfm);
     else verse_usfm = get_verse_text (usfm, vs);
     // Do not include repeating USFM in the case of combined verse numbers in the input USFM code.
     if (verse_usfm == previous_usfm) continue;
@@ -519,8 +557,10 @@ std::string get_verse_range_text (std::string usfm, int verse_from, int verse_to
 // Returns true if the $code contains a USFM marker.
 bool is_usfm_marker (std::string code)
 {
-  if (code.length () < 2) return false;
-  if (code.substr (0, 1) == "\\") return true;
+  if (code.length () < 2)
+    return false;
+  if (code.substr (0, 1) == R"(\)")
+    return true;
   return false;
 }
 
@@ -643,9 +683,9 @@ std::string save_is_safe (Webserver_Request& webserver_request,
   // Allowed percentage difference.
   int allowed_percentage = 0;
   if (chapter)
-    allowed_percentage = webserver_request.database_config_user ()->getEditingAllowedDifferenceChapter ();
+    allowed_percentage = webserver_request.database_config_user ()->get_editing_allowed_difference_chapter ();
   else
-    allowed_percentage = webserver_request.database_config_user ()->getEditingAllowedDifferenceVerse ();
+    allowed_percentage = webserver_request.database_config_user ()->get_editing_allowed_difference_verse ();
 
   // When the verse editor has an empty verse, it should allow for 100% change.
   // Same for the chapter editor, if it has empty verses, allow for a 100% change.
@@ -762,7 +802,8 @@ std::string safely_store_verse (Webserver_Request& webserver_request,
   }
   if (!in_array (verse, save_verses)) {
     std::vector <std::string> vss;
-    for (auto vs : save_verses) vss.push_back (std::to_string(vs));
+    for (auto vs : save_verses)
+      vss.push_back (std::to_string(vs));
     explanation = "The USFM contains verse(s) " + filter::strings::implode (vss, " ") + " while it wants to save to verse " + std::to_string (verse);
     Database_Logs::log (explanation + ": " + usfm);
     return translate ("Verse mismatch");
@@ -772,10 +813,15 @@ std::string safely_store_verse (Webserver_Request& webserver_request,
   std::string chapter_usfm = database::bibles::get_chapter (bible, book, chapter);
   
   // Get the existing USFM fragment for the verse to save.
-  std::string existing_verse_usfm;
-  if (quill) existing_verse_usfm = get_verse_text_quill (chapter_usfm, verse);
-  else existing_verse_usfm = get_verse_text (chapter_usfm, verse);
-  existing_verse_usfm = filter::strings::trim (existing_verse_usfm);
+  const auto get_existing_verse_usfm = [quill, &chapter_usfm, chapter, verse] () {
+    std::string usfm;
+    if (quill)
+      usfm = get_verse_text_quill (chapter, verse, chapter_usfm);
+    else
+      usfm = get_verse_text (chapter_usfm, verse);
+    return filter::strings::trim (usfm);
+  };
+  const std::string existing_verse_usfm {get_existing_verse_usfm()};
 
   // Check that there is a match between the existing verse numbers and the verse numbers to save.
   std::vector <int> existing_verses = get_verse_numbers (existing_verse_usfm);
@@ -804,12 +850,12 @@ std::string safely_store_verse (Webserver_Request& webserver_request,
   }
 
   // Check maximum difference between new and existing USFM.
-  std::string message = save_is_safe (webserver_request, existing_verse_usfm, usfm, false, explanation);
+  const std::string message = save_is_safe (webserver_request, existing_verse_usfm, usfm, false, explanation);
   if (!message.empty ()) return message;
   
   // Store the new verse USFM in the existing chapter USFM.
-  size_t pos = chapter_usfm.find (existing_verse_usfm);
-  size_t length = existing_verse_usfm.length ();
+  const size_t pos = chapter_usfm.find (existing_verse_usfm);
+  const size_t length = existing_verse_usfm.length ();
   if (pos == std::string::npos) {
     explanation = "Cannot find the exact location in the chapter where to save this USFM fragment";
     Database_Logs::log (explanation + ": " + usfm);
@@ -817,6 +863,25 @@ std::string safely_store_verse (Webserver_Request& webserver_request,
   }
   chapter_usfm.erase (pos, length);
   chapter_usfm.insert (pos, usfm);
+  
+  // Check whether the now assembled USFM for the entire chapter contains the expected \c markup,
+  // that is, the same chapter number, and no more than one chapter.
+  {
+    const std::vector <filter::usfm::BookChapterData> book_chapter_text = filter::usfm::usfm_import (chapter_usfm, stylesv2::standard_sheet());
+    if (book_chapter_text.size () != 1) {
+      explanation = "Cannot save " + std::to_string(book_chapter_text.size ()) + " chapters";
+      Database_Logs::log (explanation + ": " + usfm);
+      return translate ("Incorrect chapter");
+    }
+    const int chapter_number = book_chapter_text.at(0).m_chapter;
+    if (chapter_number != chapter) {
+      explanation = "Incorrect chapter " + std::to_string (chapter_number);
+      Database_Logs::log (explanation + ": " + usfm);
+      return translate ("Incorrect chapter");
+    }
+    // The import process above has put the new lines correct, take that correct USFM for saving below.
+    chapter_usfm = book_chapter_text.at(0).m_data;
+  }
 
   // Record the change in the journal.
   const std::string& user = webserver_request.session_logic ()->get_username ();
@@ -1041,11 +1106,60 @@ std::string extract_fig (std::string usfm, std::string & caption, std::string & 
 // Returns true if the marker is a standard "q." marker.
 bool is_standard_q_poetry (const std::string& marker)
 {
-  if (marker == "q") return true;
-  if (marker == "q1") return true;
-  if (marker == "q2") return true;
-  if (marker == "q3") return true;
+  if (marker == "q")
+    return true;
+  if (marker == "q1")
+    return true;
+  if (marker == "q2")
+    return true;
+  if (marker == "q3")
+    return true;
   return false;
+}
+
+
+// Removes milestone data, and returns the removed USFM.
+std::string remove_milestone (std::vector <std::string>& container, unsigned int& pointer)
+{
+  // This function assumes that it is called only at the opening marker of a milestone.
+
+  // Example milestone: \qt-s |attribute1="value1"\*
+
+  std::string removed_data;
+  
+  // This function is called with the pointer pointing at the opening marker.
+  // In the above example this is \qt-s
+  // So add that bit to the removed data to be returned.
+  removed_data.append(container.at(pointer));
+
+  // Next there's maximal two bits
+  // 1. The attributes.
+  // 2. The closing marker.
+  // But the attributes may have been removed, so handle that situation too.
+  for (int i {1}; i <= 2; i++) {
+    // Check whether it's safe to peek at the next item in the container of markers and text fragments.
+    if (pointer >= container.size())
+      break;
+    // Check whether the next fragment starts with a vertical bar.
+    // If so, it's the attributes.
+    // Handle those.
+    if (!container.at(pointer+1).empty()) {
+      if (container.at(pointer+1).front() == '|') {
+        pointer++;
+        removed_data.append(container.at(pointer));
+      }
+    }
+    // If the next fragment is the empty closing marker,
+    // that closes the milestone.
+    // Handle it, and stop processing more fragments.
+    if (container.at(pointer+1) == R"(\*)") {
+      pointer++;
+      removed_data.append(container.at(pointer));
+      break;
+    }
+  }
+  // The data removed above.
+  return removed_data;
 }
 
 

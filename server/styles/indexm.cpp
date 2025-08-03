@@ -21,7 +21,6 @@
 #include <assets/view.h>
 #include <assets/page.h>
 #include <dialog/entry.h>
-#include <dialog/list.h>
 #include <dialog/yes.h>
 #include <filter/roles.h>
 #include <filter/url.h>
@@ -47,7 +46,7 @@ std::string styles_indexm_url ()
 
 bool styles_indexm_acl (Webserver_Request& webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
+  return roles::access_control (webserver_request, roles::translator);
 }
 
 
@@ -92,7 +91,7 @@ std::string styles_indexm (Webserver_Request& webserver_request)
       std::string confirm {webserver_request.query ["confirm"]};
       if (confirm == "yes") {
         bool write = database::styles::has_write_access (username, del);
-        if (userlevel >= Filter_Roles::admin ()) write = true;
+        if (userlevel >= roles::admin) write = true;
         if (write) {
           database::styles::delete_sheet (del);
           database::styles::revoke_write_access (std::string(), del);
@@ -116,7 +115,7 @@ std::string styles_indexm (Webserver_Request& webserver_request)
     sheetblock << "<p>";
     sheetblock << sheet;
     bool editable = database::styles::has_write_access (username, sheet);
-    if (userlevel >= Filter_Roles::admin ()) editable = true;
+    if (userlevel >= roles::admin) editable = true;
     // Cannot edit the Standard stylesheet.
     if (sheet == stylesv2::standard_sheet ()) editable = false;
     if (editable) {

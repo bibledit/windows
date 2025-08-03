@@ -16,25 +16,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-
-#pragma once
-
-#include <config/libraries.h>
-#include <assets/view.h>
-
-class Dialog_List
-{
-public:
-  Dialog_List (std::string url, std::string question, std::string info_top, std::string info_bottom, bool post = false);
-  ~Dialog_List ();
-  Dialog_List(const Dialog_List&) = delete;
-  Dialog_List operator=(const Dialog_List&) = delete;
-  void add_query (std::string parameter, std::string value);
-  void add_row (std::string text, std::string parameter, std::string value);
-  std::string run ();
-private:
-  Assets_View assets_view {};
-  std::string base_url {};
-  std::string list_block {};
-  bool post_result {false};
-};
+$("#identification").on("change", function() {
+  document.getElementById("identification").parentElement.submit();
+});

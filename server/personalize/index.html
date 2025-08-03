@@ -70,12 +70,10 @@ translate("Initial vertical position of the editing cursor in the Bible editors"
 <!-- #ENDZONE bibles -->
 
 <br>
-<p>
-  <label for="themepicker">translate("Choose theme"):</label>
-  <select id="themepicker" name="themepicker" value="##themepicker##">
-    ##themepickeroptags##
-  </select>
-</p>
+<div>
+  <label for="theme">translate("Choose theme"):</label>
+  ##theme##
+</div>
 
 <br>
 <p>
@@ -139,21 +137,13 @@ translate("Show a link in the Bible editor to select another Bible editor.")
 translate("Available Bible editors in the Bible editor selector:")
 [<a href="../editor/select">...</a>]
 </p>
-<p class="settings-container">
-  <label for="fastswitchvisualeditors">translate("Text editors:")<span class="tooltip"></span>
-    <span class="tooltip-text">translate("Which visual Bible editors to enable?")</span>
-  </label>
-  <select id="fastswitchvisualeditors" name="fastswitchvisualeditors" value="##fastswitchvisualeditors##">
-    ##fastswitchvisualeditorsoptags##
-  </select>
+<p>
+  <label for="fastswitchvisualeditors">translate("Text editors:")</label>
+  ##fastswitchvisualeditors##
 </p>
-<p class="settings-container">
-  <label for="fastswitchusfmeditors">translate("USFM editor:")<span class="tooltip"></span>
-    <span class="tooltip-text">translate("Enable the USFM Bible editor?")</span>
-  </label>
-  <select id="fastswitchusfmeditors" name="fastswitchusfmeditors" value="##fastswitchusfmeditors##">
-    ##fastswitchusfmeditorsoptags##
-  </select>
+<p>
+  <label for="fastswitchusfmeditors">translate("USFM editor:")</label>
+  ##fastswitchusfmeditors##
 </p>
 
 <br>
@@ -166,10 +156,9 @@ translate("Enable the Styles button in the visual Bible editors.")
 <!-- #BEGINZONE basicmode -->
 
 <br>
-<p>
-translate ("Select the Bible for editing:")
-<a id="bibleselect" href="?changebible=">##bible##</a>.
-</p>
+<div>
+translate ("Select the Bible for editing:") ##bible##.
+</div>
 
 <!-- #BEGINZONE client_connected -->
 <br>
@@ -285,13 +274,9 @@ translate ("Disable the pop-up menu when text is selected.")
 
 <!-- #BEGINZONE advancedmode -->
 <br>
-<p class="settings-container">
-  <label for="verseseparator">translate("Verse separator for Bible notes entry"):<span class="tooltip"></span>
-    <span class="tooltip-text">translate("Which verse separator to use for notes entry?")</span>
-  </label>
-  <select id="verseseparator" name="verseseparator" value="##verseseparator##">
-    ##verseseparatoroptags##
-  </select>
+<p>
+  <label for="verseseparator">translate("Verse separator for Bible notes entry"):</label>
+  ##verseseparator##
 </p>
 <!-- #ENDZONE advancedmode -->
 
@@ -323,13 +308,9 @@ translate("Bibledit always sends the focused verse reference to Accordance.")
 
 <!-- #BEGINZONE advancedmode -->
 <br>
-<p class="settings-container">
-  <label for="dateformat">translate("Date format in consultation notes"):<span class="tooltip"></span>
-    <span class="tooltip-text">translate("The date format to use for consultation notes?")</span>
-  </label>
-  <select id="dateformat" name="dateformat" value="##dateformat##">
-    ##dateformatoptags##
-  </select>
+<p>
+  <label for="dateformat">translate("Date format in consultation notes"):</label>
+  ##dateformat##
 </p>
 <!-- #ENDZONE advancedmode -->
 
@@ -339,6 +320,15 @@ translate("Bibledit always sends the focused verse reference to Accordance.")
 <p>
 <input type="checkbox" name="spellcheck" onchange="checkbox_v2(this)" ##spellcheck## />
 translate("Enable spell check in the Bible editors.")
+</p>
+<!-- #ENDZONE advancedmode -->
+
+
+<!-- #BEGINZONE advancedmode -->
+<br>
+<p>
+<input type="checkbox" name="navigationarrows" onchange="checkbox_v2(this)" ##navigationarrows## />
+translate("Show arrows in the passage navigator for previous and next book and chapter and verse.")
 </p>
 <!-- #ENDZONE advancedmode -->
 

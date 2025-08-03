@@ -70,8 +70,8 @@
 <br>
 
 <p>➤ translate("Install the software Bibledit relies on:")</p>
-<p class="debian ubuntu"><code>sudo apt install build-essential autotools-dev autoconf autoconf-archive git zip unzip pkgconf libcurl4-openssl-dev libssl-dev poppler-utils libsword-utils diatheke ldap-utils libmimetic-dev certbot libxml2-dev libutf8proc-dev libtidy-dev libpugixml-dev libicu-dev gzip tar</code></p>
-<p class="centos redhat alma"><code>sudo dnf install autoconf automake gcc gcc-c++ libtool git zip unzip pkgconfig libcurl-devel openssl-devel curl make poppler-utils libxml2-devel utf8proc libtidy-devel pugixml-devel gzip tar</code></p>
+<p class="debian ubuntu"><code>sudo apt install build-essential autotools-dev autoconf autoconf-archive git zip unzip pkgconf libcurl4-openssl-dev libssl-dev libsword-utils diatheke ldap-utils libmimetic-dev certbot libxml2-dev libutf8proc-dev libtidy-dev libpugixml-dev libicu-dev gzip tar</code></p>
+<p class="centos redhat alma"><code>sudo dnf install autoconf automake gcc gcc-c++ libtool git zip unzip pkgconfig libcurl-devel openssl-devel curl make libxml2-devel utf8proc libtidy-devel pugixml-devel gzip tar</code></p>
 <p class="opensuse"><code>sudo zypper install autoconf automake autoconf-archive gcc-c++ git zip pkg-config libcurl-devel libopenssl-devel curl make utf8proc-devel pugixml-devel libxml2-devel libtidy-devel pugixml-devel gzip tar</code></p>
 
 <br>
@@ -134,6 +134,6 @@ translate("Examples:")
 translate ("Most of Bibledit Cloud will now be working.")
 translate ("To get email services working, connect Bibledit to a gmail or other mail account.")
 translate ("To get SWORD resources working, install the SWORD libraries.")
-http://crosswire.org/sword/develop/index.jsp
+https://crosswire.org/sword/develop/index.jsp
 </p>
 

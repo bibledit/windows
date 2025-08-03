@@ -57,7 +57,7 @@ std::string changes_changes_url ()
 
 bool changes_changes_acl (Webserver_Request& webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ());
+  return roles::access_control (webserver_request, roles::consultant);
 }
 
 
@@ -92,9 +92,9 @@ std::string changes_changes (Webserver_Request& webserver_request)
     trash_change_notification (webserver_request, remove);
     database::modifications::deleteNotification (remove);
 #ifdef HAVE_CLIENT
-    webserver_request.database_config_user ()->addRemovedChange (remove);
+    webserver_request.database_config_user ()->add_removed_change (remove);
 #endif
-    webserver_request.database_config_user ()->setChangeNotificationsChecksum ("");
+    webserver_request.database_config_user ()->set_change_notifications_checksum ("");
     return std::string();
   }
   
@@ -106,12 +106,12 @@ std::string changes_changes (Webserver_Request& webserver_request)
     const Passage passage = database::modifications::getNotificationPassage (id);
     if (passage.m_book) {
       Ipc_Focus::set (webserver_request, passage.m_book, passage.m_chapter, filter::strings::convert_to_int (passage.m_verse));
-      Navigation_Passage::record_history (webserver_request, passage.m_book, passage.m_chapter, filter::strings::convert_to_int (passage.m_verse));
+      navigation_passage::record_history (webserver_request, passage.m_book, passage.m_chapter, filter::strings::convert_to_int (passage.m_verse));
     }
     // Set the correct default Bible for the user.
     const std::string bible = database::modifications::getNotificationBible (id);
     if (!bible.empty ())
-      webserver_request.database_config_user()->setBible (bible);
+      webserver_request.database_config_user()->set_bible (bible);
     return std::string();
   }
   
@@ -119,10 +119,10 @@ std::string changes_changes (Webserver_Request& webserver_request)
   // Handle query to update the sorting order.
   const std::string sort = webserver_request.query ["sort"];
   if (sort == "verse") {
-    webserver_request.database_config_user ()->setOrderChangesByAuthor (false);
+    webserver_request.database_config_user ()->set_order_changes_by_author (false);
   }
   if (sort == "author") {
-    webserver_request.database_config_user ()->setOrderChangesByAuthor (true);
+    webserver_request.database_config_user ()->set_order_changes_by_author (true);
   }
 
   
@@ -154,11 +154,11 @@ std::string changes_changes (Webserver_Request& webserver_request)
 #ifdef HAVE_CLIENT
     // Client records deletions for sending to the Cloud.
     for (const auto id : ids) {
-      webserver_request.database_config_user ()->addRemovedChange (id);
+      webserver_request.database_config_user ()->add_removed_change (id);
     }
 #endif
     // Clear checksum cache.
-    webserver_request.database_config_user ()->setChangeNotificationsChecksum ("");
+    webserver_request.database_config_user ()->set_change_notifications_checksum ("");
   }
   
   
@@ -169,9 +169,9 @@ std::string changes_changes (Webserver_Request& webserver_request)
       trash_change_notification (webserver_request, id);
       database::modifications::deleteNotification (id);
 #ifdef HAVE_CLIENT
-      webserver_request.database_config_user ()->addRemovedChange (id);
+      webserver_request.database_config_user ()->add_removed_change (id);
 #endif
-      webserver_request.database_config_user ()->setChangeNotificationsChecksum ("");
+      webserver_request.database_config_user ()->set_change_notifications_checksum ("");
     }
   }
   
@@ -183,9 +183,9 @@ std::string changes_changes (Webserver_Request& webserver_request)
       trash_change_notification (webserver_request, id);
       database::modifications::deleteNotification (id);
 #ifdef HAVE_CLIENT
-      webserver_request.database_config_user ()->addRemovedChange (id);
+      webserver_request.database_config_user ()->add_removed_change (id);
 #endif
-      webserver_request.database_config_user ()->setChangeNotificationsChecksum ("");
+      webserver_request.database_config_user ()->set_change_notifications_checksum ("");
     }
   }
   
@@ -198,15 +198,15 @@ std::string changes_changes (Webserver_Request& webserver_request)
       trash_change_notification (webserver_request, id);
       database::modifications::deleteNotification (id);
 #ifdef HAVE_CLIENT
-      webserver_request.database_config_user ()->addRemovedChange (id);
+      webserver_request.database_config_user ()->add_removed_change (id);
 #endif
-      webserver_request.database_config_user ()->setChangeNotificationsChecksum ("");
+      webserver_request.database_config_user ()->set_change_notifications_checksum ("");
     }
   }
   
   
   // Read the identifiers, optionally sorted on author (that is, category).
-  bool sort_on_author = webserver_request.database_config_user ()->getOrderChangesByAuthor ();
+  bool sort_on_author = webserver_request.database_config_user ()->get_order_changes_by_author ();
   const std::vector <int> notification_ids = database::modifications::getNotificationIdentifiers (username, selectedbible, sort_on_author);
   // Send the identifiers to the browser for download there.
   std::string pendingidentifiers {};
@@ -306,7 +306,7 @@ std::string changes_changes (Webserver_Request& webserver_request)
   // Create data for the link for how to sort the change notifications.
   std::string sortquery {};
   std::string sorttext {};
-  if (webserver_request.database_config_user ()->getOrderChangesByAuthor ()) {
+  if (webserver_request.database_config_user ()->get_order_changes_by_author ()) {
     sortquery = "verse";
     sorttext = translate ("Sort on verse" );
   } else {
@@ -321,7 +321,7 @@ std::string changes_changes (Webserver_Request& webserver_request)
   if (!notification_ids.empty ()) {
     // Whether to put those controls at the bottom of the page, as the default location,
     // or whether to put them at the top of the page.
-    if (webserver_request.database_config_user ()->getDismissChangesAtTop ()) {
+    if (webserver_request.database_config_user ()->get_dismiss_changes_at_top ()) {
       view.enable_zone ("controlsattop");
     } else {
       view.enable_zone ("controlsatbottom");

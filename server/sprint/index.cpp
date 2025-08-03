@@ -32,7 +32,7 @@
 #include <database/config/general.h>
 #include <database/config/bible.h>
 #include <access/bible.h>
-#include <dialog/list.h>
+#include <dialog/select.h>
 #include <sprint/burndown.h>
 #include <menu/logic.h>
 #include <email/send.h>
@@ -46,7 +46,7 @@ std::string sprint_index_url ()
 
 bool sprint_index_acl (Webserver_Request& webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
+  return roles::access_control (webserver_request, roles::translator);
 }
 
 
@@ -69,32 +69,32 @@ std::string sprint_index ([[maybe_unused]] Webserver_Request& webserver_request)
   
   
   if (webserver_request.query.count ("previoussprint")) {
-    int month = webserver_request.database_config_user()->getSprintMonth ();
-    int year = webserver_request.database_config_user()->getSprintYear ();
+    int month = webserver_request.database_config_user()->get_sprint_month ();
+    int year = webserver_request.database_config_user()->get_sprint_year ();
     filter::date::get_previous_month (month, year);
-    webserver_request.database_config_user()->setSprintMonth (month);
-    webserver_request.database_config_user()->setSprintYear (year);
+    webserver_request.database_config_user()->set_sprint_month (month);
+    webserver_request.database_config_user()->set_sprint_year (year);
   }
   
   
   if (webserver_request.query.count ("currentprint")) {
-    webserver_request.database_config_user()->setSprintMonth (filter::date::numerical_month (filter::date::seconds_since_epoch ()));
-    webserver_request.database_config_user()->setSprintYear (filter::date::numerical_year (filter::date::seconds_since_epoch ()));
+    webserver_request.database_config_user()->set_sprint_month (filter::date::numerical_month (filter::date::seconds_since_epoch ()));
+    webserver_request.database_config_user()->set_sprint_year (filter::date::numerical_year (filter::date::seconds_since_epoch ()));
   }
   
   
   if (webserver_request.query.count ("nextsprint")) {
-    int month = webserver_request.database_config_user()->getSprintMonth ();
-    int year = webserver_request.database_config_user()->getSprintYear ();
+    int month = webserver_request.database_config_user()->get_sprint_month ();
+    int year = webserver_request.database_config_user()->get_sprint_year ();
     filter::date::get_next_month (month, year);
-    webserver_request.database_config_user()->setSprintMonth (month);
-    webserver_request.database_config_user()->setSprintYear (year);
+    webserver_request.database_config_user()->set_sprint_month (month);
+    webserver_request.database_config_user()->set_sprint_year (year);
   }
   
   
-  std::string bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->getBible ());
-  int month = webserver_request.database_config_user()->getSprintMonth ();
-  int year = webserver_request.database_config_user()->getSprintYear ();
+  std::string bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->get_bible ());
+  int month = webserver_request.database_config_user()->get_sprint_month ();
+  int year = webserver_request.database_config_user()->get_sprint_year ();
   
 
   if (webserver_request.post.count ("id")) {
@@ -137,32 +137,30 @@ std::string sprint_index ([[maybe_unused]] Webserver_Request& webserver_request)
   
   
   if (webserver_request.query.count ("mail")) {
-    int mail_year = webserver_request.database_config_user()->getSprintYear ();
-    int mail_month = webserver_request.database_config_user()->getSprintMonth ();
+    int mail_year = webserver_request.database_config_user()->get_sprint_year ();
+    int mail_month = webserver_request.database_config_user()->get_sprint_month ();
     sprint_burndown (bible, mail_year, mail_month);
     view.set_variable ("success", translate("The information was mailed to the subscribers"));
   }
   
   
-  if (webserver_request.query.count ("bible")) {
-    bible = webserver_request.query ["bible"];
-    if (bible.empty()) {
-      Dialog_List dialog_list = Dialog_List ("index", translate("Select which Bible to display the Sprint for"), "", "");
-      std::vector <std::string> bibles = access_bible::bibles (webserver_request);
-      for (auto & selection_bible : bibles) {
-        dialog_list.add_row (selection_bible, "bible", selection_bible);
-      }
-      page += dialog_list.run ();
-      return page;
-    } else {
-      webserver_request.database_config_user()->setBible (bible);
+  bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->get_bible ());
+  {
+    constexpr const char* identification {"bible"};
+    if (webserver_request.post.count (identification)) {
+      bible = webserver_request.post.at(identification);
+      webserver_request.database_config_user()->set_bible (bible);
     }
+    dialog::select::Settings settings {
+      .identification = identification,
+      .values = access_bible::bibles (webserver_request),
+      .selected = bible,
+    };
+    dialog::select::Form form { .auto_submit = true };
+    view.set_variable(identification, dialog::select::form(settings, form));
   }
-  
-  
-  bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->getBible ());
-  
-  
+
+ 
   int id = filter::strings::convert_to_int (webserver_request.query ["id"]);
   
   
@@ -176,8 +174,8 @@ std::string sprint_index ([[maybe_unused]] Webserver_Request& webserver_request)
     filter::date::get_previous_month (month, year);
     database_sprint.updateMonthYear (id, month, year);
     view.set_variable ("success", translate("The task was moved to the previous sprint"));
-    webserver_request.database_config_user()->setSprintMonth (month);
-    webserver_request.database_config_user()->setSprintYear (year);
+    webserver_request.database_config_user()->set_sprint_month (month);
+    webserver_request.database_config_user()->set_sprint_year (year);
   }
                         
                         
@@ -185,8 +183,8 @@ std::string sprint_index ([[maybe_unused]] Webserver_Request& webserver_request)
     filter::date::get_next_month (month, year);
     database_sprint.updateMonthYear (id, month, year);
     view.set_variable ("success", translate("The task was moved to the next sprint"));
-    webserver_request.database_config_user()->setSprintMonth (month);
-    webserver_request.database_config_user()->setSprintYear (year);
+    webserver_request.database_config_user()->set_sprint_month (month);
+    webserver_request.database_config_user()->set_sprint_year (year);
   }
 
   
@@ -204,7 +202,6 @@ std::string sprint_index ([[maybe_unused]] Webserver_Request& webserver_request)
   }
   
   
-  view.set_variable ("bible", bible);
   view.set_variable ("sprint", locale_logic_month (month) + " " + std::to_string (year));
 
   
@@ -255,7 +252,7 @@ std::string sprint_index ([[maybe_unused]] Webserver_Request& webserver_request)
   view.set_variable ("chart", sprint_create_burndown_chart (bible, year, month));
   
   
-  view.set_variable ("mailer", email_setup_information (true, false));
+  view.set_variable ("mailer", email::setup_information (true, false));
 
 
   page += view.render ("sprint", "index");

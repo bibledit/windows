@@ -50,9 +50,9 @@ std::string editone_update_url ()
 
 bool editone_update_acl (Webserver_Request& webserver_request)
 {
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ()))
+  if (roles::access_control (webserver_request, roles::translator))
     return true;
-  auto [ read, write ] = access_bible::any (webserver_request);
+  const auto [ read, write ] = access_bible::any (webserver_request);
   return read;
 }
 
@@ -60,7 +60,7 @@ bool editone_update_acl (Webserver_Request& webserver_request)
 std::string editone_update (Webserver_Request& webserver_request)
 {
   // Whether the update is good to go.
-  bool good2go = true;
+  bool good2go {true};
   
   
   // The message(s) to return.
@@ -70,12 +70,18 @@ std::string editone_update (Webserver_Request& webserver_request)
   // Check the relevant bits of information.
   if (good2go) {
     bool parameters_ok = true;
-    if (!webserver_request.post.count ("bible")) parameters_ok = false;
-    if (!webserver_request.post.count ("book")) parameters_ok = false;
-    if (!webserver_request.post.count ("chapter")) parameters_ok = false;
-    if (!webserver_request.post.count ("verse")) parameters_ok = false;
-    if (!webserver_request.post.count ("loaded")) parameters_ok = false;
-    if (!webserver_request.post.count ("edited")) parameters_ok = false;
+    if (!webserver_request.post.count ("bible"))
+      parameters_ok = false;
+    if (!webserver_request.post.count ("book"))
+      parameters_ok = false;
+    if (!webserver_request.post.count ("chapter"))
+      parameters_ok = false;
+    if (!webserver_request.post.count ("verse"))
+      parameters_ok = false;
+    if (!webserver_request.post.count ("loaded"))
+      parameters_ok = false;
+    if (!webserver_request.post.count ("edited"))
+      parameters_ok = false;
     if (!parameters_ok) {
       messages.push_back (translate("Don't know what to update"));
       good2go = false;
@@ -105,7 +111,6 @@ std::string editone_update (Webserver_Request& webserver_request)
     unique_id = webserver_request.post ["id"];
   }
 
-  
   // Checksums of the loaded and edited html.
   if (good2go) {
     if (checksum_logic::get (loaded_html) != checksum1) {
@@ -155,10 +160,12 @@ std::string editone_update (Webserver_Request& webserver_request)
   const std::string& username = webserver_request.session_logic ()->get_username ();
 #ifdef HAVE_CLOUD
   int oldID = 0;
-  if (good2go) oldID = database::bibles::get_chapter_id (bible, book, chapter);
+  if (good2go)
+    oldID = database::bibles::get_chapter_id (bible, book, chapter);
 #endif
   std::string old_chapter_usfm;
-  if (good2go) old_chapter_usfm = database::bibles::get_chapter (bible, book, chapter);
+  if (good2go)
+    old_chapter_usfm = database::bibles::get_chapter (bible, book, chapter);
 
   
   // Determine what (composed) version of USFM to save to the chapter.
@@ -168,7 +175,7 @@ std::string editone_update (Webserver_Request& webserver_request)
   // and the existing USFM as a prioritized change-set.
   std::string loaded_verse_usfm = editone_logic_html_to_usfm (stylesheet, loaded_html);
   std::string edited_verse_usfm = editone_logic_html_to_usfm (stylesheet, edited_html);
-  std::string existing_verse_usfm = filter::usfm::get_verse_text_quill (old_chapter_usfm, verse);
+  std::string existing_verse_usfm = filter::usfm::get_verse_text_quill (chapter, verse, old_chapter_usfm);
   existing_verse_usfm = filter::strings::trim (existing_verse_usfm);
 
   
@@ -193,10 +200,10 @@ std::string editone_update (Webserver_Request& webserver_request)
       filter_merge_add_book_chapter (conflicts, book, chapter);
       bible_logic::optional_merge_irregularity_email (bible, book, chapter, username, loaded_verse_usfm, edited_verse_usfm, merged_verse_usfm);
       // Let the merged data now become the edited data (so it gets saved properly).
-      edited_verse_usfm = merged_verse_usfm;
+      edited_verse_usfm = std::move(merged_verse_usfm);
     }
   }
-  
+
   
   // Collapse any double spaces in the USFM to save.
   // https://github.com/bibledit/cloud/issues/711
@@ -206,7 +213,7 @@ std::string editone_update (Webserver_Request& webserver_request)
     edited_verse_usfm = filter::strings::collapse_whitespace(edited_verse_usfm);
   }
 
-  
+
   // Safely store the verse.
   std::string explanation;
   std::string message;
@@ -245,12 +252,13 @@ std::string editone_update (Webserver_Request& webserver_request)
 
   
   // If there's no message at all, return at least something to the editor.
-  if (messages.empty ()) messages.push_back (locale_logic_text_updated());
+  if (messages.empty ())
+    messages.push_back (locale_logic_text_updated());
 
 
   // The response to send to back to the editor.
   std::string response;
-  std::string separator = "#_be_#";
+  constexpr const char* separator = "#_be_#";
   // The response starts with the save message(s) if any.
   // The message(s) contain information about save success or failure.
   // Send it to the browser for display to the user.
@@ -274,7 +282,7 @@ std::string editone_update (Webserver_Request& webserver_request)
     std::string editor_html (edited_html);
     std::string server_html;
     {
-      std::string verse_usfm = filter::usfm::get_verse_text_quill (new_chapter_usfm, verse);
+      std::string verse_usfm = filter::usfm::get_verse_text_quill (chapter, verse, new_chapter_usfm);
       editone_logic_editable_html (verse_usfm, stylesheet, server_html);
     }
     std::vector <int> positions;
@@ -284,37 +292,37 @@ std::string editone_update (Webserver_Request& webserver_request)
     bible_logic::html_to_editor_updates (editor_html, server_html, positions, sizes, operators, content);
     // Encode the condensed differences for the response to the Javascript editor.
     for (size_t i = 0; i < positions.size(); i++) {
-      response.append ("#_be_#");
+      response.append (separator);
       response.append (std::to_string (positions[i]));
-      response.append ("#_be_#");
+      response.append (separator);
       std::string operation = operators[i];
       response.append (operation);
       if (operation == bible_logic::insert_operator ()) {
         std::string text = content[i];
         std::string character = filter::strings::unicode_string_substr (text, 0, 1);
-        response.append ("#_be_#");
+        response.append (separator);
         response.append (character);
         size_t length = filter::strings::unicode_string_length (text);
         std::string format = filter::strings::unicode_string_substr (text, 1, length - 1);
-        response.append ("#_be_#");
+        response.append (separator);
         response.append (format);
         // Also add the size of the character in UTF-16 format, 2-bytes or 4 bytes, as size 1 or 2.
-        response.append ("#_be_#");
+        response.append (separator);
         response.append (std::to_string (sizes[i]));
       }
       else if (operation == bible_logic::delete_operator ()) {
         // When deleting a UTF-16 character encoded in 4 bytes,
         // then the size in Quilljs is 2 instead of 1.
         // So always give the size when deleting a character.
-        response.append ("#_be_#");
+        response.append (separator);
         response.append (std::to_string (sizes[i]));
       }
       else if (operation == bible_logic::format_paragraph_operator ()) {
-        response.append ("#_be_#");
+        response.append (separator);
         response.append (content[i]);
       }
       else if (operation == bible_logic::format_character_operator ()) {
-        response.append ("#_be_#");
+        response.append (separator);
         response.append (content[i]);
       }
     }

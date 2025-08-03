@@ -47,7 +47,7 @@ std::string public_create_url ()
 bool public_create_acl (Webserver_Request& webserver_request)
 {
   if (config::logic::create_no_accounts()) return false;
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::guest ());
+  return roles::access_control (webserver_request, roles::guest);
 }
 
 
@@ -63,7 +63,7 @@ std::string public_create (Webserver_Request& webserver_request)
   Assets_View view;
 
   
-  const std::string bible = webserver_request.database_config_user()->getBible ();
+  const std::string bible = webserver_request.database_config_user()->get_bible ();
   const int book = Ipc_Focus::getBook (webserver_request);
   const int chapter = Ipc_Focus::getChapter (webserver_request);
   const int verse = Ipc_Focus::getVerse (webserver_request);

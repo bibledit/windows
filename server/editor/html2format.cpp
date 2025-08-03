@@ -25,7 +25,7 @@
 #include <styles/logic.h>
 #include <database/logs.h>
 #include <pugixml/utils.h>
-#include <quill/logic.h>
+#include <filter/quill.h>
 
 
 void Editor_Html2Format::load (std::string html)
@@ -39,7 +39,7 @@ void Editor_Html2Format::load (std::string html)
   
   std::string xml = "<body>" + html + "</body>";
   // Parse document such that all whitespace is put in the DOM tree.
-  // See http://pugixml.org/docs/manual.html for more information.
+  // See https://pugixml.org/docs/manual.html for more information.
   // It is not enough to only parse with parse_ws_pcdata_single, it really needs parse_ws_pcdata.
   // This is significant for, for example, the space after verse numbers, among other cases.
   pugi::xml_parse_result result = document.load_string (xml.c_str(), pugi::parse_ws_pcdata);
@@ -75,7 +75,7 @@ void Editor_Html2Format::process_node (pugi::xml_node node)
       // Skip a note with class "ql-cursor" because that is an internal Quill node.
       // The user didn't insert it.
       const std::string classs = node.attribute("class").value();
-      if (classs == quill_caret_class)
+      if (classs == quill::caret_class)
         break;
       // Process node normally.
       open_element_node (node);
@@ -179,7 +179,8 @@ void Editor_Html2Format::postprocess ()
 
 std::string Editor_Html2Format::update_quill_class (std::string class_name)
 {
-  class_name = filter::strings::replace (quill_class_prefix_block, std::string(), class_name);
-  class_name = filter::strings::replace (quill_class_prefix_inline, std::string(), class_name);
+  class_name = filter::strings::replace (quill::class_prefix_block, std::string(), std::move(class_name));
+  class_name = filter::strings::replace (quill::class_prefix_inline, std::string(), std::move(class_name));
+  class_name = quill::underscore_to_hyphen (std::move(class_name));
   return class_name;
 }

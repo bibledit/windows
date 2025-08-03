@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <assets/page.h>
 #include <assets/header.h>
 #include <dialog/entry.h>
-#include <dialog/list.h>
 #include <filter/roles.h>
 #include <filter/url.h>
 #include <filter/string.h>
@@ -51,7 +50,7 @@ std::string manage_accounts_url ()
 
 bool manage_accounts_acl (Webserver_Request& webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
+  return roles::access_control (webserver_request, roles::manager);
 }
 
 
@@ -73,13 +72,13 @@ std::string manage_accounts (Webserver_Request& webserver_request)
   
   // Delete a user.
   if (webserver_request.query.count ("delete")) {
-    std::string role = Filter_Roles::text (user_level);
+    std::string role = roles::text (user_level);
     std::string email = webserver_request.database_users ()->get_email (objectUsername);
     std::vector <std::string> users = webserver_request.database_users ()->get_users ();
     std::vector <std::string> administrators = webserver_request.database_users ()->getAdministrators ();
     if (users.size () == 1) {
       page += assets_page::error (translate("Cannot remove the last user"));
-    } else if ((user_level >= Filter_Roles::admin ()) && (administrators.size () == 1)) {
+    } else if ((user_level >= roles::admin) && (administrators.size () == 1)) {
       page += assets_page::error (translate("Cannot remove the last administrator"));
     } else {
       std::string message;
@@ -110,7 +109,7 @@ std::string manage_accounts (Webserver_Request& webserver_request)
     
     // Gather details for this user account.
     user_level = webserver_request.database_users ()->get_level (username);
-    const std::string role = Filter_Roles::text (user_level);
+    const std::string role = roles::text (user_level);
     const std::string email = webserver_request.database_users ()->get_email (username);
     const int seconds = filter::date::seconds_since_epoch() - account_creation_times[username];
     const std::string days = std::to_string (seconds / (3600 * 24));

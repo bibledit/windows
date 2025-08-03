@@ -29,7 +29,7 @@
 #include <locale/translate.h>
 #include <locale/logic.h>
 #include <public/logic.h>
-#include <dialog/list.h>
+#include <dialog/select.h>
 #include <public/login.h>
 #include <fonts/logic.h>
 #include <database/config/bible.h>
@@ -46,7 +46,7 @@ std::string public_index_url ()
 bool public_index_acl (Webserver_Request& webserver_request)
 {
   if (config::logic::create_no_accounts()) return false;
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::guest ());
+  return roles::access_control (webserver_request, roles::guest);
 }
 
 
@@ -60,54 +60,47 @@ std::string public_index (Webserver_Request& webserver_request)
 
   
   // Take the Bible for this user, and ensure that it is one of the Bibles that have public feedback enabled.
-  std::string bible = webserver_request.database_config_user()->getBible ();
+  std::string bible = webserver_request.database_config_user()->get_bible ();
   const std::vector <std::string> public_bibles = public_logic_bibles ();
   if (!in_array (bible, public_bibles)) {
     bible.clear ();
     if (!public_bibles.empty ()) {
-      bible = public_bibles [0];
+      bible = public_bibles.front();
     }
-    webserver_request.database_config_user()->setBible (bible);
+    webserver_request.database_config_user()->set_bible (bible);
   }
+
   
+  Assets_View view {};
+
   
   // Switch Bible before displaying the passage navigator because the navigator contains the active Bible.
-  if (webserver_request.query.count ("bible")) {
-    bible = webserver_request.query ["bible"];
-    if (bible.empty()) {
-      Dialog_List dialog_list = Dialog_List ("index", translate("Select which Bible to display"), "", "");
-      for (const auto& public_bible : public_bibles) {
-        dialog_list.add_row (public_bible, "bible", public_bible);
-      }
-      Assets_Header header = Assets_Header ("", webserver_request);
-      std::string page = header.run ();
-      page += dialog_list.run ();
-      return page;
-    } else {
-      webserver_request.database_config_user()->setBible (bible);
+  {
+    constexpr const char* identification {"bible"};
+    if (webserver_request.post.count (identification)) {
+      bible = webserver_request.post.at(identification);
+      webserver_request.database_config_user()->set_bible (bible);
     }
+    dialog::select::Settings settings {
+      .identification = identification,
+      .values = public_bibles,
+      .selected = bible,
+      // If there's more than one Bible with public feedback enabled, the public can select a Bible.
+      .disabled = (public_bibles.size() <= 1),
+    };
+    dialog::select::Form form { .auto_submit = true };
+    view.set_variable(identification, dialog::select::form(settings, form));
   }
-  
+
   
   std::string page {};
   Assets_Header header = Assets_Header (translate ("Public feedback"), webserver_request);
   header.set_navigator ();
   header.set_stylesheet ();
   page = header.run ();
-  Assets_View view {};
   
 
   const std::string stylesheet = database::config::bible::get_export_stylesheet (bible);
-
-  
-  bible = webserver_request.database_config_user()->getBible ();
-  view.set_variable ("bible", bible);
-  
-  
-  // If there's more than one Bible with public feedback enabled, the public can select a Bible.
-  if (public_bibles.size () > 1) {
-    view.enable_zone ("bibles");
-  }
 
   
   const std::string clss = Filter_Css::getClass (bible);

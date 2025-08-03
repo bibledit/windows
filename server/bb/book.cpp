@@ -30,7 +30,6 @@
 #include <locale/translate.h>
 #include <dialog/entry.h>
 #include <dialog/yes.h>
-#include <dialog/list.h>
 #include <dialog/books.h>
 #include <access/bible.h>
 #include <book/create.h>
@@ -49,7 +48,7 @@ std::string bible_book_url ()
 
 bool bible_book_acl (Webserver_Request& webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
+  return roles::access_control (webserver_request, roles::manager);
 }
 
 

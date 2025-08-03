@@ -17,4 +17,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#include <quill/logic.h>
+#pragma once
+
+#include <config/libraries.h>
+
+class Webserver_Request;
+
+std::string manage_bibles_url ();
+bool manage_bibles_acl (Webserver_Request& webserver_request);
+std::string manage_bibles (Webserver_Request& webserver_request);

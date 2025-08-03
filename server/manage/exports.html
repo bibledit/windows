@@ -3,12 +3,11 @@
 <p class="error">##error##</p>
 <p class="success">##success##</p>
 
-<p>
-  translate("Bible"):
-  <a href="?bible=" title="translate("Select another Bible")">##bible##</a>
+<div>
+  translate("Bible"): ##bible##
   <a href="/exports" title="translate("View the exported data")">[translate ("view exports")]</a>
   <a href="?remove=" title="translate("Remove the exported data")">[translate ("remove exports")]</a>
-</p>
+</div>
 
 <h3>translate("Web")</h3>
 <p>
@@ -169,7 +168,7 @@ translate("The help within the Online Bible provides more information about crea
 
 <p>
 translate("The Bible Drop Box provides many additional export formats.")
-<a href="http://freely-given.org/Software/BibleDropBox" ##external##>translate ("Visit the Bible Drop Box for all the options.")</a>
+<a href="https://freely-given.org/Software/BibleDropBox" ##external##>translate ("Visit the Bible Drop Box for all the options.")</a>
 </p>
 <p><a href="https://github.com/bibledit/converters" ##external##>translate("There are more export formats through the BibleMultiConverter.")</a></p>
 

@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <library/bibledit.h>
 #include <developer/logic.h>
 #include <webserver/request.h>
+#include <dialog/select.h>
 
 
 const char * developer_index_url ()
@@ -45,7 +46,7 @@ const char * developer_index_url ()
 
 bool developer_index_acl (Webserver_Request& webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::admin ());
+  return roles::access_control (webserver_request, roles::admin);
 }
 
 
@@ -108,9 +109,9 @@ std::string developer_index (Webserver_Request& webserver_request)
     view.set_variable ("success", "Task disabled");
   }
   
-  if (debug == "receive") {
+  if (debug == "sendreceive") {
     tasks_logic_queue (task::receive_email);
-    view.set_variable ("success", "Receiving email and running tasks that send mail");
+    view.set_variable ("success", "Sending and receiving email");
   }
 
   if (debug == "ipv6") {
@@ -143,6 +144,59 @@ std::string developer_index (Webserver_Request& webserver_request)
   if (debug == "changes") {
     developer_logic_import_changes ();
     view.set_variable ("success", "Task was done see Journal");
+  }
+  
+  {
+    constexpr const char* identification {"selectorajax"};
+    if (webserver_request.post.count (identification)) {
+      [[maybe_unused]] const std::string value {webserver_request.post.at(identification)};
+      return std::string();
+    }
+    dialog::select::Settings settings {
+      .identification = identification,
+      .values = {"aaa", "bbb", "ccc"},
+      .selected = "aaa",
+      .parameters = { {"a", "aa"}, {"b", "bb"} },
+      .tooltip = "Tooltip",
+    };
+    view.set_variable(identification, dialog::select::ajax(settings));
+  }
+
+  {
+    constexpr const char* identification {"selectorform"};
+    std::string selected = "ddd";
+    if (webserver_request.post.count (identification)) {
+      selected = webserver_request.post.at(identification);
+      view.set_variable ("success", "Submitted: " + selected);
+    }
+    dialog::select::Settings settings {
+      .identification = identification,
+      .values = {"ddd", "eee", "fff"},
+      .selected = selected,
+      .parameters = { {"d", "dd"}, {"e", "ee"} },
+      .tooltip = "Tooltip",
+      .submit = "Enter",
+    };
+    dialog::select::Form form { .auto_submit = false };
+    view.set_variable(identification, dialog::select::form(settings, form));
+  }
+
+  {
+    constexpr const char* identification {"selectorautosubmit"};
+    std::string selected = "ggg";
+    if (webserver_request.post.count (identification)) {
+      selected = webserver_request.post.at(identification);
+      view.set_variable ("success", "Submitted: " + selected);
+    }
+    dialog::select::Settings settings {
+      .identification = identification,
+      .values = {"ggg", "hhh", "iii"},
+      .selected = selected,
+      .parameters = { {"g", "gg"}, {"h", "hh"} },
+      .tooltip = "Tooltip",
+    };
+    dialog::select::Form form { .auto_submit = true };
+    view.set_variable(identification, dialog::select::form(settings, form));
   }
   
   view.set_variable ("code", code);

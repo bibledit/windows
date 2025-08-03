@@ -42,14 +42,14 @@ std::string workspace_settings_url ()
 
 bool workspace_settings_acl (Webserver_Request& webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ());
+  return roles::access_control (webserver_request, roles::consultant);
 }
 
 
 std::string workspace_settings (Webserver_Request& webserver_request)
 {
   std::string name = webserver_request.query ["name"];
-  webserver_request.database_config_user()->setActiveWorkspace (name);
+  webserver_request.database_config_user()->set_active_workspace (name);
   
   if (webserver_request.query.count ("preset")) {
     int preset = filter::strings::convert_to_int (webserver_request.query ["preset"]);

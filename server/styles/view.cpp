@@ -17,13 +17,12 @@
  */
 
 
-#include <styles/view2.h>
+#include <styles/view.h>
 #include <styles/logic.h>
 #include <assets/view.h>
 #include <assets/page.h>
 #include <dialog/entry.h>
-#include <dialog/list.h>
-#include <dialog/list2.h>
+#include <dialog/select.h>
 #include <dialog/color.h>
 #include <filter/roles.h>
 #include <filter/url.h>
@@ -42,19 +41,19 @@
 #include <assets/external.h>
 
 
-std::string styles_view2_url ()
+std::string styles_view_url ()
 {
-  return "styles/view2";
+  return "styles/view";
 }
 
 
-bool styles_view2_acl (Webserver_Request& webserver_request)
+bool styles_view_acl (Webserver_Request& webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
+  return roles::access_control (webserver_request, roles::translator);
 }
 
 
-std::string styles_view2 (Webserver_Request& webserver_request)
+std::string styles_view (Webserver_Request& webserver_request)
 {
   std::string page {};
   
@@ -97,8 +96,19 @@ std::string styles_view2 (Webserver_Request& webserver_request)
   const std::string& username = webserver_request.session_logic ()->get_username ();
   const int userlevel = webserver_request.session_logic ()->get_level ();
   bool write = database::styles::has_write_access (username, sheet);
-  if (userlevel >= Filter_Roles::admin ()) write = true;
+  if (userlevel >= roles::admin) write = true;
 
+
+  if (webserver_request.query.count ("reset")) {
+    if (write) {
+      database::styles::reset_marker(sheet, style);
+      styles_sheets_create_all();
+      std::string url = filter_url_build_http_query(styles_view_url(), "sheet", sheet);
+      url = filter_url_build_http_query(std::move(url), "style", style);
+      redirect_browser (webserver_request, std::move(url));
+    }
+  }
+  
   
   // Whether a style was edited.
   bool style_is_edited { false };
@@ -115,7 +125,7 @@ std::string styles_view2 (Webserver_Request& webserver_request)
   
   // The style's name.
   if (webserver_request.query.count ("name")) {
-    Dialog_Entry dialog_entry = Dialog_Entry ("view2", translate("Please enter the name for the style"), marker_data.name, "name", std::string());
+    Dialog_Entry dialog_entry = Dialog_Entry ("view", translate("Please enter the name for the style"), marker_data.name, "name", std::string());
     dialog_entry.add_query ("sheet", sheet);
     dialog_entry.add_query ("style", style);
     page += dialog_entry.run ();
@@ -130,7 +140,7 @@ std::string styles_view2 (Webserver_Request& webserver_request)
   
   // The style's info.
   if (webserver_request.query.count ("info")) {
-    Dialog_Entry dialog_entry = Dialog_Entry ("view2", translate("Please enter the description for the style"), marker_data.info, "info", std::string());
+    Dialog_Entry dialog_entry = Dialog_Entry ("view", translate("Please enter the description for the style"), marker_data.info, "info", std::string());
     dialog_entry.add_query ("sheet", sheet);
     dialog_entry.add_query ("style", style);
     page += dialog_entry.run ();
@@ -156,80 +166,121 @@ std::string styles_view2 (Webserver_Request& webserver_request)
   }
 
   
-  // Function to generate html for the FourState options, i.e. on / off / inherit / toggle.
-  const auto get_fourstate_html = [](const stylesv2::FourState state) {
-    std::string html{};
-    for (const auto state2 : stylesv2::get_four_states()) {
-      const auto value {fourstate_enum_to_value(state2)};
-      html = Options_To_Select::add_selection (value, value, html);
-    }
-    return Options_To_Select::mark_selected(stylesv2::fourstate_enum_to_value(state), html);
-  };
-  
-  // Function to generate html for the TwoState options, i.e. on / off /.
-  const auto get_twostate_html = [](const stylesv2::TwoState state) {
-    std::string html{};
-    for (const auto state2 : stylesv2::get_two_states()) {
-      const auto value {twostate_enum_to_value(state2)};
-      html = Options_To_Select::add_selection (value, value, html);
-    }
-    return Options_To_Select::mark_selected(stylesv2::twostate_enum_to_value(state), html);
-  };
-
-  
-  // Enable the sections in the editor fot the paragraph style properties.
+  // Enable the sections in the editor for the paragraph style properties.
   if (marker_data.paragraph) {
     view.enable_zone("paragraph");
     
-    // Handle font size in points.
+    // Handle paragraph font size in points.
     if (const std::string fontsize = webserver_request.post ["fontsize"]; !fontsize.empty()) {
       marker_data.paragraph.value().font_size = std::clamp(filter::strings::convert_to_int(fontsize), 5, 50);
       style_is_edited = true;
     }
     view.set_variable("fontsize", std::to_string(marker_data.paragraph.value().font_size));
 
-    // Handle italics.
-    if (const std::string italic = webserver_request.post ["italic"]; !italic.empty()) {
-      marker_data.paragraph.value().italic = stylesv2::twostate_value_to_enum(italic);
-      style_is_edited = true;
+    // Handle paragraph italics.
+    {
+      constexpr const char* identification {"italic"};
+      if (webserver_request.post.count (identification)) {
+        marker_data.paragraph.value().italic = stylesv2::twostate_value_to_enum(webserver_request.post.at(identification));
+        style_is_edited = true;
+      }
+      std::vector<std::string> states;
+      for (const auto state2 : stylesv2::get_two_states()) {
+        states.emplace_back(twostate_enum_to_value(state2));
+      }
+      dialog::select::Settings settings {
+        .identification = identification,
+        .values = states,
+        .selected = twostate_enum_to_value(marker_data.paragraph.value().italic),
+        .parameters = { {"sheet", sheet}, {"style", style} },
+      };
+      dialog::select::Form form { .auto_submit = true };
+      view.set_variable(identification, dialog::select::form(settings, form));
     }
-    view.set_variable("italic", get_twostate_html(marker_data.paragraph.value().italic));
     
-    // Handle bold.
-    if (const std::string bold = webserver_request.post ["bold"]; !bold.empty()) {
-      marker_data.paragraph.value().bold = stylesv2::twostate_value_to_enum(bold);
-      style_is_edited = true;
+    // Handle paragraph bold.
+    {
+      constexpr const char* identification {"bold"};
+      if (webserver_request.post.count (identification)) {
+        marker_data.paragraph.value().bold = stylesv2::twostate_value_to_enum(webserver_request.post.at(identification));
+        style_is_edited = true;
+      }
+      std::vector<std::string> states;
+      for (const auto state2 : stylesv2::get_two_states()) {
+        states.emplace_back(twostate_enum_to_value(state2));
+      }
+      dialog::select::Settings settings {
+        .identification = identification,
+        .values = states,
+        .selected = twostate_enum_to_value(marker_data.paragraph.value().bold),
+        .parameters = { {"sheet", sheet}, {"style", style} },
+      };
+      dialog::select::Form form { .auto_submit = true };
+      view.set_variable(identification, dialog::select::form(settings, form));
     }
-    view.set_variable("bold", get_twostate_html(marker_data.paragraph.value().bold));
 
-    // Handle underline.
-    if (const std::string underline = webserver_request.post ["underline"]; !underline.empty()) {
-      marker_data.paragraph.value().underline = stylesv2::twostate_value_to_enum(underline);
-      style_is_edited = true;
+    // Handle paragraph underline.
+    {
+      constexpr const char* identification {"underline"};
+      if (webserver_request.post.count (identification)) {
+        marker_data.paragraph.value().underline = stylesv2::twostate_value_to_enum(webserver_request.post.at(identification));
+        style_is_edited = true;
+      }
+      std::vector<std::string> states;
+      for (const auto state2 : stylesv2::get_two_states()) {
+        states.emplace_back(twostate_enum_to_value(state2));
+      }
+      dialog::select::Settings settings {
+        .identification = identification,
+        .values = states,
+        .selected = twostate_enum_to_value(marker_data.paragraph.value().underline),
+        .parameters = { {"sheet", sheet}, {"style", style} },
+      };
+      dialog::select::Form form { .auto_submit = true };
+      view.set_variable(identification, dialog::select::form(settings, form));
     }
-    view.set_variable("underline", get_twostate_html(marker_data.paragraph.value().underline));
     
-    // Handle small caps.
-    if (const std::string smallcaps = webserver_request.post ["smallcaps"]; !smallcaps.empty()) {
-      marker_data.paragraph.value().smallcaps = stylesv2::twostate_value_to_enum(smallcaps);
-      style_is_edited = true;
+    // Handle paragraph small caps.
+    {
+      constexpr const char* identification {"smallcaps"};
+      if (webserver_request.post.count (identification)) {
+        marker_data.paragraph.value().smallcaps = stylesv2::twostate_value_to_enum(webserver_request.post.at(identification));
+        style_is_edited = true;
+      }
+      std::vector<std::string> states;
+      for (const auto state2 : stylesv2::get_two_states()) {
+        states.emplace_back(twostate_enum_to_value(state2));
+      }
+      dialog::select::Settings settings {
+        .identification = identification,
+        .values = states,
+        .selected = twostate_enum_to_value(marker_data.paragraph.value().smallcaps),
+        .parameters = { {"sheet", sheet}, {"style", style} },
+      };
+      dialog::select::Form form { .auto_submit = true };
+      view.set_variable(identification, dialog::select::form(settings, form));
     }
-    view.set_variable("smallcaps", get_twostate_html(marker_data.paragraph.value().smallcaps));
 
     // Handle text alignment.
-    if (const std::string text_alignment = webserver_request.post ["textalignment"]; !text_alignment.empty()) {
-      marker_data.paragraph.value().text_alignment = stylesv2::textalignment_value_to_enum(text_alignment);
-      style_is_edited = true;
-    }
-    const auto get_textalignment_html = [](const stylesv2::TextAlignment alignment) {
-      std::string html{};
-      for (const auto alignment2 : stylesv2::get_text_alignments()) {
-        const auto value {textalignment_enum_to_value(alignment2)};
-        html = Options_To_Select::add_selection (value, value, html);
+    {
+      constexpr const char* identification {"textalignment"};
+      if (webserver_request.post.count (identification)) {
+        marker_data.paragraph.value().text_alignment = stylesv2::textalignment_value_to_enum(webserver_request.post.at(identification));
+        style_is_edited = true;
       }
-      return Options_To_Select::mark_selected(stylesv2::textalignment_enum_to_value(alignment), html);
-    };
-    view.set_variable("textalignment", get_textalignment_html(marker_data.paragraph.value().text_alignment));
+      std::vector<std::string> alignments;
+      for (const auto alignment2 : stylesv2::get_text_alignments()) {
+        alignments.emplace_back(textalignment_enum_to_value(alignment2));
+      }
+      dialog::select::Settings settings {
+        .identification = identification,
+        .values = alignments,
+        .selected = textalignment_enum_to_value(marker_data.paragraph.value().text_alignment),
+        .parameters = { {"sheet", sheet}, {"style", style} },
+      };
+      dialog::select::Form form { .auto_submit = true };
+      view.set_variable(identification, dialog::select::form(settings, form));
+    }
 
     // Handle space before in millimeters.
     if (const std::string space_before = webserver_request.post ["spacebefore"]; !space_before.empty()) {
@@ -284,46 +335,111 @@ std::string styles_view2 (Webserver_Request& webserver_request)
     if (enable_color)
       view.enable_zone("character_color");
 
-    // Handle italics.
-    const std::string italic = webserver_request.post ["italic"];
-    if (!italic.empty()) {
-      marker_data.character.value().italic = stylesv2::fourstate_value_to_enum(italic);
-      style_is_edited = true;
+    // Handle character italics.
+    {
+      constexpr const char* identification {"italic"};
+      if (webserver_request.post.count (identification)) {
+        marker_data.character.value().italic = stylesv2::fourstate_value_to_enum(webserver_request.post.at(identification));
+        style_is_edited = true;
+      }
+      std::vector<std::string> states;
+      for (const auto state2 : stylesv2::get_four_states()) {
+        states.emplace_back(fourstate_enum_to_value(state2));
+      }
+      dialog::select::Settings settings {
+        .identification = identification,
+        .values = states,
+        .selected = fourstate_enum_to_value(marker_data.character.value().italic),
+        .parameters = { {"sheet", sheet}, {"style", style} },
+      };
+      dialog::select::Form form { .auto_submit = true };
+      view.set_variable(identification, dialog::select::form(settings, form));
     }
-    view.set_variable("italic", get_fourstate_html(marker_data.character.value().italic));
 
-    // Handle bold.
-    const std::string bold = webserver_request.post ["bold"];
-    if (!bold.empty()) {
-      marker_data.character.value().bold = stylesv2::fourstate_value_to_enum(bold);
-      style_is_edited = true;
+    // Handle character bold.
+    {
+      constexpr const char* identification {"bold"};
+      if (webserver_request.post.count (identification)) {
+        marker_data.character.value().bold = stylesv2::fourstate_value_to_enum(webserver_request.post.at(identification));
+        style_is_edited = true;
+      }
+      std::vector<std::string> states;
+      for (const auto state2 : stylesv2::get_four_states()) {
+        states.emplace_back(fourstate_enum_to_value(state2));
+      }
+      dialog::select::Settings settings {
+        .identification = identification,
+        .values = states,
+        .selected = fourstate_enum_to_value(marker_data.character.value().bold),
+        .parameters = { {"sheet", sheet}, {"style", style} },
+      };
+      dialog::select::Form form { .auto_submit = true };
+      view.set_variable(identification, dialog::select::form(settings, form));
     }
-    view.set_variable("bold", get_fourstate_html(marker_data.character.value().bold));
 
-    // Handle underline.
-    const std::string underline = webserver_request.post ["underline"];
-    if (!underline.empty()) {
-      marker_data.character.value().underline = stylesv2::fourstate_value_to_enum(underline);
-      style_is_edited = true;
+    // Handle character underline.
+    {
+      constexpr const char* identification {"underline"};
+      if (webserver_request.post.count (identification)) {
+        marker_data.character.value().underline = stylesv2::fourstate_value_to_enum(webserver_request.post.at(identification));
+        style_is_edited = true;
+      }
+      std::vector<std::string> states;
+      for (const auto state2 : stylesv2::get_four_states()) {
+        states.emplace_back(fourstate_enum_to_value(state2));
+      }
+      dialog::select::Settings settings {
+        .identification = identification,
+        .values = states,
+        .selected = fourstate_enum_to_value(marker_data.character.value().underline),
+        .parameters = { {"sheet", sheet}, {"style", style} },
+      };
+      dialog::select::Form form { .auto_submit = true };
+      view.set_variable(identification, dialog::select::form(settings, form));
     }
-    view.set_variable("underline", get_fourstate_html(marker_data.character.value().underline));
 
-    // Handle small caps.
-    const std::string smallcaps = webserver_request.post ["smallcaps"];
-    if (!smallcaps.empty()) {
-      marker_data.character.value().smallcaps = stylesv2::fourstate_value_to_enum(smallcaps);
-      style_is_edited = true;
+    // Handle character small caps.
+    {
+      constexpr const char* identification {"smallcaps"};
+      if (webserver_request.post.count (identification)) {
+        marker_data.character.value().smallcaps = stylesv2::fourstate_value_to_enum(webserver_request.post.at(identification));
+        style_is_edited = true;
+      }
+      std::vector<std::string> states;
+      for (const auto state2 : stylesv2::get_four_states()) {
+        states.emplace_back(fourstate_enum_to_value(state2));
+      }
+      dialog::select::Settings settings {
+        .identification = identification,
+        .values = states,
+        .selected = fourstate_enum_to_value(marker_data.character.value().smallcaps),
+        .parameters = { {"sheet", sheet}, {"style", style} },
+      };
+      dialog::select::Form form { .auto_submit = true };
+      view.set_variable(identification, dialog::select::form(settings, form));
     }
-    view.set_variable("smallcaps", get_fourstate_html(marker_data.character.value().smallcaps));
 
-    // Handle superscript.
-    const std::string superscript = webserver_request.post ["superscript"];
-    if (!superscript.empty()) {
-      marker_data.character.value().superscript = stylesv2::twostate_value_to_enum(superscript);
-      style_is_edited = true;
+    // Handle character superscript.
+    {
+      constexpr const char* identification {"superscript"};
+      if (webserver_request.post.count (identification)) {
+        marker_data.character.value().superscript = stylesv2::twostate_value_to_enum(webserver_request.post.at(identification));
+        style_is_edited = true;
+      }
+      std::vector<std::string> states;
+      for (const auto state2 : stylesv2::get_two_states()) {
+        states.emplace_back(twostate_enum_to_value(state2));
+      }
+      dialog::select::Settings settings {
+        .identification = identification,
+        .values = states,
+        .selected = twostate_enum_to_value(marker_data.character.value().superscript),
+        .parameters = { {"sheet", sheet}, {"style", style} },
+      };
+      dialog::select::Form form { .auto_submit = true };
+      view.set_variable(identification, dialog::select::form(settings, form));
     }
-    view.set_variable("superscript", get_twostate_html(marker_data.character.value().superscript));
-
+    
     // Function to fix color input.
     const auto fix_color = [](std::string color, const char* value) {
       if (color.find ("#") == std::string::npos)
@@ -355,7 +471,7 @@ std::string styles_view2 (Webserver_Request& webserver_request)
   
   // Redirect the browser to a clean styles editor without any previous settings made via the URL.
   const auto redirect = [&webserver_request, &sheet, &style] () {
-    std::string query = filter_url_build_http_query (styles_view2_url (), "sheet", sheet);
+    std::string query = filter_url_build_http_query (styles_view_url (), "sheet", sheet);
     query = filter_url_build_http_query (query, "style", style);
     redirect_browser (webserver_request, query);
   };
@@ -384,19 +500,24 @@ std::string styles_view2 (Webserver_Request& webserver_request)
   
   // Handle footnote numbering restart.
   {
-    const std::string note_numbering_restart {stylesv2::property_enum_to_value (stylesv2::Property::note_numbering_restart)};
-    if (webserver_request.post.count (note_numbering_restart)) {
-      marker_data.properties[stylesv2::Property::note_numbering_restart] = webserver_request.post[note_numbering_restart];
+    constexpr const char* identification {"noterestart"};
+    if (webserver_request.post.count (identification)) {
+      marker_data.properties[stylesv2::Property::note_numbering_restart] = webserver_request.post.at(identification);
       style_is_edited = true;
     }
-    {
-      const std::vector<std::string> values {
-        stylesv2::notes_numbering_restart_never,
-        stylesv2::notes_numbering_restart_book,
-        stylesv2::notes_numbering_restart_chapter
-      };
-      view.set_variable("restart_options", dialog_list2_create_options(values, values, stylesv2::get_parameter<std::string>(&marker_data, stylesv2::Property::note_numbering_restart)));
-    }
+    const std::vector<std::string> values {
+      stylesv2::notes_numbering_restart_never,
+      stylesv2::notes_numbering_restart_book,
+      stylesv2::notes_numbering_restart_chapter
+    };
+    dialog::select::Settings settings {
+      .identification = identification,
+      .values = values,
+      .selected = stylesv2::get_parameter<std::string>(&marker_data, stylesv2::Property::note_numbering_restart),
+      .parameters = { {"sheet", sheet}, {"style", style} },
+    };
+    dialog::select::Form form { .auto_submit = true };
+    view.set_variable(identification, dialog::select::form(settings, form));
   }
 
   
@@ -441,13 +562,15 @@ std::string styles_view2 (Webserver_Request& webserver_request)
 
   
   // Set the style's documentation.
-  std::string doc {"https://ubsicap.github.io/usfm"};
-  if (!marker_data.doc.empty())
-    doc = marker_data.doc;
-  view.set_variable ("doc", doc);
+  view.set_variable("doc", marker_data.doc.empty() ? "https://ubsicap.github.io/usfm" : marker_data.doc);
+  view.set_variable("external", assets_external_logic_link_addon());
 
   
-  view.set_variable ("external", assets_external_logic_link_addon ());
+  // A style can be reset to its default values if the style's marker is among the default styles.
+  if (std::find(stylesv2::styles.cbegin(), stylesv2::styles.cend(), style) != stylesv2::styles.cend())
+    view.enable_zone("reset");
+  else
+    view.enable_zone("noreset");
 
   
   // If a style is edited, save it, and recreate cascaded stylesheets.
@@ -455,12 +578,12 @@ std::string styles_view2 (Webserver_Request& webserver_request)
     if (write) {
       if (!marker_data.marker.empty())
         database::styles::save_style(sheet, marker_data);
-      styles_sheets_create_all ();
+      styles_sheets_create_all();
     }
   }
 
 
-  page += view.render ("styles", "view2");
+  page += view.render ("styles", "view");
   page += assets_page::footer ();
   return page;
 }

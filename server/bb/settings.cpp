@@ -32,7 +32,7 @@
 #include <locale/translate.h>
 #include <dialog/entry.h>
 #include <dialog/yes.h>
-#include <dialog/list.h>
+#include <dialog/select.h>
 #include <dialog/books.h>
 #include <access/bible.h>
 #include <book/create.h>
@@ -68,7 +68,7 @@ std::string bible_settings_url ()
 
 bool bible_settings_acl (Webserver_Request& webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::translator ());
+  return roles::access_control (webserver_request, roles::translator);
 }
 
 
@@ -110,25 +110,26 @@ std::string bible_settings (Webserver_Request& webserver_request)
   bool checked = filter::strings::convert_to_bool (webserver_request.post ["checked"]);
 
   
-  // Versification.
-  if (webserver_request.query.count ("versification")) {
-    const std::string versification = webserver_request.query["versification"];
-    if (versification.empty()) {
-      Dialog_List dialog_list = Dialog_List ("settings", translate("Would you like to change the versification system?"), translate ("A versification system determines how many chapters are in each book, and how many verses are in each chapter. Please make your choice below."), "");
-      dialog_list.add_query ("bible", bible);
-      Database_Versifications database_versifications;
-      const std::vector <std::string> versification_names = database_versifications.getSystems ();
-      for (const auto& versification_name : versification_names) {
-        dialog_list.add_row (versification_name, "versification", versification_name);
-      }
-      page += dialog_list.run ();
-      return page;
-    } else {
-      if (write_access) database::config::bible::set_versification_system (bible, versification);
+  // Versification
+  {
+    constexpr const char* versification {"versification"};
+    Database_Versifications database_versifications;
+    const std::vector <std::string> systems = database_versifications.getSystems ();
+    if (webserver_request.post.count (versification)) {
+      const std::string system {webserver_request.post.at(versification)};
+      if (write_access)
+        database::config::bible::set_versification_system (bible, system);
     }
+    dialog::select::Settings settings {
+      .identification = versification,
+      .values = systems,
+      .selected = database::config::bible::get_versification_system (bible),
+      .parameters = { {"bible", bible} },
+      .disabled = !write_access,
+    };
+    view.set_variable(versification, dialog::select::ajax(settings));
   }
-  const std::string versification = database::config::bible::get_versification_system (bible);
-  view.set_variable ("versification", versification);
+
 
   
   // Book creation.
@@ -145,7 +146,7 @@ std::string bible_settings (Webserver_Request& webserver_request)
         book_create (bible, static_cast<book_id>(filter::strings::convert_to_int (createbook)), -1, feedback);
     }
     // User creates a book in this Bible: Set it as the default Bible.
-    webserver_request.database_config_user()->setBible (bible);
+    webserver_request.database_config_user()->set_bible (bible);
   }
   
   
@@ -169,36 +170,48 @@ std::string bible_settings (Webserver_Request& webserver_request)
   
   
   // Importing text from a resource.
-  if (webserver_request.query.count ("resource")) {
-    Dialog_List dialog_list = Dialog_List ("settings", translate("Select a resource to import into the Bible"), translate ("The resource will be imported.") + " " + translate ("It will overwrite the content of the Bible."), "", true);
-    dialog_list.add_query ("bible", bible);
-    std::vector <std::string> resources = resource_external_names ();
-    for (const auto& resource : resources) {
-      dialog_list.add_row (resource, "resource", resource);
+  {
+    constexpr const char* selector {"resource"};
+    if (webserver_request.post.count (selector)) {
+      const std::string resource {webserver_request.post.at(selector)};
+      if (!resource.empty ()) {
+        const auto bibles = database::bibles::get_books (bible);
+        if (bibles.empty()) {
+          if (write_access) {
+            tasks_logic_queue (task::import_resource, { bible, resource });
+            success_message = translate ("The resource will be imported into the Bible.") + " " + translate ("The journal shows the progress.");
+          }
+        } else {
+          error_message = translate ("Cannot import because the Bible still has books.");
+        }
+      }
     }
-    resources = sword_logic_get_available ();
-    for (const auto& resource : resources) {
+    dialog::select::Settings settings {
+      .identification = selector,
+      .values = {""},
+      .displayed = {""},
+      .selected = std::string(),
+      .parameters = { { "bible", bible } },
+      .disabled = !write_access,
+    };
+    for (const auto& resource : resource_external_names()) {
+      settings.values.push_back (resource);
+      settings.displayed.push_back (resource);
+    }
+    for (const auto& resource : sword_logic_get_available ()) {
       const std::string source = sword_logic_get_source (resource);
       const std::string module = sword_logic_get_remote_module (resource);
       const std::string name = sword_logic_get_resource_name (source, module);
-      dialog_list.add_row (resource, "resource", name);
+      settings.values.push_back (resource);
+      settings.displayed.push_back (name);
     }
-    page += dialog_list.run ();
-    return page;
-  }
-  // The resource should be POSTed.
-  // This is for the demo, where a GET request would allow search crawlers to regularly import resources.
-  const std::string resource = webserver_request.post["add"];
-  if (!resource.empty ()) {
-    if (write_access) {
-      tasks_logic_queue (task::import_resource, { bible, resource });
-      success_message = translate ("The resource will be imported into the Bible.") + " " + translate ("The journal shows the progress.");
-    }
+    dialog::select::Form form { .auto_submit = false };
+    view.set_variable(selector, dialog::select::form(settings, form));
   }
 
   
   const int level = webserver_request.session_logic ()->get_level ();
-  const bool manager_level = (level >= Filter_Roles::manager ());
+  const bool manager_level = (level >= roles::manager);
   if (manager_level) view.enable_zone ("manager");
 
   
@@ -248,43 +261,41 @@ std::string bible_settings (Webserver_Request& webserver_request)
 
   
   // Stylesheet for editing.
-  if (webserver_request.query.count ("stylesheetediting")) {
-    const std::string stylesheet = webserver_request.query["stylesheetediting"];
-    if (stylesheet.empty()) {
-      Dialog_List dialog_list = Dialog_List ("settings", translate("Would you like to change the stylesheet for editing?"), translate ("The stylesheet affects how the Bible text in the editor looks.") + " " + translate ("Please make your choice below."), "");
-      dialog_list.add_query ("bible", bible);
-      const std::vector <std::string> sheets = database::styles::get_sheets();
-      for (const auto& name : sheets) {
-        dialog_list.add_row (name, "stylesheetediting", name);
-      }
-      page += dialog_list.run ();
-      return page;
-    } else {
-      if (write_access) database::config::bible::set_editor_stylesheet (bible, stylesheet);
+  {
+    constexpr const char* identification {"stylesheetediting"};
+    if (webserver_request.post.count (identification)) {
+      const std::string value {webserver_request.post.at(identification)};
+      database::config::bible::set_editor_stylesheet (bible, value);
+      return std::string();
     }
+    dialog::select::Settings settings {
+      .identification = identification,
+      .values = database::styles::get_sheets(),
+      .selected = database::config::bible::get_editor_stylesheet (bible),
+      .parameters = { {"bible", bible} },
+      .disabled = !(write_access and access_logic::privilege_set_stylesheets (webserver_request, current_user)),
+    };
+    view.set_variable(identification, dialog::select::ajax(settings));
   }
-  std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
-  view.set_variable ("stylesheetediting", stylesheet);
-
+  
   
   // Stylesheet for export.
-  if (webserver_request.query.count ("stylesheetexport")) {
-    const std::string export_stylesheet = webserver_request.query["stylesheetexport"];
-    if (export_stylesheet.empty()) {
-      Dialog_List dialog_list = Dialog_List ("settings", translate("Would you like to change the stylesheet for export?"), translate ("The stylesheet affects how the Bible text looks when exported.") + " " + translate ("Please make your choice below."), "");
-      dialog_list.add_query ("bible", bible);
-      const std::vector <std::string> sheets = database::styles::get_sheets();
-      for (const auto& name : sheets) {
-        dialog_list.add_row (name, "stylesheetexport", name);
-      }
-      page += dialog_list.run ();
-      return page;
-    } else {
-      if (write_access) database::config::bible::set_export_stylesheet (bible, export_stylesheet);
+  {
+    constexpr const char* identification {"stylesheetexport"};
+    if (webserver_request.post.count (identification)) {
+      const std::string value {webserver_request.post.at(identification)};
+      database::config::bible::set_export_stylesheet (bible, value);
+      return std::string();
     }
+    dialog::select::Settings settings {
+      .identification = identification,
+      .values = database::styles::get_sheets(),
+      .selected = database::config::bible::get_export_stylesheet (bible),
+      .parameters = { {"bible", bible} },
+      .disabled = !(write_access and access_logic::privilege_set_stylesheets (webserver_request, current_user)),
+    };
+    view.set_variable(identification, dialog::select::ajax(settings));
   }
-  stylesheet = database::config::bible::get_export_stylesheet (bible);
-  view.set_variable ("stylesheetexport", stylesheet);
   
   
   // Automatic daily checks on text.
@@ -294,7 +305,7 @@ std::string bible_settings (Webserver_Request& webserver_request)
       database::config::bible::set_daily_checks_enabled (bible, checked);
       if (!checked) {
         // If checking is switched off, also remove any existing checking results for this Bible.
-        database::check::truncate_output(bible);
+        database::check::delete_output(bible);
       }
     }
   }

@@ -171,6 +171,8 @@ std::string type_enum_to_value (const Type type, const bool describe)
       return "sidebar_end";
     case Type::peripheral:
       return "peripheral";
+    case Type::milestone:
+      return "milestone";
     case Type::stopping_boundary:
       return "stopping_boundary";
     default:
@@ -317,6 +319,9 @@ std::ostream& operator<<(std::ostream& os, const Category category)
     case Category::words_characters:
       os << "Words, Characters";
       break;
+    case Category::milestones:
+      os << "Milestones";
+      break;
     case Category::extended_study_content:
       os << "Extended Study Content";
       break;
@@ -324,11 +329,29 @@ std::ostream& operator<<(std::ostream& os, const Category category)
       os << "Peripherals";
       break;
     case Category::unknown:
-    default:
       os << "Unknown";
+      break;
+    case Category::starting_boundary:
+    case Category::stopping_boundary:
+    default:
+      os << "";
       break;
   }
   return os;
+}
+
+
+Category category_value_to_enum (const std::string& value)
+{
+  for (int i {static_cast<int>(stylesv2::Category::starting_boundary) + 1};
+       i < static_cast<int>(stylesv2::Category::stopping_boundary); i++) {
+    const Category category {static_cast<Category>(i)};
+    std::stringstream ss{};
+    ss << category;
+    if (value == ss.str())
+      return category;
+  }
+  return Category::unknown;
 }
 
 
@@ -466,6 +489,8 @@ std::ostream& operator<<(std::ostream& os, const Style& style)
       os << std::get<std::string>(parameter);
     os << std::endl;
   }
+  os << "doc: " << style.doc << std::endl;
+  os << "category: " << style.category << std::endl;
   return os;
 }
 
@@ -538,6 +563,8 @@ bool starts_new_line_in_usfm (const Style* style)
       return true;
     case Type::peripheral:
       return true;
+    case Type::milestone:
+      return false;
     case Type::stopping_boundary:
     default:
       return true;

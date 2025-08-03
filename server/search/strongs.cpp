@@ -42,7 +42,7 @@ std::string search_strongs_url ()
 
 bool search_strongs_acl (Webserver_Request& webserver_request)
 {
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ()))
+  if (roles::access_control (webserver_request, roles::consultant))
     return true;
   auto [ read, write ] = access_bible::any (webserver_request);
   return read;
@@ -54,7 +54,7 @@ std::string search_strongs (Webserver_Request& webserver_request)
   Database_Kjv database_kjv = Database_Kjv ();
   
 
-  std::string bible = webserver_request.database_config_user()->getBible ();
+  std::string bible = webserver_request.database_config_user()->get_bible ();
   if (webserver_request.query.count ("b")) {
     bible = webserver_request.query ["b"];
   }

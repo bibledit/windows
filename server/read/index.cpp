@@ -34,8 +34,7 @@
 #include <database/cache.h>
 #include <fonts/logic.h>
 #include <navigation/passage.h>
-#include <dialog/list.h>
-#include <dialog/list2.h>
+#include <dialog/select.h>
 #include <ipc/focus.h>
 #include <menu/logic.h>
 #include <bb/logic.h>
@@ -53,8 +52,8 @@ std::string read_index_url ()
 
 bool read_index_acl (Webserver_Request& webserver_request)
 {
-  int role = Filter_Roles::translator ();
-  if (Filter_Roles::access_control (webserver_request, role))
+  int role = roles::translator;
+  if (roles::access_control (webserver_request, role))
     return true;
   auto [ read, write ] = access_bible::any (webserver_request);
   return read;
@@ -69,13 +68,13 @@ std::string read_index (Webserver_Request& webserver_request)
     int switchbook = filter::strings::convert_to_int (webserver_request.query ["switchbook"]);
     int switchchapter = filter::strings::convert_to_int (webserver_request.query ["switchchapter"]);
     Ipc_Focus::set (webserver_request, switchbook, switchchapter, 1);
-    Navigation_Passage::record_history (webserver_request, switchbook, switchchapter, 1);
+    navigation_passage::record_history (webserver_request, switchbook, switchchapter, 1);
   }
 
   // Set the user chosen Bible as the current Bible.
   if (webserver_request.post.count ("bibleselect")) {
     std::string bibleselect = webserver_request.post ["bibleselect"];
-    webserver_request.database_config_user ()->setBible (bibleselect);
+    webserver_request.database_config_user ()->set_bible (bibleselect);
     return std::string();
   }
 
@@ -92,21 +91,25 @@ std::string read_index (Webserver_Request& webserver_request)
   Assets_View view;
   
   // Get active Bible, and check read access to it.
-  // Or if the user have used query to preset the active Bible, get the preset Bible.
-  // If needed, change Bible to one it has read access to.
-  // Set the chosen Bible on the option HTML tag.
-  std::string bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->getBible ());
-  if (webserver_request.query.count ("bible")) bible = access_bible::clamp (webserver_request, webserver_request.query ["bible"]);
-  std::string bible_html;
-  std::vector <std::string> bibles = access_bible::bibles (webserver_request);
-  for (auto selectable_bible : bibles) {
-    bible_html = Options_To_Select::add_selection (selectable_bible, selectable_bible, bible_html);
+  // Or if the user has used a query to preset the active Bible, get that preset Bible.
+  // If needed, change the Bible to one the user has read access to.
+  std::string bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->get_bible ());
+  {
+    constexpr const char* identification {"bible"};
+    if (webserver_request.post.count (identification)) {
+      bible = webserver_request.post.at(identification);
+    }
+    dialog::select::Settings settings {
+      .identification = identification,
+      .values = access_bible::bibles (webserver_request),
+      .selected = bible,
+    };
+    dialog::select::Form form { .auto_submit = true };
+    view.set_variable(identification, dialog::select::form(settings, form));
   }
-  view.set_variable ("bibleoptags", Options_To_Select::mark_selected (bible, bible_html));
-  view.set_variable ("bible", bible);
-
+  
   // Store the active Bible in the page's javascript.
-  view.set_variable ("navigationCode", Navigation_Passage::code (bible));
+  view.set_variable ("navigationCode", navigation_passage::code (bible));
   
   // Create a script for Javascript. Quote string to get legal Javascript.
   std::stringstream script_stream {};
@@ -118,7 +121,7 @@ std::string read_index (Webserver_Request& webserver_request)
   script_stream << "var readchooseEditorVerseSaved = " << std::quoted(locale_logic_text_saved ()) << ";\n";
   script_stream << "var readchooseEditorVerseRetrying = " << std::quoted(locale_logic_text_retrying ()) << ";\n";
   script_stream << "var readchooseEditorVerseUpdatedLoaded = " << std::quoted(locale_logic_text_reload ()) << ";\n";
-  int verticalCaretPosition = webserver_request.database_config_user ()->getVerticalCaretPosition ();
+  int verticalCaretPosition = webserver_request.database_config_user ()->get_vertical_caret_position ();
   script_stream << "var verticalCaretPosition = " << verticalCaretPosition << ";\n";
   script_stream << "var verseSeparator = " << std::quoted(database::config::general::get_notes_verse_separator ()) << ";\n";
   std::string script {script_stream.str()};
@@ -127,7 +130,7 @@ std::string read_index (Webserver_Request& webserver_request)
 
   std::string cls = Filter_Css::getClass (bible);
   std::string font = fonts::logic::get_text_font (bible);
-  int current_theme_index = webserver_request.database_config_user ()->getCurrentTheme ();
+  int current_theme_index = webserver_request.database_config_user ()->get_current_theme ();
   int direction = database::config::bible::get_text_direction (bible);
   int lineheight = database::config::bible::get_line_height (bible);
   int letterspacing = database::config::bible::get_letter_spacing (bible);
@@ -141,12 +144,12 @@ std::string read_index (Webserver_Request& webserver_request)
                                                        letterspacing));
   
   // Whether to enable fast Bible editor switching.
-  if (webserver_request.database_config_user ()->getFastEditorSwitchingAvailable ()) {
+  if (webserver_request.database_config_user ()->get_fast_editor_switching_available ()) {
     view.enable_zone ("fastswitcheditor");
   }
 
   // Whether to enable the styles button.
-  if (webserver_request.database_config_user ()->getEnableStylesButtonVisualEditors ()) {
+  if (webserver_request.database_config_user ()->get_enable_styles_button_visual_editors ()) {
     view.enable_zone ("stylesbutton");
   }
 

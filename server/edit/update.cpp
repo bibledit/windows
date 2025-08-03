@@ -52,7 +52,7 @@ std::string edit_update_url ()
 
 bool edit_update_acl (Webserver_Request& webserver_request)
 {
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ()))
+  if (roles::access_control (webserver_request, roles::translator))
     return true;
   const auto [ read, write ] = access_bible::any (webserver_request);
   return read;
@@ -71,12 +71,17 @@ std::string edit_update (Webserver_Request& webserver_request)
   
   // Check the relevant bits of information.
   if (good2go) {
-    bool parameters_ok = true;
-    if (!webserver_request.post.count ("bible")) parameters_ok = false;
-    if (!webserver_request.post.count ("book")) parameters_ok = false;
-    if (!webserver_request.post.count ("chapter")) parameters_ok = false;
-    if (!webserver_request.post.count ("loaded")) parameters_ok = false;
-    if (!webserver_request.post.count ("edited")) parameters_ok = false;
+    bool parameters_ok {true};
+    if (!webserver_request.post.count ("bible"))
+      parameters_ok = false;
+    if (!webserver_request.post.count ("book"))
+      parameters_ok = false;
+    if (!webserver_request.post.count ("chapter"))
+      parameters_ok = false;
+    if (!webserver_request.post.count ("loaded"))
+      parameters_ok = false;
+    if (!webserver_request.post.count ("edited"))
+      parameters_ok = false;
     if (!parameters_ok) {
       messages.push_back (translate("Don't know what to update"));
       good2go = false;
@@ -195,6 +200,7 @@ std::string edit_update (Webserver_Request& webserver_request)
     if (book_chapter_text.size () != 1) {
       Database_Logs::log (translate ("A user tried to save something different from exactly one chapter"));
       messages.push_back (translate("Incorrect chapter"));
+      good2go = false;
     }
     const int book_number = book_chapter_text[0].m_book;
     const int chapter_number = book_chapter_text[0].m_chapter;
@@ -202,6 +208,7 @@ std::string edit_update (Webserver_Request& webserver_request)
     const bool chapter_ok = (((book_number == book) || (book_number == 0)) && (chapter_number == chapter));
     if (!chapter_ok) {
       messages.push_back (translate("Incorrect chapter") + " " + std::to_string (chapter_number));
+      good2go = false;
     }
   }
 

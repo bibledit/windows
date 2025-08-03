@@ -22,13 +22,6 @@
     translate("This lists the accounts of the users who have roles you are responsible for.")
   </li>
   <li>translate("Click 🗑 before a username to delete the account.")</li>
-  <li>translate("Click ➕ to give a user access to a Bible.")</li>
-  <li>translate("Click 🗑 before a Bible to remove the access of a user to that Bible.")</li>
-  <li>
-    translate("Two numbers appear after the Bible.")
-    translate("It shows how many of the books in the Bible the user can modify.")
-    translate("Click it to change it.")
-  </li>
   <li>translate("If no user has been granted access to any Bible, then all users have write access to all Bibles.")</li>
 <!-- #BEGINZONE local -->
   <li>
@@ -48,9 +41,7 @@
 <h3>translate("Common Settings")</h3>
 <p>
   <label for="defaultacl">translate("New user default access level:")</label>
-  <select id="defaultacl" name="defaultacl" value="##defaultacl##">
-    ##defaultacloptags##
-  </select>
+  ##defaultacl##
 </p>
 
 <br>
@@ -63,4 +54,3 @@
 <!-- #ENDZONE admin_settings -->
 
 <br>
-<script type="text/javascript" src="users.js?##VERSION##"></script>

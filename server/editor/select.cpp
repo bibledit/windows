@@ -41,7 +41,7 @@ std::string editor_select_url ()
 
 bool editor_select_acl (Webserver_Request& webserver_request)
 {
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ()))
+  if (roles::access_control (webserver_request, roles::translator))
     return true;
   const auto [ read, write ] = access_bible::any (webserver_request);
   return write;
@@ -89,7 +89,7 @@ std::string editor_select (Webserver_Request& webserver_request)
   // More info: https://github.com/bibledit/cloud/issues/1003
   const std::string bible = webserver_request.query ["bible"];
   if (!bible.empty()) {
-    webserver_request.database_config_user()->setBible(bible);
+    webserver_request.database_config_user()->set_bible(bible);
   }
   
   // Checking on whether to switch to another editor, through the keyboard shortcut.

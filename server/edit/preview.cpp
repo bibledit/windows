@@ -31,7 +31,6 @@
 #include <database/config/bible.h>
 #include <fonts/logic.h>
 #include <navigation/passage.h>
-#include <dialog/list.h>
 #include <ipc/focus.h>
 #include <menu/logic.h>
 #include <bb/logic.h>
@@ -46,7 +45,7 @@ std::string edit_preview_url ()
 
 bool edit_preview_acl (Webserver_Request& webserver_request)
 {
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) 
+  if (roles::access_control (webserver_request, roles::translator)) 
     return true;
   const auto [ read, write ] = access_bible::any (webserver_request);
   return read;
@@ -76,11 +75,11 @@ std::string edit_preview (Webserver_Request& webserver_request)
   // If so, write that to the active Bible in the user configuration.
   // More info: https://github.com/bibledit/cloud/issues/1003
   if (!bible.empty())
-    webserver_request.database_config_user()->setBible(bible);
+    webserver_request.database_config_user()->set_bible(bible);
 
   // Get active Bible, and check read access to it.
   // If needed, change Bible to one it has read access to.
-  bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->getBible ());
+  bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->get_bible ());
 
   std::string cls = Filter_Css::getClass (bible);
   std::string font = fonts::logic::get_text_font (bible);
@@ -116,7 +115,7 @@ std::string edit_preview (Webserver_Request& webserver_request)
   }
 
   // Store the active Bible in the page's javascript.
-  view.set_variable ("navigationCode", Navigation_Passage::code (bible));
+  view.set_variable ("navigationCode", navigation_passage::code (bible));
   
   page += view.render ("edit", "preview");
   

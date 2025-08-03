@@ -25,25 +25,38 @@
 #include <styles/logic.h>
 #include <database/logs.h>
 #include <pugixml/utils.h>
-#include <quill/logic.h>
+#include <filter/quill.h>
 
 
-// This function returns a pair of:
+// This function returns a struct of:
 // 1. Normal classes, like "add", "nd", and so on.
-// 2. A string with the word-level attributes class, like "wla2" for example
-static std::pair<std::vector<std::string>, std::string>const get_standard_classes_and_wla_class (const std::string& class_name)
+// 2. A string with the word-level attributes class, like "wla2" for example.
+// 3. A string with the milestone attributes class, like "mls2" for example.
+struct std_wla_mls {
+  std::vector<std::string> standard_classes;
+  std::string word_level_attributes_class;
+  std::string milestone_attributes_class;
+};
+static std_wla_mls get_standard_classes_and_wla_or_mls_class (const std::string& class_name)
 {
+  std_wla_mls std_wla_mls;
   constexpr char separator = '0';
   std::vector <std::string> classes = filter::strings::explode (class_name, separator);
   std::string wla{};
   for (auto iter = classes.cbegin(); iter != classes.cend(); iter++) {
-    if (iter->find(quill_word_level_attribute_class_prefix) == 0) {
-      wla = *iter;
+    if (iter->find(quill::word_level_attribute_class_prefix) == 0) {
+      std_wla_mls.word_level_attributes_class = *iter;
+      classes.erase(iter);
+      break;
+    }
+    if (iter->find(quill::milestone_attribute_class_prefix) == 0) {
+      std_wla_mls.milestone_attributes_class = *iter;
       classes.erase(iter);
       break;
     }
   }
-  return {classes, wla};
+  std_wla_mls.standard_classes = std::move(classes);
+  return std_wla_mls;
 }
 
 
@@ -58,7 +71,7 @@ void Editor_Html2Usfm::load (std::string html)
 
   const std::string xml = "<body>" + std::move(html) + "</body>";
   // Parse document such that all whitespace is put in the DOM tree.
-  // See http://pugixml.org/docs/manual.html for more information.
+  // See https://pugixml.org/docs/manual.html for more information.
   // It is not enough to only parse with parse_ws_pcdata_single, it really needs parse_ws_pcdata.
   // This is significant for, for example, the space after verse numbers, among other cases.
   pugi::xml_parse_result result = m_document.load_string (xml.c_str(), pugi::parse_ws_pcdata);
@@ -115,6 +128,8 @@ void Editor_Html2Usfm::stylesheet (const std::string& stylesheet)
       suppress_endmarker = true;
     if (suppress_endmarker)
       m_suppress_end_markers.insert (style.marker);
+    if (style.type == stylesv2::Type::milestone)
+      m_milestone_markers.insert (style.marker);
   }
 }
 
@@ -136,7 +151,7 @@ void Editor_Html2Usfm::main_process ()
     // because it is at the end of the text body,
     // and note-related data has already been extracted from it.
     const std::string classs = update_quill_class (node.attribute ("class").value ());
-    if (classs == quill_notes_class) {
+    if (classs == quill::notes_class) {
       break;
     }
     // Process the node.
@@ -161,11 +176,11 @@ void Editor_Html2Usfm::process_node(pugi::xml_node& node)
       const std::string classs = node.attribute("class").value();
       // Skip a node with class "ql-cursor" because that is an internal Quill node.
       // The user didn't insert it.
-      if (classs == quill_caret_class)
+      if (classs == quill::caret_class)
         break;
       // Skip a node that is for the word-level attributes since it is just there for visual appearance.
       // The user didn't insert it.
-      if (classs.find(quill_word_level_attributes_class) != std::string::npos)
+      if (classs.find(quill::word_level_attributes_class) != std::string::npos)
         break;
       // Process this node.
       open_element_node (node);
@@ -229,7 +244,7 @@ void Editor_Html2Usfm::open_element_node (pugi::xml_node& node)
     else if (class_name.empty ()) {
       // Normal text is wrapped in elements without a class attribute.
     }
-    else if (class_name.substr (0, quill_note_caller_class.size()) == quill_note_caller_class) {
+    else if (class_name.substr (0, quill::note_caller_class.size()) == quill::note_caller_class) {
       // Note in Quill-based editor.
       process_note_citation (node);
     }
@@ -252,8 +267,9 @@ void Editor_Html2Usfm::close_element_node (const pugi::xml_node& node)
   const std::string tag_name = node.name ();
   // Get the class names of this node.
   // Get the word-level attributes class name / identifier.
+  // Get the milestone attributes class name / identifier.
   std::string class_name = update_quill_class (node.attribute ("class").value ());
-  auto [classes, wla_class] = get_standard_classes_and_wla_class (class_name);
+  auto std_wla_mls = get_standard_classes_and_wla_or_mls_class (class_name);
 
   if (tag_name == "p")
   {
@@ -287,34 +303,88 @@ void Editor_Html2Usfm::close_element_node (const pugi::xml_node& node)
     if (class_name.empty())
       return;
     // Do nothing with a note caller.
-    if (class_name.substr (0, quill_note_caller_class.size()) == quill_note_caller_class)
+    if (class_name.substr (0, quill::note_caller_class.size()) == quill::note_caller_class)
       return;
-    // Do nothing if no endmarkers are supposed to be produced.
-    // There's two exceptions:
-    // 1. If a word-level attributes ID was found: This needs an endmarker.
-    // 2. If the last added text fragment contains the vertical bar, as that indicates word-level attributes.
-    if (m_suppress_end_markers.find (class_name) != m_suppress_end_markers.end()) {
-      if ((wla_class.empty()) && (m_last_added_text_fragment.find("|") == std::string::npos))
-        return;
-    }
+
     // Check for and get and handle word-level attributes.
-    if (!wla_class.empty()) {
-      const std::string contents = m_word_level_attributes[wla_class];
-      m_word_level_attributes.erase(wla_class);
-      if (!contents.empty()) {
+    if (!std_wla_mls.word_level_attributes_class.empty()) {
+      if (!m_word_level_attributes[std_wla_mls.word_level_attributes_class].empty()) {
         // The vertical bar separates the canonical word from the attribute(s) following it.
         m_current_line.append("|");
-        m_current_line.append(contents);
+        m_current_line.append(std::move(m_word_level_attributes[std_wla_mls.word_level_attributes_class]));
       }
+      // Clean up.
+      m_word_level_attributes.erase(std_wla_mls.word_level_attributes_class);
     }
+
+    // Function for detecting whether closing a milestone class.
+    const auto is_milestone = [this, &std_wla_mls, &class_name]() {
+      if (!std_wla_mls.milestone_attributes_class.empty())
+        return true;
+      if (m_milestone_markers.find (class_name) != m_milestone_markers.end())
+        return true;
+      return false;
+    };
+    
+    // If this is a milestone, then it means that the current line contains the milestone emoji.
+    // This emoji is put in the editor for visual appearance only, but should not be part of the USFM generated.
+    // Remove it here.
+    if (is_milestone())
+      m_current_line = filter::strings::replace (quill::milestone_emoji, std::string(), std::move(m_current_line));
+
+    // Check for and get and handle milestone attributes.
+    if (is_milestone()) {
+      if (!m_milestone_attributes[std_wla_mls.milestone_attributes_class].empty()) {
+        // The vertical bar separates the opening marker from the attribute(s) following it.
+        m_current_line.append("|");
+        m_current_line.append(m_milestone_attributes[std_wla_mls.milestone_attributes_class]);
+      }
+      // Clean up.
+      m_milestone_attributes.erase(std_wla_mls.milestone_attributes_class);
+    }
+
+    // Do nothing more if no endmarkers are supposed to be produced.
+    // There's an exception in the case of linking attributes.
+    if (m_suppress_end_markers.find (class_name) != m_suppress_end_markers.end()) {
+      // Linking attributes are used in this: \xt 1|GEN 2:1\xt*
+      // It means the signature is that the last added text fragment contains the vertical bar,
+      // but not right at the first position.
+      // This distinguishes it from the vertical bar that is used when inserting a note in the Bible editor.
+      // See https://github.com/bibledit/cloud/issues/1030
+      const auto linking_attribute = [this] () {
+        const std::size_t pos = m_last_added_text_fragment.find("|");
+        if (pos == std::string::npos)
+          return false;
+        if (pos != 0)
+          return true;
+        return false;
+      };
+      if (!linking_attribute())
+        return;
+    }
+    
     // Add closing USFM, optionally closing embedded tags in reverse order.
-    m_character_styles = filter::strings::array_diff (m_character_styles, classes);
-    reverse (classes.begin(), classes.end());
-    for (unsigned int offset = 0; offset < classes.size(); offset++) {
-      bool embedded = (classes.size () > 1) && (offset == 0);
+    m_character_styles = filter::strings::array_diff (m_character_styles, std_wla_mls.standard_classes);
+    reverse (std_wla_mls.standard_classes.begin(), std_wla_mls.standard_classes.end());
+    for (unsigned int offset = 0; offset < std_wla_mls.standard_classes.size(); offset++) {
+      bool embedded = (std_wla_mls.standard_classes.size () > 1) && (offset == 0);
       if (!m_character_styles.empty ())
         embedded = true;
-      m_current_line.append (filter::usfm::get_closing_usfm (classes [offset], embedded));
+      if (is_milestone()) {
+        // Adding a milestone endmarker: \*
+        // If the last character of the current line is a space,
+        // it is assumed that this is the space from the milestone opening marker.
+        // If the opener is followed by the closer, without attributes between them,
+        // then in USFM it is customary to remove that last space.
+        // The resulting fragment then looks like e.g. this: \qt-e\*
+        if (!m_current_line.empty())
+          if (m_current_line.back() == ' ')
+            m_current_line.pop_back();
+        m_current_line.append (filter::usfm::get_closing_usfm (std::string(), false));
+      }
+      else
+        // Normal endmarker: \marker*
+        m_current_line.append (filter::usfm::get_closing_usfm (std_wla_mls.standard_classes [offset], embedded));
       m_last_note_style.clear();
     }
   }
@@ -332,10 +402,13 @@ void Editor_Html2Usfm::open_inline (const std::string& class_name)
   // The <span class="add">
   //   <span class="nd">Lord God</span>
   // is calling</span> you</span><span>.</span>
-  const auto [classes, wla] = get_standard_classes_and_wla_class(class_name);
-  for (unsigned int offset = 0; offset < classes.size(); offset++) {
+  const auto std_wla_mls = get_standard_classes_and_wla_or_mls_class(class_name);
+  for (unsigned int offset = 0; offset < std_wla_mls.standard_classes.size(); offset++) {
     const bool embedded = (m_character_styles.size () + offset) > 0;
-    const std::string marker = classes[offset];
+    std::string marker = std_wla_mls.standard_classes.at(offset);
+    // Milestones have an underscore due to requirement of Quill editor: Change to hyphen.
+    if (!std_wla_mls.milestone_attributes_class.empty())
+      marker = quill::underscore_to_hyphen (std::move(marker));
     bool add_opener = true;
     if (m_processing_note) {
       // If the style within the note has already been opened before,
@@ -358,7 +431,7 @@ void Editor_Html2Usfm::open_inline (const std::string& class_name)
   if (m_processing_note)
     store = false;
   if (store) {
-    m_character_styles.insert (m_character_styles.end(), classes.begin(), classes.end());
+    m_character_styles.insert (m_character_styles.end(), std_wla_mls.standard_classes.begin(), std_wla_mls.standard_classes.end());
   }
 }
 
@@ -382,7 +455,7 @@ void Editor_Html2Usfm::process_note_citation (pugi::xml_node& node)
   // <p class="b-f"><span class="i-notebody1">1</span> + <span class="i-ft">notetext</span></p>
   // Retrieve the <a> element from it.
   // This was initially done through an XPath expression:
-  // http://www.grinninglizard.com/tinyxml2docs/index.html
+  // https://www.grinninglizard.com/tinyxml2docs/index.html
   // But XPath crashed on Android with libxml2.
   // Therefore now it iterates over all the nodes to find the required element.
   // After moving to pugixml, the XPath expression could have been used again, but this was not done.
@@ -451,26 +524,52 @@ void Editor_Html2Usfm::pre_process ()
   m_current_line.clear ();
   m_mono = false;
   m_word_level_attributes.clear();
+  m_milestone_attributes.clear();
   
   // Remove the node for word-level attributes that was there only for visual appearance in the editors.
-  // Store the word-level attributes themsselves in a container ready for use.
-  // And remove those nodes too from the XML tree.
-  std::vector<pugi::xml_node> delete_nodes{};
-  pugi::xml_node body = m_document.first_child ();
-  for (pugi::xml_node& node : body.children()) {
-    const std::string classs = update_quill_class (node.attribute ("class").value ());
-    if (classs == quill_word_level_attributes_class) {
-      delete_nodes.push_back(node);
+  // Store the word-level attributes themselves in a container ready for use.
+  // And remove those nodes from the XML tree.
+  {
+    std::vector<pugi::xml_node> delete_nodes{};
+    pugi::xml_node body = m_document.first_child ();
+    for (pugi::xml_node& node : body.children()) {
+      const std::string classs = update_quill_class (node.attribute ("class").value ());
+      if (classs == quill::word_level_attributes_class) {
+        delete_nodes.push_back(node);
+      }
+      // The classs could be "wla1", and the prefix is "wla", so check on the match.
+      if (classs.find(quill::word_level_attribute_class_prefix) == 0) {
+        delete_nodes.push_back(node);
+        const std::string text = node.text().get();
+        m_word_level_attributes.insert({classs, text});
+      }
     }
-    // The classs could be "wla1", and the prefix is "wla", so check on the match.
-    if (classs.find(quill_word_level_attribute_class_prefix) == 0) {
-      delete_nodes.push_back(node);
-      const std::string text = node.text().get();
-      m_word_level_attributes.insert({classs, text});
+    for (auto& node : delete_nodes) {
+      body.remove_child(node);
     }
   }
-  for (auto& node : delete_nodes) {
-    body.remove_child(node);
+
+  // Remove the node for milestone attributes that was there only for visual appearance in the editors.
+  // Store the milestone attributes themselves in a container ready for use.
+  // And remove those nodes from the XML tree.
+  {
+    std::vector<pugi::xml_node> delete_nodes{};
+    pugi::xml_node body = m_document.first_child ();
+    for (pugi::xml_node& node : body.children()) {
+      const std::string classs = update_quill_class (node.attribute ("class").value ());
+      if (classs == quill::milestone_attributes_class) {
+        delete_nodes.push_back(node);
+      }
+      // The classs could be "mls1", and the prefix is "mls", so check on the match.
+      if (classs.find(quill::milestone_attribute_class_prefix) == 0) {
+        delete_nodes.push_back(node);
+        const std::string text = node.text().get();
+        m_milestone_attributes.insert({classs, text});
+      }
+    }
+    for (auto& node : delete_nodes) {
+      body.remove_child(node);
+    }
   }
 }
 
@@ -495,9 +594,12 @@ void Editor_Html2Usfm::post_process ()
   // Flush any last USFM line being built.
   flush_line ();
   
-  // Log any word-level attributes that have not been integrated into the USFM.
+  // Log any word-level and milestone attributes that have not been integrated into the USFM.
   for (const auto& element : m_word_level_attributes) {
     Database_Logs::log ("Discarding unprocessed word-level attribute with key: " + element.first + " and value: " + element.second);
+  }
+  for (const auto& element : m_milestone_attributes) {
+    Database_Logs::log ("Discarding unprocessed milestone attribute with key: " + element.first + " and value: " + element.second);
   }
 }
 
@@ -573,8 +675,9 @@ pugi::xml_node Editor_Html2Usfm::get_note_pointer (const pugi::xml_node& body, c
 
 std::string Editor_Html2Usfm::update_quill_class (std::string classname)
 {
-  classname = filter::strings::replace (quill_class_prefix_block, std::string(), classname);
-  classname = filter::strings::replace (quill_class_prefix_inline, std::string(), classname);
+  classname = filter::strings::replace (quill::class_prefix_block, std::string(), std::move(classname));
+  classname = filter::strings::replace (quill::class_prefix_inline, std::string(), std::move(classname));
+  classname = quill::underscore_to_hyphen (std::move(classname));
   return classname;
 }
 
@@ -589,7 +692,7 @@ std::string editor_export_verse_quill (const std::string& stylesheet, std::strin
   const std::string one_verse_style = "oneversestyle";
   const size_t pos = html.find ("<p>");
   if (pos == 0) {
-    html.insert (2, R"( class=")" + std::string(quill_class_prefix_block) + one_verse_style + R"(")");
+    html.insert (2, R"( class=")" + std::string(quill::class_prefix_block) + one_verse_style + R"(")");
   }
 
   // Convert html to USFM.

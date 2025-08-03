@@ -62,7 +62,7 @@ const char * session_signup_url ()
 bool session_signup_acl (Webserver_Request& webserver_request)
 {
   if (config::logic::create_no_accounts()) return false;
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::guest ());
+  return roles::access_control (webserver_request, roles::guest);
 }
 
 
@@ -270,17 +270,17 @@ std::string session_signup ([[maybe_unused]] Webserver_Request& webserver_reques
         DatabasePrivileges::set_feature (user, privilege, state);
       }
 
-      const bool deletenotes = webserver_request.database_config_user ()->getPrivilegeDeleteConsultationNotesForUser (*default_username);
-      const bool useadvancedmode = webserver_request.database_config_user ()->getPrivilegeUseAdvancedModeForUser (*default_username);
-      const bool editstylesheets = webserver_request.database_config_user ()->getPrivilegeSetStylesheetsForUser (*default_username);
+      const bool deletenotes = webserver_request.database_config_user ()->get_privilege_delete_consultation_notes_for_user (*default_username);
+      const bool useadvancedmode = webserver_request.database_config_user ()->get_privilege_use_advanced_mode_for_user (*default_username);
+      const bool editstylesheets = webserver_request.database_config_user ()->get_privilege_set_stylesheets_for_user (*default_username);
 
-      if (deletenotes) webserver_request.database_config_user ()->setPrivilegeDeleteConsultationNotesForUser (user, 1);
-      if (useadvancedmode) webserver_request.database_config_user ()->setPrivilegeUseAdvancedModeForUser (user, 1);
-      if (editstylesheets) webserver_request.database_config_user ()->setPrivilegeSetStylesheetsForUser (user, 1);
+      if (deletenotes) webserver_request.database_config_user ()->set_privilege_delete_consultation_notes_for_user (user, 1);
+      if (useadvancedmode) webserver_request.database_config_user ()->set_privilege_use_advanced_mode_for_user (user, 1);
+      if (editstylesheets) webserver_request.database_config_user ()->set_privilege_set_stylesheets_for_user (user, 1);
 
-      if (webserver_request.database_config_user ()->getPrivilegeDeleteConsultationNotesForUser (*default_username)) webserver_request.database_config_user ()->setPrivilegeDeleteConsultationNotesForUser (user, 1);
-      if (webserver_request.database_config_user ()->getPrivilegeUseAdvancedModeForUser (*default_username)) webserver_request.database_config_user ()->setPrivilegeUseAdvancedModeForUser (user, 1);
-      if (webserver_request.database_config_user ()->getPrivilegeSetStylesheetsForUser (*default_username)) webserver_request.database_config_user ()->setPrivilegeSetStylesheetsForUser (user, 1);
+      if (webserver_request.database_config_user ()->get_privilege_delete_consultation_notes_for_user (*default_username)) webserver_request.database_config_user ()->set_privilege_delete_consultation_notes_for_user (user, 1);
+      if (webserver_request.database_config_user ()->get_privilege_use_advanced_mode_for_user (*default_username)) webserver_request.database_config_user ()->set_privilege_use_advanced_mode_for_user (user, 1);
+      if (webserver_request.database_config_user ()->get_privilege_set_stylesheets_for_user (*default_username)) webserver_request.database_config_user ()->set_privilege_set_stylesheets_for_user (user, 1);
 
       // Create the contents for the confirmation email
       // that will be sent after the account has been verified.
@@ -307,7 +307,7 @@ std::string session_signup ([[maybe_unused]] Webserver_Request& webserver_reques
     }
   }
   
-  view.set_variable ("mailer", email_setup_information (true, false));
+  view.set_variable ("mailer", email::setup_information (true, false));
 
   if (signed_up) page += view.render ("session", "signedup");
   else page += view.render ("session", "signup");

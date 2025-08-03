@@ -31,7 +31,7 @@
 #include <database/config/general.h>
 #include <database/config/bible.h>
 #include <access/bible.h>
-#include <dialog/list.h>
+#include <dialog/select.h>
 #include <sendreceive/logic.h>
 #include <demo/logic.h>
 #include <client/logic.h>
@@ -54,7 +54,7 @@ bool sendreceive_index_acl (Webserver_Request& webserver_request)
     return true;
   }
   // The role of Translator or higher enables send/receive.
-  if (Filter_Roles::access_control (webserver_request, Filter_Roles::translator ())) {
+  if (roles::access_control (webserver_request, roles::translator)) {
     return true;
   }
   // No access.
@@ -85,28 +85,21 @@ std::string sendreceive_index (Webserver_Request& webserver_request)
   Assets_View view;
   
   
-  std::string bible;
-  if (webserver_request.query.count ("bible")) {
-    bible = webserver_request.query["bible"];
-    if (bible.empty()) {
-      Dialog_List dialog_list = Dialog_List ("index", translate("Select a Bible"), "", "");
-      std::vector <std::string> bibles = access_bible::bibles (webserver_request);
-      for (auto & selectable_bible : bibles) {
-        // Select Bibles the user has write access to.
-        if (access_bible::write (webserver_request, selectable_bible)) {
-          dialog_list.add_row (selectable_bible, "bible", selectable_bible);
-        }
-      }
-      page += dialog_list.run ();
-      return page;
-    } else {
-      webserver_request.database_config_user()->setBible (bible);
+  std::string bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->get_bible ());
+  {
+    constexpr const char* identification {"bible"};
+    if (webserver_request.post.count (identification)) {
+      bible = webserver_request.post.at(identification);
+      webserver_request.database_config_user()->set_bible (bible);
     }
+    dialog::select::Settings settings {
+      .identification = identification,
+      .values = access_bible::bibles (webserver_request),
+      .selected = bible,
+    };
+    dialog::select::Form form { .auto_submit = true };
+    view.set_variable(identification, dialog::select::form(settings, form));
   }
-  
-  
-  bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->getBible ());
-  view.set_variable ("bible", bible);
 
 
   std::string starting_to_sync;

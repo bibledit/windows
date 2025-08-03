@@ -63,10 +63,36 @@ std::string resource_organize (Webserver_Request& webserver_request)
   const std::vector <std::string> default_active_resources = database::config::general::get_default_active_resources ();
 
   
-  // Deal with a new added resources.
-  if (webserver_request.query.count ("add") || webserver_request.post.count ("add")) {
-    std::string add = webserver_request.query["add"];
-    if (add.empty ()) add = webserver_request.post ["add"];
+  // Deal with adding new resources.
+  const auto get_added_resource = [&webserver_request] () -> std::string {
+    if (webserver_request.post.count("bible"))
+      return webserver_request.post.at("bible");
+    if (webserver_request.post.count("usfm"))
+      return webserver_request.post.at("usfm");
+    if (webserver_request.post.count("web_orig"))
+      return webserver_request.post.at("web_orig");
+    if (webserver_request.post.count("web_bibles"))
+      return webserver_request.post.at("web_bibles");
+    if (webserver_request.post.count("image"))
+      return webserver_request.post.at("image");
+    if (webserver_request.post.count("lexicon"))
+      return webserver_request.post.at("lexicon");
+    if (webserver_request.post.count("sword"))
+      return webserver_request.post.at("sword");
+    if (webserver_request.post.count("divider"))
+      return webserver_request.post.at("divider");
+    if (webserver_request.post.count("biblegateway"))
+      return webserver_request.post.at("biblegateway");
+    if (webserver_request.post.count("studylight"))
+      return webserver_request.post.at("studylight");
+    if (webserver_request.post.count("comparative"))
+      return webserver_request.post.at("comparative");
+    if (webserver_request.post.count("translated"))
+      return webserver_request.post.at("translated");
+    return std::string();
+  };
+  const std::string add {get_added_resource()};
+  if (!add.empty()) {
     if (add == resource_logic_rich_divider ()) {
       // Navigate to the page to set up the rich divider.
       if (is_def) 
@@ -76,14 +102,14 @@ std::string resource_organize (Webserver_Request& webserver_request)
       return std::string();
     } else {
       // Add the new resource to the existing selection of resources for the current user.
-      std::vector <std::string> resources = webserver_request.database_config_user()->getActiveResources ();
+      std::vector <std::string> resources = webserver_request.database_config_user()->get_active_resources ();
       if (is_def) resources = default_active_resources;
       resources.push_back (add);
       if (is_def) database::config::general::set_default_active_resources (resources);
-      else webserver_request.database_config_user()->setActiveResources (resources);
-      if (!is_def) 
-        webserver_request.database_config_user()->addUpdatedSetting (Sync_Logic::settings_send_resources_organization);
-      else 
+      else webserver_request.database_config_user()->set_active_resources (resources);
+      if (!is_def)
+        webserver_request.database_config_user()->add_updated_setting (Sync_Logic::settings_send_resources_organization);
+      else
         redirect_browser (webserver_request, resource_organize_url());
     }
   }
@@ -91,16 +117,16 @@ std::string resource_organize (Webserver_Request& webserver_request)
   
   if (webserver_request.query.count ("remove")) {
     int remove = filter::strings::convert_to_int (webserver_request.query["remove"]);
-    std::vector <std::string> resources = webserver_request.database_config_user()->getActiveResources ();
+    std::vector <std::string> resources = webserver_request.database_config_user()->get_active_resources ();
     if (is_def) resources = default_active_resources;
     if (remove < static_cast<int>(resources.size ())) {
       resources.erase (resources.begin () + remove);
     }
     if (is_def) database::config::general::set_default_active_resources (resources);
-    else webserver_request.database_config_user()->setActiveResources (resources);
-    if (!is_def) 
-      webserver_request.database_config_user()->addUpdatedSetting (Sync_Logic::settings_send_resources_organization);
-    else 
+    else webserver_request.database_config_user()->set_active_resources (resources);
+    if (!is_def)
+      webserver_request.database_config_user()->add_updated_setting (Sync_Logic::settings_send_resources_organization);
+    else
       redirect_browser (webserver_request, resource_organize_url());
   }
 
@@ -111,14 +137,14 @@ std::string resource_organize (Webserver_Request& webserver_request)
     if (!moveto.empty ()) {
       size_t from = static_cast<size_t> (filter::strings::convert_to_int (movefrom));
       size_t to = static_cast<size_t>(filter::strings::convert_to_int (moveto));
-      std::vector <std::string> resources = webserver_request.database_config_user()->getActiveResources ();
+      std::vector <std::string> resources = webserver_request.database_config_user()->get_active_resources ();
       if (is_def) resources = default_active_resources;
       filter::strings::array_move_from_to (resources, from, to);
       if (is_def) database::config::general::set_default_active_resources (resources);
-      else webserver_request.database_config_user()->setActiveResources (resources);
-      if (!is_def) 
-        webserver_request.database_config_user()->addUpdatedSetting (Sync_Logic::settings_send_resources_organization);
-      else 
+      else webserver_request.database_config_user()->set_active_resources (resources);
+      if (!is_def)
+        webserver_request.database_config_user()->add_updated_setting (Sync_Logic::settings_send_resources_organization);
+      else
         redirect_browser (webserver_request, resource_organize_url());
     }
     return std::string();
@@ -133,17 +159,17 @@ std::string resource_organize (Webserver_Request& webserver_request)
 
   // If the user has an administrator role,
   // that useer can set default resources for the users with lower access levels.
-  if (level == Filter_Roles::admin())
+  if (level == roles::admin)
     view.enable_zone ("defaultresourceorganizer");
 
   // If the user has a role less than an administrator,
   // and an administrator has compiled a default selection of resources,
   // the user can apply that compiled selection of resources.
-  if (level < Filter_Roles::admin() && !default_active_resources.empty ())
+  if (level < roles::admin && !default_active_resources.empty ())
     view.enable_zone ("defaultresources");
 
   // Default active resources.
-  if (level == Filter_Roles::admin()) {
+  if (level == roles::admin) {
     std::string defactivesblock;
     for (size_t i = 0; i < default_active_resources.size (); i++) {
       defactivesblock.append ("<p>&#183; ");
@@ -160,7 +186,7 @@ std::string resource_organize (Webserver_Request& webserver_request)
 
   
   // Active resources.
-  std::vector <std::string> active_resources = webserver_request.database_config_user()->getActiveResources ();
+  std::vector <std::string> active_resources = webserver_request.database_config_user()->get_active_resources ();
   std::string activesblock;
   for (size_t i = 0; i < active_resources.size (); i++) {
     activesblock.append ("<p>&#183; ");
@@ -177,46 +203,46 @@ std::string resource_organize (Webserver_Request& webserver_request)
   
   // Context before.
   if (webserver_request.query.count ("before")) {
-    Dialog_Entry dialog_entry = Dialog_Entry ("organize", translate("Please enter the number of verses"), std::to_string (webserver_request.database_config_user ()->getResourceVersesBefore ()), "before", translate ("How many verses of context to display before the focused verse."));
+    Dialog_Entry dialog_entry = Dialog_Entry ("organize", translate("Please enter the number of verses"), std::to_string (webserver_request.database_config_user ()->get_resource_verses_before ()), "before", translate ("How many verses of context to display before the focused verse."));
     page += dialog_entry.run ();
     return page;
   }
   if (webserver_request.post.count ("before")) {
     int value = filter::strings::convert_to_int (webserver_request.post["entry"]);
     if ((value >= 0) && (value <= 100)) {
-      webserver_request.database_config_user ()->setResourceVersesBefore (value);
+      webserver_request.database_config_user ()->set_resource_verses_before (value);
     }
   }
-  view.set_variable ("before", std::to_string (webserver_request.database_config_user ()->getResourceVersesBefore ()));
+  view.set_variable ("before", std::to_string (webserver_request.database_config_user ()->get_resource_verses_before ()));
 
   
   // Context after.
   if (webserver_request.query.count ("after")) {
-    Dialog_Entry dialog_entry = Dialog_Entry ("organize", translate("Please enter the number of verses"), std::to_string (webserver_request.database_config_user ()->getResourceVersesAfter ()), "after", translate ("How many verses of context to display after the focused verse."));
+    Dialog_Entry dialog_entry = Dialog_Entry ("organize", translate("Please enter the number of verses"), std::to_string (webserver_request.database_config_user ()->get_resource_verses_after ()), "after", translate ("How many verses of context to display after the focused verse."));
     page += dialog_entry.run ();
     return page;
   }
   if (webserver_request.post.count ("after")) {
     int value = filter::strings::convert_to_int (webserver_request.post["entry"]);
     if ((value >= 0) && (value <= 100)) {
-      webserver_request.database_config_user ()->setResourceVersesAfter (value);
+      webserver_request.database_config_user ()->set_resource_verses_after (value);
     }
   }
-  view.set_variable ("after", std::to_string (webserver_request.database_config_user ()->getResourceVersesAfter ()));
+  view.set_variable ("after", std::to_string (webserver_request.database_config_user ()->get_resource_verses_after ()));
 
   
   if (checkbox == "related") {
-    webserver_request.database_config_user ()->setIncludeRelatedPassages (checked);
+    webserver_request.database_config_user ()->set_include_related_passages (checked);
     return std::string();
   }
-  view.set_variable ("related", filter::strings::get_checkbox_status (webserver_request.database_config_user ()->getIncludeRelatedPassages ()));
+  view.set_variable ("related", filter::strings::get_checkbox_status (webserver_request.database_config_user ()->get_include_related_passages ()));
 
 
   // For users with lower than administrator access levels, they can replace
   // their resource list with the recommended resources list that has been set
   // by the administrator.
   if (webserver_request.query.count ("applydefaultresources")) {
-    webserver_request.database_config_user ()->setActiveResources (default_active_resources);
+    webserver_request.database_config_user ()->set_active_resources (default_active_resources);
     redirect_browser (webserver_request, resource_organize_url ());
   }
 
@@ -224,16 +250,16 @@ std::string resource_organize (Webserver_Request& webserver_request)
   // The same with above, but add the recommended resources to their current
   // list instead of replacing it.
   if (webserver_request.query.count ("adddefaultresources")) {
-    std::vector <std::string> joined_resources = webserver_request.database_config_user ()->getActiveResources ();
+    std::vector <std::string> joined_resources = webserver_request.database_config_user ()->get_active_resources ();
     joined_resources.insert(joined_resources.end(), default_active_resources.begin(), default_active_resources.end());
-    webserver_request.database_config_user ()->setActiveResources (joined_resources);
+    webserver_request.database_config_user ()->set_active_resources (joined_resources);
     redirect_browser (webserver_request, resource_organize_url ());
   }
 
   
   if (webserver_request.query.count ("install")) {
     std::vector <std::string> installing_resources = database::config::general::get_resources_to_cache ();
-    std::vector <std::string> active_resources_2 = webserver_request.database_config_user()->getActiveResources ();
+    std::vector <std::string> active_resources_2 = webserver_request.database_config_user()->get_active_resources ();
     for (auto & resource : active_resources_2) {
       if (resource_logic_can_cache (resource)) {
         if (!in_array (resource, installing_resources)) {

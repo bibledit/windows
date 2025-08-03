@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <assets/page.h>
 #include <assets/header.h>
 #include <dialog/entry.h>
-#include <dialog/list.h>
-#include <dialog/list2.h>
+#include <dialog/select.h>
 #include <filter/roles.h>
 #include <filter/url.h>
 #include <filter/string.h>
@@ -54,7 +53,7 @@ std::string manage_users_url ()
 
 bool manage_users_acl (Webserver_Request& webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::manager ());
+  return roles::access_control (webserver_request, roles::manager);
 }
 
 
@@ -73,25 +72,31 @@ std::string manage_users (Webserver_Request& webserver_request)
   Assets_View view;
 
 
-  int myLevel = webserver_request.session_logic ()->get_level ();
+  const int my_level = webserver_request.session_logic ()->get_level();
+  const std::string my_user = webserver_request.session_logic()->get_username();
+
+  
+  constexpr const char* level_identification {"level"};
 
 
-  // Set the default new user role.
-  if (webserver_request.post.count ("defaultacl")) {
-    int defaultacl = filter::strings::convert_to_int (webserver_request.post ["defaultacl"]);
-    database::config::general::set_default_new_user_access_level(defaultacl);
-    assets_page::success (translate("The default new user is changed."));
+  // The default new user role.
+  {
+    constexpr const char* identification {"defaultacl"};
+    if (webserver_request.post.count (identification)) {
+      const std::string value {webserver_request.post.at(identification)};
+      const int defaultacl = filter::strings::convert_to_int (value);
+      database::config::general::set_default_new_user_access_level(defaultacl);
+      return std::string();
+    }
+    dialog::select::Settings settings {
+      .identification = identification,
+      .values = { std::to_string(roles::guest), std::to_string(roles::member) },
+      .displayed = { roles::english(roles::guest), roles::english(roles::member) },
+      .selected = std::to_string (database::config::general::get_default_new_user_access_level()),
+    };
+    view.set_variable(identification, dialog::select::ajax(settings));
   }
 
-
-  // Set the chosen default new user role on the option HTML tag.
-  std::string default_acl = std::to_string (database::config::general::get_default_new_user_access_level ());
-  std::string default_acl_html;
-  default_acl_html = Options_To_Select::add_selection ("Guest", std::to_string(Filter_Roles::guest()), default_acl_html);
-  default_acl_html = Options_To_Select::add_selection ("Member", std::to_string(Filter_Roles::member()), default_acl_html);
-  view.set_variable ("defaultacloptags", Options_To_Select::mark_selected (default_acl, default_acl_html));
-  view.set_variable ("defaultacl", default_acl);
-  
   
   // New user creation.
   if (webserver_request.query.count ("new")) {
@@ -119,13 +124,16 @@ std::string manage_users (Webserver_Request& webserver_request)
         DatabasePrivileges::set_feature (user, privilege, state);
       }
 
-      bool deletenotes = webserver_request.database_config_user ()->getPrivilegeDeleteConsultationNotesForUser (*default_username);
-      bool useadvancedmode = webserver_request.database_config_user ()->getPrivilegeUseAdvancedModeForUser (*default_username);
-      bool editstylesheets = webserver_request.database_config_user ()->getPrivilegeSetStylesheetsForUser (*default_username);
+      const bool deletenotes = webserver_request.database_config_user ()->get_privilege_delete_consultation_notes_for_user (*default_username);
+      const bool useadvancedmode = webserver_request.database_config_user ()->get_privilege_use_advanced_mode_for_user (*default_username);
+      const bool editstylesheets = webserver_request.database_config_user ()->get_privilege_set_stylesheets_for_user (*default_username);
 
-      if (deletenotes) webserver_request.database_config_user ()->setPrivilegeDeleteConsultationNotesForUser (user, 1);
-      if (useadvancedmode) webserver_request.database_config_user ()->setPrivilegeUseAdvancedModeForUser (user, 1);
-      if (editstylesheets) webserver_request.database_config_user ()->setPrivilegeSetStylesheetsForUser (user, 1);
+      if (deletenotes)
+        webserver_request.database_config_user ()->set_privilege_delete_consultation_notes_for_user (user, 1);
+      if (useadvancedmode)
+        webserver_request.database_config_user ()->set_privilege_use_advanced_mode_for_user (user, 1);
+      if (editstylesheets)
+        webserver_request.database_config_user ()->set_privilege_set_stylesheets_for_user (user, 1);
 
       page += assets_page::error (*default_username);
 
@@ -137,25 +145,25 @@ std::string manage_users (Webserver_Request& webserver_request)
   
   
   // The user to act on.
-  std::string objectUsername = webserver_request.query["user"];
-  int objectUserLevel = webserver_request.database_users ()->get_level (objectUsername);
+  const std::string object_username = webserver_request.query["user"];
+  int object_user_level = webserver_request.database_users ()->get_level (object_username);
   
   
   // Delete a user.
   if (webserver_request.query.count ("delete")) {
-    std::string role = Filter_Roles::text (objectUserLevel);
-    std::string email = webserver_request.database_users ()->get_email (objectUsername);
+    std::string role = roles::text (object_user_level);
+    std::string email = webserver_request.database_users ()->get_email (object_username);
     std::vector <std::string> users = webserver_request.database_users ()->get_users ();
     std::vector <std::string> administrators = webserver_request.database_users ()->getAdministrators ();
     if (users.size () == 1) {
       page += assets_page::error (translate("Cannot remove the last user"));
-    } else if ((objectUserLevel >= Filter_Roles::admin ()) && (administrators.size () == 1)) {
+    } else if ((object_user_level >= roles::admin) && (administrators.size () == 1)) {
       page += assets_page::error (translate("Cannot remove the last administrator"));
-    } else if (config::logic::demo_enabled () && (objectUsername ==  session_admin_credentials ())) {
+    } else if (config::logic::demo_enabled () && (object_username ==  session_admin_credentials ())) {
       page += assets_page::error (translate("Cannot remove the demo admin"));
     } else {
       std::string message;
-      user_logic_delete_account (objectUsername, role, email, message);
+      user_logic_delete_account (object_username, role, email, message);
       user_updated = true;
       page += assets_page::success (message);
     }
@@ -163,33 +171,26 @@ std::string manage_users (Webserver_Request& webserver_request)
   
   
   // The user's role.
-  if (webserver_request.query.count ("level")) {
-    std::string level = webserver_request.query ["level"];
-    if (level == "") {
-      Dialog_List dialog_list = Dialog_List ("users", translate("Select a role for") + " " + objectUsername, "", "");
-      dialog_list.add_query ("user", objectUsername);
-      for (int i = Filter_Roles::lowest (); i <= Filter_Roles::highest (); i++) {
-        if (i <= myLevel) {
-          dialog_list.add_row (Filter_Roles::text (i), "level", std::to_string (i));
-        }
+  {
+    const std::vector <std::string> users = access_user::assignees (webserver_request);
+    for (unsigned int u {0}; u < users.size(); u++) {
+      const std::string identification = level_identification + std::to_string(u);
+      if (webserver_request.post.count (identification)) {
+        const std::string value = webserver_request.post.at(identification);
+        webserver_request.database_users ()->set_level (object_username, filter::strings::convert_to_int (value));
       }
-      page += dialog_list.run ();
-      return page;
-    } else {
-      webserver_request.database_users ()->set_level (objectUsername, filter::strings::convert_to_int (level));
-      user_updated = true;
     }
   }
-  
-  
+
+
   // User's email address.
   if (webserver_request.query.count ("email")) {
     std::string email = webserver_request.query ["email"];
     if (email == "") {
-      std::string question = translate("Please enter an email address for") + " " + objectUsername;
-      std::string value = webserver_request.database_users ()->get_email (objectUsername);
+      std::string question = translate("Please enter an email address for") + " " + object_username;
+      std::string value = webserver_request.database_users ()->get_email (object_username);
       Dialog_Entry dialog_entry = Dialog_Entry ("users", question, value, "email", "");
-      dialog_entry.add_query ("user", objectUsername);
+      dialog_entry.add_query ("user", object_username);
       page += dialog_entry.run ();
       return page;
     }
@@ -198,7 +199,7 @@ std::string manage_users (Webserver_Request& webserver_request)
     std::string email = webserver_request.post["entry"];
     if (filter_url_email_is_valid (email)) {
       page += assets_page::success (translate("Email address was updated"));
-      webserver_request.database_users ()->updateUserEmail (objectUsername, email);
+      webserver_request.database_users ()->updateUserEmail (object_username, email);
       user_updated = true;
     } else {
       page += assets_page::error (translate("The email address is not valid"));
@@ -207,51 +208,19 @@ std::string manage_users (Webserver_Request& webserver_request)
   
   
   // Fetch all available Bibles.
-  std::vector <std::string> allbibles = database::bibles::get_bibles ();
-  
-  
-  // Add Bible to user account.
-  if (webserver_request.query.count ("addbible")) {
-    std::string addbible = webserver_request.query["addbible"];
-    if (addbible == "") {
-      Dialog_List dialog_list = Dialog_List ("users", translate("Would you like to grant the user access to a Bible?"), "", "");
-      dialog_list.add_query ("user", objectUsername);
-      for (auto bible : allbibles) {
-        dialog_list.add_row (bible, "addbible", bible);
-      }
-      page += dialog_list.run ();
-      return page;
-    } else {
-      assets_page::success (translate("The user has been granted access to this Bible"));
-      // Write access depends on whether it's a translator role or higher.
-      bool write = (objectUserLevel >= Filter_Roles::translator ());
-      DatabasePrivileges::set_bible (objectUsername, addbible, write);
-      user_updated = true;
-      privileges_updated = true;
-    }
-  }
-  
-  
-  // Remove Bible from user.
-  if (webserver_request.query.count ("removebible")) {
-    std::string removebible = webserver_request.query ["removebible"];
-    DatabasePrivileges::remove_bible_book (objectUsername, removebible, 0);
-    user_updated = true;
-    privileges_updated = true;
-    assets_page::success (translate("The user no longer has access to this Bible"));
-  }
+  const std::vector <std::string> allbibles = database::bibles::get_bibles ();
   
   
   // Enable or disable a user account.
   if (webserver_request.query.count ("enable")) {
-    webserver_request.database_users ()->set_enabled (objectUsername, true);
+    webserver_request.database_users ()->set_enabled (object_username, true);
     assets_page::success (translate("The user account was enabled"));
   }
   if (webserver_request.query.count ("disable")) {
     // Disable the user in the database.
-    webserver_request.database_users ()->set_enabled (objectUsername, false);
+    webserver_request.database_users ()->set_enabled (object_username, false);
     // Remove all login tokens (cookies) for this user, so the user no longer is logged in.
-    Database_Login::removeTokens (objectUsername);
+    Database_Login::removeTokens (object_username);
     // Feedback.
     assets_page::success (translate("The user account was disabled"));
   }
@@ -259,7 +228,7 @@ std::string manage_users (Webserver_Request& webserver_request)
   
   // Login on behalf of another user.
   if (webserver_request.query.count ("login")) {
-    webserver_request.session_logic ()->switch_user (objectUsername);
+    webserver_request.session_logic ()->switch_user (object_username);
     redirect_browser (webserver_request, session_switch_url ());
     return std::string();
   }
@@ -268,18 +237,21 @@ std::string manage_users (Webserver_Request& webserver_request)
   // User accounts to display.
   std::stringstream tbody;
   bool ldap_on = ldap_logic_is_on ();
-  // Retrieve assigned users.
-  std::vector <std::string> users = access_user::assignees (webserver_request);
-  for (const auto& username : users) {
+  // Retrieve the assigned users.
+  const std::vector <std::string> users = access_user::assignees (webserver_request);
+  // The offset within the users list is needed below, hence this way of iterating the users container.
+  for (unsigned int u {0}; u < users.size(); u++) {
+    const auto& username = users.at(u);
     
     // Gather details for this user account.
-    objectUserLevel = webserver_request.database_users ()->get_level (username);
-    std::string namedrole = Filter_Roles::text (objectUserLevel);
-    std::string email = webserver_request.database_users ()->get_email (username);
-    if (email.empty()) email = "--";
-    bool enabled = webserver_request.database_users ()->get_enabled (username);
+    object_user_level = webserver_request.database_users()->get_level (username);
+    std::string namedrole = roles::text (object_user_level);
+    std::string email = webserver_request.database_users()->get_email (username);
+    if (email.empty())
+      email = "--";
+    bool enabled = webserver_request.database_users()->get_enabled (username);
     
-    // New row in table.
+    // Start a new table row.
     tbody << "<tr>";
     
     // Display emoji to delete this account.
@@ -294,9 +266,28 @@ std::string manage_users (Webserver_Request& webserver_request)
     // Normally the role can be changed, but when an LDAP server is enabled, it cannot be changed here.
     tbody << "<td>";
     if (enabled) {
-      if (!ldap_on) tbody << "<a href=" << std::quoted ("?user=" + username + "&level") << ">";
-      tbody << namedrole << "</a>";
-      if (!ldap_on) tbody << "</a>";
+      std::vector<std::string> values;
+      std::vector<std::string> displayed;
+      for (int i = roles::lowest; i <= roles::highest; i++) {
+        if (i <= my_level) {
+          values.push_back(std::to_string(i));
+          displayed.push_back(roles::text(i));
+        }
+      }
+      // The "id" of elements should be unique, create that here.
+      const std::string identification = level_identification + std::to_string(u);
+      dialog::select::Settings settings {
+        .identification = identification.c_str(),
+        .values = std::move(values),
+        .displayed = std::move(displayed),
+        .selected = std::to_string(object_user_level),
+        .parameters = { {"user", username} },
+        // Handle LDAP users. A user cannot change his own role to prevent locking himself out of an appropriate role.
+        .disabled = ldap_on or (username == my_user),
+        .tooltip = translate("Select a role"),
+      };
+      dialog::select::Form form { .auto_submit = true };
+      tbody << dialog::select::form(settings, form);
     }
     tbody << "</td>";
     
@@ -320,32 +311,11 @@ std::string manage_users (Webserver_Request& webserver_request)
     // Assigned Bibles.
     tbody << "<td>";
     if (enabled) {
-      if (objectUserLevel < Filter_Roles::manager ()) {
-        for (auto & bible : allbibles) {
-          bool exists = DatabasePrivileges::get_bible_book_exists (username, bible, 0);
-          if (exists) {
-            auto [ read, write ] = DatabasePrivileges::get_bible (username, bible);
-            if  (objectUserLevel >= Filter_Roles::translator ()) write = true;
-            tbody << "<a href=" << std::quoted ("?user=" + username + "&removebible=" + bible) << ">" << filter::strings::emoji_wastebasket () << "</a>";
-            tbody << "<a href=" << std::quoted("/bible/settings?bible=" + bible) << ">" << bible << "</a>";
-            tbody << "<a href=" << std::quoted("write?user=" + username + "&bible=" + bible) << ">";
-            int readwritebooks = 0;
-            std::vector <int> books = database::bibles::get_books (bible);
-            for (auto book : books) {
-              DatabasePrivileges::get_bible_book (username, bible, book, read, write);
-              if (write) readwritebooks++;
-            }
-            tbody << "(" << readwritebooks << "/" << books.size () << ")";
-            tbody << "</a>";
-            tbody << "|";
-          }
-        }
-      }
-      if (objectUserLevel >= Filter_Roles::manager ()) {
+      if (object_user_level >= roles::manager) {
         // Managers and higher roles have access to all Bibles.
         tbody << "(" << translate ("all") << ")";
       } else {
-        tbody << "<a href=" << std::quoted("?user=" + username + "&addbible=") << ">" << filter::strings::emoji_heavy_plus_sign () << "</a>";
+        tbody << "<a href=" << std::quoted("bibles?user=" + username) << ">" << translate ("edit") << "</a>";
       }
     }
     tbody << "</td>";
@@ -356,7 +326,7 @@ std::string manage_users (Webserver_Request& webserver_request)
     // Assigned privileges to the user.
     tbody << "<td>";
     if (enabled) {
-      if (objectUserLevel >= Filter_Roles::manager ()) {
+      if (object_user_level >= roles::manager) {
         // Managers and higher roles have all privileges.
         tbody << "(" << translate ("all") << ")";
       } else {
@@ -366,8 +336,8 @@ std::string manage_users (Webserver_Request& webserver_request)
     tbody << "</td>";
     
     // Disable or enable the account.
-    if (myLevel >= Filter_Roles::manager ()) {
-      if (myLevel > objectUserLevel) {
+    if (my_level >= roles::manager) {
+      if (my_level > object_user_level) {
         tbody << "<td>│</td>";
         tbody << "<td>";
         bool account_enabled = webserver_request.database_users ()->get_enabled (username);
@@ -382,7 +352,7 @@ std::string manage_users (Webserver_Request& webserver_request)
 
     // Login on behalf of another user.
     if (enabled) {
-      if (myLevel > objectUserLevel) {
+      if (my_level > object_user_level) {
         tbody << "<td>│</td>";
         tbody << "<td>";
         tbody << "<a href=" << std::quoted ("?user=" + username + "&login") << ">" << translate ("Login") << "</a>";
@@ -400,14 +370,16 @@ std::string manage_users (Webserver_Request& webserver_request)
     view.enable_zone ("local");
   }
 
-  if (webserver_request.session_logic()->get_level () == Filter_Roles::highest ()) view.enable_zone ("admin_settings");
+  if (webserver_request.session_logic()->get_level () == roles::highest) view.enable_zone ("admin_settings");
 
-  page += view.render ("manage", "users");
+  page.append(view.render("manage", "users"));
 
-  page += assets_page::footer ();
+  page.append(assets_page::footer());
   
-  if (user_updated) notes_logic_maintain_note_assignees (true);
-  if (privileges_updated) database_privileges_client_create (objectUsername, true);
+  if (user_updated)
+    notes_logic_maintain_note_assignees (true);
+  if (privileges_updated)
+    database_privileges_client_create (object_username, true);
 
   return page;
 }

@@ -678,7 +678,7 @@ input#cancel,
 }
 
 #versepickerwrapper span a {
-  padding: 0 .4em;
+  padding: 0.4em;
 }
 
 #applybook {
@@ -1034,18 +1034,18 @@ input#cancel,
 .menu-advanced span {
   margin-right: 0.2em;
 }
-.previousverse {
-  margin-right: 0.1em;
+.previousbook, .previouschapter, .previousverse {
+  margin-right: -0.2em;
   padding-right: 0.1em;
 }
-.selectverse {
-  margin-right: 0.1em;
-  margin-left: 0.1em;
-  padding-right: 0.1em;
+.nextbook, .nextchapter, .nextverse {
+  margin-left: -0.2em;
   padding-left: 0.1em;
 }
-.nextverse {
-  margin-left: 0.1em;
+.selectverse {
+  margin-right: -0.1em;
+  margin-left: -0.1em;
+  padding-right: 0.1em;
   padding-left: 0.1em;
 }
 .nextresource {

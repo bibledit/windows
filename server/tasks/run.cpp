@@ -58,7 +58,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <export/info.h>
 #include <export/esword.h>
 #include <export/onlinebible.h>
-#include <manage/hyphenate.h>
 #include <paratext/logic.h>
 #include <resource/logic.h>
 #include <sword/logic.h>
@@ -129,10 +128,10 @@ void tasks_run_one (const std::string& filename)
     Database_Logs::rotate ();
   }
   else if (command == task::receive_email) {
-    email_receive ();
+    email::receive ();
   }
   else if (command == task::send_email) {
-    email_send ();
+    email::send ();
   }
   else if (command == task::reindex_bibles) {
     search_reindex_bibles (filter::strings::convert_to_bool (parameter1));
@@ -236,9 +235,6 @@ void tasks_run_one (const std::string& filename)
   else if (command == task::export_online_bible) {
     export_onlinebible (parameter1, filter::strings::convert_to_bool (parameter2));
   }
-  else if (command == task::hyphenate) {
-    manage_hyphenate (parameter1, parameter2);
-  }
   else if (command == task::setup_paratext) {
     Paratext_Logic::setup (parameter1, parameter2);
   }
@@ -246,9 +242,6 @@ void tasks_run_one (const std::string& filename)
     int imethod = filter::strings::convert_to_int(parameter1);
     auto method = static_cast<tasks::enums::paratext_sync>(imethod);
     Paratext_Logic::synchronize (method);
-  }
-  else if (command == task::import_images) {
-    resource_logic_import_images (parameter1, parameter2);
   }
   else if (command == task::refresh_sword_modules) {
     sword_logic_refresh_module_list ();

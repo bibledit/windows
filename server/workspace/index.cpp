@@ -42,7 +42,7 @@ std::string workspace_index_url ()
 
 bool workspace_index_acl (Webserver_Request& webserver_request)
 {
-  return Filter_Roles::access_control (webserver_request, Filter_Roles::consultant ());
+  return roles::access_control (webserver_request, roles::consultant);
 }
 
 
@@ -55,17 +55,17 @@ std::string workspace_index (Webserver_Request& webserver_request)
     const size_t bench = static_cast <size_t> (filter::strings::convert_to_int (webserver_request.query ["bench"]));
     if (bench < workspaces.size ()) {
       const std::string workspace = workspaces [bench];
-      webserver_request.database_config_user()->setActiveWorkspace (workspace);
+      webserver_request.database_config_user()->set_active_workspace (workspace);
     }
   }
   
   
   // Check that the active workspace exists, else set the first available workspace as the active one.
   {
-    const std::string workspace = webserver_request.database_config_user ()->getActiveWorkspace ();
+    const std::string workspace = webserver_request.database_config_user ()->get_active_workspace ();
     if (!in_array (workspace, workspaces)) {
       if (!workspaces.empty ()) {
-        webserver_request.database_config_user ()->setActiveWorkspace (workspaces [0]);
+        webserver_request.database_config_user ()->set_active_workspace (workspaces [0]);
       }
     }
   }
@@ -89,7 +89,7 @@ std::string workspace_index (Webserver_Request& webserver_request)
     const std::vector <Passage> passages = database_notes.get_passages (note_id);
     if (!passages.empty ()) {
       Ipc_Focus::set (webserver_request, passages[0].m_book, passages[0].m_chapter, filter::strings::convert_to_int (passages[0].m_verse));
-      Navigation_Passage::record_history (webserver_request, passages[0].m_book, passages[0].m_chapter, filter::strings::convert_to_int (passages[0].m_verse));
+      navigation_passage::record_history (webserver_request, passages[0].m_book, passages[0].m_chapter, filter::strings::convert_to_int (passages[0].m_verse));
     }
   }
   
@@ -148,7 +148,7 @@ std::string workspace_index (Webserver_Request& webserver_request)
   {
     std::optional<std::string> bible = get_first_bible_from_urls (urls);
     if (bible)
-      webserver_request.database_config_user()->setBible(bible.value());
+      webserver_request.database_config_user()->set_bible(bible.value());
   }
   
   

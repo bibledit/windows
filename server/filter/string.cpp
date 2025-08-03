@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING 1
 #pragma GCC diagnostic pop
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#include <codecvt>
+#pragma clang diagnostic pop
 #include <filter/string.h>
 #pragma GCC diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
@@ -1504,7 +1508,7 @@ std::string convert_xml_character_entities_to_characters (std::string data)
     ss >> codepoint;
     
     int cp = codepoint;
-    // Adapted from: http://www.zedwood.com/article/cpp-utf8-char-to-codepoint.
+    // Adapted from: https://www.zedwood.com/article/cpp-utf8-char-to-codepoint.
     char c[5]={ 0x00,0x00,0x00,0x00,0x00 };
     if (cp<=0x7F) {
       c[0] = static_cast<char> (cp);
