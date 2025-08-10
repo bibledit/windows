@@ -50,7 +50,7 @@ echo Prepare the sample Bible.
 ./configure
 make --jobs=4
 ./generate . samplebible
-rm logbook/1*
+rm -f logbook/1*
 make distclean
 
 
