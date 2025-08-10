@@ -420,6 +420,7 @@
 /fonts/Montserrat-SemiBold.ttf
 /fonts/SILEOT.ttf
 /fonts/SIL-Licenses.txt
+/generate
 /git
 /git/gitflag
 /gumbo
@@ -5355,6 +5356,7 @@
 /sendreceive
 /sendreceive/index.html
 /sendreceive/index.js
+/server
 /server.vcxproj
 /server.vcxproj.filters
 /server.vcxproj.user
@@ -5608,6 +5610,7 @@
 /tmp/holder
 /trash
 /trash/holder
+/unittest
 /unittests
 /unittests/scripts
 /unittests/scripts/editor1.py
