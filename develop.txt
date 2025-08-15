@@ -2,35 +2,23 @@ Building Bibledit for Windows through Visual Studio
 ===================================================
 
 
-There is a git repository on Windows 11 and there's one on on macOS. 
+There is a git repository on Windows 11 and there's one on macOS. 
 Keep both repositories in sync. 
 This ensures that the data on both operating systems are in sync.
 Visual Studio is used on Windows for building Bibledit for Windows.
 On macOS there's a script that refreshes the source of the Bibledit library.
 
 
-How to include the SQlite library.
-1. Download the native 32 or 64 bits SQLite DLL from http://sqlite.org.
-2. Extract the files sqlite3.dll and sqlite3.def and place them in the project’s source folder.
-3. Open a “Developer Command Prompt for VS2015” and navigate to this source folder.
-4. Create an import library using the following command line: LIB /DEF:sqlite3.def
-5. Add the library (that is sqlite3.lib) to the Project Properties -> Configuration Properties -> Linker -> Additional Dependencies.
-6. Download SQlite amalgamation with the same version number from http://sqlite.org.
-7. Unzip the sqlite3.h header file and place it into the source directory.
-You will need to include the sqlite3.dll in the same directory as your program, or in a System Folder.
-
-
-CefSharp eats all key press events. Handling keyboard events works through a global keyboard hook in Windows.
+Handling keyboard events works through a global keyboard hook in Windows.
 
 
 Folder "server" contains the Bibledit library. Build the Release x64 version from within Visual Studio. It produces server.exe.
 
 
-Folder "gui" contains the Bibledit interface. Build it from within Visual Studio. It produces bibledit.exe. It puts CefSharp files in the bin folder.
+Folder "gui" contains the Bibledit interface. Build it from within Visual Studio. It produces bibledit.exe. 
 
 
-To create a package, use Inno Setup.
-It was installed from innosetup-5.5.9-unicode.exe.
+To create a package, use Inno Setup 6.
 
 
 Free legal Windows virtual images for testing are available from https://dev.modern.ie/tools/vms/windows/
