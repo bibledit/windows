@@ -122,5 +122,28 @@ if %arch%==AMD64 (
 )
 
 
+echo Setting environment for packager
+setlocal
+SET PATH=%PATH%;C:\Program Files (x86)\Inno Setup 6
+if %errorlevel% neq 0 ( pause; exit /b )
+
+
+echo Copying the setup script
+copy package.iss %staging_dir% /Y
+if %errorlevel% neq 0 ( pause; exit /b )
+
+
+echo Copying the Visual C redistributables
+xcopy vc\*.exe %staging_dir% /E /I /Y /Q
+if %errorlevel% neq 0 ( pause; exit /b )
+
+
+echo Creating the Bibledit setup.exe
+cd %staging_dir%
+if %errorlevel% neq 0 ( pause; exit /b )
+ISCC package.iss
+if %errorlevel% neq 0 ( pause; exit /b )
+
+
 echo The builder is ready
 pause
