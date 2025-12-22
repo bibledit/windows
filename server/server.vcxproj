@@ -529,8 +529,6 @@
     <ClCompile Include="olb\text.cpp" />
     <ClCompile Include="paratext\index.cpp" />
     <ClCompile Include="paratext\logic.cpp" />
-    <ClCompile Include="parsewebdata\ParseMultipartFormData.cpp" />
-    <ClCompile Include="parsewebdata\ParseWebData.cpp" />
     <ClCompile Include="personalize\index.cpp" />
     <ClCompile Include="public\chapter.cpp" />
     <ClCompile Include="public\comment.cpp" />
@@ -562,7 +560,6 @@
     <ClCompile Include="resource\logic.cpp" />
     <ClCompile Include="resource\manage.cpp" />
     <ClCompile Include="resource\organize.cpp" />
-    <ClCompile Include="resource\print.cpp" />
     <ClCompile Include="resource\select.cpp" />
     <ClCompile Include="resource\studylight.cpp" />
     <ClCompile Include="resource\sword.cpp" />

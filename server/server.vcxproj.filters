@@ -438,9 +438,6 @@
     <ClCompile Include="resource\organize.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="resource\print.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="resource\select.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -733,12 +730,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="webserver\webserver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="parsewebdata\ParseMultipartFormData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="parsewebdata\ParseWebData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="versification\index.cpp">
