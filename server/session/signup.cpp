@@ -73,7 +73,6 @@ std::string session_signup ([[maybe_unused]] Webserver_Request& webserver_reques
 #ifdef HAVE_CLOUD
 
   Assets_Header header = Assets_Header (translate ("Signup"), webserver_request);
-  header.touch_css_on ();
   page += header.run ();
   
   Assets_View view;
@@ -197,13 +196,13 @@ std::string session_signup ([[maybe_unused]] Webserver_Request& webserver_reques
   
   // Form submission handler.
   bool signed_up = false;
-  if (!webserver_request.post["submit"].empty()) {
+  if (!webserver_request.post_get("submit").empty()) {
     bool form_is_valid = true;
-    const std::string user = webserver_request.post["user"];
-    const std::string pass = webserver_request.post["pass"];
-    const std::string mail = webserver_request.post["mail"];
-    const std::string answer = webserver_request.post["answer"];
-    const std::string standard = webserver_request.post["standard"];
+    const std::string user = webserver_request.post_get("user");
+    const std::string pass = webserver_request.post_get("pass");
+    const std::string mail = webserver_request.post_get("mail");
+    const std::string answer = webserver_request.post_get("answer");
+    const std::string standard = webserver_request.post_get("standard");
     if (user.length () < 4) {
       form_is_valid = false;
       view.set_variable ("username_invalid_message", translate("Username should be at least four characters long"));

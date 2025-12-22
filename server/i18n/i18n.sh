@@ -44,7 +44,6 @@ rm -rf autom4te.cache
 rm -rf developer
 rm -rf dtl
 rm -rf flate
-rm -rf jquery
 rm -rf jsonxx
 rm -rf man
 rm -rf mbedtls*
@@ -53,10 +52,8 @@ rm -rf mimetic098
 rm -rf miniz
 rm -rf nmt
 rm -rf notifit
-rm -rf parsewebdata
 rm -rf pugixml
 rm -rf quill
-rm -rf rangy13
 rm -rf slip
 rm -rf stb
 rm -rf sword/*

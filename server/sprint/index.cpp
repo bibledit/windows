@@ -97,9 +97,9 @@ std::string sprint_index ([[maybe_unused]] Webserver_Request& webserver_request)
   int year = webserver_request.database_config_user()->get_sprint_year ();
   
 
-  if (webserver_request.post.count ("id")) {
-    std::string id = webserver_request.post ["id"];
-    std::string checked = webserver_request.post ["checked"];
+  if (webserver_request.post_count("id")) {
+    std::string id = webserver_request.post_get("id");
+    std::string checked = webserver_request.post_get("checked");
     if (id.length () >= 9) {
       // Remove "task".
       id.erase (0, 4);
@@ -127,8 +127,8 @@ std::string sprint_index ([[maybe_unused]] Webserver_Request& webserver_request)
   }
   
   
-  if (webserver_request.post.count ("add")) {
-    std::string title = webserver_request.post ["add"];
+  if (webserver_request.post_count("add")) {
+    std::string title = webserver_request.post_get("add");
     database_sprint.storeTask (bible, year, month, title);
     view.set_variable ("success", translate("New task added"));
     // Focus the entry for adding tasks only in case a new task was added.
@@ -147,8 +147,8 @@ std::string sprint_index ([[maybe_unused]] Webserver_Request& webserver_request)
   bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->get_bible ());
   {
     constexpr const char* identification {"bible"};
-    if (webserver_request.post.count (identification)) {
-      bible = webserver_request.post.at(identification);
+    if (webserver_request.post_count(identification)) {
+      bible = webserver_request.post_get(identification);
       webserver_request.database_config_user()->set_bible (bible);
     }
     dialog::select::Settings settings {
@@ -188,8 +188,8 @@ std::string sprint_index ([[maybe_unused]] Webserver_Request& webserver_request)
   }
 
   
-  if (webserver_request.post.count ("categories")) {
-    std::string categories = webserver_request.post ["categories"];
+  if (webserver_request.post_count("categories")) {
+    std::string categories = webserver_request.post_get("categories");
     std::vector <std::string> categories2;
     categories = filter::strings::trim (categories);
     std::vector <std::string> vcategories = filter::strings::explode (categories, '\n');

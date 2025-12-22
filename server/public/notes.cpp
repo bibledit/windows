@@ -51,7 +51,13 @@ std::string public_notes (Webserver_Request& webserver_request)
   const int chapter = filter::strings::convert_to_int (webserver_request.query ["chapter"]);
   
   
-  const std::vector <int> identifiers = database_notes.select_notes ({bible}, book, chapter, 0, 1, 0, 0, "", "", "", false, -1, 0, "", -1);
+  Database_Notes::Selector selector {
+    .bibles = {bible},
+    .book = book,
+    .chapter = chapter,
+    .passage_selector = Database_Notes::PassageSelector::current_chapter,
+  };
+  const std::vector<int> identifiers = database_notes.select_notes(selector);
 
   
   std::stringstream notesblock;

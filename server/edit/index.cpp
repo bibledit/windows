@@ -87,9 +87,9 @@ std::string edit_index (Webserver_Request& webserver_request)
   // Set the user chosen Bible as the current Bible.
   {
     constexpr const char* identification {"bibleselect"};
-    if (webserver_request.post.count (identification)) {
-      bible = webserver_request.post.at(identification);
-      webserver_request.database_config_user ()->set_bible (bible);
+    if (webserver_request.post_count(identification)) {
+      bible = webserver_request.post_get(identification);
+      webserver_request.database_config_user()->set_bible (bible);
       // Going to another Bible, ensure that the focused book exists there.
       int book = Ipc_Focus::getBook (webserver_request);
       const std::vector <int> books = database::bibles::get_books (bible);
@@ -98,6 +98,8 @@ std::string edit_index (Webserver_Request& webserver_request)
         else book = 0;
         Ipc_Focus::set (webserver_request, book, 1, 1);
       }
+      // Ensure it gets loaded.
+      redirect_browser (webserver_request, edit_index_url());
       return std::string();
     }
     dialog::select::Settings settings {
@@ -105,7 +107,9 @@ std::string edit_index (Webserver_Request& webserver_request)
       .values = access_bible::bibles (webserver_request),
       .selected = bible,
     };
-    view.set_variable(identification, dialog::select::ajax(settings));
+    dialog::select::Form form { .auto_submit = true };
+    //view.set_variable(identification, dialog::select::ajax(settings));
+    view.set_variable(identification, dialog::select::form(settings, form));
   }
 
 
@@ -115,8 +119,7 @@ std::string edit_index (Webserver_Request& webserver_request)
   Assets_Header header = Assets_Header (translate("Edit"), webserver_request);
   header.set_navigator ();
   header.set_editor_stylesheet ();
-  if (touch) header.jquery_touch_on ();
-  header.notify_it_on ();
+  header.notify_on ();
   header.add_bread_crumb (menu_logic_translate_menu (), menu_logic_translate_text ());
   page = header.run ();
   

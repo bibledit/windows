@@ -1,5 +1,15 @@
 <h1>ChangeLog</h1>
 
+<p>5.1.035: No longer uses jQuery -> improves performance.</p>
+<p>5.1.034: Fixed: Inserting a footnote in italic text removes the space after the footnote.</p>
+<p>5.1.034: Fixed: Selecting another Bible in the chapter editor does not load that other Bible.</p>
+<p>5.1.034: Fix for very long resource selection page.</p>
+<p>5.1.032: Resource selection is done in one large page.</p>
+<p>5.1.032: Can edit and remove workspace with backslashes in its name.</p>
+<p>5.1.032: Select consultation notes on multiple statuses.</p>
+<p>5.1.031: Can no longer print resources.</p>
+<p>5.1.031: Enable possible embedding in NextCloud.</p>
+<p>5.1.031: Fixes scraper for Elberfelder Bibel.</p>
 <p>5.1.031: Supports the soft hyphen by converting the double forward slash ( // ) to that on export.</p>
 <p>5.1.031: Supports the non-breaking space by converting the tilde ( ~ ) to that on export.</p>
 <p>5.1.031: Can reset a style in the stylesheet editor.</p>

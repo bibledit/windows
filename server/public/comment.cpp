@@ -64,15 +64,15 @@ std::string public_comment (Webserver_Request& webserver_request)
   view.set_variable ("id", std::to_string (id));
   
   
-  if (webserver_request.post.count ("submit")) {
-    const std::string comment = filter::strings::trim (webserver_request.post ["comment"]);
+  if (webserver_request.post_count("submit")) {
+    const std::string comment = filter::strings::trim (webserver_request.post_get("comment"));
     notes_logic.addComment (id, comment);
     redirect_browser (webserver_request, public_note_url () + "?id=" + std::to_string (id));
     return std::string();
   }
   
   
-  if (webserver_request.post.count ("cancel")) {
+  if (webserver_request.post_count("cancel")) {
     redirect_browser (webserver_request, public_note_url () + "?id=" + std::to_string (id));
     return std::string();
   }

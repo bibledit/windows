@@ -18,23 +18,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 var touchCounter = 1;
 
-$(document).ready (function () {
+document.addEventListener("DOMContentLoaded", function(e) {
   window.addEventListener('mousemove', function mouseMoveDetector() {
     touchCounter++;
     // Just touching the Login button already gives a few mouse movements.
     // Skip the first few movements.
     if (touchCounter > 10) {
       window.removeEventListener('mousemove', mouseMoveDetector);
-      var touch = $ ("#touch");
-      touch.attr ("value", "0");
+      var touch = document.querySelector ("#touch");
+      touch.setAttribute ("value", "0");
     }
   });
-  $("#show").change(function() {
-    var input = $("#pass");
-      if (input.attr("type") === "password") {
-        input.attr("type", "text");
+  // Whether to show the password.
+  document.querySelector("#show").addEventListener("change", function() {
+    var input = document.querySelector("#pass");
+      if (input.getAttribute("type") === "password") {
+        input.setAttribute("type", "text");
       } else {
-        input.attr("type", "password");
+        input.setAttribute("type", "password");
       }
   });
 });

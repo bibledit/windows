@@ -851,14 +851,6 @@ input#cancel,
 
 /* II. d. GLOBAL STYLING: Read page */
 
-#publicnotesinread {
-  display: flex;
-}
-
-#publicnotesinread > p {
-  margin: 0 .25rem; 
-}
-
 /* END OF GLOBAL STYLING: Read page */
 
 /* END OF GLOBAL STYLING */
@@ -1070,7 +1062,7 @@ input#cancel,
   flex: 1;
   overflow: auto;
 }
-#workspacewrapper > p {
+#workspacewrapper > p, div {
   font-family: "Montserrat Regular", sans-serif;
 }
 #workspacewrapper > * {

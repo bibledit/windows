@@ -13,13 +13,13 @@
 <script src="/nicedit/nicedit.min.js?##VERSION##"></script>
 <script type="text/javascript">
   area1 = new nicEditor({fullPanel : true}).panelInstance('comment',{hasPanel : true});
-  $ ("body").on ("paste", function (e) {
-    var data = e.originalEvent.clipboardData.getData ('Text');
-    e.preventDefault();
+  document.body.addEventListener ("paste", function (event) {
+    var data = event.clipboardData.getData ('Text');
+    event.preventDefault();
     data = data.replace (/\n/g, "<br>");
     document.execCommand ("insertHTML", false, data);
   });
-  $(document).ready (function () {
-    $ (".nicEdit-main").focus ();
+  document.addEventListener("DOMContentLoaded", function(e) {
+    document.querySelector(".nicEdit-main").focus ();
   });
 </script>

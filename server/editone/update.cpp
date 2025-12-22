@@ -70,17 +70,17 @@ std::string editone_update (Webserver_Request& webserver_request)
   // Check the relevant bits of information.
   if (good2go) {
     bool parameters_ok = true;
-    if (!webserver_request.post.count ("bible"))
+    if (!webserver_request.post_count("bible"))
       parameters_ok = false;
-    if (!webserver_request.post.count ("book"))
+    if (!webserver_request.post_count("book"))
       parameters_ok = false;
-    if (!webserver_request.post.count ("chapter"))
+    if (!webserver_request.post_count("chapter"))
       parameters_ok = false;
-    if (!webserver_request.post.count ("verse"))
+    if (!webserver_request.post_count("verse"))
       parameters_ok = false;
-    if (!webserver_request.post.count ("loaded"))
+    if (!webserver_request.post_count("loaded"))
       parameters_ok = false;
-    if (!webserver_request.post.count ("edited"))
+    if (!webserver_request.post_count("edited"))
       parameters_ok = false;
     if (!parameters_ok) {
       messages.push_back (translate("Don't know what to update"));
@@ -100,15 +100,15 @@ std::string editone_update (Webserver_Request& webserver_request)
   std::string checksum2;
   std::string unique_id;
   if (good2go) {
-    bible = webserver_request.post["bible"];
-    book = filter::strings::convert_to_int (webserver_request.post["book"]);
-    chapter = filter::strings::convert_to_int (webserver_request.post["chapter"]);
-    verse = filter::strings::convert_to_int (webserver_request.post["verse"]);
-    loaded_html = webserver_request.post["loaded"];
-    edited_html = webserver_request.post["edited"];
-    checksum1 = webserver_request.post["checksum1"];
-    checksum2 = webserver_request.post["checksum2"];
-    unique_id = webserver_request.post ["id"];
+    bible = webserver_request.post_get("bible");
+    book = filter::strings::convert_to_int (webserver_request.post_get("book"));
+    chapter = filter::strings::convert_to_int (webserver_request.post_get("chapter"));
+    verse = filter::strings::convert_to_int (webserver_request.post_get("verse"));
+    loaded_html = webserver_request.post_get("loaded");
+    edited_html = webserver_request.post_get("edited");
+    checksum1 = webserver_request.post_get("checksum1");
+    checksum2 = webserver_request.post_get("checksum2");
+    unique_id = webserver_request.post_get("id");
   }
 
   // Checksums of the loaded and edited html.
@@ -173,8 +173,10 @@ std::string editone_update (Webserver_Request& webserver_request)
   // This needs the loaded USFM as the ancestor,
   // the edited USFM as a change-set,
   // and the existing USFM as a prioritized change-set.
+  // Transpose double spaces following an opening marker, see issue https://github.com/bibledit/cloud/issues/1051.
   std::string loaded_verse_usfm = editone_logic_html_to_usfm (stylesheet, loaded_html);
   std::string edited_verse_usfm = editone_logic_html_to_usfm (stylesheet, edited_html);
+  edited_verse_usfm = filter::usfm::transpose_opening_marker_and_space_sequence(std::move(edited_verse_usfm));
   std::string existing_verse_usfm = filter::usfm::get_verse_text_quill (chapter, verse, old_chapter_usfm);
   existing_verse_usfm = filter::strings::trim (existing_verse_usfm);
 

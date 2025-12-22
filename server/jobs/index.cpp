@@ -48,7 +48,7 @@ std::string jobs_index (Webserver_Request& webserver_request)
   std::string page;
   
   Assets_Header header = Assets_Header (translate ("Job"), webserver_request);
-  
+
   Assets_View view;
 
   const int id = filter::strings::convert_to_int (webserver_request.query ["id"]);

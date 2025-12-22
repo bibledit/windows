@@ -78,13 +78,13 @@ std::string manage_write (Webserver_Request& webserver_request)
 
   // Toggle write access to Bible book.
   if (!webserver_request.post.empty ()) {
-    std::string checkbox = webserver_request.post["checkbox"];
+    std::string checkbox = webserver_request.post_get("checkbox");
     std::string s_book (checkbox);
     s_book.erase (0, 4);
     int book = filter::strings::convert_to_int (s_book);
     if (book) {
       if (bible_read_access) {
-        bool checked = filter::strings::convert_to_bool (webserver_request.post ["checked"]);
+        bool checked = filter::strings::convert_to_bool (webserver_request.post_get("checked"));
         DatabasePrivileges::set_bible_book (user, bible, book, checked);
         database_privileges_client_create (user, true);
       }

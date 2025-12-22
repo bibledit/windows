@@ -54,8 +54,8 @@ std::string versification_index (Webserver_Request& webserver_request)
 
   Database_Versifications database_versifications = Database_Versifications();
 
-  if (webserver_request.post.count ("new")) {
-    std::string name = webserver_request.post["entry"];
+  if (webserver_request.post_count("new")) {
+    std::string name = webserver_request.post_get("entry");
     database_versifications.createSystem (name);
   }
   if (webserver_request.query.count ("new")) {

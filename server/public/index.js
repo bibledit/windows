@@ -17,8 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-$ (document).ready (function () 
-{
+document.addEventListener("DOMContentLoaded", function(e) {
   navigationNewPassage ();
 });
 
@@ -33,7 +32,7 @@ var publicFeedbackLoadedChapter;
 
 function navigationNewPassage ()
 {
-  if (typeof navigationBook != 'undefined') {
+  if (is_outside_workspace()) {
     publicFeedbackNavigationBible = navigationBible;
     publicFeedbackNavigationBook = navigationBook;
     publicFeedbackNavigationChapter = navigationChapter;
@@ -58,27 +57,43 @@ function publicFeedbackLoadChapter ()
 {
   publicFeedbackLoadedBook = publicFeedbackNavigationBook;
   publicFeedbackLoadedChapter = publicFeedbackNavigationChapter;
-  $.ajax ({
-    url: "chapter",
-    type: "GET",
-    data: { bible: publicFeedbackNavigationBible, book: publicFeedbackLoadedBook, chapter: publicFeedbackLoadedChapter },
-    success: function (response) {
-      $ ("#publicchapter").empty ();
-      $ ("#publicchapter").append (response);
-    },
-  });
+  const url = "chapter?" + new URLSearchParams([ ["bible", publicFeedbackNavigationBible], ["book", publicFeedbackLoadedBook], ["chapter", publicFeedbackLoadedChapter] ]).toString();
+  fetch(url, {
+    method: "GET",
+  })
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error(response.status);
+    }
+    return response.text();
+  })
+  .then((response) => {
+    var publicchapter = document.querySelector("#publicchapter");
+    publicchapter.innerHTML = response;
+  })
+  .catch((error) => {
+    console.log(error);
+  })
 }
 
 
 function publicFeedbackLoadNotes ()
 {
-  $.ajax ({
-    url: "notes",
-    type: "GET",
-    data: { bible: publicFeedbackNavigationBible, book: publicFeedbackLoadedBook, chapter: publicFeedbackLoadedChapter },
-    success: function (response) {
-      $ ("#publicnotes").empty ();
-      $ ("#publicnotes").append (response);
-    },
-  });
+  const url = "notes?" + new URLSearchParams([ ["bible", publicFeedbackNavigationBible], ["book", publicFeedbackLoadedBook], ["chapter", publicFeedbackLoadedChapter] ]).toString();
+  fetch(url, {
+    method: "GET",
+  })
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error(response.status);
+    }
+    return response.text();
+  })
+  .then((response) => {
+    var publicnotes = document.querySelector("#publicnotes");
+    publicnotes.innerHTML = response;
+  })
+  .catch((error) => {
+    console.log(error);
+  })
 }

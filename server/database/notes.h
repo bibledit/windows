@@ -65,12 +65,86 @@ public:
 
 public:
   std::vector <int> get_identifiers ();
-  int store_new_note (const std::string& bible, int book, int chapter, int verse, std::string summary, std::string contents, bool raw);
+  struct NewNote {
+    // The notes's Bible.
+    const std::string bible{};
+    // The note's passage.
+    const int book{0};
+    const int chapter{0};
+    const int verse{0};
+    // The note's summary.
+    const std::string summary{};
+    // The note's contents.
+    const std::string contents{};
+    // Import contents as it is.
+    const bool raw {false};
+  };
+  int store_new_note (const NewNote& new_note);
 private:
   int get_new_unique_identifier ();
   
 public:
-  std::vector <int> select_notes (std::vector <std::string> bibles, int book, int chapter, int verse, int passage_selector, int edit_selector, int non_edit_selector, const std::string& status_selector, std::string bible_selector, std::string assignment_selector, bool subscription_selector, int severity_selector, int text_selector, const std::string& search_text, int limit);
+  enum class PassageSelector : uint8_t {
+    current_verse = 0,
+    current_chapter = 1,
+    current_book = 2,
+    any_passage = 3
+  };
+  enum class EditSelector : uint8_t {
+    at_any_time = 0,
+    during_last_30_days = 1,
+    during_last_7_days = 2,
+    since_yesterday = 3,
+    today = 4,
+  };
+  enum class NonEditSelector : uint8_t {
+    any_time = 0,
+    a_day = 1,
+    two_days = 2,
+    a_week = 3,
+    a_month = 4,
+    a_year = 5,
+  };
+  enum class SeveritySelector : int8_t {
+    any = -1,
+    wish = 0,
+    minor = 1,
+    normal = 2,
+    important = 3,
+    major = 4,
+    critical = 5,
+  };
+  struct Selector {
+    // Container of Bible names that is going to be searched.
+    // Can contains all Bibles the user has read access to.
+    // Or can contain one Bible to be searched.
+    // If it contains no Bibles, no constraints will be applied.
+    std::vector<std::string> bibles{};
+    // Four related selectors that can limit the selection.
+    // By default there's no constraint set for the passage.
+    int book{};
+    int chapter{};
+    int verse{};
+    PassageSelector passage_selector{PassageSelector::any_passage};
+    // Optionally constrains selection based on modification time.
+    // By default there's no constraint on modification time.
+    EditSelector edit_selector{EditSelector::at_any_time};
+    NonEditSelector non_edit_selector{NonEditSelector::any_time};
+    // Optionally constrains selection based on list of note statuses.
+    std::vector<std::string> status_selectors;
+    // Optionally constrains the selection based on a note being assigned to somebody.
+    std::string assignment_selector{};
+    // Optionally limits the selection based on a note's subscription.
+    bool subscription_selector{false};
+    // Optionally limits the selection, based on a note's severity.
+    SeveritySelector severity_selector{SeveritySelector::any};
+    // Optionally limits the selection to notes that contains certain text.
+    // If the "search_text" is empty, it is not considered.
+    std::string search_text{};
+    // If given, it indicates the starting limit for the selection.
+    std::optional<int> limit{};
+  };
+  std::vector<int> select_notes (const Selector& selector);
 private:
   std::string notes_select_identifier ();
   std::string notes_optional_fulltext_search_relevance_statement (std::string search);

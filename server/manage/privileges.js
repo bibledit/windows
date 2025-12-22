@@ -18,18 +18,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
 // Reconciles the inter-dependent checkboxes.
-$ (document).ready (function () {
-  $ (":checkbox").change (function () {
-    var box = $ (this);
-    var name = box.attr ("id");
-    var checked = box.is (':checked')
-    if ((name == "view") && !checked) {
-      box = $ ("#create");
-      if (box.is (':checked')) box.trigger ("click");
-    }
-    if ((name == "create") && checked) {
-      box = $ ("#view");
-      if (!box.is (':checked')) box.trigger ("click");
-    }
+document.addEventListener("DOMContentLoaded", function(e) {
+  var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener("change", function(event) {
+      var name = checkbox.id;
+      var checked = checkbox.checked;
+      if ((name == "view") && !checked) {
+        box = document.querySelector ("#create");
+        if (box.checked) box.click();
+      }
+      if ((name == "create") && checked) {
+        box = document.querySelector ("#view");
+        if (!box.checked) box.click();
+      }
+    });
   });
 });

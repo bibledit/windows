@@ -17,8 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-$ (document).ready (function () 
-{
+document.addEventListener("DOMContentLoaded", function(e) {
   navigationNewPassage ();
 });
 
@@ -31,7 +30,7 @@ var publicFeedbackNavigationVerse;
 
 function navigationNewPassage ()
 {
-  if (typeof navigationBook != 'undefined') {
+  if (is_outside_workspace()) {
     publicFeedbackNavigationBible = navigationBible;
     publicFeedbackNavigationBook = navigationBook;
     publicFeedbackNavigationChapter = navigationChapter;
@@ -51,13 +50,21 @@ function navigationNewPassage ()
 
 function publicFeedbackLoadVerse ()
 {
-  $.ajax ({
-    url: "new",
-    type: "GET",
-    data: { bible: publicFeedbackNavigationBible, book: publicFeedbackNavigationBook, chapter: publicFeedbackNavigationChapter, verse: publicFeedbackNavigationVerse },
-    success: function (response) {
-      $ ("#versetext").empty ();
-      $ ("#versetext").append (response);
-    },
-  });
+  const url = "new?" + new URLSearchParams([ ["bible", publicFeedbackNavigationBible], ["book", publicFeedbackNavigationBook], ["chapter", publicFeedbackNavigationChapter], ["verse", publicFeedbackNavigationVerse]  ]).toString();
+  fetch(url, {
+    method: "GET",
+  })
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error(response.status);
+    }
+    return response.text();
+  })
+  .then((response) => {
+    document.querySelector ("#versetext").innerHTML = response;
+  })
+  .catch((error) => {
+    console.log(error);
+  })
+
 }

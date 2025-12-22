@@ -31,9 +31,9 @@ std::string assets_external_url ()
 std::string assets_external (Webserver_Request& webserver_request)
 {
   // Whether a URL was POSTed, that is, whether it was clicked by the user.
-  std::string href = webserver_request.post ["href"];
+  std::string href = webserver_request.post_get("href");
   if (!href.empty ()) {
-    config_globals_external_url = webserver_request.post ["href"];
+    config_globals_external_url = webserver_request.post_get("href");
     return std::string();
   }
 
@@ -58,15 +58,8 @@ std::string assets_external_logic_link_addon ()
 {
   // Open an external link in an external browser on most clients.
   // Open an external link in a new tab in some situations.
-  bool newtab {false};
 #ifdef HAVE_CLOUD
-  newtab = true;
+  return R"(target="_blank")";
 #endif
-  std::string addon {};
-  if (newtab)
-    addon = R"(target="_blank")";
-  else
-    addon = R"(class="external")";
-  // Done.
-  return addon;
+  return R"(class="external")";
 }

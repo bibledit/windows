@@ -67,8 +67,8 @@ std::string changes_change (Webserver_Request& webserver_request)
 
   
   // Note unsubscribe handler.
-  if (webserver_request.post.count ("unsubscribe")) {
-    std::string unsubscribe = webserver_request.post["unsubscribe"];
+  if (webserver_request.post_count ("unsubscribe")) {
+    std::string unsubscribe = webserver_request.post_get("unsubscribe");
     unsubscribe.erase (0, 11);
     notes_logic.unsubscribe (filter::strings::convert_to_int (unsubscribe));
     return std::string();
@@ -76,8 +76,8 @@ std::string changes_change (Webserver_Request& webserver_request)
   
   
   // Note unassign handler.
-  if (webserver_request.post.count ("unassign")) {
-    std::string unassign = webserver_request.post["unassign"];
+  if (webserver_request.post_count ("unassign")) {
+    std::string unassign = webserver_request.post_get("unassign");
     unassign.erase (0, 8);
     notes_logic.unassignUser (filter::strings::convert_to_int (unassign), webserver_request.session_logic ()->get_username ());
     return std::string();
@@ -85,8 +85,8 @@ std::string changes_change (Webserver_Request& webserver_request)
   
   
   // Note mark for deletion handler.
-  if (webserver_request.post.count("delete")) {
-    std::string erase = webserver_request.post["delete"];
+  if (webserver_request.post_count("delete")) {
+    std::string erase = webserver_request.post_get("delete");
     erase.erase (0, 6);
     const int identifier {filter::strings::convert_to_int (erase)};
     notes_logic.markForDeletion (identifier);
@@ -122,19 +122,14 @@ std::string changes_change (Webserver_Request& webserver_request)
   
   
   // Get notes for the passage.
-  std::vector<int> notes = database_notes.select_notes (bibles, // Bibles.
-                                                        passage.m_book, passage.m_chapter, filter::strings::convert_to_int (passage.m_verse),
-                                                        0,  // Passage selector.
-                                                        0,  // Edit selector.
-                                                        0,  // Non-edit selector.
-                                                        "", // Status selector.
-                                                        "", // Bible selector.
-                                                        "", // Assignment selector.
-                                                        0,  // Subscription selector.
-                                                        -1, // Severity selector.
-                                                        0,  // Text selector.
-                                                        "", // Search text.
-                                                        -1); // Limit.
+  Database_Notes::Selector selector {
+    .bibles = bibles,
+    .book = passage.m_book,
+    .chapter = passage.m_chapter,
+    .verse = filter::strings::convert_to_int (passage.m_verse),
+    .passage_selector = Database_Notes::PassageSelector::current_verse,
+  };
+  std::vector<int> notes = database_notes.select_notes(selector);
   
   // Remove the ones marked for deletion.
   {
@@ -144,7 +139,7 @@ std::string changes_change (Webserver_Request& webserver_request)
         notes2.push_back (note);
       }
     }
-    notes = notes2;
+    notes = std::move(notes2);
   }
   
   // Sort them, most recent notes first.
@@ -154,7 +149,7 @@ std::string changes_change (Webserver_Request& webserver_request)
     timestamps.push_back (timestap);
   }
   filter::strings::quick_sort (timestamps, notes, 0, static_cast <unsigned int> (notes.size ()));
-  reverse (notes.begin(), notes.end());
+  std::reverse (notes.begin(), notes.end());
   
   
   // Whether there"s a live notes editor available.

@@ -66,8 +66,8 @@ std::string checks_settings (Webserver_Request& webserver_request)
   
   {
     constexpr const char* identification {"bible"};
-    if (webserver_request.post.count (identification)) {
-      const std::string bible {webserver_request.post.at(identification)};
+    if (webserver_request.post_count (identification)) {
+      const std::string bible {webserver_request.post_get(identification)};
       webserver_request.database_config_user()->set_bible (bible);
     }
     dialog::select::Settings settings {
@@ -88,8 +88,8 @@ std::string checks_settings (Webserver_Request& webserver_request)
   }
   
   
-  const std::string checkbox = webserver_request.post ["checkbox"];
-  const bool checked = filter::strings::convert_to_bool (webserver_request.post ["checked"]);
+  const std::string checkbox = webserver_request.post_get("checkbox");
+  const bool checked = filter::strings::convert_to_bool (webserver_request.post_get("checked"));
   
                         
   if (checkbox == "doublespacesusfm") {

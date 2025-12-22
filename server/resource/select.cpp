@@ -41,6 +41,17 @@
 #include <sword/logic.h>
 #include <access/logic.h>
 #include <config/globals.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#ifndef HAVE_PUGIXML
+#include <pugixml/pugixml.hpp>
+#endif
+#ifdef HAVE_PUGIXML
+#include <pugixml.hpp>
+#endif
+#pragma GCC diagnostic pop
 
 
 std::string resource_select_url ()
@@ -79,109 +90,108 @@ std::string resource_select (Webserver_Request& webserver_request)
 #endif
 
   
-  const auto get_parameters = [&webserver_request, is_def]() {
-    std::vector<std::pair<std::string,std::string>> parameters {{"page", webserver_request.query["page"]}};
-    if (is_def)
-      parameters.push_back ({"type", webserver_request.query["type"]});
-    return parameters;
+  // The layout of the page to select resources to add should not use <select> elements,
+  // because if the list of resources is long,
+  // the <select> makes it hard to look for a resources.
+  // See issue https://github.com/bibledit/cloud/issues/1050 for more details.
+  // Rather it now uses one web page listing all resources.
+  // The page initially was built through Flate iterations.
+  // But Flate had limits on the number of rendering steps.
+  // As a result the first part of the page was rendered, and the latter part was not done well.
+  // So now the page is rendered section by section, not through Flate, but in the XML code below.
+
+  const auto href = [&caller] (const std::string name) {
+    return caller + "?add=" + name;
   };
   
-
   {
-    constexpr const char* identification {"bible"};
-    dialog::select::Settings settings {
-      .identification = identification,
-      .values = access_bible::bibles (webserver_request),
-      .url = caller,
-      .parameters = get_parameters(),
-      .submit = translate("Add"),
-    };
-    dialog::select::Form form { .auto_submit = false };
-    view.set_variable(identification, dialog::select::form(settings, form));
+    pugi::xml_document document {};
+    for (const std::string& name : access_bible::bibles (webserver_request)) {
+      pugi::xml_node p = document.append_child("p");
+      pugi::xml_node a = p.append_child("a");
+      a.append_attribute("href") = href(name).c_str();
+      a.text().set(name.c_str());
+    }
+    std::stringstream block {};
+    document.print (block, "", pugi::format_raw);
+    view.set_variable ("bibles", block.str());
   }
 
-  
   {
-    constexpr const char* identification {"usfm"};
-    std::vector <std::string> resources;
+    std::vector<std::string> usfm_resources;
 #ifdef HAVE_CLIENT
     // Client takes resources available from the Cloud.
-    resources = client_logic_usfm_resources_get ();
+    usfm_resources = client_logic_usfm_resources_get ();
 #else
     // Cloud takes its locally available USFM resources.
     Database_UsfmResources database_usfmresources;
-    resources = database_usfmresources.getResources ();
+    usfm_resources = database_usfmresources.getResources ();
 #endif
-    dialog::select::Settings settings {
-      .identification = identification,
-      .values = resources,
-      .url = caller,
-      .parameters = get_parameters(),
-      .submit = translate("Add"),
-    };
-    dialog::select::Form form { .auto_submit = false };
-    view.set_variable(identification, dialog::select::form(settings, form));
+    pugi::xml_document document {};
+    for (const std::string& name : usfm_resources) {
+      pugi::xml_node p = document.append_child("p");
+      pugi::xml_node a = p.append_child("a");
+      a.append_attribute("href") = href(name).c_str();
+      a.text().set(name.c_str());
+    }
+    std::stringstream block {};
+    document.print (block, "", pugi::format_raw);
+    view.set_variable ("usfm", block.str());
   }
 
-  
   {
-    constexpr const char* identification {"web_orig"};
-    dialog::select::Settings settings {
-      .identification = identification,
-      .values = resource_external_get_original_language_resources(),
-      .url = caller,
-      .parameters = get_parameters(),
-      .submit = translate("Add"),
-    };
-    dialog::select::Form form { .auto_submit = false };
-    view.set_variable(identification, dialog::select::form(settings, form));
+    pugi::xml_document document {};
+    for (const std::string& name : resource_external_get_original_language_resources()) {
+      pugi::xml_node p = document.append_child("p");
+      pugi::xml_node a = p.append_child("a");
+      a.append_attribute("href") = href(name).c_str();
+      a.text().set(name.c_str());
+    }
+    std::stringstream block {};
+    document.print (block, "", pugi::format_raw);
+    view.set_variable ("web_orig", block.str());
   }
 
-  
   {
-    constexpr const char* identification {"web_bibles"};
-    dialog::select::Settings settings {
-      .identification = identification,
-      .values = resource_external_get_bibles(),
-      .url = caller,
-      .parameters = get_parameters(),
-      .submit = translate("Add"),
-    };
-    dialog::select::Form form { .auto_submit = false };
-    view.set_variable(identification, dialog::select::form(settings, form));
+    pugi::xml_document document {};
+    for (const std::string& name : resource_external_get_bibles()) {
+      pugi::xml_node p = document.append_child("p");
+      pugi::xml_node a = p.append_child("a");
+      a.append_attribute("href") = href(name).c_str();
+      a.text().set(name.c_str());
+    }
+    std::stringstream block {};
+    document.print (block, "", pugi::format_raw);
+    view.set_variable ("web_bibles", block.str());
   }
 
-  
   {
-    constexpr const char* identification {"lexicon"};
-    dialog::select::Settings settings {
-      .identification = identification,
-      .values = lexicon_logic_resource_names(),
-      .url = caller,
-      .parameters = get_parameters(),
-      .submit = translate("Add"),
-    };
-    dialog::select::Form form { .auto_submit = false };
-    view.set_variable(identification, dialog::select::form(settings, form));
+    pugi::xml_document document {};
+    for (const std::string& name : lexicon_logic_resource_names()) {
+      pugi::xml_node p = document.append_child("p");
+      pugi::xml_node a = p.append_child("a");
+      a.append_attribute("href") = href(name).c_str();
+      a.text().set(name.c_str());
+    }
+    std::stringstream block {};
+    document.print (block, "", pugi::format_raw);
+    view.set_variable ("lexicon", block.str());
   }
-  
-  
+
   {
-    constexpr const char* identification {"sword"};
-    dialog::select::Settings settings {
-      .identification = identification,
-      .values = sword_logic_get_available(),
-      .url = caller,
-      .parameters = get_parameters(),
-      .submit = translate("Add"),
-    };
-    dialog::select::Form form { .auto_submit = false };
-    view.set_variable(identification, dialog::select::form(settings, form));
+    pugi::xml_document document {};
+    for (const std::string& name : sword_logic_get_available()) {
+      pugi::xml_node p = document.append_child("p");
+      pugi::xml_node a = p.append_child("a");
+      a.append_attribute("href") = href(name).c_str();
+      a.text().set(name.c_str());
+    }
+    std::stringstream block {};
+    document.print (block, "", pugi::format_raw);
+    view.set_variable ("sword", block.str());
   }
-  
-  
+
   {
-    constexpr const char* identification {"divider"};
     const std::vector <std::string> resources = {
       resource_logic_yellow_divider (),
       resource_logic_green_divider (),
@@ -191,52 +201,49 @@ std::string resource_select (Webserver_Request& webserver_request)
       resource_logic_orange_divider (),
       resource_logic_rich_divider(),
     };
-    dialog::select::Settings settings {
-      .identification = identification,
-      .values = resources,
-      .url = caller,
-      .parameters = get_parameters(),
-      .submit = translate("Add"),
-    };
-    dialog::select::Form form { .auto_submit = false };
-    view.set_variable(identification, dialog::select::form(settings, form));
+    pugi::xml_document document {};
+    for (const std::string& name : resources) {
+      pugi::xml_node p = document.append_child("p");
+      pugi::xml_node a = p.append_child("a");
+      a.append_attribute("href") = href(name).c_str();
+      a.text().set(name.c_str());
+    }
+    std::stringstream block {};
+    document.print (block, "", pugi::format_raw);
+    view.set_variable ("divider", block.str());
   }
 
-  
   {
-    constexpr const char* identification {"biblegateway"};
-    dialog::select::Settings settings {
-      .identification = identification,
-      .values = resource_logic_bible_gateway_module_list_get(),
-      .url = caller,
-      .parameters = get_parameters(),
-      .submit = translate("Add"),
-    };
-    dialog::select::Form form { .auto_submit = false };
-    view.set_variable(identification, dialog::select::form(settings, form));
+    pugi::xml_document document {};
+    for (const std::string& name : resource_logic_bible_gateway_module_list_get()) {
+      pugi::xml_node p = document.append_child("p");
+      pugi::xml_node a = p.append_child("a");
+      a.append_attribute("href") = href(name).c_str();
+      a.text().set(name.c_str());
+    }
+    std::stringstream block {};
+    document.print (block, "", pugi::format_raw);
+    view.set_variable ("biblegateway", block.str());
   }
   
-  
   {
-    constexpr const char* identification {"studylight"};
-    dialog::select::Settings settings {
-      .identification = identification,
-      .values = resource_logic_study_light_module_list_get(),
-      .url = caller,
-      .parameters = get_parameters(),
-      .submit = translate("Add"),
-    };
-    dialog::select::Form form { .auto_submit = false };
-    view.set_variable(identification, dialog::select::form(settings, form));
+    pugi::xml_document document {};
+    for (const std::string& name : resource_logic_study_light_module_list_get()) {
+      pugi::xml_node p = document.append_child("p");
+      pugi::xml_node a = p.append_child("a");
+      a.append_attribute("href") = href(name).c_str();
+      a.text().set(name.c_str());
+    }
+    std::stringstream block {};
+    document.print (block, "", pugi::format_raw);
+    view.set_variable ("studylight", block.str());
   }
-
   
   // The comparative resources are stored as one resource per line.
   // The line contains multiple properties of the resource.
   // One of those properties is the title.
   // This selection mechanism here shows that title only.
   {
-    constexpr const char* identification {"comparative"};
     std::vector <std::string> resources;
     std::vector<std::string> raw_resources =
 #ifdef HAVE_CLOUD
@@ -250,26 +257,25 @@ std::string resource_select (Webserver_Request& webserver_request)
         resources.push_back(title);
       }
     }
-    dialog::select::Settings settings {
-      .identification = identification,
-      .values = resources,
-      .url = caller,
-      .parameters = get_parameters(),
-      .submit = translate("Add"),
-    };
-    dialog::select::Form form { .auto_submit = false };
-    view.set_variable(identification, dialog::select::form(settings, form));
+    pugi::xml_document document {};
+    for (const std::string& name : resources) {
+      pugi::xml_node p = document.append_child("p");
+      pugi::xml_node a = p.append_child("a");
+      a.append_attribute("href") = href(name).c_str();
+      a.text().set(name.c_str());
+    }
+    std::stringstream block {};
+    document.print (block, "", pugi::format_raw);
+    view.set_variable ("comparative", block.str());
   }
-
-  
+ 
   // The translated resources are stored as one resource per line.
   // The line contains multiple properties of the resource.
   // One of those properties is the title.
   // This selection mechanism here shows that title only.
   {
-    constexpr const char* identification {"translated"};
     std::vector <std::string> resources;
-    std:: vector<std::string> raw_resources =
+    std::vector<std::string> raw_resources =
 #ifdef HAVE_CLOUD
     database::config::general::get_translated_resources ();
 #else
@@ -281,18 +287,18 @@ std::string resource_select (Webserver_Request& webserver_request)
         resources.push_back(title);
       }
     }
-    dialog::select::Settings settings {
-      .identification = identification,
-      .values = resources,
-      .url = caller,
-      .parameters = get_parameters(),
-      .submit = translate("Add"),
-    };
-    dialog::select::Form form { .auto_submit = false };
-    view.set_variable(identification, dialog::select::form(settings, form));
+    pugi::xml_document document {};
+    for (const std::string& name : resources) {
+      pugi::xml_node p = document.append_child("p");
+      pugi::xml_node a = p.append_child("a");
+      a.append_attribute("href") = href(name).c_str();
+      a.text().set(name.c_str());
+    }
+    std::stringstream block {};
+    document.print (block, "", pugi::format_raw);
+    view.set_variable ("translated", block.str());
   }
 
-  
   // Whether to show or to hide sensitive Bible resources.
   // This is to accomodate the followers of Jesus in countries where they could be in danger.
   if (!config_globals_hide_bible_resources) {

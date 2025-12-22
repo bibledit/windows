@@ -65,12 +65,12 @@ std::string resource_translated1edit (Webserver_Request& webserver_request)
   
   
   std::string name = webserver_request.query ["name"];
-  if (name.empty()) name = webserver_request.post ["val1"];
+  if (name.empty()) name = webserver_request.post_get("val1");
   view.set_variable ("name", name);
 
   
-  std::string checkbox = webserver_request.post ["checkbox"];
-  bool checked = filter::strings::convert_to_bool (webserver_request.post ["checked"]);
+  std::string checkbox = webserver_request.post_get("checkbox");
+  bool checked = filter::strings::convert_to_bool (webserver_request.post_get("checked"));
 
   
   bool resource_edited {false};
@@ -93,8 +93,8 @@ std::string resource_translated1edit (Webserver_Request& webserver_request)
   // The translated resource's original resource.
   {
     constexpr const char* identification {"original"};
-    if (webserver_request.post.count (identification)) {
-      original_resource = webserver_request.post.at(identification);
+    if (webserver_request.post_count(identification)) {
+      original_resource = webserver_request.post_get(identification);
       resource_edited = true;
     }
     dialog::select::Settings settings {
@@ -119,8 +119,8 @@ std::string resource_translated1edit (Webserver_Request& webserver_request)
   // The language of the original resource.
   {
     constexpr const char* identification {"source"};
-    if (webserver_request.post.count (identification)) {
-      source_language = webserver_request.post.at(identification);
+    if (webserver_request.post_count(identification)) {
+      source_language = webserver_request.post_get(identification);
       resource_edited = true;
     }
     dialog::select::Settings settings {
@@ -137,8 +137,8 @@ std::string resource_translated1edit (Webserver_Request& webserver_request)
   // The language to translate the resource into.
   {
     constexpr const char* identification {"target"};
-    if (webserver_request.post.count (identification)) {
-      target_language = webserver_request.post.at(identification);
+    if (webserver_request.post_count(identification)) {
+      target_language = webserver_request.post_get(identification);
       resource_edited = true;
     }
     dialog::select::Settings settings {

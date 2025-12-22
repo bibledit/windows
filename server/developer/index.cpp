@@ -61,7 +61,7 @@ std::string developer_index (Webserver_Request& webserver_request)
   std::string page {};
 
   Assets_Header header = Assets_Header ("Development", webserver_request);
-  header.notify_it_on ();
+  header.notify_on ();
   page = header.run ();
 
   Assets_View view {};
@@ -148,8 +148,8 @@ std::string developer_index (Webserver_Request& webserver_request)
   
   {
     constexpr const char* identification {"selectorajax"};
-    if (webserver_request.post.count (identification)) {
-      [[maybe_unused]] const std::string value {webserver_request.post.at(identification)};
+    if (webserver_request.post_count(identification)) {
+      [[maybe_unused]] const std::string value {webserver_request.post_get(identification)};
       return std::string();
     }
     dialog::select::Settings settings {
@@ -165,8 +165,8 @@ std::string developer_index (Webserver_Request& webserver_request)
   {
     constexpr const char* identification {"selectorform"};
     std::string selected = "ddd";
-    if (webserver_request.post.count (identification)) {
-      selected = webserver_request.post.at(identification);
+    if (webserver_request.post_count(identification)) {
+      selected = webserver_request.post_get(identification);
       view.set_variable ("success", "Submitted: " + selected);
     }
     dialog::select::Settings settings {
@@ -184,8 +184,8 @@ std::string developer_index (Webserver_Request& webserver_request)
   {
     constexpr const char* identification {"selectorautosubmit"};
     std::string selected = "ggg";
-    if (webserver_request.post.count (identification)) {
-      selected = webserver_request.post.at(identification);
+    if (webserver_request.post_count(identification)) {
+      selected = webserver_request.post_get(identification);
       view.set_variable ("success", "Submitted: " + selected);
     }
     dialog::select::Settings settings {

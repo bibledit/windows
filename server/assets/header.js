@@ -31,20 +31,45 @@ function topbarRemovalQueryAddition (elementsAttribute) {
 }
 
 
-$ (document).ready (function () {
+function is_outside_workspace()
+{
+  // If the window is the top window, it is a main page, that is, not in a workspace.
   if (window.self === window.top) {
-    // On main page: Enable menu on touch screen.
-    $ ('.toggle').click (function () {
-      var hovered = $ (this).hasClass ('hover');
-      $ ('.hover').removeClass('hover');
-      if (!hovered) {
-        $ (this).addClass ('hover');
-      }
-    });
-    // Deal with the optional html back button.
-    $ ('#backbutton').click (function () {
-      window.history.back();
-    });
+    return true;
+  }
+
+  // At this stage the current page is embedded in some iframe.
+  try {
+    // Get the parent document.
+    // If the current page is in a workspace,
+    // it means that this iframe and the parent iframe are on the same domain.
+    // So getting the parent document would be allowed.
+    var parent = window.parent;
+    var document = parent.document;
+    return false;
+  }
+  catch (error) {
+    // If this iframe is embedded in another website, like in the NextCloud,
+    // then getting the parent document leads to an exception.
+    // It means that although this page is in an iframe, it still it a main page.
+    // It is not embedded in a Bibledit workspace.
+    return true;
+  }
+
+  // In Bibledit iframe.
+  return false;
+}
+
+
+document.addEventListener("DOMContentLoaded", function(e) {
+  if (is_outside_workspace()) {
+    // Deal with the optional back button.
+    var backbutton = document.querySelector('#backbutton');
+    if (backbutton) {
+      backbutton.addEventListener('click', function (event) {
+        window.history.back();
+      });
+    }
   } else {
     // In workspace iframe: Remove possible top bar.
     // The topbar is removed by the server via the Workspace.
@@ -52,7 +77,7 @@ $ (document).ready (function () {
     // and is to be removed here within the iframe.
     // (1) By adding the query to each anchor element's href
     // attribute and form element's action attribute.
-    // The function is declared outside $ (document).ready
+    // The function is declared outside the DOMContentLoaded function
     // so that it can be called from other JavaScript files.
     // (2) By emptying the actual topbar.
     document.querySelectorAll('a').forEach((element) => {
@@ -63,13 +88,21 @@ $ (document).ready (function () {
     document.querySelectorAll('form').forEach((element) => {
       element.action = topbarRemovalQueryAddition (element.action);
     })
-    $ ('#topbar').empty ();
+    var topbar = document.querySelector ('#topbar');
+    if (topbar) {
+      topbar.innerHTML = "";
+    }
   };
   if (typeof (fadingMenuDelay) != 'undefined' && fadingMenuDelay != 0 && fadingMenuDelay !== 'false') {
-    $ (".fadeout").delay (parseInt (fadingMenuDelay)).hide (2000);
+    setTimeout(() => {
+      var fadeout = document.querySelector ('.fadeout');
+      if (fadeout) {
+        fadeout.remove();
+      }
+    }, parseInt (fadingMenuDelay));
   };
 
-  // These for loops is for coloring the span element on the top bar
+  // These for loops are for coloring the span element on the top bar
   // for the Red Blue Light/Black theme styling.
   // The total of all span is divided by three and used for indexing.
   // The middle spans will be extra light red, half of the rest
@@ -167,11 +200,17 @@ $ (document).ready (function () {
   }
 
   // If there are more than 9 tabs, a wrapping property in CSS will be activated.
-  if ($ ('#topbar > span').length > 9) {
-    $ ('#topbar').addClass('wrap-active');
-  } else {
-    $ ('#topbar').removeClass('wrap-active');
-  };
+  var topbarSpan = document.querySelectorAll('#topbar > span');
+  if (topbarSpan) {
+    var topbar = document.querySelector('#topbar');
+    if (topbar) {
+      if (topbarSpan.length > 9) {
+        topbar.classList.add('wrap-active');
+      } else {
+        topbar.classList.remove('wrap-active');
+      }
+    }
+  }
 
   // If it's notes/actions.html, add padding for all the p tag
   if (/notes\/actions/.test(window.location.href)) {

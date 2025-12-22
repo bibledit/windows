@@ -53,42 +53,20 @@ bool resource_organize_acl (Webserver_Request& webserver_request)
 
 std::string resource_organize (Webserver_Request& webserver_request)
 {
-  const std::string checkbox = webserver_request.post ["checkbox"];
-  const bool checked = filter::strings::convert_to_bool (webserver_request.post ["checked"]);
+  const std::string checkbox = webserver_request.post_get("checkbox");
+  const bool checked = filter::strings::convert_to_bool (webserver_request.post_get("checked"));
 
 
   // For administrator level default resource management purposes.
   const int level = webserver_request.session_logic()->get_level ();
-  const bool is_def = (webserver_request.query["type"] == "def" || webserver_request.post["type"] == "def");
+  const bool is_def = (webserver_request.query["type"] == "def" || webserver_request.post_get("type") == "def");
   const std::vector <std::string> default_active_resources = database::config::general::get_default_active_resources ();
 
   
   // Deal with adding new resources.
   const auto get_added_resource = [&webserver_request] () -> std::string {
-    if (webserver_request.post.count("bible"))
-      return webserver_request.post.at("bible");
-    if (webserver_request.post.count("usfm"))
-      return webserver_request.post.at("usfm");
-    if (webserver_request.post.count("web_orig"))
-      return webserver_request.post.at("web_orig");
-    if (webserver_request.post.count("web_bibles"))
-      return webserver_request.post.at("web_bibles");
-    if (webserver_request.post.count("image"))
-      return webserver_request.post.at("image");
-    if (webserver_request.post.count("lexicon"))
-      return webserver_request.post.at("lexicon");
-    if (webserver_request.post.count("sword"))
-      return webserver_request.post.at("sword");
-    if (webserver_request.post.count("divider"))
-      return webserver_request.post.at("divider");
-    if (webserver_request.post.count("biblegateway"))
-      return webserver_request.post.at("biblegateway");
-    if (webserver_request.post.count("studylight"))
-      return webserver_request.post.at("studylight");
-    if (webserver_request.post.count("comparative"))
-      return webserver_request.post.at("comparative");
-    if (webserver_request.post.count("translated"))
-      return webserver_request.post.at("translated");
+    if (webserver_request.query.count("add"))
+      return webserver_request.query.at("add");
     return std::string();
   };
   const std::string add {get_added_resource()};
@@ -96,7 +74,7 @@ std::string resource_organize (Webserver_Request& webserver_request)
     if (add == resource_logic_rich_divider ()) {
       // Navigate to the page to set up the rich divider.
       if (is_def) 
-        redirect_browser (webserver_request, filter_url_build_http_query (resource_divider_url (), "type", "def"));
+        redirect_browser (webserver_request, filter_url_build_http_query(resource_divider_url(), {{"type", "def"}}));
       else
         redirect_browser (webserver_request, resource_divider_url ());
       return std::string();
@@ -131,9 +109,9 @@ std::string resource_organize (Webserver_Request& webserver_request)
   }
 
   
-  std::string movefrom = webserver_request.post ["movefrom"];
+  std::string movefrom = webserver_request.post_get("movefrom");
   if (!movefrom.empty ()) {
-    std::string moveto =  webserver_request.post ["moveto"];
+    std::string moveto =  webserver_request.post_get("moveto");
     if (!moveto.empty ()) {
       size_t from = static_cast<size_t> (filter::strings::convert_to_int (movefrom));
       size_t to = static_cast<size_t>(filter::strings::convert_to_int (moveto));
@@ -207,8 +185,8 @@ std::string resource_organize (Webserver_Request& webserver_request)
     page += dialog_entry.run ();
     return page;
   }
-  if (webserver_request.post.count ("before")) {
-    int value = filter::strings::convert_to_int (webserver_request.post["entry"]);
+  if (webserver_request.post_count("before")) {
+    int value = filter::strings::convert_to_int (webserver_request.post_get("entry"));
     if ((value >= 0) && (value <= 100)) {
       webserver_request.database_config_user ()->set_resource_verses_before (value);
     }
@@ -222,8 +200,8 @@ std::string resource_organize (Webserver_Request& webserver_request)
     page += dialog_entry.run ();
     return page;
   }
-  if (webserver_request.post.count ("after")) {
-    int value = filter::strings::convert_to_int (webserver_request.post["entry"]);
+  if (webserver_request.post_count("after")) {
+    int value = filter::strings::convert_to_int (webserver_request.post_get("entry"));
     if ((value >= 0) && (value <= 100)) {
       webserver_request.database_config_user ()->set_resource_verses_after (value);
     }

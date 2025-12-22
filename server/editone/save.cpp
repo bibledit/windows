@@ -59,19 +59,19 @@ bool editone_save_acl (Webserver_Request& webserver_request)
 std::string editone_save (Webserver_Request& webserver_request)
 {
   // Check on information about where to save the verse.
-  const bool save = (webserver_request.post.count ("bible") && webserver_request.post.count ("book") && webserver_request.post.count ("chapter") && webserver_request.post.count ("verse") && webserver_request.post.count ("html"));
+  const bool save = (webserver_request.post_count("bible") && webserver_request.post_count("book") && webserver_request.post_count("chapter") && webserver_request.post_count("verse") && webserver_request.post_count("html"));
   if (!save) {
     return translate("Don't know where to save");
   }
 
   
-  const std::string bible = webserver_request.post["bible"];
-  const int book = filter::strings::convert_to_int (webserver_request.post["book"]);
-  const int chapter = filter::strings::convert_to_int (webserver_request.post["chapter"]);
-  const int verse = filter::strings::convert_to_int (webserver_request.post["verse"]);
-  std::string html = webserver_request.post["html"];
-  const std::string checksum = webserver_request.post["checksum"];
-  const std::string unique_id = webserver_request.post ["id"];
+  const std::string bible = webserver_request.post_get("bible");
+  const int book = filter::strings::convert_to_int (webserver_request.post_get("book"));
+  const int chapter = filter::strings::convert_to_int (webserver_request.post_get("chapter"));
+  const int verse = filter::strings::convert_to_int (webserver_request.post_get("verse"));
+  std::string html = webserver_request.post_get("html");
+  const std::string checksum = webserver_request.post_get("checksum");
+  const std::string unique_id = webserver_request.post_get("id");
 
   
   // Checksum.
