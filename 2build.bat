@@ -14,13 +14,13 @@ if %errorlevel% neq 0 ( pause; exit /b )
 
 
 echo Build the server solution
-"C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"^
+"C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe"^
  server.sln /p:RestorePackages=false /p:Configuration=Release /p:Platform=x64
 if %errorlevel% neq 0 ( pause; exit /b )
 
 
 echo Build the GUI solution
-"C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"^
+"C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe"^
  gui.sln /p:RestorePackages=false /p:Configuration=Release /p:Platform=x64
 if %errorlevel% neq 0 ( pause; exit /b )
 
