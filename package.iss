@@ -48,8 +48,8 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Bibledit"; Filenam
 
 [Run]
 Filename: "{app}\bibledit.exe"; Description: "{cm:LaunchProgram,Bibledit}"; Flags: nowait postinstall skipifsilent
-; The server.exe needs C++ 2015, 2017, 2019, 2022.
-Filename: "{app}\VC2022_redist.x64.exe"; Parameters: "/install /passive /norestart"; Description: "Install Visual C++ Redistributable 2015, 2017, 2019, 2022"; Flags: runhidden skipifsilent
+; The server.exe needs C++ 2017, 2019, 2022, 2026.
+Filename: "{app}\VC2026_redist.x64.exe"; Parameters: "/install /passive /norestart"; Description: "Install Visual C++ Redistributable 2017, 2019, 2022, 2026"; Flags: runhidden skipifsilent
 
 [Code]
 
