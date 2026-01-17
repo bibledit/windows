@@ -377,7 +377,6 @@
     <ClCompile Include="library\locks.c" />
     <ClCompile Include="locale\logic.cpp" />
     <ClCompile Include="locale\translate.cpp" />
-    <ClCompile Include="manage\accounts.cpp" />
     <ClCompile Include="manage\bibles.cpp" />
     <ClCompile Include="manage\exports.cpp" />
     <ClCompile Include="manage\index.cpp" />
