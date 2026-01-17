@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ std::string Database_UserResources::load (const std::string& name, size_t offset
 {
   std::string path = file (name);
   std::string contents = filter_url_file_get_contents (path);
-  std::vector <std::string> lines = filter::strings::explode (contents, '\n');
+  std::vector <std::string> lines = filter::string::explode (contents, '\n');
   if (offset >= lines.size ()) return std::string();
   return lines [offset];
 }
@@ -118,9 +118,9 @@ void Database_UserResources::save (const std::string& name, size_t offset, const
 {
   std::string path = file (name);
   std::string contents = filter_url_file_get_contents (path);
-  std::vector <std::string> lines = filter::strings::explode (contents, '\n');
+  std::vector <std::string> lines = filter::string::explode (contents, '\n');
   while (lines.size () <= offset) lines.push_back ("");
   lines [offset] = value;
-  contents = filter::strings::implode (lines, "\n");
+  contents = filter::string::implode (lines, "\n");
   filter_url_file_put_contents (path, contents);
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -63,9 +63,9 @@ std::string sync_changes (Webserver_Request& webserver_request)
   sync_logic.prioritized_ip_address_record ();
 
   // Get the relevant parameters the client may have POSTed to us, the server.
-  std::string user = filter::strings::hex2bin (webserver_request.post_get("u"));
-  int action = filter::strings::convert_to_int (webserver_request.post_get("a"));
-  int id = filter::strings::convert_to_int (webserver_request.post_get("i"));
+  std::string user = filter::string::hex2bin (webserver_request.post_get("u"));
+  int action = filter::string::convert_to_int (webserver_request.post_get("a"));
+  int id = filter::string::convert_to_int (webserver_request.post_get("i"));
 
   switch (action) {
     case Sync_Logic::changes_delete_modification:
@@ -115,18 +115,18 @@ std::string sync_changes (Webserver_Request& webserver_request)
       lines.push_back (passage.m_verse);
       // oldtext (ensure it's one line for correct transfer to client)
       std::string oldtext = database::modifications::getNotificationOldText (id);
-      oldtext = filter::strings::replace ("\n", " ", oldtext);
+      oldtext = filter::string::replace ("\n", " ", oldtext);
       lines.push_back (oldtext);
       // modification (ensure it's one line for correct transfer to client)
       std::string modification = database::modifications::getNotificationModification (id);
-      modification = filter::strings::replace ("\n", " ", modification);
+      modification = filter::string::replace ("\n", " ", modification);
       lines.push_back (modification);
       // newtext (ensure it's one line for correct transfer to client)
       std::string newtext = database::modifications::getNotificationNewText (id);
-      newtext = filter::strings::replace ("\n", " ", newtext);
+      newtext = filter::string::replace ("\n", " ", newtext);
       lines.push_back (newtext);
       // Result.
-      return filter::strings::implode (lines, "\n");
+      return filter::string::implode (lines, "\n");
     }
     default: {};
   }

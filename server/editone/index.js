@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1005,7 +1005,7 @@ function oneVerseHtmlClicked (event)
   } else {
     verse = "0";
   }
-  const url = "verse?verse=" + verse;
+  const url = "verse?" + new URLSearchParams([ ["verse", verse], ["focusgroup", focusGroup] ]).toString();
   fetch(url, {
     method: "GET",
     cache: "no-cache"

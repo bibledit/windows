@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -76,8 +76,6 @@ std::string session_confirm ([[maybe_unused]] Webserver_Request& webserver_reque
       // Store web site's base URL.
       const std::string site_url = get_base_url (webserver_request);
       database::config::general::set_site_url (site_url);
-      // Store account creation time.
-      user_logic_store_account_creation (webserver_request.session_logic ()->get_username ());
     }
 
   }

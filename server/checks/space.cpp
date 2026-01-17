@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -76,12 +76,12 @@ void space_end_verse (const std::string& bible, int book, int chapter, const std
     const std::vector <std::string> items = filter::usfm::get_markers_and_text (text);
     for (const auto & item : items) {
       if (filter::usfm::is_usfm_marker (item)) {
-        text = filter::strings::replace (item, "", text);
+        text = filter::string::replace (item, "", text);
       }
     }
     bool hit {false};
     if (!text.empty ()) {
-      const std::string trimmed = filter::strings::trim (text);
+      const std::string trimmed = filter::string::trim (text);
       if (trimmed.empty ()) hit = true;
       const char lastchar = text.back ();
       if (lastchar == ' ') hit = true;
@@ -107,7 +107,7 @@ bool transpose_note_space (std::string & usfm)
     };
     for (const auto & search_replace : data) {
       int count {0};
-      usfm = filter::strings::replace (search_replace.first, search_replace.second, usfm, &count);
+      usfm = filter::string::replace (search_replace.first, search_replace.second, usfm, &count);
       if (count) transposed = true;
     }
   }

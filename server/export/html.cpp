@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -86,7 +86,7 @@ void export_html_book (const std::string& bible, const int book, const bool log)
   for (const auto chapter : chapters) {
     // Get the USFM for this chapter.
     std::string usfm = database::bibles::get_chapter (bible, book, chapter);
-    usfm = filter::strings::trim (usfm);
+    usfm = filter::string::trim (usfm);
     // Use small chunks of USFM at a time for much better performance.
     filter_text.add_usfm_code (usfm);
   }

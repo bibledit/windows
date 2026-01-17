@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ std::string resource_manage (Webserver_Request& webserver_request)
   for (auto & resource : resources) {
     resourceblock.push_back ("<p>");
     resourceblock.push_back ("<a href=\"?delete=" + resource + "\" class=\"deleteresource\" title=\"" + translate("Remove") + "\">");
-    resourceblock.push_back (filter::strings::emoji_wastebasket ());
+    resourceblock.push_back (filter::string::emoji_wastebasket ());
     resourceblock.push_back ("</a>");
     resourceblock.push_back ("<a href=\"?convert=" + resource + "\" class=\"convertresource\" title=\"" + translate("Convert") + "\">");
     resourceblock.push_back ("♻");
@@ -114,7 +114,7 @@ std::string resource_manage (Webserver_Request& webserver_request)
     resourceblock.push_back (resource);
     resourceblock.push_back ("</p>");
   }
-  view.set_variable ("resourceblock", filter::strings::implode (resourceblock, "\n"));
+  view.set_variable ("resourceblock", filter::string::implode (resourceblock, "\n"));
 
   
   page += view.render ("resource", "manage");

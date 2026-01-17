@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ std::string extract_class_prefix (std::string& style)
 std::string hyphen_to_underscore (std::string style)
 {
   const std::string prefix = extract_class_prefix(style);
-  style = filter::strings::replace ("-", "_", std::move(style));
+  style = filter::string::replace ("-", "_", std::move(style));
   style.insert(0, prefix);
   return style;
 }
@@ -54,7 +54,7 @@ std::string hyphen_to_underscore (std::string style)
 std::string underscore_to_hyphen (std::string style)
 {
   const std::string prefix = extract_class_prefix(style);
-  style = filter::strings::replace ("_", "-", std::move(style));
+  style = filter::string::replace ("_", "-", std::move(style));
   style.insert(0, prefix);
   return style;
 }

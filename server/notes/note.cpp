@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -70,16 +70,16 @@ std::string notes_note (Webserver_Request& webserver_request)
   std::string success;
 
   
-  int id = filter::strings::convert_to_int (webserver_request.query ["id"]);
+  int id = filter::string::convert_to_int (webserver_request.query ["id"]);
   
   
   // When a note is opened, then the passage navigator should go to the passage that belongs to that note.
   std::vector <Passage> passages = database_notes.get_passages (id);
   if (!passages.empty ()) {
     Passage focused_passage;
-    focused_passage.m_book = Ipc_Focus::getBook (webserver_request);
-    focused_passage.m_chapter = Ipc_Focus::getChapter (webserver_request);
-    focused_passage.m_verse = std::to_string (Ipc_Focus::getVerse (webserver_request));
+    focused_passage.m_book = ipc_focus::get_book (webserver_request);
+    focused_passage.m_chapter = ipc_focus::get_chapter (webserver_request);
+    focused_passage.m_verse = std::to_string (ipc_focus::get_verse (webserver_request));
     // Only set passage and track history if the focused passage
     // differs from all of the passages of the note.
     // If the focused passage is already at any of the passages belonging to the note,
@@ -91,8 +91,8 @@ std::string notes_note (Webserver_Request& webserver_request)
     if (!passage_focused) {
       int desired_book = passages[0].m_book;
       int desired_chapter = passages[0].m_chapter;
-      int desired_verse = filter::strings::convert_to_int (passages[0].m_verse);
-      Ipc_Focus::set (webserver_request, desired_book, desired_chapter, desired_verse);
+      int desired_verse = filter::string::convert_to_int (passages[0].m_verse);
+      ipc_focus::set_passage (webserver_request, desired_book, desired_chapter, desired_verse);
       navigation_passage::record_history (webserver_request, desired_book, desired_chapter, desired_verse);
     }
   }

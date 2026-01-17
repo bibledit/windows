@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -224,13 +224,13 @@ std::string Filter_Css::get_css (std::string class_, std::string font, int direc
   
   if (letterspacing != 0) {
     float value = static_cast <float> (letterspacing / 10);
-    std::string line = "letter-spacing: " + filter::strings::convert_to_string (value) + "px;";
+    std::string line = "letter-spacing: " + filter::string::convert_to_string (value) + "px;";
     css.push_back (line);
   }
   
   css.push_back ("}");
   
-  return filter::strings::implode (css, "\n");
+  return filter::string::implode (css, "\n");
 }
 
 

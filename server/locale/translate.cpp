@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ std::string translate (std::string english)
     // Obfuscate: Search and replace text.
     // It replaces strings, not whole words as having certain boundaries.
     for (unsigned int i = 0; i < locale_translate_obfuscation_search.size(); i++) {
-      result = filter::strings::replace (locale_translate_obfuscation_search [i], locale_translate_obfuscation_replace [i], result);
+      result = filter::string::replace (locale_translate_obfuscation_search [i], locale_translate_obfuscation_replace [i], result);
     }
   }
   // Ready.

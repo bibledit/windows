@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -69,33 +69,33 @@ std::vector <std::string> get_bibles ()
 
 
 // Creates a new empty Bible. Returns its ID.
-void create_bible (const std::string& name)
+void create_bible (const std::string& bible)
 {
   // Create the empty system.
-  const std::string& folder = bible_folder (name);
+  const std::string& folder = bible_folder (bible);
   filter_url_mkdir (folder);
   // Handle exporting it.
-  Database_State::setExport (name, 0, export_logic::export_needed);
+  Database_State::setExport (bible, 0, export_logic::export_needed);
 }
 
 
 // Deletes a Bible.
-void delete_bible (const std::string& name)
+void delete_bible (const std::string& bible)
 {
-  const std::string& path = bible_folder (name);
+  const std::string& path = bible_folder (bible);
   // Delete directory.
   filter_url_rmdir (path);
   // Just in case it was a regular file: Delete it too.
   filter_url_unlink (path);
   // Handle exporting it.
-  Database_State::setExport (name, 0, export_logic::export_needed);
+  Database_State::setExport (bible, 0, export_logic::export_needed);
 }
 
 
-// Stores data of one chapter in Bible $name.
-void store_chapter (const std::string& name, const int book, const int chapter_number, std::string chapter_text)
+// Stores data of one chapter in Bible $bible.
+void store_chapter (const std::string& bible, const int book, const int chapter_number, std::string chapter_text)
 {
-  const std::string& folder = chapter_folder (name, book, chapter_number);
+  const std::string& folder = chapter_folder (bible, book, chapter_number);
   if (!file_or_dir_exists (folder))
     filter_url_mkdir (folder);
   
@@ -108,22 +108,22 @@ void store_chapter (const std::string& name, const int book, const int chapter_n
   }
 
   // Increase the chapter identifier, and store the chapter data.
-  int id = get_chapter_id (name, book, chapter_number);
+  int id = get_chapter_id (bible, book, chapter_number);
   id++;
   const std::string file = filter_url_create_path ({folder, std::to_string (id)});
   filter_url_file_put_contents (file, chapter_text);
   
   // Update search fields.
-  update_search_fields (name, book, chapter_number);
+  update_search_fields (bible, book, chapter_number);
 
   // Set flag for the exporter.
-  Database_State::setExport (name, 0, export_logic::export_needed);
+  Database_State::setExport (bible, 0, export_logic::export_needed);
 }
 
 
-void update_search_fields (const std::string& name, const int book, const int chapter)
+void update_search_fields (const std::string& bible, const int book, const int chapter)
 {
-  search_logic_index_chapter (name, book, chapter);
+  search_logic_index_chapter (bible, book, chapter);
 }
 
 
@@ -135,8 +135,8 @@ std::vector <int> get_books (const std::string& bible)
   const std::vector <std::string> files = filter_url_scandir (folder);
   std::vector <int> books {};
   for (const auto& book : files) {
-    if (filter::strings::is_numeric (book)) {
-      books.push_back (filter::strings::convert_to_int (book));
+    if (filter::string::is_numeric (book)) {
+      books.push_back (filter::string::convert_to_int (book));
     }
   }
   
@@ -146,7 +146,7 @@ std::vector <int> get_books (const std::string& bible)
     const book_id book_enum = static_cast<book_id>(book_number);
     order.push_back (database::books::get_order_from_id (book_enum));
   }
-  filter::strings::quick_sort (order, books, 0, static_cast<unsigned>(order.size()));
+  filter::string::quick_sort (order, books, 0, static_cast<unsigned>(order.size()));
   
   // Result.
   return books;
@@ -169,7 +169,7 @@ std::vector <int> get_chapters (const std::string& bible, const int book)
   std::vector <int> chapters;
   const std::vector <std::string> files = filter_url_scandir (folder);
   for (const auto& file : files) {
-    if (filter::strings::is_numeric (file)) chapters.push_back (filter::strings::convert_to_int (file));
+    if (filter::string::is_numeric (file)) chapters.push_back (filter::string::convert_to_int (file));
   }
   std::sort (chapters.begin (), chapters.end ());
   return chapters;
@@ -194,7 +194,7 @@ std::string get_chapter (const std::string& bible, const int book, const int cha
     const std::string file = files.at(files.size() - 1);
     std::string data = filter_url_file_get_contents (filter_url_create_path ({folder, file}));
     // Remove trailing new line.
-    data = filter::strings::trim (data);
+    data = filter::string::trim (data);
     return data;
   }
   return std::string();
@@ -208,7 +208,7 @@ int get_chapter_id (const std::string& bible, const int book, const int chapter)
   const std::vector <std::string> files = filter_url_scandir (folder);
   if (!files.empty ()) {
     const std::string file = files.at(files.size() - 1);
-    return filter::strings::convert_to_int (file);
+    return filter::string::convert_to_int (file);
   }
   return 100'000'000;
 }

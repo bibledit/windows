@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -156,7 +156,7 @@ void workspace_create_defaults (Webserver_Request& webserver_request)
   std::string workspace = webserver_request.database_config_user()->get_active_workspace ();
 
   // Create or update the default workspaces.
-  std::vector <std::string> names = workspace_get_default_names ();
+  const std::vector <std::string> names = workspace_get_default_names ();
   for (unsigned int i = 0; i < names.size (); i++) {
     webserver_request.database_config_user()->set_active_workspace (names [i]);
     int bench = static_cast<int>(i + 1);
@@ -185,7 +185,7 @@ std::string workspace_get_active_name (Webserver_Request& webserver_request)
 std::string workspace_process_units (std::string length)
 {
   // If a size factor is found, great, otherwise default to 1
-  if (length == std::to_string (filter::strings::convert_to_int (length))) {
+  if (length == std::to_string (filter::string::convert_to_int (length))) {
     return length;
   }
   return "1";
@@ -207,7 +207,7 @@ void workspace_set_values (Webserver_Request& webserver_request, int selector, c
   if (selector == WIDTHS) rawvalue = webserver_request.database_config_user()->get_workspace_widths ();
   if (selector == HEIGHTS) rawvalue = webserver_request.database_config_user()->get_workspace_heights ();
   if (selector == ENTIREWIDTH) rawvalue = webserver_request.database_config_user()->get_entire_workspace_widths ();
-  std::vector <std::string> currentlines = filter::strings::explode (rawvalue, '\n');
+  std::vector <std::string> currentlines = filter::string::explode (rawvalue, '\n');
   std::vector <std::string> newlines;
   for (auto & line : currentlines) {
     if (line.find (workspace + "_") != 0) {
@@ -218,7 +218,7 @@ void workspace_set_values (Webserver_Request& webserver_request, int selector, c
     std::string line = workspace + "_" + std::to_string (element.first) + "_" + element.second;
     newlines.push_back (line);
   }
-  rawvalue = filter::strings::implode (newlines, "\n");
+  rawvalue = filter::string::implode (newlines, "\n");
   if (selector == URLS) {
     webserver_request.database_config_user()->set_workspace_urls (rawvalue);
     workspace_cache_for_cloud (webserver_request, true, false, false);
@@ -279,12 +279,12 @@ std::map <int, std::string> workspace_get_values (Webserver_Request& webserver_r
   if (selector == WIDTHS) rawvalue = webserver_request.database_config_user()->get_workspace_widths ();
   if (selector == HEIGHTS) rawvalue = webserver_request.database_config_user()->get_workspace_heights ();
   if (selector == ENTIREWIDTH) rawvalue = webserver_request.database_config_user()->get_entire_workspace_widths ();
-  std::vector <std::string> lines = filter::strings::explode (rawvalue, '\n');
+  std::vector <std::string> lines = filter::string::explode (rawvalue, '\n');
   for (auto & line : lines) {
     if (line.find (workspace + "_") == 0) {
-      std::vector <std::string> bits = filter::strings::explode (line, '_');
+      std::vector <std::string> bits = filter::string::explode (line, '_');
       if (bits.size() == 3) {
-        int key = filter::strings::convert_to_int (bits [1]);
+        int key = filter::string::convert_to_int (bits [1]);
         std::string value = bits [2];
         values [key] = value;
       }
@@ -308,13 +308,13 @@ std::map <int, std::string> workspace_get_values (Webserver_Request& webserver_r
       }
       
       // Transform the internal URLs to full ones.
-      std::vector <std::string> bits = filter::strings::explode (element.second, '/');
+      std::vector <std::string> bits = filter::string::explode (element.second, '/');
       if (bits.size() == 2) {
         element.second.insert (0, "/");
       }
       
       // Encode URL.
-      element.second = filter::strings::replace (" ", "%20", element.second);
+      element.second = filter::string::replace (" ", "%20", element.second);
     }
 
     if (selector == WIDTHS) {
@@ -369,9 +369,9 @@ std::vector <std::string> workspace_get_names (Webserver_Request& webserver_requ
   std::vector <std::string> workspaces;
   // The names and the order of the workspaces is taken from the URLs.
   std::string rawvalue = webserver_request.database_config_user()->get_workspace_urls ();
-  std::vector <std::string> lines = filter::strings::explode (rawvalue, '\n');
+  std::vector <std::string> lines = filter::string::explode (rawvalue, '\n');
   for (auto & line : lines) {
-    std::vector <std::string> bits = filter::strings::explode (line, '_');
+    std::vector <std::string> bits = filter::string::explode (line, '_');
     if (bits.size() == 3) {
       if (find (workspaces.begin(), workspaces.end(), bits[0]) == workspaces.end()) {
         workspaces.push_back (bits[0]);
@@ -392,30 +392,30 @@ void workspace_delete (Webserver_Request& webserver_request, std::string workspa
   std::vector <std::string> newlines;
   
   rawvalue = webserver_request.database_config_user()->get_workspace_urls ();
-  currentlines = filter::strings::explode (rawvalue, '\n');
+  currentlines = filter::string::explode (rawvalue, '\n');
   newlines.clear ();
   for (auto & line : currentlines) {
     if (line.find (workspace + "_") != 0) newlines.push_back (line);
   }
-  rawvalue = filter::strings::implode (newlines, "\n");
+  rawvalue = filter::string::implode (newlines, "\n");
   webserver_request.database_config_user()->set_workspace_urls (rawvalue);
   
   rawvalue = webserver_request.database_config_user()->get_workspace_widths ();
-  currentlines = filter::strings::explode (rawvalue, '\n');
+  currentlines = filter::string::explode (rawvalue, '\n');
   newlines.clear ();
   for (auto & line : currentlines) {
     if (line.find (workspace + "_") != 0) newlines.push_back (line);
   }
-  rawvalue = filter::strings::implode (newlines, "\n");
+  rawvalue = filter::string::implode (newlines, "\n");
   webserver_request.database_config_user()->set_workspace_widths (rawvalue);
   
   rawvalue = webserver_request.database_config_user()->get_workspace_heights ();
-  currentlines = filter::strings::explode (rawvalue, '\n');
+  currentlines = filter::string::explode (rawvalue, '\n');
   newlines.clear ();
   for (auto & line : currentlines) {
     if (line.find (workspace + "_") != 0) newlines.push_back (line);
   }
-  rawvalue = filter::strings::implode (newlines, "\n");
+  rawvalue = filter::string::implode (newlines, "\n");
   webserver_request.database_config_user()->set_workspace_heights (rawvalue);
   
   webserver_request.database_config_user()->set_active_workspace ("");
@@ -434,7 +434,7 @@ void workspace_reorder (Webserver_Request& webserver_request, const std::vector 
   
   // Retrieve the old order of the workspaces, plus their details.
   std::string rawvalue = webserver_request.database_config_user()->get_workspace_urls ();
-  std::vector <std::string> oldlines = filter::strings::explode (rawvalue, '\n');
+  std::vector <std::string> oldlines = filter::string::explode (rawvalue, '\n');
   
   // Create vector with the sorted workspace definitions.
   std::vector <std::string> newlines;
@@ -455,7 +455,7 @@ void workspace_reorder (Webserver_Request& webserver_request, const std::vector 
   }
 
   // Save everything.
-  rawvalue = filter::strings::implode (newlines, "\n");
+  rawvalue = filter::string::implode (newlines, "\n");
   webserver_request.database_config_user()->set_workspace_urls (rawvalue);
 
   // Schedule for sending to Cloud.
@@ -555,13 +555,13 @@ void workspace_send (Webserver_Request& webserver_request, std::string workspace
 // The reason is that each editor's Javascript can determine
 // which Bible editor number it is.
 // It can then decide to make the editor read-only.
-std::map <int, int> workspace_add_bible_editor_number (std::map <int, std::string> & urls)
+std::map <int, int> workspace_add_bible_editor_number (const std::map <int,std::string>& urls)
 {
   std::map <int, int> editor_numbers;
   int bible_editor_count = 0;
-  for (auto & element : urls) {
+  for (const auto& element : urls) {
     bool is_bible_editor = false;
-    std::string url = element.second;
+    const std::string& url = element.second;
     if (url.empty()) continue;
     if (url.find (edit_index_url ()) != std::string::npos) is_bible_editor = true;
     if (url.find (editone_index_url ()) != std::string::npos) is_bible_editor = true;
@@ -583,14 +583,14 @@ std::map <int, int> workspace_add_bible_editor_number (std::map <int, std::strin
 std::optional<std::string> get_first_bible_from_urls (const std::map <int,std::string>& urls)
 {
   for (const auto& [key, url] : urls) {
-    const std::vector <std::string> bits = filter::strings::explode (url, '?');
+    const std::vector <std::string> bits = filter::string::explode (url, '?');
     if (bits.size() != 2)
       continue;
     if (!bits.at(1).empty ()) {
       // Explode the data on the ampersand ( & ) and then on the equal sign ( = ).
-      std::vector<std::string> keys_values = filter::strings::explode(bits.at(1), '&');
+      std::vector<std::string> keys_values = filter::string::explode(bits.at(1), '&');
       for (const auto& fragment : keys_values) {
-        std::vector<std::string> key_value = filter::strings::explode(fragment, '=');
+        std::vector<std::string> key_value = filter::string::explode(fragment, '=');
         if (key_value.size() == 2)
           if (key_value.at(0) == "bible")
             return filter_url_urldecode (key_value.at(1));

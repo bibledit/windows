@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -57,7 +57,7 @@ std::string notes_summary (Webserver_Request& webserver_request)
   Assets_View view;
 
 
-  int id = filter::strings::convert_to_int (webserver_request.query ["id"]);
+  int id = filter::string::convert_to_int (webserver_request.query ["id"]);
   view.set_variable ("id", std::to_string (id));
   
   
@@ -70,7 +70,7 @@ std::string notes_summary (Webserver_Request& webserver_request)
   
   
   std::string summary = database_notes.get_summary (id);
-  view.set_variable ("summary", filter::strings::escape_special_xml_characters (summary));
+  view.set_variable ("summary", filter::string::escape_special_xml_characters (summary));
 
   
   page += view.render ("notes", "summary");

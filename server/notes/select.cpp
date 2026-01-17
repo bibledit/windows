@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ std::string notes_select (Webserver_Request& webserver_request)
     constexpr const char* identification {"passageselector"};
     int selected = webserver_request.database_config_user()->get_consultation_notes_passage_selector();
     if (webserver_request.post_count(identification)) {
-      selected = filter::strings::convert_to_int(webserver_request.post_get(identification));
+      selected = filter::string::convert_to_int(webserver_request.post_get(identification));
       if ((selected < 0) or (selected > 3)) selected = 0;
       webserver_request.database_config_user()->set_consultation_notes_passage_selector(selected);
     }
@@ -93,7 +93,7 @@ std::string notes_select (Webserver_Request& webserver_request)
     constexpr const char* identification {"editselector"};
     int selected = webserver_request.database_config_user()->get_consultation_notes_edit_selector();
     if (webserver_request.post_count(identification)) {
-      selected = filter::strings::convert_to_int(webserver_request.post_get(identification));
+      selected = filter::string::convert_to_int(webserver_request.post_get(identification));
       if ((selected < 0) or (selected > 4)) selected = 0;
       webserver_request.database_config_user()->set_consultation_notes_edit_selector(selected);
     }
@@ -120,7 +120,7 @@ std::string notes_select (Webserver_Request& webserver_request)
     constexpr const char* identification {"noneditselector"};
     int selected = webserver_request.database_config_user()->get_consultation_notes_non_edit_selector();
     if (webserver_request.post_count(identification)) {
-      selected = filter::strings::convert_to_int(webserver_request.post_get(identification));
+      selected = filter::string::convert_to_int(webserver_request.post_get(identification));
       if ((selected < 0) or (selected > 5)) selected = 0;
       webserver_request.database_config_user()->set_consultation_notes_non_edit_selector(selected);
     }
@@ -163,7 +163,7 @@ std::string notes_select (Webserver_Request& webserver_request)
     }
     const std::vector<std::string> statuses {webserver_request.database_config_user()->get_consultation_notes_status_selectors()};
     for (const auto& [post, status] : possible_statuses) {
-      if (in_array(status, statuses)) {
+      if (filter::string::in_array(status, statuses)) {
         view.set_variable(post, "checked");
       }
     }
@@ -178,7 +178,7 @@ std::string notes_select (Webserver_Request& webserver_request)
   if (webserver_request.session_logic ()->get_level () == roles::admin) {
     std::vector <std::string> notesbibles = database_notes.get_all_bibles ();
     bibles.insert (bibles.end (), notesbibles.begin (), notesbibles.end ());
-    bibles = filter::strings::array_unique (bibles);
+    bibles = filter::string::array_unique (bibles);
   }
   
   
@@ -226,7 +226,7 @@ std::string notes_select (Webserver_Request& webserver_request)
     }
     // If the currently selected assignee does not exist in the list of all assignees, then add it to the selector.
     // This will display the assignee the system is selecting notes on.
-    if (!in_array(selected, values)) {
+    if (!filter::string::in_array(selected, values)) {
       values.push_back(selected);
       displayed.push_back(selected);
     }
@@ -245,7 +245,7 @@ std::string notes_select (Webserver_Request& webserver_request)
     constexpr const char* identification {"subscriptionselector"};
     int selected = webserver_request.database_config_user()->get_consultation_notes_subscription_selector() ? 1 : 0;
     if (webserver_request.post_count(identification)) {
-      selected = filter::strings::convert_to_bool(webserver_request.post_get(identification));
+      selected = filter::string::convert_to_bool(webserver_request.post_get(identification));
       webserver_request.database_config_user()->set_consultation_notes_subscription_selector(selected);
     }
     dialog::select::Settings settings {
@@ -266,7 +266,7 @@ std::string notes_select (Webserver_Request& webserver_request)
     constexpr const char* identification {"severityselector"};
     int selected = webserver_request.database_config_user()->get_consultation_notes_severity_selector();
     if (webserver_request.post_count(identification)) {
-      selected = filter::strings::convert_to_int(webserver_request.post_get(identification));
+      selected = filter::string::convert_to_int(webserver_request.post_get(identification));
       webserver_request.database_config_user()->set_consultation_notes_severity_selector(selected);
     }
     std::vector<std::string> values {"-1"};
@@ -291,7 +291,7 @@ std::string notes_select (Webserver_Request& webserver_request)
     constexpr const char* identification {"textselector"};
     int selected = webserver_request.database_config_user()->get_consultation_notes_text_selector();
     if (webserver_request.post_count(identification)) {
-      selected = filter::strings::convert_to_int(webserver_request.post_get(identification));
+      selected = filter::string::convert_to_int(webserver_request.post_get(identification));
       webserver_request.database_config_user()->set_consultation_notes_text_selector(selected);
     }
     if (selected == 1)
@@ -313,7 +313,7 @@ std::string notes_select (Webserver_Request& webserver_request)
   
 
   const std::string checkbox = webserver_request.post_get("checkbox");
-  bool checked = filter::strings::convert_to_bool (webserver_request.post_get("checked"));
+  bool checked = filter::string::convert_to_bool (webserver_request.post_get("checked"));
 
   
   {
@@ -321,7 +321,7 @@ std::string notes_select (Webserver_Request& webserver_request)
     if (checkbox == identification) {
       webserver_request.database_config_user()->set_consultation_notes_passage_inclusion_selector (checked ? 1 : 0);
     }
-    view.set_variable (identification, filter::strings::get_checkbox_status (webserver_request.database_config_user()->get_consultation_notes_passage_inclusion_selector()));
+    view.set_variable (identification, filter::string::get_checkbox_status (webserver_request.database_config_user()->get_consultation_notes_passage_inclusion_selector()));
   }
 
   
@@ -330,7 +330,7 @@ std::string notes_select (Webserver_Request& webserver_request)
     if (checkbox == identification) {
       webserver_request.database_config_user()->set_consultation_notes_text_inclusion_selector (checked ? 1 : 0);
     }
-    view.set_variable (identification, filter::strings::get_checkbox_status (webserver_request.database_config_user()->get_consultation_notes_text_inclusion_selector()));
+    view.set_variable (identification, filter::string::get_checkbox_status (webserver_request.database_config_user()->get_consultation_notes_text_inclusion_selector()));
   }
   
   
@@ -360,9 +360,9 @@ std::string notes_select (Webserver_Request& webserver_request)
     bibles = {bible_selector};
 
   
-  const int book = Ipc_Focus::getBook (webserver_request);
-  const int chapter = Ipc_Focus::getChapter (webserver_request);
-  const int verse = Ipc_Focus::getVerse (webserver_request);
+  const int book = ipc_focus::get_book (webserver_request);
+  const int chapter = ipc_focus::get_chapter (webserver_request);
+  const int verse = ipc_focus::get_verse (webserver_request);
   Database_Notes::Selector selector {
     .bibles = bibles,
     .book = book,

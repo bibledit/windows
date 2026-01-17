@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -47,8 +47,8 @@ std::string public_notes (Webserver_Request& webserver_request)
 
   
   const std::string bible = webserver_request.query ["bible"];
-  const int book = filter::strings::convert_to_int (webserver_request.query ["book"]);
-  const int chapter = filter::strings::convert_to_int (webserver_request.query ["chapter"]);
+  const int book = filter::string::convert_to_int (webserver_request.query ["book"]);
+  const int chapter = filter::string::convert_to_int (webserver_request.query ["chapter"]);
   
   
   Database_Notes::Selector selector {

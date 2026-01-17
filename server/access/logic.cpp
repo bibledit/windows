@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -140,12 +140,6 @@ void create_client_files ()
     // to avoid unnecessary downloads by the clients.
     database_privileges_client_create (user, false);
   }
-}
-
-
-std::set <std::string> default_privilege_usernames ()
-{
-  return {"defaultguest", "defaultmember", "defaultconsultant", "defaulttranslator", "defaultmanager"};
 }
 
 

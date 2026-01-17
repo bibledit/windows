@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -186,7 +186,7 @@ std::string session_signup ([[maybe_unused]] Webserver_Request& webserver_reques
   verification.passage  = translate("I am Hosea son of Beeri.");
   verifications.push_back (verification);
 
-  size_t question_number = static_cast<size_t>(filter::strings::rand (0, 20));
+  size_t question_number = static_cast<size_t>(filter::string::rand (0, 20));
   view.set_variable ("question", verifications[question_number].question);
   view.set_variable ("passage", verifications[question_number].passage);
   // The form has a hidden text entry. This text entry stores the right answer to the questions.
@@ -221,7 +221,7 @@ std::string session_signup ([[maybe_unused]] Webserver_Request& webserver_reques
     }
     Database_Users database_users;
     if (form_is_valid) {
-      if (database_users.usernameExists (user)) {
+      if (database_users.username_exists (user)) {
         const std::string message = translate("The username that you have chosen has already been taken.") + " " + translate("Please choose another one.");
         view.set_variable ("error_message", message);
         form_is_valid = false;
@@ -254,32 +254,8 @@ std::string session_signup ([[maybe_unused]] Webserver_Request& webserver_reques
         initial_body = output.str ();
       }
 
-      // Set the role of the new signing up user, it is set as member if no
-      // default has been set by an administrator.
-      const int role = database::config::general::get_default_new_user_access_level ();
-
+      constexpr const int role = static_cast<int>(roles::member);
       const std::string query = database_users.add_userQuery (user, pass, role, mail);
-
-      // Set default privileges on new signing up user.
-      const std::set <std::string> defusers = access_logic::default_privilege_usernames ();
-      const std::vector <int> privileges = {PRIVILEGE_VIEW_RESOURCES, PRIVILEGE_VIEW_NOTES, PRIVILEGE_CREATE_COMMENT_NOTES};
-      auto default_username = next(defusers.begin(), role + 1);
-      for (const auto& privilege : privileges) {
-        const bool state = DatabasePrivileges::get_feature (*default_username, privilege);
-        DatabasePrivileges::set_feature (user, privilege, state);
-      }
-
-      const bool deletenotes = webserver_request.database_config_user ()->get_privilege_delete_consultation_notes_for_user (*default_username);
-      const bool useadvancedmode = webserver_request.database_config_user ()->get_privilege_use_advanced_mode_for_user (*default_username);
-      const bool editstylesheets = webserver_request.database_config_user ()->get_privilege_set_stylesheets_for_user (*default_username);
-
-      if (deletenotes) webserver_request.database_config_user ()->set_privilege_delete_consultation_notes_for_user (user, 1);
-      if (useadvancedmode) webserver_request.database_config_user ()->set_privilege_use_advanced_mode_for_user (user, 1);
-      if (editstylesheets) webserver_request.database_config_user ()->set_privilege_set_stylesheets_for_user (user, 1);
-
-      if (webserver_request.database_config_user ()->get_privilege_delete_consultation_notes_for_user (*default_username)) webserver_request.database_config_user ()->set_privilege_delete_consultation_notes_for_user (user, 1);
-      if (webserver_request.database_config_user ()->get_privilege_use_advanced_mode_for_user (*default_username)) webserver_request.database_config_user ()->set_privilege_use_advanced_mode_for_user (user, 1);
-      if (webserver_request.database_config_user ()->get_privilege_set_stylesheets_for_user (*default_username)) webserver_request.database_config_user ()->set_privilege_set_stylesheets_for_user (user, 1);
 
       // Create the contents for the confirmation email
       // that will be sent after the account has been verified.

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ std::string resource_user9view (Webserver_Request& webserver_request)
     resourceblock.push_back ("</a>");
     resourceblock.push_back ("</p>");
   }
-  view.set_variable ("resourceblock", filter::strings::implode (resourceblock, "\n"));
+  view.set_variable ("resourceblock", filter::string::implode (resourceblock, "\n"));
 
    
   page += view.render ("resource", "user9view");

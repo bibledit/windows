@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -53,7 +53,6 @@ public:
   void storeMessage (std::string user, std::string channel, std::string command, std::string message);
   Database_Ipc_Message retrieveMessage (int id, std::string user, std::string channel, std::string command);
   void deleteMessage (int id);
-  std::string getFocus ();
   Database_Ipc_Message getNote ();
   bool getNotesAlive ();
 private:

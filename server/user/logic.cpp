@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ void user_logic_optional_ldap_authentication (Webserver_Request& webserver_reque
     int role;
     ldap_logic_fetch (user, pass, ldap_okay, email, role, true);
     if (ldap_okay) {
-      if (webserver_request.database_users ()->usernameExists (user)) {
+      if (webserver_request.database_users ()->username_exists (user)) {
         // Verify and/or update the fields for the user in the local database.
         if (webserver_request.database_users ()->get_md5 (user) != md5 (pass)) {
           webserver_request.database_users ()->set_password (user, pass);
@@ -67,15 +67,17 @@ void user_logic_optional_ldap_authentication (Webserver_Request& webserver_reque
 }
 
 
-int user_logic_login_failure_time = 0;
+int user_logic_login_failure_time {0};
 
 
 bool user_logic_login_failure_check_okay ()
 {
   // No time set yet: OK.
-  if (!user_logic_login_failure_time) return true;
+  if (!user_logic_login_failure_time)
+    return true;
   // A login failure was recorded during this very second: Check fails.
-  if (user_logic_login_failure_time == filter::date::seconds_since_epoch ()) return false;
+  if (user_logic_login_failure_time == filter::date::seconds_since_epoch ())
+    return false;
   // Default: OK.
   return true;
 }
@@ -95,16 +97,8 @@ void user_logic_login_failure_clear ()
 }
 
 
-void user_logic_store_account_creation (std::string username)
-{
-  std::vector <std::string> account_creation_times = database::config::general::get_account_creation_times ();
-  std::string account_creation_time = std::to_string (filter::date::seconds_since_epoch()) + "|" + username;
-  account_creation_times.push_back(account_creation_time);
-  database::config::general::set_account_creation_times(account_creation_times);
-}
-
-
-void user_logic_delete_account (std::string user, std::string role, std::string email, std::string & feedback)
+void user_logic_delete_account (std::string user, std::string role, std::string email,
+                                std::string & feedback)
 {
   feedback = "Deleted user " + user + " with role " + role + " and email " + email;
   Database_Logs::log (feedback, roles::admin);
@@ -129,14 +123,4 @@ void user_logic_delete_account (std::string user, std::string role, std::string 
   // Remove note assignments for clients for this user.
   Database_NoteAssignment database_noteassignment;
   database_noteassignment.remove (user);
-  // Remove the account creation time.
-  std::vector <std::string> updated;
-  std::vector <std::string> existing = database::config::general::get_account_creation_times ();
-  for (auto line : existing) {
-    std::vector <std::string> bits = filter::strings::explode(line, '|');
-    if (bits.size() != 2) continue;
-    if (bits[1] == user) continue;
-    updated.push_back(line);
-  }
-  database::config::general::set_account_creation_times(updated);
 }

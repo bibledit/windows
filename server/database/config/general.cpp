@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -76,21 +76,21 @@ static void set_value (const char * key, const std::string& value)
 
 static bool get_boolean_value (const char * key, bool default_value)
 {
-  const std::string value = get_value (key, filter::strings::convert_to_string (default_value).c_str());
-  return filter::strings::convert_to_bool (value);
+  const std::string value = get_value (key, filter::string::convert_to_string (default_value).c_str());
+  return filter::string::convert_to_bool (value);
 }
 
 
 static void set_boolean_value (const char * key, bool value)
 {
-  set_value (key, filter::strings::convert_to_string (value).c_str());
+  set_value (key, filter::string::convert_to_string (value).c_str());
 }
 
 
 static int get_integer_value (const char * key, int default_value)
 {
   const std::string value = get_value (key, std::to_string (default_value).c_str());
-  return filter::strings::convert_to_int (value);
+  return filter::string::convert_to_int (value);
 }
 
 
@@ -103,13 +103,13 @@ static void set_integer_value (const char * key, int value)
 static std::vector <std::string> get_list (const char * key)
 {
   const std::string contents = get_value (key, "");
-  return filter::strings::explode (contents, '\n');
+  return filter::string::explode (contents, '\n');
 }
 
 
 static void set_list (const char * key, const std::vector <std::string>& values)
 {
-  const std::string value = filter::strings::implode (values, "\n");
+  const std::string value = filter::string::implode (values, "\n");
   set_value (key, value);
 }
 
@@ -585,17 +585,6 @@ void set_default_active_resources (const std::vector <std::string>& values)
 }
 
 
-constexpr const auto account_creation_times_key {"account-creation-times"};
-std::vector <std::string> get_account_creation_times ()
-{
-  return get_list (account_creation_times_key);
-}
-void set_account_creation_times (const std::vector <std::string>& values)
-{
-  set_list (account_creation_times_key, values);
-}
-
-
 constexpr const auto keep_resources_cache_for_long_key {"keep-resources-cache-for-long"};
 bool get_keep_resources_cache_for_long ()
 {
@@ -604,17 +593,6 @@ bool get_keep_resources_cache_for_long ()
 void set_keep_resources_cache_for_long (bool value)
 {
   set_boolean_value (keep_resources_cache_for_long_key, value);
-}
-
-
-constexpr const auto default_new_user_access_level_key {"default-new-user-access-level"};
-int get_default_new_user_access_level ()
-{
-  return get_integer_value (default_new_user_access_level_key, roles::member);
-}
-void set_default_new_user_access_level (int value)
-{
-  set_integer_value (default_new_user_access_level_key, value);
 }
 
 

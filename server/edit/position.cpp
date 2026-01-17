@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -50,15 +50,15 @@ std::string edit_position (Webserver_Request& webserver_request)
   if (bible.empty ())
     return std::string();
   // Get book: If no book is given: Bail out.
-  const int book = filter::strings::convert_to_int (webserver_request.query ["book"]);
+  const int book = filter::string::convert_to_int (webserver_request.query ["book"]);
   if (!book) return std::string();
   // Get chapter.
-  const int chapter = filter::strings::convert_to_int (webserver_request.query ["chapter"]);
+  const int chapter = filter::string::convert_to_int (webserver_request.query ["chapter"]);
   
   
   const std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
   const std::string usfm = database::bibles::get_chapter (bible, book, chapter);
-  const int verse = Ipc_Focus::getVerse (webserver_request);
+  const int verse = ipc_focus::get_verse (webserver_request);
 
 
   Editor_Usfm2Html editor_usfm2html;

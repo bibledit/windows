@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ std::string styles_new (Webserver_Request& webserver_request)
   
   // The name of the stylesheet.
   const std::string name = webserver_request.query["name"];
-  view.set_variable ("name", filter::strings::escape_special_xml_characters (name));
+  view.set_variable ("name", filter::string::escape_special_xml_characters (name));
   
   // Whether this user has write access to the stylesheet.
   const std::string& username = webserver_request.session_logic ()->get_username ();
@@ -87,7 +87,7 @@ std::string styles_new (Webserver_Request& webserver_request)
     else if (base_style.empty()) {
       page.append(assets_page::error (translate("Select an existing style to base the new style on")));
     }
-    else if (in_array(new_style, markers)) {
+    else if (filter::string::in_array(new_style, markers)) {
       page.append(assets_page::error (translate("The style already exists in the stylesheet")));
     }
     else if (!write) {

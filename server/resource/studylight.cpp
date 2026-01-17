@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -76,7 +76,7 @@ std::string resource_studylight (Webserver_Request& webserver_request)
   
   std::string path = resource_logic_study_light_module_list_path ();
   std::string moduleblock = filter_url_file_get_contents (path);
-  std::vector <std::string> lines = filter::strings::explode (moduleblock, '\n');
+  std::vector <std::string> lines = filter::string::explode (moduleblock, '\n');
   moduleblock.clear ();
   for (auto line : lines) {
     moduleblock.append ("<p>");

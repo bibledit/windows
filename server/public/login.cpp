@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ std::string public_login (Webserver_Request& webserver_request)
     // Research shows that most desktop users move with their mouse over the screen before they click,
     // so we can detect those mouse movements through javascript,
     // and store that information with the user and device.
-    const bool touch_enabled = filter::strings::convert_to_bool (webserver_request.post_get("touch"));
+    const bool touch_enabled = filter::string::convert_to_bool (webserver_request.post_get("touch"));
     
     if (name.length () < 2) {
       form_is_valid = false;

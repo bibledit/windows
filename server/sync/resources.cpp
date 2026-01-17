@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -53,11 +53,11 @@ std::string sync_resources (Webserver_Request& webserver_request)
     std::this_thread::sleep_for (std::chrono::seconds (5));
   }
 
-  int action = filter::strings::convert_to_int (webserver_request.query ["a"]);
+  int action = filter::string::convert_to_int (webserver_request.query ["a"]);
   std::string resource = webserver_request.query ["r"];
-  int book = filter::strings::convert_to_int (webserver_request.query ["b"]);
-  int chapter = filter::strings::convert_to_int (webserver_request.query ["c"]);
-  int verse = filter::strings::convert_to_int (webserver_request.query ["v"]);
+  int book = filter::string::convert_to_int (webserver_request.query ["b"]);
+  int chapter = filter::string::convert_to_int (webserver_request.query ["c"]);
+  int verse = filter::string::convert_to_int (webserver_request.query ["v"]);
   
   bool request_ok = true;
   if (book <= 0) request_ok = false;
@@ -85,7 +85,7 @@ std::string sync_resources (Webserver_Request& webserver_request)
         // Schedule this resource for caching if that's not yet the case.
         std::vector <std::string> signatures = database::config::general::get_resources_to_cache ();
         std::string signature = resource + " " + std::to_string (book);
-        if (!in_array (signature, signatures)) {
+        if (!filter::string::in_array (signature, signatures)) {
           signatures.push_back (signature);
           database::config::general::set_resources_to_cache (signatures);
         }

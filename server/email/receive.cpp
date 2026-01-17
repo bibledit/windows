@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -172,8 +172,8 @@ int receive_count (std::string& error, bool verbose)
   if (res == CURLE_OK) {
     if (s.ptr) {
       std::string response = s.ptr;
-      response = filter::strings::trim (response);
-      mailcount = static_cast<int>(filter::strings::explode (response, '\n').size());
+      response = filter::string::trim (response);
+      mailcount = static_cast<int>(filter::string::explode (response, '\n').size());
     }
   } else {
     error = curl_easy_strerror (res);

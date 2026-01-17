@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ bool search_similar_acl (Webserver_Request& webserver_request)
 
 std::string search_similar (Webserver_Request& webserver_request)
 {
-  const int myIdentifier = filter::strings::user_identifier (webserver_request);
+  const int myIdentifier = filter::string::user_identifier (webserver_request);
   
   
   std::string bible = webserver_request.database_config_user()->get_bible ();
@@ -61,21 +61,21 @@ std::string search_similar (Webserver_Request& webserver_request)
 
 
   if (webserver_request.query.count ("load")) {
-    const int book = Ipc_Focus::getBook (webserver_request);
-    const int chapter = Ipc_Focus::getChapter (webserver_request);
-    const int verse = Ipc_Focus::getVerse (webserver_request);
+    const int book = ipc_focus::get_book (webserver_request);
+    const int chapter = ipc_focus::get_chapter (webserver_request);
+    const int verse = ipc_focus::get_verse (webserver_request);
     // Text of the focused verse in the active Bible.
     // Remove all punctuation from it.
     std::string versetext = search_logic_get_bible_verse_text (bible, book, chapter, verse);
-    std::vector <std::string> punctuation = filter::strings::explode (database::config::bible::get_sentence_structure_end_punctuation (bible), ' ');
+    std::vector <std::string> punctuation = filter::string::explode (database::config::bible::get_sentence_structure_end_punctuation (bible), ' ');
     for (auto & sign : punctuation) {
-      versetext = filter::strings::replace (sign, "", versetext);
+      versetext = filter::string::replace (sign, "", versetext);
     }
-    punctuation = filter::strings::explode (database::config::bible::get_sentence_structure_middle_punctuation (bible), ' ');
+    punctuation = filter::string::explode (database::config::bible::get_sentence_structure_middle_punctuation (bible), ' ');
     for (auto & sign : punctuation) {
-      versetext = filter::strings::replace (sign, "", versetext);
+      versetext = filter::string::replace (sign, "", versetext);
     }
-    versetext = filter::strings::trim (versetext);
+    versetext = filter::string::trim (versetext);
     database::temporal::set_value (myIdentifier, "searchsimilar", versetext);
     return versetext;
   }
@@ -84,9 +84,9 @@ std::string search_similar (Webserver_Request& webserver_request)
   if (webserver_request.query.count ("words")) {
     
     std::string words = webserver_request.query ["words"];
-    words = filter::strings::trim (words);
+    words = filter::string::trim (words);
     database::temporal::set_value (myIdentifier, "searchsimilar", words);
-    std::vector <std::string> vwords = filter::strings::explode (words, ' ');
+    std::vector <std::string> vwords = filter::string::explode (words, ' ');
     
     // Include items if there are no more search hits than 30% of the total number of verses in the Bible.
     size_t maxcount = static_cast<size_t> (round (0.3 * search_logic_get_verse_count (bible)));
@@ -122,7 +122,7 @@ std::string search_similar (Webserver_Request& webserver_request)
       ids.push_back (id);
       counts.push_back (count);
     }
-    filter::strings::quick_sort (counts, ids, 0, static_cast<unsigned> (counts.size()));
+    filter::string::quick_sort (counts, ids, 0, static_cast<unsigned> (counts.size()));
     reverse (ids.begin(), ids.end());
 
     // Output the passage identifiers to the browser.
@@ -136,7 +136,7 @@ std::string search_similar (Webserver_Request& webserver_request)
   
   
   if (webserver_request.query.count ("id")) {
-    int id = filter::strings::convert_to_int (webserver_request.query ["id"]);
+    int id = filter::string::convert_to_int (webserver_request.query ["id"]);
     
     // Get the Bible and passage for this identifier.
     Passage passage = filter_integer_to_passage (id);
@@ -147,14 +147,14 @@ std::string search_similar (Webserver_Request& webserver_request)
     std::string verse = passage.m_verse;
     
     // Get the plain text.
-    std::string text = search_logic_get_bible_verse_text (bible2, book, chapter, filter::strings::convert_to_int (verse));
+    std::string text = search_logic_get_bible_verse_text (bible2, book, chapter, filter::string::convert_to_int (verse));
     
     // Get search words.
-    std::vector <std::string> words = filter::strings::explode (database::temporal::get_value (myIdentifier, "searchsimilar"), ' ');
+    std::vector <std::string> words = filter::string::explode (database::temporal::get_value (myIdentifier, "searchsimilar"), ' ');
     
     // Format it.
     std::string link = filter_passage_link_for_opening_editor_at (book, chapter, verse);
-    text = filter::strings::markup_words (words, text);
+    text = filter::string::markup_words (words, text);
     std::string output = "<div>" + link + " " + text + "</div>";
     
     // Output to browser.

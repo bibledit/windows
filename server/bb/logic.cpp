@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -229,13 +229,13 @@ void bible_logic::import_resource (std::string bible, std::string resource)
         } while (server_is_installing_module && (wait_iterations < 5));
         
         // Remove all html markup.
-        html = filter::strings::html2text (html);
-        html = filter::strings::replace ("\n", " ", html);
+        html = filter::string::html2text (html);
+        html = filter::string::replace ("\n", " ", html);
 
         // Add the verse to the USFM.
-        usfm.push_back ("\\v " + std::to_string (verse) + " " + filter::strings::trim (html));
+        usfm.push_back ("\\v " + std::to_string (verse) + " " + filter::string::trim (html));
       }
-      bible_logic::store_chapter (bible, book, chapter, filter::strings::implode (usfm, "\n"));
+      bible_logic::store_chapter (bible, book, chapter, filter::string::implode (usfm, "\n"));
     }
   }
   
@@ -270,7 +270,7 @@ void bible_logic::log_change (const std::string& bible,
   const std::vector <int> verse_numbers = filter::usfm::get_verse_numbers (usfm);
   std::vector <int> verses = existing_verse_numbers;
   verses.insert (verses.end (), verse_numbers.begin (), verse_numbers.end ());
-  verses = filter::strings::array_unique (verses);
+  verses = filter::string::array_unique (verses);
   sort (verses.begin (), verses.end ());
 
   std::vector <std::string> body;
@@ -309,7 +309,7 @@ void bible_logic::log_change (const std::string& bible,
   body.push_back (usfm);
   
   if (!user.empty ()) user.append (" - ");
-  Database_Logs::log (user + summary + " - " + passage, filter::strings::implode (body, "\n"));
+  Database_Logs::log (user + summary + " - " + passage, filter::string::implode (body, "\n"));
 }
 
 
@@ -341,7 +341,7 @@ void bible_logic::log_merge (const std::string& user, const std::string& bible, 
   body.push_back ("Result:");
   body.push_back (result);
   
-  Database_Logs::log (user + " - merge record - " + passage, filter::strings::implode (body, "\n"));
+  Database_Logs::log (user + " - merge record - " + passage, filter::string::implode (body, "\n"));
 }
 
 
@@ -845,7 +845,7 @@ void bible_logic::recent_save_email (const std::string& bible,
     if (old_text != new_text) {
       node = document.append_child ("p");
       const std::string modification = filter_diff_diff (old_text, new_text);
-      const std::string fragment = /* filter::strings::convert_to_string (verse) + " " + */ modification;
+      const std::string fragment = /* filter::string::convert_to_string (verse) + " " + */ modification;
       node.append_buffer (fragment.c_str (), fragment.size ());
       differences_found = true;
     }
@@ -923,10 +923,10 @@ void bible_logic::optional_merge_irregularity_email (const std::string& bible, i
     filter_diff_diff (ancestor_verse_usfm, edited_verse_usfm, &user_removals, &user_additions);
     filter_diff_diff (ancestor_verse_usfm, merged_verse_usfm, &merged_removals, &merged_additions);
     for (const auto& user_removal : user_removals) {
-      if (!in_array (user_removal, merged_removals)) anomaly_found = true;
+      if (!filter::string::in_array (user_removal, merged_removals)) anomaly_found = true;
     }
     for (const auto& user_addition : user_additions) {
-      if (!in_array (user_addition, merged_additions)) anomaly_found = true;
+      if (!filter::string::in_array (user_addition, merged_additions)) anomaly_found = true;
     }
     if (!anomaly_found) continue;
     Filter_Text filter_text_ancestor = Filter_Text (bible);
@@ -1092,9 +1092,9 @@ void bible_logic::html_to_editor_updates (const std::string& editor_html,
   for (size_t i = 0; i < editor_format.texts.size(); i++) {
     const std::string& text = editor_format.texts[i];
     const std::string& format = editor_format.formats[i];
-    const size_t length = filter::strings::unicode_string_length (text);
+    const size_t length = filter::string::unicode_string_length (text);
     for (size_t pos = 0; pos < length; pos++) {
-      const std::string utf8_character = filter::strings::unicode_string_substr (text, pos, 1);
+      const std::string utf8_character = filter::string::unicode_string_substr (text, pos, 1);
       editor_formatted_character_content.push_back (utf8_character + format);
     }
   }
@@ -1103,9 +1103,9 @@ void bible_logic::html_to_editor_updates (const std::string& editor_html,
   for (size_t i = 0; i < server_format.texts.size(); i++) {
     const std::string& text = server_format.texts[i];
     const std::string& format = server_format.formats[i];
-    const size_t length = filter::strings::unicode_string_length (text);
+    const size_t length = filter::string::unicode_string_length (text);
     for (size_t pos = 0; pos < length; pos++) {
-      const std::string utf8_character = filter::strings::unicode_string_substr (text, pos, 1);
+      const std::string utf8_character = filter::string::unicode_string_substr (text, pos, 1);
       server_formatted_character_content.push_back (utf8_character + format);
       server_utf8_characters.push_back(utf8_character);
     }
@@ -1133,7 +1133,7 @@ void bible_logic::html_to_editor_updates (const std::string& editor_html,
   if (new_line_diff_count) {
     int position {0};
     for (size_t i = 0; i < server_utf8_characters.size(); i++) {
-      const int size = static_cast<int>(filter::strings::convert_to_u16string (server_utf8_characters[i]).length());
+      const int size = static_cast<int>(filter::string::convert_to_u16string (server_utf8_characters[i]).length());
       if (server_utf8_characters[i] == "\n") {
         positions.push_back(position);
         sizes.push_back(size);

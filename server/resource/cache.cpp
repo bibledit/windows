@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ std::string resource_cache (Webserver_Request& webserver_request)
   std::vector <std::string> resources = database::config::general::get_resources_to_cache ();
   if (!resources.empty ()) {
     view.enable_zone ("scheduled");
-    view.set_variable ("scheduled", filter::strings::implode (resources, " | "));
+    view.set_variable ("scheduled", filter::string::implode (resources, " | "));
   }
   
   
@@ -148,7 +148,7 @@ std::string resource_cache (Webserver_Request& webserver_request)
   std::vector <std::string> listed_resources = active_resources;
   listed_resources.push_back (horizontal_line);
   for (auto & resource2 : all_resources) {
-    if (!in_array (resource2, listed_resources)) listed_resources.push_back (resource2);
+    if (!filter::string::in_array (resource2, listed_resources)) listed_resources.push_back (resource2);
   }
   
   
@@ -157,7 +157,7 @@ std::string resource_cache (Webserver_Request& webserver_request)
   std::string block;
   for (auto & resource2 : listed_resources) {
     // Skip internal Bibles and dividers.
-    if (in_array (resource2, bibles)) continue;
+    if (filter::string::in_array (resource2, bibles)) continue;
     if (resource_logic_is_divider (resource2)) continue;
     block.append ("<p>");
     if (resource2 == horizontal_line) block.append ("<hr>");

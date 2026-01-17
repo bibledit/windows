@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -51,9 +51,9 @@ std::string notes_notes (Webserver_Request& webserver_request)
 
   
   const std::string bible = access_bible::clamp (webserver_request, webserver_request.database_config_user()->get_bible());
-  const int book = Ipc_Focus::getBook (webserver_request);
-  const int chapter = Ipc_Focus::getChapter (webserver_request);
-  const int verse = Ipc_Focus::getVerse (webserver_request);
+  const int book = ipc_focus::get_book (webserver_request);
+  const int chapter = ipc_focus::get_chapter (webserver_request);
+  const int verse = ipc_focus::get_verse (webserver_request);
 
   
   const auto passage_selector = static_cast<Database_Notes::PassageSelector>(webserver_request.database_config_user()->get_consultation_notes_passage_selector());
@@ -116,7 +116,7 @@ std::string notes_notes (Webserver_Request& webserver_request)
       }
       passage_sort_keys.push_back (passage_sort_key);
     }
-    filter::strings::quick_sort (passage_sort_keys, identifiers, 0, static_cast <unsigned> (identifiers.size ()));
+    filter::string::quick_sort (passage_sort_keys, identifiers, 0, static_cast <unsigned> (identifiers.size ()));
   }
 
 
@@ -136,8 +136,8 @@ std::string notes_notes (Webserver_Request& webserver_request)
         // The class properties are in the stylesheet.
         // Distinct colors were generated through https://mokole.com/palette.html.
         raw_status = database_notes.get_raw_status (identifier);
-        raw_status = filter::strings::unicode_string_casefold (raw_status);
-        raw_status = filter::strings::replace (" ", "", raw_status);
+        raw_status = filter::string::unicode_string_casefold (raw_status);
+        raw_status = filter::string::replace (" ", "", raw_status);
         std::string css_class;
         if (raw_status == "new") css_class = Filter_Css::distinction_set_notes (0);
         else if (raw_status == "pending") css_class = Filter_Css::distinction_set_notes (1);
@@ -163,7 +163,7 @@ std::string notes_notes (Webserver_Request& webserver_request)
       std::vector <Passage> include_passages = database_notes.get_passages (identifier);
       for (auto & passage : include_passages) {
         std::string usfm = database::bibles::get_chapter (bible, passage.m_book, passage.m_chapter);
-        std::string text = filter::usfm::get_verse_text (usfm, filter::strings::convert_to_int (passage.m_verse));
+        std::string text = filter::usfm::get_verse_text (usfm, filter::string::convert_to_int (passage.m_verse));
         if (!verse_text.empty ()) verse_text.append ("<br>");
         verse_text.append (text);
       }

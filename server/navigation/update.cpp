@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include <webserver/request.h>
 #include <navigation/passage.h>
 #include <database/books.h>
+#include <ipc/focus.h>
 
 
 std::string navigation_update_url ()
@@ -42,11 +43,11 @@ std::string navigation_update (Webserver_Request& webserver_request)
   // But then, when switching from a Bible that has the NT only, to a Bible that has OT and NT,
   // the navigator would only show the NT books.
   // Now, by taking the Bible from the database, it will show the books of the last selected Bible.
-  std::string bible = webserver_request.database_config_user()->get_bible ();
-  int book = filter::strings::convert_to_int (webserver_request.query ["book"]);
-  int chapter = filter::strings::convert_to_int (webserver_request.query ["chapter"]);
-  int verse = filter::strings::convert_to_int (webserver_request.query ["verse"]);
-  
+  const std::string bible = webserver_request.database_config_user()->get_bible ();
+  const int book = filter::string::convert_to_int (webserver_request.query ["book"]);
+  const int chapter = filter::string::convert_to_int (webserver_request.query ["chapter"]);
+  const int verse = filter::string::convert_to_int (webserver_request.query ["verse"]);
+  const int focus_group = ipc_focus::get_focus_group(webserver_request);
   
   
   // Build the keyboard navigation fragment.
@@ -77,9 +78,9 @@ std::string navigation_update (Webserver_Request& webserver_request)
   
   
   else if (webserver_request.query.count ("applybook")) {
-    std::string msg = webserver_request.query ["applybook"];
+    const std::string msg = webserver_request.query ["applybook"];
     if (msg.find ("cancel") == std::string::npos) {
-      int apply_book = filter::strings::convert_to_int (msg);
+      int apply_book = filter::string::convert_to_int (msg);
       if (apply_book) navigation_passage::set_book (webserver_request, apply_book);
     }
   }
@@ -101,7 +102,7 @@ std::string navigation_update (Webserver_Request& webserver_request)
     }
     else if (msg.find ("cancel") != std::string::npos) {
     } else {
-      int apply_chapter = filter::strings::convert_to_int (msg);
+      int apply_chapter = filter::string::convert_to_int (msg);
       navigation_passage::set_chapter (webserver_request, apply_chapter);
     }
   }
@@ -123,7 +124,7 @@ std::string navigation_update (Webserver_Request& webserver_request)
     }
     else if (msg.find ("cancel") != std::string::npos) {
     } else {
-      int apply_verse = filter::strings::convert_to_int (msg);
+      int apply_verse = filter::string::convert_to_int (msg);
       navigation_passage::set_verse (webserver_request, apply_verse);
     }
   }

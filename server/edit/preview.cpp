@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -92,8 +92,8 @@ std::string edit_preview (Webserver_Request& webserver_request)
                                                        lineheight,
                                                        letterspacing));
   
-  int book = Ipc_Focus::getBook (webserver_request);
-  int chapter = Ipc_Focus::getChapter (webserver_request);
+  int book = ipc_focus::get_book (webserver_request);
+  int chapter = ipc_focus::get_chapter (webserver_request);
   
   const std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
   

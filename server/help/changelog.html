@@ -1,5 +1,11 @@
 <h1>ChangeLog</h1>
 
+<p>5.1.038: Asks to confirm deleting a user.</p>
+<p>5.1.037: More robust resource fetching.</p>
+<p>5.1.037: The Bible demo regularly cleans up the workspaces.</p>
+<p>5.1.037: More detailed logging of Bibledit client connection issues.</p>
+<p>5.1.036: The Windows app gets built through Visual Studio 2026.</p>
+<p>5.1.036: Bible editors, Resources, Workspaces support focus groups.</p>
 <p>5.1.035: No longer uses jQuery -> improves performance.</p>
 <p>5.1.034: Fixed: Inserting a footnote in italic text removes the space after the footnote.</p>
 <p>5.1.034: Fixed: Selecting another Bible in the chapter editor does not load that other Bible.</p>

@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ std::string resource_user1view (Webserver_Request& webserver_request)
       code.push_back ("userResourceBooks [" + std::to_string (static_cast<int>(id)) + "] = \"" + book + "\";");
     }
   }
-  std::string script = filter::strings::implode (code, "\n");
+  std::string script = filter::string::implode (code, "\n");
   config::logic::swipe_enabled (webserver_request, script);
   view.set_variable ("script", script);
   

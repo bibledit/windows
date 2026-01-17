@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -58,9 +58,9 @@ std::string get_closing_usfm (std::string text, bool embedded = false);
 std::string save_is_safe (Webserver_Request& webserver_request, 
                           std::string oldtext, std::string newtext, bool chapter, std::string & explanation);
 std::string safely_store_chapter (Webserver_Request& webserver_request,
-                                  std::string bible, int book, int chapter, std::string usfm, std::string & explanation);
+                                  const std::string& bible, int book, int chapter, const std::string& usfm, std::string & explanation);
 std::string safely_store_verse (Webserver_Request& webserver_request,
-                                std::string bible, int book, int chapter, int verse, std::string usfm,
+                                const std::string& bible, int book, int chapter, int verse, std::string usfm,
                                 std::string & explanation, bool quill);
 bool contains_empty_verses (std::string usfm);
 bool handle_verse_range (std::string verse, std::vector <int> & verses);

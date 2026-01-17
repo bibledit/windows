@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -140,33 +140,6 @@ void Database_Ipc::deleteMessage (int id)
 }
 
 
-std::string Database_Ipc::getFocus ()
-{
-  const std::string& user = m_webserver_request.session_logic ()->get_username ();
-
-  int highestId = 0;
-  std::string hitMessage = "";
-  std::vector <Database_Ipc_Item> data = readData ();
-  for (auto & record : data) {
-    int recordid = record.rowid;
-    // Conditions: Command is "focus", and matching user.
-    if (record.command == "focus") {
-      if (record.user == user) {
-        if (recordid > highestId) {
-          highestId = recordid;
-          hitMessage = filter_url_file_get_contents (file (record.file));
-        }
-      }
-    }
-  }
-
-  if (highestId) return hitMessage;
-
-  // No focus found: Return Genesis 1:1.
-  return "1.1.1";
-}
-
-
 Database_Ipc_Message Database_Ipc::getNote ()
 {
   const std::string& user = m_webserver_request.session_logic ()->get_username ();
@@ -219,7 +192,7 @@ bool Database_Ipc::getNotesAlive ()
     }
   }
 
-  if (highestId) return filter::strings::convert_to_bool (hitMessage);
+  if (highestId) return filter::string::convert_to_bool (hitMessage);
 
   return false;
 }
@@ -247,11 +220,11 @@ std::vector <Database_Ipc_Item> Database_Ipc::readData ()
   std::vector <Database_Ipc_Item> data;
   std::vector <std::string> files = filter_url_scandir (folder ());
   for (std::string file : files) {
-    std::vector <std::string> explosion = filter::strings::explode (file, '_');
+    std::vector <std::string> explosion = filter::string::explode (file, '_');
     if (explosion.size () == 7) {
       Database_Ipc_Item item = Database_Ipc_Item ();
       item.file = file;
-      item.rowid = filter::strings::convert_to_int (explosion [0]);
+      item.rowid = filter::string::convert_to_int (explosion [0]);
       item.user = explosion [2];
       item.channel = explosion [4];
       item.command = explosion [6];

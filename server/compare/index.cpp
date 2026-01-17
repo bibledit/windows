@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -91,7 +91,7 @@ std::string compare_index (Webserver_Request& webserver_request)
 
   sort (names.begin (), names.end ());
   
-  names = filter::strings::array_diff (names, {bible});
+  names = filter::string::array_diff (names, {bible});
   pugi::xml_document document;
   for (const auto& name : names) {
     pugi::xml_node li_node = document.append_child("li");

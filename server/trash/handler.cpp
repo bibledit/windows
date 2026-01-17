@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ void trash_consultation_note (Webserver_Request& webserver_request, int id)
   std::string passageText = filter_passage_display_inline (passages);
   std::string summary = database_notes.get_summary (id);
   std::string contents = database_notes.get_contents (id);
-  contents = filter::strings::html2text (contents);
+  contents = filter::string::html2text (contents);
   std::string username = webserver_request.session_logic ()->get_username ();
   if (username.empty ()) username = "This app";
   Database_Logs::log (username + " deleted or marked for deletion consultation note " + passageText + " | " + summary + " | " + contents);

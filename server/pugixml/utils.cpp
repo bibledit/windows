@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ void pugixml_utils_error_logger (void * pugi_xml_parse_result, const std::string
   int start = static_cast<int>(result->offset - 10);
   if (start < 0) start = 0;
   std::string fragment = xml.substr (static_cast<size_t>(start), 20);
-  fragment = filter::strings::replace ("\n", "", fragment);
+  fragment = filter::string::replace ("\n", "", fragment);
   std::string msg;
   msg.append (result->description());
   msg.append (" at offset ");

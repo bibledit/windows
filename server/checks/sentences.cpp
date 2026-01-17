@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -26,43 +26,43 @@
 
 void Checks_Sentences::enter_capitals (const std::string& capitals)
 {
-  m_capitals = filter::strings::explode (capitals, ' ');
+  m_capitals = filter::string::explode (capitals, ' ');
 }
 
 
 void Checks_Sentences::enter_small_letters (const std::string& small_letters)
 {
-  m_small_letters = filter::strings::explode (small_letters, ' ');
+  m_small_letters = filter::string::explode (small_letters, ' ');
 }
 
 
 void Checks_Sentences::enter_end_marks (const std::string& end_marks)
 {
-  m_end_marks = filter::strings::explode (end_marks, ' ');
+  m_end_marks = filter::string::explode (end_marks, ' ');
 }
 
 
 void Checks_Sentences::enter_center_marks (const std::string& center_marks)
 {
-  m_center_marks = filter::strings::explode (center_marks, ' ');
+  m_center_marks = filter::string::explode (center_marks, ' ');
 }
 
 
 void Checks_Sentences::enter_disregards (const std::string& disregards)
 {
-  m_disregards = filter::strings::explode (disregards, ' ');
+  m_disregards = filter::string::explode (disregards, ' ');
 }
 
 
 void Checks_Sentences::enter_names (std::string names)
 {
   m_names.clear ();
-  names = filter::strings::replace ("\n", " ", names);
-  std::vector <std::string> names2 = filter::strings::explode (names, ' ');
+  names = filter::string::replace ("\n", " ", names);
+  std::vector <std::string> names2 = filter::string::explode (names, ' ');
   for (auto name : names2) {
     if (!name.empty()) {
       // Limit the length to the left of the suffix in the test.
-      name = filter::strings::unicode_string_substr (name, 0, 11);
+      name = filter::string::unicode_string_substr (name, 0, 11);
       m_names.push_back (name);
     }
   }
@@ -100,11 +100,11 @@ void Checks_Sentences::check (const std::map <int, std::string> & texts)
       full_text += " ";
     }
     // Split the UTF-8 text into characters and add them to the arrays of verse_numbers / characters.
-    size_t count = filter::strings::unicode_string_length (text);
+    size_t count = filter::string::unicode_string_length (text);
     for (size_t i = 0; i < count; i++) {
-      character = filter::strings::unicode_string_substr (text, i, 1);
+      character = filter::string::unicode_string_substr (text, i, 1);
       // Skip characters to be disregarded.
-      if (in_array (character, m_disregards)) continue;
+      if (filter::string::in_array (character, m_disregards)) continue;
       // Store verse numbers and characters.
       verse_numbers.push_back (verse);
       characters.push_back (character);
@@ -198,16 +198,16 @@ void Checks_Sentences::paragraphs (const std::vector <std::string>& paragraph_st
     int verse = verses_paragraph.begin()->first;
     std::string character2 = verses_paragraph.begin()->second;
     if (!character2.empty ()) {
-      character2 = filter::strings::unicode_string_substr (character2, 0, 1);
+      character2 = filter::string::unicode_string_substr (character2, 0, 1);
     }
     
     // Check that the paragraph starts with a capital.
-    is_capital = in_array (character2, m_capitals);
+    is_capital = filter::string::in_array (character2, m_capitals);
     if (!is_capital) {
       const std::string& paragraph_marker = paragraph_start_markers [p];
-      if (!in_array (paragraph_marker, within_sentence_paragraph_markers)) {
+      if (!filter::string::in_array (paragraph_marker, within_sentence_paragraph_markers)) {
         std::string context = verses_paragraph.begin()->second;
-        context = filter::strings::unicode_string_substr (context, 0, 15);
+        context = filter::string::unicode_string_substr (context, 0, 15);
         checking_results.push_back (std::pair (verse, checks::issues::text(checks::issues::issue::paragraph_does_not_start_with_a_capital) + ": " + context));
       }
     }
@@ -216,21 +216,21 @@ void Checks_Sentences::paragraphs (const std::vector <std::string>& paragraph_st
     verse = verses_paragraph.rbegin()->first;
     character2 = verses_paragraph.rbegin()->second;
     if (!character2.empty ()) {
-      size_t length = filter::strings::unicode_string_length (character2);
-      character2 = filter::strings::unicode_string_substr (character2, length - 1, 1);
+      size_t length = filter::string::unicode_string_length (character2);
+      character2 = filter::string::unicode_string_substr (character2, length - 1, 1);
     }
     std::string previous_character = verses_paragraph.rbegin()->second;
     if (!previous_character.empty ()) {
-      const size_t length = filter::strings::unicode_string_length (character2);
+      const size_t length = filter::string::unicode_string_length (character2);
       if (length >= 2) {
-        previous_character = filter::strings::unicode_string_substr (previous_character, length - 2, 1);
+        previous_character = filter::string::unicode_string_substr (previous_character, length - 2, 1);
       } else {
         previous_character.clear ();
       }
     }
     
     // Check that the paragraph ends with correct punctuation.
-    is_end_mark = in_array (character2, this->m_end_marks) || in_array (previous_character, this->m_end_marks);
+    is_end_mark = filter::string::in_array (character2, this->m_end_marks) || filter::string::in_array (previous_character, this->m_end_marks);
     if (!is_end_mark) {
       // If the next paragraph starts with a marker that indicates it should not necessarily be capitalized,
       // then the current paragraph may have punctuation that would be incorrect otherwise.
@@ -239,11 +239,11 @@ void Checks_Sentences::paragraphs (const std::vector <std::string>& paragraph_st
       if (p2 < paragraph_start_markers.size ()) {
         next_paragraph_marker = paragraph_start_markers [p2];
       }
-      if (next_paragraph_marker.empty () || (!in_array (next_paragraph_marker, within_sentence_paragraph_markers))) {
+      if (next_paragraph_marker.empty () || (!filter::string::in_array (next_paragraph_marker, within_sentence_paragraph_markers))) {
         std::string context = verses_paragraph.rbegin()->second;
-        const size_t length = filter::strings::unicode_string_length (character2);
+        const size_t length = filter::string::unicode_string_length (character2);
         if (length >= 15) {
-          context = filter::strings::unicode_string_substr (context, length - 15, 15);
+          context = filter::string::unicode_string_substr (context, length - 15, 15);
         }
         checking_results.push_back (std::pair (verse, checks::issues::text(checks::issues::issue::paragraph_does_not_end_with_an_end_marker) + ": " + context));
       }
@@ -264,7 +264,7 @@ void Checks_Sentences::add_result (std::string text, int modifier)
   // Get previous and next text fragment.
   int start = current_position - 25;
   if (start < 0) start = 0;
-  std::string previousFragment = filter::strings::unicode_string_substr (full_text, static_cast <size_t> (start), static_cast <size_t> (current_position - start - 1));
+  std::string previousFragment = filter::string::unicode_string_substr (full_text, static_cast <size_t> (start), static_cast <size_t> (current_position - start - 1));
   int iterations {5};
   while (iterations) {
     const size_t pos = previousFragment.find (" ");
@@ -275,7 +275,7 @@ void Checks_Sentences::add_result (std::string text, int modifier)
     }
     iterations--;
   }
-  std::string nextFragment = filter::strings::unicode_string_substr (full_text, static_cast <size_t> (current_position), 25);
+  std::string nextFragment = filter::string::unicode_string_substr (full_text, static_cast <size_t> (current_position), 25);
   while (nextFragment.length () > 10) {
     const size_t pos = nextFragment.rfind (" ");
     if (pos == std::string::npos) nextFragment.erase (nextFragment.length () - 1, 1);
@@ -320,24 +320,24 @@ void Checks_Sentences::analyze_characters ()
     space_position = current_position;
   }
   
-  is_capital = in_array (character, m_capitals);
+  is_capital = filter::string::in_array (character, m_capitals);
   if (is_capital) {
     capital_position = current_position;
   }
   
-  is_small_letter = in_array (character, m_small_letters);
+  is_small_letter = filter::string::in_array (character, m_small_letters);
   if (is_small_letter) {
     small_letter_position = current_position;
   }
   
-  is_end_mark = in_array (character, m_end_marks);
+  is_end_mark = filter::string::in_array (character, m_end_marks);
   if (is_end_mark) {
     end_mark_position = current_position;
     previous_mark_position = punctuation_mark_position;
     punctuation_mark_position = current_position;
   }
   
-  is_center_mark = in_array (character, m_center_marks);
+  is_center_mark = filter::string::in_array (character, m_center_marks);
   if (is_center_mark) {
     center_mark_position = current_position;
     previous_mark_position = punctuation_mark_position;

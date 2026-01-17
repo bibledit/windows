@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -46,8 +46,8 @@ bool edit_navigate_acl (Webserver_Request& webserver_request)
 std::string edit_navigate (Webserver_Request& webserver_request)
 {
   const std::string bible = webserver_request.query ["bible"];
-  const int book = filter::strings::convert_to_int (webserver_request.query ["book"]);
-  const int chapter = filter::strings::convert_to_int (webserver_request.query ["chapter"]);
+  const int book = filter::string::convert_to_int (webserver_request.query ["book"]);
+  const int chapter = filter::string::convert_to_int (webserver_request.query ["chapter"]);
 
   
   // At first the browser used the DOM Range interface to get the offset of the caret.
@@ -55,7 +55,7 @@ std::string edit_navigate (Webserver_Request& webserver_request)
   // not relative to the main editor element.
   // Therefore a pure Javascript implementation was Googled for and implemented.
   // This provides the offset of the caret relative to the <div id="editor">.
-  const size_t offset = static_cast<size_t> (filter::strings::convert_to_int (webserver_request.query ["offset"]));
+  const size_t offset = static_cast<size_t> (filter::string::convert_to_int (webserver_request.query ["offset"]));
 
   
   const std::string stylesheet = database::config::bible::get_editor_stylesheet (bible);
@@ -109,7 +109,7 @@ std::string edit_navigate (Webserver_Request& webserver_request)
   
   
   // If the offset is between the focused verse's min and max values, then do nothing.
-  int verse = Ipc_Focus::getVerse (webserver_request);
+  int verse = ipc_focus::get_verse (webserver_request);
   for (size_t i = 0; i < verses.size (); i++) {
     if (verse == verses[i]) {
       if (offset >= starting_offsets [i]) {
@@ -137,8 +137,8 @@ std::string edit_navigate (Webserver_Request& webserver_request)
   if (verse >= 0) {
     // Only update navigation in case the verse changed.
     // This avoids unnecessary focus operations in the clients.
-    if (verse != Ipc_Focus::getVerse (webserver_request)) {
-      Ipc_Focus::set (webserver_request, book, chapter, verse);
+    if (verse != ipc_focus::get_verse (webserver_request)) {
+      ipc_focus::set_passage (webserver_request, book, chapter, verse);
     }
     // The editor should scroll the verse into view,
     // because the caret is in the Bible text.

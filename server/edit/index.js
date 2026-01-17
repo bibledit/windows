@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -523,7 +523,7 @@ function edit2HandleCaretMoved ()
   if (quill.hasFocus ()) {
     // Initiate a new ajax request.
     edit2AjaxActive = true;
-    const url = "navigate?" + new URLSearchParams([ ["bible", editorLoadedBible], ["book", editorLoadedBook], ["chapter", editorLoadedChapter], ["offset", getCaretPosition()] ]).toString()
+    const url = "navigate?" + new URLSearchParams([ ["bible", editorLoadedBible], ["book", editorLoadedBook], ["chapter", editorLoadedChapter], ["offset", getCaretPosition()], ["focusgroup", focusGroup] ]).toString();
     fetch(url, {
       method: "GET",
     })
@@ -722,7 +722,7 @@ function edit2PositionCaretViaAjaxStart ()
 function edit2PositionCaretViaAjaxStartExecute ()
 {
   if (isNoVerseBook (editorLoadedBook)) return;
-  const url = "position?" + new URLSearchParams([ ["bible", editorLoadedBible], ["book", editorLoadedBook], ["chapter", editorLoadedChapter] ]).toString();
+  const url = "position?" + new URLSearchParams([ ["bible", editorLoadedBible], ["book", editorLoadedBook], ["chapter", editorLoadedChapter], ["focusgroup", focusGroup] ]).toString();
   fetch(url, {
     method: "GET"
   })
@@ -1352,7 +1352,6 @@ function edit2UpdateExecute ()
   var checksum2 = checksum_get (encodedEditedHtml);
 
   edit2AjaxActive = true;
-
   
   fetch("update", {
     method: "POST",

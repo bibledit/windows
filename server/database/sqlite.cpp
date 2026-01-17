@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -148,7 +148,7 @@ sqlite3 * connect (const std::string& database)
 
 std::string no_sql_injection (const std::string& sql)
 {
-  return filter::strings::replace ("'", "''", sql);
+  return filter::string::replace ("'", "''", sql);
 }
 
 

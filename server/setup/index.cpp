@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -129,7 +129,7 @@ std::string setup_index (Webserver_Request& webserver_request)
         redirect_browser (webserver_request, index_index_url ());
       } else {
         view.enable_zone ("errors");
-        view.set_variable ("error", filter::strings::implode (errors, " "));
+        view.set_variable ("error", filter::string::implode (errors, " "));
       }
     }
   }

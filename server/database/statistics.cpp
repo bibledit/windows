@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -91,8 +91,8 @@ std::vector <std::pair <int, int>> Database_Statistics::get_changes (std::string
   std::vector <std::string> timestamps = sql.query () ["timestamp"];
   std::vector <std::string> counts = sql.query () ["count"];
   for (size_t i = 0; i < timestamps.size (); i++) {
-    int timestamp = filter::strings::convert_to_int (timestamps[i]);
-    int count = filter::strings::convert_to_int (counts[i]);
+    int timestamp = filter::string::convert_to_int (timestamps[i]);
+    int count = filter::string::convert_to_int (counts[i]);
     changes.push_back (std::pair (timestamp, count));
   }
   return changes;

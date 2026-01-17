@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -50,8 +50,8 @@ std::string editor_id (Webserver_Request& webserver_request)
 
   
   std::string bible = webserver_request.query ["bible"];
-  int book = filter::strings::convert_to_int (webserver_request.query ["book"]);
-  int chapter = filter::strings::convert_to_int (webserver_request.query ["chapter"]);
+  int book = filter::string::convert_to_int (webserver_request.query ["book"]);
+  int chapter = filter::string::convert_to_int (webserver_request.query ["chapter"]);
   int id = database::bibles::get_chapter_id (bible, book, chapter);
   return std::to_string (id);
 }

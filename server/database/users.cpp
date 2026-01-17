@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -52,12 +52,12 @@ void Database_Users::upgrade ()
   SqliteDatabase sql (filename ());
   sql.add ("PRAGMA table_info (users);");
   std::vector <std::string> columns = sql.query () ["name"];
-  if (!in_array (static_cast<std::string> ("ldap"), columns)) {
+  if (!filter::string::in_array (static_cast<std::string> ("ldap"), columns)) {
     sql.clear ();
     sql.add ("ALTER TABLE users ADD COLUMN ldap boolean;");
     sql.execute ();
   }
-  if (!in_array (static_cast<std::string> ("disabled"), columns)) {
+  if (!filter::string::in_array (static_cast<std::string> ("disabled"), columns)) {
     sql.clear ();
     sql.add ("ALTER TABLE users ADD COLUMN disabled boolean;");
     sql.execute ();
@@ -175,7 +175,7 @@ std::string Database_Users::get_email (std::string user)
 
 
 // Returns true if the username exists in the database.
-bool Database_Users::usernameExists (std::string user)
+bool Database_Users::username_exists (std::string user)
 {
   SqliteDatabase sql (filename ());
   sql.add ("SELECT username FROM users WHERE username =");
@@ -206,7 +206,7 @@ int Database_Users::get_level (std::string user)
   sql.add (user);
   sql.add (";");
   std::vector <std::string> result = sql.query () ["level"];
-  if (!result.empty()) return filter::strings::convert_to_int (result [0]);
+  if (!result.empty()) return filter::string::convert_to_int (result [0]);
   return roles::guest;
 }
 
@@ -304,7 +304,7 @@ void Database_Users::set_ldap (std::string user, bool on)
 {
   SqliteDatabase sql (filename ());
   sql.add ("UPDATE users SET ldap =");
-  sql.add (filter::strings::convert_to_int (on));
+  sql.add (filter::string::convert_to_int (on));
   sql.add ("WHERE username =");
   sql.add (user);
   sql.add (";");
@@ -321,7 +321,7 @@ bool Database_Users::get_ldap (std::string user)
   sql.add (";");
   std::vector <std::string> result = sql.query () ["ldap"];
   if (!result.empty()) {
-    bool ldap_is_on = filter::strings::convert_to_bool (result [0]);
+    bool ldap_is_on = filter::string::convert_to_bool (result [0]);
     return ldap_is_on;
   }
   return false;
@@ -333,7 +333,7 @@ void Database_Users::set_enabled (std::string user, bool on)
 {
   SqliteDatabase sql (filename ());
   sql.add ("UPDATE users SET disabled =");
-  sql.add (filter::strings::convert_to_int (!on));
+  sql.add (filter::string::convert_to_int (!on));
   sql.add ("WHERE username =");
   sql.add (user);
   sql.add (";");
@@ -349,7 +349,7 @@ bool Database_Users::get_enabled (std::string user)
   sql.add (user);
   sql.add (";");
   std::vector <std::string> result = sql.query () ["disabled"];
-  if (!result.empty()) return !filter::strings::convert_to_bool (result [0]);
+  if (!result.empty()) return !filter::string::convert_to_bool (result [0]);
   return false;
 }
 

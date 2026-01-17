@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -61,9 +61,9 @@ std::string editusfm_index (Webserver_Request& webserver_request)
   if (webserver_request.query.count ("switchbook") && webserver_request.query.count ("switchchapter")) {
     const std::string switchbook = webserver_request.query ["switchbook"];
     const std::string switchchapter = webserver_request.query ["switchchapter"];
-    const int book = filter::strings::convert_to_int (switchbook);
-    const int chapter = filter::strings::convert_to_int (switchchapter);
-    Ipc_Focus::set (webserver_request, book, chapter, 1);
+    const int book = filter::string::convert_to_int (switchbook);
+    const int chapter = filter::string::convert_to_int (switchchapter);
+    ipc_focus::set_passage (webserver_request, book, chapter, 1);
     navigation_passage::record_history (webserver_request, book, chapter, 1);
   }
 
@@ -74,6 +74,7 @@ std::string editusfm_index (Webserver_Request& webserver_request)
   header.set_navigator ();
   header.add_bread_crumb (menu_logic_translate_menu (), menu_logic_translate_text ());
   header.notify_on ();
+  header.set_focus_group(ipc_focus::get_focus_group(webserver_request));
   page = header.run ();
   Assets_View view;
 
@@ -138,7 +139,7 @@ std::string editusfm_index (Webserver_Request& webserver_request)
   }
   
   // Whether to enable spell check in the editor.
-  view.set_variable ("spellcheck", filter::strings::convert_to_true_false(webserver_request.database_config_user ()->get_enable_spell_check()));
+  view.set_variable ("spellcheck", filter::string::convert_to_true_false(webserver_request.database_config_user ()->get_enable_spell_check()));
   
 
   page.append (view.render ("editusfm", "index"));

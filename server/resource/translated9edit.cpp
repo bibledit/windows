@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -92,7 +92,7 @@ std::string resource_translated9edit (Webserver_Request& webserver_request)
         titles.push_back (title);
       }
     }
-    if (in_array (new_resource, titles)) {
+    if (filter::string::in_array (new_resource, titles)) {
       error = translate("This translated resource already exists");
     } else if (new_resource.empty ()) {
       error = translate("Please give a name for the translated resource");

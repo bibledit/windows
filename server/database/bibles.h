@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,13 +27,13 @@ std::string bible_folder (const std::string& bible);
 
 std::vector <std::string> get_bibles ();
 
-void create_bible (const std::string& name);
+void create_bible (const std::string& bible);
 
-void delete_bible (const std::string& name);
+void delete_bible (const std::string& bible);
 
-void store_chapter (const std::string& name, const int book, const int chapter_number, std::string chapter_text);
+void store_chapter (const std::string& bible, const int book, const int chapter_number, std::string chapter_text);
 
-void update_search_fields (const std::string& name, const int book, const int chapter);
+void update_search_fields (const std::string& bible, const int book, const int chapter);
 
 std::vector <int> get_books (const std::string& bible);
 

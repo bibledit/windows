@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 class Webserver_Request;
 
-namespace filter::strings {
+namespace filter::string {
 
 std::vector <std::string> explode (const std::string& value, char delimiter);
 std::vector <std::string> explode (std::string value, const std::string& delimiters);
@@ -45,8 +45,6 @@ std::string convert_to_true_false (const bool b);
 std::u16string convert_to_u16string (const std::string& s);
 std::vector <std::string> array_unique (const std::vector <std::string>& values);
 std::vector <int> array_unique (const std::vector <int>& values);
-std::vector <std::string> array_diff (const std::vector <std::string>& from, const std::vector <std::string>& against);
-std::vector <int> array_diff (const std::vector <int>& from, const std::vector <int>& against);
 std::string trim (const std::string& s);
 std::string ltrim (const std::string& s);
 std::string rtrim (std::string s);

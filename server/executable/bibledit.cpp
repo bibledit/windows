@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -197,7 +197,7 @@ int main ()
   filter_url_unlink (backtrace_path ());
   if (!backtrace.empty ()) {
     Database_Logs::log ("Backtrace of the last segmentation fault:");
-    std::vector <std::string> lines = filter::strings::explode (backtrace, '\n');
+    std::vector <std::string> lines = filter::string::explode (backtrace, '\n');
     for (auto & line : lines) {
       Database_Logs::log (line);
       // Set a flag if the backtrace appears to be caused while sending email.

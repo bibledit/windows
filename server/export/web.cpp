@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -94,7 +94,7 @@ void export_web_book (std::string bible, int book, bool log)
     // Get the USFM for the chapter.
     std::string usfm = database::bibles::get_chapter (bible, book, chapter);
     // Trim it.
-    usfm = filter::strings::trim (usfm);
+    usfm = filter::string::trim (usfm);
     // Use small chunks of USFM at a time for much better performance.
     filter_text_chapter.add_usfm_code (usfm);
     
@@ -119,7 +119,7 @@ void export_web_book (std::string bible, int book, bool log)
     if (!feedback_email.empty ()) {
       breadcrumbs_navigator.push_back (std::pair ("|", ""));
       std::string subject = translate ("Comment on") + " " + bible + " " + database::books::get_english_from_id (static_cast<book_id>(book)) + " " + std::to_string (chapter);
-      subject = filter::strings::replace (" ", "%20", subject);
+      subject = filter::string::replace (" ", "%20", subject);
       std::string link = "mailto:" + feedback_email + "?Subject=" + subject;
       breadcrumbs_navigator.push_back (std::pair (translate ("Feedback"), link));
     }

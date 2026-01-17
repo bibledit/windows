@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -97,7 +97,7 @@ std::vector <int> Database_UsfmResources::getBooks (const std::string& name)
 {
   std::vector <int> books;
   std::vector <std::string> files = filter_url_scandir (resourceFolder (name));
-  for (auto & book : files) books.push_back (filter::strings::convert_to_int (book));
+  for (auto & book : files) books.push_back (filter::string::convert_to_int (book));
   sort (books.begin (), books.end());
   return books;
 }
@@ -107,7 +107,7 @@ std::vector <int> Database_UsfmResources::getChapters (const std::string& name, 
 {
   std::vector <int> chapters;
   std::vector <std::string> folders = filter_url_scandir (bookFolder (name, book));
-  for (auto & chapter : folders) chapters.push_back (filter::strings::convert_to_int (chapter));
+  for (auto & chapter : folders) chapters.push_back (filter::string::convert_to_int (chapter));
   sort (chapters.begin(), chapters.end());
   return chapters;
 }

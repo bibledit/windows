@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -38,12 +38,12 @@ bool navigation_poll_acl (Webserver_Request& webserver_request)
 
 std::string navigation_poll (Webserver_Request& webserver_request)
 {
-  int book = Ipc_Focus::getBook (webserver_request);
-  int chapter = Ipc_Focus::getChapter (webserver_request);
-  int verse = Ipc_Focus::getVerse (webserver_request);
+  int book = ipc_focus::get_book (webserver_request);
+  int chapter = ipc_focus::get_chapter (webserver_request);
+  int verse = ipc_focus::get_verse (webserver_request);
   std::vector <std::string> passage;
   passage.push_back (std::to_string (book));
   passage.push_back (std::to_string (chapter));
   passage.push_back (std::to_string (verse));
-  return filter::strings::implode (passage, "\n");
+  return filter::string::implode (passage, "\n");
 }

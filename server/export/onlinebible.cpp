@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ void export_onlinebible (std::string bible, bool log)
     std::vector <int> chapters = database::bibles::get_chapters (bible, book);
     for (auto chapter : chapters) {
       std::string chapter_data = database::bibles::get_chapter (bible, book, chapter);
-      chapter_data = filter::strings::trim (chapter_data);
+      chapter_data = filter::string::trim (chapter_data);
       filter_text_bible.add_usfm_code (chapter_data);
     }
   }

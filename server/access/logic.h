@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -49,7 +49,5 @@ bool privilege_set_stylesheets (Webserver_Request& webserver_request, std::strin
 
 void user_level (Webserver_Request& webserver_request, std::string& user, int& level);
 void create_client_files ();
-
-std::set <std::string> default_privilege_usernames ();
 
 }

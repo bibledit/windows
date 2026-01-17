@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -62,12 +62,12 @@ std::string edit_index (Webserver_Request& webserver_request)
 
   
   if (webserver_request.query.count ("switchbook") && webserver_request.query.count ("switchchapter")) {
-    const int switchbook = filter::strings::convert_to_int (webserver_request.query ["switchbook"]);
-    const int switchchapter = filter::strings::convert_to_int (webserver_request.query ["switchchapter"]);
+    const int switchbook = filter::string::convert_to_int (webserver_request.query ["switchbook"]);
+    const int switchchapter = filter::string::convert_to_int (webserver_request.query ["switchchapter"]);
     int switchverse = 1;
     if (webserver_request.query.count ("switchverse")) 
-      switchverse = filter::strings::convert_to_int (webserver_request.query ["switchverse"]);
-    Ipc_Focus::set (webserver_request, switchbook, switchchapter, switchverse);
+      switchverse = filter::string::convert_to_int (webserver_request.query ["switchverse"]);
+    ipc_focus::set_passage (webserver_request, switchbook, switchchapter, switchverse);
     navigation_passage::record_history (webserver_request, switchbook, switchchapter, switchverse);
   }
 
@@ -91,12 +91,12 @@ std::string edit_index (Webserver_Request& webserver_request)
       bible = webserver_request.post_get(identification);
       webserver_request.database_config_user()->set_bible (bible);
       // Going to another Bible, ensure that the focused book exists there.
-      int book = Ipc_Focus::getBook (webserver_request);
+      int book = ipc_focus::get_book (webserver_request);
       const std::vector <int> books = database::bibles::get_books (bible);
       if (std::find (books.begin(), books.end(), book) == books.end()) {
         if (!books.empty ()) book = books.front();
         else book = 0;
-        Ipc_Focus::set (webserver_request, book, 1, 1);
+        ipc_focus::set_passage (webserver_request, book, 1, 1);
       }
       // Ensure it gets loaded.
       redirect_browser (webserver_request, edit_index_url());
@@ -120,6 +120,7 @@ std::string edit_index (Webserver_Request& webserver_request)
   header.set_editor_stylesheet ();
   header.notify_on ();
   header.add_bread_crumb (menu_logic_translate_menu (), menu_logic_translate_text ());
+  header.set_focus_group(ipc_focus::get_focus_group(webserver_request));
   page = header.run ();
   
   
@@ -182,7 +183,7 @@ std::string edit_index (Webserver_Request& webserver_request)
   
   
   // Whether to enable spell check.
-  view.set_variable ("spellcheck", filter::strings::convert_to_true_false(webserver_request.database_config_user ()->get_enable_spell_check()));
+  view.set_variable ("spellcheck", filter::string::convert_to_true_false(webserver_request.database_config_user ()->get_enable_spell_check()));
 
   
   page.append (view.render ("edit", "index"));

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,7 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <user/account.h>
 #include <manage/index.h>
 #include <manage/users.h>
-#include <manage/accounts.h>
 #include <manage/exports.h>
 #include <manage/write.h>
 #include <manage/bibles.h>
@@ -652,11 +651,6 @@ void bootstrap_index (Webserver_Request& webserver_request)
   
   if ((url == manage_users_url ()) && browser_request_security_okay (webserver_request) && manage_users_acl (webserver_request)) {
     webserver_request.reply = manage_users (webserver_request);
-    return;
-  }
-
-  if ((url == manage_accounts_url ()) && browser_request_security_okay (webserver_request) && manage_accounts_acl (webserver_request)) {
-    webserver_request.reply = manage_accounts (webserver_request);
     return;
   }
 

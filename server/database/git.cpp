@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -130,7 +130,7 @@ std::vector <int> get_rowids (const std::string& user, const std::string& bible)
   const std::vector <std::string> values = sql.query () ["rowid"];
   std::vector <int> rowids;
   for (const auto& value : values) {
-    rowids.push_back (filter::strings::convert_to_int (value));
+    rowids.push_back (filter::string::convert_to_int (value));
   }
   return rowids;
 }
@@ -158,9 +158,9 @@ bool get_chapter (int rowid,
   if (!bibles.empty ())
     bible = bibles.at(0);
   if (!books.empty ())
-    book = filter::strings::convert_to_int (books.at(0));
+    book = filter::string::convert_to_int (books.at(0));
   if (!chapters.empty ())
-    chapter = filter::strings::convert_to_int (chapters.at(0));
+    chapter = filter::string::convert_to_int (chapters.at(0));
   if (oldusfm.empty ())
     oldusfm = oldusfms.at(0);
   if (newusfm.empty ())

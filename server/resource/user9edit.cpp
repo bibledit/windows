@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ std::string resource_user9edit (Webserver_Request& webserver_request)
   if (webserver_request.post_count("new")) {
     std::string resource = webserver_request.post_get("entry");
     std::vector <std::string> resources = Database_UserResources::names ();
-    if (in_array (resource, resources)) {
+    if (filter::string::in_array (resource, resources)) {
       error = translate("This user-defined resource already exists");
     } else if (resource.empty ()) {
       error = translate("Please give a name for the user-defined resource");
@@ -101,7 +101,7 @@ std::string resource_user9edit (Webserver_Request& webserver_request)
     resourceblock.push_back ("</a>");
     resourceblock.push_back ("</p>");
   }
-  view.set_variable ("resourceblock", filter::strings::implode (resourceblock, "\n"));
+  view.set_variable ("resourceblock", filter::string::implode (resourceblock, "\n"));
 
    
   view.set_variable ("success", success);

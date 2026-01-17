@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -51,6 +51,7 @@ var resourceChapter;
 var resourceVerse;
 var resourceDoing;
 var resourceAborting = false;
+var resourceError = false;
 
 
 function navigationNewPassage ()
@@ -68,7 +69,7 @@ function navigationNewPassage ()
   }
   if (resourceBook == undefined) return;
   resourceAborting = true;
-  resourceAbortController.abort();
+  resourceAbortController.abort("New passage: Abort getting resources for previous passage");
   resourceAbortController = new AbortController();
   resourceDoing = 0;
   resourceAborting = false;
@@ -102,20 +103,22 @@ function resourceGetOne ()
     var line = document.querySelector("#line" + this.resourceDoing);
     var name = document.querySelector("#name" + this.resourceDoing);
     if (response == "") {
-      line.hidden = true;
-      name.hidden = true;
+      if (line) line.hidden = true;
+      if (name) name.hidden = true;
     } else {
-      line.hidden = false;
-      name.hidden = false;
+      if (line) line.hidden = false;
+      if (name) name.hidden = false;
       if (response.charAt (0) == "$") {
-        name.hidden = true;
+        if (name) name.hidden = true;
         response = response.substring (1);
       }
       var content = document.querySelector("#content" + this.resourceDoing);
       var reload = document.querySelector("#reload");
-      reload.innerHTML = response;
-      if (content.innerHTML != reload.innerHTML) {
-        content.innerHTML = response;
+      if (reload) reload.innerHTML = response;
+      if (content) {
+        if (content.innerHTML != reload.innerHTML) {
+          content.innerHTML = response;
+        }
       }
     }
     navigationSetup ();
@@ -124,10 +127,17 @@ function resourceGetOne ()
   })
   .catch((error) => {
     console.log(error);
+    resourceError = true;
     if (!resourceAborting) resourceDoing--;
   })
   .finally(() => {
-    if (!resourceAborting) setTimeout (resourceGetOne, 10);
+    if (!resourceAborting) {
+      // Normally fetch next resources in quick sequence.
+      // In case of an error, wait shortly before retrying.
+      const milliseconds = resourceError ? 500 : 10;
+      setTimeout (resourceGetOne, milliseconds);
+    }
+    resourceError = false;
   });
 }
 

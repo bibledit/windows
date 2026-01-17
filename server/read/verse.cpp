@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -48,11 +48,11 @@ std::string read_verse (Webserver_Request& webserver_request)
     
     // Only update navigation in case the verse changed.
     // This avoids unnecessary focus operations in the clients.
-    int iverse = filter::strings::convert_to_int (sverse);
-    if (iverse != Ipc_Focus::getVerse (webserver_request)) {
-      int book = Ipc_Focus::getBook (webserver_request);
-      int chapter = Ipc_Focus::getChapter (webserver_request);
-      Ipc_Focus::set (webserver_request, book, chapter, iverse);
+    int iverse = filter::string::convert_to_int (sverse);
+    if (iverse != ipc_focus::get_verse (webserver_request)) {
+      int book = ipc_focus::get_book (webserver_request);
+      int chapter = ipc_focus::get_chapter (webserver_request);
+      ipc_focus::set_passage (webserver_request, book, chapter, iverse);
     }
   }
   

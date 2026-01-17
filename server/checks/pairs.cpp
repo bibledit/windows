@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -54,17 +54,17 @@ void checks_pairs::run (const std::string& bible, int book, int chapter,
   for (const auto & element : texts) {
     int verse = element.first;
     std::string text = element.second;
-    size_t length = filter::strings::unicode_string_length (text);
+    size_t length = filter::string::unicode_string_length (text);
     for (size_t pos = 0; pos < length; pos++) {
       
-      const std::string character = filter::strings::unicode_string_substr (text, pos, 1);
+      const std::string character = filter::string::unicode_string_substr (text, pos, 1);
       
-      if (in_array (character, openers)) {
+      if (filter::string::in_array (character, openers)) {
         verses.push_back (verse);
         opened.push_back (character);
       }
       
-      if (in_array (character, closers)) {
+      if (filter::string::in_array (character, closers)) {
         
         const std::string opener = match (character, pairs);
         bool mismatch = false;

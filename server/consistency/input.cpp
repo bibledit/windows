@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ bool consistency_input_acl (Webserver_Request& webserver_request)
 
 std::string consistency_input (Webserver_Request& webserver_request)
 {
-  const int id = filter::strings::convert_to_int (webserver_request.post_get("id"));
+  const int id = filter::string::convert_to_int (webserver_request.post_get("id"));
   const std::string passages = webserver_request.post_get("passages");
   const std::string translations = webserver_request.post_get("translations");
   database::temporal::set_value (id, "passages", passages);

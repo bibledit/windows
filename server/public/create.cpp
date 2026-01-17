@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -64,9 +64,9 @@ std::string public_create (Webserver_Request& webserver_request)
 
   
   const std::string bible = webserver_request.database_config_user()->get_bible ();
-  const int book = Ipc_Focus::getBook (webserver_request);
-  const int chapter = Ipc_Focus::getChapter (webserver_request);
-  const int verse = Ipc_Focus::getVerse (webserver_request);
+  const int book = ipc_focus::get_book (webserver_request);
+  const int chapter = ipc_focus::get_chapter (webserver_request);
+  const int verse = ipc_focus::get_verse (webserver_request);
 
   
   const std::string chapter_usfm = database::bibles::get_chapter (bible, book, chapter);
@@ -81,9 +81,9 @@ std::string public_create (Webserver_Request& webserver_request)
 
  
   if (webserver_request.post_count("submit")) {
-    std::string summary = filter::strings::trim (webserver_request.post_get("summary"));
+    std::string summary = filter::string::trim (webserver_request.post_get("summary"));
     if (summary.empty ()) summary = translate ("Feedback");
-    const std::string contents = "<p>" + versetext + "</p>" + filter::strings::trim (webserver_request.post_get("contents"));
+    const std::string contents = "<p>" + versetext + "</p>" + filter::string::trim (webserver_request.post_get("contents"));
     const int identifier = notes_logic.createNote (bible, book, chapter, verse, summary, contents, false);
     // A note created by a public user is made public to all.
     database_notes.set_public (identifier, true);

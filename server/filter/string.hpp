@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,9 @@
 #pragma once
 
 #include <config/libraries.h>
+
+
+namespace filter::string {
 
 
 // Return the intersection of two containers.
@@ -45,8 +48,24 @@ bool in_array (const T & needle, const std::vector <T> & haystack)
 }
 
 
-// Clip a value to not be less than "lower" and not more than "higher"
+// Returns items in "from" which are not present in "against".
 template <typename T>
-T clip (const T& n, const T& lower, const T& upper) {
-  return std::max<T> (lower, std::min<T> (n, upper));
+std::vector<T> array_diff (const std::vector<T>& from, const std::vector<T>& against) {
+  std::vector <T> result {};
+  for (const auto& item : from) {
+    if (std::find(against.cbegin(), against.cend(), item) == against.cend())
+      result.push_back(item);
+  }
+  return result;
 }
+
+
+// Takes a range and materializes it into a vector.
+auto range2vector(auto&& r) {
+  std::vector<std::ranges::range_value_t<decltype(r)>> v;
+  std::ranges::copy(r, std::back_inserter(v));
+  return v;
+}
+
+
+} // Namespace.

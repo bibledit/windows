@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -42,21 +42,21 @@ bool Database_NoteAssignment::exists (std::string user)
 
 void Database_NoteAssignment::assignees (std::string user, std::vector <std::string> assignees)
 {
-  filter_url_file_put_contents (path (user), filter::strings::implode (assignees, "\n"));
+  filter_url_file_put_contents (path (user), filter::string::implode (assignees, "\n"));
 }
 
 
 std::vector <std::string> Database_NoteAssignment::assignees (std::string user)
 {
   std::string contents = filter_url_file_get_contents (path (user));
-  return filter::strings::explode (contents, '\n');
+  return filter::string::explode (contents, '\n');
 }
 
 
 bool Database_NoteAssignment::exists (std::string user, std::string assignee)
 {
   std::vector <std::string> users = assignees (user);
-  return in_array (assignee, users);
+  return filter::string::in_array (assignee, users);
 }
 
 

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -107,8 +107,8 @@ void database_maintenance ()
 #endif
   
   
-  Database_Navigation database_navigation = Database_Navigation ();
-  database_navigation.create ();
+  Database_Navigation database_navigation;
+  database_navigation.create();
   database_navigation.trim();
   
   

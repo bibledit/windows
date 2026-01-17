@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ void upgrade ()
   const std::vector <std::string> columns = sql.query () ["name"];
   
   // Add the column for the username if it's not yet there.
-  if (!in_array (static_cast<std::string> ("username"), columns)) {
+  if (!filter::string::in_array (static_cast<std::string> ("username"), columns)) {
     sql.clear ();
     sql.add ("ALTER TABLE confirm ADD COLUMN username text;");
     sql.execute ();
@@ -136,7 +136,7 @@ unsigned int search_id (const std::string& subject)
   for (const auto& id : ids) {
     const size_t pos = subject.find (id);
     if (pos != std::string::npos) {
-      return static_cast<unsigned>(filter::strings::convert_to_int (id));
+      return static_cast<unsigned>(filter::string::convert_to_int (id));
     }
   }
   return 0;

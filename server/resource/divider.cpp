@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ std::string resource_divider (Webserver_Request& webserver_request)
   Assets_View view;
 
 
-  const int userid = filter::strings::user_identifier (webserver_request);
+  const int userid = filter::string::user_identifier (webserver_request);
   const std::string key = "rich divider";
 
 

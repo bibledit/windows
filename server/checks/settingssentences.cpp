@@ -1,5 +1,5 @@
 /*
- Copyright (©) 2003-2025 Teus Benschop.
+ Copyright (©) 2003-2026 Teus Benschop.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -109,13 +109,13 @@ std::string checks_settingssentences (Webserver_Request& webserver_request)
 
   
   view.set_variable ("bible", bible);
-  view.set_variable ("capitals", filter::strings::escape_special_xml_characters (database::config::bible::get_sentence_structure_capitals (bible)));
-  view.set_variable ("smallletters", filter::strings::escape_special_xml_characters (database::config::bible::get_sentence_structure_small_letters (bible)));
-  view.set_variable ("endpunctuationmarks", filter::strings::escape_special_xml_characters (database::config::bible::get_sentence_structure_end_punctuation (bible)));
-  view.set_variable ("middlepunctuationmarks", filter::strings::escape_special_xml_characters (database::config::bible::get_sentence_structure_middle_punctuation (bible)));
-  view.set_variable ("disregards", filter::strings::escape_special_xml_characters (database::config::bible::get_sentence_structure_disregards (bible)));
-  view.set_variable ("names", filter::strings::escape_special_xml_characters (database::config::bible::get_sentence_structure_names (bible)));
-  view.set_variable ("within_sentence_paragraph_markers", filter::strings::escape_special_xml_characters (database::config::bible::get_sentence_structure_within_sentence_markers (bible)));
+  view.set_variable ("capitals", filter::string::escape_special_xml_characters (database::config::bible::get_sentence_structure_capitals (bible)));
+  view.set_variable ("smallletters", filter::string::escape_special_xml_characters (database::config::bible::get_sentence_structure_small_letters (bible)));
+  view.set_variable ("endpunctuationmarks", filter::string::escape_special_xml_characters (database::config::bible::get_sentence_structure_end_punctuation (bible)));
+  view.set_variable ("middlepunctuationmarks", filter::string::escape_special_xml_characters (database::config::bible::get_sentence_structure_middle_punctuation (bible)));
+  view.set_variable ("disregards", filter::string::escape_special_xml_characters (database::config::bible::get_sentence_structure_disregards (bible)));
+  view.set_variable ("names", filter::string::escape_special_xml_characters (database::config::bible::get_sentence_structure_names (bible)));
+  view.set_variable ("within_sentence_paragraph_markers", filter::string::escape_special_xml_characters (database::config::bible::get_sentence_structure_within_sentence_markers (bible)));
   
   
   page += view.render ("checks", "settingssentences");

@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,5 +28,4 @@ void user_logic_optional_ldap_authentication (Webserver_Request& webserver_reque
 bool user_logic_login_failure_check_okay ();
 void user_logic_login_failure_register ();
 void user_logic_login_failure_clear ();
-void user_logic_store_account_creation (std::string username);
 void user_logic_delete_account (std::string user, std::string role, std::string email, std::string & feedback);

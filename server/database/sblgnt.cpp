@@ -1,5 +1,5 @@
 /*
-Copyright (©) 2003-2025 Teus Benschop.
+Copyright (©) 2003-2026 Teus Benschop.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -70,8 +70,8 @@ std::vector <Passage> Database_Sblgnt::searchGreek (std::string greek)
   const std::vector <std::string> verses = result ["verse"];
   for (unsigned int i = 0; i < books.size (); i++) {
     Passage passage;
-    passage.m_book = filter::strings::convert_to_int (books [i]);
-    passage.m_chapter = filter::strings::convert_to_int (chapters [i]);
+    passage.m_book = filter::string::convert_to_int (books [i]);
+    passage.m_chapter = filter::string::convert_to_int (chapters [i]);
     passage.m_verse = verses [i];
     hits.push_back (passage);
   }
