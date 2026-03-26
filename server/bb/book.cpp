@@ -57,8 +57,6 @@ std::string bible_book (Webserver_Request& webserver_request)
   std::string page {};
   
   Assets_Header header = Assets_Header (translate("Book"), webserver_request);
-  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.add_bread_crumb (bible_manage_url (), menu_logic_bible_manage_text ());
   page = header.run ();
   
   Assets_View view {};
@@ -124,7 +122,7 @@ std::string bible_book (Webserver_Request& webserver_request)
   // Available chapters.
   const std::vector <int> chapters = database::bibles::get_chapters (bible, book);
   std::string chapterblock {};
-  for (const auto& chapter : chapters) {
+  const auto add_chapter = [&] (const auto chapter) {
     chapterblock.append (R"(<a href="chapter?bible=)");
     chapterblock.append (bible);
     chapterblock.append ("&book=");
@@ -134,7 +132,8 @@ std::string bible_book (Webserver_Request& webserver_request)
     chapterblock.append (R"(">)");
     chapterblock.append (std::to_string (chapter));
     chapterblock.append ("</a>\n");
-  }
+  };
+  std::ranges::for_each(chapters, add_chapter);
   view.set_variable ("chapterblock", chapterblock);
   
   view.set_variable ("success_message", success_message);

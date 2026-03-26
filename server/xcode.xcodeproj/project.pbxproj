@@ -17,6 +17,7 @@
 		CA10382825279F940021AF25 /* html2format.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = html2format.h; path = editor/html2format.h; sourceTree = SOURCE_ROOT; };
 		CA10382A2527A4010021AF25 /* html2format.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = html2format.cpp; sourceTree = "<group>"; };
 		CA104BB6277B96B300BD2E7C /* libmimetic.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmimetic.0.dylib; path = ../../../../usr/local/lib/libmimetic.0.dylib; sourceTree = "<group>"; };
+		CA10BFDA2F200F770024061A /* index.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = index.js; sourceTree = "<group>"; };
 		CA11A9BF2DC2A80200F144C7 /* definitions.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = definitions.hpp; sourceTree = "<group>"; };
 		CA11C1D82DD8EAEA00EFA0BE /* quill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = quill.cpp; sourceTree = "<group>"; };
 		CA11C1D92DD8EAEA00EFA0BE /* quill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = quill.h; sourceTree = "<group>"; };
@@ -100,6 +101,7 @@
 		CA314CD32662298D00EF8CE3 /* delay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = delay.h; sourceTree = "<group>"; };
 		CA37D368293D2EC50065795A /* 00readme.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = 00readme.txt; sourceTree = "<group>"; };
 		CA3AF3182E0857BC0034F559 /* certificates.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = certificates.sh; sourceTree = "<group>"; };
+		CA408AF12F53351500C1FFF4 /* index.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = index.js; sourceTree = "<group>"; };
 		CA40E47028A91E7200E0A563 /* translated9edit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = translated9edit.cpp; sourceTree = "<group>"; };
 		CA40E47128A91E7200E0A563 /* translated1edit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = translated1edit.cpp; sourceTree = "<group>"; };
 		CA40E47228A91E7200E0A563 /* translated9edit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = translated9edit.h; sourceTree = "<group>"; };
@@ -235,6 +237,8 @@
 		CA84204428A03C39006EEA23 /* google.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = google.h; sourceTree = "<group>"; };
 		CA85CA3C2E19A01E00EDFA5F /* selectajax.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = selectajax.js; sourceTree = "<group>"; };
 		CA889AB3288310600071B46D /* warnings.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = warnings.sh; sourceTree = "<group>"; };
+		CA8E7D502F6EEEF3009769C1 /* version.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
+		CA8E7D512F6EEEF3009769C1 /* version.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = version.c; sourceTree = "<group>"; };
 		CA9D18992D1CE61900094422 /* temporal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = temporal.h; sourceTree = "<group>"; };
 		CA9D189A2D1CE61900094422 /* temporal.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = temporal.cpp; sourceTree = "<group>"; };
 		CA9D18A42D1DCC8F00094422 /* index.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = index.h; sourceTree = "<group>"; };
@@ -1834,6 +1838,7 @@
 		CADE475824F17BF4003165BB /* cloud-macos.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "cloud-macos.entitlements"; sourceTree = "<group>"; };
 		CADE475924F17CF0003165BB /* libmimetic.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmimetic.0.dylib; path = ../../../../opt/local/lib/libmimetic.0.dylib; sourceTree = "<group>"; };
 		CADE475B24F17D04003165BB /* libcurl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.dylib; path = ../../../../opt/local/lib/libcurl.dylib; sourceTree = "<group>"; };
+		CADECDB32F46EFB2003369FC /* consistency.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = consistency.cpp; sourceTree = "<group>"; };
 		CAE406FD2D134B4E005A9142 /* usfm-html.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "usfm-html.cpp"; sourceTree = "<group>"; };
 		CAE622C92E5B865700BD7CAA /* flate4.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = flate4.html; sourceTree = "<group>"; };
 		CAEB953F27909FDD00F0F093 /* libraries.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libraries.h; sourceTree = "<group>"; };
@@ -3496,9 +3501,11 @@
 				CAD8ED092C3972A8006DF2D6 /* build_info.h */,
 				CA1E933D2C845FE90063C62E /* entropy_poll.c */,
 				CAD8ED0A2C3972D4006DF2D6 /* mbedtls_config.h */,
-				CAD8ED0B2C3978BA006DF2D6 /* net_sockets.c */,
 				CAD8ED0C2C397957006DF2D6 /* net_sockets.h */,
+				CAD8ED0B2C3978BA006DF2D6 /* net_sockets.c */,
 				CAD8ED0D2C397CED006DF2D6 /* ssl.h */,
+				CA8E7D502F6EEEF3009769C1 /* version.h */,
+				CA8E7D512F6EEEF3009769C1 /* version.c */,
 			);
 			path = mbedtls;
 			sourceTree = "<group>";
@@ -3777,9 +3784,10 @@
 		CADE3FB424F17488003165BB /* personalize */ = {
 			isa = PBXGroup;
 			children = (
-				CADE3FBD24F17488003165BB /* index.cpp */,
 				CADE3FB524F17488003165BB /* index.h */,
+				CADE3FBD24F17488003165BB /* index.cpp */,
 				CADE3FB724F17488003165BB /* index.html */,
+				CA10BFDA2F200F770024061A /* index.js */,
 			);
 			path = personalize;
 			sourceTree = "<group>";
@@ -4360,6 +4368,7 @@
 				CADE42DD24F174BD003165BB /* client.cpp */,
 				CADE442A24F174BE003165BB /* config.cpp */,
 				CADE42EF24F174BD003165BB /* confirm.cpp */,
+				CADECDB32F46EFB2003369FC /* consistency.cpp */,
 				CADE42ED24F174BD003165BB /* date.cpp */,
 				CADE444A24F174BE003165BB /* dev.cpp */,
 				CADE44C624F174BF003165BB /* diff.cpp */,
@@ -4746,16 +4755,17 @@
 		CADE452F24F174C1003165BB /* workspace */ = {
 			isa = PBXGroup;
 			children = (
-				CADE454524F174C1003165BB /* index.cpp */,
 				CADE453024F174C1003165BB /* index.h */,
+				CADE454524F174C1003165BB /* index.cpp */,
 				CADE453224F174C1003165BB /* index.html */,
-				CADE453524F174C1003165BB /* logic.cpp */,
+				CA408AF12F53351500C1FFF4 /* index.js */,
 				CADE453824F174C1003165BB /* logic.h */,
-				CADE453624F174C1003165BB /* organize.cpp */,
+				CADE453524F174C1003165BB /* logic.cpp */,
 				CADE453A24F174C1003165BB /* organize.h */,
+				CADE453624F174C1003165BB /* organize.cpp */,
 				CADE453724F174C1003165BB /* organize.html */,
-				CADE454424F174C1003165BB /* settings.cpp */,
 				CADE453424F174C1003165BB /* settings.h */,
+				CADE454424F174C1003165BB /* settings.cpp */,
 				CADE453C24F174C1003165BB /* settings.html */,
 			);
 			path = workspace;

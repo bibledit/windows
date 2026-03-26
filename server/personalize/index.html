@@ -76,12 +76,6 @@ translate("Initial vertical position of the editing cursor in the Bible editors"
 </div>
 
 <br>
-<p>
-<input type="checkbox" name="breadcrumbs" onchange="checkbox_v2(this)" ##breadcrumbs## />
-translate("Show breadcrumbs.")
-</p>
-
-<br>
 <p class="settings-container">
 translate("Workspace menu fade-out delay"):
 <input type="text" name="workspacefadeoutdelay" id="workspacefadeoutdelay" class="setting-input" value="##workspacefadeoutdelay##" min="0" max="100">seconds.<span class="tooltip"></span>
@@ -334,3 +328,4 @@ translate("Show arrows in the passage navigator for previous and next book and c
 
 <br>
 <script type="text/javascript" src="../assets/checkbox.js?##VERSION##"></script>
+<script type="text/javascript" src="index.js?##VERSION##"></script>

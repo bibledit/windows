@@ -50,8 +50,6 @@ std::string versification_system (Webserver_Request& webserver_request)
   std::string page;
   
   Assets_Header header = Assets_Header (translate("Versification system"), webserver_request);
-  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
-  header.add_bread_crumb (versification_index_url (), menu_logic_versification_index_text ());
   page = header.run ();
   
   Assets_View view;
@@ -69,7 +67,7 @@ std::string versification_system (Webserver_Request& webserver_request)
   }
 
   std::vector <std::string> data;
-  std::vector <Passage> passages = database_versifications.getBooksChaptersVerses (name);
+  std::vector <Passage> passages = database_versifications.get_books_chapters_verses (name);
   for (auto & passage : passages) {
     int book = passage.m_book;
     int chapter = passage.m_chapter;

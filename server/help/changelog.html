@@ -1,5 +1,12 @@
 <h1>ChangeLog</h1>
 
+<p>5.1.042: Email body line length follow RFC 5322.</p>
+<p>5.1.042: Fixed: Disabled style button cripples the Bible editors.</p>
+<p>5.1.041: Email headers To and From follow internet standards better.</p>
+<p>5.1.041: Fixed: Verse editor editable area not centering vertically on Android.</p>
+<p>5.1.040: Fix and improve the Consistency Tool.</p>
+<p>5.1.040: Rewrite Android app in Kotlin.</p>
+<p>5.1.039: More robust resource fetching.</p>
 <p>5.1.038: Asks to confirm deleting a user.</p>
 <p>5.1.037: More robust resource fetching.</p>
 <p>5.1.037: The Bible demo regularly cleans up the workspaces.</p>
@@ -688,7 +695,6 @@
 <p>The changes notifications also notify of changes in formatting only, without changes in the actual text.</p>
 <p>Fixed: No punctuation at end of verse: ?</p>
 <p>Clearer wording of settings for sentence structure.</p>
-<p>Displays breadcrumbs.</p>
 <p>Can set the background color for styles that support font color.</p>
 <p>Can set font size for the Bible editors.</p>
 <p>Can set font size for the resources.</p>

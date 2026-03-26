@@ -41,9 +41,10 @@ document.addEventListener("DOMContentLoaded", function(e) {
   });
 
   oneverseBindUnselectable ();
-  
-  var stylebutton = document.querySelector ("#stylebutton");
-  stylebutton.addEventListener("click", oneverseStylesButtonHandler);
+
+  // The style button has a setting whether to be there.
+  // Hence the conditional operator ( ? ).
+  document.querySelector("#stylebutton")?.addEventListener("click", oneverseStylesButtonHandler);
   
   window.addEventListener ("keydown", oneverseWindowKeyHandler);
 
@@ -385,7 +386,7 @@ function oneverseEditorLoadNonEditable ()
 // 2. The given number of characters were inserted, and...
 // 3. The given number of characters were deleted.
 // With 2-byte UTF-16 characters, one character is given as a "1" in the lists.
-// With 4-byte UTF-16 characters, one characters is represented by a "2" in the lists.
+// With 4-byte UTF-16 characters, one character is represented by a "2" in the lists.
 var oneverseEditorChangeOffsets = [];
 var oneverseEditorChangeInserts = [];
 var oneverseEditorChangeDeletes = [];
@@ -587,12 +588,28 @@ function oneversePositionCaretTimeout ()
 
 function oneverseScrollVerseIntoView ()
 {
-  var oneeditor = document.querySelector("#oneeditor");
-  oneeditor.scrollIntoView({
-    behavior: 'smooth',
-    block: 'center',
-    inline: 'center'
+  var workspacewrapper = document.querySelector("#workspacewrapper")
+  var oneeditor = document.querySelector("#oneeditor")
+  var verseTop = oneeditor.getBoundingClientRect().top
+  var workspaceHeight = workspacewrapper.clientHeight;
+  var currentScrollTop = workspacewrapper.scrollTop;
+  var scrollTo = verseTop - (workspaceHeight * verticalCaretPosition / 100) + currentScrollTop;
+  workspacewrapper.scroll({
+    top: scrollTo,
+    behavior: "auto",
   });
+  // Behaviour "smooth" fails to work on Android.
+  // See https://github.com/bibledit/cloud/issues/1076
+  // Behaviour "auto" works on Android.
+
+  // The call above to focus the caret scrolls the caret horizontally into view.
+  // Restore the workspace horizontal scrolling position.
+  if (window.location !== window.parent.location) {
+    var scrollLeft = window.sessionStorage.workspaceScrollLeft
+    setTimeout(() => {
+      window.parent.workspacewrapper.scrollLeft = scrollLeft
+    }, 50);
+  }
 }
 
 
@@ -646,7 +663,10 @@ function oneverseUnselectablePreventDefault(event)
 function oneverseShowResponse (response)
 {
   if (!oneverseEditorWriteAccess) return;
-  document.querySelector ("#stylebutton").hidden = true;
+  var stylebutton = document.querySelector("#stylebutton")
+  if (stylebutton) {
+    stylebutton.hidden = true;
+  }
   document.querySelector ("#nostyles").hidden = true;
   var area = document.querySelector ("#stylesarea");
   area.innerHTML = "";
@@ -660,7 +680,10 @@ function oneverseClearStyles ()
   var area = document.querySelector ("#stylesarea");
   area.classList.remove ('style-of-stylesarea');
   area.innerHTML = "";
-  document.querySelector ("#stylebutton").hidden = false;
+  var stylebutton = document.querySelector("#stylebutton")
+  if (stylebutton) {
+    stylebutton.hidden = false;
+  }
   document.querySelector ("#nostyles").hidden = false;
 }
 

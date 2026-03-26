@@ -44,30 +44,18 @@
 #include <email/send.h>
 
 
-// Internal function declarations.
-void changes_process_identifiers (Webserver_Request& webserver_request,
-                                  const std::string& user,
-                                  const std::vector <std::string>& recipients,
-                                  const std::string& bible,
-                                  int book, int chapter,
-                                  const std::map <std::string, std::vector<std::string>> & bibles_per_user,
-                                  int oldId, int newId,
-                                  std::string& email,
-                                  int& change_count, float& time_total, int& time_count);
-
-
 // Helper function.
 // $user: The user whose changes are being processed.
 // $recipients: The users who opted for receiving online notifications of any contributor.
-void changes_process_identifiers (Webserver_Request& webserver_request,
-                                  const std::string& user,
-                                  const std::vector <std::string>& recipients,
-                                  const std::string& bible,
-                                  int book, int chapter,
-                                  const std::map <std::string, std::vector<std::string>> & bibles_per_user,
-                                  int oldId, int newId,
-                                  std::string& email,
-                                  int& change_count, float& time_total, int& time_count)
+static void changes_process_identifiers (Webserver_Request& webserver_request,
+                                         const std::string& user,
+                                         const std::vector <std::string>& recipients,
+                                         const std::string& bible,
+                                         int book, int chapter,
+                                         const std::map<std::string, std::vector<std::string>>& bibles_per_user,
+                                         int oldId, int newId,
+                                         std::string& email,
+                                         int& change_count, float& time_total, int& time_count)
 {
   if (oldId != 0) {
     const std::string stylesheet = database::config::bible::get_export_stylesheet (bible);
@@ -100,12 +88,15 @@ void changes_process_identifiers (Webserver_Request& webserver_request,
         const std::string old_text = filter_text_old.text_text->get ();
         const std::string new_text = filter_text_new.text_text->get ();
         if (old_text != new_text) {
+          // Enter new lines in the email body.
+          // This avoids this error: 501 Syntax error - line too long.
+          // See https://www.rfc-editor.org/rfc/rfc5322#section-2.1.1
           const std::string modification = filter_diff_diff (old_text, new_text);
-          email += "<div>";
+          email += "<div>\n";
           email += filter_passage_display (book, chapter, std::to_string (verse));
-          email += " ";
+          email += "\n";
           email += modification;
-          email += "</div>";
+          email += "\n</div>\n";
           if (webserver_request.database_config_user()->get_user_user_changes_notifications_online (user)) {
             database::modifications::recordNotification ({user}, changes_personal_category (), bible, book, chapter, verse, old_html, modification, new_html);
           }
@@ -126,9 +117,9 @@ void changes_process_identifiers (Webserver_Request& webserver_request,
             database::modifications::recordNotification ({recipient}, user, bible, book, chapter, verse, old_html, modification, new_html);
           }
         }
-        // Statistics: Count yet another change made by this hard-working user!
+        // Statistics: Count another change made by this user.
         change_count++;
-        int timestamp = database::modifications::getUserTimestamp (user, bible, book, chapter, newId);
+        const int timestamp = database::modifications::getUserTimestamp (user, bible, book, chapter, newId);
         time_total += static_cast<float>(timestamp);
         time_count++;
       }
@@ -172,11 +163,12 @@ void changes_modifications ()
   std::vector <std::string> recipients_named_contributors;
   {
     const std::vector <std::string> users = webserver_request.database_users ()->get_users ();
-    for (const auto& user : users) {
+    const auto online_on = [&] (const auto& user) {
       if (webserver_request.database_config_user ()->get_contributor_changes_notifications_online (user)) {
-        recipients_named_contributors.push_back (user);
+        recipients_named_contributors.push_back(user);
       }
-    }
+    };
+    std::ranges::for_each(users, online_on);
   }
 
   // Storage for the statistics.
@@ -348,7 +340,7 @@ void changes_modifications ()
     
     
     // Storage for body of the email with the changes.
-    std::vector <std::string> email_changes {};
+    std::vector<std::string> email_changes {};
     
     
     // Generate the online change notifications.

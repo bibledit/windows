@@ -68,7 +68,6 @@ std::string bible_manage (Webserver_Request& webserver_request)
   std::string page {};
   
   Assets_Header header = Assets_Header (translate("Bibles"), webserver_request);
-  header.add_bread_crumb (menu_logic_settings_menu (), menu_logic_settings_text ());
   page = header.run ();
   
   Assets_View view {};
@@ -119,7 +118,7 @@ std::string bible_manage (Webserver_Request& webserver_request)
       std::string destination = webserver_request.post_get("entry");
       destination = filter::string::replace ("_", "", destination); // No underscores in the name.
       const std::vector <std::string> bibles = database::bibles::get_bibles ();
-      if (find (bibles.begin(), bibles.end(), destination) != bibles.end()) {
+      if (std::find (bibles.begin(), bibles.end(), destination) != bibles.end()) {
         error_message = translate("Cannot copy the Bible because the destination Bible already exists.");
       } else {
         // User needs read access to the original.

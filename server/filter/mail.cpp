@@ -180,4 +180,109 @@ void filter_mail_dissect (std::string message, std::string & from, std::string &
 }
 
 
+std::string filter_mail_address_name (std::string name)
+{
+  // Allowed characters in the To: and From: headers.
+  // Letters: a-z, A-Z.
+  // Digits: 0-9.
+  // Symbols: ! # $ % & ' * + - / = ? ^ _ { | } ~`.
+  // Dot (.): Allowed, but cannot be the first or last character,
+  //          and cannot appear consecutively (e.g., user..name@example.com is invalid).
+  // Quoted Strings: If the local part is enclosed in quotes, spaces and other characters are permitted, though rarely used.
+  // To make the filter easy, allow only letters, digits, underscores and spaces.
+  // See https://www.rfc-editor.org/rfc/rfc5322.txt
+  // more specifically https://datatracker.ietf.org/doc/html/rfc5322#section-3.4
+  const auto allowed = [](const char c) {
+    // Put the checks in an order likely optimized for speed.
+    if (c >= 'a' and c <= 'z')
+      return true;
+    if (c >= 'A' and c <= 'Z')
+      return true;
+    if (c == ' ')
+      return true;
+    if (c >= '0' and c <= '9')
+      return true;
+    return false;
+  };
+  std::string output;
+  std::ranges::copy_if(name, std::back_inserter(output), allowed);
+  return output;
+}
+
+
 #endif
+
+
+// Limit the length of one line according to RFC5322 section 2.1.1.
+// https://www.rfc-editor.org/rfc/rfc5322#section-2.1.1
+// The function does this while focusing on performance.
+std::string filter_mail_limit_line_length_rfc5322(std::string body, const int length)
+{
+  // If the HTML body length is within the maximum line length: Ready.
+  if (body.length() <= length)
+    return body;
+
+  // Maximum number of iterations allowed: This prevents an infinite loop.
+  int iterations {1000};
+
+  // The caret: The location in the HTML body to work from.
+  size_t caret {0};
+
+  while (iterations--) {
+
+    // Increase the caret with one character: Reasons:
+    // 1. Never search from the same location.
+    // 2. Always move forward.
+    caret++;
+
+    // If the fragment length after the caret is within the maximum length: Ready.
+    if (static_cast<int>(body.length() - caret) < length) {
+      break;
+    }
+
+    // Check whether the next new line after the caret is within the maximum line length.
+    // If so update the caret position and go to next iteration.
+    if (const auto nl_pos = body.find('\n', caret);
+        (nl_pos - caret) <= length) {
+      caret = nl_pos;
+      continue;
+    }
+
+    // Search for the last ">"
+    // in the range of the caret to the caret plus max line length.
+    // Add a new line after that.
+    // Update the caret positon and go to the next iteration.
+    if (auto gt_pos = body.rfind('>', caret + length);
+        gt_pos != std::string::npos and gt_pos > caret)
+    {
+      body.insert(gt_pos + 1, "\n");
+      caret = gt_pos + 1;
+      continue;
+    }
+
+    // The last ">" was not found.
+    // Now look at the last "<"
+    // in the range of the caret to the caret plus max line length.
+    // Add a new line before that.
+    // Update the caret position and go to the next iteration.
+    if (auto st_pos = body.rfind('<', caret + length);
+        st_pos != std::string::npos and st_pos > caret)
+    {
+      body.insert(st_pos, "\n");
+      caret = st_pos + 1;
+      continue;
+    }
+
+    // Okay, the ">" or the "<" were not found: If needed:
+    // 1. Add a new line in the body at the range end.
+    // 2. Update the caret position.
+    if ((body.length() - caret) > length) {
+      const size_t range_end = std::min(caret + length, body.length());
+      body.insert(range_end, "\n");
+      caret = range_end;
+    }
+  }
+
+  // Return the possibly updated body.
+  return body;
+}
