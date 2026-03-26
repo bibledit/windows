@@ -1443,6 +1443,9 @@
     <ClCompile Include="filter\quill.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="filter\mail.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assets\header.h">
