@@ -16,11 +16,27 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-
 #pragma once
 
-#include <config/libraries.h>
-
-const char * developer_delay_url ();
-bool developer_delay_acl ();
-std::string developer_delay ();
+#define VERSION_MAJOR @bibledit_VERSION_MAJOR@
+#define VERSION_MINOR @bibledit_VERSION_MINOR@
+#define VERSION_PATCH @bibledit_VERSION_PATCH@
+#define VERSION "@bibledit_VERSION@"
+#cmakedefine HAVE_LIBMBEDTLS
+#cmakedefine HAVE_LIBPROC
+#cmakedefine HAVE_EXECINFO
+#cmakedefine HAVE_MACH_MACH
+#cmakedefine HAVE_ICU
+#cmakedefine HAVE_UTF8PROC
+#cmakedefine HAVE_PUGIXML
+#cmakedefine HAVE_GTEST
+#define PACKAGE_DATA_DIR "@PACKAGE_DATA_DIR@"
+#define PACKAGE_PREFIX_DIR "@PACKAGE_PREFIX_DIR@"
+#cmakedefine COMPILERGCC
+#cmakedefine COMPILERCLANG
+#cmakedefine HAVE_WINDOWS
+#cmakedefine WIN32
+#cmakedefine HAVE_ANDROID
+#cmakedefine HAVE_MACOS
+#cmakedefine HAVE_LINUX
+#cmakedefine HAVE_IOS
