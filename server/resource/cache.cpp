@@ -39,6 +39,8 @@
 #include <client/logic.h>
 #include <config/globals.h>
 
+#include <database/bibles.h>
+
 
 std::string resource_cache_url ()
 {
@@ -120,8 +122,7 @@ std::string resource_cache (Webserver_Request& webserver_request)
     }
   }
   // Any old USFM resources still available on the client.
-  Database_UsfmResources database_usfmresources;
-  resources = database_usfmresources.getResources ();
+  resources = database::usfm_resources::get_resources ();
   for (auto & resource2 : resources) {
     resource_types [resource2] = old_type;
     all_resources.push_back (resource2);

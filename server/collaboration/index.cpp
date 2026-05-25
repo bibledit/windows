@@ -17,21 +17,19 @@
  */
 
 
-#include <collaboration/index.h>
-#include <assets/view.h>
-#include <assets/page.h>
 #include <assets/header.h>
-#include <filter/roles.h>
-#include <filter/string.h>
-#include <filter/git.h>
-#include <filter/url.h>
-#include <filter/shell.h>
-#include <webserver/request.h>
-#include <locale/translate.h>
-#include <access/bible.h>
+#include <assets/page.h>
+#include <assets/view.h>
+#include <collaboration/index.h>
+#include <database/bibles.h>
 #include <database/config/bible.h>
 #include <dialog/select.h>
-#include <menu/logic.h>
+#include <filter/git.h>
+#include <filter/roles.h>
+#include <filter/shell.h>
+#include <filter/url.h>
+#include <locale/translate.h>
+#include <webserver/request.h>
 
 
 std::string collaboration_index_url ()
@@ -49,7 +47,7 @@ bool collaboration_index_acl (Webserver_Request& webserver_request)
 std::string collaboration_index (Webserver_Request& webserver_request)
 {
   std::string page {};
-  Assets_Header header = Assets_Header (translate("Repository"), webserver_request);
+  auto header = Assets_Header (translate("Repository"), webserver_request);
   page = header.run ();
   Assets_View view;
 
@@ -60,7 +58,7 @@ std::string collaboration_index (Webserver_Request& webserver_request)
   // The selected Bible to set collaboration up for.
   std::string object = webserver_request.query ["object"];
   {
-    constexpr const char* identification {"selectbible"};
+    constexpr auto identification {"selectbible"};
     if (webserver_request.post_count(identification)) {
       object = webserver_request.post_get(identification);
     }
@@ -78,12 +76,12 @@ std::string collaboration_index (Webserver_Request& webserver_request)
     view.enable_zone ("objectactive");
 
 
-  const std::string& repositoryfolder = filter_git_directory (object);
+  const std::string& repository_folder = filter_git_directory (object);
 
   
-  if (webserver_request.query.count ("disable")) {
+  if (webserver_request.query.contains ("disable")) {
     database::config::bible::set_remote_repository_url (object, "");
-    filter_url_rmdir (repositoryfolder);
+    filter_url_rmdir (repository_folder);
   }
   const std::string& url = database::config::bible::get_remote_repository_url (object);
   view.set_variable ("url", url);
@@ -101,9 +99,9 @@ std::string collaboration_index (Webserver_Request& webserver_request)
   // And the standard error output is needed in case of failures.
   // So the following is used instead.
   if (!object.empty ()) {
-    std::string statusoutput, statuserror;
-    filter::shell::run (repositoryfolder, filter::shell::get_executable(filter::shell::Executable::git), {"status"}, &statusoutput, &statuserror);
-    view.set_variable ("status", statusoutput + " " + statuserror);
+    std::string status_output, status_error;
+    filter::shell::run (repository_folder, filter::shell::get_executable(filter::shell::Executable::git), {"status"}, &status_output, &status_error);
+    view.set_variable ("status", status_output + " " + status_error);
   }
 
   

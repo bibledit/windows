@@ -160,7 +160,7 @@ void bibledit_initialize_library (const char * package, const char * webroot)
 // This is necessary for client devices which are always logged-in.
 // The detection of touch-enabled devices happens during login,
 // so when the login is skipped, the device is not detected.
-// Therefore the calling program can preset touch-enabled here through this library call.
+// Therefore, the calling program can preset touch-enabled here through this library call.
 void bibledit_set_touch_enabled (bool enabled)
 {
   // Set global variable for use elsewhere in the library.
@@ -208,7 +208,10 @@ void bibledit_start_library ()
   
   // Set running flag.
   config_globals_webserver_running = true;
-  
+
+  // Start the thread pool with the workers.
+  start_thread_pool(); // Todo determine pool size.
+
   // Run the plain web server in a thread.
   config_globals_http_worker = new std::thread (http_server);
   
@@ -305,56 +308,60 @@ void bibledit_last_ditch_forced_exit ()
 
 // Stop the library.
 // Can be called multiple times during the lifetime of the app.
-void bibledit_stop_library ()
+void bibledit_stop_library()
 {
-  // Repeating stop guard.
-  if (!bibledit_started) return;
-  bibledit_started = false;
+    // Repeating stop guard.
+    if (!bibledit_started) return;
+    bibledit_started = false;
 
-  // Clear running flag.
-  config_globals_webserver_running = false;
-  
-  std::string url, error;
-  
-  // Connect to the plain webserver to initiate its shutdown mechanism.
-  url = "http://localhost:";
-  url.append (config::logic::http_network_port ());
-  filter_url_http_get (url, error, false);
+    // Clear running flag.
+    config_globals_webserver_running = false;
 
-#ifdef RUN_SECURE_SERVER
-  // If the secure server runs, connect to it to initiate its shutdown mechanism.
-  std::string https_port = config::logic::https_network_port ();
-  if (https_port.length() > 1) {
-    url = "https://localhost:";
-    url.append (https_port);
-    filter_url_http_get (url, error, false);
-    // Let the connection start, then close it.
-    // The server will then abort the TLS handshake, and shut down.
-  }
-#endif
-
-  // Another way of doing the above is to ::raise a signal to each of the listening threads.
-  // That signal will unblock the blocking BSD sockets, and so allow the shutdown process to proceed.
-  
 #ifndef HAVE_ANDROID
 #ifndef HAVE_IOS
-  // Schedule a timer to exit(0) the program in case the network stack fails to exit the servers.
-  // This should not be done on devices like Android and iOS
-  // because then the app would quit when the user moves the app to the background,
-  // whereas the user expects the app to stay alive in the background.
-  new std::thread (bibledit_last_ditch_forced_exit);
+    // Schedule a timer to exit(0) the program in case the network stack fails to exit the servers.
+    // This should not be done on devices like Android and iOS
+    // because then the app would quit when the user moves the app to the background,
+    // whereas the user expects the app to stay alive in the background.
+    new std::thread(bibledit_last_ditch_forced_exit);
 #endif
 #endif
 
-  // Wait till the servers and the timers shut down.
-  config_globals_http_worker->join ();
-  config_globals_https_worker->join ();
-  config_globals_timer->join ();
-  
-  // Clear memory.
-  delete config_globals_http_worker;
-  delete config_globals_https_worker;
-  delete config_globals_timer;
+    std::string url, error;
+
+    // Connect to the plain webserver to initiate its shutdown mechanism.
+    url = "http://localhost:";
+    url.append(config::logic::http_network_port());
+    filter_url_http_get(url, error, false);
+
+#ifdef RUN_SECURE_SERVER
+    // If the secure server runs, connect to it to initiate its shutdown mechanism.
+    std::string https_port = config::logic::https_network_port();
+    if (https_port.length() > 1)
+    {
+        url = "https://localhost:";
+        url.append(https_port);
+        filter_url_http_get(url, error, false);
+        // Let the connection start, then close it.
+        // The server will then abort the TLS handshake, and shut down.
+    }
+#endif
+
+    // Stop the thread pool for the workers.
+    stop_thread_pool();
+
+    // Another way of doing the above is to ::raise a signal to each of the listening threads.
+    // That signal will unblock the blocking BSD sockets, and so allow the shutdown process to proceed.
+
+    // Wait till the servers and the timers shut down.
+    config_globals_http_worker->join();
+    config_globals_https_worker->join();
+    config_globals_timer->join();
+
+    // Clear memory.
+    delete config_globals_http_worker;
+    delete config_globals_https_worker;
+    delete config_globals_timer;
 }
 
 
