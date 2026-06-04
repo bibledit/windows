@@ -100,7 +100,9 @@ static_assert (false, "MbedTLS version other than 2 or 3");
 #endif
 
 
+#ifdef HAVE_THREADPOOL
 static void enqueue_task(std::function<void()> task);
+#endif
 
 // Gets a line from a socket.
 // The line may end with a newline, a carriage return, or a CR-LF combination.
@@ -426,8 +428,13 @@ void http_server()
             std::string client_address = remote_address;
             convert_ipv6_notation_to_pure_ipv4_notation(client_address);
 
-            // Handle this request via the thread pool, enabling parallel requests.
-            enqueue_task(std::bind(webserver_process_request, conn_fd, client_address));
+            // Handle this request in a thread, enabling parallel requests.
+#ifdef HAVE_THREADPOOL
+            enqueue_task([conn_fd, client_address] { webserver_process_request(conn_fd, client_address); });
+#else
+            auto request_thread = std::thread (webserver_process_request, conn_fd, client_address);
+            request_thread.detach ();
+#endif
         }
         else
         {
@@ -1067,7 +1074,13 @@ void https_server()
         }
 
         // Handle this request via the thread pool, enabling parallel requests.
-        enqueue_task(std::bind(secure_webserver_process_request, &conf, client_fd));
+#ifdef HAVE_THREADPOOL
+        const auto conf_ptr = std::addressof(conf);
+        enqueue_task([conf_ptr, client_fd] { secure_webserver_process_request(conf_ptr, client_fd); });
+#else
+        auto request_thread = std::thread (secure_webserver_process_request, &conf, client_fd);
+        request_thread.detach ();
+#endif
     }
 
     // Wait shortly to give sufficient time to let the connection fail,
@@ -1103,11 +1116,17 @@ static std::mutex mutex;
 // Condition variable to signal changes in the state of the tasks queue.
 static std::condition_variable cv;
 
-// Flag to indicate whether the thread pool should stop.
-static std::atomic stop {false};
+// Flag to indicate whether the thread pool should run.
+static std::atomic run_pool {false};
 
 void start_thread_pool(const std::size_t num_threads)
 {
+#ifdef HAVE_THREADPOOL
+    // Guard against double starting.
+    if (run_pool)
+        return;
+    // Flag to run.
+    run_pool = true;
     // Creating worker threads.
     for (size_t i = 0; i < num_threads; ++i) {
         thread_pool.emplace_back([] {
@@ -1122,11 +1141,11 @@ void start_thread_pool(const std::size_t num_threads)
                     // Waiting until there is a task to execute or the pool is stopped.
                     // While in .wait it unlocks the mutex on the queue.
                     cv.wait(lock, [] {
-                        return not tasks.empty() or stop;
+                        return not tasks.empty() or not run_pool;
                     });
 
                     // Exit the thread in case the pool is stopped, disregarding pending http requests.
-                    if (stop)
+                    if (not run_pool)
                         return;
 
                     // Get the next task from the queue.
@@ -1139,22 +1158,36 @@ void start_thread_pool(const std::size_t num_threads)
             }
         });
     }
+#endif
 }
 
 
 void stop_thread_pool()
 {
+#ifdef HAVE_THREADPOOL
+    // Guard against double stopping.
+    if (not run_pool)
+        return;
+
     // Indicate stop.
-    stop = true;
+    run_pool = false;
 
     // Notify all threads
     cv.notify_all();
 
-    // Join all worker threads to ensure they have completed their tasks.
-    std::ranges::for_each(thread_pool, [](std::thread &t){ t.join(); });
+    // Join all worker threads, if possible, to ensure they have completed their tasks.
+    std::ranges::for_each(thread_pool, [](std::thread &t)
+    {
+        if (t.joinable())
+            t.join();
+    });
+    // Clear them so they are no longer available on a possible subsequent shutdown.
+    thread_pool.clear();
+#endif
 }
 
 
+#ifdef HAVE_THREADPOOL
 void enqueue_task(std::function<void()> task)
 {
     {
@@ -1163,3 +1196,4 @@ void enqueue_task(std::function<void()> task)
     }
     cv.notify_one();
 }
+#endif

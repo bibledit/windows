@@ -24,7 +24,7 @@
 #define HAVE_UPLOAD 1
 
 
-// Maxinum number of simultaneous background tasks.
+// Maximum number of simultaneous background tasks.
 #define MAX_PARALLEL_TASKS 10
 
 
@@ -38,6 +38,10 @@
 
 // Whether it runs the secure webserver.
 #define RUN_SECURE_SERVER 1
+
+
+// Whether it uses a thread pool for handling web requests.
+#define HAVE_THREADPOOL 1
 
 
 #ifdef HAVE_WINDOWS
@@ -100,6 +104,6 @@
 #define HAVE_TINY_JOURNAL 1
 #undef RUN_SECURE_SERVER
 // The std::filesystem makes the app so slow in the iOS simulator
-// that it appears to be suck during the setup phase, where it copies files.
+// that it appears to be stuck during the setup phase, where it copies files.
 // This was tested in August 2024.
 #endif
