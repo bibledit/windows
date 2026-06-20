@@ -79,6 +79,7 @@ rm valgrind
 rm config.h.in
 find . -name ".dirstamp" -delete
 find . -name "*.bak" -delete
+rm bibledit
 
 
 # Clean stuff out.
