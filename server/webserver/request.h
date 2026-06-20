@@ -28,10 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 class Webserver_Request
 {
 public:
-    Webserver_Request();
+    explicit Webserver_Request() = default;
     ~Webserver_Request();
     Webserver_Request(const Webserver_Request&) = delete;
-    Webserver_Request operator=(const Webserver_Request&) = delete;
+    Webserver_Request& operator=(const Webserver_Request&) = delete;
+    Webserver_Request(Webserver_Request&&) = delete;
+    Webserver_Request& operator=(Webserver_Request&&) = delete;
     // Whether the connection runs via the secure server.
     bool secure{false};
     // The session identifier of the cookie sent by the browser.
@@ -41,15 +43,15 @@ public:
     // The browser's or client's remote IPv4 or IPv6 address.
     std::string remote_address{};
     // The page the browser requests via GET or via POST.
-    std::string get{};
+    std::string get{"/index"};
     // Whether it is a POST request.
     bool is_post{false};
     // The query from the browser, e.g. foo=bar&baz=qux, neatly arranged into a map.
     std::map<std::string, std::string> query{};
     // The browser's user agent, e.g. Mozilla/x.0 (X11; Linux) ...
-    std::string user_agent{};
+    std::string user_agent{"Browser/1.0"};
     // The browser's or client's Accept-Language header.
-    std::string accept_language{};
+    std::string accept_language{"en-US"};
     // The server's host as requested by the client.
     std::string host{};
     // The content type of the browser request.
@@ -68,7 +70,7 @@ public:
     // Body to be sent back to the browser.
     std::string reply{};
     // Response code to be sent to the browser.
-    int response_code{0};
+    int response_code{200};
     // The requested file's size for browser caching.
     std::string etag{};
     // The content type of the response.

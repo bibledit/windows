@@ -28,17 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/config/bible.h>
 #include <database/bibles.h>
 #include "filter/passage.h"
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++"
-#pragma GCC diagnostic ignored "-Wsuggest-override"
-#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
-#ifndef HAVE_PUGIXML
-#include <pugixml/pugixml.hpp>
-#endif
-#ifdef HAVE_PUGIXML
-#include <pugixml.hpp>
-#endif
-#pragma GCC diagnostic pop
+#include <pugixml/include.h>
 #include <locale/translate.h>
 #include <tasks/logic.h>
 #include <rss/feed.h>
@@ -198,7 +188,7 @@ void rss_logic_update_xml (std::vector <std::string> titles, std::vector <std::s
     document_updated = true;
   }
   pugi::xml_node channel = rss_node.child ("channel");
-  for (size_t i = 0; i < titles.size(); i++) {
+  for (std::size_t i = 0; i < titles.size(); i++) {
     pugi::xml_node item = channel.append_child ("item");
     std::string guid2 = guid + std::to_string (i);
     pugi::xml_node guid_node = item.append_child ("guid");

@@ -17,23 +17,22 @@
  */
 
 
-#include <filter/md5.h>
-#include <mbedtls/md5.h>
+#pragma once
 
+#include <config.h>
 
-std::string md5(const std::string& str)
-{
-    const auto* input = reinterpret_cast<const unsigned char*>(str.c_str());
+// Including pugixml is a multi-line operations.
+// Therefore, this file makes that simple for clients.
+// Include just this file, that's all.
 
-    unsigned char md5sum[16];
-    mbedtls_md5(input, str.size(), md5sum);
-
-    // Space for 32 bytes of hexits and one terminating null byte.
-    char hexits[32 + 1] = {};
-
-    for (int i = 0; i < 16; i++)
-        snprintf(&hexits[i * 2], 3, "%02x", static_cast<unsigned int>(md5sum[i]));
-
-    // Resulting hexits.
-    return {hexits};
-}
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#ifndef HAVE_PUGIXML
+#include <pugixml/pugixml.hpp>
+#endif
+#ifdef HAVE_PUGIXML
+#include <pugixml.hpp>
+#endif
+#pragma GCC diagnostic pop
