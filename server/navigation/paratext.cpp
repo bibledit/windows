@@ -42,7 +42,7 @@ std::string navigation_paratext (Webserver_Request& webserver_request)
   // Reference should differ from the previous one.
   if (!from.empty () && (from != previous_from)) {
     previous_from = from;
-    Database_Logs::log("Paratext is at " + from);
+    database::logs::log("Paratext is at " + from);
     // User should have set to receive references from Paratext.
     if (webserver_request.database_config_user ()->get_receive_focused_reference_from_paratext ()) {
       // Parse the reference from Paratext.
@@ -74,8 +74,8 @@ std::string navigation_paratext (Webserver_Request& webserver_request)
             passages.push_back (Passage ("", book, chapter, std::to_string (verse)));
           }
           if (passages.empty()) return std::string();
-          chapter = passages[0].m_chapter;
-          verse = filter::string::convert_to_int (passages[0].m_verse);
+          chapter = passages[0].chapter();
+          verse = filter::string::convert_to_int (passages[0].verse());
           // Set the focused passage for Bibledit.
           ipc_focus::set_passage (webserver_request, book, chapter, verse);
         }

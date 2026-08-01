@@ -124,7 +124,7 @@ void tasks_run_one (const std::string& filename)
   }
   
   if (command == task::rotate_journal) {
-    Database_Logs::rotate ();
+    database::logs::rotate ();
   }
   else if (command == task::receive_email) {
     email::receive ();
@@ -139,7 +139,7 @@ void tasks_run_one (const std::string& filename)
     search_reindex_notes ();
   }
   else if (command == task::create_css) {
-    styles_sheets_create_all_run ();
+    styles::sheets::create_all_run ();
   }
   else if (command == task::import_bible) {
     bible_import_run (parameter1, parameter2, filter::string::convert_to_int (parameter3), filter::string::convert_to_int (parameter4));
@@ -305,7 +305,7 @@ void tasks_run_one (const std::string& filename)
     filter::google::refresh_access_token ();
   }
   else {
-    Database_Logs::log ("Unknown task: " + command);
+    database::logs::log ("Unknown task: " + command);
   }
 
   // Decrease running tasks count.

@@ -101,7 +101,7 @@ void user_logic_delete_account (std::string user, std::string role, std::string 
                                 std::string & feedback)
 {
   feedback = "Deleted user " + user + " with role " + role + " and email " + email;
-  Database_Logs::log (feedback, roles::admin);
+  database::logs::log (feedback, roles::admin);
   Database_Users database_users;
   database_users.removeUser (user);
   database_privileges_client_remove (user);
@@ -113,7 +113,7 @@ void user_logic_delete_account (std::string user, std::string role, std::string 
   // can never be achieved again.
   DatabasePrivileges::remove_user (user);
   // Remove any login tokens the user might have had: Just to clean things up.
-  Database_Login::removeTokens (user);
+  database::login::remove_tokens (user);
   // Remove any settings for the user.
   // The advantage of this is that when a user is removed, all settings are gone,
   // so when the same user would be created again, all settings will go back to their defaults.

@@ -50,7 +50,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 void database_maintenance ()
 {
-  Database_Logs::log ("Maintaining databases", roles::manager);
+  database::logs::log ("Maintaining databases", roles::manager);
   
   
   // Whether running in client mode.
@@ -87,9 +87,8 @@ void database_maintenance ()
   
   database::bibles::optimize ();
 
-  
-  Database_Ipc database_ipc (webserver_request);
-  database_ipc.trim ();
+
+  database_ipc::trim ();
   
   
   Database_Notes database_notes (webserver_request);
@@ -110,19 +109,18 @@ void database_maintenance ()
   Database_Navigation database_navigation;
   database_navigation.create();
   database_navigation.trim();
-  
-  
-  Database_Jobs database_jobs = Database_Jobs ();
-  database_jobs.trim ();
-  database_jobs.optimize ();
+
+
+  database_jobs::trim ();
+  database_jobs::optimize ();
   
   
   Database_Config_User database_config_user (webserver_request);
   database_config_user.trim ();
   
   
-  Database_Login::trim ();
-  Database_Login::optimize ();
+  database::login::trim ();
+  database::login::optimize ();
   
 
   DatabasePrivileges::optimize ();

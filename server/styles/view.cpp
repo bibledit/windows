@@ -23,23 +23,14 @@
 #include <assets/page.h>
 #include <dialog/entry.h>
 #include <dialog/select.h>
-#include <dialog/color.h>
 #include <filter/roles.h>
 #include <filter/url.h>
 #include <filter/string.h>
-#include <tasks/logic.h>
 #include <webserver/request.h>
-#include <journal/index.h>
-#include <database/config/user.h>
-#include <database/logs.h>
-#include <access/user.h>
 #include <locale/translate.h>
 #include <styles/sheets.h>
 #include <assets/header.h>
-#include <menu/logic.h>
-#include <styles/indexm.h>
 #include <assets/external.h>
-
 #include "database/styles.h"
 
 
@@ -102,7 +93,7 @@ std::string styles_view (Webserver_Request& webserver_request)
   if (webserver_request.query.count ("reset")) {
     if (write) {
       database::styles::reset_marker(sheet, style);
-      styles_sheets_create_all();
+      styles::sheets::create_all();
       const std::string url = filter_url_build_http_query(styles_view_url(), {
         {"sheet", sheet}, {"style", style},
       });
@@ -569,7 +560,7 @@ std::string styles_view (Webserver_Request& webserver_request)
 
   
   // A style can be reset to its default values if the style's marker is among the default styles.
-  if (std::find(stylesv2::styles.cbegin(), stylesv2::styles.cend(), style) != stylesv2::styles.cend())
+  if (std::ranges::find(stylesv2::styles, style, &stylesv2::Style::marker) != stylesv2::styles.cend())
     view.enable_zone("reset");
   else
     view.enable_zone("noreset");
@@ -580,7 +571,7 @@ std::string styles_view (Webserver_Request& webserver_request)
     if (write) {
       if (!marker_data.marker.empty())
         database::styles::save_style(sheet, marker_data);
-      styles_sheets_create_all();
+      styles::sheets::create_all();
     }
   }
 

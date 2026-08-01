@@ -61,7 +61,7 @@ std::string notes_click (Webserver_Request& webserver_request)
     open = filter_url_basename_web (open);
     int iopen = filter::string::convert_to_int (open);
     if (database_notes.identifier_exists (iopen)) {
-      Ipc_Notes::open (webserver_request, iopen);
+      ipc_notes::open (webserver_request, iopen);
     }
   }
   
@@ -79,8 +79,8 @@ std::string notes_click (Webserver_Request& webserver_request)
     contents += "<p>" + translate("New text:") + "</p>";
     contents += database::modifications::getNotificationNewText (inew);
     Passage passage = database::modifications::getNotificationPassage (inew);
-    int identifier = notes_logic.createNote (bible, passage.m_book, passage.m_chapter, filter::string::convert_to_int (passage.m_verse), summary, contents, false);
-    Ipc_Notes::open (webserver_request, identifier);
+    int identifier = notes_logic.createNote (bible, passage.book(), passage.chapter(), filter::string::convert_to_int (passage.verse()), summary, contents, false);
+    ipc_notes::open (webserver_request, identifier);
   }
   
 

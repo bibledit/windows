@@ -192,7 +192,7 @@ void Database_Notes::trim ()
       const std::string folder1 = filter_url_create_path ({main_folder, bit1});
       const std::vector <std::string> bits2 = filter_url_scandir (folder1);
       if (bits2.empty ()) {
-        Database_Logs::log (message + folder1);
+        database::logs::log (message + folder1);
         remove (folder1.c_str ());
       }
       for (const auto& bit2 : bits2) {
@@ -200,7 +200,7 @@ void Database_Notes::trim ()
           const std::string folder2 = filter_url_create_path ({main_folder, bit1, bit2});
           const std::vector <std::string> bits3 = filter_url_scandir (folder2);
           if (bits3.empty ()) {
-            Database_Logs::log (message + folder2);
+            database::logs::log (message + folder2);
             remove (folder2.c_str());
           }
         }
@@ -262,7 +262,7 @@ void Database_Notes::sync ()
         if ((bit2.length () == 11) && bit2.find (".json") != std::string::npos) {
           const int identifier = filter::string::convert_to_int (bit1 + bit2.substr (0,6));
           if (get_raw_passage (identifier).empty()) {
-            Database_Logs::log ("Damaged consultation note found");
+            database::logs::log ("Damaged consultation note found");
             continue;
           }
           good_note_ids.push_back (identifier);
@@ -1165,9 +1165,9 @@ Passage Database_Notes::decode_passage (std::string passage)
   passage = filter::string::trim (passage);
   Passage decodedpassage = Passage ();
   std::vector <std::string> lines = filter::string::explode (passage, '.');
-  if (lines.size() > 0) decodedpassage.m_book = filter::string::convert_to_int (lines[0]);
-  if (lines.size() > 1) decodedpassage.m_chapter = filter::string::convert_to_int (lines[1]);
-  if (lines.size() > 2) decodedpassage.m_verse = lines[2];
+  if (lines.size() > 0) decodedpassage.book(filter::string::convert_to_int (lines[0]));
+  if (lines.size() > 1) decodedpassage.chapter(filter::string::convert_to_int (lines[1]));
+  if (lines.size() > 2) decodedpassage.verse(lines[2]);
   return decodedpassage;
 }
 
@@ -1212,7 +1212,7 @@ void Database_Notes::set_passages (int identifier, const std::vector <Passage>& 
   std::string line;
   for (auto & passage : passages) {
     if (!line.empty ()) line.append ("\n");
-    line.append (encode_passage (passage.m_book, passage.m_chapter, filter::string::convert_to_int (passage.m_verse)));
+    line.append (encode_passage (passage.book(), passage.chapter(), filter::string::convert_to_int (passage.verse())));
   }
   // Store it.
   set_raw_passage (identifier, line);

@@ -31,17 +31,7 @@
 #include <tasks/logic.h>
 #include <webserver/request.h>
 #include <database/bibles.h>
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++"
-#pragma GCC diagnostic ignored "-Wsuggest-override"
-#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
-#ifndef HAVE_PUGIXML
-#include <pugixml/pugixml.hpp>
-#endif
-#ifdef HAVE_PUGIXML
-#include <pugixml.hpp>
-#endif
-#pragma GCC diagnostic pop
+#include <pugixml/include.h>
 
 
 std::string compare_index_url()
@@ -69,9 +59,8 @@ std::string compare_index(Webserver_Request& webserver_request)
     if (webserver_request.query.contains("compare"))
     {
         const std::string compare = webserver_request.query["compare"];
-        auto database_jobs = Database_Jobs();
-        const int job_id = database_jobs.get_new_id();
-        database_jobs.set_level(job_id, roles::consultant);
+        const int job_id = database_jobs::get_new_id();
+        database_jobs::set_level(job_id, roles::consultant);
         tasks_logic_queue(task::compare_usfm, {bible, compare, std::to_string(job_id)});
         redirect_browser(webserver_request, jobs_index_url() + "?id=" + std::to_string(job_id));
         return {};

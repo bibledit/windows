@@ -144,7 +144,7 @@ std::string edit_index (Webserver_Request& webserver_request)
   view.set_variable ("script", script);
   
   
-  const std::string clss = filter::css::getClass (bible);
+  const std::string clss = filter::css::get_class (bible);
   const std::string font = fonts::logic::get_text_font (bible);
   const int current_theme_index = webserver_request.database_config_user ()->get_current_theme ();
   const int direction = database::config::bible::get_text_direction (bible);
@@ -157,8 +157,8 @@ std::string edit_index (Webserver_Request& webserver_request)
   view.set_variable ("editor_theme_color", filter::css::theme_picker (current_theme_index, 2));
   view.set_variable ("active_editor_theme_color", filter::css::theme_picker (current_theme_index, 3));
   view.set_variable ("custom_class", clss);
-  view.set_variable ("custom_css", filter::css::get_css (clss, fonts::logic::get_font_path (font),
-                                                        direction, lineheight, letterspacing));
+  view.set_variable("custom_css", filter::css::get_css(clss, fonts::logic::get_font_path(font), {},
+                                                       direction, lineheight, letterspacing));
   
  
   // In basic mode the editor has no controls and fewer indicators.

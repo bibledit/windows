@@ -53,9 +53,6 @@ std::string system_logic_bibles_file_name ()
 // This produes a tarball with all installed Bibles.
 void system_logic_produce_bibles_file (int jobid)
 {
-  Database_Jobs database_jobs;
-
-  
   // Generate the initial page.
   {
     HtmlText html_text ("");
@@ -63,7 +60,7 @@ void system_logic_produce_bibles_file (int jobid)
     html_text.add_text (translate ("Generating a file with the Bibles."));
     html_text.new_paragraph ();
     html_text.add_text (translate ("In progress..."));
-    database_jobs.set_start (jobid, html_text.get_inner_html ());
+    database_jobs::set_start (jobid, html_text.get_inner_html ());
   }
 
   
@@ -121,21 +118,21 @@ void system_logic_produce_bibles_file (int jobid)
       html_text.new_paragraph ();
       html_text.add_text (error);
     }
-    database_jobs.set_result (jobid, html_text.get_inner_html ());
+    database_jobs::set_result (jobid, html_text.get_inner_html ());
   }
 }
 
 
 void system_logic_import_bibles_file (std::string tarball)
 {
-  Database_Logs::log ("Importing Bibles from " + tarball);
+  database::logs::log ("Importing Bibles from " + tarball);
 
   // Unpack the tarball into a directory.
   std::string directory = filter_url_tempfile ();
   filter_url_mkdir (directory);
   std::string error= filter::archive::microtar_unpack (tarball, directory);
   if (!error.empty ()) {
-    Database_Logs::log ("Importing Bibles failure: " + error);
+    database::logs::log ("Importing Bibles failure: " + error);
     return;
   }
 
@@ -144,7 +141,7 @@ void system_logic_import_bibles_file (std::string tarball)
   for (auto file : files) {
     
     // Get the file's contents for import.
-    Database_Logs::log ("Importing from file " + file);
+    database::logs::log ("Importing from file " + file);
     std::string path = filter_url_create_path ({directory, file});
     std::string data = filter_url_file_get_contents (path);
     
@@ -164,10 +161,10 @@ void system_logic_import_bibles_file (std::string tarball)
         // so importing outdated Bibles would not affect the authoritative copy in the Cloud.
         database::bibles::store_chapter (bible, book_chapter_data.m_book, book_chapter_data.m_chapter, book_chapter_data.m_data);
         std::string bookname = database::books::get_english_from_id (static_cast<book_id>(book_chapter_data.m_book));
-        Database_Logs::log ("Imported " + bible + " " + bookname + " " + std::to_string (book_chapter_data.m_chapter));
+        database::logs::log ("Imported " + bible + " " + bookname + " " + std::to_string (book_chapter_data.m_chapter));
       } else {
         // Import error.
-        Database_Logs::log ("Could not import this file: " + file);
+        database::logs::log ("Could not import this file: " + file);
       }
     }
   }
@@ -181,7 +178,7 @@ void system_logic_import_bibles_file (std::string tarball)
   tasks_logic_queue (task::reindex_bibles, {"1"});
 
   // Ready, hallelujah!
-  Database_Logs::log ("Importing Bibles ready");
+  database::logs::log ("Importing Bibles ready");
 }
 
 
@@ -194,9 +191,6 @@ std::string system_logic_notes_file_name ()
 // This produes a tarball with all local Consultation Notes.
 void system_logic_produce_notes_file (int jobid)
 {
-  Database_Jobs database_jobs;
- 
-  
   // Generate the initial page.
   {
     HtmlText html_text ("");
@@ -204,7 +198,7 @@ void system_logic_produce_notes_file (int jobid)
     html_text.add_text (translate ("Generating a file with the Consultation Notes."));
     html_text.new_paragraph ();
     html_text.add_text (translate ("In progress..."));
-    database_jobs.set_start (jobid, html_text.get_inner_html ());
+    database_jobs::set_start (jobid, html_text.get_inner_html ());
   }
   
   
@@ -245,14 +239,14 @@ void system_logic_produce_notes_file (int jobid)
       html_text.new_paragraph ();
       html_text.add_text (error);
     }
-    database_jobs.set_result (jobid, html_text.get_inner_html ());
+    database_jobs::set_result (jobid, html_text.get_inner_html ());
   }
 }
 
 
 void system_logic_import_notes_file (std::string tarball)
 {
-  Database_Logs::log ("Importing Consultation Notes from " + tarball);
+  database::logs::log ("Importing Consultation Notes from " + tarball);
   
   // The database directory where the consultation notes reside.
   std::string directory = filter_url_create_root_path ({"consultations"});
@@ -260,7 +254,7 @@ void system_logic_import_notes_file (std::string tarball)
   // Unpack the tarball into the directory.
   std::string error= filter::archive::microtar_unpack (tarball, directory);
   if (!error.empty ()) {
-    Database_Logs::log ("Importing Consultation Notes failure: " + error);
+    database::logs::log ("Importing Consultation Notes failure: " + error);
     return;
   }
   
@@ -272,7 +266,7 @@ void system_logic_import_notes_file (std::string tarball)
   tasks_logic_queue (task::reindex_notes);
 
   // Ready, hallelujah!
-  Database_Logs::log ("Importing Consultation Notes ready");
+  database::logs::log ("Importing Consultation Notes ready");
 }
 
 
@@ -286,9 +280,6 @@ std::string system_logic_resources_file_name (std::string resourcename)
 // This produces a tarball with all installed resources.
 void system_logic_produce_resources_file (int jobid)
 {
-  Database_Jobs database_jobs;
-  
-  
   // Generate the initial page.
   {
     HtmlText html_text ("");
@@ -296,7 +287,7 @@ void system_logic_produce_resources_file (int jobid)
     html_text.add_text (translate ("Generating a file with the resources."));
     html_text.new_paragraph ();
     html_text.add_text (translate ("In progress..."));
-    database_jobs.set_start (jobid, html_text.get_inner_html ());
+    database_jobs::set_start (jobid, html_text.get_inner_html ());
   }
   
   // The location of the single tarball to generate.
@@ -349,8 +340,8 @@ void system_logic_produce_resources_file (int jobid)
   // so the size of the file is not very important.
   // Not compressing speeds things up a great lot.
   tarball_counter++;
-  database_jobs.set_percentage (jobid, 100 * tarball_counter / tarball_count);
-  database_jobs.set_progress (jobid, translate ("All"));
+  database_jobs::set_percentage (jobid, 100 * tarball_counter / tarball_count);
+  database_jobs::set_progress (jobid, translate ("All"));
   std::string error = filter::archive::microtar_pack (tarball, directory, resources);
 
   
@@ -359,8 +350,8 @@ void system_logic_produce_resources_file (int jobid)
     tarball_counter++;
     std::string resource_name = element.first;
     std::vector <std::string> v_resources = element.second;
-    database_jobs.set_percentage (jobid, 100 * tarball_counter / tarball_count);
-    database_jobs.set_progress (jobid, resource_name);
+    database_jobs::set_percentage (jobid, 100 * tarball_counter / tarball_count);
+    database_jobs::set_progress (jobid, resource_name);
     std::string resource_tarball = filter_url_create_root_path ({system_logic_resources_file_name (resource_name)});
     error += filter::archive::microtar_pack (resource_tarball, directory, v_resources);
   }
@@ -405,21 +396,21 @@ void system_logic_produce_resources_file (int jobid)
       html_text.add_text (" ");
       html_text.add_text (translate ("Install some resources on the device, and try again."));
     }
-    database_jobs.set_result (jobid, html_text.get_inner_html ());
+    database_jobs::set_result (jobid, html_text.get_inner_html ());
   }
 }
 
 
 void system_logic_import_resources_file (std::string tarball)
 {
-  Database_Logs::log ("Importing Resources from " + tarball);
+  database::logs::log ("Importing Resources from " + tarball);
   
   // Unpack the tarball into a directory.
   std::string directory = filter_url_tempfile ();
   filter_url_mkdir (directory);
   std::string error= filter::archive::microtar_unpack (tarball, directory);
   if (!error.empty ()) {
-    Database_Logs::log ("Importing Resources failure: " + error);
+    database::logs::log ("Importing Resources failure: " + error);
     return;
   }
   
@@ -428,7 +419,7 @@ void system_logic_import_resources_file (std::string tarball)
   for (auto file : files) {
 
     // Get the file's contents for import.
-    Database_Logs::log ("Importing " + file);
+    database::logs::log ("Importing " + file);
     std::string path = filter_url_create_path ({directory, file});
     std::string data = filter_url_file_get_contents (path);
 
@@ -442,7 +433,7 @@ void system_logic_import_resources_file (std::string tarball)
   filter_url_unlink (tarball);
 
   // Ready, hallelujah!
-  Database_Logs::log ("Importing Resources ready");
+  database::logs::log ("Importing Resources ready");
 }
 
 

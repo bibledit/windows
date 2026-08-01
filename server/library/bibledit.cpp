@@ -138,7 +138,7 @@ void bibledit_initialize_library (const char * package, const char * webroot)
   hours = static_cast<int>(round (lt.tm_gmtoff / 3600));
 #endif
   config_globals_timezone_offset_utc = hours;
-  Database_Logs::log ("Timezone offset in hours: " + std::to_string(hours));
+  database::logs::log ("Timezone offset in hours: " + std::to_string(hours));
 #endif
 
   // Initialize obfuscation data.
@@ -383,7 +383,7 @@ void bibledit_shutdown_library ()
 // Puts an entry in the journal.
 void bibledit_log (const char * message)
 {
-  Database_Logs::log (message);
+  database::logs::log (message);
 }
 
 
@@ -447,9 +447,9 @@ const char * bibledit_get_reference_for_accordance ()
   if (passages.empty()) return "";
 
   // Accordance expects for instance, 2 Corinthians 9:2, to be broadcast as "2CO 9:2".
-  book = passages[0].m_book;
-  chapter = passages[0].m_chapter;
-  std::string verse_s = passages[0].m_verse;
+  book = passages[0].book();
+  chapter = passages[0].chapter();
+  std::string verse_s = passages[0].verse();
   std::string usfm_id = database::books::get_usfm_from_id (static_cast<book_id>(book));
   reference = usfm_id + " " + std::to_string(chapter) + ":" + filter::string::convert_to_string (verse_s);
 
@@ -499,9 +499,9 @@ void bibledit_put_reference_from_accordance (const char * reference)
   if (passages.empty()) return;
 
   // Set the focused passage in Bibledit.
-  book = passages[0].m_book;
-  chapter = passages[0].m_chapter;
-  std::string verse_s = passages[0].m_verse;
+  book = passages[0].book();
+  chapter = passages[0].chapter();
+  std::string verse_s = passages[0].verse();
   ipc_focus::set_passage (webserver_request, book, chapter, verse);
 }
 

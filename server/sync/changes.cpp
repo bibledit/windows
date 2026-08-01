@@ -72,7 +72,7 @@ std::string sync_changes (Webserver_Request& webserver_request)
     {
       // The server deletes the change notification.
       database::modifications::deleteNotification (id);
-      Database_Logs::log ("Client deletes change notification from server: " + std::to_string (id), roles::translator);
+      database::logs::log ("Client deletes change notification from server: " + std::to_string (id), roles::translator);
       webserver_request.database_config_user ()->set_change_notifications_checksum ("");
       return std::string();
     }
@@ -110,9 +110,9 @@ std::string sync_changes (Webserver_Request& webserver_request)
       // chapter
       // verse
       Passage passage = database::modifications::getNotificationPassage (id);
-      lines.push_back (std::to_string (passage.m_book));
-      lines.push_back (std::to_string (passage.m_chapter));
-      lines.push_back (passage.m_verse);
+      lines.push_back (std::to_string (passage.book()));
+      lines.push_back (std::to_string (passage.chapter()));
+      lines.push_back (passage.verse());
       // oldtext (ensure it's one line for correct transfer to client)
       std::string oldtext = database::modifications::getNotificationOldText (id);
       oldtext = filter::string::replace ("\n", " ", oldtext);

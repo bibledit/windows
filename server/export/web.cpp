@@ -100,7 +100,7 @@ void export_web_book (std::string bible, int book, bool log)
     
     // Interlinked web data for one chapter.
     filter_text_chapter.html_text_linked = new HtmlText (translate("Bible"));
-    filter_text_chapter.html_text_linked->custom_class = filter::css::getClass (bible);
+    filter_text_chapter.html_text_linked->custom_class = filter::css::get_class (bible);
     
     // Create navigator for the chapter.
     Html_Header html_header = Html_Header (*filter_text_chapter.html_text_linked);
@@ -150,7 +150,7 @@ void export_web_book (std::string bible, int book, bool log)
   
   
   if (log) {
-    Database_Logs::log (translate("Exported to web") + ": " + bible + " " + database::books::get_english_from_id (static_cast<book_id>(book)), roles::translator);
+    database::logs::log (translate("Exported to web") + ": " + bible + " " + database::books::get_english_from_id (static_cast<book_id>(book)), roles::translator);
   }
 }
 
@@ -172,8 +172,7 @@ void export_web_index (std::string bible, bool log)
   
   
   // Create stylesheet.
-  Styles_Sheets styles_sheets;
-  styles_sheets.create (stylesheet, filecss, false, bible);
+  styles::sheets::create (stylesheet, filecss, false, bible);
   
   
   std::string backLinkPath = export_logic::web_back_link_directory (bible);
@@ -217,5 +216,5 @@ void export_web_index (std::string bible, bool log)
   Database_State::clearExport (bible, 0, export_logic::export_web_index);
 
   
-  if (log) Database_Logs::log (translate("Exported to web") + ": " + bible + " Index", roles::translator);
+  if (log) database::logs::log (translate("Exported to web") + ": " + bible + " Index", roles::translator);
 }

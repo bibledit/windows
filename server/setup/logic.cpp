@@ -83,7 +83,7 @@ void setup_conditionally (const char * package)
     setup_initialize_data ();
     
     for (const auto& message : messages) {
-      Database_Logs::log (message);
+      database::logs::log (message);
     }
     
 #ifndef HAVE_CLIENT
@@ -215,8 +215,7 @@ void setup_initialize_data ()
   database::confirm::upgrade();
 #endif
   config_globals_setup_message = "jobs";
-  Database_Jobs database_jobs;
-  database_jobs.create ();
+  database_jobs::create ();
 #ifdef HAVE_CLOUD
   config_globals_setup_message = "sprint";
   Database_Sprint database_sprint;
@@ -244,8 +243,8 @@ void setup_initialize_data ()
   config_globals_setup_message = "state";
   Database_State::create ();
   config_globals_setup_message = "login";
-  Database_Login::create ();
-  Database_Login::optimize ();
+  database::login::create ();
+  database::login::optimize ();
   config_globals_setup_message = "privileges";
   DatabasePrivileges::create ();
   DatabasePrivileges::upgrade ();
@@ -260,7 +259,7 @@ void setup_initialize_data ()
 
   // Create stylesheets.
   config_globals_setup_message = "stylesheets";
-  styles_sheets_create_all ();
+  styles::sheets::create_all ();
   
   // Schedule creation of sample Bible if there's no Bible yet.
   // In former versions of Bibledit, creation of the sample Bible was not scheduled,

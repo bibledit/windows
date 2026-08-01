@@ -46,7 +46,7 @@ std::string filter_git_directory (std::string object)
 void filter_git_check_error (std::string data)
 {
   std::vector <std::string> lines = filter::string::explode (data, '\n');
-  for (auto & line : lines) Database_Logs::log (line);
+  for (auto & line : lines) database::logs::log (line);
 }
 
 
@@ -102,7 +102,7 @@ void filter_git_sync_modifications_to_git (std::string bible, std::string reposi
     int overall_book = 0, overall_chapter = 0;
     
     // Go through all the rowids for the user and the Bible.
-    std::vector <int> rowids = database::git::get_rowids (user, bible);
+    std::vector <int> rowids = database::git::get_row_ids (user, bible);
     for (auto rowid : rowids) {
 
       std::string s;
@@ -132,7 +132,7 @@ void filter_git_sync_modifications_to_git (std::string bible, std::string reposi
       }
 
       // This record has been processed.
-      database::git::erase_rowid (rowid);
+      database::git::erase_row_id (rowid);
 
     }
     
@@ -249,7 +249,7 @@ void filter_git_sync_git_to_bible (std::string repository, std::string bible)
                   bible_logic::store_chapter (bible, book, chapter, usfm);
                   // Log it.
                   std::string message = translate("A translator added chapter") + " " + bible + " " + bookname + " " + chapterfile;
-                  Database_Logs::log (message);
+                  database::logs::log (message);
                 }
               }
             }
@@ -281,17 +281,17 @@ void filter_git_sync_git_to_bible (std::string repository, std::string bible)
           std::string usfm = database::bibles::get_chapter (bible, book, chapter);
           if (contents != usfm) {
             bible_logic::store_chapter (bible, book, chapter, contents);
-            Database_Logs::log (translate("A translator updated chapter") + " " + bible + " " + bookname + " " + std::to_string (chapter));
+            database::logs::log (translate("A translator updated chapter") + " " + bible + " " + bookname + " " + std::to_string (chapter));
             rss_logic_schedule_update ("collaborator", bible, book, chapter, usfm, contents);
           }
         } else {
           bible_logic::delete_chapter (bible, book, chapter);
-          Database_Logs::log (translate("A translator deleted chapter") + " " + bible + " " + bookname + " " + std::to_string (chapter));
+          database::logs::log (translate("A translator deleted chapter") + " " + bible + " " + bookname + " " + std::to_string (chapter));
         }
       }
     } else {
       bible_logic::delete_book (bible, book);
-      Database_Logs::log (translate("A translator deleted book") + " " + bible + " " + bookname);
+      database::logs::log (translate("A translator deleted book") + " " + bible + " " + bookname);
     }
   }
 }
@@ -325,7 +325,7 @@ void filter_git_sync_git_chapter_to_bible (std::string repository, std::string b
     
     // Delete chapter from database.
     bible_logic::delete_chapter (bible, book, chapter);
-    Database_Logs::log (translate("A collaborator deleted chapter") + " " + bible + " " + bookname + " " + std::to_string (chapter));
+    database::logs::log (translate("A collaborator deleted chapter") + " " + bible + " " + bookname + " " + std::to_string (chapter));
     
   }
 }
@@ -458,8 +458,8 @@ Passage filter_git_get_passage (std::string line)
         int chapter = filter::string::convert_to_int (bits [1]);
         std::string data = bits [2];
         if (data.find ("data") != std::string::npos) {
-          passage.m_book = book;
-          passage.m_chapter = chapter;
+          passage.book(book);
+          passage.chapter(chapter);
         }
       }
     }
@@ -581,7 +581,7 @@ void filter_git_config (std::string repository)
   // This is to be removed.
   std::string index_lock = filter_url_create_path ({repository, ".git", "index.lock"});
   if (file_or_dir_exists (index_lock)) {
-    Database_Logs::log ("Cleaning out index lock " + index_lock);
+    database::logs::log ("Cleaning out index lock " + index_lock);
     filter_url_unlink (index_lock);
   }
 

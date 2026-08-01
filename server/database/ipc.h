@@ -26,42 +26,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 class Webserver_Request;
 
 
-struct Database_Ipc_Item
+namespace database_ipc {
+
+
+struct Item
 {
-  std::string file {};
-  int rowid {0};
-  std::string user {};
-  std::string channel {};
-  std::string command {};
+    std::string file{};
+    int rowid{0};
+    std::string user{};
+    std::string channel{};
+    std::string command{};
 };
 
 
-struct Database_Ipc_Message
+struct Message
 {
-  int id {0};
-  std::string channel {};
-  std::string command {};
-  std::string message {};
+    int id{0};
+    std::string channel{};
+    std::string command{};
+    std::string message{};
 };
 
 
-class Database_Ipc
-{
-public:
-  Database_Ipc (Webserver_Request& webserver_request);
-  void trim ();
-  void storeMessage (std::string user, std::string channel, std::string command, std::string message);
-  Database_Ipc_Message retrieveMessage (int id, std::string user, std::string channel, std::string command);
-  void deleteMessage (int id);
-  Database_Ipc_Message getNote ();
-  bool getNotesAlive ();
-private:
-  Webserver_Request& m_webserver_request;
-  std::string folder ();
-  std::string file (std::string file);
-  std::vector <Database_Ipc_Item> readData ();
-  void writeRecord (int rowid, std::string user, std::string channel, std::string command, std::string message);
-  int getNextId (const std::vector <Database_Ipc_Item> & data);
-};
+void trim();
+void store_message(const std::string& user, const std::string& channel, const std::string& command, const std::string& message);
+Message retrieve_message(int id, const std::string& user, const std::string& channel, const std::string& command);
+void delete_message(int id);
+Message get_note(Webserver_Request&);
+bool get_notes_alive(Webserver_Request&);
 
 
+}

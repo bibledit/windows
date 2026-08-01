@@ -37,16 +37,14 @@
 // Compare the $bible with another Bible, passed through $compare.
 void compare_compare(const std::string& bible, const std::string& compare, const int job_id)
 {
-    Database_Logs::log(translate("Comparing Bibles") + " " + bible + " " + translate("and") + " " + compare,
+    database::logs::log(translate("Comparing Bibles") + " " + bible + " " + translate("and") + " " + compare,
                        roles::consultant);
 
-
-    auto database_jobs = Database_Jobs();
 
     const std::string stylesheet = database::config::bible::get_export_stylesheet(bible);
 
 
-    database_jobs.set_progress(job_id, translate("The Bibles are being compared..."));
+    database_jobs::set_progress(job_id, translate("The Bibles are being compared..."));
 
 
     // The results of the comparison. Will be displayed to the user.
@@ -93,7 +91,7 @@ void compare_compare(const std::string& bible, const std::string& compare, const
     for (const auto& book : books)
     {
         const std::string book_name = database::books::get_english_from_id(static_cast<book_id>(book));
-        database_jobs.set_progress(job_id, book_name);
+        database_jobs::set_progress(job_id, book_name);
 
 
         if (std::ranges::find(bible_books, book) == bible_books.end())
@@ -257,8 +255,8 @@ void compare_compare(const std::string& bible, const std::string& compare, const
             line.append("</p>");
         }
     }
-    database_jobs.set_result(job_id, filter::string::implode(result, "\n"));
+    database_jobs::set_result(job_id, filter::string::implode(result, "\n"));
 
 
-    Database_Logs::log(translate("Comparison is ready"), roles::consultant);
+    database::logs::log(translate("Comparison is ready"), roles::consultant);
 }

@@ -30,17 +30,7 @@
 #include <ipc/focus.h>
 
 #include <database/bibles.h>
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++"
-#pragma GCC diagnostic ignored "-Wsuggest-override"
-#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
-#ifndef HAVE_PUGIXML
-#include <pugixml/pugixml.hpp>
-#endif
-#ifdef HAVE_PUGIXML
-#include <pugixml.hpp>
-#endif
-#pragma GCC diagnostic pop
+#include <pugixml/include.h>
 
 
 /*
@@ -535,9 +525,9 @@ void set_passage (Webserver_Request& webserver_request, const std::string& bible
     const Passage inputpassage = Passage (std::string(), book, chapter, std::to_string (verse));
     passage_to_set = filter_passage_interpret_passage (inputpassage, passage);
   }
-  if (passage_to_set.m_book) {
-    ipc_focus::set_passage (webserver_request, passage_to_set.m_book, passage_to_set.m_chapter, filter::string::convert_to_int (passage_to_set.m_verse));
-    record_history (webserver_request, passage_to_set.m_book, passage_to_set.m_chapter, filter::string::convert_to_int (passage_to_set.m_verse));
+  if (passage_to_set.book()) {
+    ipc_focus::set_passage (webserver_request, passage_to_set.book(), passage_to_set.chapter(), filter::string::convert_to_int (passage_to_set.verse()));
+    record_history (webserver_request, passage_to_set.book(), passage_to_set.chapter(), filter::string::convert_to_int (passage_to_set.verse()));
   }
 }
 
@@ -546,9 +536,9 @@ void goto_next_book (Webserver_Request& webserver_request, const std::string& bi
 {
   const int current_book = ipc_focus::get_book (webserver_request);
   Passage passage = get_next_book (bible, current_book);
-  if (passage.m_book) {
-    ipc_focus::set_passage (webserver_request, passage.m_book, passage.m_chapter, filter::string::convert_to_int (passage.m_verse));
-    record_history (webserver_request, passage.m_book, passage.m_chapter, filter::string::convert_to_int (passage.m_verse));
+  if (passage.book()) {
+    ipc_focus::set_passage (webserver_request, passage.book(), passage.chapter(), filter::string::convert_to_int (passage.verse()));
+    record_history (webserver_request, passage.book(), passage.chapter(), filter::string::convert_to_int (passage.verse()));
   }
 }
 
@@ -557,9 +547,9 @@ void goto_previous_book (Webserver_Request& webserver_request, const std::string
 {
   int current_book = ipc_focus::get_book (webserver_request);
   const Passage passage = get_previous_book (bible, current_book);
-  if (passage.m_book) {
-    ipc_focus::set_passage (webserver_request, passage.m_book, passage.m_chapter, filter::string::convert_to_int (passage.m_verse));
-    record_history (webserver_request, passage.m_book, passage.m_chapter, filter::string::convert_to_int (passage.m_verse));
+  if (passage.book()) {
+    ipc_focus::set_passage (webserver_request, passage.book(), passage.chapter(), filter::string::convert_to_int (passage.verse()));
+    record_history (webserver_request, passage.book(), passage.chapter(), filter::string::convert_to_int (passage.verse()));
   }
 }
 
@@ -569,9 +559,9 @@ void goto_next_chapter (Webserver_Request& webserver_request, const std::string&
   const int book = ipc_focus::get_book (webserver_request);
   const int chapter = ipc_focus::get_chapter (webserver_request);
   const Passage passage = get_next_chapter (bible, book, chapter);
-  if (passage.m_book) {
-    ipc_focus::set_passage (webserver_request, passage.m_book, passage.m_chapter, filter::string::convert_to_int (passage.m_verse));
-    record_history (webserver_request, passage.m_book, passage.m_chapter, filter::string::convert_to_int (passage.m_verse));
+  if (passage.book()) {
+    ipc_focus::set_passage (webserver_request, passage.book(), passage.chapter(), filter::string::convert_to_int (passage.verse()));
+    record_history (webserver_request, passage.book(), passage.chapter(), filter::string::convert_to_int (passage.verse()));
   }
 }
 
@@ -581,9 +571,9 @@ void goto_previous_chapter (Webserver_Request& webserver_request, const std::str
   const int book = ipc_focus::get_book (webserver_request);
   int chapter = ipc_focus::get_chapter (webserver_request);
   const Passage passage = get_previous_chapter (bible, book, chapter);
-  if (passage.m_book) {
-    ipc_focus::set_passage (webserver_request, passage.m_book, passage.m_chapter, filter::string::convert_to_int (passage.m_verse));
-    record_history (webserver_request, passage.m_book, passage.m_chapter, filter::string::convert_to_int (passage.m_verse));
+  if (passage.book()) {
+    ipc_focus::set_passage (webserver_request, passage.book(), passage.chapter(), filter::string::convert_to_int (passage.verse()));
+    record_history (webserver_request, passage.book(), passage.chapter(), filter::string::convert_to_int (passage.verse()));
   }
 }
 
@@ -594,9 +584,9 @@ void goto_next_verse (Webserver_Request& webserver_request, const std::string& b
   const int chapter = ipc_focus::get_chapter (webserver_request);
   const int verse = ipc_focus::get_verse (webserver_request);
   const Passage passage = get_next_verse (bible, book, chapter, verse);
-  if (passage.m_book) {
-    ipc_focus::set_passage (webserver_request, passage.m_book, passage.m_chapter, filter::string::convert_to_int (passage.m_verse));
-    record_history (webserver_request, passage.m_book, passage.m_chapter, filter::string::convert_to_int (passage.m_verse));
+  if (passage.book()) {
+    ipc_focus::set_passage (webserver_request, passage.book(), passage.chapter(), filter::string::convert_to_int (passage.verse()));
+    record_history (webserver_request, passage.book(), passage.chapter(), filter::string::convert_to_int (passage.verse()));
   }
 }
 
@@ -607,9 +597,9 @@ void goto_previous_verse (Webserver_Request& webserver_request, const std::strin
   const int chapter = ipc_focus::get_chapter (webserver_request);
   const int verse = ipc_focus::get_verse (webserver_request);
   const Passage passage = get_previous_verse (bible, book, chapter, verse);
-  if (passage.m_book) {
-    ipc_focus::set_passage (webserver_request, passage.m_book, passage.m_chapter, filter::string::convert_to_int (passage.m_verse));
-    record_history (webserver_request, passage.m_book, passage.m_chapter, filter::string::convert_to_int (passage.m_verse));
+  if (passage.book()) {
+    ipc_focus::set_passage (webserver_request, passage.book(), passage.chapter(), filter::string::convert_to_int (passage.verse()));
+    record_history (webserver_request, passage.book(), passage.chapter(), filter::string::convert_to_int (passage.verse()));
   }
 }
 
@@ -629,8 +619,8 @@ void go_back (Webserver_Request& webserver_request)
   const std::string& user = webserver_request.session_logic ()->get_username ();
   const int focus_group = ipc_focus::get_focus_group(webserver_request);
   const Passage passage = database_navigation.get_previous (user, focus_group);
-  if (passage.m_book) {
-    ipc_focus::set_passage (webserver_request, passage.m_book, passage.m_chapter, filter::string::convert_to_int (passage.m_verse));
+  if (passage.book()) {
+    ipc_focus::set_passage (webserver_request, passage.book(), passage.chapter(), filter::string::convert_to_int (passage.verse()));
   }
 }
 
@@ -641,8 +631,8 @@ void go_forward (Webserver_Request& webserver_request)
   const std::string& user = webserver_request.session_logic ()->get_username ();
   const int focus_group = ipc_focus::get_focus_group(webserver_request);
   const Passage passage = database_navigation.get_next (user, focus_group);
-  if (passage.m_book) {
-    ipc_focus::set_passage (webserver_request, passage.m_book, passage.m_chapter, filter::string::convert_to_int (passage.m_verse));
+  if (passage.book()) {
+    ipc_focus::set_passage (webserver_request, passage.book(), passage.chapter(), filter::string::convert_to_int (passage.verse()));
   }
 }
 
@@ -755,8 +745,8 @@ void interpret_keyboard_navigator (Webserver_Request& webserver_request, std::st
   const Passage new_passage = filter_passage_interpret_passage (current_passage, passage);
   
   // Store book / chapter / verse.
-  ipc_focus::set_passage (webserver_request, new_passage.m_book, new_passage.m_chapter, filter::string::convert_to_int (new_passage.m_verse));
-  record_history (webserver_request, new_passage.m_book, new_passage.m_chapter, filter::string::convert_to_int (new_passage.m_verse));
+  ipc_focus::set_passage (webserver_request, new_passage.book(), new_passage.chapter(), filter::string::convert_to_int (new_passage.verse()));
+  record_history (webserver_request, new_passage.book(), new_passage.chapter(), filter::string::convert_to_int (new_passage.verse()));
 }
 
 
@@ -771,8 +761,8 @@ std::string get_history_back (Webserver_Request& webserver_request)
   std::string html {};
   for (size_t i = 0; i < passages.size(); i++) {
     if (i >= 10) continue;
-    const std::string rendering = filter_passage_display(passages[i].m_book, passages[i].m_chapter, passages[i].m_verse);
-    const std::string book_type = database::books::book_type_to_string (database::books::get_type (static_cast <book_id> (passages[i].m_book)));
+    const std::string rendering = filter_passage_display(passages[i].book(), passages[i].chapter(), passages[i].verse());
+    const std::string book_type = database::books::book_type_to_string (database::books::get_type (static_cast <book_id> (passages[i].book())));
     add_selector_link (html, "b" + std::to_string (i), "applyhistory", rendering, false, book_type);
   }
   // Add a "cancel" link.
@@ -796,8 +786,8 @@ std::string get_history_forward (Webserver_Request& webserver_request)
   std::string html {};
   for (size_t i = 0; i < passages.size(); i++) {
     if (i >= 10) continue;
-    const std::string rendering = filter_passage_display(passages[i].m_book, passages[i].m_chapter, passages[i].m_verse);
-    const std::string book_type = database::books::book_type_to_string (database::books::get_type (static_cast<book_id>(passages[i].m_book)));
+    const std::string rendering = filter_passage_display(passages[i].book(), passages[i].chapter(), passages[i].verse());
+    const std::string book_type = database::books::book_type_to_string (database::books::get_type (static_cast<book_id>(passages[i].book())));
     add_selector_link (html, "f" + std::to_string (i), "applyhistory", rendering, false, book_type);
   }
   // Add a "cancel" link.
