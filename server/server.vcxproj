@@ -273,6 +273,7 @@
     <ClCompile Include="database\statistics.cpp" />
     <ClCompile Include="database\strong.cpp" />
     <ClCompile Include="database\styles.cpp" />
+    <ClCompile Include="database\tasks.cpp" />
     <ClCompile Include="database\temporal.cpp" />
     <ClCompile Include="database\userresources.cpp" />
     <ClCompile Include="database\users.cpp" />
@@ -370,7 +371,6 @@
     <ClCompile Include="jobs\index.cpp" />
     <ClCompile Include="journal\index.cpp" />
     <ClCompile Include="journal\logic.cpp" />
-    <ClCompile Include="jsonxx\jsonxx.cpp" />
     <ClCompile Include="ldap\logic.cpp" />
     <ClCompile Include="lexicon\definition.cpp" />
     <ClCompile Include="lexicon\logic.cpp" />
@@ -570,8 +570,6 @@
     <ClCompile Include="resource\user1view.cpp" />
     <ClCompile Include="resource\user9edit.cpp" />
     <ClCompile Include="resource\user9view.cpp" />
-    <ClCompile Include="rss\feed.cpp" />
-    <ClCompile Include="rss\logic.cpp" />
     <ClCompile Include="search\all.cpp" />
     <ClCompile Include="search\getids.cpp" />
     <ClCompile Include="search\getids2.cpp" />
@@ -608,8 +606,6 @@
     <ClCompile Include="session\switch.cpp" />
     <ClCompile Include="setup\index.cpp" />
     <ClCompile Include="setup\logic.cpp" />
-    <ClCompile Include="sprint\burndown.cpp" />
-    <ClCompile Include="sprint\index.cpp" />
     <ClCompile Include="sqlite\sqlite3.c" />
     <ClCompile Include="statistics\statistics.cpp" />
     <ClCompile Include="styles\css.cpp" />
@@ -634,7 +630,6 @@
     <ClCompile Include="system\index.cpp" />
     <ClCompile Include="system\logic.cpp" />
     <ClCompile Include="tasks\logic.cpp" />
-    <ClCompile Include="tasks\run.cpp" />
     <ClCompile Include="text\text.cpp" />
     <ClCompile Include="timer\index.cpp" />
     <ClCompile Include="tmp\tmp.cpp" />

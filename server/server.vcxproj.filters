@@ -522,9 +522,6 @@
     <ClCompile Include="tasks\logic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tasks\run.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="user\account.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -592,12 +589,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="export\web.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sprint\burndown.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sprint\index.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="statistics\statistics.cpp">
@@ -700,9 +691,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="lexicon\logic.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jsonxx\jsonxx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ipc\focus.cpp">
@@ -895,12 +883,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="system\index.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rss\feed.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rss\logic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="edit\preview.cpp">
@@ -1444,6 +1426,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="filter\mail.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="database\tasks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
