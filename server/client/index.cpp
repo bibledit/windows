@@ -49,12 +49,12 @@ bool client_index_acl (Webserver_Request& webserver_request)
 }
 
 
-void client_index_remove_all_users (Webserver_Request& webserver_request)
+void client_index_remove_all_users ()
 {
-  std::ranges::for_each(webserver_request.database_users()->get_users(),
-                        [&webserver_request](const std::string& existing_user)
+  std::ranges::for_each(database::users::get_users(),
+                        [](const std::string& existing_user)
                         {
-                            webserver_request.database_users()->removeUser(existing_user);
+                            database::users::remove_user(existing_user);
                         });
 }
 
@@ -65,8 +65,8 @@ void client_index_enable_client (Webserver_Request& webserver_request, const std
   client_logic_enable_client (true);
   
   // Remove all users from the database, and add the current one.
-  client_index_remove_all_users (webserver_request);
-  webserver_request.database_users ()->add_user (username, password, level, {});
+  client_index_remove_all_users ();
+  database::users::add_user(username, password, level, {});
   
   // Update the username and the level in the current session.
   webserver_request.session_logic()->set_username(username);
@@ -84,7 +84,7 @@ void client_index_enable_client (Webserver_Request& webserver_request, const std
   webserver_request.session_logic ()->set_username (username);
   webserver_request.database_config_user()->set_updated_settings ({});
   database::config::general::set_unsent_bible_data_time (0);
-  database::config::general::set_unreceived_bible_data_time (filter::date::seconds_since_epoch ());
+  database::config::general::set_unreceived_bible_data_time (filter::date::get_seconds_since_epoch ());
   
   // Set flag for first run after connecting.
   database::config::general::set_just_connected_to_cloud (true);
@@ -105,7 +105,7 @@ std::string client_index (Webserver_Request& webserver_request)
   
   if (webserver_request.query.contains ("disable")) {
     client_logic_enable_client (false);
-    client_index_remove_all_users (webserver_request);
+    client_index_remove_all_users ();
     database::config::general::set_repeat_send_receive (0);
     database::config::general::set_unsent_bible_data_time (0);
     database::config::general::set_unreceived_bible_data_time (0);
@@ -193,9 +193,9 @@ std::string client_index (Webserver_Request& webserver_request)
   
   view.set_variable ("url", client_logic_link_to_cloud ("", ""));
   
-  const std::vector <std::string> users {webserver_request.database_users ()->get_users ()};
+  const std::vector <std::string> users {database::users::get_users ()};
   for (const auto& user : users) {
-    const int level = webserver_request.database_users()->get_level (user);
+    const int level = database::users::get_level (user);
     view.set_variable ("role", roles::text (level));
   }
   

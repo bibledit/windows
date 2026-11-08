@@ -45,7 +45,6 @@
 #include <sword/logic.h>
 #include <tasks/logic.h>
 #include <system/index.h>
-#include <rss/logic.h>
 #include <access/logic.h>
 #include <database/bibles.h>
 #include "database/styles.h"
@@ -168,7 +167,7 @@ std::string bible_settings (Webserver_Request& webserver_request)
         const auto bibles = database::bibles::get_books (bible);
         if (bibles.empty()) {
           if (write_access) {
-            tasks_logic_queue (task::import_resource, { bible, resource });
+            tasks::tasks_logic_queue (tasks::enums::task::import_resource, { bible, resource });
             success_message = translate ("The resource will be imported into the Bible.") + " " + translate ("The journal shows the progress.");
           }
         } else {
@@ -244,7 +243,6 @@ std::string bible_settings (Webserver_Request& webserver_request)
   if (checkbox == "rss") {
     if (write_access) {
       database::config::bible::set_send_changes_to_rss (bible, checked);
-      rss_logic_feed_on_off ();
     }
   }
   view.set_variable ("rss", filter::string::get_checkbox_status (database::config::bible::get_send_changes_to_rss (bible)));

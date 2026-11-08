@@ -17,6 +17,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
+#pragma once
+
+
 // System configuration.
 #include <config.h>
 
@@ -28,13 +31,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <utime.h>
 #include <dirent.h>
 #endif
-#include <stdio.h>
-#include <signal.h>
-#include <errno.h>
+#include <cstdio>
+#include <csignal>
+#include <cerrno>
 #include <fcntl.h>
-#include <time.h>
-#include <stdlib.h>
-#include <string.h>
+#include <ctime>
+#include <cstdlib>
+#include <cstring>
 
 
 // C headers in sub folders.
@@ -78,9 +81,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <unordered_map>
 #include <memory>
 #include <tuple>
-#ifdef USE_STD_FILESYSTEM
 #include <filesystem>
-#endif
 #include <optional>
 #include <list>
 #include <variant>
@@ -89,6 +90,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <queue>
 #include <condition_variable>
 #include <utility>
+#include <shared_mutex>
 
 
 // Headers dependencies.
@@ -97,4 +99,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 // Bibledit configuration.
 #include <config/logic.h>
-#include <config/config.h>

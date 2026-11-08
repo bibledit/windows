@@ -59,15 +59,14 @@ void send ()
   // The databases involved.
   Webserver_Request webserver_request;
   Database_Mail database_mail (webserver_request);
-  Database_Users database_users;
-  
+
   const auto mails = database_mail.getMailsToSend ();
   for (auto id : mails) {
     
     // Get all details of the mail.
     Database_Mail_Item details = database_mail.get (id);
     std::string username = details.username;
-    std::string email = database_users.get_email (username);
+    std::string email = database::users::get_email(username);
     std::string subject = details.subject;
     std::string body = details.body;
     
@@ -88,7 +87,7 @@ void send ()
     // In the Cloud, if the email address validates, ok, else remove this mail from the queue and log the action.
     if (!filter_url_email_is_valid (email)) {
       database_mail.erase (id);
-      database::logs::log ("Email to " + email + " was deleted because of an invalid email address");
+      database::logs::log ("Email to", email, "was deleted because of an invalid email address");
       continue;
     }
     
@@ -99,7 +98,7 @@ void send ()
     // Do not attempt to send it again as it would cause the crash again in an endless loop.
     if (config_globals_has_crashed_while_mailing) {
       database_mail.erase (id);
-      database::logs::log ("Email to " + email + " with subject \"" + subject + "\" was deleted because it has caused a crash");
+      database::logs::log ("Email to", email, "with subject \"", subject, "\" was deleted because it has caused a crash");
       config_globals_has_crashed_while_mailing = false;
       continue;
     }
@@ -120,13 +119,13 @@ void send ()
 #ifdef HAVE_CLIENT
       result.append ("queued for sending through the Cloud");
 #endif
-      database::logs::log (result, roles::manager);
+      database::logs::log<roles::manager> (result);
     } else {
       // Special handling of cases that the smart host denied login.
       bool login_denied = result == "Login denied";
       // Write result to logbook.
       result.insert (0, "Email to " + email + " could not be sent - reason: ");
-      database::logs::log (result, roles::manager);
+      database::logs::log<roles::manager> (result);
       // If the login was denied, then postpone all emails queued for sending,
       // rather than trying to send them all, and have them all cause a 'login denied' error.
       if (login_denied) {
@@ -134,7 +133,7 @@ void send ()
         for (auto id2 : ids) {
           database_mail.postpone (id2);
         }
-        database::logs::log ("Postponing sending " + std::to_string (ids.size()) + " emails", roles::manager);
+        database::logs::log<roles::manager> ("Postponing sending", ids.size(), "emails");
         break;
       } else {
         database_mail.postpone (id);
@@ -217,7 +216,7 @@ std::string send ([[maybe_unused]] std::string to_mail,
   std::string response = sync_logic.post (post, url, error);
   
   if (!error.empty ()) {
-    database::logs::log ("Failure sending email: " + error, roles::guest);
+    database::logs::log<roles::guest> ("Failure sending email:", error);
   }
   
   return error;
@@ -234,10 +233,10 @@ std::string send ([[maybe_unused]] std::string to_mail,
   
   upload_ctx.lines_read = 0;
   
-  int seconds = filter::date::seconds_since_epoch ();
+  int seconds = filter::date::get_seconds_since_epoch ();
   payload_text.clear();
   std::string payload;
-  payload = "Date: " + std::to_string (filter::date::numerical_year (seconds)) + "/" + std::to_string (filter::date::numerical_month (seconds)) + "/" + std::to_string (filter::date::numerical_month_day (seconds)) + " " + std::to_string (filter::date::numerical_hour (seconds)) + ":" + std::to_string (filter::date::numerical_minute (seconds)) + "\n";
+  payload = "Date: " + std::to_string (filter::date::get_year_ad (seconds)) + "/" + std::to_string (filter::date::get_month_within_year (seconds)) + "/" + std::to_string (filter::date::get_day_within_month (seconds)) + " " + std::to_string (filter::date::get_hour_within_day (seconds)) + ":" + std::to_string (filter::date::get_minute_within_hour (seconds)) + "\n";
   payload_text.push_back (std::move(payload));
   const auto generate_address_line = [] (const char* header,
                                          const std::string& name,
@@ -314,7 +313,7 @@ std::string send ([[maybe_unused]] std::string to_mail,
    * of using CURLUSESSL_TRY here, because if TLS upgrade fails, the transfer
    * will continue anyway - see the security discussion in the libcurl
    * tutorial for more details. */
-  if (port != "25") curl_easy_setopt(curl, CURLOPT_USE_SSL, static_cast<long>(CURLUSESSL_ALL));
+  if (port != "25") curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
   
   /* If your server doesn't have a valid certificate, then you can disable
    * part of the Transport Layer Security protection by setting the
@@ -387,8 +386,8 @@ void schedule (std::string to, std::string subject, std::string body, int time)
   database_mail.send (to, subject, body, time);
   // Schedule a task to send the mail right away.
   // If the task is already scheduled, don't schedule one more, to avoid plenty of similar tasks.
-  if (!tasks_logic_queued (task::send_email))
-    tasks_logic_queue (task::send_email);
+  if (!tasks::tasks_logic_queued (tasks::enums::task::send_email))
+    tasks::tasks_logic_queue (tasks::enums::task::send_email);
 }
 
 

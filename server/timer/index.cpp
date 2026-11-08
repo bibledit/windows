@@ -17,20 +17,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#include <timer/index.h>
-#include <database/logs.h>
-#include <database/config/general.h>
-#include <database/state.h>
-#include <config/globals.h>
-#include <filter/date.h>
-#include <tasks/logic.h>
-#include <tasks/run.h>
-#include <sendreceive/logic.h>
 #include <changes/logic.h>
 #include <checks/logic.h>
-#include <export/logic.h>
+#include <config/globals.h>
+#include <database/logs.h>
+#include <database/state.h>
+#include <database/config/general.h>
 #include <developer/logic.h>
+#include <export/logic.h>
+#include <filter/date.h>
+#include <sendreceive/logic.h>
 #include <setup/logic.h>
+#include <tasks/logic.h>
+#include <timer/index.h>
 
 
 // CPU-intensive actions run at night.
@@ -52,7 +51,7 @@ void timer_index()
 
 #ifdef HAVE_CLOUD
     // Right after startup, update the Google Translate access token.
-    tasks_logic_queue(task::get_google_access_token);
+    tasks::tasks_logic_queue(tasks::enums::task::get_google_access_token);
 #endif
 
     while (config_globals_webserver_running)
@@ -67,18 +66,17 @@ void timer_index()
             if (!config_globals_data_initialized) continue;
 
             // The current time, localized.
-            const int local_seconds = filter::date::local_seconds(filter::date::seconds_since_epoch());
-            const int second = filter::date::numerical_second(local_seconds);
-            const int minute = filter::date::numerical_minute(local_seconds);
-            const int hour = filter::date::numerical_hour(local_seconds);
-            [[maybe_unused]] const int weekday = filter::date::numerical_week_day(local_seconds);
+            const int local_seconds = filter::date::get_local_seconds(filter::date::get_seconds_since_epoch());
+            const int second = filter::date::get_second_within_minute(local_seconds);
+            const int minute = filter::date::get_minute_within_hour(local_seconds);
+            const int hour = filter::date::get_hour_within_day(local_seconds);
+#ifdef HAVE_CLOUD
+            const int weekday = filter::date::get_day_within_week(local_seconds);
+#endif
 
             // Run once per second.
             if (second == previous_second) continue;
             previous_second = second;
-
-            // Every second: Deal with queued and/or active tasks.
-            tasks_run_check();
 
             // Every second:
             // Check whether client sends/receives Bibles and Consultation Notes and other stuff.
@@ -90,16 +88,28 @@ void timer_index()
             if (minute == previous_minute) continue;
             previous_minute = minute;
 
+            // Bibledit Cloud quits at midnight.
+            // This keeps resource leaks in check when Bibledit Cloud runs for months or years.
+            // If the binary quits, the shell script or systemd service restarts the binary.
+            // Without the flag "get_just_started", it would restart repeatedly as long as it is minute 1.
+#ifdef HAVE_CLOUD
+            if (hour == 0 and minute == 1 and not database::config::general::get_just_started())
+                tasks::tasks_logic_controlled_cloud_quit();
+            if (minute == 2)
+                if (database::config::general::get_just_started())
+                    database::config::general::set_just_started(false);
+#endif
+
             // Every minute send out queued email.
-            if (!tasks_logic_queued(task::send_email))
-                tasks_logic_queue(task::send_email);
+            if (!tasks::tasks_logic_queued(tasks::enums::task::send_email))
+                tasks::tasks_logic_queue(tasks::enums::task::send_email);
 
 #ifdef HAVE_CLOUD
             // Check for new mail every five minutes.
             // Do not check more often with Gmail else the account may be shut down.
             if (minute % 5 == 0)
             {
-                tasks_logic_queue(task::receive_email);
+                tasks::tasks_logic_queue(tasks::enums::task::receive_email);
             }
 #endif
 
@@ -107,14 +117,15 @@ void timer_index()
             // The nine is chosen, because the journal rotation will summarize the send/receive messages.
             // In case send/receive happens every five minutes, it is expected that under normal circumstances
             // the whole process of sending/receiving will be over, so summarization can then be done.
-            if (minute == 9) tasks_logic_queue(task::rotate_journal);
+            if (minute == 9) tasks::tasks_logic_queue(tasks::enums::task::rotate_journal);
 
             // Sending and receiving Bibles to and from the git repository.
             // On a production website running on an inexpensive virtual private server,
             // with 512 Mb of memory and a fast network connection,
             // sending and receiving two Bibles takes more than 15 minutes when there are many changes.
-            const bool send_receive = (hour == 0 and minute == 5);
-            const bool repeat = (minute % 5) == 0;
+            const bool send_receive = hour == 0 and minute == 5;
+            // ReSharper disable once CppTooWideScopeInitStatement
+            const bool repeat = minute % 5 == 0;
             if (send_receive or repeat)
             {
                 sendreceive_queue_all(send_receive);
@@ -144,7 +155,7 @@ void timer_index()
             // It takes a few minutes on a production machine.
             if (hour == 0 and minute == 50)
             {
-                tasks_logic_queue(task::maintain_database);
+                tasks::tasks_logic_queue(tasks::enums::task::maintain_database);
             }
 
 #ifdef HAVE_CLOUD
@@ -156,7 +167,7 @@ void timer_index()
             // And to leave files in the files cache for only a couple of hours.
             if (minute == 10)
             {
-                tasks_logic_queue(task::trim_caches);
+                tasks::tasks_logic_queue(tasks::enums::task::trim_caches);
             }
 
 #endif
@@ -174,7 +185,7 @@ void timer_index()
             // Delete expired temporal files.
             if (hour == 2 and minute == 0)
             {
-                tasks_logic_queue(task::clean_tmp_files);
+                tasks::tasks_logic_queue(tasks::enums::task::clean_tmp_files);
             }
 
             // Re-index Bibles and notes.
@@ -183,9 +194,9 @@ void timer_index()
             {
                 Database_State::create();
                 database::config::general::set_index_bibles(true);
-                tasks_logic_queue(task::reindex_bibles);
-                database::config::general::setIndexNotes(true);
-                tasks_logic_queue(task::reindex_notes);
+                tasks::tasks_logic_queue(tasks::enums::task::reindex_bibles);
+                database::config::general::set_index_notes(true);
+                tasks::tasks_logic_queue(tasks::enums::task::reindex_notes);
             }
 
             // Actions for a demo installation.
@@ -193,57 +204,15 @@ void timer_index()
             {
                 if (config::logic::demo_enabled())
                 {
-                    tasks_logic_queue(task::clean_demo);
+                    tasks::tasks_logic_queue(tasks::enums::task::clean_demo);
                 }
             }
-
-#ifdef HAVE_CLOUD
-            // Sprint burndown.
-            // It runs every hour in the Cloud.
-            // The script itself determines what to do at which hour of the day or day of the week or day of the month.
-            if (minute == 5)
-            {
-                tasks_logic_queue(task::sprint_burndown);
-            }
-#endif
-
-#ifdef HAVE_CLOUD
-            // Bibledit Cloud quits at midnight.
-            // This is to be sure that any memory leaks don't accumulate too much
-            // in case Bibledit Cloud would run for months and years.
-            // The shell script notices that the binary has quit, and restarts the binary again.
-            if (hour == 0)
-            {
-                if (minute == 1)
-                {
-                    if (not database::config::general::getJustStarted())
-                    {
-                        if (tasks_run_active_count())
-                        {
-                            database::logs::log("Server is due to restart itself but does not because of active jobs");
-                        }
-                        else
-                        {
-                            database::logs::log("Server restarts itself");
-                            exit(0);
-                        }
-                    }
-                }
-                // Clear flag in preparation of restart next minute.
-                // This flag also has the purpose of ensuring the server restarts once during that minute,
-                // rather than restarting repeatedly many times during that minute.
-                if (minute == 0)
-                {
-                    database::config::general::setJustStarted(false);
-                }
-            }
-#endif
 
 #ifdef HAVE_CLOUD
             // Email notes statistics to the users.
             if (hour == 3 and minute == 0)
             {
-                tasks_logic_queue(task::notes_statistics);
+                tasks::tasks_logic_queue(tasks::enums::task::notes_statistics);
             }
 #endif
 
@@ -255,13 +224,13 @@ void timer_index()
                 // Refresh.
                 if (hour == 3 and minute == 5)
                 {
-                    tasks_logic_queue(task::refresh_sword_modules);
-                    tasks_logic_queue(task::refresh_web_resources);
+                    tasks::tasks_logic_queue(tasks::enums::task::refresh_sword_modules);
+                    tasks::tasks_logic_queue(tasks::enums::task::refresh_web_resources);
                 }
                 // Update installed SWORD modules, shortly after the module list has been refreshed.
                 if (hour == 3 and minute == 15)
                 {
-                    tasks_logic_queue(task::update_sword_modules);
+                    tasks::tasks_logic_queue(tasks::enums::task::update_sword_modules);
                 }
             }
 #endif
@@ -272,7 +241,7 @@ void timer_index()
             {
                 if (hour == 3 and minute == 10)
                 {
-                    tasks_logic_queue(task::list_usfm_resources);
+                    tasks::tasks_logic_queue(tasks::enums::task::list_usfm_resources);
                 }
             }
 #endif
@@ -284,7 +253,7 @@ void timer_index()
             google_translate_authentication_token_age_minute++;
             if (google_translate_authentication_token_age_minute > 50)
             {
-                tasks_logic_queue(task::get_google_access_token);
+                tasks::tasks_logic_queue(tasks::enums::task::get_google_access_token);
                 google_translate_authentication_token_age_minute = 0;
             }
 #endif
@@ -292,10 +261,6 @@ void timer_index()
         catch (const std::exception& e)
         {
             database::logs::log(e.what());
-        }
-        catch (const std::exception* e)
-        {
-            database::logs::log(e->what());
         }
         catch (...)
         {

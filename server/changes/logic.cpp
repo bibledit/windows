@@ -34,7 +34,7 @@
 
 void changes_logic_start ()
 {
-  tasks_logic_queue (task::generate_changes);
+  tasks::tasks_logic_queue (tasks::enums::task::generate_changes);
 }
 
 
@@ -67,7 +67,7 @@ std::string changes_interlinks (Webserver_Request& webserver_request, std::strin
 
   }
   
-#ifndef HAVE_CLIENT
+#ifdef HAVE_CLOUD
 
   if (changes_statistics_url () != my_url) {
     if (changes_statistics_acl (webserver_request)) {
@@ -117,7 +117,7 @@ std::string changes_interlinks (Webserver_Request& webserver_request, std::strin
 
 void changes_clear_notifications_user(std::string jobid, std::string username)
 {
-  database::logs::log (translate ("Start clearing change notifications") + " " + username);
+  database::logs::log (translate ("Start clearing change notifications"), username);
 
   // Get the total amount of change notifications to clear for the user.
   std::string any_bible {};
@@ -146,5 +146,5 @@ void changes_clear_notifications_user(std::string jobid, std::string username)
   
   database_jobs::set_result (filter::string::convert_to_int (jobid), translate ("Ready clearing change notifications"));
   
-  database::logs::log (translate ("Ready clearing change notifications") + " " + username);
+  database::logs::log (translate ("Ready clearing change notifications"), username);
 }

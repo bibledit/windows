@@ -21,35 +21,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <config/libraries.h>
 
-class Database_Users
-{
-public:
-  void create ();
-  void upgrade ();
-  void trim ();
-  void optimize ();
-  void add_user (std::string user, std::string password, int level, std::string email);
-  void set_password (std::string user, std::string password);
-  bool matchUserPassword (std::string user, std::string password);
-  bool matchEmailPassword (std::string email, std::string password);
-  std::string add_userQuery (std::string user, std::string password, int level, std::string email);
-  std::string getEmailToUser (std::string email);
-  std::string get_email (std::string user);
-  bool username_exists (std::string user);
-  bool emailExists (std::string email);
-  int get_level (std::string user);
-  void set_level (std::string user, int level);
-  void removeUser (std::string user);
-  std::vector <std::string> getAdministrators ();
-  std::string updateEmailQuery (std::string user, std::string email);
-  void updateUserEmail (std::string user, std::string email);
-  std::vector <std::string> get_users () const;
-  std::string get_md5 (std::string user);
-  void execute (std::string sqlfragment);
-  void set_ldap (std::string user, bool on);
-  bool get_ldap (std::string user);
-  void set_enabled (std::string user, bool on);
-  bool get_enabled (std::string user);
-private:
-  const char * filename () const;
-};
+namespace database::users {
+
+void create();
+void upgrade();
+void trim();
+void optimize();
+void add_user (const std::string& user, const std::string& password, int level, const std::string& email);
+void set_password (const std::string& user, const std::string& password);
+[[nodiscard]] bool match_user_password (const std::string& user, const std::string& password);
+[[nodiscard]] bool match_email_password (const std::string& email, const std::string& password);
+[[nodiscard]] std::string add_user_query (std::string user, std::string password, int level, std::string email);
+[[nodiscard]] std::string get_email_to_user (const std::string& email);
+[[nodiscard]] std::string get_email (const std::string& user);
+[[nodiscard]] bool username_exists (const std::string& user);
+[[nodiscard]] bool email_exists (const std::string& email);
+[[nodiscard]] int get_level (const std::string& user);
+void set_level (const std::string& user, int level);
+void remove_user (const std::string& user);
+[[nodiscard]] std::vector <std::string> get_administrators ();
+[[nodiscard]] std::string update_email_query (const std::string& user, const std::string& email);
+void execute (const std::string& sql_fragment);
+void update_user_email (const std::string& user, const std::string& email);
+[[nodiscard]] std::vector <std::string> get_users ();
+[[nodiscard]] std::string get_md5 (const std::string& user);
+void set_ldap (const std::string& user, bool on);
+[[nodiscard]] bool get_ldap (const std::string& user);
+void set_enabled (const std::string& user, bool on);
+[[nodiscard]] bool get_enabled (const std::string& user);
+}

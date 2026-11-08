@@ -67,7 +67,7 @@ std::string images_index (Webserver_Request& webserver_request)
       std::string extension = filter_url_get_extension (file);
       extension = filter::string::unicode_string_casefold (extension);
       if (background_import) {
-        tasks_logic_queue (task::import_bible_images, { file });
+        tasks::tasks_logic_queue (tasks::enums::task::import_bible_images, { file });
         success = translate("The file was uploaded and is being processed.");
         view.set_variable ("journal", journal_logic_see_journal_for_progress ());
       } else {
@@ -99,8 +99,8 @@ std::string images_index (Webserver_Request& webserver_request)
   const std::vector <std::string> images = database::bible_images::get();
   for (const auto& image : images) {
     view.add_iteration ("images", {
-      std::pair ("image", image),
-    } );
+                            std::pair ("image", image),
+                        } );
   }
   
   view.set_variable ("success", success);

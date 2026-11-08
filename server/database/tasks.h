@@ -20,13 +20,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma once
 
 #include <config/libraries.h>
+#include <tasks/enums.h>
 
-#ifdef HAVE_CLOUD
-void rss_logic_feed_on_off ();
-void rss_logic_schedule_update (std::string user, std::string bible, int book, int chapter,
-                                std::string oldusfm, std::string newusfm);
-void rss_logic_execute_update (std::string user, std::string bible, int book, int chapter,
-                               std::string oldusfm, std::string newusfm);
-std::string rss_logic_xml_path ();
-void rss_logic_update_xml (std::vector <std::string> titles, std::vector <std::string> authors, std::vector <std::string> descriptions);
-#endif
+namespace database::tasks {
+
+struct Task
+{
+    ::tasks::enums::task task;
+    std::vector<std::string> parameters;
+    constexpr auto operator<=>(const Task&) const = default;
+};
+
+void save(const std::deque<Task>&);
+std::deque<Task> load();
+
+}

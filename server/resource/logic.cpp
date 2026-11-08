@@ -553,7 +553,7 @@ std::string resource_logic_client_fetch_cache_from_cloud (std::string resource, 
   }
   if (!error.empty ()) {
     // Error: Log it, and add it to the contents.
-    database::logs::log (resource + ": " + error);
+    database::logs::log (resource, ":", error);
     content.append (error);
   }
 
@@ -673,7 +673,7 @@ std::string resource_logic_get_divider (std::string resource)
 // It fetches existing content from the cache, and caches new content.
 std::string resource_logic_web_or_cache_get (std::string url, std::string& error)
 {
-#ifndef HAVE_CLIENT
+#ifdef HAVE_CLOUD
   // On the Cloud, check if the URL is in the cache.
   if (database::cache::file::exists (url)) {
     return database::cache::file::get (url);
@@ -775,7 +775,7 @@ void resource_logic_create_cache ()
   std::vector <int> chapters = database_versifications.getMaximumChapters (book);
   for (const auto& chapter : chapters) {
 
-    database::logs::log ("Caching " + resource + " " + bookname + " " + std::to_string (chapter), roles::consultant);
+    database::logs::log<roles::consultant> ("Caching", resource, " ", bookname, " ", chapter);
 
     // The verse numbers in the chapter.
     std::vector <int> verses = database_versifications.getMaximumVerses (book, chapter);
@@ -804,7 +804,7 @@ void resource_logic_create_cache ()
         // Check on errors.
         server_is_installing_module = (html == sword_logic_installing_module_text ());
         if (server_is_installing_module) {
-          database::logs::log ("Waiting while installing SWORD module: " + resource);
+          database::logs::log ("Waiting while installing SWORD module:", resource);
         }
         server_is_updating = html.find ("... upgrading ...") != std::string::npos;
         if (server_is_updating) {
@@ -829,11 +829,11 @@ void resource_logic_create_cache ()
 
   // Done.
   database::cache::sql::ready (resource, book, true);
-  database::logs::log ("Completed caching " + resource + " " + bookname, roles::consultant);
+  database::logs::log<roles::consultant> ("Completed caching", resource, " ", bookname);
   resource_logic_create_cache_running = false;
   
   // If there's another resource database waiting to be cached, schedule it for caching.
-  if (!signatures.empty ()) tasks_logic_queue (task::cache_resources);
+  if (!signatures.empty ()) tasks::tasks_logic_queue (tasks::enums::task::cache_resources);
 }
 
 
@@ -884,7 +884,7 @@ std::string resource_logic_bible_gateway_module_list_refresh ()
       resources.push_back (name);
     }
     filter_url_file_put_contents (path, filter::string::implode (resources, "\n"));
-    database::logs::log ("Modules: " + std::to_string (resources.size ()));
+    database::logs::log ("Modules:", resources.size());
   } else {
     database::logs::log (error);
   }
@@ -1246,7 +1246,7 @@ std::string resource_logic_study_light_module_list_refresh ()
     // Store the resources in a file.
     filter_url_file_put_contents (path, filter::string::implode (resources, "\n"));
     // Done.
-    database::logs::log ("Modules: " + std::to_string (resources.size ()));
+    database::logs::log ("Modules:", resources.size());
   } else {
     database::logs::log (error);
   }

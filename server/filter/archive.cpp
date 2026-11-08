@@ -88,7 +88,7 @@ std::string zip_folder_miniz_internal (std::string folder)
     // The file names in Windows will be backslashes (\) at this point.
     // But the mzip library, in its current configuration, works with forward slashes (/).
     // So the code below, in case of Windows, updates the type of slashes.
-    file = filter::string::replace (DIRECTORY_SEPARATOR, "/", file);
+    file = filter::string::replace (directory_separator, "/", file);
 #endif
     mz_bool status;
     if (is_dir) {
@@ -99,7 +99,7 @@ std::string zip_folder_miniz_internal (std::string folder)
       status = mz_zip_add_mem_to_archive_file_in_place (zippedfile.c_str(), file.c_str(), contents.c_str(), contents.size(), "", 0, MZ_DEFAULT_LEVEL);
     }
     if (!status) {
-      database::logs::log ("mz_zip_add_mem_to_archive_file_in_place failed for " + path);
+      database::logs::log ("mz_zip_add_mem_to_archive_file_in_place failed for", path);
       return std::string();
     }
   }
@@ -127,7 +127,7 @@ std::string unzip_shell_internal ([[maybe_unused]] std::string file)
   std::string folder = filter_url_tempfile ();
 #ifdef HAVE_CLOUD
   filter_url_mkdir (folder);
-  folder.append (DIRECTORY_SEPARATOR);
+  folder += directory_separator;
   const std::string logfile = filter_url_tempfile () + ".log";
   file = filter_url_escape_shell_argument (file);
   std::string command = std::string(filter::shell::get_executable(filter::shell::Executable::unzip)) + " -o -d " + folder + " " + file + " > " + logfile + " 2>&1";
@@ -212,13 +212,13 @@ std::string unzip_miniz_internal (std::string zipfile)
           // Extract this file.
           status = mz_zip_reader_extract_to_file (&zip_archive, i, fixed_filename.c_str(), 0);
           if (!status) {
-            database::logs::log ("mz_zip_reader_extract_to_file failure for file " + filename + " in " + zipfile);
+            database::logs::log ("mz_zip_reader_extract_to_file failure for file", filename, "in", zipfile);
             error = true;
           }
         }
         
       } else {
-        database::logs::log ("mz_zip_reader_file_stat failed for " + zipfile);
+        database::logs::log ("mz_zip_reader_file_stat failed for", zipfile);
         error = true;
       }
     }
@@ -227,7 +227,7 @@ std::string unzip_miniz_internal (std::string zipfile)
     mz_zip_reader_end (&zip_archive);
     
   } else {
-    database::logs::log ("mz_zip_reader_init_file failed for " + zipfile);
+    database::logs::log ("mz_zip_reader_init_file failed for", zipfile);
     error = true;
   }
   
@@ -299,7 +299,7 @@ std::string untar_gzip (std::string file)
   file = filter_url_escape_shell_argument (file);
   std::string folder = filter_url_tempfile ();
   filter_url_mkdir (folder);
-  folder.append (DIRECTORY_SEPARATOR);
+  folder += directory_separator;
   std::string logfile = filter_url_tempfile () + ".log";
   std::string command = "cd " + folder + " && " + std::string(filter::shell::get_executable(filter::shell::Executable::tar)) + " zxf " + file + " > " + logfile + " 2>&1";
   int return_var;

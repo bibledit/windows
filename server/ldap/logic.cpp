@@ -164,7 +164,7 @@ bool ldap_logic_fetch (const std::string& user, const std::string& password, boo
   // Logging.
   if (log) {
     const std::string command = std::string(filter::shell::get_executable(filter::shell::Executable::ldapsearch)) + " -H " + ldap_logic_uri + " -D " + binddn + " -w " + password + " -b " + ldap_logic_basedn + " -s " + ldap_logic_scope + " " + filter;
-    database::logs::log ("LDAP query\n" + command + "\n" + output, roles::admin);
+    database::logs::log<roles::admin> ("LDAP query", "\n", command, "\n", output);
   }
   
   // Check on invalid credentials.

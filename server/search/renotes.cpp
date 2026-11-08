@@ -34,12 +34,12 @@ static bool search_reindex_notes_running = false;
 
 void search_reindex_notes ()
 {
-  if (!database::config::general::getIndexNotes ()) return;
+  if (!database::config::general::get_index_notes ()) return;
   
   
   // One simultaneous instance.
   if (search_reindex_notes_running) {
-    database::logs::log ("Still indexing Consultation Notes", roles::manager);
+    database::logs::log<roles::manager> ("Still indexing Consultation Notes");
     return;
   }
   search_reindex_notes_running = true;
@@ -65,11 +65,11 @@ void search_reindex_notes ()
   // Check on health of the databases, and optionally recreate them.
   bool recreate = database_notes.checkup ();
   if (recreate) {
-    database::logs::log ("The Consultation Notes main index was damaged and is being recreated", roles::manager);
+    database::logs::log<roles::manager> ("The Consultation Notes main index was damaged and is being recreated");
   }
   recreate = database_notes.checkup_checksums ();
   if (recreate) {
-    database::logs::log ("The Consultation Notes checksums database was damaged and is being recreated", roles::manager);
+    database::logs::log<roles::manager> ("The Consultation Notes checksums database was damaged and is being recreated");
   }
   
   
@@ -78,7 +78,7 @@ void search_reindex_notes ()
   // could not be written to the database because of errors. 
   // Then the notes index would not match the notes data.
   // Syncing ensures the index matches the notes data in the filesystem.
-  database::logs::log ("Updating Consultation Notes databases", roles::manager);
+  database::logs::log<roles::manager> ("Updating Consultation Notes databases");
   database_notes.sync ();
   
   
@@ -86,7 +86,7 @@ void search_reindex_notes ()
   database_notes.set_availability (true);
   
   
-  database::logs::log ("Updating Consultation Notes databases ready", roles::manager);
-  database::config::general::setIndexNotes (false);
+  database::logs::log<roles::manager> ("Updating Consultation Notes databases ready");
+  database::config::general::set_index_notes (false);
   search_reindex_notes_running = false;
 }

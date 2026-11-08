@@ -41,7 +41,7 @@ void statistics_statistics ()
   Database_Notes database_notes (webserver_request);
   
   
-  database::logs::log (translate("Sending statistics"), roles::manager);
+  database::logs::log<roles::manager> (translate("Sending statistics"));
 
   
   std::string siteUrl = config::logic::site_url (webserver_request);
@@ -50,7 +50,7 @@ void statistics_statistics ()
   std::vector <std::string> bibles = database::bibles::get_bibles ();
   
   
-  std::vector <std::string> users = webserver_request.database_users ()->get_users ();
+  std::vector <std::string> users = database::users::get_users ();
   for (auto & user : users) {
     
     

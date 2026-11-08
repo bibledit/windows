@@ -95,7 +95,7 @@ void trim()
         if (record.user.empty())
             delete_message(record.rowid);
     });
-    const int now = filter::date::seconds_since_epoch();
+    const int now = filter::date::get_seconds_since_epoch();
     std::vector<std::string> files = filter_url_scandir(folder());
     std::ranges::for_each(files, [now] (const std::string& item)
     {
@@ -122,7 +122,7 @@ void store_message(const std::string& user, const std::string& channel, const st
     // Do this after writing new data, to be sure there is always some data on disk.
     if (channel.empty())
     {
-        const auto match = [&](auto&& record)
+        const auto match = [&](auto&& record) noexcept
         {
             return record.user == user and record.channel == channel and record.command == command;
         };

@@ -45,7 +45,7 @@ int sendreceive_resources_watchdog = 0;
 
 void sendreceive_resources_kick_watchdog ()
 {
-  sendreceive_resources_watchdog = filter::date::seconds_since_epoch ();
+  sendreceive_resources_watchdog = filter::date::get_seconds_since_epoch ();
 }
 
 
@@ -76,11 +76,11 @@ void sendreceive_resources_delay_during_prioritized_tasks ()
 void sendreceive_resources ()
 {
   if (sendreceive_resources_watchdog) {
-    int time = filter::date::seconds_since_epoch ();
+    int time = filter::date::get_seconds_since_epoch ();
     if (time < (sendreceive_resources_watchdog + 900)) {
       return;
     }
-    database::logs::log ("Resources: " + translate("Watchdog timeout"), roles::translator);
+    database::logs::log<roles::translator> ("Resources:", translate("Watchdog timeout"));
     sendreceive_resources_done ();
   }
 
@@ -88,7 +88,7 @@ void sendreceive_resources ()
   if (sendreceive_logic_prioritized_task_is_active ()) {
     sendreceive_resources_done ();
     std::this_thread::sleep_for (std::chrono::seconds (5));
-    tasks_logic_queue (task::sync_resources);
+    tasks::tasks_logic_queue (tasks::enums::task::sync_resources);
     return;
   }
 
@@ -111,7 +111,7 @@ void sendreceive_resources ()
   // Erase the two older storage locations that were used to cache resources in earlier versions of Bibledit.
   database::usfm_resources::delete_resource (resource);
 
-  database::logs::log ("Starting to install resource:" " " + resource, roles::consultant);
+  database::logs::log<roles::consultant> ("Starting to install resource:", resource);
 
   // Server address and port.
   std::string address = database::config::general::get_server_address ();
@@ -161,21 +161,21 @@ void sendreceive_resources ()
             filter_url_download_file (url2, client_path, error, false);
             if (error.empty ()) {
               std::string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
-              database::logs::log ("Downloaded " + resource + " " + bookname, roles::consultant);
+              database::logs::log<roles::consultant> ("Downloaded", resource, bookname);
             } else {
-              database::logs::log ("Failed to download resource " + response2 + " :" + error, roles::consultant);
+              database::logs::log<roles::consultant> ("Failed to download resource", response2, ":", error);
               error_count++;
             }
           }
         } else {
-          database::logs::log (error, roles::consultant);
+          database::logs::log<roles::consultant> (error);
           error_count++;
         }
       } else {
         wait_count++;
       }
     } else {
-      database::logs::log (error, roles::consultant);
+      database::logs::log<roles::consultant> (error);
       error_count++;
     }
 
@@ -186,12 +186,12 @@ void sendreceive_resources ()
   // Done.
   if (error_count) {
     std::string msg = "Error count while downloading resource: " + std::to_string (error_count);
-    database::logs::log (msg, roles::consultant);
+    database::logs::log<roles::consultant> (msg);
   } else if (wait_count) {
     std::string msg = "Waiting for Cloud to prepare resource for download. Remaining books: " + std::to_string (wait_count);
-    database::logs::log (msg, roles::consultant);
+    database::logs::log<roles::consultant> (msg);
   } else {
-    database::logs::log ("Completed installing resource:" " " + resource, roles::consultant);
+    database::logs::log<roles::consultant> ("Completed installing resource:", resource);
   }
   // In case of errors, of when waiting for the Cloud, schedule the resource download again.
   bool re_schedule_download = false;
@@ -202,7 +202,7 @@ void sendreceive_resources ()
       std::this_thread::sleep_for (std::chrono::minutes (1));
       if (!sendreceive_resources_interrupt) {
         re_schedule_download = true;
-        database::logs::log ("Re-scheduling resource installation", roles::consultant);
+        database::logs::log<roles::consultant> ("Re-scheduling resource installation");
       }
     }
   }
@@ -219,7 +219,7 @@ void sendreceive_resources ()
   sendreceive_resources_interrupt = false;
 
   // If there's another resource waiting to be cached, schedule it for caching.
-  if (!resources.empty ()) tasks_logic_queue (task::sync_resources);
+  if (!resources.empty ()) tasks::tasks_logic_queue (tasks::enums::task::sync_resources);
 }
 
 
@@ -227,7 +227,7 @@ void sendreceive_resources ()
 void sendreceive_resources_clear_all ()
 {
   sendreceive_resources_interrupt = true;
-  database::logs::log ("Interrupting resource installation", roles::consultant);
+  database::logs::log<roles::consultant> ("Interrupting resource installation");
   database::config::general::set_resources_to_cache ({});
 }
 

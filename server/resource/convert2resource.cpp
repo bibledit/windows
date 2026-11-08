@@ -33,13 +33,13 @@
 
 void convert_bible_to_resource (std::string bible)
 {
-  database::logs::log (translate("Converting Bible to USFM Resource") + ": " + bible, roles::manager);
+  database::logs::log<roles::manager> (translate("Converting Bible to USFM Resource"), ":", bible);
   
   
   std::vector <int> books = database::bibles::get_books (bible);
   for (auto & book : books) {
     std::string bookname = database::books::get_english_from_id (static_cast<book_id>(book));
-    database::logs::log (bookname, roles::manager);
+    database::logs::log<roles::manager> (bookname);
     std::vector <int> chapters = database::bibles::get_chapters (bible, book);
     for (auto & chapter : chapters) {
       std::string usfm = database::bibles::get_chapter (bible, book, chapter);
@@ -53,8 +53,8 @@ void convert_bible_to_resource (std::string bible)
   
   
   // The Cloud updates the list of available USFM resources for the clients.
-  tasks_logic_queue (task::list_usfm_resources);
+  tasks::tasks_logic_queue (tasks::enums::task::list_usfm_resources);
 
   
-  database::logs::log (translate("Completed"), roles::manager);
+  database::logs::log<roles::manager> (translate("Completed"));
 }

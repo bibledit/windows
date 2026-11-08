@@ -263,11 +263,11 @@ std::string convert_to_true_false (const bool b)
 
 std::u16string convert_to_u16string (const std::string& s)
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   std::wstring_convert <std::codecvt_utf8_utf16 <char16_t>, char16_t> utf16conv;
   std::u16string utf16 = utf16conv.from_bytes (s);
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
   // utf16.length()
   return utf16;
 }
@@ -1202,8 +1202,8 @@ std::string encrypt_decrypt (std::string key, std::string data)
 // Gets a new random string for sessions, encryption, you name it.
 std::string get_new_random_string ()
 {
-  const std::string u = std::to_string (filter::date::numerical_microseconds ());
-  const std::string s = std::to_string (filter::date::seconds_since_epoch ());
+  const std::string u = std::to_string (filter::date::get_microseconds_within_second ());
+  const std::string s = std::to_string (filter::date::get_seconds_since_epoch ());
   const std::string r = std::to_string (config_globals_int_distribution (config_globals_random_engine));
   return md5 (u + s + r);
 }
@@ -1449,7 +1449,7 @@ const std::string no_entity_substitution_tags {"|script|style|"};
 const std::string treat_like_inline_tags {"|p|"};
 
 
-static std::string substitute_xml_entities_into_text(const std::string& text)
+[[maybe_unused]] static std::string substitute_xml_entities_into_text(const std::string& text)
 {
   std::string result {text};
   // Replacing & must come first.
@@ -1807,7 +1807,7 @@ std::string fix_invalid_html_tidy (std::string html)
     html = std::string (reinterpret_cast<char const*>(output.bp));
   }
   else {
-    database::logs::log("A severe error occurred while tidying html - code " + std::to_string(rc) + " - html: " + html);
+    database::logs::log("A severe error occurred while tidying html - code", rc, "- html:", html);
   }
   
   // Release memory.

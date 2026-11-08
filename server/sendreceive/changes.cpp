@@ -66,18 +66,18 @@ std::string sendreceive_changes_up_to_date_text ()
 void sendreceive_changes ()
 {
   if (sendreceive_changes_watchdog) {
-    int time = filter::date::seconds_since_epoch ();
+    int time = filter::date::get_seconds_since_epoch ();
     if (time < (sendreceive_changes_watchdog + 900)) {
-      database::logs::log (sendreceive_changes_text () + translate("Still busy"), roles::translator);
+      database::logs::log<roles::translator> (sendreceive_changes_text(), translate("Still busy"));
       return;
     }
-    database::logs::log (sendreceive_changes_text () + translate("Watchdog timeout"), roles::translator);
+    database::logs::log<roles::translator> (sendreceive_changes_text (), translate("Watchdog timeout"));
   }
   sendreceive_changes_kick_watchdog ();
   config_globals_syncing_changes = true;
 
   
-  database::logs::log (sendreceive_changes_sendreceive_text (), roles::translator);
+  database::logs::log<roles::translator> (sendreceive_changes_sendreceive_text());
   
 
   Webserver_Request webserver_request;
@@ -85,7 +85,7 @@ void sendreceive_changes ()
   
   
   if (!database::modifications::healthy ()) {
-    database::logs::log (sendreceive_changes_text () + translate("Recreate damaged modifications database"), roles::translator);
+    database::logs::log<roles::translator> (sendreceive_changes_text(), translate("Recreate damaged modifications database"));
     database::modifications::erase ();
     database::modifications::create ();
   }
@@ -94,22 +94,22 @@ void sendreceive_changes ()
   std::string response = client_logic_connection_setup ("", "");
   if (const int iresponse = filter::string::convert_to_int (response);
       iresponse < roles::guest || iresponse > roles::admin) {
-    database::logs::log (sendreceive_changes_text () + response, roles::translator);
+    database::logs::log<roles::translator> (sendreceive_changes_text (), response);
     send_receive_changes_done ();
     return;
   }
   
   
   // Set the correct user in the session: The sole user on the Client.
-  std::vector <std::string> users = webserver_request.database_users ()->get_users ();
+  std::vector <std::string> users = database::users::get_users ();
   if (users.empty ()) {
-    database::logs::log (translate("No user found"), roles::translator);
+    database::logs::log<roles::translator> (translate("No user found"));
     send_receive_changes_done ();
     return;
   }
   std::string user = users [0];
   webserver_request.session_logic ()->set_username (user);
-  std::string password = webserver_request.database_users ()->get_md5 (user);
+  std::string password = database::users::get_md5 (user);
   
   
   // The basic request to be POSTed to the server.
@@ -117,7 +117,7 @@ void sendreceive_changes ()
   std::map <std::string, std::string> post;
   post ["u"] = filter::string::bin2hex (user);
   post ["p"] = password;
-  post ["l"] = std::to_string (webserver_request.database_users ()->get_level (user));
+  post ["l"] = std::to_string (database::users::get_level (user));
   
   
   // Error variables.
@@ -133,14 +133,14 @@ void sendreceive_changes ()
   
   // Send the removed change notifications to the server.
   std::vector <int> ids = webserver_request.database_config_user ()->get_removed_changes ();
-  if (!ids.empty ()) database::logs::log (sendreceive_changes_text () + "Sending removed notifications: " + std::to_string (ids.size()), roles::translator);
+  if (!ids.empty ()) database::logs::log<roles::translator> (sendreceive_changes_text(), "Sending removed notifications:", ids.size());
   for (auto & id : ids) {
     post ["a"] = std::to_string (Sync_Logic::changes_delete_modification);
     post ["i"] = std::to_string (id);
     response = sync_logic.post (post, url, error);
     if (!error.empty ()) {
       communication_errors = true;
-      database::logs::log (sendreceive_changes_text () + "Failure sending removed notification: " + error, roles::translator);
+      database::logs::log<roles::translator> (sendreceive_changes_text(), "Failure sending removed notification:", error);
     }
     else {
       webserver_request.database_config_user ()->remove_removed_change (id);
@@ -149,7 +149,7 @@ void sendreceive_changes ()
   
   
   if (communication_errors) {
-    database::logs::log (sendreceive_changes_text () + translate("Not downloading change notifications due to communication error"), roles::translator);
+    database::logs::log<roles::translator> (sendreceive_changes_text(), translate("Not downloading change notifications due to communication error"));
     send_receive_changes_done ();
     return;
   }
@@ -167,13 +167,13 @@ void sendreceive_changes ()
   post ["a"] = std::to_string (Sync_Logic::changes_get_checksum);
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
-    database::logs::log (sendreceive_changes_text () + "Failure receiving checksum: " + error, roles::translator);
+    database::logs::log<roles::translator> (sendreceive_changes_text(), "Failure receiving checksum:", error);
     send_receive_changes_done ();
     return;
   }
   server_checksum = response;
   if (client_checksum == server_checksum) {
-    database::logs::log (sendreceive_changes_up_to_date_text (), roles::translator);
+    database::logs::log<roles::translator> (sendreceive_changes_up_to_date_text());
     send_receive_changes_done ();
     return;
   }
@@ -187,7 +187,7 @@ void sendreceive_changes ()
   post ["a"] = std::to_string (Sync_Logic::changes_get_identifiers);
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
-    database::logs::log (sendreceive_changes_text () + "Failure receiving identifiers: " + error, roles::translator);
+    database::logs::log<roles::translator> (sendreceive_changes_text(), "Failure receiving identifiers:", error);
     send_receive_changes_done ();
     return;
   }
@@ -202,7 +202,7 @@ void sendreceive_changes ()
   for (auto & id : remove_identifiers) {
     database::modifications::deleteNotification (id);
     webserver_request.database_config_user ()->set_change_notifications_checksum ("");
-    database::logs::log (sendreceive_changes_text () + "Removing notification: " + std::to_string (id), roles::translator);
+    database::logs::log<roles::translator> (sendreceive_changes_text(), "Removing notification:", id);
   }
 
   
@@ -210,12 +210,12 @@ void sendreceive_changes ()
   std::vector <int> download_identifiers = filter::string::array_diff (server_identifiers, client_identifiers);
   for (auto & id : download_identifiers) {
     sendreceive_changes_kick_watchdog ();
-    database::logs::log (sendreceive_changes_text () + "Downloading notification: " + std::to_string (id), roles::translator);
+    database::logs::log<roles::translator> (sendreceive_changes_text(), "Downloading notification:", id);
     post ["a"] = std::to_string (Sync_Logic::changes_get_modification);
     post ["i"] = std::to_string (id);
     response = sync_logic.post (post, url, error);
     if (!error.empty ()) {
-      database::logs::log (sendreceive_changes_text () + "Failure downloading notification: " + error, roles::translator);
+      database::logs::log<roles::translator> (sendreceive_changes_text(), "Failure downloading notification:", error);
     }
     else {
       // The server has put all bits together, one bit per line.
@@ -267,12 +267,12 @@ void sendreceive_changes ()
   
 
   // Done.
-  database::logs::log (sendreceive_changes_text () + "Ready", roles::translator);
+  database::logs::log<roles::translator> (sendreceive_changes_text(), "Ready");
   send_receive_changes_done ();
 }
 
 
 void sendreceive_changes_kick_watchdog ()
 {
-  sendreceive_changes_watchdog = filter::date::seconds_since_epoch ();
+  sendreceive_changes_watchdog = filter::date::get_seconds_since_epoch ();
 }

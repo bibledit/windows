@@ -71,12 +71,13 @@ void export_info (std::string bible, bool log)
   
   // Save files.
   filter_text.produce_info_document (informationdFilename);
-  filter_text.produceFalloutDocument (falloutFilename);
+  filter_text.produce_fallout_document (falloutFilename);
   
   
   // Clear the flag for this export.
   Database_State::clearExport (bible, 0, export_logic::export_info);
 
   
-  if (log) database::logs::log (translate("Documents with information and fallout were created") + " " + bible, roles::translator);
+  if (log)
+      database::logs::log<roles::translator> (translate("Documents with information and fallout were created"), bible);
 }

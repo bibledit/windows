@@ -140,12 +140,12 @@ void changes_modifications ()
   // even if multiple order to generate then were given by the user.
   std::unique_lock<std::timed_mutex> lock (mutex, std::defer_lock);
   if (!lock.try_lock_for(std::chrono::milliseconds(200))) {
-    database::logs::log ("Change notifications: Skipping just now because another process is already generating them", roles::translator);
+    database::logs::log<roles::translator> ("Change notifications: Skipping just now because another process is already generating them");
     return;
   }
   
 
-  database::logs::log ("Change notifications: Generating", roles::translator);
+  database::logs::log<roles::translator> ("Change notifications: Generating");
 
   
   // Notifications are not available to clients to download while processing them.
@@ -164,7 +164,7 @@ void changes_modifications ()
   // Get the users who will receive the changes entered by the named contributors.
   std::vector <std::string> recipients_named_contributors;
   {
-    const std::vector <std::string> users = webserver_request.database_users ()->get_users ();
+    const std::vector <std::string> users = database::users::get_users ();
     const auto online_on = [&] (const auto& user) {
       if (webserver_request.database_config_user ()->get_contributor_changes_notifications_online (user)) {
         recipients_named_contributors.push_back(user);
@@ -184,7 +184,7 @@ void changes_modifications ()
   // Note: A user will always receive notificatons of changes made by that same user.
   std::map <std::string, std::vector<std::string> > notification_bibles_per_user {};
   {
-    const std::vector <std::string> users = webserver_request.database_users ()->get_users ();
+    const std::vector <std::string> users = database::users::get_users ();
     for (const auto & user : users) {
       const std::vector <std::string> bibles = webserver_request.database_config_user ()->get_change_notifications_bibles_for_user (user);
       notification_bibles_per_user [user] = bibles;
@@ -220,7 +220,7 @@ void changes_modifications ()
         const std::vector <int> chapters = database::modifications::getUserChapters (user, bible, book);
         for (auto chapter : chapters) {
 
-          database::logs::log ("Change notifications: User " + user + " - Bible " + bible + " " + filter_passage_display (book, chapter, ""), roles::translator);
+          database::logs::log ("Change notifications: User", user, "- Bible" + bible + " " + filter_passage_display (book, chapter, ""), roles::translator);
 
           // Get the sets of identifiers for that chapter, and set some variables.
           const std::vector <database::modifications::id_bundle> IdSets = database::modifications::getUserIdentifiers (user, bible, book, chapter);
@@ -289,7 +289,7 @@ void changes_modifications ()
     
     
     std::vector <std::string> changeNotificationUsers;
-    std::vector <std::string> all_users = webserver_request.database_users ()->get_users ();
+    std::vector <std::string> all_users = database::users::get_users ();
     for (const auto& user : all_users) {
       if (access_bible::read (webserver_request, bible, user)) {
         if (webserver_request.database_config_user()->get_user_generate_change_notifications (user)) {
@@ -315,19 +315,19 @@ void changes_modifications ()
     
     
     // The files get stored at https://site.org:<port>/revisions/<Bible>/<date>
-    const int seconds = filter::date::seconds_since_epoch ();
+    const int seconds = filter::date::get_seconds_since_epoch ();
     std::string timepath;
-    timepath.append (std::to_string (filter::date::numerical_year (seconds)));
+    timepath.append (std::to_string (filter::date::get_year_ad (seconds)));
     timepath.append ("-");
-    timepath.append (filter::string::fill (std::to_string (filter::date::numerical_month (seconds)), 2, '0'));
+    timepath.append (filter::string::fill (std::to_string (filter::date::get_month_within_year (seconds)), 2, '0'));
     timepath.append ("-");
-    timepath.append (filter::string::fill (std::to_string (filter::date::numerical_month_day (seconds)), 2, '0'));
+    timepath.append (filter::string::fill (std::to_string (filter::date::get_day_within_month (seconds)), 2, '0'));
     timepath.append (" ");
-    timepath.append (filter::string::fill (std::to_string (filter::date::numerical_hour (seconds)), 2, '0'));
+    timepath.append (filter::string::fill (std::to_string (filter::date::get_hour_within_day (seconds)), 2, '0'));
     timepath.append (":");
-    timepath.append (filter::string::fill (std::to_string (filter::date::numerical_minute (seconds)), 2, '0'));
+    timepath.append (filter::string::fill (std::to_string (filter::date::get_minute_within_hour (seconds)), 2, '0'));
     timepath.append (":");
-    timepath.append (filter::string::fill (std::to_string (filter::date::numerical_second (seconds)), 2, '0'));
+    timepath.append (filter::string::fill (std::to_string (filter::date::get_second_within_minute (seconds)), 2, '0'));
     const std::string directory = filter_url_create_root_path ({"revisions", bible, timepath});
     filter_url_mkdir (directory);
     
@@ -350,7 +350,7 @@ void changes_modifications ()
     for (auto book : books) {
       const std::vector <int> chapters = database::modifications::getTeamDiffChapters (bible, book);
       for (auto chapter : chapters) {
-        database::logs::log ("Change notifications: " + bible + " " + filter_passage_display (book, chapter, ""), roles::translator);
+        database::logs::log<roles::translator> ("Change notifications:", bible, filter_passage_display (book, chapter, ""));
         const std::string old_chapter_usfm = database::modifications::getTeamDiff (bible, book, chapter);
         const std::string new_chapter_usfm = database::bibles::get_chapter (bible, book, chapter);
         const std::vector <int> old_verse_numbers = filter::usfm::get_verse_numbers (old_chapter_usfm);
@@ -433,7 +433,7 @@ void changes_modifications ()
         if (bodies.size () > 1) {
           subject.append (" (" + std::to_string (b + 1) + "/" + std::to_string (bodies.size ()) + ")");
         }
-        const std::vector <std::string> all_users_2 = webserver_request.database_users ()->get_users ();
+        const std::vector <std::string> all_users_2 = database::users::get_users ();
         for (const auto& user : all_users_2) {
           if (webserver_request.database_config_user()->get_user_bible_changes_notification (user)) {
             if (access_bible::read (webserver_request, bible, user)) {
@@ -449,13 +449,13 @@ void changes_modifications ()
 
   
   // Index the data and remove expired notifications.
-  database::logs::log ("Change notifications: Indexing", roles::translator);
+  database::logs::log<roles::translator> ("Change notifications: Indexing");
   database::modifications::indexTrimAllNotifications ();
 
   
   // Remove expired downloadable revisions.
   const std::string directory = filter_url_create_root_path ({"revisions"});
-  const int now = filter::date::seconds_since_epoch ();
+  const int now = filter::date::get_seconds_since_epoch ();
   bibles = filter_url_scandir (directory);
   for (const auto & bible : bibles) {
     const std::string folder = filter_url_create_path ({directory, bible});
@@ -471,7 +471,7 @@ void changes_modifications ()
         const int days2 = (now - time2) / 86400;
         if (days2 > 31) {
           filter_url_rmdir (path);
-          database::logs::log ("Removing expired downloadable revision notification: " + bible + " " + revision, roles::translator);
+          database::logs::log<roles::translator> ("Removing expired downloadable revision notification:", bible, revision);
         }
       }
     }
@@ -479,7 +479,7 @@ void changes_modifications ()
   
   
   // Clear checksum caches.
-  users = webserver_request.database_users ()->get_users ();
+  users = database::users::get_users ();
   for (const auto & user : users) {
     webserver_request.database_config_user ()->set_user_change_notifications_checksum (user, "");
   }
@@ -508,5 +508,5 @@ void changes_modifications ()
 #endif
   
 
-  database::logs::log ("Change notifications: Ready", roles::translator);
+  database::logs::log<roles::translator> ("Change notifications: Ready");
 }

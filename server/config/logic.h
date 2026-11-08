@@ -48,4 +48,93 @@ bool default_bibledit_configuration ();
 std::string google_translate_json_key_path ();
 bool create_no_accounts();
 
+// Whether file upload works in the browser on the platform.
+consteval bool have_upload()
+{
+#if defined(HAVE_ANDROID) || defined(HAVE_IOS)
+    // No upload see https://github.com/bibledit/cloud/issues/896
+    return false;
+#else
+    return true;
+#endif
+}
+
+// Whether it runs the secure webserver.
+consteval bool run_secure_server()
+{
+#ifdef HAVE_CLOUD
+    return true;
+#else
+    return false;
+#endif
+}
+
+// Maximum number of simultaneous background tasks.
+consteval int maximum_simultaneous_background_tasks ()
+{
+#if defined(HAVE_ANDROID) || defined(HAVE_IOS)
+    return 3;
+#elif defined(HAVE_WINDOWS)
+    return 5;
+#else
+    return 10; // Default.
+#endif
+}
+
+// Whether it runs a "bare" browser, that is, one without controls etc.
+consteval bool have_bare_browser()
+{
+#ifdef HAVE_CLOUD
+    return false;
+#else
+    return true;
+#endif
+}
+
+// Whether it works with Paratext on the same platform.
+consteval bool work_with_paratext()
+{
+#if defined(HAVE_WINDOWS) || defined(HAVE_LINUX)
+    return true;
+#else
+    return false;
+#endif
+}
+
+// Whether the journal is kept tiny as compared to the usual size.
+consteval bool have_tiny_journal()
+{
+#if defined(HAVE_ANDROID) || defined(HAVE_IOS)
+    return true;
+#else
+    return false;
+#endif
+}
+
+// Quality check: Exactly one platform should be defined.
+consteval int count_defined_platforms()
+{
+    int count {0};
+#ifdef HAVE_CLOUD
+    count++;
+#endif
+#ifdef HAVE_WINDOWS
+    count++;
+#endif
+#ifdef HAVE_ANDROID
+    count++;
+#endif
+#ifdef HAVE_MACOS
+    count++;
+#endif
+#ifdef HAVE_LINUX
+    count++;
+#endif
+#ifdef HAVE_IOS
+    count++;
+#endif
+    return count;
+}
+static_assert(count_defined_platforms() == 1, "Exactly one platform should be defined");
+
 } // End of namespace.

@@ -129,7 +129,7 @@ void sword_logic_refresh_module_list ()
     
 #ifdef HAVE_SWORD
     if (!sword_logic_installmgr_refresh_remote_source (remote_source)) {
-      database::logs::log ("Error refreshing remote source " + remote_source);
+      database::logs::log ("Error refreshing remote source", remote_source);
     }
 #else
     filter::shell::run (std::string(filter::shell::get_executable(filter::shell::Executable::installmgr)) + " --allow-internet-access-and-risk-tracing-and-jail-or-martyrdom --allow-unverified-tls-peer -r \"" + remote_source + "\"", out_err);
@@ -157,7 +157,7 @@ void sword_logic_refresh_module_list ()
       sword_modules.push_back (module);
     }
 #endif
-    database::logs::log (remote_source + ": " + std::to_string (modules.size ()) + " modules");
+    database::logs::log (remote_source, ":", modules.size (), "modules");
   }
   
   // Store the list of remote sources and their modules.
@@ -265,16 +265,16 @@ void sword_logic_install_module_schedule (const std::string& source, const std::
   if (module.empty ()) return;
   
   // Check whether the module installation has been scheduled already.
-  if (tasks_logic_queued (task::install_sword_module, {source, module})) return;
+  if (tasks::tasks_logic_queued (tasks::enums::task::install_sword_module, {source, module})) return;
   
   // Schedule it.
-  tasks_logic_queue (task::install_sword_module, {source, module});
+  tasks::tasks_logic_queue (tasks::enums::task::install_sword_module, {source, module});
 }
 
 
 void sword_logic_install_module (const std::string& source_name, const std::string& module_name)
 {
-  database::logs::log ("Install SWORD module " + module_name + " from source " + source_name);
+  database::logs::log ("Install SWORD module", module_name, "from source", source_name);
   std::string sword_path {sword_logic_get_path ()};
 
   // Installation through SWORD InstallMgr does not yet work.
@@ -290,21 +290,21 @@ void sword_logic_install_module (const std::string& source_name, const std::stri
   
   sword::InstallSourceMap::iterator source = installMgr->sources.find(source_name.c_str ());
   if (source == installMgr->sources.end()) {
-    database::logs::log ("Could not find remote source " + source_name);
+    database::logs::log ("Could not find remote source", source_name);
   } else {
     sword::InstallSource *is = source->second;
     sword::SWMgr *rmgr = is->getMgr();
     sword::SWModule *module;
     sword::ModMap::iterator it = rmgr->Modules.find(module_name.c_str());
     if (it == rmgr->Modules.end()) {
-      database::logs::log ("Remote source " + source_name + " does not make available module " + module_name);
+      database::logs::log ("Remote source", source_name, "does not make available module", module_name);
     } else {
       module = it->second;
       int error = installMgr->installModule(mgr, 0, module->getName(), is);
       if (error) {
-        database::logs::log ("Error installing module " + module_name);
+        database::logs::log ("Error installing module", module_name);
       } else {
-        database::logs::log ("Installed module " + module_name);
+        database::logs::log ("Installed module", module_name);
       }
     }
   }
@@ -333,7 +333,7 @@ void sword_logic_install_module (const std::string& source_name, const std::stri
 
 void sword_logic_uninstall_module (const std::string& module)
 {
-  database::logs::log ("Uninstall SWORD module " + module);
+  database::logs::log ("Uninstall SWORD module", module);
   std::string out_err;
   const std::string sword_path {sword_logic_get_path ()};
   filter::shell::run ("cd " + sword_path + "; " + std::string(filter::shell::get_executable(filter::shell::Executable::installmgr)) + " -u \"" + module + "\"", out_err);
@@ -589,7 +589,7 @@ void sword_logic_update_installed_modules ()
 // Trims the installed SWORD modules.
 void sword_logic_trim_modules ()
 {
-#ifndef HAVE_CLIENT
+#ifdef HAVE_CLOUD
   database::logs::log ("Trimming the installed SWORD modules");
   const std::vector <std::string> modules = sword_logic_get_installed ();
   for (auto module : modules) {
@@ -759,7 +759,7 @@ bool sword_logic_installmgr_refresh_remote_source ([[maybe_unused]] const std::s
 
   sword::InstallSourceMap::iterator source = installMgr->sources.find(name.c_str ());
   if (source == installMgr->sources.end()) {
-    database::logs::log ("Could not find remote source " + name);
+    database::logs::log ("Could not find remote source", name);
   } else {
     if (installMgr->refreshRemoteSource(source->second)) {
       success = false;
@@ -785,7 +785,7 @@ void sword_logic_installmgr_list_remote_modules ([[maybe_unused]] const std::str
   
   sword::InstallSourceMap::iterator source = installMgr->sources.find(source_name.c_str ());
   if (source == installMgr->sources.end()) {
-    database::logs::log ("Could not find remote source " + source_name);
+    database::logs::log ("Could not find remote source", source_name);
   } else {
     sword::SWMgr *otherMgr = source->second->getMgr();
     sword::SWModule *module;

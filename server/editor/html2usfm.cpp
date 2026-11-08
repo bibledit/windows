@@ -33,9 +33,9 @@
 // 2. A string with the word-level attributes class, like "wla2" for example.
 // 3. A string with the milestone attributes class, like "mls2" for example.
 struct std_wla_mls {
-  std::vector<std::string> standard_classes;
-  std::string word_level_attributes_class;
-  std::string milestone_attributes_class;
+  std::vector<std::string> standard_classes {};
+  std::string word_level_attributes_class {};
+  std::string milestone_attributes_class {};
 };
 static std_wla_mls get_standard_classes_and_wla_or_mls_class (const std::string& class_name)
 {
@@ -206,7 +206,7 @@ void Editor_Html2Usfm::process_node(pugi::xml_node& node)
     case pugi::node_cdata:
     default:
     {
-      database::logs::log ("XML node " + std::string(node.name ()) + " not handled while saving editor text");
+      database::logs::log ("XML node", node.name(), "not handled while saving editor text");
       break;
     }
   }
@@ -497,7 +497,7 @@ void Editor_Html2Usfm::process_note_citation (pugi::xml_node& node)
     parent.remove_child (note_p_element);
 
   } else {
-    database::logs::log ("Discarding note with id " + id);
+    database::logs::log ("Discarding note with id", id);
   }
 }
 
@@ -596,10 +596,10 @@ void Editor_Html2Usfm::post_process ()
   
   // Log any word-level and milestone attributes that have not been integrated into the USFM.
   for (const auto& element : m_word_level_attributes) {
-    database::logs::log ("Discarding unprocessed word-level attribute with key: " + element.first + " and value: " + element.second);
+    database::logs::log ("Discarding unprocessed word-level attribute with key:", element.first, "and value:", element.second);
   }
   for (const auto& element : m_milestone_attributes) {
-    database::logs::log ("Discarding unprocessed milestone attribute with key: " + element.first + " and value: " + element.second);
+    database::logs::log ("Discarding unprocessed milestone attribute with key:", element.first, "and value:", element.second);
   }
 }
 

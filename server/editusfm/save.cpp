@@ -34,9 +34,7 @@
 #include <edit/logic.h>
 #include <access/bible.h>
 #include <bb/logic.h>
-#include <rss/logic.h>
 #include <sendreceive/logic.h>
-
 #include <database/bibles.h>
 
 
@@ -110,7 +108,7 @@ std::string editusfm_save (Webserver_Request& webserver_request)
         chapters.append(" ");
       chapters.append(std::to_string(bct.m_chapter));
     }
-    database::logs::log ("Could not save the chapter because it contains more than one chapter:" + chapters);
+    database::logs::log ("Could not save the chapter because it contains more than one chapter:", chapters);
     return translate("Multiple chapters") + " " + chapters;
   }
 
@@ -174,14 +172,13 @@ std::string editusfm_save (Webserver_Request& webserver_request)
   if (!message.empty())
     return message;
 
-#ifndef HAVE_CLIENT
+#ifdef HAVE_CLOUD
   // Server configuration: Store details for the user's changes.
   const int new_id = database::bibles::get_chapter_id (bible, book, chapter);
   database::modifications::recordUserSave (username, bible, book, chapter, old_id, old_text, new_id, new_text);
   if (sendreceive_git_repository_linked (bible)) {
     database::git::store_chapter (username, bible, book, chapter, old_text, new_text);
   }
-  rss_logic_schedule_update (username, bible, book, chapter, old_text, new_text);
 #endif
 
   // Store a copy of the USFM loaded in the editor for later reference.

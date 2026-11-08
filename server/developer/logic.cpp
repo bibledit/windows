@@ -25,17 +25,16 @@
 #include <filter/url.h>
 #include <filter/usfm.h>
 #include <webserver/request.h>
-
 #include <database/bibles.h>
-#include "filter/passage.h"
+#include <filter/passage.h>
 
 
 // Internal function declarations.
 static void developer_logic_import_changes_save (const std::string& bible, int book, int chapter, int verse, std::string& text);
 
 
-std::mutex log_network_mutex {};
-std::vector<std::string> log_network_cache {};
+static std::mutex log_network_mutex {};
+static std::vector<std::string> log_network_cache {};
 
 
 void developer_logic_log_network_write ()
@@ -63,9 +62,8 @@ void developer_logic_log_network_write ()
 
 Developer_Logic_Tracer::Developer_Logic_Tracer(Webserver_Request& webserver_request)
 {
-    seconds1 = filter::date::seconds_since_epoch();
-    microseconds1 = filter::date::numerical_microseconds();
-    rfc822 = filter::date::rfc822(seconds1);
+    seconds1 = filter::date::get_seconds_since_epoch();
+    microseconds1 = filter::date::get_microseconds_within_second();
     remote_address = webserver_request.remote_address;
     request_get = webserver_request.get;
     std::ranges::for_each(webserver_request.query, [this](const auto& element)
@@ -81,10 +79,10 @@ Developer_Logic_Tracer::Developer_Logic_Tracer(Webserver_Request& webserver_requ
 
 Developer_Logic_Tracer::~Developer_Logic_Tracer()
 {
-    const int seconds2 = filter::date::seconds_since_epoch();
-    const int microseconds2 = filter::date::numerical_microseconds();
+    const int seconds2 = filter::date::get_seconds_since_epoch();
+    const int microseconds2 = filter::date::get_microseconds_within_second();
     const int microseconds = (seconds2 - seconds1) * 1000000 + microseconds2 - microseconds1;
-    const std::vector<std::string> bits = {rfc822, std::to_string(microseconds), request_get, request_query, username};
+    const std::vector bits = {rfc822, std::to_string(microseconds), request_get, request_query, username};
     const std::string entry = filter::string::implode(bits, ",");
     log_network_mutex.lock();
     log_network_cache.push_back(entry);
@@ -115,15 +113,15 @@ void developer_logic_import_changes ()
         home_path = home;
     const std::string file_path = filter_url_create_path({home_path, "Desktop", "changes.usfm"});
     const std::string bible = "test";
-    database::logs::log("Import changes from " + file_path + " into Bible " + bible);
+    database::logs::log("Import changes from", file_path, "into Bible", bible);
     if (not std::ranges::count(database::bibles::get_bibles(), bible))
     {
-        database::logs::log("Cannot locate Bible " + bible);
+        database::logs::log("Cannot locate Bible", bible);
         return;
     }
     if (not file_or_dir_exists(file_path))
     {
-        database::logs::log("Cannot locate " + file_path);
+        database::logs::log("Cannot locate", file_path);
         return;
     }
     const std::string contents = filter_url_file_get_contents(file_path);
@@ -138,14 +136,14 @@ void developer_logic_import_changes ()
     {
         if (line.empty()) continue;
 
-        book_id book{book_id::_unknown};
+        auto book{book_id::_unknown};
         int chapter{-1};
         int verse{-1};
 
         // Locate and extract the book identifier.
         for (const auto book_num : book_ids)
         {
-            std::string s = database::books::get_english_from_id(static_cast<book_id>(book_num));
+            std::string s = database::books::get_english_from_id(book_num);
             const size_t pos = line.find(s);
             if (pos != 3) continue;
             book = book_num;
@@ -157,16 +155,15 @@ void developer_logic_import_changes ()
         bool passage_found{false};
         if (book != book_id::_unknown)
         {
-            size_t pos = line.find(":");
-            if (pos != std::string::npos)
+            if (size_t pos = line.find(':'); pos != std::string::npos)
             {
-                const std::vector<std::string> bits = filter::string::explode(line.substr(0, pos), ".");
-                if (bits.size() == 2)
+                if (const std::vector<std::string> bits = filter::string::explode(line.substr(0, pos), ".");
+                    bits.size() == 2)
                 {
                     chapter = filter::string::convert_to_int(filter::string::trim(bits[0]));
                     verse = filter::string::convert_to_int(filter::string::trim(bits[1]));
                     line.erase(0, pos + 2);
-                    passage_found = (book != book_id::_unknown) && (chapter >= 0) && (verse >= 0);
+                    passage_found = book != book_id::_unknown and chapter >= 0 and verse >= 0;
                 }
             }
         }

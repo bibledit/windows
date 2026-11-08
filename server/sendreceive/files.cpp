@@ -69,12 +69,12 @@ void sendreceive_files ()
 {
   // Watchdog handler.
   if (sendreceive_files_watchdog) {
-    const int time = filter::date::seconds_since_epoch ();
+    const int time = filter::date::get_seconds_since_epoch ();
     if (time < (sendreceive_files_watchdog + 900)) {
-      database::logs::log (sendreceive_files_text () + translate("Still busy"), roles::translator);
+      database::logs::log<roles::translator> (sendreceive_files_text(), translate("Still busy"));
       return;
     }
-    database::logs::log (sendreceive_files_text () + translate("Watchdog timeout"), roles::translator);
+    database::logs::log<roles::translator> (sendreceive_files_text(), translate("Watchdog timeout"));
   }
   sendreceive_files_kick_watchdog ();
   config_globals_syncing_files = true;
@@ -84,7 +84,7 @@ void sendreceive_files ()
   if (sendreceive_logic_prioritized_task_is_active ()) {
     sendreceive_files_done ();
     std::this_thread::sleep_for (std::chrono::seconds (5));
-    tasks_logic_queue (task::sync_files);
+    tasks::tasks_logic_queue (tasks::enums::task::sync_files);
     return;
   }
   
@@ -93,7 +93,7 @@ void sendreceive_files ()
   Sync_Logic sync_logic (webserver_request);
 
   
-  database::logs::log (sendreceive_files_sendreceive_text (), roles::translator);
+  database::logs::log<roles::translator> (sendreceive_files_sendreceive_text());
 
   
   const std::string address = database::config::general::get_server_address ();
@@ -109,9 +109,9 @@ void sendreceive_files ()
 
   
   // The client user is the sole user registered on the system.
-  const std::vector <std::string> users = webserver_request.database_users ()->get_users ();
+  const std::vector <std::string> users = database::users::get_users ();
   if (users.empty ()) {
-    database::logs::log (translate("No user found"), roles::translator);
+    database::logs::log<roles::translator> (translate("No user found"));
     sendreceive_files_done ();
     return;
   }
@@ -131,14 +131,14 @@ void sendreceive_files ()
   post ["a"] = std::to_string (Sync_Logic::files_total_checksum);
   response = sync_logic.post (post, url, error);
   if (!error.empty ()) {
-    database::logs::log (sendreceive_files_text () + "Failure requesting total checksum: " + error, roles::translator);
+    database::logs::log<roles::translator> (sendreceive_files_text(), "Failure requesting total checksum:", error);
     sendreceive_files_done ();
     return;
   }
   iresponse = filter::string::convert_to_int (response);
   int checksum = Sync_Logic::files_get_total_checksum (version, user);
   if (iresponse == checksum) {
-    database::logs::log (sendreceive_files_up_to_date_text (), roles::translator);
+    database::logs::log<roles::translator> (sendreceive_files_up_to_date_text());
     sendreceive_files_done ();
     return;
   }
@@ -162,7 +162,7 @@ void sendreceive_files ()
     post ["a"] = std::to_string (Sync_Logic::files_directory_checksum);
     response = sync_logic.post (post, url, error);
     if (!error.empty ()) {
-      database::logs::log (sendreceive_files_text () + "Failure requesting directory checksum: " + error, roles::translator);
+      database::logs::log<roles::translator> (sendreceive_files_text(), "Failure requesting directory checksum:", error);
       sendreceive_files_done ();
       return;
     }
@@ -177,7 +177,7 @@ void sendreceive_files ()
     post ["a"] = std::to_string (Sync_Logic::files_directory_files);
     response = sync_logic.post (post, url, error);
     if (!error.empty ()) {
-      database::logs::log (sendreceive_files_text () + "Failure requesting directory files: " + error, roles::translator);
+      database::logs::log<roles::translator> (sendreceive_files_text(), "Failure requesting directory files:", error);
       sendreceive_files_done ();
       return;
     }
@@ -188,7 +188,7 @@ void sendreceive_files ()
     const std::vector <std::string> client_files = Sync_Logic::files_get_files (directory);
     const std::vector <std::string> files = filter::string::array_diff (client_files, server_files);
     for (const auto& file : files) {
-      database::logs::log (sendreceive_files_text () + "Deleting file: " + filter_url_create_path ({directory, file}), roles::translator);
+      database::logs::log<roles::translator> (sendreceive_files_text(), "Deleting file:", filter_url_create_path ({directory, file}));
       std::string path = filter_url_create_root_path ({directory, file});
       filter_url_unlink (path);
       // Attempt to delete the directory, which will only succeed if it is empty.
@@ -208,7 +208,7 @@ void sendreceive_files ()
       post ["f"] = file;
       response = sync_logic.post (post, url, error);
       if (!error.empty ()) {
-        database::logs::log (sendreceive_files_text () + "Failure requesting checksum file: " + error, roles::translator);
+        database::logs::log<roles::translator> (sendreceive_files_text(), "Failure requesting checksum file:", error);
         sendreceive_files_done ();
         return;
       }
@@ -223,7 +223,7 @@ void sendreceive_files ()
       
       
       // Download the file from the server, and store it locally on the client.
-      database::logs::log (sendreceive_files_text () + "Downloading " + filter_url_create_path ({directory, file}), roles::translator);
+      database::logs::log<roles::translator> (sendreceive_files_text(), "Downloading", filter_url_create_path ({directory, file}));
       // Local file path where to save resource.
       const std::string fullpath = filter_url_create_root_path ({directory, file});
       // Create directory if it does not yet exist.
@@ -241,7 +241,7 @@ void sendreceive_files ()
       // Download and save file locally.
       filter_url_download_file (download_url, fullpath, error, true);
       if (!error.empty ()) {
-        database::logs::log (sendreceive_files_text () + "Failure downloading file: " + error, roles::translator);
+        database::logs::log<roles::translator> (sendreceive_files_text (), "Failure downloading file:", error);
         sendreceive_files_done ();
         return;
       }
@@ -256,12 +256,12 @@ void sendreceive_files ()
 
   
   // Done.
-  database::logs::log (sendreceive_files_text () + "Now up to date", roles::translator);
+  database::logs::log<roles::translator> (sendreceive_files_text(), "Now up to date");
   sendreceive_files_done ();
 }
 
 
 void sendreceive_files_kick_watchdog ()
 {
-  sendreceive_files_watchdog = filter::date::seconds_since_epoch ();
+  sendreceive_files_watchdog = filter::date::get_seconds_since_epoch ();
 }

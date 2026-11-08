@@ -103,13 +103,6 @@ book_id filter_passage_interpret_book(std::string book)
             return identifier;
     }
 
-    // Recognize the BibleWorks book abbreviations.
-    {
-        if (const book_id identifier = database::books::get_id_from_bibleworks(book);
-            identifier != book_id::_unknown)
-            return identifier;
-    }
-
     // Handle names from BibleWorks when copying the verse list to the clipboard.
     // These are not handled elsewhere.
     if (book == "Cant") return book_id::_song_of_solomon;
@@ -165,19 +158,6 @@ book_id filter_passage_interpret_book(std::string book)
         if (book == filter::string::unicode_string_casefold(osis)) return identifier;
         if (nospacebook == filter::string::unicode_string_casefold(osis)) return identifier;
         std::string localized = translate(osis);
-        if (localized.empty()) continue;
-        if (book == filter::string::unicode_string_casefold(localized)) return identifier;
-        if (nospacebook == filter::string::unicode_string_casefold(localized)) return identifier;
-    }
-
-    // Try the abbreviations of BibleWorks.
-    for (const auto identifier : book_ids)
-    {
-        std::string bibleworks = database::books::get_bibleworks_from_id(identifier);
-        if (bibleworks.empty()) continue;
-        if (book == filter::string::unicode_string_casefold(bibleworks)) return identifier;
-        if (nospacebook == filter::string::unicode_string_casefold(bibleworks)) return identifier;
-        std::string localized = translate(bibleworks);
         if (localized.empty()) continue;
         if (book == filter::string::unicode_string_casefold(localized)) return identifier;
         if (nospacebook == filter::string::unicode_string_casefold(localized)) return identifier;

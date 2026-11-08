@@ -36,8 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <assets/header.h>
 #include <menu/logic.h>
 #include <config/globals.h>
-#include <rss/feed.h>
-#include <rss/logic.h>
 #include <assets/external.h>
 #include <jobs/index.h>
 #include <tasks/logic.h>
@@ -135,33 +133,6 @@ std::string system_index (Webserver_Request& webserver_request)
   }
 
   
-#ifdef HAVE_CLOUD
-  // Whether to include the author with every change in the RSS feed.
-  if (checkbox == "rssauthor") {
-    database::config::general::set_author_in_rss_feed (checked);
-    return std::string();
-  }
-  view.set_variable ("rssauthor", filter::string::get_checkbox_status (database::config::general::get_author_in_rss_feed ()));
-  // The location of the RSS feed.
-  view.set_variable ("rssfeed", rss_feed_url ());
-  // The Bibles that send their changes to the RSS feed.
-  std::string rssbibles {};
-  {
-    std::vector <std::string> bibles = database::bibles::get_bibles ();
-    for (const auto& bible : bibles) {
-      if (database::config::bible::get_send_changes_to_rss (bible)) {
-        if (!rssbibles.empty ()) rssbibles.append (" ");
-        rssbibles.append (bible);
-      }
-    }
-  }
-  if (rssbibles.empty ()) {
-    rssbibles.append (translate ("none"));
-  }
-  view.set_variable ("rssbibles", rssbibles);
-#endif
-
-  
 #ifdef HAVE_CLIENT
   const bool producebibles = webserver_request.query.count ("producebibles");
   const bool producenotes = webserver_request.query.count ("producenotes");
@@ -169,11 +140,11 @@ std::string system_index (Webserver_Request& webserver_request)
   if (producebibles || producenotes || produceresources) {
     const int jobId = database_jobs::get_new_id ();
     database_jobs::set_level (jobId, roles::member);
-    std::string task {};
-    if (producebibles) task = task::produce_bibles_transferfile;
-    if (producenotes) task = task::produce_notes_transferfile;
-    if (produceresources) task = task::produce_resources_transferfile;
-    tasks_logic_queue (task, { std::to_string(jobId) });
+    tasks::enums::task task {};
+    if (producebibles) task = tasks::enums::task::produce_bibles_transferfile;
+    if (producenotes) task = tasks::enums::task::produce_notes_transferfile;
+    if (produceresources) task = tasks::enums::task::produce_resources_transferfile;
+    tasks::tasks_logic_queue (task, { std::to_string(jobId) });
     redirect_browser (webserver_request, jobs_index_url () + "?id=" + std::to_string(jobId));
     return std::string();
   }
@@ -190,7 +161,7 @@ std::string system_index (Webserver_Request& webserver_request)
         filter_url_file_put_contents (datafile, data);
         success = translate("Import has started.");
         view.set_variable ("journal", journal_logic_see_journal_for_progress ());
-        tasks_logic_queue (task::import_bibles_transferfile, { datafile });
+        tasks::tasks_logic_queue (tasks::enums::task::import_bibles_transferfile, { datafile });
       } else {
         error = translate ("Nothing was imported");
       }
@@ -214,7 +185,7 @@ std::string system_index (Webserver_Request& webserver_request)
         filter_url_file_put_contents (datafile, data);
         success = translate("Import has started.");
         view.set_variable ("journal", journal_logic_see_journal_for_progress ());
-        tasks_logic_queue (task::import_notes_transferfile, { datafile });
+        tasks::tasks_logic_queue (tasks::enums::task::import_notes_transferfile, { datafile });
       } else {
         error = translate ("Nothing was imported");
       }
@@ -238,7 +209,7 @@ std::string system_index (Webserver_Request& webserver_request)
         filter_url_file_put_contents (datafile, data);
         success = translate("Import has started.");
         view.set_variable ("journal", journal_logic_see_journal_for_progress ());
-        tasks_logic_queue (task::import_resources_transferfile, { datafile });
+        tasks::tasks_logic_queue (tasks::enums::task::import_resources_transferfile, { datafile });
       } else {
         error = translate ("Nothing was imported");
       }
@@ -255,18 +226,18 @@ std::string system_index (Webserver_Request& webserver_request)
   // Force re-index Bibles.
   if (webserver_request.query ["reindex"] == "bibles") {
     database::config::general::set_index_bibles (true);
-    tasks_logic_queue (task::reindex_bibles, {"1"});
+    tasks::tasks_logic_queue (tasks::enums::task::reindex_bibles, {"1"});
     redirect_browser (webserver_request, journal_index_url ());
-    return std::string();
+    return {};
   }
   
   
   // Re-index consultation notes.
   if (webserver_request.query ["reindex"] == "notes") {
-    database::config::general::setIndexNotes (true);
-    tasks_logic_queue (task::reindex_notes);
+    database::config::general::set_index_notes (true);
+    tasks::tasks_logic_queue (tasks::enums::task::reindex_notes);
     redirect_browser (webserver_request, journal_index_url ());
-    return std::string();
+    return {};
   }
 
   
@@ -303,7 +274,7 @@ std::string system_index (Webserver_Request& webserver_request)
   std::stringstream fontsblock;
   for (const auto& font : fonts) {
     fontsblock << "<p>";
-#ifndef HAVE_CLIENT
+#ifdef HAVE_CLOUD
     fontsblock << "<a href=" << std::quoted ("?deletefont=" + font) << " title=" << std::quoted(translate("Delete font")) << ">" << filter::string::emoji_wastebasket () << "</a>";
 #endif
     fontsblock << font;
@@ -314,7 +285,7 @@ std::string system_index (Webserver_Request& webserver_request)
   
   // Handle the command to clear the web and resources caches.
   if (webserver_request.query.count ("clearcache")) {
-    tasks_logic_queue (task::clear_caches);
+    tasks::tasks_logic_queue (tasks::enums::task::clear_caches);
     redirect_browser (webserver_request, journal_index_url ());
     return std::string();
   }

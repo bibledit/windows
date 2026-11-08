@@ -65,7 +65,7 @@ void setup_conditionally (const char * package)
   if (p == config_globals_document_root) setup_wait_till_main_folders_present ();
   
   // Run the setup if the versions differ.
-  if (config::logic::version () != database::config::general::getInstalledDatabaseVersion ()) {
+  if (config::logic::version () != database::config::general::get_installed_database_version ()) {
     
     std::vector <std::string> messages {};
 
@@ -86,14 +86,14 @@ void setup_conditionally (const char * package)
       database::logs::log (message);
     }
     
-#ifndef HAVE_CLIENT
+#ifdef HAVE_CLOUD
     // Cloud updates the available SWORD modules and web resources.
-    tasks_logic_queue (task::refresh_sword_modules);
-    tasks_logic_queue (task::refresh_web_resources);
+    tasks::tasks_logic_queue (tasks::enums::task::refresh_sword_modules);
+    tasks::tasks_logic_queue (tasks::enums::task::refresh_web_resources);
 #endif
     
     // Update installed version.
-    database::config::general::setInstalledDatabaseVersion (config::logic::version ());
+    database::config::general::set_installed_database_version (config::logic::version ());
   };
 
   if (config::logic::version () != database::config::general::get_installed_interface_version ()) {
@@ -124,11 +124,11 @@ void setup_conditionally (const char * package)
   // the app may shut down before the tasks have been completed.
   // Next time the app starts, the tasks will be restarted here, and they will run if a flag was set for them.
   // Once the tasks are really complete, they will clear the flag.
-  tasks_logic_queue (task::reindex_bibles);
-  tasks_logic_queue (task::reindex_notes);
+  tasks::tasks_logic_queue (tasks::enums::task::reindex_bibles);
+  tasks::tasks_logic_queue (tasks::enums::task::reindex_notes);
 #ifdef HAVE_CLIENT
   // Same for the resource downloader, for the client.
-  tasks_logic_queue (task::sync_resources);
+  tasks::tasks_logic_queue (tasks::enums::task::sync_resources);
 #endif
 }
 
@@ -153,15 +153,22 @@ void setup_copy_library (const char * package)
 }
 
 
-void setup_write_access ()
+void setup_write_access()
 {
-  std::vector <std::string> folders = {"exports", "git", "revisions", "dyncss", database_logic_databases (), "bibles", "fonts", "logbook", filter_url_temp_dir ()};
-  for (const auto& folder : folders) {
-    const std::string path = filter_url_create_root_path ({folder});
-    if (!filter_url_get_write_permission (path)) {
-      filter_url_set_write_permission (path);
+    const std::vector<std::string> folders = {
+        "exports", "git", "revisions", "dyncss", database_logic_databases(), "bibles", "fonts", "logbook",
+        filter_url_temp_dir()
+    };
+    for (const auto& folder : folders)
+    {
+        // Handle exceptions because not all of the above folders exist on all platforms.
+        try
+        {
+            const std::string path = filter_url_create_root_path({folder});
+            filter_url_set_write_permission(path);
+        }
+        catch (...) { }
     }
-  }
 }
 
 
@@ -200,8 +207,8 @@ void setup_initialize_data ()
   // This alerts the user that installation is in progress, and is not stuck,
   // as the user might think when the install takes longer than expected.
   config_globals_setup_message = "users";
-  webserver_request.database_users ()->create ();
-  webserver_request.database_users ()->upgrade ();
+  database::users::create();
+  database::users::upgrade();
   config_globals_setup_message = "styles";
   database::styles::create_database ();
   config_globals_setup_message = "bible actions";
@@ -238,8 +245,7 @@ void setup_initialize_data ()
   config_globals_setup_message = "modifications";
   database::modifications::create ();
   config_globals_setup_message = "notes";
-  Database_Notes database_notes (webserver_request);
-  database_notes.create ();
+  database::notes::create ();
   config_globals_setup_message = "state";
   Database_State::create ();
   config_globals_setup_message = "login";
@@ -270,7 +276,7 @@ void setup_initialize_data ()
   // To make installation fast, the creation of the sample Bible is now done in the background.
   const std::vector <std::string> bibles = database::bibles::get_bibles ();
   if (bibles.empty ()) {
-    tasks_logic_queue (task::create_sample_bible);
+    tasks::tasks_logic_queue (tasks::enums::task::create_sample_bible);
   }
   
   // Schedule reindexing Bible search data.
@@ -280,7 +286,7 @@ void setup_initialize_data ()
    and the reason for the re-indexing is not clear.
   config_globals_setup_message = "indexes";
   database::config::general::set_index_bibles (true);
-  tasks_logic_queue (REINDEXBIBLES);
+  tasks::tasks_logic_queue (REINDEXBIBLES);
   */
 }
 
@@ -288,9 +294,8 @@ void setup_initialize_data ()
 // Store the admin's details.
 void setup_set_admin_details (const std::string& username, const std::string& password, const std::string& email)
 {
-  Database_Users database_users{};
-  database_users.removeUser (username);
-  database_users.add_user (username, password, roles::admin, email);
+  database::users::remove_user (username);
+  database::users::add_user(username, password, roles::admin, email);
 }
 
 

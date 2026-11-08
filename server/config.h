@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #define VERSION_MAJOR 5
 #define VERSION_MINOR 1
-#define VERSION_PATCH 055
-#define VERSION "5.1.055"
+#define VERSION_PATCH 059
+#define VERSION "5.1.059"
 #define HAVE_LIBMBEDTLS
 /* #undef HAVE_MACH_MACH */
 #define HAVE_GTEST
@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #define PACKAGE_PREFIX_DIR "/usr"
 /* #undef COMPILER_GCC */
 #define COMPILER_CLANG
+/* #undef HAVE_CLOUD */
 #define HAVE_WINDOWS
 #define WIN32
 /* #undef HAVE_ANDROID */

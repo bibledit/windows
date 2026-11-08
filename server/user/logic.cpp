@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <webserver/request.h>
 
 
-void user_logic_optional_ldap_authentication (Webserver_Request& webserver_request, std::string user, std::string pass)
+void user_logic_optional_ldap_authentication (std::string user, std::string pass)
 {
   if (ldap_logic_is_on ()) {
     // Query the LDAP server and log the response.
@@ -44,23 +44,23 @@ void user_logic_optional_ldap_authentication (Webserver_Request& webserver_reque
     int role;
     ldap_logic_fetch (user, pass, ldap_okay, email, role, true);
     if (ldap_okay) {
-      if (webserver_request.database_users ()->username_exists (user)) {
+      if (database::users::username_exists (user)) {
         // Verify and/or update the fields for the user in the local database.
-        if (webserver_request.database_users ()->get_md5 (user) != md5 (pass)) {
-          webserver_request.database_users ()->set_password (user, pass);
+        if (database::users::get_md5 (user) != md5 (pass)) {
+          database::users::set_password (user, pass);
         }
-        if (webserver_request.database_users ()->get_level (user) != role) {
-          webserver_request.database_users ()->set_level (user, role);
+        if (database::users::get_level (user) != role) {
+          database::users::set_level (user, role);
         }
-        if (webserver_request.database_users ()->get_email (user) != email) {
-          webserver_request.database_users ()->updateUserEmail (user, email);
+        if (database::users::get_email (user) != email) {
+          database::users::update_user_email (user, email);
         }
-        if (!webserver_request.database_users ()->get_enabled (user)) {
-          webserver_request.database_users ()->set_enabled (user, true);
+        if (not database::users::get_enabled (user)) {
+          database::users::set_enabled (user, true);
         }
       } else {
         // Enter the user into the database.
-        webserver_request.database_users ()->add_user (user, pass, role, email);
+        database::users::add_user(user, pass, role, email);
       }
     }
   }
@@ -76,7 +76,7 @@ bool user_logic_login_failure_check_okay ()
   if (!user_logic_login_failure_time)
     return true;
   // A login failure was recorded during this very second: Check fails.
-  if (user_logic_login_failure_time == filter::date::seconds_since_epoch ())
+  if (user_logic_login_failure_time == filter::date::get_seconds_since_epoch ())
     return false;
   // Default: OK.
   return true;
@@ -86,7 +86,7 @@ bool user_logic_login_failure_check_okay ()
 void user_logic_login_failure_register ()
 {
   // Register a login failure for the current second.
-  user_logic_login_failure_time = filter::date::seconds_since_epoch ();
+  user_logic_login_failure_time = filter::date::get_seconds_since_epoch ();
 }
 
 
@@ -101,9 +101,8 @@ void user_logic_delete_account (std::string user, std::string role, std::string 
                                 std::string & feedback)
 {
   feedback = "Deleted user " + user + " with role " + role + " and email " + email;
-  database::logs::log (feedback, roles::admin);
-  Database_Users database_users;
-  database_users.removeUser (user);
+  database::logs::log<roles::admin> (feedback);
+  database::users::remove_user (user);
   database_privileges_client_remove (user);
   // Also remove any privileges for this user.
   // In particular for the Bible privileges this is necessary,

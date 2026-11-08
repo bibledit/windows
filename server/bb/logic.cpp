@@ -185,7 +185,7 @@ void bible_logic::delete_bible(const std::string& bible)
 
 void bible_logic::import_resource(const std::string& bible, const std::string& resource)
 {
-    database::logs::log("Starting to import resource " + resource + " into Bible " + bible);
+    database::logs::log("Starting to import resource", resource, "into Bible", bible);
 
     Database_Versifications database_versifications{};
     Webserver_Request webserver_request{};
@@ -198,7 +198,7 @@ void bible_logic::import_resource(const std::string& bible, const std::string& r
         {
             const std::string message = "Importing " + resource + " " + bookName + " chapter " +
                 std::to_string(chapter);
-            database::logs::log(message, roles::translator);
+            database::logs::log<roles::translator>(message);
 
             std::vector<std::string> usfm{};
 
@@ -226,8 +226,7 @@ void bible_logic::import_resource(const std::string& bible, const std::string& r
                     server_is_installing_module = (html == sword_logic_installing_module_text());
                     if (server_is_installing_module)
                     {
-                        database::logs::log(
-                            translate("Waiting while Bibledit Cloud installs the requested SWORD module"));
+                        database::logs::log(translate("Waiting while Bibledit Cloud installs the requested SWORD module"));
                         std::this_thread::sleep_for(std::chrono::seconds(60));
                         wait_iterations++;
                     }
@@ -245,7 +244,7 @@ void bible_logic::import_resource(const std::string& bible, const std::string& r
         }
     }
 
-    database::logs::log("Completed importing resource " + resource + " into Bible " + bible);
+    database::logs::log("Completed importing resource", resource, "into Bible", bible);
 }
 
 
@@ -318,7 +317,7 @@ void bible_logic::log_change(const std::string& bible,
     body.push_back(usfm);
 
     if (!user.empty()) user.append(" - ");
-    database::logs::log(user + summary + " - " + passage, filter::string::implode(body, "\n"));
+    database::logs::log(user, summary, "-", passage, "\n", filter::string::implode(body, "\n"));
 }
 
 
@@ -350,7 +349,7 @@ void bible_logic::log_merge(const std::string& user, const std::string& bible, i
     body.push_back("Result:");
     body.push_back(result);
 
-    database::logs::log(user + " - merge record - " + passage, filter::string::implode(body, "\n"));
+    database::logs::log(user, "-", "merge record", "-", passage, "\n", filter::string::implode(body, "\n"));
 }
 
 
@@ -361,13 +360,13 @@ void bible_logic::kick_unsent_data_timer()
     if (database::config::general::get_unsent_bible_data_time() != 0) return;
 
     // Stamp with the current time.
-    database::config::general::set_unsent_bible_data_time(filter::date::seconds_since_epoch());
+    database::config::general::set_unsent_bible_data_time(filter::date::get_seconds_since_epoch());
 }
 
 
 void bible_logic::kick_unreceived_data_timer()
 {
-    database::config::general::set_unreceived_bible_data_time(filter::date::seconds_since_epoch());
+    database::config::general::set_unreceived_bible_data_time(filter::date::get_seconds_since_epoch());
 }
 
 
@@ -384,7 +383,7 @@ std::string bible_logic::unsent_unreceived_data_warning()
     // A value of 0 means that it is not relevant.
     if (data_time)
     {
-        const int now = filter::date::seconds_since_epoch();
+        const int now = filter::date::get_seconds_since_epoch();
         // Unreceived data warning after four days.
         data_time += (4 * 24 * 3600);
         if (now > data_time)
@@ -404,7 +403,7 @@ std::string bible_logic::unsent_unreceived_data_warning()
     // A value of 0 means that there's no pending data.
     if (data_time)
     {
-        const int now = filter::date::seconds_since_epoch();
+        const int now = filter::date::get_seconds_since_epoch();
         // Unsent data warning after four days.
         data_time += (4 * 24 * 3600);
         if (now > data_time)
@@ -1191,7 +1190,7 @@ void bible_logic::html_to_editor_updates(const std::string& editor_html,
 
 void bible_logic::create_empty_bible(const std::string& name)
 {
-    database::logs::log(translate("Creating Bible") + " " + name);
+    database::logs::log(translate("Creating Bible"), name);
 
     // Remove and create the empty Bible.
     database::bibles::delete_bible(name);
@@ -1212,5 +1211,5 @@ void bible_logic::create_empty_bible(const std::string& name)
         }
     }
 
-    database::logs::log(translate("Created:") + " " + name);
+    database::logs::log(translate("Created:"), name);
 }

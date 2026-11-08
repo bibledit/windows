@@ -50,11 +50,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 void database_maintenance ()
 {
-  database::logs::log ("Maintaining databases", roles::manager);
+  database::logs::log<roles::manager> ("Maintaining databases");
   
   
   // Whether running in client mode.
-  bool client_mode = client_logic_client_enabled ();
+  const bool client_mode = client_logic_client_enabled ();
   
   
   Webserver_Request webserver_request;
@@ -65,9 +65,8 @@ void database_maintenance ()
   // Therefore this type of maintenance should not be done automatically.
   
   
-  Database_Users database_users;
-  database_users.trim ();
-  database_users.optimize ();
+  database::users::trim ();
+  database::users::optimize ();
   
   
   Database_Mail database_mail (webserver_request);

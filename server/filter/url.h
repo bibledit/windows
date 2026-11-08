@@ -23,23 +23,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 class Webserver_Request;
 
+// ReSharper disable once CppRedundantCastExpression
+// The cast is needed for on Windows, as the preferred_separator is of type wchar_t there.
+constexpr auto directory_separator {static_cast<const char>(std::filesystem::path::preferred_separator)};
+
 std::string get_base_url (const Webserver_Request& webserver_request);
-void redirect_browser (Webserver_Request& webserver_request, std::string url);
+void redirect_browser (Webserver_Request& webserver_request, const std::string& url);
 std::string filter_url_dirname (std::string url);
 std::string filter_url_dirname_web (std::string url);
 std::string filter_url_basename (std::string url);
 std::string filter_url_basename_web (std::string url);
 void filter_url_unlink (const std::string& filename);
-void filter_url_rename (const std::string& oldfilename, const std::string& newfilename);
+void filter_url_rename (const std::string& old_filename, const std::string& new_filename);
 std::string filter_url_create_path (const std::vector<std::string>& parts);
 std::string filter_url_create_path_web (const std::vector<std::string>& parts);
 std::string filter_url_create_root_path (const std::vector<std::string>& parts);
 std::string filter_url_get_extension (const std::string& url);
 bool file_or_dir_exists (const std::string& url);
-void filter_url_mkdir (std::string directory);
+void filter_url_mkdir (const std::string& directory);
 void filter_url_rmdir (const std::string& directory);
 bool filter_url_is_dir (const std::string& path);
-bool filter_url_get_write_permission (const std::string& path);
 void filter_url_set_write_permission (const std::string& path);
 std::string filter_url_file_get_contents (const std::string& filename);
 void filter_url_file_put_contents (const std::string& filename, const std::string& contents);
@@ -49,7 +52,7 @@ void filter_url_dir_cp (const std::string & input, const std::string & output);
 int filter_url_filesize (const std::string& filename);
 std::vector <std::string> filter_url_scandir (const std::string& folder);
 void filter_url_recursive_scandir (const std::string& folder, std::vector <std::string> & paths);
-int filter_url_file_modification_time (std::string filename);
+int filter_url_file_modification_time (const std::string& filename);
 std::string filter_url_urldecode (std::string url);
 std::string filter_url_urlencode (std::string url);
 const char * filter_url_temp_dir ();

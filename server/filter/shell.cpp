@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/string.h>
 #include <filter/url.h>
 #include <database/logs.h>
-#ifndef HAVE_CLIENT
+#ifdef HAVE_CLOUD
 #include <sys/wait.h>
 #endif
 #ifdef HAVE_WINDOWS
@@ -38,9 +38,7 @@ static std::set<Executable> absent_executables{};
 
 static void log_absent_executable_internal(const char* executable)
 {
-  std::stringstream ss{};
-  ss << "Command line tool " << std::quoted(executable) << " was not found";
-  database::logs::log (ss.str());
+  database::logs::log ("Command line tool", executable, "was not found");
 }
 
 
@@ -112,7 +110,7 @@ const char* get_executable(const Executable executable)
 }
 
 
-static std::string escape_argument (std::string argument)
+[[maybe_unused]] static std::string escape_argument (std::string argument)
 {
   argument = string::replace ("'", "\\'", argument);
   argument.insert (0, "'");
@@ -131,7 +129,7 @@ int run ([[maybe_unused]] std::string directory,
          [[maybe_unused]] std::string* error)
 {
 #ifdef HAVE_CLIENT
-  database::logs::log ("Did not run on client: " + command);
+  database::logs::log ("Did not run on client:", command);
   return 0;
 #else
   command = escape_argument (command);
@@ -175,7 +173,7 @@ int run (const std::string& command,
          [[maybe_unused]] std::string& output)
 {
 #ifdef HAVE_CLIENT
-  database::logs::log ("Did not run on client: " + command);
+  database::logs::log ("Did not run on client:", command);
   return 0;
 #else
   // File descriptor for file to write child's stdout to.
@@ -234,6 +232,7 @@ bool is_present (const char* program)
 {
   // No executables in client mode.
 #ifdef HAVE_CLIENT
+  (void) program;
   return false;
 #else
   const std::string command = std::string(get_executable(Executable::which)) + " " + std::string(program) + " > /dev/null 2>&1";
@@ -298,7 +297,7 @@ int vfork ([[maybe_unused]] std::string& output,
 {
   int status = 0;
 #ifdef HAVE_CLIENT
-  database::logs::log ("Did not run on client: " + command);
+  database::logs::log ("Did not run on client:", command);
 #else
   
   // File descriptors for files to write child's stdout and stderr to.
@@ -314,7 +313,7 @@ int vfork ([[maybe_unused]] std::string& output,
 #pragma clang diagnostic pop
   if (pid != 0) {
     if (pid < 0) {
-      database::logs::log ("Failed to run " + command);
+      database::logs::log ("Failed to run", command);
     } else {
       wait (&status);
     }
@@ -329,7 +328,7 @@ int vfork ([[maybe_unused]] std::string& output,
     }
     execlp (command.c_str(), command.c_str(), p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12, p13, nullptr);
     // The above only returns in case of an error.
-    database::logs::log (command + ": " + strerror (errno));
+    database::logs::log (command, ":", strerror (errno));
     _exit (1);
     //close (fd);
     return -1;

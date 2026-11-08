@@ -86,11 +86,11 @@ void set_last_send_receive (int value);
 std::string get_installed_interface_version ();
 void set_installed_interface_version (const std::string& value);
 
-std::string getInstalledDatabaseVersion ();
-void setInstalledDatabaseVersion (const std::string& value);
+std::string get_installed_database_version ();
+void set_installed_database_version (const std::string& value);
 
-bool getJustStarted ();
-void setJustStarted (bool value);
+bool get_just_started ();
+void set_just_started (bool value);
 
 std::string get_paratext_projects_folder ();
 void set_paratext_projects_folder (const std::string& value);
@@ -104,8 +104,8 @@ void set_last_menu_click (const std::string& url);
 std::vector <std::string> get_resources_to_cache ();
 void set_resources_to_cache (const std::vector <std::string>& values);
 
-bool getIndexNotes ();
-void setIndexNotes (bool value);
+bool get_index_notes ();
+void set_index_notes (bool value);
 
 bool get_index_bibles ();
 void set_index_bibles (bool value);
@@ -115,9 +115,6 @@ void set_unsent_bible_data_time (int value);
 
 int get_unreceived_bible_data_time ();
 void set_unreceived_bible_data_time (int value);
-
-bool get_author_in_rss_feed ();
-void set_author_in_rss_feed (bool value);
 
 bool get_just_connected_to_cloud ();
 void set_just_connected_to_cloud (bool value);

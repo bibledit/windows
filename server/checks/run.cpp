@@ -45,8 +45,6 @@
 #include <checks/french.h>
 #include <email/send.h>
 #include <sendreceive/logic.h>
-#include <rss/logic.h>
-
 #include <database/bibles.h>
 
 
@@ -58,7 +56,7 @@ void checks_run (std::string bible)
   if (bible.empty()) return;
   
   
-  database::logs::log ("Check " + bible + ": Start", roles::translator);
+  database::logs::log<roles::translator> ("Check", bible, ": Start");
   
   
   database::check::delete_output(bible);
@@ -134,20 +132,19 @@ void checks_run (std::string bible)
         std::string old_usfm (chapterUsfm);
         const bool transposed = checks::space::transpose_note_space (chapterUsfm);
         if (transposed) {
-#ifndef HAVE_CLIENT
+#ifdef HAVE_CLOUD
           const int oldID = database::bibles::get_chapter_id (bible, book, chapter);
 #endif
           database::bibles::store_chapter(bible, book, chapter, chapterUsfm);
-#ifndef HAVE_CLIENT
+#ifdef HAVE_CLOUD
           const int newID = database::bibles::get_chapter_id (bible, book, chapter);
           const std::string username = "Bibledit";
           database::modifications::recordUserSave (username, bible, book, chapter, oldID, old_usfm, newID, chapterUsfm);
           if (sendreceive_git_repository_linked (bible)) {
             database::git::store_chapter (username, bible, book, chapter, old_usfm, chapterUsfm);
           }
-          rss_logic_schedule_update (username, bible, book, chapter, old_usfm, chapterUsfm);
 #endif
-          database::logs::log ("Transposed and fixed double spaces around markers in footnotes or cross references in " + filter_passage_display (book, chapter, "") + " in Bible " + bible);
+          database::logs::log ("Transposed and fixed double spaces around markers in footnotes or cross references in", filter_passage_display (book, chapter, ""), "in Bible", bible);
         }
       }
       
@@ -281,11 +278,11 @@ void checks_run (std::string bible)
             return true;
       return false;
     };
-    for (const auto& user : webserver_request.database_users()->get_users() | std::views::filter(mail4user)) {
+    for (const auto& user : database::users::get_users() | std::views::filter(mail4user)) {
       email::schedule (user, subject, body);
     }
   }
   
   
-  database::logs::log ("Check " + bible + ": Complete", roles::translator);
+  database::logs::log<roles::translator> ("Check", bible, ": Complete");
 }
