@@ -101,7 +101,7 @@ void timer_index()
 #endif
 
             // Every minute send out queued email.
-            if (!tasks::tasks_logic_queued(tasks::enums::task::send_email))
+            if (!tasks::tasks_logic_queued_or_running(tasks::enums::task::send_email))
                 tasks::tasks_logic_queue(tasks::enums::task::send_email);
 
 #ifdef HAVE_CLOUD
@@ -226,11 +226,6 @@ void timer_index()
                 {
                     tasks::tasks_logic_queue(tasks::enums::task::refresh_sword_modules);
                     tasks::tasks_logic_queue(tasks::enums::task::refresh_web_resources);
-                }
-                // Update installed SWORD modules, shortly after the module list has been refreshed.
-                if (hour == 3 and minute == 15)
-                {
-                    tasks::tasks_logic_queue(tasks::enums::task::update_sword_modules);
                 }
             }
 #endif

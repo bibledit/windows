@@ -25,7 +25,7 @@ class Webserver_Request;
 
 // ReSharper disable once CppRedundantCastExpression
 // The cast is needed for on Windows, as the preferred_separator is of type wchar_t there.
-constexpr auto directory_separator {static_cast<const char>(std::filesystem::path::preferred_separator)};
+constexpr auto directory_separator {static_cast<char>(std::filesystem::path::preferred_separator)};
 
 std::string get_base_url (const Webserver_Request& webserver_request);
 void redirect_browser (Webserver_Request& webserver_request, const std::string& url);
@@ -53,8 +53,8 @@ int filter_url_filesize (const std::string& filename);
 std::vector <std::string> filter_url_scandir (const std::string& folder);
 void filter_url_recursive_scandir (const std::string& folder, std::vector <std::string> & paths);
 int filter_url_file_modification_time (const std::string& filename);
-std::string filter_url_urldecode (std::string url);
-std::string filter_url_urlencode (std::string url);
+std::string filter_url_url_decode (std::string url);
+std::string filter_url_url_encode (const std::string& url);
 const char * filter_url_temp_dir ();
 std::string filter_url_tempfile (const char * directory = nullptr);
 std::string filter_url_escape_shell_argument (std::string argument);

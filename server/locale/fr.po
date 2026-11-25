@@ -809,7 +809,7 @@ msgid "The paragraph contains more right guillements than needed"
 msgstr "Le paragraphe contient plus de guillemets droit que nécessaire"
 
 msgid "Punctuation at end of heading"
-msgstr ""
+msgstr "Ponctuation à la fin du titre"
 
 msgid "Closing character"
 msgstr "Caractère de clôture"
@@ -846,25 +846,25 @@ msgid "Two punctuation marks in sequence"
 msgstr "Deux signes de ponctuation qui se suivent"
 
 msgid "Paragraph does not start with a capital"
-msgstr ""
+msgstr "Le paragraphe ne commence pas par une majuscule"
 
 msgid "Paragraph does not end with an end marker"
-msgstr ""
+msgstr "Le paragraphe ne se termine pas par un marqueur de fin"
 
 msgid "Unknown character"
 msgstr "caractère inconnu"
 
 msgid "Double space"
-msgstr ""
+msgstr "Double espace"
 
 msgid "Unclosed markers"
-msgstr ""
+msgstr "Marqueurs non fermés"
 
 msgid "Malformed verse number"
 msgstr "Numéro de verset mal formé"
 
 msgid "New line within USFM"
-msgstr ""
+msgstr "Saut de ligne dans le code USFM"
 
 msgid "Marker not in stylesheet"
 msgstr "La balise n'est pas dans la feuille de style"
@@ -876,7 +876,7 @@ msgid "ID is not in uppercase"
 msgstr "L'ID n'est pas en majuscules"
 
 msgid "Forward slash instead of backslash"
-msgstr ""
+msgstr "Barre oblique au lieu d’une barre oblique inverse"
 
 msgid "Widow backslash"
 msgstr "Barre oblique orpheline"
@@ -891,34 +891,34 @@ msgid "Embedded marker requires a plus sign"
 msgstr "La balise incorporée nécessite un signe plus"
 
 msgid "The book lacks the marker for the verbose book name"
-msgstr ""
+msgstr "Le livre ne comporte pas le marqueur du nom complet du livre"
 
 msgid "The book lacks the marker for the short book name"
-msgstr ""
+msgstr "Le livre ne comporte pas le marqueur du nom abrégé du livre"
 
 msgid "The following marker belongs in chapter 0"
-msgstr ""
+msgstr "Le marqueur suivant doit se trouver au chapitre 0"
 
 msgid "Empty figure source"
-msgstr ""
+msgstr "Source de l’illustration vide"
 
 msgid "Could not find Bible image"
-msgstr ""
+msgstr "Impossible de trouver l’image biblique"
 
 msgid "Unusual quotation mark found"
-msgstr ""
+msgstr "Guillemet inhabituel détecté"
 
 msgid "Opening markup is followed by closing markup without intervening text"
-msgstr ""
+msgstr "Une balise ouvrante est suivie d’une balise fermante sans texte intermédiaire"
 
 msgid "This sequence in the note does not look right"
-msgstr ""
+msgstr "Cette séquence dans la note semble incorrecte"
 
 msgid "No punctuation at end of verse"
-msgstr ""
+msgstr "Absence de ponctuation à la fin du verset"
 
 msgid "Pattern found in text"
-msgstr ""
+msgstr "Motif trouvé dans le texte"
 
 msgid "This book is absent from the Bible"
 msgstr "Ce livre est absent de la Bible"
@@ -998,19 +998,19 @@ msgid "The entry was deleted for just now."
 msgstr "L'entrée a été supprimée pour le moment."
 
 msgid "The matching entries were deleted for just now."
-msgstr ""
+msgstr "Les entrées correspondantes viennent d’être supprimées."
 
 msgid "This group of issues is not known."
-msgstr ""
+msgstr "Ce groupe de problèmes est inconnu."
 
 msgid "approve"
-msgstr ""
+msgstr "approuver"
 
 msgid "delete"
 msgstr "supprimer"
 
 msgid "Delete items with"
-msgstr ""
+msgstr "Supprimer les éléments avec"
 
 msgid "Loading ..."
 msgstr "Chargement..."
@@ -1202,22 +1202,22 @@ msgid "Go forward or long-press to show history"
 msgstr "Avancez ou appuyez longuement pour afficher l'historique"
 
 msgid "Go to previous book"
-msgstr ""
+msgstr "Aller au livre précédent"
 
 msgid "Select book"
 msgstr "Choisir un livre"
 
 msgid "Go to next book"
-msgstr ""
+msgstr "Aller au livre suivant"
 
 msgid "Go to previous chapter"
-msgstr ""
+msgstr "Aller au chapitre précédent"
 
 msgid "Select chapter"
 msgstr "Sélectionner un chapitre"
 
 msgid "Go to next chapter"
-msgstr ""
+msgstr "Aller au chapitre suivant"
 
 msgid "Go to previous verse"
 msgstr "Aller au verset précédent"
@@ -1310,16 +1310,16 @@ msgid "Needs Unicode"
 msgstr "À besoin d'unicode"
 
 msgid "No chapter data"
-msgstr ""
+msgstr "Aucune donnée de chapitre"
 
 msgid "Multiple chapters"
-msgstr ""
+msgstr "Plusieurs chapitres"
 
 msgid "Confusing data"
 msgstr "Les données sont confuses"
 
 msgid "Chapter number mismatch"
-msgstr ""
+msgstr "Le numéro du chapitre ne correspond pas"
 
 msgid "Merging and saving chapter."
 msgstr "Fusion et sauvegarde du chapitre."
@@ -1470,19 +1470,19 @@ msgid "Stylesheet"
 msgstr "Feuille de style"
 
 msgid "Enter a name for the new style"
-msgstr ""
+msgstr "Saisissez un nom pour le nouveau style"
 
 msgid "Allowed characters for the style are:"
-msgstr ""
+msgstr "Les caractères autorisés pour le style sont :"
 
 msgid "Select an existing style to base the new style on"
-msgstr ""
+msgstr "Sélectionnez un style existant sur lequel baser le nouveau style"
 
 msgid "The style already exists in the stylesheet"
-msgstr ""
+msgstr "Ce style existe déjà dans la feuille de style"
 
 msgid "You don't have sufficient privileges to add a style to the stylesheet"
-msgstr ""
+msgstr "Vous ne disposez pas des droits suffisants pour ajouter un style à la feuille de style"
 
 msgid "Style"
 msgstr "Style"
@@ -2475,12 +2475,12 @@ msgid "The date format to use for consultation notes?"
 msgstr "Quel format de date utiliser pour les notes de consultation ?"
 
 msgid "Enable spell check in the Bible editors."
-msgstr ""
+msgstr "Activer la vérification orthographique dans les éditeurs bibliques."
 
 msgid ""
 "Show arrows in the passage navigator for previous and next book and chapter "
 "and verse."
-msgstr ""
+msgstr "Afficher des flèches dans le navigateur de passages pour accéder au livre, au chapitre et au verset précédents ou suivants."
 
 msgid "Go back"
 msgstr "Précédent"
@@ -2864,10 +2864,10 @@ msgstr ""
 "Cliquez sur un passage pour l'ouvrir dans l'éditeur de texte biblique."
 
 msgid "Click approve to suppress the entry."
-msgstr ""
+msgstr "Cliquez sur « Approuver » pour ignorer cette entrée."
 
 msgid "Click delete to remove the entry for just now."
-msgstr ""
+msgstr "Cliquez sur « Supprimer » pour supprimer cette entrée immédiatement."
 
 msgid ""
 "It will be back after running the checks again, unless the text of the Bible "
@@ -2877,7 +2877,7 @@ msgstr ""
 "vérifications, à moins que le texte de la Bible ait été corrigé."
 
 msgid "Delete all entries."
-msgstr ""
+msgstr "Supprimer toutes les entrées."
 
 msgid "The Manager can enable or disable checks."
 msgstr "Le gestionnaire peut activer ou désactiver les vérifications."
@@ -4030,28 +4030,28 @@ msgid "Superscript"
 msgstr "Exposant"
 
 msgid "Foreground color"
-msgstr ""
+msgstr "Couleur du premier plan"
 
 msgid "Background color"
 msgstr "Couleur d'arrière-plan"
 
 msgid "Capability"
-msgstr ""
+msgstr "Fonctionnalité"
 
 msgid "Start a new page"
-msgstr ""
+msgstr "Commencer une nouvelle page"
 
 msgid "Put this on the left page"
-msgstr ""
+msgstr "Placer ceci sur la page de gauche"
 
 msgid "Put this on the right page"
-msgstr ""
+msgstr "Placer ceci sur la page de droite"
 
 msgid "This style has an end marker"
-msgstr ""
+msgstr "Ce style possède un marqueur de fin"
 
 msgid "Output this at the first verse"
-msgstr ""
+msgstr "Afficher ceci au premier verset"
 
 msgid "Restart paragraph"
 msgstr "Recommencer le paragraphe"
@@ -4060,34 +4060,34 @@ msgid "Note numbering"
 msgstr "Numérotation des notes"
 
 msgid "numerical"
-msgstr ""
+msgstr "numérique"
 
 msgid "alphabetical"
-msgstr ""
+msgstr "alphabétique"
 
 msgid "Restart"
-msgstr ""
+msgstr "Recommencer"
 
 msgid "Notes position"
-msgstr ""
+msgstr "Position des notes"
 
 msgid "after each book"
-msgstr ""
+msgstr "après chaque livre"
 
 msgid "at very end"
-msgstr ""
+msgstr "tout à la fin"
 
 msgid "at"
-msgstr ""
+msgstr "à"
 
 msgid "Notice"
-msgstr ""
+msgstr "Remarque"
 
 msgid "This style is deprecated in the current USFM standard"
-msgstr ""
+msgstr "Ce style est obsolète dans la norme USFM actuelle"
 
 msgid "Documentation"
-msgstr ""
+msgstr "Documentation"
 
 msgid "Stylesheets"
 msgstr "Feuilles de style"
@@ -4099,16 +4099,16 @@ msgid "Create a new stylesheet."
 msgstr "Créer une nouvelle feuille de style."
 
 msgid "Create new style"
-msgstr ""
+msgstr "Créer un nouveau style"
 
 msgid "Stylesheet:"
-msgstr ""
+msgstr "Feuille de style :"
 
 msgid "Name for the new style:"
-msgstr ""
+msgstr "Nom du nouveau style :"
 
 msgid "Existing style to base the new style on:"
-msgstr ""
+msgstr "Style existant sur lequel baser le nouveau style :"
 
 msgid "Language"
 msgstr "Langue"
@@ -4283,11 +4283,11 @@ msgstr "Configurer des traductions automatiques via Google Translate."
 msgid ""
 "Display the OSIS content like Strong's numbers in the SWORD resources that "
 "have such content."
-msgstr ""
+msgstr "Afficher le contenu OSIS, comme les numéros Strong, dans les ressources SWORD qui contiennent ce type de données."
 
 msgid ""
 "Note that displaying the OSIS content makes the resources hard to read."
-msgstr ""
+msgstr "Notez que l’affichage du contenu OSIS rend les ressources difficiles à lire."
 
 msgid ""
 "Google Translate can help you translating your resources into another "
@@ -4969,7 +4969,7 @@ msgstr ""
 "Bible Drop Box fournit de nombreux formats d'exportation supplémentaires."
 
 msgid "Visit the Bible Drop Box for all the options."
-msgstr ""
+msgstr "Consultez Bible Drop Box pour découvrir toutes les options."
 
 msgid "There are more export formats through the BibleMultiConverter."
 msgstr ""
@@ -6694,16 +6694,16 @@ msgid "Show from the Word where this is the case."
 msgstr "Montrez où cela est dit dans la Parole si c'est le cas."
 
 msgid "Install Bibledit Cloud on Linux"
-msgstr ""
+msgstr "Installer Bibledit Cloud sur Linux"
 
 msgid "Bibledit Cloud can be installed in several ways."
-msgstr ""
+msgstr "Bibledit Cloud peut être installé de plusieurs façons."
 
 msgid "Installation from packages."
-msgstr ""
+msgstr "Installation à partir de paquets."
 
 msgid "Installation from source."
-msgstr ""
+msgstr "Installation à partir des sources."
 
 msgid "Licenses"
 msgstr "Licences"
@@ -7817,7 +7817,7 @@ msgid "Bibledit software"
 msgstr "Logiciel Bibledit"
 
 msgid "Copyright (©) 2003-2025 Teus Benschop."
-msgstr ""
+msgstr "Copyright (©) 2003-2025 Teus Benschop."
 
 msgid ""
 "This program is free software: you can redistribute it and/or modify it "
@@ -7894,20 +7894,20 @@ msgid "See the source code repository."
 msgstr "Voir le dépôt du code source."
 
 msgid "Install Bibledit Cloud from a package"
-msgstr ""
+msgstr "Installer Bibledit Cloud à partir d’un paquet"
 
 msgid "Follow the steps below to install Bibledit Cloud."
-msgstr ""
+msgstr "Suivez les étapes ci-dessous pour installer Bibledit Cloud."
 
 msgid "Step"
-msgstr ""
+msgstr "Étape"
 
 msgid ""
 "Install fixed version of Bibledit as it comes with the operating system."
-msgstr ""
+msgstr "Installer la version de Bibledit fournie avec le système d’exploitation."
 
 msgid "Install most recent version of Bibledit."
-msgstr ""
+msgstr "Installer la version la plus récente de Bibledit."
 
 msgid "Install required software:"
 msgstr "Installer les logiciels requis :"
@@ -7932,7 +7932,7 @@ msgid "Install Bibledit on Windows"
 msgstr "Installer Bibledit sur Windows"
 
 msgid "Bibledit runs on Windows 10 and 11."
-msgstr ""
+msgstr "Bibledit fonctionne sous Windows 10 et Windows 11."
 
 msgid "Install Bibledit."
 msgstr "Installez Bibledit."
@@ -7951,7 +7951,7 @@ msgstr ""
 
 msgid ""
 "There's a version for better performance and battery life on Windows on Arm."
-msgstr ""
+msgstr "Une version est disponible pour de meilleures performances et une meilleure autonomie sur Windows sur Arm."
 
 msgid "Bibledit runs a number of checks on the text of the Bibles."
 msgstr ""
@@ -10401,7 +10401,7 @@ msgid "Bibledit on Chrome OS"
 msgstr "Bibledit sur Chrome OS"
 
 msgid "Bibledit Cloud on Linux"
-msgstr ""
+msgstr "Bibledit Cloud sous Linux"
 
 msgid "Upgrading"
 msgstr "Mise à niveau"
@@ -10876,19 +10876,19 @@ msgid "Set the site's language."
 msgstr "Définir la langue de la zone."
 
 msgid "Install Bibledit Cloud from source"
-msgstr ""
+msgstr "Installer Bibledit Cloud à partir des sources"
 
 msgid "Select the Linux distribution for which to show instructions."
-msgstr ""
+msgstr "Sélectionnez la distribution Linux pour laquelle afficher les instructions."
 
 msgid "Then follow the steps below to install Bibledit Cloud."
-msgstr ""
+msgstr "Suivez ensuite les étapes ci-dessous pour installer Bibledit Cloud."
 
 msgid "Update the software sources."
-msgstr ""
+msgstr "Mettre à jour les sources des logiciels."
 
 msgid "Install and enable extra package repositories."
-msgstr ""
+msgstr "Installer et activer des dépôts de paquets supplémentaires."
 
 msgid "Install the software Bibledit relies on:"
 msgstr ""
@@ -10896,23 +10896,23 @@ msgstr ""
 "suivantes :"
 
 msgid "Go to the home directory."
-msgstr ""
+msgstr "Accéder au répertoire personnel."
 
 msgid "Download a recent version of Bibledit."
-msgstr ""
+msgstr "Télécharger une version récente de Bibledit."
 
 msgid "Unpack the downloaded Bibledit in folder bibledit."
-msgstr ""
+msgstr "Décompresser Bibledit téléchargé dans le dossier bibledit."
 
 msgid ""
 "Change the xxx above to the version number of Bibledit that was downloaded."
-msgstr ""
+msgstr "Remplacez xxx ci-dessus par le numéro de version de Bibledit téléchargée."
 
 msgid "Change to the directory."
-msgstr ""
+msgstr "Accéder au répertoire."
 
 msgid "Build Bibledit."
-msgstr ""
+msgstr "Compiler Bibledit."
 
 msgid "This takes a while."
 msgstr "Cela peut prendre un certain temps."
@@ -10923,10 +10923,10 @@ msgstr ""
 "d'erreurs."
 
 msgid "Open port 8080 in the firewall."
-msgstr ""
+msgstr "Ouvrir le port 8080 dans le pare-feu."
 
 msgid "Start Bibledit."
-msgstr ""
+msgstr "Démarrer Bibledit."
 
 msgid "Most of Bibledit Cloud will now be working."
 msgstr "La majeure partie de Bibledit Cloud fonctionnera désormais."
@@ -11122,16 +11122,16 @@ msgstr "Identification"
 msgid ""
 "File identification information (name of file, book name, language, last "
 "edited, date, etc.)"
-msgstr ""
+msgstr "Informations d’identification du fichier (nom du fichier, nom du livre, langue, dernière modification, date, etc.)"
 
 msgid "USFM version"
-msgstr ""
+msgstr "Version USFM"
 
 msgid ""
 "USFM version specification for the file. Used to identify the USFM version "
 "which a USFM editor / processor will be required to support in order to "
 "manage all markup found within the file."
-msgstr ""
+msgstr "Spécification de la version USFM du fichier. Elle permet d’identifier la version USFM qu’un éditeur ou processeur USFM doit prendre en charge pour gérer tous les balisages présents dans le fichier."
 
 msgid "Encoding"
 msgstr "Encodage"
@@ -11156,28 +11156,28 @@ msgid "Running header"
 msgstr "Titre courant"
 
 msgid "Running header text for a book."
-msgstr ""
+msgstr "Texte d’en-tête courant d’un livre."
 
 msgid "Left running header"
-msgstr ""
+msgstr "En-tête courant de gauche"
 
 msgid "Running header text for a book, left page."
-msgstr ""
+msgstr "Texte d’en-tête courant d’un livre, sur la page de gauche."
 
 msgid "Right running header"
-msgstr ""
+msgstr "En-tête courant de droite"
 
 msgid "Running header text for a book, right page."
-msgstr ""
+msgstr "Texte d’en-tête courant d’un livre, sur la page de droite."
 
 msgid "Long TOC text"
-msgstr ""
+msgstr "Texte long de la table des matières"
 
 msgid "Long table of contents text."
 msgstr "Texte de table des matières longue."
 
 msgid "Short TOC text"
-msgstr ""
+msgstr "Texte court de la table des matières"
 
 msgid "Short table of contents text."
 msgstr "Texte de table des matières courte."
@@ -11186,28 +11186,28 @@ msgid "Book abbreviation"
 msgstr "Abréviation de livre"
 
 msgid "Book abbreviation for the table of contents."
-msgstr ""
+msgstr "Abréviation du livre dans la table des matières."
 
 msgid "Introduction major title level 1"
 msgstr "Titre principale d'introduction niveau 1"
 
 msgid "Introduction major title, level 1, if single level."
-msgstr ""
+msgstr "Titre principal de l’introduction, niveau 1, si un seul niveau est utilisé."
 
 msgid "Introduction major title, level 1, if multiple levels."
-msgstr ""
+msgstr "Titre principal de l’introduction, niveau 1, si plusieurs niveaux sont utilisés."
 
 msgid "Introduction major title level 2"
 msgstr "Titre principale d'introduction niveau 2"
 
 msgid "Introduction major title, level 2."
-msgstr ""
+msgstr "Titre principal de l’introduction, niveau 2."
 
 msgid "Introduction major title level 3"
 msgstr "Titre principale d'introduction niveau 3"
 
 msgid "Introduction major title, level 3."
-msgstr ""
+msgstr "Titre principal de l’introduction, niveau 3."
 
 msgid "Introduction major title level 4"
 msgstr "Titre principale d'introduction niveau 4"
@@ -11219,87 +11219,87 @@ msgid "Introduction section heading level 1"
 msgstr "En-tête de section d'introduction niveau  1"
 
 msgid "Introduction section heading, level 1, if single level."
-msgstr ""
+msgstr "Titre de section de l’introduction, niveau 1, si un seul niveau est utilisé."
 
 msgid "Introduction section heading, level 1, if multiple levels."
-msgstr ""
+msgstr "Titre de section de l’introduction, niveau 1, si plusieurs niveaux sont utilisés."
 
 msgid "Introduction section heading level 2"
 msgstr "En-tête de section d'introduction niveau  2"
 
 msgid "Introduction section heading, level 2."
-msgstr ""
+msgstr "Titre de section de l’introduction, niveau 2."
 
 msgid "Introduction paragraph"
 msgstr "Paragraphe d'introduction"
 
 msgid "Introduction prose paragraph."
-msgstr ""
+msgstr "Paragraphe en prose de l’introduction."
 
 msgid "Indented introduction paragraph"
 msgstr "Paragraphe d'introduction en retrait"
 
 msgid "Introduction prose paragraph, with first line indent."
-msgstr ""
+msgstr "Paragraphe en prose de l’introduction avec retrait de première ligne."
 
 msgid "Introduction margin paragraph"
-msgstr ""
+msgstr "Paragraphe marginal de l’introduction"
 
 msgid ""
 "Introduction prose paragraph, with no first line indent. May occur after "
 "poetry."
-msgstr ""
+msgstr "Paragraphe en prose de l’introduction sans retrait de première ligne. Peut apparaître après un passage poétique."
 
 msgid "Indented introduction margin paragraph"
-msgstr ""
+msgstr "Paragraphe marginal de l’introduction avec retrait"
 
 msgid ""
 "Introduction prose paragraph text, indented, with no first line indent."
-msgstr ""
+msgstr "Texte de paragraphe en prose de l’introduction avec retrait, sans retrait de première ligne."
 
 msgid "Introduction quote from text paragraph"
 msgstr "Paragraphe de texte d'introduction en italique"
 
 msgid "Introduction prose paragraph, quote from the body text."
-msgstr ""
+msgstr "Paragraphe en prose de l’introduction contenant une citation du texte principal."
 
 msgid "Introduction margin quote from text paragraph"
-msgstr ""
+msgstr "Citation marginale d’un paragraphe du texte"
 
 msgid ""
 "Introduction prose paragraph, quote from the body text, with no first line "
 "indent."
-msgstr ""
+msgstr "Paragraphe en prose de l’introduction contenant une citation du texte principal, sans retrait de première ligne."
 
 msgid "Introduction paragraph right-aligned"
-msgstr ""
+msgstr "Paragraphe de l’introduction aligné à droite"
 
 msgid "Introduction prose paragraph, right aligned."
-msgstr ""
+msgstr "Paragraphe en prose de l’introduction aligné à droite."
 
 msgid "Introduction poetic line"
 msgstr "Ligne d'introduction poétique"
 
 msgid "Introduction poetry text, level 1, if single level."
-msgstr ""
+msgstr "Texte poétique de l’introduction, niveau 1, si un seul niveau est utilisé."
 
 msgid "Introduction poetic line level 1"
-msgstr ""
+msgstr "Vers poétique de l’introduction, niveau 1"
 
 msgid "Introduction poetry text, level 1, if multiple levels."
-msgstr ""
+msgstr "Texte poétique de l’introduction, niveau 1, si plusieurs niveaux sont utilisés."
 
 msgid "Introduction poetic line level 2"
 msgstr "Texte d'introduction poétique niveau 2"
 
 msgid "Introduction poetry text, level 2, if multiple levels."
-msgstr ""
+msgstr "Texte poétique de l’introduction, niveau 2, si plusieurs niveaux sont utilisés."
 
 msgid "Introduction poetic line level 3"
 msgstr "Ligne d'introduction poétique niveau 3"
 
 msgid "Introduction poetry text, level 3, if multiple levels."
-msgstr ""
+msgstr "Texte poétique de l’introduction, niveau 3, si plusieurs niveaux sont utilisés."
 
 msgid "Introduction blank line"
 msgstr "Ligne vide dans l'introduction"
@@ -11314,55 +11314,55 @@ msgid "Introduction list item"
 msgstr "Élément d'introduction de liste"
 
 msgid "A list entry, level 1, if single level."
-msgstr ""
+msgstr "Élément de liste, niveau 1, si un seul niveau est utilisé."
 
 msgid "Introduction list item level 1"
 msgstr "Élément d'introduction de liste de niveau 1"
 
 msgid "A list entry, level 1, if multiple levels."
-msgstr ""
+msgstr "Élément de liste, niveau 1, si plusieurs niveaux sont utilisés."
 
 msgid "Introduction list item level 2"
 msgstr "Élément d'introduction de liste de niveau 2"
 
 msgid "A list entry, level 2."
-msgstr ""
+msgstr "Élément de liste, niveau 2."
 
 msgid "Introduction outline title"
 msgstr "Introduction titre de plan"
 
 msgid "Introduction outline title."
-msgstr ""
+msgstr "Titre du plan de l’introduction."
 
 msgid "Introduction outline entry"
 msgstr "Entrée de plan d'introduction"
 
 msgid "Introduction outline text, level 1, if single level."
-msgstr ""
+msgstr "Texte du plan de l’introduction, niveau 1, si un seul niveau est utilisé."
 
 msgid "Introduction outline entry level 1"
-msgstr ""
+msgstr "Élément du plan de l’introduction, niveau 1"
 
 msgid "Introduction outline text, level 1, if multiple levels."
-msgstr ""
+msgstr "Texte du plan de l’introduction, niveau 1, si plusieurs niveaux sont utilisés."
 
 msgid "Introduction outline entry level 2"
-msgstr ""
+msgstr "Élément du plan de l’introduction, niveau 2"
 
 msgid "Introduction outline text, level 2."
-msgstr ""
+msgstr "Texte du plan de l’introduction, niveau 2."
 
 msgid "Introduction outline entry level 3"
 msgstr "Texte de plan d'introduction niveau 3"
 
 msgid "Introduction outline text, level 3."
-msgstr ""
+msgstr "Texte du plan de l’introduction, niveau 3."
 
 msgid "Introduction outline entry level 4"
 msgstr "Texte de plan d'introduction niveau 3"
 
 msgid "Introduction outline text, level 4."
-msgstr ""
+msgstr "Texte du plan de l’introduction, niveau 4."
 
 msgid "Introduction outline reference range"
 msgstr "Plage de référence du plan d'introduction"
@@ -11370,14 +11370,14 @@ msgstr "Plage de référence du plan d'introduction"
 msgid ""
 "Introduction references range for outline entry; for marking references "
 "separately."
-msgstr ""
+msgstr "Plage de références de l’introduction pour un élément du plan ; permet de marquer les références séparément."
 
 msgid "Introduction quoted text"
 msgstr "Introduction texte de citation"
 
 msgid ""
 "Scripture quotations, or other quoted text, appearing in the introduction."
-msgstr ""
+msgstr "Citations des Écritures ou autres textes cités dans l’introduction."
 
 msgid "Explanatory or bridge text"
 msgstr "Texte explicatif ou ponctuel"
@@ -11385,13 +11385,13 @@ msgstr "Texte explicatif ou ponctuel"
 msgid ""
 "Introduction explanatory or bridge text, e.g. explanation of missing book in "
 "short Old Testament."
-msgstr ""
+msgstr "Texte explicatif ou de transition de l’introduction, par exemple pour expliquer l’absence d’un livre dans un Ancien Testament abrégé."
 
 msgid "Introduction major title ending"
 msgstr "Fin de titre principale d'introduction"
 
 msgid "Used to mark a major title indicating the end of the introduction."
-msgstr ""
+msgstr "Utilisé pour marquer un titre principal indiquant la fin de l’introduction."
 
 msgid "Introduction major title ending level 1"
 msgstr "Titre principal d'introduction de niveau 1 fermant"
@@ -11405,25 +11405,25 @@ msgstr "Fin d'introduction"
 msgid ""
 "Optionally included to explicitly indicate the end of the introduction "
 "material."
-msgstr ""
+msgstr "Peut être inclus pour indiquer explicitement la fin du contenu de l’introduction."
 
 msgid "Major title"
 msgstr "Titre principal"
 
 msgid "The main title of the book, if single level."
-msgstr ""
+msgstr "Titre principal du livre, si un seul niveau est utilisé."
 
 msgid "Major title level 1"
 msgstr "Titre principal niveau 1"
 
 msgid "The main title of the book, level 1 if multiple levels."
-msgstr ""
+msgstr "Titre principal du livre, niveau 1 si plusieurs niveaux sont utilisés."
 
 msgid "Major title level 2"
 msgstr "Titre principal niveau 2"
 
 msgid "The main title of the book, level 2."
-msgstr ""
+msgstr "Titre principal du livre, niveau 2."
 
 msgid "Major title level 3"
 msgstr "Titre principal niveau 3"
@@ -11451,7 +11451,7 @@ msgstr "Titre principal à la fin niveau 1"
 msgid ""
 "The main title of the book repeated at the end of the book, if multiple "
 "levels."
-msgstr ""
+msgstr "Titre principal du livre répété à la fin du livre, si plusieurs niveaux sont utilisés."
 
 msgid "Major title at ending level 2"
 msgstr "Titre principal à la fin niveau 2"
@@ -11464,25 +11464,25 @@ msgid "Major section heading"
 msgstr "Titre de section majeure"
 
 msgid "A major section division heading, level 1, if single level."
-msgstr ""
+msgstr "Titre d’une grande division de section, niveau 1, si un seul niveau est utilisé."
 
 msgid "Major section heading level 1"
 msgstr "Un titre de section majeure niveau 1"
 
 msgid "A major section division heading, level 1, if multiple levels."
-msgstr ""
+msgstr "Titre d’une grande division de section, niveau 1, si plusieurs niveaux sont utilisés."
 
 msgid "Major section heading level 2"
 msgstr "Un titre de section majeure niveau 2"
 
 msgid "A major section division heading, level 2."
-msgstr ""
+msgstr "Titre d’une grande division de section, niveau 2."
 
 msgid "Major section reference range"
 msgstr "Plage de références de section majeur"
 
 msgid "The text reference range listed under a major section heading."
-msgstr ""
+msgstr "Plage de références du texte indiquée sous un titre de grande section."
 
 msgid "Section heading"
 msgstr "Titre de section"
@@ -11497,7 +11497,7 @@ msgid "A section heading, level 1, if multiple levels."
 msgstr "Titre de section niveau 1, si plusieurs niveaux."
 
 msgid "Section heading level 2"
-msgstr ""
+msgstr "Titre de section, niveau 2"
 
 msgid "A section heading, level 2."
 msgstr "Titre de section, niveau 2."
@@ -11538,7 +11538,7 @@ msgid "Descriptive title or Hebrew subtitle"
 msgstr "Titre descriptif ou sous-titre hébreu"
 
 msgid "A Hebrew text heading, to provide description, e.g. Psalms."
-msgstr ""
+msgstr "Titre d’un texte hébreu, destiné à fournir une description, par exemple les Psaumes."
 
 msgid "Speaker"
 msgstr "Orateur"
@@ -11573,7 +11573,7 @@ msgid "Chapter number"
 msgstr "Numéro de chapitre"
 
 msgid "For the chapter number."
-msgstr ""
+msgstr "Pour le numéro du chapitre."
 
 msgid "Alternate chapter number"
 msgstr "Numéro de chapitre alternatif"
@@ -11582,7 +11582,7 @@ msgid ""
 "Second or alternate chapter number. For coding dual versification. Useful "
 "for places where different traditions of chapter breaks need to be supported "
 "in the same translation."
-msgstr ""
+msgstr "Deuxième numéro de chapitre ou numéro alternatif. Sert à coder une double numérotation des chapitres, utile lorsque différentes traditions de division en chapitres doivent être prises en charge dans une même traduction."
 
 msgid "Chapter label"
 msgstr "Étiquette de chapitre"
@@ -11608,7 +11608,7 @@ msgid "Chapter description"
 msgstr "Description de chapitre"
 
 msgid "For a brief description of the chapter content."
-msgstr ""
+msgstr "Pour une brève description du contenu du chapitre."
 
 msgid "Verse number"
 msgstr "Numéro de verset"
@@ -11620,7 +11620,7 @@ msgid "Alternate verse number"
 msgstr "Numéro de verset alternatif"
 
 msgid "Second or alternate verse number. For coding dual verse numeration."
-msgstr ""
+msgstr "Deuxième numéro de verset ou numéro alternatif. Sert à coder une double numérotation des versets."
 
 msgid "Published verse marker"
 msgstr "Balise de verset publié"
@@ -11636,13 +11636,13 @@ msgid "Normal paragraph"
 msgstr "Paragraphe standard"
 
 msgid "Paragraph text, with first line indent."
-msgstr ""
+msgstr "Texte de paragraphe avec retrait de première ligne."
 
 msgid "Continuation paragraph"
 msgstr "Paragraphe sans retrait (de continuation)"
 
 msgid "Margin paragraph text, with no first line indent."
-msgstr ""
+msgstr "Texte de paragraphe marginal sans retrait de première ligne."
 
 msgid "Paragraph opening an epistle"
 msgstr "Paragraphe ouvrant une épître"
@@ -11653,34 +11653,34 @@ msgstr ""
 "ligne."
 
 msgid "Right-aligned paragraph"
-msgstr ""
+msgstr "Paragraphe aligné à droite"
 
 msgid "Right-aligned paragraph text, without first line indent."
-msgstr ""
+msgstr "Texte de paragraphe aligné à droite, sans retrait de première ligne."
 
 msgid "Closure of a letter"
-msgstr ""
+msgstr "Formule de conclusion d’une lettre"
 
 msgid "For a closure of an letter."
-msgstr ""
+msgstr "Pour la formule de conclusion d’une lettre."
 
 msgid "Embedded text opening"
 msgstr "Texte de paragraphe incorporé ouvrant"
 
 msgid "For an embedded text opening."
-msgstr ""
+msgstr "Pour l’ouverture d’un texte incorporé."
 
 msgid "Embedded text paragraph"
 msgstr "Texte de paragraphe incorporé"
 
 msgid "For an embedded text paragraph."
-msgstr ""
+msgstr "Pour un paragraphe de texte incorporé."
 
 msgid "Embedded text closing"
 msgstr "Texte de paragraphe incorporé fermant"
 
 msgid "For an embedded text closing."
-msgstr ""
+msgstr "Pour la clôture d’un texte incorporé."
 
 msgid "Embedded text refrain"
 msgstr "Texte de refrain incorporé"
@@ -11695,7 +11695,7 @@ msgstr "Paragraphe en retrait"
 msgid ""
 "Paragraph text, level 1 indent if single level, with first line indent; "
 "often used for discourse."
-msgstr ""
+msgstr "Texte de paragraphe avec retrait de niveau 1 si un seul niveau est utilisé, et retrait de première ligne ; souvent utilisé pour un discours."
 
 msgid "Indented paragraph level 1"
 msgstr "Paragraphe en retrait niveau 1"
@@ -11703,7 +11703,7 @@ msgstr "Paragraphe en retrait niveau 1"
 msgid ""
 "Paragraph text, level 1 indent if multiple levels, with first line indent; "
 "often used for discourse."
-msgstr ""
+msgstr "Texte de paragraphe avec retrait de niveau 1 si plusieurs niveaux sont utilisés, et retrait de première ligne ; souvent utilisé pour un discours."
 
 msgid "Indented paragraph level 2"
 msgstr "Paragraphe en retrait niveau 2"
@@ -11711,7 +11711,7 @@ msgstr "Paragraphe en retrait niveau 2"
 msgid ""
 "Paragraph text, level 2 indent if multiple levels, with first line indent; "
 "often used for discourse."
-msgstr ""
+msgstr "Texte de paragraphe avec retrait de niveau 2 si plusieurs niveaux sont utilisés, et retrait de première ligne ; souvent utilisé pour un discours."
 
 msgid "Indented paragraph level 3"
 msgstr "Paragraphe en retrait niveau 3"
@@ -11719,7 +11719,7 @@ msgstr "Paragraphe en retrait niveau 3"
 msgid ""
 "Paragraph text, level 3 indent if multiple levels, with first line indent; "
 "often used for discourse."
-msgstr ""
+msgstr "Texte de paragraphe avec retrait de niveau 3 si plusieurs niveaux sont utilisés, et retrait de première ligne ; souvent utilisé pour un discours."
 
 msgid "Indented flush left paragraph"
 msgstr "Paragraphe avec retrait aligné à gauche"
@@ -11727,7 +11727,7 @@ msgstr "Paragraphe avec retrait aligné à gauche"
 msgid ""
 "Margin paragraph text, indented, with no first line indent, often used for "
 "discourse."
-msgstr ""
+msgstr "Texte de paragraphe marginal avec retrait, sans retrait de première ligne, souvent utilisé pour un discours."
 
 msgid "No break with previous paragraph"
 msgstr "Pas de saut avec le paragraphe précédent"
@@ -11735,7 +11735,7 @@ msgstr "Pas de saut avec le paragraphe précédent"
 msgid ""
 "Paragraph text, with no break from previous paragraph text at chapter "
 "boundary."
-msgstr ""
+msgstr "Texte de paragraphe qui se poursuit sans interruption après le paragraphe précédent à la limite du chapitre."
 
 msgid "Centered paragraph"
 msgstr "Paragraphe centré"
@@ -11744,34 +11744,34 @@ msgid "Paragraph text, centered, for inscription."
 msgstr "Texte de paragraphe centré, pour une inscription."
 
 msgid "Paragraph with hanging indent"
-msgstr ""
+msgstr "Paragraphe avec retrait suspendu"
 
 msgid "Indented paragraph with hanging indent."
-msgstr ""
+msgstr "Paragraphe avec retrait suspendu et retrait supplémentaire."
 
 msgid "Paragraph with hanging indent level 1"
-msgstr ""
+msgstr "Paragraphe avec retrait suspendu, niveau 1"
 
 msgid "Indented paragraph with hanging indent, level 1 if multiple levels."
-msgstr ""
+msgstr "Paragraphe avec retrait suspendu, niveau 1 si plusieurs niveaux sont utilisés."
 
 msgid "Paragraph with hanging indent level 2"
-msgstr ""
+msgstr "Paragraphe avec retrait suspendu, niveau 2"
 
 msgid "Indented paragraph with hanging indent, level 2."
-msgstr ""
+msgstr "Paragraphe avec retrait suspendu, niveau 2."
 
 msgid "Paragraph with hanging indent level 3"
-msgstr ""
+msgstr "Paragraphe avec retrait suspendu, niveau 3"
 
 msgid "Indented paragraph with hanging indent, level 3."
-msgstr ""
+msgstr "Paragraphe avec retrait suspendu, niveau 3."
 
 msgid "Paragraph with hanging indent level 4"
-msgstr ""
+msgstr "Paragraphe avec retrait suspendu, niveau 4"
 
 msgid "Indented paragraph with hanging indent, level 4."
-msgstr ""
+msgstr "Paragraphe avec retrait suspendu, niveau 4."
 
 msgid "Blank line"
 msgstr "Ligne vide"
@@ -11787,10 +11787,10 @@ msgid "Poetic line"
 msgstr "Ligne de poésie"
 
 msgid "Poetry text, level 1 indent if single level."
-msgstr ""
+msgstr "Texte poétique avec retrait de niveau 1 si un seul niveau est utilisé."
 
 msgid "Poetry text, level 1 indent if multiple levels."
-msgstr ""
+msgstr "Texte poétique avec retrait de niveau 1 si plusieurs niveaux sont utilisés."
 
 msgid "Poetry text, level 2 indent."
 msgstr "Texte de poésie niveau 2 avec retrait."
@@ -11893,13 +11893,13 @@ msgid "List entry level 3"
 msgstr "Rubrique de liste niveau 3"
 
 msgid "A list entry, level 3."
-msgstr ""
+msgstr "Élément de liste, niveau 3."
 
 msgid "List entry level 4"
 msgstr "Rubrique de liste niveau 4"
 
 msgid "A list entry, level 4."
-msgstr ""
+msgstr "Élément de liste, niveau 4."
 
 msgid "List footer"
 msgstr "Sommaire de liste"
@@ -11909,7 +11909,7 @@ msgstr "Rubrique de liste incorporée"
 
 msgid ""
 "An out-dented paragraph meant to highlight the items of an embedded list."
-msgstr ""
+msgstr "Paragraphe avec retrait négatif destiné à mettre en évidence les éléments d’une liste incorporée."
 
 msgid "Embedded list entry level 1"
 msgstr "Rubrique de liste incorporée niveau 1"
@@ -11917,7 +11917,7 @@ msgstr "Rubrique de liste incorporée niveau 1"
 msgid ""
 "An out-dented paragraph meant to highlight the items of an embedded list, "
 "level 1."
-msgstr ""
+msgstr "Paragraphe avec retrait négatif destiné à mettre en évidence les éléments d’une liste incorporée, niveau 1."
 
 msgid "Embedded list entry level 2"
 msgstr "Rubrique de liste incorporée niveau 2"
@@ -11925,7 +11925,7 @@ msgstr "Rubrique de liste incorporée niveau 2"
 msgid ""
 "An out-dented paragraph meant to highlight the items of an embedded list, "
 "level 2."
-msgstr ""
+msgstr "Paragraphe avec retrait négatif destiné à mettre en évidence les éléments d’une liste incorporée, niveau 2."
 
 msgid "List entry total"
 msgstr "Total des rubriques de liste"
@@ -11933,31 +11933,31 @@ msgstr "Total des rubriques de liste"
 msgid ""
 "Use in accounting lists for denoting the total component of the text within "
 "a list item."
-msgstr ""
+msgstr "À utiliser dans les listes comptables pour désigner le total du contenu d’un élément de liste."
 
 msgid "List entry key"
-msgstr ""
+msgstr "Clé d’un élément de liste"
 
 msgid "For list entry key content."
-msgstr ""
+msgstr "Pour le contenu de la clé d’un élément de liste."
 
 msgid "List entry value"
-msgstr ""
+msgstr "Valeur d’un élément de liste"
 
 msgid "For list entry value content."
-msgstr ""
+msgstr "Pour le contenu de la valeur d’un élément de liste."
 
 msgid "List entry value level 1"
-msgstr ""
+msgstr "Valeur d’un élément de liste, niveau 1"
 
 msgid "For list entry value content level 1."
-msgstr ""
+msgstr "Pour le contenu de la valeur d’un élément de liste, niveau 1."
 
 msgid "List entry value level 2"
-msgstr ""
+msgstr "Valeur d’un élément de liste, niveau 2"
 
 msgid "For list entry value content level 2."
-msgstr ""
+msgstr "Pour le contenu de la valeur d’un élément de liste, niveau 2."
 
 msgid "Table row start"
 msgstr "Début de la rangée du tableau"
@@ -12002,7 +12002,7 @@ msgid "A table heading, column 2, right aligned."
 msgstr "Titre de tableau colonne 2, aligné à droite."
 
 msgid "Right aligned table column 3 heading"
-msgstr ""
+msgstr "En-tête de la troisième colonne du tableau, aligné à droite"
 
 msgid "A table heading, column 3, right aligned."
 msgstr "Titre de tableau colonne 3, aligné à droite."
@@ -12118,15 +12118,15 @@ msgid ""
 "Can be used for labeling word(s) which are used consistently across certain "
 "types of translation notes, such as the words 'Or' in an alternative "
 "translation note, 'Others', 'Heb.', 'LXX' etc."
-msgstr ""
+msgstr "Peut être utilisé pour étiqueter des mots employés de manière cohérente dans certains types de notes de traduction, tels que « Ou » dans une note de traduction alternative, « Autres », « Hébr. », « LXX », etc."
 
 msgid "Footnote witness list"
-msgstr ""
+msgstr "Liste des témoins dans une note de bas de page"
 
 msgid ""
 "For distinguishing a list of sigla representing witnesses in critical "
 "editions."
-msgstr ""
+msgstr "Pour distinguer une liste de sigles représentant les témoins dans les éditions critiques."
 
 msgid "Footnote additional paragraph"
 msgstr "Paragraphe additionnel dans une note"
@@ -12156,7 +12156,7 @@ msgstr "Note de pied avec contenu deutérocanonique"
 msgid ""
 "Text between these markers is material to be included only in published "
 "editions that contain the Deuterocanonical books."
-msgstr ""
+msgstr "Le texte compris entre ces marqueurs ne doit être inclus que dans les éditions publiées qui contiennent les livres deutérocanoniques."
 
 msgid "Footnote reference mark"
 msgstr "Balise de référence dans une note de bas de page"
@@ -12208,13 +12208,13 @@ msgid "Target references added text"
 msgstr "Référence cible texte ajouté"
 
 msgid "Used for marking text added to the target references."
-msgstr ""
+msgstr "Utilisé pour marquer le texte ajouté aux références cibles."
 
 msgid "Published cross reference origin text"
 msgstr "Texte de la référence croisée d'origine publié"
 
 msgid "Supplies the origin text intended for publishing."
-msgstr ""
+msgstr "Fournit le texte source destiné à être publié."
 
 msgid "Cross reference Old Testament"
 msgstr "Références croisées de l'Ancien Testament"
@@ -12222,7 +12222,7 @@ msgstr "Références croisées de l'Ancien Testament"
 msgid ""
 "Content between these markers is for inclusion in editions that contain the "
 "Old Testament books."
-msgstr ""
+msgstr "Le contenu compris entre ces marqueurs doit être inclus dans les éditions qui contiennent les livres de l’Ancien Testament."
 
 msgid "Cross reference New Testament"
 msgstr "Références croisées du Nouveau Testament"
@@ -12230,7 +12230,7 @@ msgstr "Références croisées du Nouveau Testament"
 msgid ""
 "Content between these markers is for inclusion in editions that contain the "
 "New Testament books."
-msgstr ""
+msgstr "Le contenu compris entre ces marqueurs doit être inclus dans les éditions qui contiennent les livres du Nouveau Testament."
 
 msgid "Cross reference deuterocanonical"
 msgstr "Références croisées deutérocanoniques."
@@ -12238,7 +12238,7 @@ msgstr "Références croisées deutérocanoniques."
 msgid ""
 "Content between these markers is for inclusion in editions that contain the "
 "Deuterocanonical books."
-msgstr ""
+msgstr "Le contenu compris entre ces marqueurs doit être inclus dans les éditions qui contiennent les livres deutérocanoniques."
 
 msgid "Translator’s addition"
 msgstr "Addition du traducteur"
@@ -12256,20 +12256,20 @@ msgid "Quoted book title"
 msgstr "Titre de livre en italique"
 
 msgid "For the quoted name of a book."
-msgstr ""
+msgstr "Pour le nom cité d’un livre."
 
 msgid "Deuterocanonical"
 msgstr "Deutérocanonique"
 
 msgid ""
 "Deuterocanonical / LXX additions or insertions in the Protocanonical text."
-msgstr ""
+msgstr "Ajouts ou insertions deutérocanoniques / de la LXX dans le texte protocanonique."
 
 msgid "Keyword"
 msgstr "Mot-clé"
 
 msgid "Keyword / keyterm."
-msgstr ""
+msgstr "Mot-clé / terme clé."
 
 msgid "Liturgical note"
 msgstr "Note liturgique"
@@ -12285,13 +12285,13 @@ msgid "Name of God"
 msgstr "Nom divin"
 
 msgid "For name of God (name of Deity)."
-msgstr ""
+msgstr "Pour le nom de Dieu (nom de la divinité)."
 
 msgid "Ordinal number ending"
 msgstr "Fin d'adjectif numéral ordinal"
 
 msgid "For the text portion of an ordinal number."
-msgstr ""
+msgstr "Pour la partie textuelle d’un nombre ordinal."
 
 msgid "Proper name"
 msgstr "Nom propre"
@@ -12309,7 +12309,7 @@ msgid "Combined add and pn style"
 msgstr "Combinaison du style add et pn"
 
 msgid "Support for overlapping pn ...pn* and add ...add* occurrences."
-msgstr ""
+msgstr "Prise en charge des occurrences qui se chevauchent de pn ...pn* et add ...add*."
 
 msgid "Quoted text"
 msgstr "Texte en italique"
@@ -12325,7 +12325,7 @@ msgid "Signature of the author of a letter or epistle."
 msgstr "Signature de l'auteur d'une lettre ou d'une épître."
 
 msgid "Secondary language source"
-msgstr ""
+msgstr "Source linguistique secondaire"
 
 msgid ""
 "Passage of text based on a secondary language or alternate text source."
@@ -12334,10 +12334,10 @@ msgstr ""
 "alternatif."
 
 msgid "Transliterated text"
-msgstr ""
+msgstr "Texte translittéré"
 
 msgid "Transliterated or foreign word or text."
-msgstr ""
+msgstr "Mot ou texte translittéré ou étranger."
 
 msgid "Words of Jesus"
 msgstr "Paroles de Jésus"
@@ -12349,25 +12349,25 @@ msgid "Emphasized text"
 msgstr "Texte avec emphase"
 
 msgid "For emphasizing a portion of text."
-msgstr ""
+msgstr "Pour mettre en évidence une partie du texte."
 
 msgid "Bold text"
 msgstr "Texte en gras"
 
 msgid "For making a portion of text bold."
-msgstr ""
+msgstr "Pour mettre une partie du texte en gras."
 
 msgid "Italic text"
 msgstr "Italique"
 
 msgid "For putting some text in italics."
-msgstr ""
+msgstr "Pour mettre une partie du texte en italique."
 
 msgid "Bold-italic text"
 msgstr "Texte en gras et en italique"
 
 msgid "For putting some text in bold and italics."
-msgstr ""
+msgstr "Pour mettre une partie du texte en gras et en italique."
 
 msgid "Normal text"
 msgstr "Texte standard"
@@ -12385,25 +12385,25 @@ msgid "Small-cap text"
 msgstr "Texte en petite majuscule"
 
 msgid "For putting some text in small capitals."
-msgstr ""
+msgstr "Pour mettre une partie du texte en petites capitales."
 
 msgid "Superscript text"
-msgstr ""
+msgstr "Texte en exposant"
 
 msgid "Superscript text typically for use in critical edition footnotes."
-msgstr ""
+msgstr "Texte en exposant, généralement utilisé dans les notes de bas de page des éditions critiques."
 
 msgid "Page break"
 msgstr "Saut de page"
 
 msgid "Explicit page break."
-msgstr ""
+msgstr "Saut de page explicite."
 
 msgid "Figure / illustration / map"
 msgstr "Image / illustration / carte"
 
 msgid "Illustration [columns to span, height, filename, caption text]."
-msgstr ""
+msgstr "Illustration [nombre de colonnes à occuper, hauteur, nom du fichier, texte de légende]."
 
 msgid "Subject index entry"
 msgstr "Entrée d'index de thèmes"
@@ -12411,7 +12411,7 @@ msgstr "Entrée d'index de thèmes"
 msgid ""
 "Surround a word or words with this markup to indicate that it should appear "
 "in the subject index."
-msgstr ""
+msgstr "Encadrer un ou plusieurs mots avec ce balisage pour indiquer qu’ils doivent figurer dans l’index thématique."
 
 msgid "Annotated base text"
 msgstr "Texte de base annoté"
@@ -12424,7 +12424,7 @@ msgid "Pronunciation annotation"
 msgstr "Annotation de prononciation"
 
 msgid "For indicating pronunciation in CJK texts."
-msgstr ""
+msgstr "Pour indiquer la prononciation dans les textes chinois, japonais et coréens."
 
 msgid "Wordlist entry"
 msgstr "Entrée de liste de mots"
@@ -12432,7 +12432,7 @@ msgstr "Entrée de liste de mots"
 msgid ""
 "Surround words with this markup to indicate that it should appear in the "
 "word list."
-msgstr ""
+msgstr "Encadrer les mots avec ce balisage pour indiquer qu’ils doivent figurer dans la liste de mots."
 
 msgid "Greek word list entry"
 msgstr "Entrée de liste de mots grecs"
@@ -12440,7 +12440,7 @@ msgstr "Entrée de liste de mots grecs"
 msgid ""
 "Surround words with this markup to indicate that it should appear in the "
 "Greek word list."
-msgstr ""
+msgstr "Encadrer les mots avec ce balisage pour indiquer qu’ils doivent figurer dans la liste des mots grecs."
 
 msgid "Hebrew word list entry"
 msgstr "Entrée de liste de mots hébreux"
@@ -12448,7 +12448,7 @@ msgstr "Entrée de liste de mots hébreux"
 msgid ""
 "Surround words with this markup to indicate that it should appear in the "
 "Hebrew word list."
-msgstr ""
+msgstr "Encadrer les mots avec ce balisage pour indiquer qu’ils doivent figurer dans la liste des mots hébreux."
 
 msgid "Aramaic word list entry"
 msgstr "Entrée de liste de mots araméens"
@@ -12456,37 +12456,37 @@ msgstr "Entrée de liste de mots araméens"
 msgid ""
 "Surround words with this markup to indicate that it should appear in the "
 "Aramaic word list."
-msgstr ""
+msgstr "Encadrer les mots avec ce balisage pour indiquer qu’ils doivent figurer dans la liste des mots araméens."
 
 msgid "Quotation start milestone"
-msgstr ""
+msgstr "Jalon de début de citation"
 
 msgid "Typically used for indicating the speaker of the text."
-msgstr ""
+msgstr "Généralement utilisé pour indiquer le locuteur du texte."
 
 msgid "Quotation start milestone level 1"
-msgstr ""
+msgstr "Jalon de début de citation, niveau 1"
 
 msgid "Quotation start milestone level 2"
-msgstr ""
+msgstr "Jalon de début de citation, niveau 2"
 
 msgid "Quotation end milestone"
-msgstr ""
+msgstr "Jalon de fin de citation"
 
 msgid "Quotation end milestone level 1"
-msgstr ""
+msgstr "Jalon de fin de citation, niveau 1"
 
 msgid "Quotation end milestone level 2"
-msgstr ""
+msgstr "Jalon de fin de citation, niveau 2"
 
 msgid "Translator’s section start milestone"
-msgstr ""
+msgstr "Jalon de début de section du traducteur"
 
 msgid "For identifying a chunk of text suitable for translating at one time."
-msgstr ""
+msgstr "Pour identifier un segment de texte pouvant être traduit en une seule fois."
 
 msgid "Translator’s section end milestone"
-msgstr ""
+msgstr "Jalon de fin de section du traducteur"
 
 msgid "Extended footnote"
 msgstr "Note de bas de page étendue"
@@ -12498,19 +12498,19 @@ msgid "Extended cross reference"
 msgstr "Référence croisée étendue"
 
 msgid "Extended list of cross references."
-msgstr ""
+msgstr "Liste étendue de références croisées."
 
 msgid "Sidebar start"
 msgstr "Début de l'encadré"
 
 msgid "Beginning or opening of the sidebar content section."
-msgstr ""
+msgstr "Début ou ouverture de la section du contenu de la barre latérale."
 
 msgid "Sidebar end"
 msgstr "Fin de l'encadré"
 
 msgid "End or closing of the sidebar content section."
-msgstr ""
+msgstr "Fin ou fermeture de la section du contenu de la barre latérale."
 
 msgid "Category tag"
 msgstr "Catégorie des étiquettes"
@@ -12522,7 +12522,7 @@ msgid "Peripheral"
 msgstr "Périphérique"
 
 msgid "Division for peripheral content."
-msgstr ""
+msgstr "Division destinée au contenu annexe."
 
 msgid "Link text"
 msgstr "Texte de lien"
@@ -13415,10 +13415,10 @@ msgid "Publishing chapter labels"
 msgstr "Édition des étiquettes de chapitre"
 
 msgid "Publishing chapter markers"
-msgstr ""
+msgstr "Publication des marqueurs de chapitre"
 
 msgid "Word list for marker"
-msgstr ""
+msgstr "Liste de mots pour le marqueur"
 
 msgid "Other information"
 msgstr "Autre informations"
@@ -14182,3 +14182,4 @@ msgid "Username or email address or password are not correct"
 msgstr ""
 "Le nom d'utilisateur, l'adresse courriel ou le mot de passe ne sont pas "
 "corrects"
+
