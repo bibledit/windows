@@ -1431,6 +1431,9 @@
     <ClCompile Include="database\tasks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="database\sword.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assets\header.h">

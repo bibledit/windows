@@ -274,6 +274,7 @@
     <ClCompile Include="database\statistics.cpp" />
     <ClCompile Include="database\strong.cpp" />
     <ClCompile Include="database\styles.cpp" />
+    <ClCompile Include="database\sword.cpp" />
     <ClCompile Include="database\tasks.cpp" />
     <ClCompile Include="database\temporal.cpp" />
     <ClCompile Include="database\userresources.cpp" />
