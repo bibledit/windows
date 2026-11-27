@@ -32,7 +32,6 @@
 #include <sync/resources.h>
 #include <tasks/logic.h>
 #ifdef HAVE_CLOUD
-#ifdef HAVE_SWORD
 #include <filemgr.h>
 #include <installmgr.h>
 #include <remotetrans.h>
@@ -40,7 +39,6 @@
 #include <swmgr.h>
 #include <swmodule.h>
 #include <versekey.h>
-#endif
 #endif
 
 
