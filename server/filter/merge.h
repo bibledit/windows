@@ -19,8 +19,9 @@
 
 #pragma once
 
-#include <config/libraries.h>
-#include <classes/merge.h>
+#include <string>
+#include <vector>
+struct Merge_Conflict;
 
 std::string filter_merge_run (std::string base, std::string change, std::string prioritized_change,
                               bool clever, std::vector <Merge_Conflict> & conflicts);

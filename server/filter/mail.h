@@ -19,7 +19,8 @@
 
 #pragma once
 
-#include <config/libraries.h>
+#include <string>
+#include <config.h>
 
 #ifdef HAVE_CLOUD
 void filter_mail_dissect (std::string message, std::string & from, std::string & subject, std::string & plaintext);

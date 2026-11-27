@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include <config/libraries.h>
 #include <filter/passage.h>
-
-class Webserver_Request;
+#include <string>
+#include <vector>
+#include <config.h>
 
 #ifdef HAVE_CLOUD
 std::string filter_git_directory (std::string object);

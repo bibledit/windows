@@ -17,8 +17,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
+#include <ostream>
+#include <utility>
 #include <assets/view.h>
-#include <config/globals.h>
+#include <config/logic.h>
 #include <database/logs.h>
 #include <filter/url.h>
 #include <flate/flate.h>

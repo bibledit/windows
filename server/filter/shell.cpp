@@ -17,16 +17,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
+#include <database/logs.h>
 #include <filter/shell.h>
 #include <filter/string.h>
 #include <filter/url.h>
-#include <database/logs.h>
 #ifdef HAVE_CLOUD
 #include <sys/wait.h>
 #endif
 #ifdef HAVE_WINDOWS
 #include <tlhelp32.h>
 #endif
+#include <chrono>
+#include <errno.h>
+#include <fcntl.h>
+#include <functional>
+#include <ranges>
+#include <set>
+#include <stdlib.h>
+#include <string.h>
+#include <thread>
+#include <unistd.h>
 
 
 namespace filter::shell {

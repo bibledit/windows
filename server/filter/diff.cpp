@@ -20,8 +20,8 @@
 #include <filter/diff.h>
 #include <filter/string.h>
 #include <filter/text.h>
-#include <filter/usfm.h>
 #include <filter/url.h>
+#include <filter/usfm.h>
 #pragma GCC diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
@@ -31,18 +31,21 @@
 #pragma GCC diagnostic ignored "-Wswitch-default"
 #include <dtl/dtl.hpp>
 #pragma GCC diagnostic pop
-#include <webserver/request.h>
-#include <database/modifications.h>
-#include <database/books.h>
-#include <database/config/bible.h>
-#include <html/text.h>
-#include <text/text.h>
-#include <locale/translate.h>
-#include <developer/logic.h>
-
+#include <algorithm>
+#include <math.h>
+#include <mutex>
+#include <sstream>
+#include <stddef.h>
 #include <database/bibles.h>
-
-#include "string.hpp"
+#include <database/books.h>
+#include <database/modifications.h>
+#include <database/config/bible.h>
+#include <filter/string.hpp>
+#include <filter/string.hpp>
+#include <html/text.h>
+#include <locale/translate.h>
+#include <text/text.h>
+#include <webserver/request.h>
 
 
 static std::mutex filter_diff_mutex;

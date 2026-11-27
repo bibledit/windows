@@ -19,6 +19,15 @@
 
 #include <filter/mail.h>
 #include <filter/string.h>
+#include <stddef.h>
+#include <algorithm>
+#include <functional>
+#include <iterator>
+#include <list>
+#include <sstream>
+#include <vector>
+#include <mimetic098/mimetic.h>
+
 #undef min
 
 

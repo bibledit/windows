@@ -17,21 +17,25 @@
  */
 
 
-#include <filter/git.h>
-#include <filter/url.h>
-#include <filter/string.h>
-#include <filter/shell.h>
-#include <filter/merge.h>
-#include <database/logs.h>
+#include <iomanip>
+#include <sstream>
+#include <stddef.h>
+#include <bb/logic.h>
+#include <classes/merge.h>
+#include <database/bibles.h>
 #include <database/books.h>
 #include <database/git.h>
+#include <database/logs.h>
+#include <database/users.h>
 #include <database/config/general.h>
-#include <bb/logic.h>
+#include <filter/git.h>
+#include <filter/merge.h>
+#include <filter/passage.h>
+#include <filter/shell.h>
+#include <filter/string.h>
+#include <filter/string.hpp>
+#include <filter/url.h>
 #include <locale/translate.h>
-#include <database/bibles.h>
-
-#include "string.hpp"
-#include "database/users.h"
 
 
 #ifdef HAVE_CLOUD

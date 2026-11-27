@@ -21,6 +21,7 @@
 #include <filter/string.h>
 #include <filter/md5.h>
 #include <database/bibles.h>
+#include <algorithm>
 
 
 // This function reads $data,

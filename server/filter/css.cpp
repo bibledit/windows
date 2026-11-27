@@ -17,7 +17,6 @@
  */
 
 
-#include <config/globals.h>
 #include <filter/css.h>
 #include <filter/md5.h>
 #include <filter/string.h>

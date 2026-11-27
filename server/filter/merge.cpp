@@ -30,6 +30,10 @@
 #include <pugixml/include.h>
 #include <email/send.h>
 #include <filter/usfm.h>
+#include <stddef.h>
+#include <algorithm>
+#include <mutex>
+#include <classes/merge.h>
 
 
 static std::mutex filter_merge_mutex;

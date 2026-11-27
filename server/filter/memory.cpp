@@ -18,14 +18,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
 #include <filter/memory.h>
-#include <filter/url.h>
 #include <filter/string.h>
+#include <filter/url.h>
 #ifdef HAVE_MACH_MACH
 #include <mach/mach.h>
 #endif
 #ifdef HAVE_EXECINFO
 #include <execinfo.h>
 #endif
+#include <config.h>
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
 
 
 // Returns the memory available as a percentage of the total system memory.

@@ -19,6 +19,6 @@
 
 #pragma once
 
-#include <config/libraries.h>
+#include <string>
 
 std::string filter_html_android_brs ();
