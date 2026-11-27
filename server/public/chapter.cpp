@@ -29,6 +29,8 @@
 
 #include <database/bibles.h>
 
+#include "html/text.h"
+
 
 std::string public_chapter_url ()
 {

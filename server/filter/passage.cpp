@@ -17,11 +17,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
+#include <algorithm>
+#include <functional>
+#include <ranges>
+#include <sstream>
+#include <utility>
+#include <database/bibles.h>
+#include <database/books.h>
+#include <database/config/bible.h>
 #include <filter/passage.h>
 #include <filter/string.h>
-#include <database/books.h>
-#include <database/bibles.h>
-#include <database/config/bible.h>
 #include <locale/translate.h>
 #include <pugixml/include.h>
 

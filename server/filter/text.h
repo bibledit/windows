@@ -20,14 +20,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma once
 
 
-#include <config/libraries.h>
-#include <database/styles.h>
-#include <odf/text.h>
-#include <olb/text.h>
-#include <html/text.h>
-#include <text/text.h>
-#include <esword/text.h>
 #include <filter/note.h>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
+class Esword_Text;
+class HtmlText;
+class OnlineBible_Text;
+class Text_Text;
+class odf_text;
+namespace stylesv2 { struct Style; }
 
 
 namespace filter::text {

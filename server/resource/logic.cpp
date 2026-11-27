@@ -17,6 +17,8 @@
  */
 
 
+#include "styles/logic.h"
+
 #include <resource/logic.h>
 #include <webserver/request.h>
 #include <access/bible.h>
@@ -56,6 +58,7 @@
 #include <database/config/user.h>
 
 #include "filter/string.hpp"
+#include "html/text.h"
 
 
 /*

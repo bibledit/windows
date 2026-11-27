@@ -32,6 +32,9 @@
 #include <filter/usfm.h>
 #include <locale/translate.h>
 
+#include "html/text.h"
+#include "text/text.h"
+
 
 // Compare the $bible with another Bible, passed through $compare.
 void compare_compare(const std::string& bible, const std::string& compare, const int job_id)

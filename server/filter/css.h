@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <config/libraries.h>
+#include <string>
 
 namespace filter::css {
 

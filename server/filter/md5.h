@@ -19,6 +19,6 @@
 
 #pragma once
 
-#include <config/libraries.h>
+#include <string>
 
 std::string md5 (const std::string& str);

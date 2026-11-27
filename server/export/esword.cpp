@@ -35,6 +35,8 @@
 #include <locale/translate.h>
 #include <styles/sheets.h>
 
+#include "esword/text.h"
+
 
 void export_esword (const std::string& bible, bool log)
 {

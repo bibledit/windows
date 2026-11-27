@@ -41,6 +41,8 @@
 
 #include <database/config/user.h>
 
+#include "html/text.h"
+
 
 std::string public_create_url ()
 {

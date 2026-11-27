@@ -37,6 +37,8 @@
 #include <locale/translate.h>
 #include <styles/sheets.h>
 
+#include "odf/text.h"
+
 
 void export_odt_book (std::string bible, int book, bool log)
 {

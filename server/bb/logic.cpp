@@ -17,6 +17,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
+#include "styles/logic.h"
+
 #include <config.h>
 #include <bb/logic.h>
 #include <book/create.h>
@@ -48,6 +50,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <sword/logic.h>
 
 #include "filter/string.hpp"
+#include "html/text.h"
+#include "text/text.h"
 #include "webserver/request.h"
 
 

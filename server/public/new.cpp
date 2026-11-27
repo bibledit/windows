@@ -35,6 +35,8 @@
 
 #include <database/bibles.h>
 
+#include "html/text.h"
+
 
 std::string public_new_url ()
 {

@@ -22,6 +22,9 @@
 #include <filter/md5.h>
 #include <filter/string.h>
 #include <filter/url.h>
+#include <algorithm>
+#include <utility>
+#include <vector>
 
 
 namespace filter::css {

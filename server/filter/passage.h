@@ -19,11 +19,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #pragma once
 
-#include <config/libraries.h>
-
-// Forward declaration.
+#include <string>
+#include <vector>
 enum class book_id;
-
 namespace pugi { class xml_node; }
 
 class Passage

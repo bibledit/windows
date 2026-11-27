@@ -17,17 +17,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
+#include <algorithm>
+#include <functional>
+#include <list>
+#include <optional>
+#include <ranges>
+#include <sstream>
+#include <stddef.h>
+#include <utility>
+#include <variant>
 #include <database/books.h>
 #include <database/logs.h>
+#include <database/styles.h>
 #include <database/config/bible.h>
+#include <esword/text.h>
+#include <filter/note.h>
 #include <filter/passage.h>
 #include <filter/string.h>
 #include <filter/text.h>
 #include <filter/usfm.h>
+#include <html/text.h>
 #include <locale/translate.h>
+#include <odf/text.h>
+#include <olb/text.h>
 #include <styles/logic.h>
-
-#include <utility>
+#include <text/text.h>
+#include "database/styles.h"
 
 
 namespace filter::text {

@@ -17,26 +17,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
-#include <filter/usfm.h>
-#include <filter/string.h>
-#include <filter/url.h>
-#include <filter/diff.h>
+#include <algorithm>
+#include <list>
+#include <ostream>
+#include <pugixml.hpp>
+#include <ranges>
+#include <stdlib.h>
+#include <utility>
+#include <bb/logic.h>
+#include <database/bibles.h>
 #include <database/books.h>
-#include <database/styles.h>
 #include <database/logs.h>
-#include <database/config/bible.h>
+#include <database/styles.h>
+#include <database/config/user.h>
+#include <filter/diff.h>
+#include <filter/string.h>
+#include <filter/string.hpp>
+#include <filter/usfm.h>
+#include <locale/translate.h>
+#include <session/logic.h>
 #include <styles/logic.h>
 #include <webserver/request.h>
-#include <bb/logic.h>
-#include <locale/translate.h>
-#include <developer/logic.h>
-#include <database/bibles.h>
-#include <pugixml/include.h>
-#include <database/config/user.h>
-
-#include <session/logic.h>
-
-#include "string.hpp"
 
 
 namespace filter::usfm {

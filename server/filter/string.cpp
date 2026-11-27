@@ -48,19 +48,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #endif
 #include <config/globals.h>
 #ifdef HAVE_ICU
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#pragma clang diagnostic ignored "-Wdocumentation"
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wold-style-cast"
-#pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
-#pragma clang diagnostic ignored "-Wunnecessary-virtual-specifier"
 #include <unicode/normlzr.h>
 #include <unicode/translit.h>
 #include <unicode/unistr.h>
 #include <unicode/ustdio.h>
 #include <unicode/utypes.h>
-#pragma clang diagnostic pop
+#include <unicode/stringpiece.h>
+#include <unicode/utrans.h>
+#include <unicode/uversion.h>
 #endif
 #ifdef HAVE_CLOUD
 #include <libxml/HTMLparser.h>
@@ -101,9 +96,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <session/logic.h>
 #include <tidy/tidyenum.h>
 #include <tidy/tidyplatform.h>
-#include <unicode/stringpiece.h>
-#include <unicode/utrans.h>
-#include <unicode/uversion.h>
 #include <utf8/checked.h>
 #include <utf8/core.h>
 #include <webserver/request.h>

@@ -17,6 +17,8 @@
  */
 
 
+#include "styles/logic.h"
+
 #include <search/logic.h>
 #include <filter/url.h>
 #include <filter/string.h>
@@ -26,6 +28,8 @@
 #include <database/bibles.h>
 #include <database/config/bible.h>
 #include <database/logic.h>
+
+#include "text/text.h"
 
 
 std::string search_logic_index_folder ()

@@ -35,6 +35,8 @@
 #include <locale/translate.h>
 #include <styles/sheets.h>
 
+#include "text/text.h"
+
 
 void export_text_usfm_book (std::string bible, int book, bool log)
 {
