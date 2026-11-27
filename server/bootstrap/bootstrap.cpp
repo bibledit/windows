@@ -18,7 +18,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
    
 
 #include <config.h>
-#include <assets/external.h>
+#include <string>
+#include <unordered_map>
+#include <utility>
 #include <bb/book.h>
 #include <bb/chapter.h>
 #include <bb/css.h>
@@ -42,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <collaboration/settings.h>
 #include <compare/index.h>
 #include <config/globals.h>
+#include <config/logic.h>
 #include <consistency/index.h>
 #include <consistency/input.h>
 #include <consistency/poll.h>

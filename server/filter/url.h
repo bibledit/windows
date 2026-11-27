@@ -19,7 +19,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #pragma once
 
-#include <config/libraries.h>
+#include <stddef.h>
+#include <filesystem>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
 class Webserver_Request;
 

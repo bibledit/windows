@@ -17,19 +17,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 
+#include <config.h>
+#include <config/globals.h>
 #include <filter/url.h>
 #include <webserver/http.h>
 #include <webserver/request.h>
-#include <config/globals.h>
-#include <config.h>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <filter/UriCodec.hpp>
 #pragma GCC diagnostic pop
-#include <filter/string.h>
-#include <filter/date.h>
 #include <database/books.h>
 #include <database/logs.h>
+#include <filter/date.h>
+#include <filter/string.h>
 #ifdef HAVE_CLOUD
 #include <curl/curl.h>
 #endif
@@ -37,18 +37,46 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #pragma GCC diagnostic ignored "-Wswitch-enum"
-#include <mbedtls/version.h>
 #include <mbedtls/platform.h>
-#include "mbedtls/net_sockets.h"
-#include "mbedtls/debug.h"
-#include "mbedtls/ssl.h"
-#include "mbedtls/entropy.h"
+#include <mbedtls/version.h>
 #include "mbedtls/ctr_drbg.h"
+#include "mbedtls/debug.h"
+#include "mbedtls/entropy.h"
 #include "mbedtls/error.h"
+#include "mbedtls/net_sockets.h"
+#include "mbedtls/ssl.h"
 #pragma GCC diagnostic pop
 #ifdef HAVE_WINDOWS
 #pragma comment(lib, "bcrypt.lib")
 #endif
+#include <algorithm>
+#include <chrono>
+#include <errno.h>
+#include <exception>
+#include <filesystem>
+#include <fstream>
+#include <functional>
+#include <map>
+#include <netdb.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <string>
+#include <thread>
+#include <unistd.h>
+#include <utility>
+#include <vector>
+#include <config/logic.h>
+#include <mbedtls/build_info.h>
+#include <mbedtls/mbedtls_config.h>
+#include <mbedtls/x509_crt.h>
+#include <psa/crypto.h>
+#include <psa/crypto_extra.h>
+#include <psa/crypto_types.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+
 
 // Static check on required definitions, taken from the ssl_client1.c example.
 #ifndef MBEDTLS_BIGNUM_C
