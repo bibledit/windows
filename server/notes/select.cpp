@@ -38,6 +38,8 @@
 #include <database/config/user.h>
 #include <session/logic.h>
 
+#include "filter/string.hpp"
+
 
 std::string notes_select_url ()
 {

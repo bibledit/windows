@@ -51,6 +51,8 @@
 #include "database/users.h"
 #include <database/config/user.h>
 
+#include "filter/string.hpp"
+
 
 /*
  

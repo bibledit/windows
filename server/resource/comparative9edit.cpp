@@ -34,6 +34,8 @@
 #include <client/logic.h>
 #include <webserver/request.h>
 
+#include "filter/string.hpp"
+
 
 std::string resource_comparative9edit_url ()
 {

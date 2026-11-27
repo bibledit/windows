@@ -29,6 +29,8 @@
 #include <locale/translate.h>
 #include <checks/issues.h>
 
+#include "filter/string.hpp"
+
 
 Checks_Usfm::Checks_Usfm (const std::string& bible)
 {

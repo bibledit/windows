@@ -32,6 +32,8 @@
 #include <locale/translate.h>
 #include <sync/setup.h>
 
+#include "filter/string.hpp"
+
 
 // Returns whether Client mode is enabled.
 bool client_logic_client_enabled()

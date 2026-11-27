@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/roles.h>
 #include <filter/string.h>
 
+#include "filter/string.hpp"
+
 
 // This database is resilient.
 // The data is stored in a SQLite database.

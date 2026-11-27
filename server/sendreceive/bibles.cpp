@@ -44,6 +44,8 @@
 #include "database/users.h"
 #include <session/logic.h>
 
+#include "filter/string.hpp"
+
 
 int sendreceive_bibles_watchdog {0};
 

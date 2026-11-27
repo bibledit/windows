@@ -26,6 +26,8 @@
 #include <database/config/general.h>
 #include <tasks/logic.h>
 
+#include "filter/string.hpp"
+
 
 std::string sync_resources_url()
 {

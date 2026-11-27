@@ -27,6 +27,8 @@
 #include <pugixml/utils.h>
 #include <filter/quill.h>
 
+#include "filter/string.hpp"
+
 
 // This function returns a struct of:
 // 1. Normal classes, like "add", "nd", and so on.

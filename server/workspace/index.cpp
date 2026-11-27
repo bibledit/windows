@@ -34,6 +34,8 @@
 
 #include <database/config/user.h>
 
+#include "filter/string.hpp"
+
 
 std::string workspace_index_url()
 {

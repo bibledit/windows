@@ -19,7 +19,15 @@
 
 #pragma once
 
-#include <config/libraries.h>
+#include <algorithm>
+#include <concepts>
+#include <iterator>
+#include <ranges>
+#include <set>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace filter::string {
 

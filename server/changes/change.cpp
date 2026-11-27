@@ -39,6 +39,8 @@
 
 #include <session/logic.h>
 
+#include "filter/string.hpp"
+
 
 std::string changes_change_url ()
 {

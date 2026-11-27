@@ -46,6 +46,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <resource/logic.h>
 #include <search/logic.h>
 #include <sword/logic.h>
+
+#include "filter/string.hpp"
 #include "webserver/request.h"
 
 

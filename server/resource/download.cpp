@@ -37,6 +37,8 @@
 #include <resource/cache.h>
 #include <client/logic.h>
 
+#include "filter/string.hpp"
+
 
 std::string resource_download_url ()
 {

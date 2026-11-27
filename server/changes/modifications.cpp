@@ -49,6 +49,8 @@
 #include "database/users.h"
 #include <database/config/user.h>
 
+#include "filter/string.hpp"
+
 
 // Helper function.
 // $user: The user whose changes are being processed.

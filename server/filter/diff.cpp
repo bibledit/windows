@@ -42,6 +42,8 @@
 
 #include <database/bibles.h>
 
+#include "string.hpp"
+
 
 static std::mutex filter_diff_mutex;
 

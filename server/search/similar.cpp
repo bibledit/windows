@@ -35,6 +35,8 @@
 
 #include <database/config/user.h>
 
+#include "filter/string.hpp"
+
 
 std::string search_similar_url ()
 {

@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <filter/date.h>
 #include <config/globals.h>
 
+#include "filter/string.hpp"
+
 
 // Handles email and web page confirmations.
 // Database resilience: It is used infrequently.

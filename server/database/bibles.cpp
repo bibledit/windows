@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <string>
 #include <vector>
 
+#include "filter/string.hpp"
+
 
 // This database stores its data in files in the filesystem.
 // This is a robust and reliable way of storing data.

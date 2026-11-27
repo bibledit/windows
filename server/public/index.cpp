@@ -39,6 +39,8 @@
 #include <database/config/user.h>
 #include <session/logic.h>
 
+#include "filter/string.hpp"
+
 
 std::string public_index_url ()
 {

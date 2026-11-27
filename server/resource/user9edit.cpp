@@ -33,6 +33,8 @@
 #include <dialog/yes.h>
 #include <database/userresources.h>
 
+#include "filter/string.hpp"
+
 
 std::string resource_user9edit_url ()
 {

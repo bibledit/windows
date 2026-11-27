@@ -31,6 +31,8 @@
 #include "database/styles.h"
 #include <session/logic.h>
 
+#include "filter/string.hpp"
+
 
 std::string styles_new_url()
 {

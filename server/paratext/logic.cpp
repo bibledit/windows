@@ -37,6 +37,8 @@
 #include <bb/logic.h>
 #include <client/logic.h>
 
+#include "filter/string.hpp"
+
 
 std::string Paratext_Logic::searchProjectsFolder ()
 {

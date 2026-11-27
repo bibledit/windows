@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING 1
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING 1
 #pragma GCC diagnostic pop
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #include <codecvt>
@@ -36,11 +35,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma GCC diagnostic ignored "-Wswitch-default"
 #include <utf8/utf8.h>
 #pragma GCC diagnostic pop
-#include <filter/url.h>
-#include <filter/md5.h>
-#include <filter/date.h>
+#include "string.hpp"
 #include <database/logs.h>
-
+#include <filter/date.h>
+#include <filter/md5.h>
+#include <filter/url.h>
 #include <session/logic.h>
 #ifdef HAVE_UTF8PROC
 #include <utf8proc.h>
@@ -56,16 +55,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma clang diagnostic ignored "-Wold-style-cast"
 #pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
 #pragma clang diagnostic ignored "-Wunnecessary-virtual-specifier"
-#include <unicode/ustdio.h>
 #include <unicode/normlzr.h>
-#include <unicode/utypes.h>
-#include <unicode/unistr.h>
 #include <unicode/translit.h>
+#include <unicode/unistr.h>
+#include <unicode/ustdio.h>
+#include <unicode/utypes.h>
 #pragma clang diagnostic pop
 #endif
 #ifdef HAVE_CLOUD
-#include <libxml/tree.h>
 #include <libxml/HTMLparser.h>
+#include <libxml/tree.h>
 #endif
 #ifdef HAVE_CLOUD
 #pragma clang diagnostic push
@@ -82,8 +81,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "tidy/tidybuffio.h"
 #pragma clang diagnostic pop
 #endif
+#include <algorithm>
+#include <compare>
+#include <ctype.h>
+#include <iomanip>
+#include <iostream>
+#include <iterator>
+#include <locale>
+#include <map>
+#include <math.h>
+#include <random>
+#include <sstream>
+#include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <utility>
+#include <filter/string.hpp>
+#include <session/logic.h>
+#include <tidy/tidyenum.h>
+#include <tidy/tidyplatform.h>
+#include <unicode/stringpiece.h>
+#include <unicode/utrans.h>
+#include <unicode/uversion.h>
+#include <utf8/checked.h>
+#include <utf8/core.h>
 #include <webserver/request.h>
+
+
 
 
 namespace filter::string {

@@ -43,6 +43,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "database/users.h"
 #include <database/config/user.h>
 
+#include "filter/string.hpp"
+
 Notes_Logic::Notes_Logic (Webserver_Request& webserver_request):
 m_webserver_request (webserver_request)
 {

@@ -44,6 +44,8 @@
 #include "database/users.h"
 #include <session/logic.h>
 
+#include "filter/string.hpp"
+
 
 int sendreceive_notes_watchdog = 0;
 

@@ -35,6 +35,8 @@
 #include <database/config/user.h>
 #include <session/logic.h>
 
+#include "filter/string.hpp"
+
 
 /*
  On the iPad, Bibledit uses the UIWebView class as the web browser.

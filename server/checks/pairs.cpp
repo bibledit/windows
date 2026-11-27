@@ -23,6 +23,8 @@
 #include <checks/french.h>
 #include <checks/issues.h>
 
+#include "filter/string.hpp"
+
 
 void checks_pairs::run(const std::string& bible, const int book, const int chapter,
                        const std::map<int, std::string>& texts,

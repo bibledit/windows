@@ -33,6 +33,8 @@
 #include <database/bibles.h>
 #include <pugixml/include.h>
 
+#include "filter/string.hpp"
+
 
 std::string compare_index_url()
 {

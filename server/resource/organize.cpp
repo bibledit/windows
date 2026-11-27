@@ -41,6 +41,8 @@
 #include <database/config/user.h>
 #include <session/logic.h>
 
+#include "filter/string.hpp"
+
 
 std::string resource_organize_url()
 {

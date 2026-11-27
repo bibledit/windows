@@ -26,6 +26,8 @@
 #include <locale/translate.h>
 #include <checks/issues.h>
 
+#include "filter/string.hpp"
+
 
 void checks_versification::books (const std::string& bible, const std::vector <int> & books)
 {

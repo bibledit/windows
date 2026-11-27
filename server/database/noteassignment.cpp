@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <database/sqlite.h>
 #include <database/logic.h>
 
+#include "filter/string.hpp"
+
 
 // Database resilience:
 // Data is stored in multiple text files.

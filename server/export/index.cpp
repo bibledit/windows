@@ -28,6 +28,8 @@
 #include <filter/string.h>
 #include <filter/roles.h>
 
+#include "filter/string.hpp"
+
 
 void export_index ()
 {

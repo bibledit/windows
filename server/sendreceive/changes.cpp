@@ -38,6 +38,8 @@
 #include <database/config/user.h>
 #include <session/logic.h>
 
+#include "filter/string.hpp"
+
 
 int sendreceive_changes_watchdog {0};
 

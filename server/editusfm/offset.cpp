@@ -27,6 +27,8 @@
 
 #include <database/bibles.h>
 
+#include "filter/string.hpp"
+
 
 std::string editusfm_offset_url ()
 {

@@ -55,6 +55,8 @@
 #include "database/sword.h"
 #include <database/config/user.h>
 
+#include "filter/string.hpp"
+
 
 /*
 

@@ -43,6 +43,8 @@
 
 #include <database/config/user.h>
 
+#include "filter/string.hpp"
+
 
 std::string resource_cache_url ()
 {

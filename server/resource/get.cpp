@@ -28,6 +28,8 @@
 
 #include <database/config/user.h>
 
+#include "filter/string.hpp"
+
 
 std::string resource_get_url ()
 {

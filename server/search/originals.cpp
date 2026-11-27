@@ -37,6 +37,8 @@
 
 #include <database/config/user.h>
 
+#include "filter/string.hpp"
+
 
 std::string search_originals_url ()
 {

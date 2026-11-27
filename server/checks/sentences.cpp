@@ -23,6 +23,8 @@
 #include <locale/translate.h>
 #include <checks/issues.h>
 
+#include "filter/string.hpp"
+
 
 void Checks_Sentences::enter_capitals (const std::string& capitals)
 {

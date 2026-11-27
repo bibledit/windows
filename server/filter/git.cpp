@@ -29,6 +29,8 @@
 #include <bb/logic.h>
 #include <locale/translate.h>
 #include <database/bibles.h>
+
+#include "string.hpp"
 #include "database/users.h"
 
 
