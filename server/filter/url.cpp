@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <config.h>
 #include <config/globals.h>
 #include <filter/url.h>
-#include <webserver/http.h>
 #include <webserver/request.h>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
@@ -38,7 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #pragma GCC diagnostic ignored "-Wswitch-enum"
 #include <mbedtls/platform.h>
-#include <mbedtls/version.h>
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/debug.h"
 #include "mbedtls/entropy.h"
@@ -57,14 +55,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <fstream>
 #include <functional>
 #include <map>
+#ifdef HAVE_WINDOWS
+#include <ws2tcpip.h>
+#endif
+#ifndef HAVE_WINDOWS
 #include <netdb.h>
+#include <netinet/tcp.h>
+#include <sys/param.h>
+#include <sys/socket.h>
+#endif
 #include <stddef.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <string>
 #include <thread>
+#ifndef HAVE_WINDOWS
 #include <unistd.h>
+#endif
 #include <utility>
 #include <vector>
 #include <config/logic.h>
@@ -74,8 +81,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <psa/crypto.h>
 #include <psa/crypto_extra.h>
 #include <psa/crypto_types.h>
-#include <sys/socket.h>
+#ifndef HAVE_WINDOWS
 #include <sys/time.h>
+#endif
 
 
 // Static check on required definitions, taken from the ssl_client1.c example.
