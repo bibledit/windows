@@ -26,18 +26,7 @@
 #include <list>
 #include <sstream>
 #include <vector>
-#include <mimetic098/mimetic.h>
-
-#undef min
-
-
 #ifdef HAVE_CLOUD
-
-
-// https://www.codesink.org/mimetic_mime_library.html
-
-
-// Suppress warnings in the included header.
 #pragma GCC diagnostic push
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -58,6 +47,12 @@
 #include <mimetic098/mimetic.h>
 #pragma clang diagnostic pop
 #pragma GCC diagnostic pop
+#endif
+
+
+#undef min
+
+#ifdef HAVE_CLOUD
 
 
 std::string filter_mail_remove_headers_internal (std::string contents)
